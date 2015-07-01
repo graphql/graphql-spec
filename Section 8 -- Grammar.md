@@ -1,0 +1,362 @@
+# Grammar
+
+A GraphQL document is defined in a syntactic grammar where terminal symbols are
+tokens. Tokens are defined in a lexical grammar which matches patterns of source
+characters. The result of parsing a sequence of source UTF-8 characters produces
+a GraphQL AST.
+
+Symbols are defined (ex. Symbol :) as either one sequence of symbols or a list
+of possible sequences of symbols, either as a bulleted list or using the
+"one of" short hand.
+
+A subscript suffix "{Symbol?}" is shorthand for two possible sequences, one
+including that symbol and one excluding it.
+
+As an example:
+
+Sentence : Noun Verb Adverb?
+
+is shorthand for
+
+Sentence :
+  - Noun Verb
+  - Noun Verb Adverb
+
+A subscript suffix "{Symbol+}" is shorthand for a list of
+one or more of that symbol.
+
+As an example:
+
+Book : Cover Page+ Cover
+
+is shorthand for
+
+Book : Cover Page_list Cover
+
+Page_list :
+  - Page
+  - Page_list Page
+
+A symbol definition subscript suffix parameter in braces "{Symbol[Param]}"
+is shorthand for two symbol definitions, one appended with that parameter name,
+the other without. The same subscript suffix on a symbol is shorthand for that
+variant of the definition. If the parameter starts with "?", that
+form of the symbol is used if in a symbol definition with the same parameter.
+Some possible sequences can be included or excluded conditionally when
+respectively prefixed with "\[+Param]" and "\[~Param]".
+
+As an example:
+
+Example[Param] :
+  - A
+  - B[Param]
+  - C[?Param]
+  - [+Param] D
+  - [~Param] E
+
+is shorthand for
+
+Example :
+  - A
+  - B_param
+  - C
+  - E
+
+Example_param :
+  - A
+  - B_param
+  - C_param
+  - D
+
+
+## Tokens
+
+A GraphQL document is comprised of several kinds of source tokens defined here
+in a lexical grammar and used as terminal symbols in GraphQL's syntactic
+grammar. This lexical grammar defines patterns of source characters by specifing
+character patterns in {`monospace`} or as {/regular_expressions/}. Non-terminal
+patterns are defined as {Italics}.
+
+The GraphQL document syntactic grammar is defined in terms of these
+lexical tokens:
+
+Token :
+  - Punctuator
+  - Name
+  - IntValue
+  - FloatValue
+  - StringValue
+
+Punctuator : one of ! $ ( ) ... : = @ [ ] { | }
+
+Name : /[_A-Za-z][_0-9A-Za-z]*/
+
+IntValue : Sign? IntegerPart
+
+FloatValue : Sign? IntegerPart . Digit+ ExponentPart?
+
+Sign : -
+
+IntegerPart :
+  - 0
+  - NonZeroDigit
+  - NonZeroDigit Digit+
+
+ExponentPart : e Sign? Digit+
+
+NonZeroDigit : one of 1 2 3 4 5 6 7 8 9
+
+Digit :
+  - 0
+  - NonZeroDigit
+
+StringValue :
+  - `""`
+  - `"` StringCharacter+ `"`
+
+StringCharacter :
+  - "Any character" but not `"` or \ or LineTerminator
+  - \ EscapedUnicode
+  - \ EscapedCharacter
+
+EscapedUnicode : u /[0-9A-Fa-f]{4}/
+
+EscapedCharacter : one of `"` \ `/` b f n r t
+
+
+
+### Ignored Source
+
+Before every lexical token may be any amount of ignored source characters
+such as whitespace and comments. Whitespace, other than within strings, is
+not significant.
+
+GraphQL treats comma `,` similarly to whitespace. This ensures that the absense
+or presence of a comma does not meaningfully alter the interpretted syntax of
+the document which is a common user-error in other languages. It also allows for
+the stylistic use of trailing commas or line-breaks as delimiters which are
+often desired for legibility and maintainability of source code. The use of
+commas and other whitespace is suggested when it improves legibility.
+
+GraphQL ignores these character sequences:
+
+Ignored :
+  - WhiteSpace
+  - LineTerminator
+  - Comment
+  - ,
+
+WhiteSpace :
+  - "Horizontal Tab (U+0009)"
+  - "Vertical Tab (U+000B)"
+  - "Form Feed (U+000C)"
+  - "Space (U+0020)"
+  - "No-break Space (U+00A0)"
+
+LineTerminator :
+  - "New Line (U+000A)"
+  - "Carriage Return (U+000D)"
+  - "Line Separator (U+2028)"
+  - "Paragraph Separator (U+2029)"
+
+Comment :
+  - `#` CommentChar+?
+
+CommentChar : "Any character" but not LineTerminator
+
+
+
+## Syntax
+
+A GraphQL document is defined in a syntactic grammar where terminal symbols are
+expressed as either an italicized token (ex. {Document}) or as
+monospaced short-hand for a {Punctuator} (ex. {`:`}) or {Name}
+(ex. {`query`}).
+
+
+### Document
+
+A GraphQL document describes a complete file or request string. A document
+contains multiple definitions including an Operation.
+
+Document : Definition+
+
+Definition :
+  - OperationDefinition
+  - FragmentDefinition
+  - TypeExtension
+  - TypeDefinition
+  - EnumDefinition
+
+
+### Operations
+
+An operation describes some type of request to GraphQL. The most common
+operation is a `query`, a read-only request for data from GraphQL. A short-hand
+syntax exists for a query operation.
+
+OperationDefinition :
+  - SelectionSet
+  - OperationType Name VariableDefinitions? Directives? SelectionSet
+
+OperationType : one of query mutation
+
+VariableDefinitions : ( VariableDefinition+ )
+
+VariableDefinition : Variable : Type DefaultValue?
+
+Variable : $ Name
+
+DefaultValue : = Value[Const]
+
+SelectionSet : { Selection+ }
+
+Selection :
+  - Field
+  - FragmentSpread
+  - InlineFragment
+
+Field : Alias? Name Arguments? Directives? SelectionSet?
+
+Alias : Name :
+
+Arguments : ( Argument+ )
+
+Argument : Name : Value
+
+
+### Fragments
+
+Fragments allow for the reuse of common selections of fields, reducing
+duplicated text in the document. Inline fragments can be used directly inline a
+selection to apply a type condition when querying against an interface or union.
+
+FragmentSpread : ... FragmentName Directives?
+
+InlineFragment : ... on TypeCondition Directives? SelectionSet
+
+FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
+
+FragmentName : [ lookahead ! on ] Name
+
+TypeCondition : TypeName
+
+
+### Values
+
+Fields may take values for arguments. A value may be any JSON-style value,
+a variable or an Enum value.
+
+Value[Const] :
+  - [~Const] Variable
+  - IntValue
+  - FloatValue
+  - StringValue
+  - BooleanValue
+  - EnumValue
+  - ArrayValue[?Const]
+  - ObjectValue[?Const]
+
+BooleanValue :
+  - true
+  - false
+
+EnumValue : Name
+
+
+#### Array Value
+
+ArrayValue[Const] :
+  - [ ]
+  - [ Value[?Const]+ ]
+
+**Semantics**
+
+ArrayValue : [ ]
+
+  * Return a new empty list value.
+
+ArrayValue : [ Value+ ]
+
+  * Let {inputList} be a new empty list value.
+  * For each {Value+}
+    * Let {value} be the result of evaluating {Value}.
+    * Append {value} to {inputList}.
+  * Return {inputList}
+
+
+#### Object Value
+
+ObjectValue[Const] :
+  - { }
+  - { ObjectField[?Const]+ }
+
+ObjectField[Const] : Name : Value[?Const]
+
+**Semantics**
+
+ObjectValue : { }
+
+  * Return a new input object value with no fields.
+
+ObjectValue : { ObjectField+ }
+
+  * Let {inputObject} be a new input object value with no fields.
+  * For each {field} in {ObjectField+}
+    * Let {name} be {Name} in {field}.
+    * If {inputObject} contains a field named {name} throw Syntax Error.
+    * Let {value} be the result of evaluating {Value} in {field}.
+    * Add a field to {inputObject} of name {name} containing value {value}.
+  * Return {inputObject}
+
+
+### Directives
+
+Directives provide a way to describe runtime execution and type validation
+behavior in a GraphQL document.
+
+Directives : Directive+
+
+Directive :
+  - @ Name
+  - @ Name : Value
+
+
+### Types
+
+GraphQL describes the schema of the data it provides using a type system. These
+types are referred to in the document when defining query variables.
+
+Type :
+  - TypeName
+  - ListType
+  - NonNullType
+
+TypeName : Name
+
+ListType : [ Type ]
+
+NonNullType :
+  - TypeName !
+  - ListType !
+
+**Semantics**
+
+Type : Name
+
+  * Let {name} be the string value of {Name}
+  * Let {type} be the type defined in the Schema named {name}
+  * {type} must not be {null}
+  * Return {type}
+
+Type : [ Type ]
+
+  * Let {itemType} be the result of evaluating {Type}
+  * Let {type} be a List type where {itemType} is the contained type.
+  * Return {type}
+
+Type : Type !
+
+  * Let {nullableType} be the result of evaluating {Type}
+  * Let {type} be a Non-Null type where {nullableType} is the contained type.
+  * Return {type}

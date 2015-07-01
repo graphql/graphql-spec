@@ -1,0 +1,8 @@
+*.swp
+*~
+.*.haste_cache.*
+.DS_Store
+build
+out
+node_modules
+npm-debug.log
