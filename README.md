@@ -178,7 +178,7 @@ Note that while in our current implementation, we can guarantee that more
 fields are non-null (since our current implementation has hard-coded data),
 we didn't mark them as non-null. One can imagine we would eventually
 replace our hardcoded data with a backend service, which might not be
-perfectly reliable; by leaving these fields as non-nullable, we allow
+perfectly reliable; by leaving these fields as nullable, we allow
 ourselves the flexability to eventually return null to indicate a backend
 error, while also telling the client that the error occurred.
 
