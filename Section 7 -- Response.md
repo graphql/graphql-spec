@@ -52,7 +52,7 @@ the following JSON concepts:
 
 A response to a GraphQL operation must be a map.
 
-If the operation included execution, the response map must contain the an entry
+If the operation included execution, the response map must contain an entry
 with key "data". The value of this entry is described in the "Data" section. If
 the operation failed before execution, due to a syntax error, missing
 information, or validation error, this entry must not be present.
