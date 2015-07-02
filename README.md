@@ -72,7 +72,7 @@ type Human {
 }
 ```
 
-This shorthand is convinient for describing the basic shape of a type
+This shorthand is convenient for describing the basic shape of a type
 system; the JavaScript implementation is more full-featured, and allows types
 and fields to be documented. It also sets up the mapping between the
 type system and the underlying data; for a test case in GraphQL.js, the
