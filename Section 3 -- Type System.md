@@ -91,7 +91,7 @@ value and only yield the integer value. If the server encountered a boolean
 `true` value, it should return `1`. If the server encountered a string, it may
 attempt to parse the string for a base-10 integer value. If the server
 encounters some value that cannot be reasonably coerced to an `Int`, then it
-must raise an field error.
+must raise a field error.
 
 Since this coercion behavior is not observable to clients of the GraphQL server,
 the precise rules of coercion are left to the implementation. The only
