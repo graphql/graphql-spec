@@ -354,7 +354,7 @@ query withNestedFragments
 fragment friendFields on User {
   id
   name
-  ..standardProfilePic
+  ...standardProfilePic
 }
 
 fragment standardProfilePic on User {
