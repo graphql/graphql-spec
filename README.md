@@ -443,7 +443,7 @@ Notice the key is "luke" and not "human", as it was in our previous example
 where we did not use the alias.
 
 This is particularly useful if we want to use the same field twice
-with different argumetns, as in the following query:
+with different arguments, as in the following query:
 
 ```
 query FetchLukeAndLeiaAliased {
