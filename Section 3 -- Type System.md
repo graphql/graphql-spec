@@ -558,7 +558,7 @@ When querying the `firstSearchResult` field of type `SearchQuery`, the
 query would ask for all fields inside of a fragment indicating the appropriate
 type. If the query wanted the name if the result was a Person, and the height if
 it was a photo, the following query is invalid, because the union itself
-defines not fields:
+defines no fields:
 
 ```!
 {
