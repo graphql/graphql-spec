@@ -428,7 +428,7 @@ Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
 type whose base type is one of those five.
 
-For example, a interface may describe a required field and types such as
+For example, an interface may describe a required field and types such as
 `Person` or `Business` may then implement this interface.
 
 ```
