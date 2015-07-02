@@ -167,7 +167,7 @@ type Droid : Character {
 
 One question we might ask, though, is whether any of those fields can return
 `null`. By default, `null` is a permitted value for any type in GraphQL,
-since fetching data to fulfull a GraphQL query often requires talking
+since fetching data to fulfill a GraphQL query often requires talking
 to different services that may or may not be available. However, if the
 type system can guarantee that a type is never null, then we can mark
 it as Non Null in the type system. We indicate that in our shorthand
