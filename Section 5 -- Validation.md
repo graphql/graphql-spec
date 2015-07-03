@@ -90,7 +90,7 @@ fragment interfaceFieldSelection on Pet {
 and the following is invalid:
 
 ```!graphql
-fragment definedOnImplementorsButNotInterface : Pet {
+fragment definedOnImplementorsButNotInterface on Pet {
   nickname
 }
 ```
@@ -102,11 +102,11 @@ implementors of the union define the fieldName.
 For example the following is invalid
 
 ```graphql
-fragment directFieldSelectionOnUnion : CatOrDog {
+fragment directFieldSelectionOnUnion on CatOrDog {
   directField
 }
 
-fragment definedOnImplementorsQueriedOnUnion : CatOrDog {
+fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
   name
 }
 ```
@@ -753,7 +753,7 @@ possible types of the scope and the spread, the spread is considered valid.
 So for example
 
 ```graphql
-fragment unionWithInterface Pet { ...dogOrHumanFragment }
+fragment unionWithInterface on Pet { ...dogOrHumanFragment }
 fragment dogOrHumanFragment on DogOrHuman { ... on Dog { barkVolume } }
 ```
 
