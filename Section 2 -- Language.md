@@ -300,8 +300,7 @@ For example, if we wanted to fetch some common information about mutual friends
 as well as friends of some user:
 
 ```graphql
-query noFragments
-{
+query noFragments {
   user(id: 4) {
     friends(first: 10) {
       id
@@ -381,8 +380,7 @@ it is operating on matches the type of the fragment.
 For example in this query on the Facebook data model:
 
 ```graphql
-query FragmentTyping
-{
+query FragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
     handle
     ...userFragment
