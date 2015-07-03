@@ -40,7 +40,7 @@ GraphQL supports two abstract types: interfaces and unions.
 
 An `Interface` defines a list of fields; `Object` types that implement that
 interface are guaranteed to implement those fields. Whenever the type system
-claims it will return an interface, it will return a valid implementating type.
+claims it will return an interface, it will return a valid implementing type.
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
@@ -51,7 +51,7 @@ string returns either null or a singular string. The type system might want to
 define that it returns a list of other types; the `List` type is provided for
 this reason, and wraps another type. Similarly, the `Non-Null` type wraps
 another type, and denotes that the result will never be null. These two types
-are refered to as "wrapping types"; non-wrapping types are refered to as
+are referred to as "wrapping types"; non-wrapping types are referred to as
 "base types". A wrapping type has an underlying "base type", found by
 continually unwrapping the type until a base type is found.
 
@@ -62,7 +62,7 @@ what data is expected from the client in these queries.
 ### Scalars
 
 As expected by the name, a scalar represents a primitive value in GraphQL.
-GraphQL responses take the form of a hierarchal tree; the leaves on these trees
+GraphQL responses take the form of a hierarchical tree; the leaves on these trees
 are GraphQL scalars.
 
 All GraphQL scalars are representable as strings, though depending on the
@@ -109,7 +109,7 @@ input values, and coercion rules may apply differently depending on which type
 of input value is encountered. GraphQL may be parameterized by query variables,
 the values of which are often serialized when sent over a transport like HTTP. Since
 some common serializations (ex. JSON) do not discriminate between integer
-and floating-point values, they are interpretted as an integer input value if
+and floating-point values, they are interpreted as an integer input value if
 they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
 input value.
 
@@ -229,8 +229,8 @@ values (such as `4.0`), must raise a query error indicating an incorrect type.
 
 ### Objects
 
-GraphQL queries are hierarchal and composed, describing a tree of information.
-While Scalar types describe the leaf values of these hierarchal queries, Objects
+GraphQL queries are hierarchical and composed, describing a tree of information.
+While Scalar types describe the leaf values of these hierarchical queries, Objects
 describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
@@ -630,7 +630,7 @@ literals must not be accepted as an enum input and instead raise a query error.
 Query variable transport serializations which have a different representation
 for non-string symbolic values (for example, [EDN](https://github.com/edn-format/edn))
 should only allow such values as enum input values. Otherwise, for most
-transport serializations that do not, strings may be interpretted as the enum
+transport serializations that do not, strings may be interpreted as the enum
 input value with the same name.
 
 

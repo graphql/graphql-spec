@@ -1,6 +1,6 @@
 # Validation
 
-GraphQL does not just verify if a request is syntatically correct.
+GraphQL does not just verify if a request is syntactically correct.
 
 Prior to execution, it can also verify that a request is valid
 within the context of a given GraphQL schema. Validation is primarily
@@ -296,7 +296,7 @@ query directQueryOnUnionWithoutSubFields
   * Let {arguments} be the set of argument provided to the {selection}
   * Let {targetField} be the target field of a given {selection}
   * Let {argumentDefinitions} be the set of argument definitions of {targetField}
-  * Each {argumentName} in {arguments} must have a corresponding argument defintion
+  * Each {argumentName} in {arguments} must have a corresponding argument definition
     in the {targetField} with the same name
 
 ** Explanatory Text **
@@ -363,9 +363,9 @@ fragment multipleArgsReverseOrder on Arguments {
   * Let {arguments} be the set of argument provided to the {selection}
   * Let {targetField} be the target field of a given {selection}
   * Let {argumentDefinitions} be the set of argument definitions of {targetField}
-  * For each {literalArgument} of all {arguements} with literal for values.
-    * The type of {literalArgument} must equal the type of the argument defintion OR
-    * The type of {literalArgument} must be coercable to type of the argument definition
+  * For each {literalArgument} of all {arguments} with literal for values.
+    * The type of {literalArgument} must equal the type of the argument definition OR
+    * The type of {literalArgument} must be coercible to type of the argument definition
 
 ** Explanatory Text **
 
@@ -374,7 +374,7 @@ literal is being passed to.
 
 This means either
   * the types must match equally or
-  * the types must be coercable.
+  * the types must be coercible.
 
 For example, an Int can be coerced into a Float.
 
@@ -388,7 +388,7 @@ fragment coercedIntIntoFloatArg on Arguments {
 }
 ```
 
-An uncoerceable conversion, is string to int. Therefore, the
+An incoercible conversion, is string to int. Therefore, the
 following example is invalid.
 
 ```!graphql
@@ -575,7 +575,7 @@ fragment nameFragment on Dog { name }
   * {DetectCycles(fragmentDefinition, visited)}
 
 {DetectCycles(fragmentDefinition, visited)} :
-  * Let {spreads} be all fragment spread descendents of {fragmentDefinition}
+  * Let {spreads} be all fragment spread descendants of {fragmentDefinition}
   * For each {spread} in {spreads}
     * {visited} must not contain {spread}
     * Let {nextVisited} be the set including {spread} and members of {visited}
@@ -746,7 +746,7 @@ can also never return meaningful results, making it invalid.
 
 ##### Abstract Spreads in Abstract Scope
 
-Union or interfaces fragments can be used within eachother. As long as there
+Union or interfaces fragments can be used within each other. As long as there
 exists at least *one* object type that exists in the intersection of the
 possible types of the scope and the spread, the spread is considered valid.
 
@@ -799,13 +799,13 @@ usage of a directive, the directive must be available on that server.
     * {directiveUse} must have an argument
   * Let {argumentType} be the type of argument supplied to {directiveUse}
   * {argumentType} and {directiveType} must be the same or {argumentType} must
-    be coercable to {directiveType}
+    be coercible to {directiveType}
 
 ** Explanatory Text **
 
 Directive arguments follow similar rules to arguments on fields. Much like
 field arguments, arguments to directives must be of the same type or
-coercable to input type of the directive type.
+coercible to input type of the directive type.
 
 Directives arguments differ from field arguments insofar as they can
 be used without a provided argument. If the type of directive is not non-null,
@@ -852,7 +852,7 @@ validation
 ```
 
 Default values must be compatible with the types of variables.
-Types much match or they must be coercable to the type.
+Types much match or they must be coercible to the type.
 
 Non-matching types fail, such as in the following example:
 
@@ -862,7 +862,7 @@ Non-matching types fail, such as in the following example:
   }
 ```
 
-However if a type is coerceable the query will pass validation.
+However if a type is coercible the query will pass validation.
 
 For example:
 
@@ -933,7 +933,7 @@ query VariableIsDefined($atOtherHomes: Boolean) {
 
 is valid. ${atOtherHomes} is defined by the operation.
 
-By constract the following query is invalid:
+By contrast the following query is invalid:
 
 ```!graphql
 query VariableIsNotDefined {
@@ -1194,4 +1194,4 @@ Query ListToNonNullList($booleanList: [Boolean]) {
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 
-Similarily a `[T]` cannot be passed to a `[T!]`.
+Similarly a `[T]` cannot be passed to a `[T!]`.

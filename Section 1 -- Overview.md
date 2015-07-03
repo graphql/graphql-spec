@@ -36,7 +36,7 @@ platform for tool-building.
 
 GraphQL has a number of design principles:
 
- * **Hierarchal**: Most product development today involves the creation and
+ * **Hierarchical**: Most product development today involves the creation and
    manipulation of view hierarchies. To achieve congruence with the structure
    of these applications, a GraphQL query itself is structured hierarchically.
    The query is shaped just like the data it returns. It is a natural

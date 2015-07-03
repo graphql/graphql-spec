@@ -10,16 +10,16 @@ This technical preview contains a draft specification for GraphQL and a referenc
 implementation in JavaScript that implements that draft,
 [GraphQL.js](https://github.com/graphql/graphql-js).
 
-The reference implemention provides base libraries in javascript that would
+The reference implementation provides base libraries in javascript that would
 provide the basis for full GraphQL implementations and tools. It is not a fully
 standalone GraphQL server that a client developer could use to start
 manipulating and querying data. Most importantly it provides no mapping to a
 functioning, production-ready backend. The only “backend” we have targeted for
 this early preview are in-memory stubs in test cases.
 
-We are releasing this now because after GraphQL was first discussed publically,
+We are releasing this now because after GraphQL was first discussed publicly,
 many engineers used this information to implement the parts of the system that
-we discussed publically. We want to support those engineers by providing both a
+we discussed publicly. We want to support those engineers by providing both a
 formal specification and a reference implementation for the system as a whole.
 
 To that end the target audience is not the client developer, but those who have
@@ -179,7 +179,7 @@ fields are non-null (since our current implementation has hard-coded data),
 we didn't mark them as non-null. One can imagine we would eventually
 replace our hardcoded data with a backend service, which might not be
 perfectly reliable; by leaving these fields as nullable, we allow
-ourselves the flexability to eventually return null to indicate a backend
+ourselves the flexibility to eventually return null to indicate a backend
 error, while also telling the client that the error occurred.
 
 ```
