@@ -196,7 +196,7 @@ the field's name otherwise.
 ## Input Values
 
 Both field arguments and directives accept input values. Input values can be
-specified as a variable or respresented inline as literals.  Input values can
+specified as a variable or represented inline as literals.  Input values can
 be scalars, enumerations, or input objects. List and inputs objects may also
 contain variables.
 
@@ -220,7 +220,7 @@ Whitespace is significant within a string.
 
 **Enum Value**
 
-Enum values are respresented as unquoted names (ex. `MOBILE_WEB`). It is
+Enum values are represented as unquoted names (ex. `MOBILE_WEB`). It is
 recommended that Enum values be "all caps". Enum values are only used in contexts
 where the precise enumeration type is known. Therefore it's not necessary
 to use the enumeration type name in the literal.

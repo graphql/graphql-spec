@@ -73,7 +73,7 @@ Example_param :
 
 A GraphQL document is comprised of several kinds of source tokens defined here
 in a lexical grammar and used as terminal symbols in GraphQL's syntactic
-grammar. This lexical grammar defines patterns of source characters by specifing
+grammar. This lexical grammar defines patterns of source characters by specifying
 character patterns in {`monospace`} or as {/regular_expressions/}. Non-terminal
 patterns are defined as {Italics}.
 
@@ -131,8 +131,8 @@ Before every lexical token may be any amount of ignored source characters
 such as whitespace and comments. Whitespace, other than within strings, is
 not significant.
 
-GraphQL treats comma `,` similarly to whitespace. This ensures that the absense
-or presence of a comma does not meaningfully alter the interpretted syntax of
+GraphQL treats comma `,` similarly to whitespace. This ensures that the absence
+or presence of a comma does not meaningfully alter the interpreted syntax of
 the document which is a common user-error in other languages. It also allows for
 the stylistic use of trailing commas or line-breaks as delimiters which are
 often desired for legibility and maintainability of source code. The use of

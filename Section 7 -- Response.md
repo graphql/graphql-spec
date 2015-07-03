@@ -6,7 +6,7 @@ operation if successful, and describes any errors encountered during the
 request.
 
 A response may contain both a partial response as well as encountered errors in
-the case that an error occured on a field which was replaced with null.
+the case that an error occurred on a field which was replaced with null.
 
 ## Serialization Format
 
