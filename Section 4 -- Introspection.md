@@ -21,9 +21,9 @@ The query
 ```
 {
   __type(name: "User") {
-    name
+    name,
     fields {
-      name
+      name,
       type { name }
     }
   }
