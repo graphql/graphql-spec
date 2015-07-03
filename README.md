@@ -435,7 +435,7 @@ is:
 {
   "luke": {
     "name": "Luke Skywalker"
-  },
+  }
 }
 ```
 
@@ -802,10 +802,12 @@ query IntrospectionQueryTypeQuery {
 and we get back:
 
 ```json
-"__schema": {
-  "query": {
-    "name": "Query"
-  },
+{
+  "__schema": {
+    "query": {
+      "name": "Query"
+    }
+  }
 }
 ```
 
@@ -831,8 +833,10 @@ query IntrospectionDroidTypeQuery {
 and we get back:
 
 ```json
-"__type": {
-  "name": "Droid"
+{
+  "__type": {
+    "name": "Droid"
+  }
 }
 ```
 
@@ -851,9 +855,11 @@ query IntrospectionDroidKindQuery {
 and we get back:
 
 ```json
-"__type": {
-  "name": "Droid",
-  "kind": "OBJECT"
+{
+  "__type": {
+    "name": "Droid",
+    "kind": "OBJECT"
+  }
 }
 ```
 
@@ -873,9 +879,11 @@ query IntrospectionCharacterKindQuery {
 and we get back:
 
 ```json
-"__type": {
-  "name": "Character",
-  "kind": "INTERFACE"
+{
+  "__type": {
+    "name": "Character",
+    "kind": "INTERFACE"
+  }
 }
 ```
 
@@ -912,28 +920,28 @@ and we get back:
           "name": null,
           "kind": "NON_NULL"
         }
-      }
+      },
       {
         "name": "name",
         "type": {
           "name": "String",
           "kind": "SCALAR"
         }
-      }
+      },
       {
         "name": "friends",
         "type": {
           "name": null,
           "kind": "LIST"
         }
-      }
+      },
       {
         "name": "appearsIn",
         "type": {
           "name": null,
           "kind": "LIST"
         }
-      }
+      },
       {
         "name": "primaryFunction",
         "type": {
@@ -993,7 +1001,7 @@ and we get back:
             "kind": "SCALAR"
           }
         }
-      }
+      },
       {
         "name": "name",
         "type": {
@@ -1001,7 +1009,7 @@ and we get back:
           "kind": "SCALAR",
           "ofType": null
         }
-      }
+      },
       {
         "name": "friends",
         "type": {
@@ -1012,7 +1020,7 @@ and we get back:
             "kind": "INTERFACE"
           }
         }
-      }
+      },
       {
         "name": "appearsIn",
         "type": {
@@ -1023,7 +1031,7 @@ and we get back:
             "kind": "ENUM"
           }
         }
-      }
+      },
       {
         "name": "primaryFunction",
         "type": {
