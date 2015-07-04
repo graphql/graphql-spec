@@ -25,7 +25,7 @@ enum DogCommand { SIT, DOWN, HEEL }
 type Dog : Pet {
   name: String!,
   nickname: String,
-  barkVolume : Int,
+  barkVolume: Int,
   doesKnowCommand(dogCommand: DogCommand!) : Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
 }
@@ -71,7 +71,7 @@ fragment fieldNotDefined on Dog {
 }
 
 fragment aliasedLyingFieldTargetNotDefined on Dog {
-  barkVolume : kawVolume
+  barkVolume: kawVolume
 }
 ```
 
@@ -141,8 +141,8 @@ fragment mergeIdenticalFields on Dog {
 }
 
 fragment mergeIdenticalAliasesAndFields on Dog {
-  otherName : name
-  otherName : name
+  otherName: name
+  otherName: name
 }
 ```
 
@@ -151,7 +151,7 @@ The following is not able to merge:
 ```!graphql
 
 fragment conflictingBecauseAlias on Dog {
-  name : nickname
+  name: nickname
   name
 }
 
