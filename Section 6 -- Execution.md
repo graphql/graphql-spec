@@ -1,6 +1,6 @@
 # Execution
 
-This section describes how GraphQL generates a response from a request
+This section describes how GraphQL generates a response from a request.
 
 ## Evaluating requests
 
