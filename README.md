@@ -275,7 +275,7 @@ this query would then be:
 
 Assuming that the backing data for the GraphQL server identified R2-D2 as the
 hero. The response continues to vary based on the request; if we asked for
-R2-D2s ID and friends with this query:
+R2-D2's ID and friends with this query:
 
 ```
 query HeroNameAndFriendsQuery {
@@ -317,8 +317,8 @@ then we'll get back a response like this:
 
 One of the key aspects of GraphQL is its ability to nest queries. In the
 above query, we asked for R2-D2's friends, but we can ask for more information
-about each of those objects. So let's construct a query that asks for R2-D2s
-friends, gets their name and episode appearances, then ask for each of *their*
+about each of those objects. So let's construct a query that asks for R2-D2's
+friends, gets their name and episode appearances, then asks for each of *their*
 friends.
 
 ```
