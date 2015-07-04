@@ -173,7 +173,7 @@ Since the top level of a query is a field, it also can be given an alias:
 ```graphql
 {
   zuck: user(id: 4) {
-    id
+    id,
     name
   }
 }
@@ -283,7 +283,7 @@ will be queried and controlField will not.
 
 ```graphql
 query myQuery($someTest: Boolean) {
-  experimentalField @if: $someTest
+  experimentalField @if: $someTest,
   controlField @unless: $someTest
 }
 ```
@@ -303,13 +303,13 @@ as well as friends of some user:
 query noFragments {
   user(id: 4) {
     friends(first: 10) {
-      id
-      name
+      id,
+      name,
       profilePic(size: 50)
-    }
+    },
     mutualFriends(first: 10) {
-      id
-      name
+      id,
+      name,
       profilePic(size: 50)
     }
   }
@@ -322,14 +322,14 @@ a parent fragment or query.
 ```graphql
 query withFragments {
   user(id: 4) {
-    friends(first: 10) { ...friendFields }
+    friends(first: 10) { ...friendFields },
     mutualFriends(first: 10) { ...friendFields }
   }
 }
 
 fragment friendFields on User {
-  id
-  name
+  id,
+  name,
   profilePic(size: 50)
 }
 ```
@@ -345,14 +345,14 @@ For example:
 query withNestedFragments
 {
   user(id: 4) {
-    friends(first: 10) { ...friendFields }
+    friends(first: 10) { ...friendFields },
     mutualFriends(first: 10) { ...friendFields }
   }
 }
 
 fragment friendFields on User {
-  id
-  name
+  id,
+  name,
   ...standardProfilePic
 }
 
@@ -382,8 +382,8 @@ For example in this query on the Facebook data model:
 ```graphql
 query FragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
-    handle
-    ...userFragment
+    handle,
+    ...userFragment,
     ...pageFragment
   }
 }
@@ -435,10 +435,10 @@ same thing using inline fragments.
 ```graphql
 query InlineFragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
-    handle
+    handle,
     ... on User {
       friends { count }
-    }
+    },
     ... on Page {
       likers { count }
     }
