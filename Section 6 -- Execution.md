@@ -4,7 +4,7 @@ This section describes how GraphQL generates a response from a request.
 
 ## Evaluating requests
 
-To evaluate a request, the executor will have a parsed `Document` (as defined
+To evaluate a request, the executor must have a parsed `Document` (as defined
 in the “Query Language” part of this spec) and a selected operation name to
 run.
 
