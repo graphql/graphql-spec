@@ -804,7 +804,7 @@ and we get back:
 ```json
 {
   "__schema": {
-    "query": {
+    "queryType": {
       "name": "Query"
     }
   }
