@@ -31,7 +31,7 @@ type Dog : Pet {
 }
 
 interface Sentient { name: String! }
-interface Pet { name: String!, nickname: String }
+interface Pet { name: String! }
 
 type Alien : Sentient { name: String!, homePlanet: String }
 type Human : Sentient { name: String! }
@@ -101,7 +101,7 @@ implementors of the union define the fieldName.
 
 For example the following is invalid
 
-```graphql
+```!graphql
 fragment directFieldSelectionOnUnion on CatOrDog {
   directField
 }
