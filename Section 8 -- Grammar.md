@@ -184,9 +184,6 @@ Document : Definition+
 Definition :
   - OperationDefinition
   - FragmentDefinition
-  - TypeExtension
-  - TypeDefinition
-  - EnumDefinition
 
 
 ### Operations
