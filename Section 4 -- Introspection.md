@@ -253,8 +253,8 @@ Fields
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `possibleTypes` returns the list of types that can be represented within this
-  union. They must be object types.
+* `possibleTypes` returns the list of types that implement this interface.
+  They must be object types.
 * All other fields must return {null}.
 
 #### Enum
