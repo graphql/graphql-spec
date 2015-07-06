@@ -711,15 +711,31 @@ then an error should be raised.
 
 **Input Coercion**
 
-When accepted as an input, each item in the list should be coerced as per
-the input coercion of the item type.
+Note that `null` is not a valid keyword in GraphQL, so a query cannot look like:
 
-If the value passed as an input to a list type is *not* as list, it should be
-coerced as though the input was a list of size one, where the value passed is
-the only item in the list. This is to allow inputs that accept a "var args"
-to declare their input type as a list; if only one argument is passed (a common
-case), the client can just pass that value rather than constructing the list.
+```!graphql
+{
+  field(arg: null)
+}
+```
 
+to indicate that the argument is null. Instead, an argument would be null only
+if it is passed a variable that is then not set:
+
+```graphql
+{
+  field(arg: $var)
+}
+```
+
+Hence, if the value for a non-null is hard-coded in the query, it is always
+coerced using the input coercion for the wrapped type.
+
+When a non-null input has its value set using a variable, the coerced value
+should be `null` if the provided value is `null`-like in the provided
+representation, or if the provided value is omitted. Otherwise, the coerced
+value is the result of running the wrapped type's input coercion on the provided
+value.
 
 ## Directives
 
