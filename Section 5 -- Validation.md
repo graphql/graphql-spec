@@ -119,8 +119,8 @@ fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
   * Let {setForKey} be the set of selections with a given response key in {set}
   * All members of {setForKey} must:
     * Have identical target fields
-    * Have identical sets of arguments name-value pairs.
-    * Have identical sets of directive name-value pairs.
+    * Have identical sets of arguments.
+    * Have identical sets of directives.
 
 ** Explanatory Text **
 
@@ -157,9 +157,8 @@ fragment conflictingBecauseAlias on Dog {
 
 ```
 
-Identical field arguments are also merged if they have
-identical arguments. Both values and variables can be
-correctly merged.
+Identical arguments are also merged if they have identical arguments. Both
+values and variables can be correctly merged.
 
 For example the following correctly merge:
 
@@ -204,20 +203,18 @@ The following is valid:
 
 ```graphql
 fragment mergeSameFieldsWithSameDirectives on Dog {
-  name @if:true
-  name @if:true
+  name @include(if: true)
+  name @include(if: true)
 }
 ```
 
 and the following is invalid:
 
 ```!graphql
-
 fragment conflictingDirectiveArgs on Dog {
-  name @if: true
-  name @unless: false
+  name @include(if: true)
+  name @include(if: false)
 }
-
 ```
 
 ### Leaf Field Selections
@@ -288,23 +285,22 @@ query directQueryOnUnionWithoutSubFields
 
 ## Arguments
 
+Arguments are provided to both fields and directives. The following validation
+rules apply in both cases.
+
 ### Argument Names
 
 ** Formal Specification **
 
-  * For each {selection} in the document
-  * Let {arguments} be the set of argument provided to the {selection}
-  * Let {targetField} be the target field of a given {selection}
-  * Let {argumentDefinitions} be the set of argument definitions of {targetField}
-  * Each {argumentName} in {arguments} must have a corresponding argument definition
-    in the {targetField} with the same name
+  * For each {argument} in the document
+  * Let {argumentName} be the Name of {argument}.
+  * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
+  * {argumentDefinition} must exist.
 
 ** Explanatory Text **
 
-Field selections may take arguments. Each field selection corresponds to a
-field definition on the enclosing type, which specifies a set of possible
-arguments. Every argument provided to the selection must be defined in the set
-of possible arguments.
+Every argument provided to a field or directive must be defined in the set of
+possible arguments of that field or directive.
 
 For example the following are valid:
 
@@ -314,18 +310,24 @@ fragment argOnRequiredArg on Dog {
 }
 
 fragment argOnOptional on Dog {
-  isHousetrained(atOtherHomes: true)
+  isHousetrained(atOtherHomes: true) @include(if: true)
 }
 ```
 
-and the following is invalid since command is not defined on DogCommand:
+the following is invalid since `command` is not defined on `DogCommand`.
 
 ```!graphql
-
 fragment invalidArgName on Dog {
   doesKnowCommand(command: CLEAN_UP_HOUSE)
 }
+```
 
+and this is also invalid as `unless` is not defined on `@include`.
+
+```!graphql
+fragment invalidArgName on Dog {
+  isHousetrained(atOtherHomes: true) @include(unless: false)
+}
 ```
 
 In order to explore more complicated argument examples, let's add the following
@@ -359,22 +361,18 @@ fragment multipleArgsReverseOrder on Arguments {
 
 ** Formal Specification **
 
-  * For each {selection} in the document
-  * Let {arguments} be the set of argument provided to the {selection}
-  * Let {targetField} be the target field of a given {selection}
-  * Let {argumentDefinitions} be the set of argument definitions of {targetField}
-  * For each {literalArgument} of all {arguments} with literal for values.
-    * The type of {literalArgument} must equal the type of the argument definition OR
-    * The type of {literalArgument} must be coercible to type of the argument definition
+  * For each {argument} in the document
+  * Let {value} be the Value of {argument}
+  * If {value} is not a Variable
+    * Let {argumentName} be the Name of {argument}.
+    * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
+    * Let {type} be the type expected by {argumentDefinition}.
+    * The type of {literalArgument} must be coercible to {type}.
 
 ** Explanatory Text **
 
-Argument literal values must be compatible with the type defined on the type that
-literal is being passed to.
-
-This means either
-  * the types must match equally or
-  * the types must be coercible.
+Literal values must be compatible with the type defined by the argument they are
+being provided to, as per the coercion rules defined in the Type System chapter.
 
 For example, an Int can be coerced into a Float.
 
@@ -397,20 +395,22 @@ fragment stringIntoInt on Arguments {
 }
 ```
 
-#### Argument Optionality
+#### Required Arguments
 
-  * For each {selection} in the document
-  * Let {arguments} be the set of argument provided to the {selection}
-  * Let {targetField} be the target field of a given {selection}
-  * Let {argumentDefinitions} be the set of argument definitions of {targetField}
-  * For each {definition} in {argumentDefinition}, if the type of {definition} is non-null
-    a value must be provided.
+  * For each Field or Directive in the document.
+  * Let {arguments} be the arguments provided by the Field or Directive.
+  * Let {argumentDefinitions} be the set of argument definitions of that Field or Directive.
+  * For each {definition} in {argumentDefinitions}
+    * Let {type} be the expected type of {definition}
+    * If {type} is Non-Null
+      * Let {argumentName} be the name of {definition}
+      * Let {argument} be the argument in {arguments} named {argumentName}
+      * {argument} must exist.
 
 ** Explanatory Text **
 
-Field arguments can be required. Field arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional. Optional arguments
-must have default values.
+Arguments can be required. Arguments are required if the type of the argument
+is non-null. If it is not non-null, the argument is optional.
 
 For example the following are valid:
 
@@ -430,7 +430,6 @@ On a field with a a nullable arg, that argument can be omitted.
 Therefore the following query is valid:
 
 ```graphql
-
 fragment goodBooleanArgDefault on Arguments {
   booleanArgField
 }
@@ -776,42 +775,15 @@ and {Sentient}.
 
 ** Formal Specification **
 
-  * For every {directiveUse} in a document.
-  * The name of that directive must be defined by the type system of
-    the GraphQL server.
+  * For every {directive} in a document.
+  * Let {directiveName} be the name of {directive}.
+  * Let {directiveDefinition} be the directive named {directiveName}.
+  * {directiveDefinition} must exist.
 
 ** Explanatory Text **
 
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
-
-### Directive Arguments Are Of Correct Type
-
-** Formal Specification **
-
-  * For every {directiveUse} in a document.
-  * Let {directiveType} be the input type of the corresponding
-    directive defined on the server.
-  * If {directiveType} is not defined:
-    * The directive is meant to be used only as flag, and no argument should be
-      provided.
-  * If {directiveType} is defined and non-null:
-    * {directiveUse} must have an argument
-  * Let {argumentType} be the type of argument supplied to {directiveUse}
-  * {argumentType} and {directiveType} must be the same or {argumentType} must
-    be coercible to {directiveType}
-
-** Explanatory Text **
-
-Directive arguments follow similar rules to arguments on fields. Much like
-field arguments, arguments to directives must be of the same type or
-coercible to input type of the directive type.
-
-Directives arguments differ from field arguments insofar as they can
-be used without a provided argument. If the type of directive is not non-null,
-the directive can be optionally used without an argument. If the type of
-a directive is not defined, it is a flag directive: it cannot have an argument,
-If a value is provided to a flag directive, this is a validation error.
 
 ## Operations
 

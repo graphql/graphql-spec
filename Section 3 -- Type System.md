@@ -100,7 +100,7 @@ Scalar type.
 
 **Input Coercion**
 
-If a GraphQL server expects a scalar type as input to a field argument, coercion
+If a GraphQL server expects a scalar type as input to an argument, coercion
 is observable and the rules must be well defined. If an input value does not
 match a coercion rule, a query error must be raised.
 
@@ -354,9 +354,9 @@ Objects are never valid inputs.
 #### Object Field Arguments
 
 Object fields are conceptually functions which yield values. Occasionally object
-fields can accept arguments to further specify the return value. Field arguments
-are defined as a list of all possible argument names and their expected input
-types.
+fields can accept arguments to further specify the return value. Object field
+arguments are defined as a list of all possible argument names and their
+expected input types.
 
 For example, a `Person` type with a `picture` field could accept an argument to
 determine what size of an image to return.
@@ -389,9 +389,7 @@ May yield the result:
 }
 ```
 
-The type of a field argument can be a Scalar, as it was in this example, or an
-Enum. It can also be an Input Object, covered later in this document, or it can
-be any wrapping type whose underlying base type is one of those three.
+The type of an object field argument can be any Input type.
 
 #### Object Field deprecation
 
@@ -723,14 +721,42 @@ case), the client can just pass that value rather than constructing the list.
 
 ## Directives
 
-A GraphQL schema includes a list of supported directives, each of which has
-a name. Directives can apply to operations, fragments, or fields; each directive
-indicates which of those it applies to.
+A GraphQL schema includes a list of the directives the execution
+engine supports.
 
-Directives can optionally take an argument. The type of the argument to
-a directive has the same restrictions as the type of an argument to a field. It
-can be a Scalar, an Enum, an Input Object, or any wrapping type whose underlying
-base type is one of those three.
+GraphQL implementations should provide the `@skip` and `@include` directives.
+
+### @skip
+
+The `@skip` directive may be provided for fields or fragments, and allows
+for conditional exclusion during execution as described by the if argument.
+
+In this example `experimentalField` will be queried only if the `$someTest` is
+provided a `false` value.
+
+```graphql
+query myQuery($someTest: Boolean) {
+  experimentalField @skip(if: $someTest)
+}
+```
+
+### @include
+
+The `@include` directive may be provided for fields or fragments, and allows
+for conditional inclusion during execution as described by the if argument.
+
+In this example `experimentalField` will be queried only if the `$someTest` is
+provided a `true` value.
+
+```graphql
+query myQuery($someTest: Boolean) {
+  experimentalField @include(if: $someTest)
+}
+```
+
+The `@skip` directive has precidence over the `@include` directive should both
+be provided in the same context.
+
 
 ## Starting types
 
