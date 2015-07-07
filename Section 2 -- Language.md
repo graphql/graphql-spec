@@ -5,6 +5,21 @@ refer to these requests as documents. A document may contain operations
 (queries and mutations are both operations) and fragments, a common unit
 of composition allowing for query reuse.
 
+## Names
+
+GraphQL documents are full of named things: operations, fields, arguments,
+directives, fragments, and variables. All names follow the same
+grammatical form:
+
+Name : /[_A-Za-z][_0-9A-Za-z]*/
+
+Names in GraphQL are case-sensitive. That is to say `name`, `Name`, and `NAME`
+all refer to different names. Underscores are significant, which means
+`other_name` and `othername` are two different names.
+
+Names in GraphQL are limited to this <acronym>ASCII</acronym> subset of possible
+characters to support interoperation with as many other systems as possible.
+
 ## Document
 
 GraphQL documents are only executable by a server if they contain an operation.
