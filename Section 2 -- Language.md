@@ -236,7 +236,7 @@ commas do not represent missing values.
 
 **Input Object**
 
-Input object literals are un-ordered lists of keyed input values wrapped in
+Input object literals are unordered lists of keyed input values wrapped in
 curly-braces `{ }`.  The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."

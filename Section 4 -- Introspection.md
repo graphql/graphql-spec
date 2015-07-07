@@ -277,7 +277,7 @@ Fields
 Input objects are composite types used as inputs into queries defined as a list
 of named input values.
 
-For example the an input object `Point` could be defined as:
+For example the input object `Point` could be defined as:
 
 ```
 type Point {

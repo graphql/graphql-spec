@@ -770,7 +770,7 @@ query myQuery($someTest: Boolean) {
 }
 ```
 
-The `@skip` directive has precidence over the `@include` directive should both
+The `@skip` directive has precedence over the `@include` directive should both
 be provided in the same context.
 
 

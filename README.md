@@ -558,7 +558,7 @@ specification-compliant GraphQL query language parser and lexer.
 
 ### Validation
 
-By using the type system, it can be pre-determined whether a GraphQL query
+By using the type system, it can be predetermined whether a GraphQL query
 is valid or not. This allows servers and clients to effectively inform
 developers when an invalid query has been created, without having to rely
 on runtime checks.
