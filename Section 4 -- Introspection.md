@@ -170,7 +170,7 @@ enum __TypeKind {
 type __Directive {
   name: String!
   description: String
-  type: __Type
+  args: [__InputValue!]!
   onOperation: Boolean!
   onFragment: Boolean!
   onField: Boolean!

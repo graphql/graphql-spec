@@ -44,6 +44,12 @@ CollectFields(objectType, selectionSet, visitedFragments):
 
   * Initialize {groupedFields} to an empty list of lists.
   * For each {selection} in {selectionSet};
+    * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
+      * If {skipDirective}'s {if} argument is {true}, continue with the
+        next {selection} in {selectionSet}.
+    * If {selection} provides the directive `@include`, let {includeDirective} be that directive.
+      * If {includeDirective}'s {if} argument is {false}, continue with the
+        next {selection} in {selectionSet}.
     * If {selection} is a Field:
       * Let {responseKey} be the response key of {selection}.
       * Let {groupForResponseKey} be the list in {groupedFields} for

@@ -86,11 +86,12 @@ query getZuck {
 }
 ```
 
-## Field Arguments
+## Arguments
 
-Fields may take arguments. These often map directly to function arguments
-within the GraphQL server implementation. We already saw arguments used
-in the global field above.
+Fields and directives may take arguments.
+
+These often map directly to function arguments within the GraphQL server
+implementation. We already saw arguments used in the global field above.
 
 In this example, we want to query a user's profile picture of a
 specific size:
@@ -119,7 +120,7 @@ Many arguments can exist for a given field:
 
 **Arguments are unordered**
 
-Field arguments may be provided in any syntactic order and maintain identical
+Arguments may be provided in any syntactic order and maintain identical
 semantic meaning.
 
 These two queries are semantically identical:
@@ -195,7 +196,7 @@ the field's name otherwise.
 
 ## Input Values
 
-Both field arguments and directives accept input values. Input values can be
+Field and directive arguments accept input values. Input values can be
 specified as a variable or represented inline as literals.  Input values can
 be scalars, enumerations, or input objects. List and inputs objects may also
 contain variables.
@@ -270,26 +271,6 @@ could run this query and request profilePic of size 60 with:
 }
 ```
 
-## Directives
-
-In some cases, you need to provide options to alter GraphQL's execution
-behavior in ways field arguments will not suffice, such as conditionally
-skipping a field. Directives provide this with a `@name` and can be
-specified to be used without an argument or with a value argument.
-
-Directives can be used to conditionally include fields in a query based
-on a provided boolean value. In this contrived example experimentalField
-will be queried and controlField will not.
-
-```graphql
-query myQuery($someTest: Boolean) {
-  experimentalField @if: $someTest,
-  controlField @unless: $someTest
-}
-```
-
-As future versions of GraphQL adopts new configurable execution capabilities,
-they may be exposed via directives.
 
 ## Fragments
 
@@ -446,3 +427,59 @@ query InlineFragmentTyping {
 }
 ```
 
+
+## Directives
+
+In some cases, you need to provide options to alter GraphQL's execution
+behavior in ways field arguments will not suffice, such as conditionally
+including or skipping a field. Directives provide this by describing additional information to the executor.
+
+Directives have a name along with a list of arguments which may accept values
+of any input type.
+
+Directives can be used to describe additional information for fields, fragments,
+and operations.
+
+As future versions of GraphQL adopts new configurable execution capabilities,
+they may be exposed via directives.
+
+### Fragment Directives
+
+Fragments may include directives to alter their behavior. At runtime, the directives provided on a fragment spread override those described on the
+definition.
+
+For example, the following query:
+
+```graphql
+query HasConditionalFragment($condition: Boolean) {
+  ...MaybeFragment @include(if: $condition)
+}
+
+fragment MaybeFragment on Query {
+  me {
+    name
+  }
+}
+```
+
+Will have identical runtime behavior as
+
+```graphql
+query HasConditionalFragment($condition: Boolean) {
+  ...MaybeFragment
+}
+
+fragment MaybeFragment on Query @include(if: $condition) {
+  me {
+    name
+  }
+}
+```
+
+FragmentSpreadDirectives(fragmentSpread) :
+  * Let {directives} be the set of directives on {fragmentSpread}
+  * Let {fragmentDefinition} be the FragmentDefinition in the document named {fragmentSpread} refers to.
+  * For each {directive} in directives on {fragmentDefinition}
+    * If {directives} does not contain a directive named {directive}.
+    * Add {directive} into {directives}
+  * Return {directives}

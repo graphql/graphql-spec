@@ -314,9 +314,7 @@ behavior in a GraphQL document.
 
 Directives : Directive+
 
-Directive :
-  - @ Name
-  - @ Name : Value
+Directive : @ Name Arguments?
 
 
 ### Types
