@@ -425,7 +425,7 @@ fragment goodNonNullArg on Arguments {
 
 ```
 
-On a field with a a nullable arg, that argument can be omitted.
+The argument can be omitted from a field with a nullable argument.
 
 Therefore the following query is valid:
 
