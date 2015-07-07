@@ -10,7 +10,7 @@ This technical preview contains a draft specification for GraphQL and a referenc
 implementation in JavaScript that implements that draft,
 [GraphQL.js](https://github.com/graphql/graphql-js).
 
-The reference implementation provides base libraries in javascript that would
+The reference implementation provides base libraries in JavaScript that would
 provide the basis for full GraphQL implementations and tools. It is not a fully
 standalone GraphQL server that a client developer could use to start
 manipulating and querying data. Most importantly it provides no mapping to a
