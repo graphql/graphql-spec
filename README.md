@@ -521,8 +521,8 @@ Both of those queries give this result:
 }
 ```
 
-The `UseFragment` and `DuplicateFields` queries will got the same result, but
-the latter has less copy paste; if we wanted to add more fields, we could add
+The `UseFragment` and `DuplicateFields` queries will both get the same result, but
+`UseFragment` is less verbose; if we wanted to add more fields, we could add
 it to the common fragment rather than copying it into multiple places.
 
 We defined the type system above, so we know the type of each object
@@ -672,7 +672,7 @@ fragment DroidFields on Droid {
 
 This query is valid, but it's a bit verbose; named fragments were valuable
 above when we used them multiple times, but we're only using this one once.
-Instead of using a named fragment, then, we can use an inline fragment; this
+Instead of using a named fragment, we can use an inline fragment; this
 still allows us to indicate the type we are querying on, but without naming
 a separate fragment:
 
