@@ -418,7 +418,7 @@ will be present and `friends` will not.
 Query variables can be used within fragments. Query variables have global scope
 with a given operation, so a variable used within a fragment must be declared
 in any top-level operation that transitively consumes that fragment. If
-variable is referenced in a fragment and is included by an operation that does
+a variable is referenced in a fragment and is included by an operation that does
 not define that variable, the operation cannot be executed.
 
 ### Inline fragments
