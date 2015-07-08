@@ -493,7 +493,7 @@ interface. Querying for `age` is only valid when the result of `entity` is a
 {
   entity {
     name,
-    ... on User {
+    ... on Person {
       age
     }
   },
