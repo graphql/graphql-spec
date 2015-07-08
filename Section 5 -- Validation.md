@@ -5,7 +5,7 @@ GraphQL does not just verify if a request is syntactically correct.
 Prior to execution, it can also verify that a request is valid
 within the context of a given GraphQL schema. Validation is primarily
 targeted at development-time tooling. Any client-side tooling
-should returns errors and not allow the formulation of queries
+should return errors and not allow the formulation of queries
 known to violate the type system at a given point in time.
 
 Total request validation on the server-side during execution is optional. As
