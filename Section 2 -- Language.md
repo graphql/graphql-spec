@@ -278,7 +278,7 @@ query getZuckProfile($devicePicSize: Int) {
 
 Values for those variables are provided along with a GraphQL query, so they may be
 substituted during execution. If providing JSON for the variables values, we
-could run this query and request profilePic of size 60 with:
+could run this query and request profilePic of size 60 width:
 
 ```js
 {
