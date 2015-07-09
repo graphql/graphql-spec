@@ -1,6 +1,6 @@
 # Language
 
-Clients use the GraphQL language to make requests from a GraphQL server. We
+Clients use the GraphQL language to make requests to a GraphQL server. We
 refer to these requests as documents. A document may contain operations
 (queries and mutations are both operations) and fragments, a common unit
 of composition allowing for query reuse.
