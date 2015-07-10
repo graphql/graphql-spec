@@ -4,6 +4,8 @@ This is a Working Draft of the Specification for GraphQL, a query language
 created by Facebook for describing data requirements on complex application
 data models.
 
+[![Public Slack Discussion](https://graphql-slack.herokuapp.com/badge.svg)](https://graphql-slack.herokuapp.com/)
+
 ## Technical Preview Contents
 
 This technical preview contains a draft specification for GraphQL and a reference
@@ -31,6 +33,9 @@ In order to be broadly adopted GraphQL will have to target a wide
 variety of backends, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This technical preview
 marks the beginning of that process.
+
+If you're interested in building a GraphQL server or tools for GraphQL clients,
+please join our public [Slack discussion](https://graphql-slack.herokuapp.com/).
 
 ## Getting Started
 
