@@ -1,7 +1,7 @@
 body {
   color: #333333;
   font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  margin-left: 300px ;
+  margin-left: 350px ;
   max-width: 780px;
 }
 
@@ -72,7 +72,6 @@ footer {
 /* Table of contents */
 
 .spec-toc {
-  margin: 1em 0 3em;
   position: fixed;
   top: 0;
   left: 0;
