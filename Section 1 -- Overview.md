@@ -83,3 +83,5 @@ a foundation and framework for an ecosystem of GraphQL tools, client libraries,
 and server implementations -- spanning both organizations and platforms -- that
 has yet to be built. We look forward to working with the community
 in order to do that.
+
+Next: [Language](Section 2 -- Language.md)

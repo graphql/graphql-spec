@@ -498,3 +498,7 @@ FragmentSpreadDirectives(fragmentSpread) :
     * If {directives} does not contain a directive named {directive}.
     * Add {directive} into {directives}
   * Return {directives}
+
+
+Prev: [Overview](Section 1 -- Overview.md) |
+Next: [Type System](Section 3 -- Type System.md)
