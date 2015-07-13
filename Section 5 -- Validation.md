@@ -1167,3 +1167,6 @@ Query ListToNonNullList($booleanList: [Boolean]) {
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 
 Similarly a `[T]` cannot be passed to a `[T!]`.
+
+Prev: [Introspection](Section 4 -- Introspection.md) |
+Next: [Execution](Section 6 -- Execution.md)

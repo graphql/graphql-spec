@@ -113,3 +113,6 @@ The errors it contains should indicate why no data was able to be returned.
 If the `data` entry in the response is not `null`, the `errors` entry in the
 response may contain any errors that occurred during execution. If errors
 occurred during execution, it should contain those errors.
+
+Prev: [Execution](Section 6 -- Execution.md) |
+Next: [Grammar](Section 8 -- Grammar.md)

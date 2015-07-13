@@ -332,3 +332,6 @@ If the modified type of a List is a List, then each item in the first List is
 another List of the second List's type.
 
 A Non-Null type cannot modify another Non-Null type.
+
+Prev: [Type System](Section 3 -- Type System.md) |
+Next: [Validation](Section 5 -- Validation.md)

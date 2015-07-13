@@ -300,3 +300,6 @@ logged, and the "errors" list in the response must not be affected.
 If the field resolution function returned null, and the field was non-null,
 then no error has been logged, so an appropriate error must be added to
 the "errors" list.
+
+Prev: [Validation](Section 5 -- Validation.md) |
+Next: [Response](Section 7 -- Response.md)

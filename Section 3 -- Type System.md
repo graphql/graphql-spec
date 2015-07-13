@@ -806,3 +806,6 @@ mutation setName {
 
 Is valid when the type provided for the mutation starting type is not null,
 and has a field named "setName" with a string argument named "name".
+
+Prev: [Language](Section 2 -- Language.md) |
+Next: [Introspection](Section 4 -- Introspection.md)
