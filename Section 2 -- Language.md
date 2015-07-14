@@ -243,8 +243,8 @@ to use the enumeration type name in the literal.
 
 **List**
 
-Lists are an ordered sequence of values wrapped in square-brackets `[ ]`. The
-values of an Array literal may be any value literal or variable (ex. `[1, 2, 3]`).
+Lists are ordered sequences of values wrapped in square-brackets `[ ]`. The
+values of a List literal may be any value literal or variable (ex. `[1, 2, 3]`).
 
 Commas are optional throughout GraphQL so trailing commas are allowed and repeated
 commas do not represent missing values.
