@@ -669,7 +669,8 @@ type declared by the input field.
 A GraphQL list is a special collection type which declares the type of each
 item in the List (referred to as the *item type* of the list). List values are
 serialized as ordered lists, where each item in the array is serialized as per
-the item type.
+the item type. To denote that a field uses a List type the item type is wrapped
+in square brackets like this: `pets: [Pet]`.
 
 **Result Coercion**
 
@@ -697,7 +698,9 @@ By default, all types in GraphQL are nullable; the {null} value is a valid
 response for all of the above types. To declare a type that disallows null,
 the GraphQL Non-Null type can be used. This type declares an underlying type,
 and this type acts identically to that underlying type, with the exception
-that `null` is not a valid response for the wrapping type.
+that `null` is not a valid response for the wrapping type. A trailing
+exclamation mark is used to denote a field that uses a Non-Null type like this:
+`name: String!`.
 
 **Result Coercion**
 
