@@ -601,12 +601,6 @@ Union types have the potential to be invalid if incorrectly defined.
    Similarly, wrapping types may not be member types of a Union.
 2. A Union type must define two or more member types.
 
-When expected as an input type, array input values are accepted only when each
-item in the input array can be accepted by the item type. If the input value is
-not an array but can be accepted by the item type, it is coerced by creating an
-array with the input value as the sole item. Other input values must raise a
-query error indicating an incorrect type.
-
 ### Enums
 
 GraphQL Enums are a variant on the Scalar type, which represents one of a
@@ -682,8 +676,8 @@ implementation.
 
 **Input Coercion**
 
-When accepted as an input, each item in the list should be coerced as per
-the input coercion of the item type.
+When expected as an input, list values are accepted only when each item in the
+list can be accepted by the list's item type.
 
 If the value passed as an input to a list type is *not* as list, it should be
 coerced as though the input was a list of size one, where the value passed is
