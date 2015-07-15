@@ -322,8 +322,12 @@ a parent fragment or query.
 ```graphql
 query withFragments {
   user(id: 4) {
-    friends(first: 10) { ...friendFields }
-    mutualFriends(first: 10) { ...friendFields }
+    friends(first: 10) {
+      ...friendFields
+    }
+    mutualFriends(first: 10) {
+      ...friendFields
+    }
   }
 }
 
