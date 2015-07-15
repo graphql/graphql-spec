@@ -259,17 +259,17 @@ on that object.
 
 For example, selecting all the fields of `Person`:
 
-```
+```graphql
 {
-  name,
-  age,
+  name
+  age
   picture
 }
 ```
 
 Would yield the object:
 
-```
+```js
 {
   "name": "Mark Zuckerberg",
   "age": 30,
@@ -279,16 +279,16 @@ Would yield the object:
 
 While selecting a subset of fields:
 
-```
+```graphql
 {
-  name,
+  name
   age
 }
 ```
 
 Must only yield exactly that subset:
 
-```
+```js
 {
   "name": "Mark Zuckerberg",
   "age": 30
@@ -313,18 +313,18 @@ type Person {
 Valid queries must supply a nested field set for a field that returns
 an object, so this query is not valid:
 
-```!
+```!graphql
 {
-  name,
+  name
   relationship
 }
 ```
 
 However, this example is valid:
 
-```
+```graphql
 {
-  name,
+  name
   relationship {
     name
   }
@@ -333,7 +333,7 @@ However, this example is valid:
 
 And will yield the subset of each object type queried:
 
-```
+```js
 {
   "name": "Mark Zuckerberg",
   "relationship": {
@@ -373,16 +373,16 @@ these arguments.
 
 This example query:
 
-```
+```graphql
 {
-  name,
+  name
   picture(size: 600)
 }
 ```
 
 May yield the result:
 
-```
+```js
 {
   "name": "Mark Zuckerberg",
   "picture": "http://some.cdn/picture_600.jpg"
@@ -461,11 +461,11 @@ type Contact {
 This allows us to write a query for a `Contact` that can select the
 common fields.
 
-```
+```graphql
 {
   entity {
     name
-  },
+  }
   phoneNumber
 }
 ```
@@ -475,12 +475,12 @@ the interface may be queried. In the above example, `entity` returns a
 `NamedEntity`, and `name` is defined on `NamedEntity`, so it is valid. However,
 the following would not be a valid query:
 
-```!
+```!graphql
 {
   entity {
-    name,
+    name
     age
-  },
+  }
   phoneNumber
 }
 ```
@@ -489,10 +489,10 @@ because `entity` refers to a `NamedEntity`, and `age` is not defined on that
 interface. Querying for `age` is only valid when the result of `entity` is a
 `Person`; the query can express this using a fragment or an inline fragment:
 
-```
+```graphql
 {
   entity {
-    name,
+    name
     ... on Person {
       age
     }
@@ -558,7 +558,7 @@ type. If the query wanted the name if the result was a Person, and the height if
 it was a photo, the following query is invalid, because the union itself
 defines no fields:
 
-```!
+```!graphql
 {
   firstSearchResult {
     name
@@ -569,7 +569,7 @@ defines no fields:
 
 Instead, the query would be:
 
-```
+```graphql
 {
   firstSearchResult {
     ... on Person {

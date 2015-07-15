@@ -18,27 +18,37 @@ of type system errors rather than cease execution completely.
 For this section of this schema, we will assume the following type system
 in order to demonstrate examples:
 
-```graphql
-
+```
 enum DogCommand { SIT, DOWN, HEEL }
 
 type Dog : Pet {
-  name: String!,
-  nickname: String,
-  barkVolume: Int,
+  name: String!
+  nickname: String
+  barkVolume: Int
   doesKnowCommand(dogCommand: DogCommand!) : Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
 }
 
-interface Sentient { name: String! }
-interface Pet { name: String! }
+interface Sentient {
+  name: String!
+}
 
-type Alien : Sentient { name: String!, homePlanet: String }
-type Human : Sentient { name: String! }
+interface Pet {
+  name: String!
+}
+
+type Alien : Sentient {
+  name: String!
+  homePlanet: String
+}
+
+type Human : Sentient {
+  name: String!
+}
 
 type Cat : Pet {
-  name: String!,
-  nickname: String,
+  name: String!
+  nickname: String
   meowVolume: Int
 }
 
@@ -65,7 +75,6 @@ selection set. There are no limitations on alias names.
 For example the following fragment would not pass validation:
 
 ```!graphql
-
 fragment fieldNotDefined on Dog {
   meowVolume
 }
@@ -149,12 +158,10 @@ fragment mergeIdenticalAliasesAndFields on Dog {
 The following is not able to merge:
 
 ```!graphql
-
 fragment conflictingBecauseAlias on Dog {
   name: nickname
   name
 }
-
 ```
 
 Identical arguments are also merged if they have identical arguments. Both
@@ -163,7 +170,6 @@ values and variables can be correctly merged.
 For example the following correctly merge:
 
 ```graphql
-
 fragment mergeIdenticalFieldsWithIdenticalArgs on Dog {
   doesKnowCommand(dogCommand: SIT)
   doesKnowCommand(dogCommand: SIT)
@@ -173,13 +179,11 @@ fragment mergeIdenticalFieldsWithIdenticalValues on Dog {
   doesKnowCommand(dogCommand: $dogCommand)
   doesKnowCommand(dogCommand: $dogCommand)
 }
-
 ```
 
 The following do not correctly merge:
 
 ```!graphql
-
 fragment conflictingArgsOnValues on Dog {
   doesKnowCommand(dogCommand: SIT)
   doesKnowCommand(dogCommand: HEEL)
@@ -245,7 +249,9 @@ The following is invalid.
 
 ```!graphql
 fragment scalarSelectionsNotAllowedOnBoolean : Dog {
-  barkVolume { sinceWhen }
+  barkVolume {
+    sinceWhen
+  }
 }
 ```
 
@@ -255,7 +261,7 @@ and unions without subfields are disallowed.
 
 Let's assume the following query root type of the schema:
 
-```graphql
+```
 type QueryRoot {
   human: Human
   pet: Pet
@@ -266,19 +272,15 @@ type QueryRoot {
 The following examples are invalid
 
 ```!graphql
-
-query directQueryOnObjectWithoutSubFields
-{
+query directQueryOnObjectWithoutSubFields {
   human
 }
 
-query directQueryOnInterfaceWithoutSubFields
-{
+query directQueryOnInterfaceWithoutSubFields {
   pet
 }
 
-query directQueryOnUnionWithoutSubFields
-{
+query directQueryOnUnionWithoutSubFields {
   catOrDog
 }
 ```
@@ -333,7 +335,7 @@ fragment invalidArgName on Dog {
 In order to explore more complicated argument examples, let's add the following
 to our type system:
 
-```graphql
+```
 type Arguments {
   multipleReqs(x: Int!, y: Int!)
   booleanArgField(booleanArg: Boolean)
@@ -422,7 +424,6 @@ fragment goodBooleanArg on Arguments {
 fragment goodNonNullArg on Arguments {
   nonNullBooleanArgField(nonNullBooleanArg: true)
 }
-
 ```
 
 The argument can be omitted from a field with a nullable argument.
@@ -464,29 +465,28 @@ not defined in the schema, the query does not validate.
 For example the following fragments are valid:
 
 ```graphql
-
-fragment CorrectType on Dog {
+fragment correctType on Dog {
   name
 }
 
-fragment InlineFragment on Dog {
+fragment inlineFragment on Dog {
   ... on Dog {
     name
   }
 }
-
 ```
 
 and the following do not validate:
 
 ```!graphql
-
-fragment NotOnExistingType on NotInSchema {
+fragment notOnExistingType on NotInSchema {
   name
 }
 
-fragment InlineNotExistingType on Dog {
-  ... on NotInSchema { name }
+fragment inlineNotExistingType on Dog {
+  ... on NotInSchema {
+    name
+  }
 }
 ```
 
@@ -507,16 +507,33 @@ applies to both inline and named fragments.
 The following fragment declarations are valid:
 
 ```graphql
-fragment fragOnObject on Dog { name }
-fragment fragOnInterface on Pet { name }
-fragment fragOnUnion on CatOrDog { ... on Dog { name } }
+fragment fragOnObject on Dog {
+  name
+}
+
+fragment fragOnInterface on Pet {
+  name
+}
+
+fragment fragOnUnion on CatOrDog {
+  ... on Dog {
+    name
+  }
+}
 ```
 
 and the following are invalid:
 
 ```!graphql
-fragment fragOnScalar on Int { something }
-fragment inlineFragOnScalar on Dog { ... on Boolean { somethingElse } }
+fragment fragOnScalar on Int {
+  something
+}
+
+fragment inlineFragOnScalar on Dog {
+  ... on Boolean {
+    somethingElse
+  }
+}
 ```
 
 #### Fragments Must Be Used
@@ -533,10 +550,15 @@ Defined fragments must be used within a query document.
 For example the following is an invalid query document:
 
 ```!graphql
-fragment nameFragment on Dog { // unused
+fragment nameFragment on Dog { # unused
   name
 }
-{ dog { name } }
+
+{
+  dog {
+    name
+  }
+}
 ```
 
 ### Fragment Spreads
@@ -561,8 +583,11 @@ within the document.  If the target of a spread is
 not defined, this is an error:
 
 ```!graphql
-fragment nameFragment on Dog { name }
-{ dog { ...undefinedFragment} }
+{
+  dog {
+    ...undefinedFragment
+  }
+}
 ```
 
 #### Fragment spreads must not form cycles
@@ -612,7 +637,14 @@ If the above fragments were inlined, this would result in the infinitely large:
 ```!graphql
 {
   dog {
-    name, barkVolume, name, barkVolume, name, barkVolume, name, # etc...
+    name
+    barkVolume
+    name
+    barkVolume
+    name
+    barkVolume
+    name
+    # forever...
   }
 }
 ```
@@ -678,13 +710,21 @@ is in scope.
 For example
 
 ```graphql
-fragment dogFragment on Dog { ... on Dog { barkVolume } }
+fragment dogFragment on Dog {
+  ... on Dog {
+    barkVolume
+  }
+}
 ```
 
 and the following is invalid
 
 ```!graphql
-fragment catInDogFragmentInvalid on Dog { ... on Cat { meowVolume } }
+fragment catInDogFragmentInvalid on Dog {
+  ... on Cat {
+    meowVolume
+  }
+}
 ```
 
 ##### Abstract Spreads in Object Scope
@@ -695,8 +735,13 @@ if the object type implements the interface or is a member of the union.
 For example
 
 ```graphql
-fragment petNameFragment on Pet { name }
-fragment interfaceWithinObjectFragment on Dog { ...petNameFragment }
+fragment petNameFragment on Pet {
+  name
+}
+
+fragment interfaceWithinObjectFragment on Dog {
+  ...petNameFragment
+}
 ```
 
 is valid because {Dog} implements Pet.
@@ -704,8 +749,15 @@ is valid because {Dog} implements Pet.
 Likewise
 
 ```graphql
-fragment CatOrDogNameFragment on CatOrDog { ... on Cat { meowVolume } }
-fragment unionWithObjectFragment on Dog { ...CatOrDogFragment }
+fragment catOrDogNameFragment on CatOrDog {
+  ... on Cat {
+    meowVolume
+  }
+}
+
+fragment unionWithObjectFragment on Dog {
+  ...CatOrDogFragment
+}
 ```
 
 is valid because {Dog} is a member of the {CatOrDog} union. It is worth
@@ -723,8 +775,18 @@ that interface or union.
 For example, the following fragments are valid:
 
 ```graphql
-fragment petFragment on Pet { name, ... on Dog { barkVolume } }
-fragment catOrDogFragment on CatOrDog { ... on Cat { meowVolume } }
+fragment petFragment on Pet {
+  name
+  ... on Dog {
+    barkVolume
+  }
+}
+
+fragment catOrDogFragment on CatOrDog {
+  ... on Cat {
+    meowVolume
+  }
+}
 ```
 
 {petFragment} is valid because {Dog} implements the interface {Pet}.
@@ -734,8 +796,17 @@ fragment catOrDogFragment on CatOrDog { ... on Cat { meowVolume } }
 By contrast the following fragments are invalid:
 
 ```!graphql
-fragment sentientFragment on Sentient { ... on Dog { barkVolume } }
-fragment humanOrAlienFragment on HumanOrAlien { ... on Cat { meowVolume } }
+fragment sentientFragment on Sentient {
+  ... on Dog {
+    barkVolume
+  }
+}
+
+fragment humanOrAlienFragment on HumanOrAlien {
+  ... on Cat {
+    meowVolume
+  }
+}
 ```
 
 {Dog} does not implement the interface {Sentient} and therefore
@@ -752,8 +823,15 @@ possible types of the scope and the spread, the spread is considered valid.
 So for example
 
 ```graphql
-fragment unionWithInterface on Pet { ...dogOrHumanFragment }
-fragment dogOrHumanFragment on DogOrHuman { ... on Dog { barkVolume } }
+fragment unionWithInterface on Pet {
+  ...dogOrHumanFragment
+}
+
+fragment dogOrHumanFragment on DogOrHuman {
+  ... on Dog {
+    barkVolume
+  }
+}
 ```
 
 is consider valid because {Dog} implements interface {Pet} and is a
@@ -762,8 +840,13 @@ member of {DogOrHuman}.
 However
 
 ```!graphql
-fragment nonIntersectingInterfaces on Pet { ...sentientFragment }
-fragment sentientFragment on Sentient { name }
+fragment nonIntersectingInterfaces on Pet {
+  ...sentientFragment
+}
+
+fragment sentientFragment on Sentient {
+  name
+}
 ```
 
 is not valid because there exists no type that implements both {Pet}
@@ -808,9 +891,11 @@ if the type of that variable not non-null.
 For example the following query will pass validation.
 
 ```graphql
-  query HouseTrainedQuery($atOtherHomes: Boolean = true) {
-    dog { isHousetrained(atOtherHomes: $atOtherHomes) }
+query houseTrainedQuery($atOtherHomes: Boolean = true) {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
   }
+}
 ```
 
 However if the variable is defined as non-null, default values
@@ -818,9 +903,11 @@ are unreachable. Therefore queries such as the following fail
 validation
 
 ```!graphql
-  query HouseTrainedQuery($atOtherHomes: Boolean! = true) {
-    dog { isHousetrained(atOtherHomes: $atOtherHomes) }
+query houseTrainedQuery($atOtherHomes: Boolean! = true) {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
   }
+}
 ```
 
 Default values must be compatible with the types of variables.
@@ -829,9 +916,11 @@ Types much match or they must be coercible to the type.
 Non-matching types fail, such as in the following example:
 
 ```!graphql
-  query HouseTrainedQuery($atOtherHomes: Boolean = "true") {
-    dog { isHousetrained(atOtherHomes: $atOtherHomes) }
+query houseTrainedQuery($atOtherHomes: Boolean = "true") {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
   }
+}
 ```
 
 However if a type is coercible the query will pass validation.
@@ -839,11 +928,11 @@ However if a type is coercible the query will pass validation.
 For example:
 
 ```graphql
-  query IntToFloatQuery($floatVar: Float = 1) {
-    arguments {
-      floatArgField(floatArg: $floatVar)
-    }
+query intToFloatQuery($floatVar: Float = 1) {
+  arguments {
+    floatArgField(floatArg: $floatVar)
   }
+}
 ```
 
 #### Variables Are Input Types
@@ -864,18 +953,37 @@ and interfaces cannot be used as inputs.
 The following queries are valid:
 
 ```graphql
-  query TakesBoolean($atOtherHomes: Boolean) { /* ... */ }
-  query TakesComplexInput($complexInput: ComplexInput) { /* ... */ }
-  query TakesListOfBooleanBang($booleans: [Boolean!]) { /* ... */ }
+query takesBoolean($atOtherHomes: Boolean) {
+  # ...
+}
+
+query takesComplexInput($complexInput: ComplexInput) {
+  # ...
+}
+
+query TakesListOfBooleanBang($booleans: [Boolean!]) {
+  # ...
+}
 ```
 
 The following queries are invalid:
 
 ```!graphql
-  query TakesCat($cat: Cat) { /* ... */ }
-  query TakesDogBang($dog: Dog!) { /* ... */ }
-  query TakesListOfPet($pets: [Pet]) { /* ... */ }
-  query TakesCatOrDog($catOrDog: CatOrDog) { /* ... */ }
+query takesCat($cat: Cat) {
+  # ...
+}
+
+query takesDogBang($dog: Dog!) {
+  # ...
+}
+
+query takesListOfPet($pets: [Pet]) {
+  # ...
+}
+
+query takesCatOrDog($catOrDog: CatOrDog) {
+  # ...
+}
 ```
 
 #### All Variable Uses Defined
@@ -898,8 +1006,10 @@ operation
 For example:
 
 ```graphql
-query VariableIsDefined($atOtherHomes: Boolean) {
-  dog { isHousetrained(atOtherHomes: $booleanArg)
+query variableIsDefined($atOtherHomes: Boolean) {
+  dog {
+    isHousetrained(atOtherHomes: $booleanArg)
+  }
 }
 ```
 
@@ -908,8 +1018,10 @@ is valid. ${atOtherHomes} is defined by the operation.
 By contrast the following query is invalid:
 
 ```!graphql
-query VariableIsNotDefined {
-  dog { isHousetrained(atOtherHomes: $atOtherHomes)
+query variableIsNotDefined {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
+  }
 }
 ```
 
@@ -923,8 +1035,10 @@ must correspond to variable definitions in all of those operations.
 For example the following is valid:
 
 ```graphql
-query VariableIsDefinedUsedInSingleFragment($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query variableIsDefinedUsedInSingleFragment($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
@@ -933,15 +1047,17 @@ fragment isHousetrainedFragment on Dog {
 ```
 
 since {isHousetrainedFragment} is used within the context of the operation
-{VariableIsDefinedUsedInSingleFragment} and the variable is defined by that
+{variableIsDefinedUsedInSingleFragment} and the variable is defined by that
 operation.
 
 On the contrary is a fragment is included within an operation that does
 not define a referenced variable, this is a validation error.
 
 ```!graphql
-query VariableIsNotDefinedUsedInSingleFragment {
-  dog { ...isHousetrainedFragment }
+query variableIsNotDefinedUsedInSingleFragment {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
@@ -952,8 +1068,10 @@ fragment isHousetrainedFragment on Dog {
 This applies transitively as well, so the following also fails:
 
 ```!graphql
-query VariableIsNotDefinedUsedInNestedFragment {
-  dog { ...outerHousetrainedFragment }
+query variableIsNotDefinedUsedInNestedFragment {
+  dog {
+    ...outerHousetrainedFragment
+  }
 }
 
 fragment outerHousetrainedFragment on Dog {
@@ -969,12 +1087,16 @@ Variables must be defined in all operations in which a fragment
 is used.
 
 ```graphql
-query HousetrainedQueryOne($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query housetrainedQueryOne($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
-query HousetrainedQueryTwo($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query housetrainedQueryTwo($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
@@ -985,21 +1107,24 @@ fragment isHousetrainedFragment on Dog {
 However the following does not validate:
 
 ```!graphql
-
-query HousetrainedQueryOne($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query housetrainedQueryOne($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
-query HousetrainedQueryTwoNotDefined {
-  dog { ...isHousetrainedFragment }
+query housetrainedQueryTwoNotDefined {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
-This is because {HousetrainedQueryTwoNotDefined} does not define
+This is because {housetrainedQueryTwoNotDefined} does not define
 a variable ${atOtherHomes} but that variable is used by {isHousetrainedFragment}
 which is included in that operation.
 
@@ -1022,8 +1147,10 @@ a validation error.
 For example the following is invalid:
 
 ```!graphql
-query VariableUnused($atOtherHomes: Boolean) {
-  dog { isHousetrained }
+query variableUnused($atOtherHomes: Boolean) {
+  dog {
+    isHousetrained
+  }
 }
 ```
 
@@ -1032,8 +1159,10 @@ because ${atOtherHomes} in not referenced.
 These rules apply to transitive fragment spreads as well:
 
 ```graphql
-query VariableUsedInFragment($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query variableUsedInFragment($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
@@ -1042,12 +1171,12 @@ fragment isHousetrainedFragment on Dog {
 ```
 
 The above is valid since ${atOtherHomes} is used in {isHousetrainedFragment}
-which is included by {VariableUsedInFragment}.
+which is included by {variableUsedInFragment}.
 
 If that fragment did not have a reference to ${atOtherHomes} it would be not valid:
 
 ```!graphql
-query VariableNotUsedWithinFragment($atOtherHomes: Boolean) {
+query variableNotUsedWithinFragment($atOtherHomes: Boolean) {
   ...isHousetrainedWithoutVariableFragment
 }
 
@@ -1061,13 +1190,16 @@ All operations in a document must use all of their variables.
 As a result, the following document does not validate.
 
 ```!graphql
-
-query QueryWithUsedVar($atOtherHomes: Boolean) {
-  dog { ...isHousetrainedFragment }
+query queryWithUsedVar($atOtherHomes: Boolean) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
-query QueryWithExtraVar($atOtherHomes: Boolean, $extra: Int) {
-  dog { ...isHousetrainedFragment }
+query queryWithExtraVar($atOtherHomes: Boolean, $extra: Int) {
+  dog {
+    ...isHousetrainedFragment
+  }
 }
 
 fragment isHousetrainedFragment on Dog {
@@ -1075,7 +1207,7 @@ fragment isHousetrainedFragment on Dog {
 }
 ```
 
-This document is not valid because {QueryWithExtraVar} defines
+This document is not valid because {queryWithExtraVar} defines
 an extraneous variable.
 
 #### All Variable Usages are Allowed
@@ -1108,8 +1240,10 @@ a not-null argument type.
 Types must match:
 
 ```!graphql
-Query IntCannotGoIntoBoolean($intArg: Int) {
-  arguments { booleanArgField(booleanArg: $intArg) }
+query intCannotGoIntoBoolean($intArg: Int) {
+  arguments {
+    booleanArgField(booleanArg: $intArg)
+  }
 }
 ```
 
@@ -1119,8 +1253,10 @@ List cardinality must also be the same. For example, lists cannot be passed into
 values.
 
 ```!graphql
-Query BooleanListCannotGoIntoBoolean($booleanListArg: [Boolean]) {
-  arguments { booleanArgField(booleanArg: $booleanListArg) }
+query booleanListCannotGoIntoBoolean($booleanListArg: [Boolean]) {
+  arguments {
+    booleanArgField(booleanArg: $booleanListArg)
+  }
 }
 ```
 
@@ -1128,8 +1264,10 @@ Nullability must also be respected. In general a nullable variable cannot
 be passed to a non-null argument.
 
 ```!graphql
-Query BooleanArgQuery($booleanArg: Boolean) {
-  arguments { nonNullBooleanArgField(nonNullBooleanArg: $booleanArg) }
+query booleanArgQuery($booleanArg: Boolean) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
 }
 ```
 
@@ -1137,8 +1275,10 @@ A notable exception is when default arguments are provided. They are, in effect,
 treated as non-nulls.
 
 ```graphql
-Query BooleanArgQueryWithDefault($booleanArg: Boolean = true) {
-  arguments { nonNullBooleanArgField(nonNullBooleanArg: $booleanArg) }
+query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
 }
 ```
 
@@ -1147,21 +1287,21 @@ and inner types. A nullable list cannot be passed to a non-null list, and a list
 of nullable values cannot be passed to a list of non-null values.
 
 ```graphql
-
-Query NonNullListToList($nonNullBooleanList: ![Boolean]) {
-  arguments { booleanListArgField(booleanListArg: $nonNullBooleanList) }
+query nonNullListToList($nonNullBooleanList: ![Boolean]) {
+  arguments {
+    booleanListArgField(booleanListArg: $nonNullBooleanList)
+  }
 }
-
 ```
 
 However a nullable list could not be passed to a non-null list.
 
 ```!graphql
-
-Query ListToNonNullList($booleanList: [Boolean]) {
-  arguments { nonNullBooleanListField(nonNullBooleanListArg: $booleanList) }
+query listToNonNullList($booleanList: [Boolean]) {
+  arguments {
+    nonNullBooleanListField(nonNullBooleanListArg: $booleanList)
+  }
 }
-
 ```
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.

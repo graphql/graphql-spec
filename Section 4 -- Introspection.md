@@ -18,13 +18,15 @@ type User {
 
 The query
 
-```
+```graphql
 {
   __type(name: "User") {
-    name,
+    name
     fields {
-      name,
-      type { name }
+      name
+      type {
+        name
+      }
     }
   }
 }
@@ -32,14 +34,23 @@ The query
 
 would return
 
-```
+```js
 {
   "__type": {
     "name" : "User",
     "fields": [
-      { "name": "id", "type": { "name": "String" } },
-      { "name": "name", "type": { "name": "String" } },
-      { "name": "birthday", "type": { "name": "Date" } },
+      {
+        "name": "id",
+        "type": { "name": "String" }
+      },
+      {
+        "name": "name",
+        "type": { "name": "String" }
+      },
+      {
+        "name": "birthday",
+        "type": { "name": "Date" }
+      },
     ]
   }
 }
@@ -175,7 +186,6 @@ type __Directive {
   onFragment: Boolean!
   onField: Boolean!
 }
-
 ```
 
 

@@ -196,7 +196,7 @@ For example, given the following grouped field set to be evaluated normally:
 {
   birthday {
     month
-  },
+  }
   address {
     street
   }
@@ -223,7 +223,7 @@ For example, given the following selection set to be evaluated serially:
 {
   changeBirthday(birthday: $newBirthday) {
     month
-  },
+  }
   changeAddress(address: $newAddress) {
     street
   }
@@ -245,13 +245,13 @@ As an illustrative example, let's assume we have a mutation field
 {
   first: changeTheNumber(newNumber: 1) {
     theNumber
-  },
+  }
   second: changeTheNumber(newNumber: 3) {
     theNumber
-  },
+  }
   third: changeTheNumber(newNumber: 2) {
     theNumber
-  },
+  }
 }
 ```
 
@@ -276,7 +276,7 @@ A correct executor must generate the following result for that selection set:
   },
   "third": {
     "theNumber": 2
-  },
+  }
 }
 ```
 

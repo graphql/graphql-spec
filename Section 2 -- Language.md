@@ -59,12 +59,16 @@ viewer. Some typical examples of global fields:
 ```graphql
 # `me` could represent the currently logged in user.
 query getMe {
-  me { /* ... */ }
+  me {
+    # ...
+  }
 }
 
 # `user` represents one of many users in a graph of data.
 query getZuck {
-  user(id: 4) { /* ... */ }
+  user(id: 4) {
+    # ...
+  }
 }
 ```
 
@@ -77,8 +81,8 @@ fetching data from some user object:
 ```graphql
 query getZuck {
   user(id: 4) {
-    id,
-    firstName,
+    id
+    firstName
     lastName
   }
 }
@@ -90,11 +94,11 @@ nested types. All queries must specify down to scalar fields.
 ```graphql
 query getZuck {
   user(id: 4) {
-    id,
-    firstName,
-    lastName,
+    id
+    firstName
+    lastName
     birthday {
-      month,
+      month
       day
     }
   }
@@ -114,8 +118,8 @@ specific size:
 ```graphql
 {
   user(id: 4) {
-    id,
-    name,
+    id
+    name
     profilePic(size: 100)
   }
 }
@@ -126,8 +130,8 @@ Many arguments can exist for a given field:
 ```graphql
 {
   user(id: 4) {
-    id,
-    name,
+    id
+    name
     profilePic(width: 100, height: 50)
   }
 }
@@ -163,9 +167,9 @@ the resulting object will not have duplicate keys:
 ```graphql
 {
   user(id: 4) {
-    id,
-    name,
-    smallPic: profilePic(size: 64),
+    id
+    name
+    smallPic: profilePic(size: 64)
     bigPic: profilePic(size: 1024)
   }
 }
@@ -189,7 +193,7 @@ Since the top level of a query is a field, it also can be given an alias:
 ```graphql
 {
   zuck: user(id: 4) {
-    id,
+    id
     name
   }
 }
@@ -269,8 +273,8 @@ of a particular device:
 ```graphql
 query getZuckProfile($devicePicSize: Int) {
   user(id: 4) {
-    id,
-    name,
+    id
+    name
     profilePic(size: $devicePicSize)
   }
 }
@@ -299,13 +303,13 @@ as well as friends of some user:
 query noFragments {
   user(id: 4) {
     friends(first: 10) {
-      id,
-      name,
+      id
+      name
       profilePic(size: 50)
-    },
+    }
     mutualFriends(first: 10) {
-      id,
-      name,
+      id
+      name
       profilePic(size: 50)
     }
   }
@@ -318,14 +322,14 @@ a parent fragment or query.
 ```graphql
 query withFragments {
   user(id: 4) {
-    friends(first: 10) { ...friendFields },
+    friends(first: 10) { ...friendFields }
     mutualFriends(first: 10) { ...friendFields }
   }
 }
 
 fragment friendFields on User {
-  id,
-  name,
+  id
+  name
   profilePic(size: 50)
 }
 ```
@@ -338,17 +342,20 @@ spreads.
 For example:
 
 ```graphql
-query withNestedFragments
-{
+query withNestedFragments {
   user(id: 4) {
-    friends(first: 10) { ...friendFields },
-    mutualFriends(first: 10) { ...friendFields }
+    friends(first: 10) {
+      ...friendFields
+    }
+    mutualFriends(first: 10) {
+      ...friendFields
+    }
   }
 }
 
 fragment friendFields on User {
-  id,
-  name,
+  id
+  name
   ...standardProfilePic
 }
 
@@ -378,18 +385,22 @@ For example in this query on the Facebook data model:
 ```graphql
 query FragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
-    handle,
-    ...userFragment,
+    handle
+    ...userFragment
     ...pageFragment
   }
 }
 
 fragment userFragment on User {
-  friends { count }
+  friends {
+    count
+  }
 }
 
 fragment pageFragment on Page {
-  likers { count }
+  likers {
+    count
+  }
 }
 ```
 
@@ -429,14 +440,18 @@ was demonstrated in the `query FragmentTyping` example. We could accomplish the
 same thing using inline fragments.
 
 ```graphql
-query InlineFragmentTyping {
+query inlineFragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
-    handle,
+    handle
     ... on User {
-      friends { count }
-    },
+      friends {
+        count
+      }
+    }
     ... on Page {
-      likers { count }
+      likers {
+        count
+      }
     }
   }
 }
@@ -466,11 +481,11 @@ definition.
 For example, the following query:
 
 ```graphql
-query HasConditionalFragment($condition: Boolean) {
-  ...MaybeFragment @include(if: $condition)
+query hasConditionalFragment($condition: Boolean) {
+  ...maybeFragment @include(if: $condition)
 }
 
-fragment MaybeFragment on Query {
+fragment maybeFragment on Query {
   me {
     name
   }
@@ -480,11 +495,11 @@ fragment MaybeFragment on Query {
 Will have identical runtime behavior as
 
 ```graphql
-query HasConditionalFragment($condition: Boolean) {
-  ...MaybeFragment
+query hasConditionalFragment($condition: Boolean) {
+  ...maybeFragment
 }
 
-fragment MaybeFragment on Query @include(if: $condition) {
+fragment maybeFragment on Query @include(if: $condition) {
   me {
     name
   }
