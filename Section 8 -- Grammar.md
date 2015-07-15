@@ -76,15 +76,15 @@ characters including whitespace and comments. No ignored regions of a source
 document are significant, however ignored source characters may appear within a
 lexical token, for example a {String} may contain whitespace.
 
-*Ignoring commas*
+**Ignoring commas**
 
-GraphQL ignores the comma `,` character. This ensures that the absence or
+GraphQL ignores the comma ({`,`}) character. This ensures that the absence or
 presence of a comma does not meaningfully alter the interpreted syntax of the
 document, as this can be a common user-error in other languages. It also allows
 for the stylistic use of either trailing commas or line-terminators as
 delimiters which are often desired for legibility and maintainability of source
-code. The use of commas, whitespace, and line-terminators is encouraged when
-they improve the legibility of GraphQL documents.
+code. The use of commas, whitespace, and line-terminators is encouraged only
+when they improve the legibility of GraphQL documents.
 
 GraphQL ignores these character sequences:
 
