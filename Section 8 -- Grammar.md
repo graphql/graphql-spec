@@ -69,13 +69,62 @@ Example_param :
   - D
 
 
+## Ignored Source
+
+Before and after every lexical token may be any amount of ignored source
+characters including whitespace and comments. No ignored regions of a source
+document are significant, however ignored source characters may appear within a
+lexical token, for example a {String} may contain whitespace.
+
+*Ignoring commas*
+
+GraphQL ignores the comma `,` character. This ensures that the absence or
+presence of a comma does not meaningfully alter the interpreted syntax of the
+document, as this can be a common user-error in other languages. It also allows
+for the stylistic use of either trailing commas or line-terminators as
+delimiters which are often desired for legibility and maintainability of source
+code. The use of commas, whitespace, and line-terminators is encouraged when
+they improve the legibility of GraphQL documents.
+
+GraphQL ignores these character sequences:
+
+Ignored :
+  - WhiteSpace
+  - LineTerminator
+  - Comment
+  - ,
+
+WhiteSpace :
+  - "Horizontal Tab (U+0009)"
+  - "Vertical Tab (U+000B)"
+  - "Form Feed (U+000C)"
+  - "Space (U+0020)"
+  - "No-break Space (U+00A0)"
+
+LineTerminator :
+  - "New Line (U+000A)"
+  - "Carriage Return (U+000D)"
+  - "Line Separator (U+2028)"
+  - "Paragraph Separator (U+2029)"
+
+Comment :
+  - `#` CommentChar+?
+
+CommentChar : "Any character" but not LineTerminator
+
+
 ## Tokens
 
 A GraphQL document is comprised of several kinds of source tokens defined here
-in a lexical grammar and used as terminal symbols in GraphQL's syntactic
-grammar. This lexical grammar defines patterns of source characters by specifying
-character patterns in {`monospace`} or as {/regular_expressions/}. Non-terminal
-patterns are defined as {Italics}.
+in a lexical grammar. This lexical grammar defines patterns of source characters
+by specifying character patterns in {`monospace`} or as {/regular_expressions/}.
+Non-terminal patterns are defined as {Italics}.
+
+No characters are ignored while parsing a given token, for example no whitespace
+is allowed between the characters defining a {FloatValue}, however ignored
+characters are skipped before and after each well-formed Token.
+
+Tokens are later used as terminal symbols in GraphQL's syntactic grammar.
 
 The GraphQL document syntactic grammar is defined in terms of these
 lexical tokens:
@@ -124,54 +173,18 @@ EscapedUnicode : u /[0-9A-Fa-f]{4}/
 EscapedCharacter : one of `"` \ `/` b f n r t
 
 
-
-### Ignored Source
-
-Before every lexical token may be any amount of ignored source characters
-such as whitespace and comments. Whitespace, other than within strings, is
-not significant.
-
-GraphQL treats comma `,` similarly to whitespace. This ensures that the absence
-or presence of a comma does not meaningfully alter the interpreted syntax of
-the document which is a common user-error in other languages. It also allows for
-the stylistic use of trailing commas or line-breaks as delimiters which are
-often desired for legibility and maintainability of source code. The use of
-commas and other whitespace is suggested when it improves legibility.
-
-GraphQL ignores these character sequences:
-
-Ignored :
-  - WhiteSpace
-  - LineTerminator
-  - Comment
-  - ,
-
-WhiteSpace :
-  - "Horizontal Tab (U+0009)"
-  - "Vertical Tab (U+000B)"
-  - "Form Feed (U+000C)"
-  - "Space (U+0020)"
-  - "No-break Space (U+00A0)"
-
-LineTerminator :
-  - "New Line (U+000A)"
-  - "Carriage Return (U+000D)"
-  - "Line Separator (U+2028)"
-  - "Paragraph Separator (U+2029)"
-
-Comment :
-  - `#` CommentChar+?
-
-CommentChar : "Any character" but not LineTerminator
-
-
-
 ## Syntax
 
 A GraphQL document is defined in a syntactic grammar where terminal symbols are
 expressed as either an italicized token (ex. {Document}) or as
-monospaced short-hand for a {Punctuator} (ex. {`:`}) or {Name}
+monospaced short-hand for a {Punctuator} (ex. {`:`}) or short-hand for a {Name}
 (ex. {`query`}).
+
+Since whitespace, comments, and other ignored source is skipped between each
+well-formed token, this ignored source can appear at any point between the
+terminal tokens in the syntactic grammars defined below. However GraphQL
+source documents are encouraged to use ignored source only to
+improve legibility.
 
 
 ### Document
