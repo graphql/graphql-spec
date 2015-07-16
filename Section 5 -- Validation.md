@@ -942,6 +942,8 @@ query intToFloatQuery($floatVar: Float = 1) {
   * For every {operation} in a {document}
   * For every {variable} on each {operation}
     * Let {variableType} be the type of {variable}
+    * While {variableType} is {LIST} or {NON_NULL}
+      * Let {variableType} be the referenced type of {variableType}
     * {variableType} must of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
 
 ** Explanatory Text **
