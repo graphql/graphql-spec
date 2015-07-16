@@ -68,6 +68,24 @@ Example_param :
   - C_param
   - D
 
+A grammar production may specify that certain expansions are not permitted by
+using the phrase "but not" and then indicating the expansions to be excluded.
+
+For example, the production:
+
+SafeName : Name but not SevenCarlinWords
+
+means that the nonterminal {SafeName} may be replaced by any sequence of
+characters that could replace {Name} provided that the same sequence of
+characters could not replace {SevenCarlinWords}.
+
+A grammar may also list a number of restrictions after "but not" seperated
+by "or".
+
+For example:
+
+NonBooleanName : Name but not `true` or `false`
+
 
 ## Ignored Source
 
@@ -247,7 +265,7 @@ InlineFragment : ... on TypeCondition Directives? SelectionSet
 
 FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
 
-FragmentName : [ lookahead ! on ] Name
+FragmentName : Name but not `on`
 
 TypeCondition : TypeName
 
@@ -271,7 +289,7 @@ BooleanValue :
   - true
   - false
 
-EnumValue : Name
+EnumValue : Name but not `true`, `false` or `null`
 
 
 #### Array Value
