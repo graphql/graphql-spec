@@ -126,7 +126,7 @@ LineTerminator :
   - "Paragraph Separator (U+2029)"
 
 Comment :
-  - `#` CommentChar+?
+  - `#` CommentChar*
 
 CommentChar : "Any character" but not LineTerminator
 
@@ -167,7 +167,7 @@ FloatValue :
 
 IntegerPart :
   - NegativeSign? 0
-  - NegativeSign? NonZeroDigit Digit+?
+  - NegativeSign? NonZeroDigit Digit*
 
 FractionalPart : . Digit+
 
