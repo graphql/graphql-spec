@@ -706,7 +706,7 @@ then an error should be raised.
 
 **Input Coercion**
 
-Note that `null` is not a valid keyword in GraphQL, so a query cannot look like:
+Note that `null` is not a value in GraphQL, so a query cannot look like:
 
 ```!graphql
 {
@@ -715,22 +715,31 @@ Note that `null` is not a valid keyword in GraphQL, so a query cannot look like:
 ```
 
 to indicate that the argument is null. Instead, an argument would be null only
-if it is passed a variable that is then not set:
+if it is omitted:
 
 ```graphql
 {
+  field
+}
+```
+
+Or if passed a variable of a nullable type that at runtime was not provided
+a value:
+
+```graphql
+query withNullableVariable($var: String) {
   field(arg: $var)
 }
 ```
 
-Hence, if the value for a non-null is hard-coded in the query, it is always
+Hence, if the value for a Non Null type is hard-coded in the query, it is always
 coerced using the input coercion for the wrapped type.
 
-When a non-null input has its value set using a variable, the coerced value
+When a Non Null input has its value set using a variable, the coerced value
 should be `null` if the provided value is `null`-like in the provided
 representation, or if the provided value is omitted. Otherwise, the coerced
-value is the result of running the wrapped type's input coercion on the provided
-value.
+value is the result of running the wrapped type's input coercion on the
+provided value.
 
 ## Directives
 
