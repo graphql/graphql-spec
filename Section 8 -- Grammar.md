@@ -158,24 +158,30 @@ Punctuator : one of ! $ ( ) ... : = @ [ ] { | }
 
 Name : /[_A-Za-z][_0-9A-Za-z]*/
 
-IntValue : Sign? IntegerPart
+IntValue : IntegerPart
 
-FloatValue : Sign? IntegerPart . Digit+ ExponentPart?
-
-Sign : -
+FloatValue :
+  - IntegerPart FractionalPart
+  - IntegerPart ExponentPart
+  - IntegerPart FractionalPart ExponentPart
 
 IntegerPart :
-  - 0
-  - NonZeroDigit
-  - NonZeroDigit Digit+
+  - NegativeSign? 0
+  - NegativeSign? NonZeroDigit Digit+?
 
-ExponentPart : e Sign? Digit+
+FractionalPart : . Digit+
 
-NonZeroDigit : one of 1 2 3 4 5 6 7 8 9
+ExponentPart : ExponentIndicator Sign? Digit+
 
-Digit :
-  - 0
-  - NonZeroDigit
+Digit : one of 0 1 2 3 4 5 6 7 8 9
+
+NonZeroDigit : Digit but not `0`
+
+Sign : one of + -
+
+NegativeSign : -
+
+ExponentIndicator : one of `e` `E`
 
 StringValue :
   - `""`
