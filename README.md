@@ -219,7 +219,7 @@ define one more type that allows us to get to these objects:
 
 ```
 type Query {
-  hero: Character
+  hero(episode: Episode): Character
   human(id: String!): Human
   droid(id: String!): Droid
 }
@@ -227,10 +227,11 @@ type Query {
 
 This type will be the entry point for the queries described below; it has
 two fields. `hero` returns the `Character` who is the hero of the
-Star Wars trilogy. `human` has a new feature in the type system, a query
-argument. This field accepts a non-null string as a query argument,
-a human's ID, and returns the human with that ID; `droid` does the same
-for droids.
+Star Wars trilogy; it takes an optional parameter that allows us to fetch the
+hero of a specific episode instead. `human` has a new feature in the type
+system, a query argument. This field accepts a non-null string as a query
+argument, a human's ID, and returns the human with that ID; `droid` does the
+same for droids.
 
 When we package the whole type system together, defining the `Query` type
 above as our entry point for queries, this creates a GraphQL Schema.
@@ -550,6 +551,30 @@ Since R2-D2 is a droid, this will return
   "hero": {
     "__typename": "Droid",
     "name": "R2-D2"
+  }
+}
+```
+
+This was particularly useful because `hero` was defined to return a `Character`,
+which is an interface; we might want to know what concrete type was actually
+returned. If we instead asked for the hero of episode V:
+
+```
+query CheckTypeOfLuke {
+  hero(episode: EMPIRE) {
+    __typename
+    name
+  }
+}
+```
+
+We would find that it was Luke, who is a Human:
+
+```json
+{
+  "hero": {
+    "__typename": "Human",
+    "name": "Luke Skywalker"
   }
 }
 ```
