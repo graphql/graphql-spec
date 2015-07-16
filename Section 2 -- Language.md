@@ -222,12 +222,12 @@ contain variables.
 
 **Int**
 
-Int is a number specified without a decimal point (ex. `1`).
+Int is a number specified without a decimal point or exponent (ex. `1`).
 
 **Float**
 
-A Float numbers always includes a decimal point (ex. `1.0`) and may optionally
-also include an exponent (ex. `6.0221413e23`).
+A Float number includes either a decimal point (ex. `1.0`) or an exponent
+(ex. `1e50`) or both (ex. `6.0221413e23`).
 
 **Boolean**
 
