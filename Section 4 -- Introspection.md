@@ -104,7 +104,7 @@ operation.
 
 ```
 __schema : __Schema!
-__type(name: String) : __Type
+__type(name: String!) : __Type
 ```
 
 These fields are implicit and do not appear in the fields list in the root type
