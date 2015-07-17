@@ -87,6 +87,19 @@ For example:
 NonBooleanName : Name but not `true` or `false`
 
 
+## Source Text
+
+GraphQL documents are expressed as a sequence of
+[Unicode](http://unicode.org/standard/standard.html) code points.
+
+However, with few exceptions, most of GraphQL is expressed only in the original
+ASCII range so as to be as widely compatible with as many existing tools,
+languages, and serialization formats as possible. Other than the ignored Unicode
+code points, Non-ASCII Unicode code points are only found within {StringValue}.
+
+SourceCharacter : "Any Unicode code point"
+
+
 ## Ignored Source
 
 Before and after every lexical token may be any amount of ignored source
@@ -128,7 +141,7 @@ LineTerminator :
 Comment :
   - `#` CommentChar*
 
-CommentChar : "Any character" but not LineTerminator
+CommentChar : SourceCharacter but not LineTerminator
 
 
 ## Tokens
@@ -188,7 +201,7 @@ StringValue :
   - `"` StringCharacter+ `"`
 
 StringCharacter :
-  - "Any character" but not `"` or \ or LineTerminator
+  - SourceCharacter but not `"` or \ or LineTerminator
   - \ EscapedUnicode
   - \ EscapedCharacter
 
