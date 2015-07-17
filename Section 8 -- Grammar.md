@@ -286,7 +286,7 @@ FragmentDefinition : fragment FragmentName on TypeCondition Directives? Selectio
 
 FragmentName : Name but not `on`
 
-TypeCondition : TypeName
+TypeCondition : NamedType
 
 
 ### Values
@@ -373,16 +373,16 @@ GraphQL describes the schema of the data it provides using a type system. These
 types are referred to in the document when defining query variables.
 
 Type :
-  - TypeName
+  - NamedType
   - ListType
   - NonNullType
 
-TypeName : Name
+NamedType : Name
 
 ListType : [ Type ]
 
 NonNullType :
-  - TypeName !
+  - NamedType !
   - ListType !
 
 **Semantics**
