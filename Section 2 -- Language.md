@@ -32,7 +32,7 @@ name of the desired operation must also be provided.
 
 If a document contains only one query operation, that operation may be
 represented in the shorthand form, which omits the query keyword and
-query name.
+operation name.
 
 ## Operations
 
@@ -41,12 +41,12 @@ There are two types of operations that GraphQL models:
   * query - a read-only fetch.
   * mutation - a write followed by a fetch.
 
-Each operation is represented by a custom name and a selection of fields.
+Each operation is represented by an operation name and a selection of fields.
 
 **Query shorthand**
 
-If a query has no variables or directives or name, the `query` keyword can be
-omitted. This means it must be the only query in the document.
+If a query has no variables or directives or name, the `query` keyword and name
+can be omitted. This means it must be the only query in the document.
 
 Note: many examples below will use the query shorthand syntax.
 

@@ -264,17 +264,30 @@ query HeroNameQuery {
 }
 ```
 
-The initial line, `query HeroNameQuery`, says that we're running a query,
-and tells GraphQL to start with the schema's root query type; in this case,
-`Query`. As defined above, `Query` has a `hero` field that returns a
+The initial line, `query HeroNameQuery`, defines a query with the operation
+name `HeroNameQuery` that starts with the schema's root query type; in this
+case, `Query`. As defined above, `Query` has a `hero` field that returns a
 `Character`, so we'll query for that. `Character` then has a `name` field that
 returns a `String`, so we query for that, completing our query. The result of
 this query would then be:
+
 
 ```json
 {
   "hero": {
     "name": "R2-D2"
+  }
+}
+```
+
+Specifying the `query` keyword and an operation name is only required when a
+GraphQL document defines multiple operations.  We therefore could have written
+our  the previous query with the query shorthand:
+
+```
+{
+  hero {
+    name
   }
 }
 ```
