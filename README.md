@@ -282,7 +282,7 @@ this query would then be:
 
 Specifying the `query` keyword and an operation name is only required when a
 GraphQL document defines multiple operations.  We therefore could have written
-our  the previous query with the query shorthand:
+the previous query with the query shorthand:
 
 ```
 {
