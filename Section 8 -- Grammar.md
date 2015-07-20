@@ -5,88 +5,6 @@ tokens. Tokens are defined in a lexical grammar which matches patterns of source
 characters. The result of parsing a sequence of source UTF-8 characters produces
 a GraphQL AST.
 
-Symbols are defined (ex. Symbol :) as either one sequence of symbols or a list
-of possible sequences of symbols, either as a bulleted list or using the
-"one of" short hand.
-
-A subscript suffix "{Symbol?}" is shorthand for two possible sequences, one
-including that symbol and one excluding it.
-
-As an example:
-
-Sentence : Noun Verb Adverb?
-
-is shorthand for
-
-Sentence :
-  - Noun Verb
-  - Noun Verb Adverb
-
-A subscript suffix "{Symbol+}" is shorthand for a list of
-one or more of that symbol.
-
-As an example:
-
-Book : Cover Page+ Cover
-
-is shorthand for
-
-Book : Cover Page_list Cover
-
-Page_list :
-  - Page
-  - Page_list Page
-
-A symbol definition subscript suffix parameter in braces "{Symbol[Param]}"
-is shorthand for two symbol definitions, one appended with that parameter name,
-the other without. The same subscript suffix on a symbol is shorthand for that
-variant of the definition. If the parameter starts with "?", that
-form of the symbol is used if in a symbol definition with the same parameter.
-Some possible sequences can be included or excluded conditionally when
-respectively prefixed with "\[+Param]" and "\[~Param]".
-
-As an example:
-
-Example[Param] :
-  - A
-  - B[Param]
-  - C[?Param]
-  - [+Param] D
-  - [~Param] E
-
-is shorthand for
-
-Example :
-  - A
-  - B_param
-  - C
-  - E
-
-Example_param :
-  - A
-  - B_param
-  - C_param
-  - D
-
-A grammar production may specify that certain expansions are not permitted by
-using the phrase "but not" and then indicating the expansions to be excluded.
-
-For example, the production:
-
-SafeName : Name but not SevenCarlinWords
-
-means that the nonterminal {SafeName} may be replaced by any sequence of
-characters that could replace {Name} provided that the same sequence of
-characters could not replace {SevenCarlinWords}.
-
-A grammar may also list a number of restrictions after "but not" seperated
-by "or".
-
-For example:
-
-NonBooleanName : Name but not `true` or `false`
-
-
 ## Source Text
 
 GraphQL documents are expressed as a sequence of
@@ -119,29 +37,29 @@ when they improve the legibility of GraphQL documents.
 
 GraphQL ignores these character sequences:
 
-Ignored :
+Ignored ::
   - WhiteSpace
   - LineTerminator
   - Comment
   - ,
 
-WhiteSpace :
+WhiteSpace ::
   - "Horizontal Tab (U+0009)"
   - "Vertical Tab (U+000B)"
   - "Form Feed (U+000C)"
   - "Space (U+0020)"
   - "No-break Space (U+00A0)"
 
-LineTerminator :
+LineTerminator ::
   - "New Line (U+000A)"
   - "Carriage Return (U+000D)"
   - "Line Separator (U+2028)"
   - "Paragraph Separator (U+2029)"
 
-Comment :
+Comment ::
   - `#` CommentChar*
 
-CommentChar : SourceCharacter but not LineTerminator
+CommentChar :: SourceCharacter but not LineTerminator
 
 
 ## Tokens
@@ -160,54 +78,54 @@ Tokens are later used as terminal symbols in GraphQL's syntactic grammar.
 The GraphQL document syntactic grammar is defined in terms of these
 lexical tokens:
 
-Token :
+Token ::
   - Punctuator
   - Name
   - IntValue
   - FloatValue
   - StringValue
 
-Punctuator : one of ! $ ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ ( ) ... : = @ [ ] { | }
 
-Name : /[_A-Za-z][_0-9A-Za-z]*/
+Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
-IntValue : IntegerPart
+IntValue :: IntegerPart
 
-FloatValue :
+FloatValue ::
   - IntegerPart FractionalPart
   - IntegerPart ExponentPart
   - IntegerPart FractionalPart ExponentPart
 
-IntegerPart :
+IntegerPart ::
   - NegativeSign? 0
   - NegativeSign? NonZeroDigit Digit*
 
-FractionalPart : . Digit+
+FractionalPart :: . Digit+
 
-ExponentPart : ExponentIndicator Sign? Digit+
+ExponentPart :: ExponentIndicator Sign? Digit+
 
-Digit : one of 0 1 2 3 4 5 6 7 8 9
+Digit :: one of 0 1 2 3 4 5 6 7 8 9
 
-NonZeroDigit : Digit but not `0`
+NonZeroDigit :: Digit but not `0`
 
-Sign : one of + -
+Sign :: one of + -
 
-NegativeSign : -
+NegativeSign :: -
 
-ExponentIndicator : one of `e` `E`
+ExponentIndicator :: one of `e` `E`
 
-StringValue :
+StringValue ::
   - `""`
   - `"` StringCharacter+ `"`
 
-StringCharacter :
+StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \ EscapedUnicode
   - \ EscapedCharacter
 
-EscapedUnicode : u /[0-9A-Fa-f]{4}/
+EscapedUnicode :: u /[0-9A-Fa-f]{4}/
 
-EscapedCharacter : one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` \ `/` b f n r t
 
 
 ## Syntax

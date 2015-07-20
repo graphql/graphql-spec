@@ -90,12 +90,12 @@ CollectFields(objectType, selectionSet, visitedFragments):
 
 doesFragmentTypeApply(objectType, fragmentType):
 
-  * If {fragmentType} is an Object Type, return {true} if {objectType} is
-    {fragmentType}, otherwise return {false}.
-  * If {fragmentType} is an Interface Type, return {true} if {objectType} is an
-    implementation of {fragmentType}, otherwise return {false}.
-  * If {fragmentType} is a Union, return {true} if {objectType} is a possible
-    type of {fragmentType}, otherwise return {false}.
+  * If {fragmentType} is an Object Type:
+    * if {objectType} and {fragmentType} are the same type, return {true}, otherwise return {false}.
+  * If {fragmentType} is an Interface Type:
+    * if {objectType} is an implementation of {fragmentType}, return {true} otherwise return {false}.
+  * If {fragmentType} is a Union:
+    * if {objectType} is a possible type of {fragmentType}, return {true} otherwise return {false}.
 
 The result of evaluating the selection set is the result of evaluating the
 corresponding grouped field set. The corresponding grouped field set should be
