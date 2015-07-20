@@ -5,6 +5,17 @@ refer to these requests as documents. A document may contain operations
 (queries and mutations are both operations) and fragments, a common unit
 of composition allowing for query reuse.
 
+## Comments
+
+GraphQL source documents may contain single-line comments, starting with the
+{`#`} marker.
+
+A comment can contain any Unicode code point except {LineTerminator} so a
+comment always consists of all code points starting with the {`#`} character up
+to but not including the end of the line.
+
+Comments behave like white space and are ignored.
+
 ## Names
 
 GraphQL documents are full of named things: operations, fields, arguments,
