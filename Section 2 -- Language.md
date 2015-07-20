@@ -52,31 +52,35 @@ Note: many examples below will use the query shorthand syntax.
 
 ## Fields
 
-A field in the top-level selection set often represents some kind of
-information that is globally accessible to your application and the current
-viewer. Some typical examples of global fields:
+Fields represent information that is accessible to your application. Some
+typical examples include:
 
 ```graphql
 # `me` could represent the currently logged in user.
 query getMe {
   me {
-    # ...
+    name
   }
 }
 
 # `user` represents one of many users in a graph of data.
 query getZuck {
   user(id: 4) {
-    # ...
+    name
   }
 }
 ```
 
+In these examples, `me` and `user` are top-level fields that represent globally
+accessible data and `name` is a subfield that represents data on a particular
+object.
+
 ## Field Selections
 
-Each field is of a specific type, and the sub-fields must always be explicitly
-declared via a field selection, unless it is a scalar. For example, when
-fetching data from some user object:
+Each field is of a specific type, and the subfields must always be explicitly
+declared via a field selection, unless the field is a scalar. For example, when
+fetching data from some user object each desired subfield must be requested
+explicitly:
 
 ```graphql
 query getZuck {
@@ -87,6 +91,10 @@ query getZuck {
   }
 }
 ```
+
+In this query, the `id`, `firstname`, and `lastname` fields form the selection
+set of the `user` field. The top-level selection set is `user`, but could also
+include other top-level fields.
 
 Field selections can be further composed to explicitly state all subfields of
 nested types. All queries must specify down to scalar fields.
