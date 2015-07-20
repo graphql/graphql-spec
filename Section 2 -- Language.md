@@ -34,6 +34,11 @@ If a document contains only one query operation, that operation may be
 represented in the shorthand form, which omits the query keyword and
 query name.
 
+## Comments
+
+Comments are prefixed by `#`.  Anything between the comment character `#` and
+the next line terminator will be ignored.
+
 ## Operations
 
 There are two types of operations that GraphQL models:
@@ -517,3 +522,4 @@ FragmentSpreadDirectives(fragmentSpread) :
     * If {directives} does not contain a directive named {directive}.
     * Add {directive} into {directives}
   * Return {directives}
+
