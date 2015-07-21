@@ -214,8 +214,12 @@ type Droid : Character {
 }
 ```
 
-We're missing one last piece: an entry point into the type system. So we'll
-define one more type that allows us to get to these objects:
+We're missing one last piece: an entry point into the type system.
+
+When we define a schema, we define an object type that is the basis for all
+queries. The name of this type is `Query` by convention, and it describes
+our public, top-level API. Our `Query` type for this example will look like
+this:
 
 ```
 type Query {
@@ -225,13 +229,18 @@ type Query {
 }
 ```
 
-This type will be the entry point for the queries described below; it has
-two fields. `hero` returns the `Character` who is the hero of the
-Star Wars trilogy; it takes an optional parameter that allows us to fetch the
-hero of a specific episode instead. `human` has a new feature in the type
-system, a query argument. This field accepts a non-null string as a query
-argument, a human's ID, and returns the human with that ID; `droid` does the
-same for droids.
+In this example, there are three top-level operations
+that can be done on our schema:
+
+ - `hero` returns the `Character` who is the hero of the Star Wars trilogy; it
+takes an optional argument that allows us to fetch the hero of a specific
+episode instead.
+ - `human` accepts a non-null string as a query argument, a human's ID, and
+returns the human with that ID.
+ - `droid` does the same for droids.
+
+These fields demonstrate another feature of the type system, the ability
+for a field to specify arguments that configure their behavior.
 
 When we package the whole type system together, defining the `Query` type
 above as our entry point for queries, this creates a GraphQL Schema.
