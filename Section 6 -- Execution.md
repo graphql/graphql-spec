@@ -6,7 +6,7 @@ This section describes how GraphQL generates a response from a request.
 
 To evaluate a request, the executor must have a parsed `Document` (as defined
 in the “Query Language” part of this spec) and a selected operation name to
-run.
+run if the document defines multiple operations.
 
 The executor should find the `Operation` in the `Document` with the given
 operation name. If no such operation exists, the executor should throw an
