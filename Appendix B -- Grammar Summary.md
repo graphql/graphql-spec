@@ -130,14 +130,14 @@ Value[Const] :
   - StringValue
   - BooleanValue
   - EnumValue
-  - ArrayValue[?Const]
+  - ListValue[?Const]
   - ObjectValue[?Const]
 
 BooleanValue : one of `true` `false`
 
 EnumValue : Name but not `true`, `false` or `null`
 
-ArrayValue[Const] :
+ListValue[Const] :
   - [ ]
   - [ Value[?Const]+ ]
 

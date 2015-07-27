@@ -662,7 +662,7 @@ type declared by the input field.
 
 A GraphQL list is a special collection type which declares the type of each
 item in the List (referred to as the *item type* of the list). List values are
-serialized as ordered lists, where each item in the array is serialized as per
+serialized as ordered lists, where each item in the list is serialized as per
 the item type. To denote that a field uses a List type the item type is wrapped
 in square brackets like this: `pets: [Pet]`.
 

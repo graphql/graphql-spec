@@ -582,7 +582,7 @@ Value[Const] :
   - StringValue
   - BooleanValue
   - EnumValue
-  - ArrayValue[?Const]
+  - ListValue[?Const]
   - ObjectValue[?Const]
 
 Field and directive arguments accept input values of various literal primitives;
@@ -664,7 +664,7 @@ does not supply a value literal to represent the concept {null}.
 
 #### List Value
 
-ArrayValue[Const] :
+ListValue[Const] :
   - [ ]
   - [ Value[?Const]+ ]
 
@@ -676,11 +676,11 @@ commas do not represent missing values.
 
 **Semantics**
 
-ArrayValue : [ ]
+ListValue : [ ]
 
   * Return a new empty list value.
 
-ArrayValue : [ Value+ ]
+ListValue : [ Value+ ]
 
   * Let {inputList} be a new empty list value.
   * For each {Value+}
