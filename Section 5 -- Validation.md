@@ -495,7 +495,7 @@ fragment inlineNotExistingType on Dog {
 ** Formal Specification **
 
   * For each {fragment} defined in the document.
-  * The target type of fragment must be have kind {UNION}, {INTERFACE}, or
+  * The target type of fragment must have kind {UNION}, {INTERFACE}, or
     {OBJECT}.
 
 ** Explanatory Text **
@@ -541,7 +541,7 @@ fragment inlineFragOnScalar on Dog {
 ** Formal Specification **
 
   * For each {fragment} defined in the document.
-  * {fragment} must be be the target of at least one spread in the document
+  * {fragment} must be the target of at least one spread in the document
 
 ** Explanatory Text **
 
