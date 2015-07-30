@@ -342,3 +342,36 @@ If the modified type of a List is a List, then each item in the first List is
 another List of the second List's type.
 
 A Non-Null type cannot modify another Non-Null type.
+
+
+### The __Field Type
+
+The `__Field` type represents each field in an Object or Interface type.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `args` returns a List of `__InputValue` representing the arguments this
+  field accepts.
+* `type` must return a `__Type` that represents the type of value returned by
+  this field.
+* `isDeprecated` returns {true} if this field should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this field is deprecated.
+
+
+### The __InputValue Type
+
+The `__InputValue` type represents field and directive arguments as well as the
+`inputFields` of an input object.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `type` must return a `__Type` that represents the type this input
+  value expects.
+* `defaultValue` may return a String encoding (using the GraphQL language) the
+  default value used by this input value in the condition a value is not
+  provided at runtime. If this input value has no default value, returns {null}.
