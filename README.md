@@ -743,7 +743,7 @@ This has just scratched the surface of the validation system; there
 are a number of validation rules in place to ensure that a GraphQL query
 is semantically meaningful. The specification goes into more detail about this
 topic in the "Validation" section, and the
-[validator](https://github.com/graphql/graphql-js/blob/master/src/validator)
+[validation](https://github.com/graphql/graphql-js/blob/master/src/validation)
 directory in GraphQL.js contains code implementing a
 specification-compliant GraphQL validator.
 
