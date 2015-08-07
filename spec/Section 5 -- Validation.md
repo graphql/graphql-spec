@@ -454,6 +454,19 @@ fragment multipleArgsReverseOrder on Arguments {
 }
 ```
 
+### Argument Uniqueness
+
+Fields and directives treat arguments as a mapping of argument name to value.
+More than one argument with the same name in an argument set is ambiguous
+and invalid.
+
+** Formal Specification **
+
+  * For each {argument} in the Document.
+  * Let {argumentName} be the Name of {argument}.
+  * Let {arguments} be all Arguments named {argumentName} in the Argument Set which contains {argument}.
+  * {arguments} must be the set containing only {argument}.
+
 ### Argument Values Type Correctness
 
 #### Compatible Values
