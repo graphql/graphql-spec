@@ -448,6 +448,60 @@ fragment missingRequiredArg on Arguments {
 
 ### Fragment Declarations
 
+#### Fragment Name Uniqueness
+
+** Formal Specification **
+
+  * For each fragment definition {fragment} in the document
+  * Let {fragmentName} be the name of {fragment}.
+  * Let {fragments} be all fragment definitions in the document named {fragmentName}.
+  * {fragments} must be a set of one.
+
+** Explanatory Text **
+
+Fragment definitions are referenced in fragment spreads by name. To avoid
+ambiguity, each fragment's name must be unique within a document.
+
+Inline fragments are not considered fragment definitions, and unaffected by this
+validation rule.
+
+For example the following document is valid:
+
+```graphql
+{
+  ...fragmentOne
+  ...fragmentTwo
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentTwo on Dog {
+  owner {
+    name
+  }
+}
+```
+
+While this document is invalid:
+
+```graphql
+{
+  ...fragmentOne
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentOne on Dog {
+  owner {
+    name
+  }
+}
+```
+
 #### Fragment Spread Type Existence
 
 ** Formal Specification **
