@@ -57,6 +57,103 @@ union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
 ```
 
+## Operations
+
+### Named Operation Definitions
+
+#### Operation Name Uniqueness
+
+** Formal Specification **
+
+  * For each operation definition {operation} in the document
+  * Let {operationName} be the name of {operation}.
+  * If {operationName} exists
+    * Let {operations} be all operation definitions in the document named {operationName}.
+    * {operations} must be a set of one.
+
+** Explanatory Text **
+
+Each named operation definitions must be unique within a document when referred
+to by its name.
+
+For example the following document is valid:
+
+```graphql
+query getDogName {
+  dog {
+    name
+  }
+}
+
+query getOwnerName {
+  dog {
+    owner {
+      name
+    }
+  }
+}
+```
+
+While this document is invalid:
+
+```!graphql
+query getName {
+  dog {
+    name
+  }
+}
+
+query getName {
+  dog {
+    owner {
+      name
+    }
+  }
+}
+```
+
+### Anonymous Operation Definitions
+
+#### Lone Anonymous Operation
+
+** Formal Specification **
+
+  * Let {operations} be all anonymous operation definitions in the document.
+  * {operations} must be a set of one.
+
+** Explanatory Text **
+
+GraphQL allows a short-hand form for defining query operations when only that
+one operation exists in the document.
+
+For example the following document is valid:
+
+```graphql
+{
+  dog {
+    name
+  }
+}
+```
+
+While this document is invalid:
+
+```!graphql
+{
+  dog {
+    name
+  }
+}
+
+query getName {
+  dog {
+    owner {
+      name
+    }
+  }
+}
+```
+
 ## Fields
 
 ### Field Selections on Objects, Interfaces, and Unions Types
@@ -486,7 +583,7 @@ fragment fragmentTwo on Dog {
 
 While this document is invalid:
 
-```graphql
+```!graphql
 {
   ...fragmentOne
 }
