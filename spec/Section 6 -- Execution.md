@@ -161,7 +161,6 @@ MergeSelectionSets(fields):
   * Return {selectionSet}.
 
 CompleteValue(fieldType, result, subSelectionSet):
-
   * If the {fieldType} is a Non-Null type:
     * Let {innerType} be the inner type of {fieldType}.
     * Let {completedResult} be the result of calling {CompleteValue(innerType, result)}.
@@ -179,7 +178,16 @@ CompleteValue(fieldType, result, subSelectionSet):
     * Return the result of "coercing" {result}, ensuring it is a legal value of
       {fieldType}, otherwise {null}.
   * If {fieldType} is an Object, Interface, or Union type:
-    * Return the result of evaluating {subSelectionSet} on {fieldType} normally.
+    * If {fieldType} is an Object type.
+      * Let {objectType} be {fieldType}.
+    * Otherwise if {fieldType} is an Interface or Union type.
+      * Let {objectType} be ResolveAbstractType(fieldType, result).
+    * Return the result of evaluating {subSelectionSet} on {objectType} normally.
+
+ResolveAbstractType(abstractType, objectValue):
+  * Return the result of calling the internal method provided by the type
+    system for determining the Object type of {abstractType} given the
+    value {objectValue}.
 
 ### Normal evaluation
 
