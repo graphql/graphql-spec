@@ -599,7 +599,7 @@ Union types have the potential to be invalid if incorrectly defined.
 1. The member types of an Union type must all be Object base types;
    Scalar, Interface and Union types may not be member types of a Union.
    Similarly, wrapping types may not be member types of a Union.
-2. A Union type must define two or more member types.
+2. A Union type must define one or more member types.
 
 ### Enums
 
