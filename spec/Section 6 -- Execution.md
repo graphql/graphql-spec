@@ -535,7 +535,7 @@ the field returned {null}, and an error must be added to the {"errors"} list
 in the response.
 
 If the result of resolving a field is {null} (either because the function to
-resolve the field returned `null` or because an error occurred), and that
+resolve the field returned {null} or because an error occurred), and that
 field is of a `Non-Null` type, then a field error is thrown. The
 error must be added to the {"errors"} list in the response.
 
