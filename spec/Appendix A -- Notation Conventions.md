@@ -88,7 +88,7 @@ means that the nonterminal {SafeName} may be replaced by any sequence of
 characters that could replace {Name} provided that the same sequence of
 characters could not replace {SevenCarlinWords}.
 
-A grammar may also list a number of restrictions after "but not" seperated
+A grammar may also list a number of restrictions after "but not" separated
 by "or".
 
 For example:
@@ -171,7 +171,7 @@ sequence which appears in a string literal:
 
 EscapedUnicode :: u /[0-9A-Fa-f]{4}/
 
-  * Let {codePoint} be the number represented by the four-digit hexidecimal sequence.
+  * Let {codePoint} be the number represented by the four-digit hexadecimal sequence.
   * The string value is the unicode character represented by {codePoint}.
 
 
