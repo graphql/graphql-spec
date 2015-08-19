@@ -363,7 +363,7 @@ Which returns the result:
 {
   "user": {
     "id": 4,
-    "name": "Mark",
+    "name": "Mark Zuckerberg",
     "smallPic": "https://cdn.site.io/pic-4-64.jpg",
     "bigPic": "https://cdn.site.io/pic-4-1024.jpg"
   }
