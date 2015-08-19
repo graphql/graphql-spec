@@ -4,7 +4,7 @@ A GraphQL server supports introspection over its schema. This schema is queried
 using GraphQL itself, creating a powerful platform for tool-building.
 
 Take an example query for a trivial app. In this case there is a User type with
-three fields: id, user, and birthday.
+three fields: id, name, and birthday.
 
 For example, given a server with the following type definition:
 
