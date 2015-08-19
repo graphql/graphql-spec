@@ -29,7 +29,7 @@ Comment ::
 
 CommentChar :: SourceCharacter but not LineTerminator
 
-Comma :: ,
+Comma :: `,`
 
 
 ## Lexical Tokens
@@ -41,19 +41,19 @@ Token ::
   - FloatValue
   - StringValue
 
-Punctuator :: one of ! $ ( ) ... : = @ [ ] { | }
+Punctuator :: one of `!` `$` `(` `)` `...` `:` `=` `@` `[` `]` `{` `|` `}`
 
-Name :: /[_A-Za-z][_0-9A-Za-z]*/
+Name :: `/[_A-Za-z][_0-9A-Za-z]*/`
 
 IntValue :: IntegerPart
 
 IntegerPart ::
-  - NegativeSign? 0
+  - NegativeSign? `0`
   - NegativeSign? NonZeroDigit Digit*
 
-NegativeSign :: -
+NegativeSign :: `-`
 
-Digit :: one of 0 1 2 3 4 5 6 7 8 9
+Digit :: one of `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 NonZeroDigit :: Digit but not `0`
 
@@ -62,26 +62,26 @@ FloatValue ::
   - IntegerPart ExponentPart
   - IntegerPart FractionalPart ExponentPart
 
-FractionalPart :: . Digit+
+FractionalPart :: `.` Digit+
 
 ExponentPart :: ExponentIndicator Sign? Digit+
 
 ExponentIndicator :: one of `e` `E`
 
-Sign :: one of + -
+Sign :: one of `+` `-`
 
 StringValue ::
   - `""`
   - `"` StringCharacter+ `"`
 
 StringCharacter ::
-  - SourceCharacter but not `"` or \ or LineTerminator
-  - \ EscapedUnicode
-  - \ EscapedCharacter
+  - SourceCharacter but not `"` or `\` or LineTerminator
+  - `\` EscapedUnicode
+  - `\` EscapedCharacter
 
-EscapedUnicode :: u /[0-9A-Fa-f]{4}/
+EscapedUnicode :: `u /[0-9A-Fa-f]{4}/`
 
-EscapedCharacter :: one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
 
 ## Query Document
@@ -96,9 +96,9 @@ OperationDefinition :
   - SelectionSet
   - OperationType Name VariableDefinitions? Directives? SelectionSet
 
-OperationType : one of query mutation
+OperationType : one of `query` `mutation`
 
-SelectionSet : { Selection+ }
+SelectionSet : `{` Selection+ `}`
 
 Selection :
   - Field
@@ -107,17 +107,17 @@ Selection :
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
-Alias : Name :
+Alias : Name `:`
 
-Arguments : ( Argument+ )
+Arguments : `(` Argument+ `)`
 
-Argument : Name : Value
+Argument : Name `:` Value
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : `...` FragmentName Directives?
 
-InlineFragment : ... on TypeCondition Directives? SelectionSet
+InlineFragment : `...` `on` TypeCondition Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
+FragmentDefinition : `fragment` FragmentName `on` TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -138,22 +138,22 @@ BooleanValue : one of `true` `false`
 EnumValue : Name but not `true`, `false` or `null`
 
 ListValue[Const] :
-  - [ ]
-  - [ Value[?Const]+ ]
+  - `[` `]`
+  - `[` Value[?Const]+ `]`
 
 ObjectValue[Const] :
-  - { }
-  - { ObjectField[?Const]+ }
+  - `{` `}`
+  - `{` ObjectField[?Const]+ `}`
 
-ObjectField[Const] : Name : Value[?Const]
+ObjectField[Const] : Name `:` Value[?Const]
 
-VariableDefinitions : ( VariableDefinition+ )
+VariableDefinitions : `(` VariableDefinition+ `)`
 
-VariableDefinition : Variable : Type DefaultValue?
+VariableDefinition : Variable `:` Type DefaultValue?
 
-Variable : $ Name
+Variable : `$` Name
 
-DefaultValue : = Value[Const]
+DefaultValue : `=` Value[Const]
 
 Type :
   - NamedType
@@ -162,12 +162,12 @@ Type :
 
 NamedType : Name
 
-ListType : [ Type ]
+ListType : `[` Type `]`
 
 NonNullType :
-  - NamedType !
-  - ListType !
+  - NamedType `!`
+  - ListType `!`
 
 Directives : Directive+
 
-Directive : @ Name Arguments?
+Directive : `@` Name Arguments?
