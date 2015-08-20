@@ -201,19 +201,31 @@ fragment definedOnImplementorsButNotInterface on Pet {
 }
 ```
 
-Because fields are not declared on unions, direct field selection on
-union-typed selection set. This is true even if concrete
-implementors of the union define the fieldName.
+Because unions do not define fields, fields may not be directly selected from a
+union-typed selection set, with the exception of the meta-field {__typename}.
+Fields from a union-typed selection set must only be queried indirectly via
+a fragment.
 
-For example the following is invalid
+For example the following is valid:
+
+```graphql
+fragment inDirectFieldSelectionOnUnion on CatOrDog {
+  __typename
+  ... on Pet {
+    name
+  }
+  ... on Dog {
+    barkVolume
+  }
+}
+```
+
+But the following is invalid:
 
 ```!graphql
 fragment directFieldSelectionOnUnion on CatOrDog {
-  directField
-}
-
-fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
   name
+  barkVolume
 }
 ```
 
