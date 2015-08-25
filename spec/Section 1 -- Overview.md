@@ -76,8 +76,8 @@ little or no formal training. To enable that experience, there must be those
 that build those servers and tools.
 
 The following formal specification serves as a reference for those builders.
-It describes the language and its grammar; the type system and the
-introspection system used to query it; and the execution and validation engines
+It describes the language and its grammar, the type system and the
+introspection system used to query it, and the execution and validation engines
 with the algorithms to power them. The goal of this specification is to provide
 a foundation and framework for an ecosystem of GraphQL tools, client libraries,
 and server implementations -- spanning both organizations and platforms -- that
