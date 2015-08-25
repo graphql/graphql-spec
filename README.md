@@ -838,7 +838,7 @@ __Directive** - These all are preceded with a double underscore, indicating
 that they are part of the introspection system.
 
 Now, let's try and figure out a good place to start exploring what queries are
-available. When we designed out type system, we specified what type all queries
+available. When we designed our type system, we specified what type all queries
 would start at; let's ask the introspection system about that!
 
 ```
