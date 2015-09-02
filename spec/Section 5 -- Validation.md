@@ -898,9 +898,9 @@ fragment inlineFragOnScalar on Dog {
 
 **Explanatory Text**
 
-Defined fragments must be used within a query document.
+Defined fragments must be used within a document.
 
-For example the following is an invalid query document:
+For example the following is an invalid document:
 
 ```graphql counter-example
 fragment nameFragment on Dog { # unused

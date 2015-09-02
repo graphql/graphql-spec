@@ -89,13 +89,14 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 
-## Query Document
+## Document
 
 Document : Definition+
 
 Definition :
   - OperationDefinition
   - FragmentDefinition
+  - TypeSystemDefinition
 
 OperationDefinition :
   - SelectionSet
@@ -179,3 +180,57 @@ NonNullType :
 Directives : Directive+
 
 Directive : @ Name Arguments?
+
+TypeSystemDefinition :
+  - SchemaDefinition
+  - TypeDefinition
+  - TypeExtensionDefinition
+  - DirectiveDefinition
+
+SchemaDefinition : schema { OperationTypeDefinition+ }
+
+OperationTypeDefinition : OperationType : NamedType
+
+TypeDefinition :
+  - ScalarTypeDefinition
+  - ObjectTypeDefinition
+  - InterfaceTypeDefinition
+  - UnionTypeDefinition
+  - EnumTypeDefinition
+  - InputObjectTypeDefinition
+
+ScalarTypeDefinition : scalar Name
+
+ObjectTypeDefinition : type Name ImplementsInterfaces? { FieldDefinition+ }
+
+ImplementsInterfaces : implements NamedType+
+
+FieldDefinition : Name ArgumentsDefinition? : Type
+
+ArgumentsDefinition : ( InputValueDefinition+ )
+
+InputValueDefinition : Name : Type DefaultValue?
+
+InterfaceTypeDefinition : interface Name { FieldDefinition+ }
+
+UnionTypeDefinition : union Name = UnionMembers
+
+UnionMembers :
+  - NamedType
+  - UnionMembers | NamedType
+
+EnumTypeDefinition : enum Name { EnumValueDefinition+ }
+
+EnumValueDefinition : EnumValue
+
+EnumValue : Name
+
+InputObjectTypeDefinition : input Name { InputValueDefinition+ }
+
+TypeExtensionDefinition : extend ObjectTypeDefinition
+
+DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
+
+DirectiveLocations :
+  - Name
+  - DirectiveLocations | Name

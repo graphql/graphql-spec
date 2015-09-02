@@ -45,7 +45,7 @@ WhiteSpace ::
 White space is used to improve legibility of source text and act as separation
 between tokens, and any amount of white space may appear before or after any
 token. White space between tokens is not significant to the semantic meaning of
-a GraphQL query document, however white space characters may appear within a
+a GraphQL Document, however white space characters may appear within a
 {String} or {Comment} token.
 
 Note: GraphQL intentionally does not consider Unicode "Zs" category characters
@@ -62,7 +62,7 @@ LineTerminator ::
 
 Like white space, line terminators are used to improve the legibility of source
 text, any amount may appear before or after any other token and have no
-significance to the semantic meaning of a GraphQL query document. Line
+significance to the semantic meaning of a GraphQL Document. Line
 terminators are not found within any other token.
 
 Note: Any error reporting which provide the line number in the source of the
@@ -84,8 +84,8 @@ comment always consists of all code points starting with the {`#`} character up
 to but not including the line terminator.
 
 Comments behave like white space and may appear after any token, or before a
-line terminator, and have no significance to the semantic meaning of a GraphQL
-query document.
+line terminator, and have no significance to the semantic meaning of a
+GraphQL Document.
 
 
 ### Insignificant Commas
@@ -94,7 +94,7 @@ Comma :: ,
 
 Similar to white space and line terminators, commas ({`,`}) are used to improve
 the legibility of source text and separate lexical tokens but are otherwise
-syntactically and semantically insignificant within GraphQL query documents.
+syntactically and semantically insignificant within GraphQL Documents.
 
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
@@ -115,8 +115,8 @@ Token ::
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters.
 
-Tokens are later used as terminal symbols in a GraphQL query document syntactic
-grammars.
+Tokens are later used as terminal symbols in a GraphQL Document
+syntactic grammars.
 
 
 ### Ignored Tokens
@@ -152,7 +152,7 @@ lacks the punctuation often used to describe mathematical expressions.
 
 Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
-GraphQL query documents are full of named things: operations, fields, arguments,
+GraphQL Documents are full of named things: operations, fields, arguments,
 directives, fragments, and variables. All names must follow the same
 grammatical form.
 
@@ -164,27 +164,32 @@ Names in GraphQL are limited to this <acronym>ASCII</acronym> subset of possible
 characters to support interoperation with as many other systems as possible.
 
 
-## Query Document
+## Document
 
 Document : Definition+
 
 Definition :
   - OperationDefinition
   - FragmentDefinition
+  - TypeSystemDefinition
 
-A GraphQL query document describes a complete file or request string received by
-a GraphQL service. A document contains multiple definitions of Operations and
-Fragments. GraphQL query documents are only executable by a server if they
-contain an operation. However documents which do not contain operations may
-still be parsed and validated to allow client to represent a single request
-across many documents.
+A GraphQL Document describes a complete file or request string operated on
+by a GraphQL service or client tool. A document contains multiple definitions of
+Operations and Fragments, and if consumed by a client tool may also include Type
+Definitions. GraphQL Documents are only executable by a server if they
+contain an Operation but do not contain a Type Definition. However documents
+which do not contain Operations may still be parsed and validated to allow
+client tools to represent a single request across many documents.
 
-If a document contains only one operation, that operation may be unnamed or
+If a Document contains only one operation, that operation may be unnamed or
 represented in the shorthand form, which omits both the query keyword and
-operation name. Otherwise, if a GraphQL query document contains multiple
-operations, each operation must be named. When submitting a query document with
+operation name. Otherwise, if a GraphQL Document contains multiple
+operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
+
+GraphQL implementations which only seek to provide GraphQL query execution may
+omit the {TypeSystemDefinition} rule from {Definition}.
 
 
 ## Operations
@@ -1078,3 +1083,239 @@ and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives.
+
+
+## Type System Definition
+
+TypeSystemDefinition :
+  - SchemaDefinition
+  - TypeDefinition
+  - TypeExtensionDefinition
+  - DirectiveDefinition
+
+The GraphQL language also includes an
+[IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
+describe a GraphQL service's Type System. Tools may use these definitions to
+provide various utilities such as client code generation or
+service boot-strapping.
+
+GraphQL services which only seek to provide GraphQL query execution may
+choose to not parse {TypeSystemDefinition}.
+
+A GraphQL Document which contains {TypeSystemDefinition} must not be executed;
+GraphQL execution services which receive a GraphQL Document containing type
+system definitions should return a descriptive error.
+
+Note: This IDL is used throughout the remainder of this specification document
+when illustrating example type systems.
+
+
+### Schema Definition
+
+SchemaDefinition : schema { OperationTypeDefinition+ }
+
+OperationTypeDefinition : OperationType : NamedType
+
+A GraphQL Type System includes exactly one Schema Definition, which defines
+the type to be used for each operation.
+
+In this example, a GraphQL schema is defined with both query and mutation types:
+
+```graphql
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+}
+
+type QueryRoot {
+  someField: String
+}
+
+type MutationRoot {
+  setSomeField(to: String): String
+}
+```
+
+
+### Type Definition
+
+TypeDefinition :
+  - ScalarTypeDefinition
+  - ObjectTypeDefinition
+  - InterfaceTypeDefinition
+  - UnionTypeDefinition
+  - EnumTypeDefinition
+  - InputObjectTypeDefinition
+
+A GraphQL Type System is defined by many different kinds of types.
+
+
+#### Scalar
+
+ScalarTypeDefinition : scalar Name
+
+Scalar types represent leaf values in a GraphQL type system. While this GraphQL
+specification describes a set of Scalar types which all GraphQL services must
+supply, custom Scalar types may be supplied by a GraphQL service. Typically, the
+set of Scalar types described in this specification are omitted from documents
+which describe a schema for brevity.
+
+In this example, a Scalar type called `DateTime` is defined:
+
+```graphql
+scalar DateTime
+```
+
+
+#### Object
+
+ObjectTypeDefinition : type Name ImplementsInterfaces? { FieldDefinition+ }
+
+ImplementsInterfaces : implements NamedType+
+
+FieldDefinition : Name ArgumentsDefinition? : Type
+
+ArgumentsDefinition : ( InputValueDefinition+ )
+
+InputValueDefinition : Name : Type DefaultValue?
+
+Object types represent a list of named fields, each of which yield a value of a
+specific type. Each field itself may accept a list of named arguments.
+
+Objects may implement Interface types. When implementing an Interface type, the
+Object type must supply all fields defined by the Interface.
+
+In this example, a Object type called `TodoItem` is defined:
+
+```graphql
+type TodoItem implements Node {
+  id: ID
+  title: String
+  isCompleted: Boolean
+}
+```
+
+#### Interface
+
+InterfaceTypeDefinition : interface Name { FieldDefinition+ }
+
+Interface types, similarly to Object types represent a list of named fields.
+Interface types are used as the type of a field when one of many possible Object
+types may yielded during execution, but some fields are guaranteed. An Object
+type is a possible type of an Interface when it both declares that it implements
+that Interface as well as includes all defined fields.
+
+In this example, an Interface type called `Node` is defined:
+
+```graphql
+interface Node {
+  id: ID
+}
+```
+
+#### Union
+
+UnionTypeDefinition : union Name = UnionMembers
+
+UnionMembers :
+  - NamedType
+  - UnionMembers | NamedType
+
+Union types represent a list of named Object types. Union types are used as the
+type of a field when one of many possible Object types may yielded during
+execution, and no fields are guaranteed. An Object type is a possible type of a
+Union when it is declared by the Union.
+
+In this example, a Union type called `Actor` is defined:
+
+```graphql
+union Actor = User | Business
+```
+
+
+#### Enum
+
+EnumTypeDefinition : enum Name { EnumValueDefinition+ }
+
+EnumValueDefinition : EnumValue
+
+EnumValue : Name
+
+Enum types, like Scalar types, also represent leaf values in a GraphQL type
+system. However Enum types describe the set of legal values.
+
+In this example, an Enum type called `Direction` is defined:
+
+```graphql
+enum Direction {
+  NORTH
+  EAST
+  SOUTH
+  WEST
+}
+```
+
+#### Input Object
+
+InputObjectTypeDefinition : input Name { InputValueDefinition+ }
+
+Input Object types represent complex input values which may be provided as an
+field argument. Input Object types cannot be the return type of an Object or
+Interface field.
+
+In this example, an Input Object called `Point2D` is defined:
+
+```graphql
+input Point2D {
+  x: Float
+  y: Float
+}
+```
+
+### Type Extension
+
+TypeExtensionDefinition : extend ObjectTypeDefinition
+
+Type extensions may be used by client-side tools in order to represent a
+GraphQL type system which has been extended from the type system exposed via
+introspection by a GraphQL service, for example to represent fields which a
+client of GraphQL uses locally, but is not provided by a GraphQL service.
+
+Any fields or interfaces provided by the extension must not already exist on the
+Object type.
+
+In this example, a client only field is added to a `Story` type:
+
+```graphql
+extend type Story {
+  isHiddenLocally: Boolean
+}
+```
+
+### Directive Definition
+
+DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
+
+DirectiveLocations :
+  - Name
+  - DirectiveLocations | Name
+
+A GraphQL Type System often also includes directives which may be used to
+annotate various nodes in a GraphQL document as an indicator that they should be
+evaluated differently by a validator, executor, or client tool such as a
+code generator.
+
+Since the validation of a GraphQL document includes ensuring that any directives
+used are defined and used correctly, defining a directive allows for a validator
+to be aware of all possible validation rules.
+
+In this example, a directive is defined which can be used to annotate a
+fragment definition:
+
+```
+directive @someAnnotation on FRAGMENT_DEFINITION
+
+fragment SomeFragment on SomeType @someAnnotation {
+  someField
+}
+```
