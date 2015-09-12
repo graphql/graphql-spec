@@ -153,7 +153,7 @@ interface Character {
   appearsIn: [Episode]
 }
 
-type Human : Character {
+type Human implements Character {
   id: String
   name: String
   friends: [Character]
@@ -161,7 +161,7 @@ type Human : Character {
   homePlanet: String
 }
 
-type Droid : Character {
+type Droid implements Character {
   id: String
   name: String
   friends: [Character]
@@ -197,7 +197,7 @@ interface Character {
   appearsIn: [Episode]
 }
 
-type Human : Character {
+type Human implements Character {
   id: String!
   name: String
   friends: [Character]
@@ -205,7 +205,7 @@ type Human : Character {
   homePlanet: String
 }
 
-type Droid : Character {
+type Droid implements Character {
   id: String!
   name: String
   friends: [Character]
