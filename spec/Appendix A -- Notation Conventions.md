@@ -166,13 +166,16 @@ Example_param :
 This specification describes the semantic value of many grammar productions in
 the form of a list of algorithmic steps.
 
-For example, this describes how a parser should interpret a Unicode escape
-sequence which appears in a string literal:
+For example, this describes how a parser should interpret a string literal:
 
-EscapedUnicode :: u /[0-9A-Fa-f]{4}/
+StringValue :: `""`
 
-  * Let {codePoint} be the number represented by the four-digit hexadecimal sequence.
-  * The string value is the Unicode character represented by {codePoint}.
+  * Return an empty Unicode character sequence.
+
+StringValue :: `"` StringCharacter+ `"`
+
+  * Return the Unicode character sequence of all {StringCharacter}
+    Unicode character values.
 
 
 ## Algorithms
