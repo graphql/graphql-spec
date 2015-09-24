@@ -712,7 +712,6 @@ ObjectValue : { ObjectField+ }
   * Let {inputObject} be a new input object value with no fields.
   * For each {field} in {ObjectField+}
     * Let {name} be {Name} in {field}.
-    * If {inputObject} contains a field named {name} throw Syntax Error.
     * Let {value} be the result of evaluating {Value} in {field}.
     * Add a field to {inputObject} of name {name} containing value {value}.
   * Return {inputObject}

@@ -1028,6 +1028,31 @@ fragment sentientFragment on Sentient {
 is not valid because there exists no type that implements both {Pet}
 and {Sentient}.
 
+## Values
+
+### Input Object Field Uniqueness
+
+** Formal Specification **
+
+  * For each input object value {inputObject} in the document.
+  * For every {inputField} in {inputObject}
+    * Let {name} be the Name of {inputField}.
+    * Let {fields} be all Input Object Fields named {name} in {inputObject}.
+    * {fields} must be the set containing only {inputField}.
+
+** Explanatory Text **
+
+Input objects must not contain more than one fields of the same name, otherwise
+an amgibuity would exist which includes an ignored portion of syntax.
+
+For example the following query will not pass validation.
+
+```graphql
+{
+  field(arg: { field: true, field: false })
+}
+```
+
 ## Directives
 
 ### Directives Are Defined
