@@ -13,24 +13,34 @@ double-colon `::`).
 
 ## Source Text
 
-SourceCharacter :: "Any Unicode character"
+SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
 
 GraphQL documents are expressed as a sequence of
 [Unicode](http://unicode.org/standard/standard.html) characters. However, with
-few exceptions, most of GraphQL is expressed only in the original ASCII range
-so as to be as widely compatible with as many existing tools, languages, and
-serialization formats as possible. Other than within comments, Non-ASCII Unicode
-characters are only found within {StringValue}.
+few exceptions, most of GraphQL is expressed only in the original non-control
+ASCII range so as to be as widely compatible with as many existing tools,
+languages, and serialization formats as possible and avoid display issues in
+text editors and source control.
+
+
+### Unicode
+
+UnicodeBOM :: "Byte Order Mark (U+FEFF)"
+
+Non-ASCII Unicode characters may freely appear within {StringValue} and
+{Comment} portions of GraphQL.
+
+The "Byte Order Mark" is a special Unicode character which
+may appear at the beginning of a file containing Unicode which programs may use
+to determine the fact that the text stream is Unicode, what endianness the text
+stream is in, and which of several Unicode encodings to interpret.
 
 
 ### White Space
 
 WhiteSpace ::
   - "Horizontal Tab (U+0009)"
-  - "Vertical Tab (U+000B)"
-  - "Form Feed (U+000C)"
   - "Space (U+0020)"
-  - "No-break Space (U+00A0)"
 
 White space is used to improve legibility of source text and act as separation
 between tokens, and any amount of white space may appear before or after any
@@ -38,19 +48,25 @@ token. White space between tokens is not significant to the semantic meaning of
 a GraphQL query document, however white space characters may appear within a
 {String} or {Comment} token.
 
+Note: GraphQL intentionally does not consider Unicode "Zs" category characters
+as white-space, avoiding misinterpretation by text editors and source
+control tools.
 
 ### Line Terminators
 
 LineTerminator ::
   - "New Line (U+000A)"
-  - "Carriage Return (U+000D)"
-  - "Line Separator (U+2028)"
-  - "Paragraph Separator (U+2029)"
+  - "Carriage Return (U+000D)" [ lookahead ! "New Line (U+000A)" ]
+  - "Carriage Return (U+000D)" "New Line (U+000A)"
 
 Like white space, line terminators are used to improve the legibility of source
 text, any amount may appear before or after any other token and have no
 significance to the semantic meaning of a GraphQL query document. Line
 terminators are not found within any other token.
+
+Note: Any error reporting which provide the line number in the source of the
+offending syntax should use the preceding amount of {LineTerminator} to produce
+the line number.
 
 
 ### Comments
@@ -101,9 +117,11 @@ defined here in a lexical grammar by patterns of source Unicode characters.
 Tokens are later used as terminal symbols in a GraphQL query document syntactic
 grammars.
 
+
 ### Ignored Tokens
 
 Ignored ::
+  - UnicodeBOM
   - WhiteSpace
   - LineTerminator
   - Comment
@@ -639,16 +657,45 @@ StringValue ::
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
-  - \ EscapedUnicode
+  - \u EscapedUnicode
   - \ EscapedCharacter
 
-EscapedUnicode :: u /[0-9A-Fa-f]{4}/
+EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
 
-Strings are lists of characters wrapped in double-quotes `"`. (ex.
+Strings are sequences of characters wrapped in double-quotes (`"`). (ex.
 `"Hello World"`). White space and other otherwise-ignored characters are
 significant within a string value.
+
+Note: Unicode characters are allowed within String value literals, however
+GraphQL source must not contain some ASCII control characters so escape
+sequences must be used to represent these characters.
+
+**Semantics**
+
+StringValue :: `""`
+
+  * Return an empty Unicode character sequence.
+
+StringValue :: `"` StringCharacter+ `"`
+
+  * Return the Unicode character sequence of all {StringCharacter}
+    Unicode character values.
+
+StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
+
+  * Return the character value of {SourceCharacter}.
+
+StringCharacter :: \u EscapedUnicode
+
+  * Return the character value represented by the UTF16 hexidecimal
+    identifier {EscapedUnicode}.
+
+StringCharacter :: \ EscapedCharacter
+
+  * Return the character value of {EscapedCharacter}.
+
 
 #### Enum Value
 
