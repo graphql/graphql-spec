@@ -650,6 +650,12 @@ fragment inlineFragment on Dog {
     name
   }
 }
+
+fragment inlineFragment on Dog {
+  ... @include(if: true) {
+    name
+  }
+}
 ```
 
 and the following do not validate:

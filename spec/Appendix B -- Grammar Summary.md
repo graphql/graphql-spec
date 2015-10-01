@@ -113,13 +113,13 @@ Argument : Name : Value
 
 FragmentSpread : ... FragmentName Directives?
 
-InlineFragment : ... on TypeCondition Directives? SelectionSet
+InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
+FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
-TypeCondition : NamedType
+TypeCondition : on NamedType
 
 Value[Const] :
   - [~Const] Variable
