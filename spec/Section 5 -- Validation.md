@@ -21,7 +21,7 @@ in order to demonstrate examples:
 ```
 enum DogCommand { SIT, DOWN, HEEL }
 
-type Dog : Pet {
+type Dog implements Pet {
   name: String!
   nickname: String
   barkVolume: Int
@@ -37,16 +37,16 @@ interface Pet {
   name: String!
 }
 
-type Alien : Sentient {
+type Alien implements Sentient {
   name: String!
   homePlanet: String
 }
 
-type Human : Sentient {
+type Human implements Sentient {
   name: String!
 }
 
-type Cat : Pet {
+type Cat implements Pet {
   name: String!
   nickname: String
   meowVolume: Int

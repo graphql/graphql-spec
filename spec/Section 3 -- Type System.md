@@ -434,12 +434,12 @@ interface NamedEntity {
   name: String
 }
 
-type Person : NamedEntity {
+type Person implements NamedEntity {
   name: String
   age: Int
 }
 
-type Business : NamedEntity {
+type Business implements NamedEntity {
   name: String
   employeeCount: Int
 }
