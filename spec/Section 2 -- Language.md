@@ -178,8 +178,8 @@ contain an operation. However documents which do not contain operations may
 still be parsed and validated to allow client to represent a single request
 across many documents.
 
-If a query document contains only one query operation, that operation may be
-represented in the shorthand form, which omits the query keyword and
+If a document contains only one operation, that operation may be unnamed or
+represented in the shorthand form, which omits both the query keyword and
 operation name. Otherwise, if a GraphQL query document contains multiple
 operations, each operation must be named. When submitting a query document with
 multiple operations to a GraphQL service, the name of the desired operation to
@@ -189,7 +189,7 @@ be executed must also be provided.
 ### Operations
 
 OperationDefinition :
-  - OperationType Name VariableDefinitions? Directives? SelectionSet
+  - OperationType Name? VariableDefinitions? Directives? SelectionSet
   - SelectionSet
 
 OperationType : one of `query` `mutation`
@@ -199,7 +199,20 @@ There are two types of operations that GraphQL models:
   * query - a read-only fetch.
   * mutation - a write followed by a fetch.
 
-Each operation is represented by an operation name and a selection set.
+Each operation is represented by an optional operation name and a selection set.
+
+For example, this mutation operation might "like" a story and then retrieve the
+new number of likes:
+
+```
+mutation {
+  likeStory(storyID: 12345) {
+    story {
+      likeCount
+    }
+  }
+}
+```
 
 **Query shorthand**
 

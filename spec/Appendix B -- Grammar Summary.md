@@ -92,7 +92,7 @@ Definition :
 
 OperationDefinition :
   - SelectionSet
-  - OperationType Name VariableDefinitions? Directives? SelectionSet
+  - OperationType Name? VariableDefinitions? Directives? SelectionSet
 
 OperationType : one of query mutation
 
