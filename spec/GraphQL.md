@@ -1,7 +1,7 @@
 GraphQL
 -------
 
-*Working Draft - July 2015*
+*Working Draft - October 2015*
 
 **Introduction**
 
