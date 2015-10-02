@@ -431,7 +431,7 @@ otherwise the field's name.
 
 FragmentSpread : ... FragmentName Directives?
 
-FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
+FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -519,7 +519,7 @@ produce the same response object.
 
 #### Type Conditions
 
-TypeCondition : NamedType
+TypeCondition : on NamedType
 
 Fragments must specify the type they apply to. In this example, `friendFields`
 can be used in the context of querying a `User`.
@@ -578,7 +578,7 @@ will be present and `friends` will not.
 
 #### Inline Fragments
 
-InlineFragment : ... on TypeCondition Directives? SelectionSet
+InlineFragment : ... TypeCondition? Directives? SelectionSet
 
 Fragments can be defined inline within a selection set. This is done to
 conditionally include fields based on their runtime type. This feature of
@@ -598,6 +598,24 @@ query inlineFragmentTyping {
       likers {
         count
       }
+    }
+  }
+}
+```
+
+Inline fragments may also be used to apply a directive to a group of fields.
+If the TypeCondition is omitted, an inline fragment is considered to be of the
+same type as the enclosing context.
+
+```graphql
+query inlineFragmentNoType($expandedInfo: Boolean) {
+  user(handle: "zuck") {
+    id
+    name
+    ... @include(if: $expandedInfo) {
+      firstName
+      lastName
+      birthday
     }
   }
 }

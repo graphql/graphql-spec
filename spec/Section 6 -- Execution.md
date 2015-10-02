@@ -77,7 +77,7 @@ CollectFields(objectType, selectionSet, visitedFragments):
         * Append all items in {fragmentGroup} to {groupForResponseKey}.
     * If {selection} is an inline fragment:
       * Let {fragmentType} be the type condition on {selection}.
-      * If {doesFragmentTypeApply(objectType, fragmentType)} is false, continue
+      * If {fragmentType} is not {null} and {doesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
       * Let {fragmentGroupedFields} be the result of calling {CollectFields(objectType, fragmentSelectionSet)}.
