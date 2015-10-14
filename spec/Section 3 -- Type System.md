@@ -735,11 +735,11 @@ query withNullableVariable($var: String) {
 Hence, if the value for a Non Null type is hard-coded in the query, it is always
 coerced using the input coercion for the wrapped type.
 
-When a Non Null input has its value set using a variable, the coerced value
-should be `null` if the provided value is `null`-like in the provided
-representation, or if the provided value is omitted. Otherwise, the coerced
-value is the result of running the wrapped type's input coercion on the
-provided value.
+When a Non Null input has its value set using a variable, a query
+error must be raised if the provided value is `null`-like in the
+provided representation, or if the provided value is omitted.
+Otherwise, the coerced value is the result of running the wrapped
+type's input coercion on the provided value.
 
 ## Directives
 

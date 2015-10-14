@@ -14,6 +14,14 @@ error. If the operation is found, then the result of evaluating the request
 should be the result of evaluating the operation according to the “Evaluating
 operations” section.
 
+## Coercing Variables
+
+If the operation has defined any variables, then the values for
+those variables need to be coerced using the input coercion rules
+of variable's declared type. If a query error is encountered during
+input coercion of variable values, then the operation fails without
+execution.
+
 ## Evaluating operations
 
 The type system, as described in the “Type System” part of the spec, must
