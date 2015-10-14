@@ -349,7 +349,7 @@ are the leaf nodes of any GraphQL query.
 The following is valid.
 
 ```graphql
-fragment scalarSelection: Dog {
+fragment scalarSelection on Dog {
   barkVolume
 }
 ```
@@ -357,7 +357,7 @@ fragment scalarSelection: Dog {
 The following is invalid.
 
 ```!graphql
-fragment scalarSelectionsNotAllowedOnBoolean : Dog {
+fragment scalarSelectionsNotAllowedOnBoolean on Dog {
   barkVolume {
     sinceWhen
   }
