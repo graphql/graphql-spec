@@ -1118,7 +1118,7 @@ query houseTrainedQuery($atOtherHomes: Boolean! = true) {
 ```
 
 Default values must be compatible with the types of variables.
-Types much match or they must be coercible to the type.
+Types must match or they must be coercible to the type.
 
 Non-matching types fail, such as in the following example:
 
