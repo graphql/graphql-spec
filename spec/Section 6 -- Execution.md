@@ -17,14 +17,16 @@ operations” section.
 ## Evaluating operations
 
 The type system, as described in the “Type System” part of the spec, must
-provide a “Query Root” and a “Mutation Root” object.
+provide a “Query Root” and a “Mutation Root” object, and can provide an optional
+“Subscription Root” object.
 
 If the operation is a mutation, the result of the operation is the result of
 evaluating the mutation’s top level selection set on the “Mutation Root”
 object. This selection set should be evaluated serially.
 
-If the operation is a query, the result of the operation is the result of
-evaluating the query’s top level selection set on the “Query Root” object.
+If the operation is a query or a subscription, the result of the operation is
+the result of evaluating the operation's top level selection set on the “Query
+Root” object or the “Subscription Root” object, respectively.
 
 ## Evaluating selection sets
 
