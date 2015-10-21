@@ -1251,7 +1251,7 @@ query variableIsDefinedUsedInSingleFragment($atOtherHomes: Boolean) {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1270,7 +1270,7 @@ query variableIsNotDefinedUsedInSingleFragment {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1288,7 +1288,7 @@ fragment outerHousetrainedFragment on Dog {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1309,7 +1309,7 @@ query housetrainedQueryTwo($atOtherHomes: Boolean) {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
