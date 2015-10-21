@@ -690,21 +690,32 @@ case), the client can just pass that value rather than constructing the list.
 
 By default, all types in GraphQL are nullable; the {null} value is a valid
 response for all of the above types. To declare a type that disallows null,
-the GraphQL Non-Null type can be used. This type declares an underlying type,
-and this type acts identically to that underlying type, with the exception
+the GraphQL Non-Null type can be used. This type wraps an underlying type,
+and this type acts identically to that wrapped type, with the exception
 that `null` is not a valid response for the wrapping type. A trailing
 exclamation mark is used to denote a field that uses a Non-Null type like this:
 `name: String!`.
 
 **Result Coercion**
 
-In all of the above result coercion, `null` was considered a valid value.
-To coerce the result of a Non Null type, the result coercion of the
-underlying type should be performed. If that result was not `null`, then the
-result of coercing the Non Null type is that result. If that result was `null`,
-then an error should be raised.
+In all of the above result coercion, {null} was considered a valid value.
+To coerce the result of a Non Null type, the coercion of the wrapped type
+should be performed. If that result was not {null}, then the result of coercing
+the Non Null type is that result. If that result was {null}, then a field error
+must be raised.
 
 **Input Coercion**
+
+If the argument of a Non Null type is not provided, a query error must
+be raised.
+
+If an argument of a Non Null type is provided with a literal value, it is
+coerced using the input coercion for the wrapped type.
+
+If the argument of a Non Null is provided with a variable, a query error must be
+raised if the runtime provided value is not provided or is {null} in the
+provided representation (usually JSON). Otherwise, the coerced value is the
+result of using the input coercion for the wrapped type.
 
 Note that `null` is not a value in GraphQL, so a query cannot look like:
 
@@ -714,8 +725,8 @@ Note that `null` is not a value in GraphQL, so a query cannot look like:
 }
 ```
 
-to indicate that the argument is null. Instead, an argument would be null only
-if it is omitted:
+to indicate that the argument is {null}. Instead, an argument would be {null}
+only if it is omitted:
 
 ```graphql
 {
@@ -732,14 +743,6 @@ query withNullableVariable($var: String) {
 }
 ```
 
-Hence, if the value for a Non Null type is hard-coded in the query, it is always
-coerced using the input coercion for the wrapped type.
-
-When a Non Null input has its value set using a variable, a query
-error must be raised if the provided value is `null`-like in the
-provided representation, or if the provided value is omitted.
-Otherwise, the coerced value is the result of running the wrapped
-type's input coercion on the provided value.
 
 ## Directives
 
