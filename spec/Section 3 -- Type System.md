@@ -410,10 +410,12 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       defined in an interface.
       1. The object field must be of a type which is equal to the
          interface field (invariant).
-      2. The object field must include the exact same set of named arguments as
-         defined by the interface field.
+      2. The object field must include an argument of the same name for every
+         argument defined in the interface field.
          1. The object field argument must accept the same type (invariant) as
             the interface field argument.
+      3. The object field may include additional arguments not defined in the
+         interface field, but any additional argument must not be required.
 
 
 ### Interfaces
