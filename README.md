@@ -6,6 +6,16 @@ data models.
 
 [![Public Slack Discussion](https://graphql-slack.herokuapp.com/badge.svg)](https://graphql-slack.herokuapp.com/)
 
+## Table of Contents
+
+  1. [Technical Preview Contents](#technical-preview-contents)
+  1. [Getting Started](#getting-started)
+  1. [Type System](#type-system)
+  1. [Query Syntax](#query-syntax)
+  1. [Validation](#alidation)
+  1. [Introspection](#introspection)
+  1. [Additional Content](#additional-content)
+
 ## Technical Preview Contents
 
 This technical preview contains a draft specification for GraphQL and a reference
