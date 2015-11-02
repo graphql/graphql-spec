@@ -1053,7 +1053,7 @@ an amgibuity would exist which includes an ignored portion of syntax.
 
 For example the following query will not pass validation.
 
-```graphql
+```!graphql
 {
   field(arg: { field: true, field: false })
 }
