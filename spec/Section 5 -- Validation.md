@@ -881,8 +881,6 @@ spread within the context of a parent type. A fragment spread
 is only valid if its type condition could ever apply within
 the parent type.
 
-and the following valid fragments:
-
 ##### Object Spreads In Object Scope
 
 In the scope of a object type, the only valid object type
@@ -1053,7 +1051,7 @@ an amgibuity would exist which includes an ignored portion of syntax.
 
 For example the following query will not pass validation.
 
-```graphql
+```!graphql
 {
   field(arg: { field: true, field: false })
 }

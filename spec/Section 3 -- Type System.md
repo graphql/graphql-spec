@@ -216,8 +216,8 @@ across many formats ID could represent, from small auto-increment numbers, to
 large 128-bit random numbers, to base64 encoded values, or string values of a
 format like [GUID](http://en.wikipedia.org/wiki/Globally_unique_identifier).
 
-GraphQL servers should coerce as appropriate given the ID formats they expect,
-when coercion is not possible they must raise a field error.
+GraphQL servers should coerce as appropriate given the ID formats they expect.
+When coercion is not possible they must raise a field error.
 
 **Input Coercion**
 
@@ -613,7 +613,7 @@ their own right. They serialize as a string: the name of the represented value.
 
 **Result Coercion**
 
-GraphQL servers must return one of the defined set of possible values, if a
+GraphQL servers must return one of the defined set of possible values. If a
 reasonable coercion is not possible they must raise a field error.
 
 **Input Coercion**
