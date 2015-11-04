@@ -1215,7 +1215,7 @@ For example:
 ```graphql
 query variableIsDefined($atOtherHomes: Boolean) {
   dog {
-    isHousetrained(atOtherHomes: $booleanArg)
+    isHousetrained(atOtherHomes: $atOtherHomes)
   }
 }
 ```
