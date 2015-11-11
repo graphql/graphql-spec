@@ -1249,7 +1249,7 @@ query variableIsDefinedUsedInSingleFragment($atOtherHomes: Boolean) {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1268,7 +1268,7 @@ query variableIsNotDefinedUsedInSingleFragment {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1286,7 +1286,7 @@ fragment outerHousetrainedFragment on Dog {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1307,7 +1307,7 @@ query housetrainedQueryTwo($atOtherHomes: Boolean) {
 }
 
 fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes}
+  isHousetrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1494,7 +1494,7 @@ and inner types. A nullable list cannot be passed to a non-null list, and a list
 of nullable values cannot be passed to a list of non-null values.
 
 ```graphql
-query nonNullListToList($nonNullBooleanList: ![Boolean]) {
+query nonNullListToList($nonNullBooleanList: [Boolean]!) {
   arguments {
     booleanListArgField(booleanListArg: $nonNullBooleanList)
   }
