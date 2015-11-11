@@ -947,6 +947,6 @@ FragmentSpreadDirectives(fragmentSpread) :
   * Let {directives} be the set of directives on {fragmentSpread}
   * Let {fragmentDefinition} be the FragmentDefinition in the document named {fragmentSpread} refers to.
   * For each {directive} in directives on {fragmentDefinition}
-    * If {directives} does not contain a directive named {directive}.
-    * Add {directive} into {directives}
+    * If {directives} does not contain a directive named {directive}
+      * Add {directive} into {directives}
   * Return {directives}
