@@ -234,21 +234,24 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 ** Formal Specification **
 
   * Let {set} be any selection set defined in the GraphQL document
-  * Let {setForKey} be the set of selections with a given response key in {set}
-  * All members of {setForKey} must:
-    * Have identical target fields
-    * Have identical sets of arguments.
-    * Have identical sets of directives.
+  * Let {fieldsForName} be the set of selections with a given response name in
+    {set} including visiting fragments and inline fragments.
+  * Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+    * If the parent types of {fieldA} and {fieldB} are equal or if either is not
+      an Object Type:
+      * {fieldA} and {fieldB} must have identical field names.
+      * {fieldA} and {fieldB} must have identical return type.
+      * {fieldA} and {fieldB} must have identical sets of arguments.
 
 ** Explanatory Text **
 
-Selection names are de-duplicated and merged for validation, but the target
-field, arguments, and directives must all be identical.
+If multiple fields selections with the same response names are encountered
+during execution, the result should be unambiguous. Therefore any two field
+selections which might both be encountered for the same object are only valid if
+they are equivalent.
 
-For human-curated GraphQL, this rules seem a bit counterintuitive since it
-appears to be clear developer error. However in the presence of nested
-fragments or machine-generated GraphQL, requiring unique selections is a
-burdensome limitation on tool authors.
+For simple hand-written GraphQL, this rule is obviously a clear developer error,
+however nested fragments can make this difficult to detect manually.
 
 The following selections correctly merge:
 
@@ -307,26 +310,33 @@ fragment conflictingArgsWithVars on Dog {
   doesKnowCommand(dogCommand: $varOne)
   doesKnowCommand(dogCommand: $varTwo)
 }
-```
 
-The same logic applies to directives. The set of directives on each selection
-with the same response key in a given scope must be identical.
-
-The following is valid:
-
-```graphql
-fragment mergeSameFieldsWithSameDirectives on Dog {
-  name @include(if: true)
-  name @include(if: true)
+fragment differingArgs on Dog {
+  doesKnowCommand(dogCommand: SIT)
+  doesKnowCommand
 }
 ```
 
-and the following is invalid:
+The following would not merge together, however both cannot be encountered
+against the same object:
 
-```!graphql
-fragment conflictingDirectiveArgs on Dog {
-  name @include(if: true)
-  name @include(if: false)
+```graphql
+fragment safeDifferingFields on Pet {
+  ... on Dog {
+    name: nickname
+  }
+  ... on Cat {
+    name
+  }
+}
+
+fragment safeDifferingArgs on Pet {
+  ... on Dog {
+    doesKnowCommand(dogCommand: SIT)
+  }
+  ... on Cat {
+    doesKnowCommand(catCommand: JUMP)
+  }
 }
 ```
 
