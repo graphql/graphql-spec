@@ -408,8 +408,20 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 2. An object type must be a super-set of all interfaces it implements.
    1. The object type must include a field of the same name for every field
       defined in an interface.
-      1. The object field must be of a type which is equal to the
-         interface field (invariant).
+      1. The object field must be of a type which is equal to or a sub-type of
+         the interface field (covariant).
+         1. An object field type is a valid sub-type if it is equal to (the same
+            type as) the interface field type.
+         2. An object field type is a valid sub-type if it is an Object type and
+            the interface field type is either an Interface type or a Union type
+            and the object field type is a possible type of the interface field
+            type.
+         3. An object field type is a valid sub-type if it is a List type and
+            the interface field type is also a List type and the list-item type
+            of the object field type is a valid sub-type of the list-item type
+            of the interface field type.
+         4. An object field type is a valid sub-type if it is a Non-Null variant
+            of a valid sub-type of the interface field type.
       2. The object field must include an argument of the same name for every
          argument defined in the interface field.
          1. The object field argument must accept the same type (invariant) as
