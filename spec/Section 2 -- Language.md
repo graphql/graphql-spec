@@ -144,7 +144,7 @@ Punctuator :: one of ! $ ( ) ... : = @ [ ] { }
 
 GraphQL documents include punctuation in order to describe structure. GraphQL
 is a data description language and not a programming language, therefore GraphQL
-lacks the punctionation often used to describe mathematical expressions.
+lacks the punctuation often used to describe mathematical expressions.
 
 
 ### Names
