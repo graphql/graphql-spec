@@ -572,7 +572,7 @@ but this is not valid on a non-null argument.
 
 ```!graphql
 fragment missingRequiredArg on Arguments {
-  notNullBooleanArgField
+  nonNullBooleanArgField
 }
 ```
 
@@ -594,7 +594,7 @@ fragment missingRequiredArg on Arguments {
 Fragment definitions are referenced in fragment spreads by name. To avoid
 ambiguity, each fragment's name must be unique within a document.
 
-Inline fragments are not considered fragment definitions, and unaffected by this
+Inline fragments are not considered fragment definitions, and are unaffected by this
 validation rule.
 
 For example the following document is valid:
