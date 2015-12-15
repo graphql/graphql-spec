@@ -1083,11 +1083,9 @@ For example the following query will not pass validation.
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
 
-## Operations
+## Variables
 
-### Variables
-
-#### Variable Default Values Are Correctly Typed
+### Variable Default Values Are Correctly Typed
 
 ** Formal Specification **
 
@@ -1150,7 +1148,7 @@ query intToFloatQuery($floatVar: Float = 1) {
 }
 ```
 
-#### Variables Are Input Types
+### Variables Are Input Types
 
 ** Formal Specification **
 
@@ -1203,7 +1201,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 }
 ```
 
-#### All Variable Uses Defined
+### All Variable Uses Defined
 
 ** Formal Specification **
 
@@ -1345,7 +1343,7 @@ This is because {housetrainedQueryTwoNotDefined} does not define
 a variable ${atOtherHomes} but that variable is used by {isHousetrainedFragment}
 which is included in that operation.
 
-#### All Variables Used
+### All Variables Used
 
 ** Formal Specification **
 
@@ -1427,7 +1425,7 @@ fragment isHousetrainedFragment on Dog {
 This document is not valid because {queryWithExtraVar} defines
 an extraneous variable.
 
-#### All Variable Usages are Allowed
+### All Variable Usages are Allowed
 
 ** Formal Specification **
 
