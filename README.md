@@ -34,9 +34,6 @@ variety of backends, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This technical preview
 marks the beginning of that process.
 
-If you're interested in building a GraphQL server or tools for GraphQL clients,
-please join our public [Slack discussion](https://graphql-slack.herokuapp.com/).
-
 ## Getting Started
 
 GraphQL consists of a type system, query language and execution semantics,
