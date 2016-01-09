@@ -27,6 +27,7 @@ type Dog implements Pet {
   barkVolume: Int
   doesKnowCommand(dogCommand: DogCommand!) : Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
+  owner: Human
 }
 
 interface Sentient {
@@ -46,15 +47,22 @@ type Human implements Sentient {
   name: String!
 }
 
+enum CatCommand { JUMP }
+
 type Cat implements Pet {
   name: String!
   nickname: String
+  doesKnowCommand(catCommand: CatCommand!) : Boolean!
   meowVolume: Int
 }
 
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+type QueryRoot {
+  dog: Dog
+}
 ```
 
 ## Operations
@@ -378,10 +386,10 @@ Conversely the leaf field selections of GraphQL queries
 must be scalars. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following query root type of the schema:
+Let's assume the following additions to the query root type of the schema:
 
 ```
-type QueryRoot {
+extend type QueryRoot {
   human: Human
   pet: Pet
   catOrDog: CatOrDog
@@ -456,11 +464,16 @@ to our type system:
 
 ```
 type Arguments {
-  multipleReqs(x: Int!, y: Int!)
-  booleanArgField(booleanArg: Boolean)
-  floatArgField(floatArg: Float)
-  intArgField(intArg: Int)
-  nonNullBooleanArgField(nonNullBooleanArg: Boolean!)
+  multipleReqs(x: Int!, y: Int!): Int!
+  booleanArgField(booleanArg: Boolean): Boolean
+  floatArgField(floatArg: Float): Float
+  intArgField(intArg: Int): Int
+  nonNullBooleanArgField(nonNullBooleanArg: Boolean!): Boolean!
+  booleanListArgField(booleanListArg: [Boolean]!): [Boolean]
+}
+
+extend type QueryRoot {
+  arguments: Arguments
 }
 ```
 
@@ -601,8 +614,10 @@ For example the following document is valid:
 
 ```graphql
 {
-  ...fragmentOne
-  ...fragmentTwo
+  dog {
+    ...fragmentOne
+    ...fragmentTwo
+  }
 }
 
 fragment fragmentOne on Dog {
@@ -620,7 +635,9 @@ While this document is invalid:
 
 ```!graphql
 {
-  ...fragmentOne
+  dog {
+    ...fragmentOne
+  }
 }
 
 fragment fragmentOne on Dog {
@@ -661,7 +678,7 @@ fragment inlineFragment on Dog {
   }
 }
 
-fragment inlineFragment on Dog {
+fragment inlineFragment2 on Dog {
   ... @include(if: true) {
     name
   }
@@ -826,7 +843,7 @@ fragment barkVolumeFragment on Dog {
 
 If the above fragments were inlined, this would result in the infinitely large:
 
-```!graphql
+```graphql
 {
   dog {
     name
@@ -946,7 +963,7 @@ fragment catOrDogNameFragment on CatOrDog {
 }
 
 fragment unionWithObjectFragment on Dog {
-  ...CatOrDogFragment
+  ...catOrDogNameFragment
 }
 ```
 
@@ -1167,19 +1184,34 @@ Variables can only be scalars, enums, input objects, or lists and non-null
 variants of those types. These are known as input types. Object, unions,
 and interfaces cannot be used as inputs.
 
+For these examples, consider the following typesystem additions:
+
+```
+input ComplexInput { name: String, owner: String }
+
+extend type QueryRoot {
+  findDog(complex: ComplexInput): Dog
+  booleanList(booleanListArg: [Boolean!]): Boolean
+}
+```
+
 The following queries are valid:
 
 ```graphql
 query takesBoolean($atOtherHomes: Boolean) {
-  # ...
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
+  }
 }
 
 query takesComplexInput($complexInput: ComplexInput) {
-  # ...
+  findDog(complex: $complexInput) {
+    name
+  }
 }
 
 query TakesListOfBooleanBang($booleans: [Boolean!]) {
-  # ...
+  booleanList(booleanListArg: $booleans)
 }
 ```
 
