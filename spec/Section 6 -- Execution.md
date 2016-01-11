@@ -118,7 +118,7 @@ will be an entry in this map for every item in the grouped field set.
 ### Field entries
 
 Each item in the grouped field set can potentially create an entry in the
-result map. That entry in the result map is the result is the result of calling
+result map. That entry in the result map is the result of calling
 `GetFieldEntry` on the corresponding item in the grouped field set.
 `GetFieldEntry` can return `null`, which indicates that there should be no
 entry in the result map for this item. Note that this is distinct from

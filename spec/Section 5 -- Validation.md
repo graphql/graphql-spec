@@ -27,6 +27,7 @@ type Dog implements Pet {
   barkVolume: Int
   doesKnowCommand(dogCommand: DogCommand!) : Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
+  owner: Human
 }
 
 interface Sentient {
@@ -46,15 +47,22 @@ type Human implements Sentient {
   name: String!
 }
 
+enum CatCommand { JUMP }
+
 type Cat implements Pet {
   name: String!
   nickname: String
+  doesKnowCommand(catCommand: CatCommand!) : Boolean!
   meowVolume: Int
 }
 
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+type QueryRoot {
+  dog: Dog
+}
 ```
 
 ## Operations
@@ -378,10 +386,10 @@ Conversely the leaf field selections of GraphQL queries
 must be scalars. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following query root type of the schema:
+Let's assume the following additions to the query root type of the schema:
 
 ```
-type QueryRoot {
+extend type QueryRoot {
   human: Human
   pet: Pet
   catOrDog: CatOrDog
@@ -456,11 +464,16 @@ to our type system:
 
 ```
 type Arguments {
-  multipleReqs(x: Int!, y: Int!)
-  booleanArgField(booleanArg: Boolean)
-  floatArgField(floatArg: Float)
-  intArgField(intArg: Int)
-  nonNullBooleanArgField(nonNullBooleanArg: Boolean!)
+  multipleReqs(x: Int!, y: Int!): Int!
+  booleanArgField(booleanArg: Boolean): Boolean
+  floatArgField(floatArg: Float): Float
+  intArgField(intArg: Int): Int
+  nonNullBooleanArgField(nonNullBooleanArg: Boolean!): Boolean!
+  booleanListArgField(booleanListArg: [Boolean]!): [Boolean]
+}
+
+extend type QueryRoot {
+  arguments: Arguments
 }
 ```
 
@@ -601,8 +614,10 @@ For example the following document is valid:
 
 ```graphql
 {
-  ...fragmentOne
-  ...fragmentTwo
+  dog {
+    ...fragmentOne
+    ...fragmentTwo
+  }
 }
 
 fragment fragmentOne on Dog {
@@ -620,7 +635,9 @@ While this document is invalid:
 
 ```!graphql
 {
-  ...fragmentOne
+  dog {
+    ...fragmentOne
+  }
 }
 
 fragment fragmentOne on Dog {
@@ -661,7 +678,7 @@ fragment inlineFragment on Dog {
   }
 }
 
-fragment inlineFragment on Dog {
+fragment inlineFragment2 on Dog {
   ... @include(if: true) {
     name
   }
@@ -826,7 +843,7 @@ fragment barkVolumeFragment on Dog {
 
 If the above fragments were inlined, this would result in the infinitely large:
 
-```!graphql
+```graphql
 {
   dog {
     name
@@ -870,7 +887,7 @@ fragment ownerFragment on Dog {
 
 ** Formal Specification **
 
-  * For each {spread} (named or inline) in defined in the document.
+  * For each {spread} (named or inline) defined in the document.
   * Let {fragment} be the target of {spread}
   * Let {fragmentType} be the type condition of {fragment}
   * Let {parentType} be the type of the selection set containing {spread}
@@ -893,7 +910,7 @@ the parent type.
 
 ##### Object Spreads In Object Scope
 
-In the scope of a object type, the only valid object type
+In the scope of an object type, the only valid object type
 fragment spread is one that applies to the same type that
 is in scope.
 
@@ -946,7 +963,7 @@ fragment catOrDogNameFragment on CatOrDog {
 }
 
 fragment unionWithObjectFragment on Dog {
-  ...CatOrDogFragment
+  ...catOrDogNameFragment
 }
 ```
 
@@ -1083,11 +1100,9 @@ For example the following query will not pass validation.
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
 
-## Operations
+## Variables
 
-### Variables
-
-#### Variable Default Values Are Correctly Typed
+### Variable Default Values Are Correctly Typed
 
 ** Formal Specification **
 
@@ -1100,8 +1115,8 @@ usage of a directive, the directive must be available on that server.
 
 ** Explanatory Text **
 
-Variable defined by operations are allowed to define default values
-if the type of that variable not non-null.
+Variables defined by operations are allowed to define default values
+if the type of that variable is not non-null.
 
 For example the following query will pass validation.
 
@@ -1150,7 +1165,7 @@ query intToFloatQuery($floatVar: Float = 1) {
 }
 ```
 
-#### Variables Are Input Types
+### Variables Are Input Types
 
 ** Formal Specification **
 
@@ -1167,19 +1182,34 @@ Variables can only be scalars, enums, input objects, or lists and non-null
 variants of those types. These are known as input types. Object, unions,
 and interfaces cannot be used as inputs.
 
+For these examples, consider the following typesystem additions:
+
+```
+input ComplexInput { name: String, owner: String }
+
+extend type QueryRoot {
+  findDog(complex: ComplexInput): Dog
+  booleanList(booleanListArg: [Boolean!]): Boolean
+}
+```
+
 The following queries are valid:
 
 ```graphql
 query takesBoolean($atOtherHomes: Boolean) {
-  # ...
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
+  }
 }
 
 query takesComplexInput($complexInput: ComplexInput) {
-  # ...
+  findDog(complex: $complexInput) {
+    name
+  }
 }
 
 query TakesListOfBooleanBang($booleans: [Boolean!]) {
-  # ...
+  booleanList(booleanListArg: $booleans)
 }
 ```
 
@@ -1203,7 +1233,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 }
 ```
 
-#### All Variable Uses Defined
+### All Variable Uses Defined
 
 ** Formal Specification **
 
@@ -1345,7 +1375,7 @@ This is because {housetrainedQueryTwoNotDefined} does not define
 a variable ${atOtherHomes} but that variable is used by {isHousetrainedFragment}
 which is included in that operation.
 
-#### All Variables Used
+### All Variables Used
 
 ** Formal Specification **
 
@@ -1427,7 +1457,7 @@ fragment isHousetrainedFragment on Dog {
 This document is not valid because {queryWithExtraVar} defines
 an extraneous variable.
 
-#### All Variable Usages are Allowed
+### All Variable Usages are Allowed
 
 ** Formal Specification **
 
