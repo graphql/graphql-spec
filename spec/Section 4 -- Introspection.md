@@ -69,9 +69,9 @@ underscores.
 
 ### Documentation
 
-All types in the introspection system provide a `description` field of type
+All types in the introspection system are required to provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
-capabilities. A GraphQL server may return the `description` field using Markdown
+capabilities. Descriptions are automatically provided for built-in types and types that allow inner types (such as list types and non-nullable types), but may be overridden. A GraphQL server may return the `description` field using Markdown
 syntax. Therefore it is recommended that any tool that displays description
 use a Markdown renderer.
 
