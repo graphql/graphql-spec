@@ -214,7 +214,7 @@ Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * All other fields must return {null}.
 
 #### Object
@@ -226,7 +226,7 @@ Fields
 
 * `kind` must return `__TypeKind.OBJECT`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * `fields`: The set of fields query-able on this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
@@ -243,7 +243,7 @@ Fields
 
 * `kind` must return `__TypeKind.UNION`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
 * All other fields must return {null}.
@@ -259,7 +259,7 @@ Fields
 
 * `kind` must return `__TypeKind.INTERFACE`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
@@ -275,7 +275,7 @@ Fields
 
 * `kind` must return `__TypeKind.ENUM`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * `enumValues`: The list of `EnumValue`. There must be at least one and they
   must have unique names.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
@@ -300,7 +300,7 @@ Fields
 
 * `kind` must return `__TypeKind.INPUT_OBJECT`.
 * `name` must return a String.
-* `description` may return a String or {null}.
+* `description` must return a String.
 * `inputFields`: a list of `InputValue`.
 * All other fields must return {null}.
 
@@ -351,7 +351,7 @@ The `__Field` type represents each field in an Object or Interface type.
 Fields
 
 * `name` must return a String
-* `description` may return a String or {null}
+* `description` must return a String
 * `args` returns a List of `__InputValue` representing the arguments this
   field accepts.
 * `type` must return a `__Type` that represents the type of value returned by
@@ -369,7 +369,7 @@ The `__InputValue` type represents field and directive arguments as well as the
 Fields
 
 * `name` must return a String
-* `description` may return a String or {null}
+* `description` must return a String
 * `type` must return a `__Type` that represents the type this input
   value expects.
 * `defaultValue` may return a String encoding (using the GraphQL language) the
