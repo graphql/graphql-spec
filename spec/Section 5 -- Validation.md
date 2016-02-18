@@ -1102,6 +1102,52 @@ usage of a directive, the directive must be available on that server.
 
 ## Variables
 
+### Variable Uniqueness
+
+** Formal Specification **
+
+  * For every {operation} in the document
+    * For every {variable} defined on {operation}
+      * Let {variableName} be the name of {variable}
+      * Let {variables} be the set of all variables named {variableName} on
+        {operation}
+      * {variables} must be a set of one
+
+** Explanatory Text **
+
+If any operation defines more than one variable with the same name, it is
+ambiguous and invalid. It is invalid even if the type of the duplicate variable
+is the same.
+
+```!graphql
+query houseTrainedQuery($atOtherHomes: Boolean, $atOtherHomes: Boolean) {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
+  }
+}
+```
+
+
+It is valid for multiple operations to define a variable with the same name. If
+two operations reference the same fragment, it might actually be necessary:
+
+```graphql
+query A($atOtherHomes: Boolean) {
+  ...HouseTrainedFragment
+}
+
+query B($atOtherHomes: Boolean) {
+  ...HouseTrainedFragment
+}
+
+fragment HouseTrainedFragment {
+  dog {
+    isHousetrained(atOtherHomes: $atOtherHomes)
+  }
+}
+```
+
+
 ### Variable Default Values Are Correctly Typed
 
 ** Formal Specification **
