@@ -120,6 +120,22 @@ query getName {
 }
 ```
 
+It is invalid even if the type of each operation is different:
+
+```!graphql
+query dogOperation {
+  dog {
+    name
+  }
+}
+
+mutation dogOperation {
+  mutateDog {
+    id
+  }
+}
+```
+
 ### Anonymous Operation Definitions
 
 #### Lone Anonymous Operation
