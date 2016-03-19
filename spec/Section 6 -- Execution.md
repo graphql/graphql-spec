@@ -50,7 +50,7 @@ The selection set is converted to a grouped field set by calling
 
 CollectFields(objectType, selectionSet, visitedFragments):
 
-  * Initialize {groupedFields} to an empty list of lists.
+  * Initialize {groupedFields} to an empty ordered list of lists.
   * For each {selection} in {selectionSet};
     * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
       * If {skipDirective}'s {if} argument is {true}, continue with the
@@ -58,12 +58,12 @@ CollectFields(objectType, selectionSet, visitedFragments):
     * If {selection} provides the directive `@include`, let {includeDirective} be that directive.
       * If {includeDirective}'s {if} argument is {false}, continue with the
         next {selection} in {selectionSet}.
-    * If {selection} is a Field:
+    * If {selection} is a {Field}:
       * Let {responseKey} be the response key of {selection}.
       * Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       * Append {selection} to the {groupForResponseKey}.
-    * If {selection} is a FragmentSpread:
+    * If {selection} is a {FragmentSpread}:
       * Let {fragmentSpreadName} be the name of {selection}.
       * If {fragmentSpreadName} is in {visitedFragments}, continue with the
         next {selection} in {selectionSet}.
@@ -76,20 +76,20 @@ CollectFields(objectType, selectionSet, visitedFragments):
       * If {doesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-      * Let {fragmentGroupedFields} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet)}.
-      * For each {fragmentGroup} in {fragmentGroupedFields}:
+      * Let {fragmentGroupedFieldSet} be the result of calling
+        {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
+      * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}
         * Let {groupForResponseKey} be the list in {groupedFields} for
           {responseKey}; if no such list exists, create it as an empty list.
         * Append all items in {fragmentGroup} to {groupForResponseKey}.
-    * If {selection} is an inline fragment:
+    * If {selection} is an {InlineFragment}:
       * Let {fragmentType} be the type condition on {selection}.
       * If {fragmentType} is not {null} and {doesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-      * Let {fragmentGroupedFields} be the result of calling {CollectFields(objectType, fragmentSelectionSet)}.
-      * For each {fragmentGroup} in {fragmentGroupedFields}:
+      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
+      * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}
         * Let {groupForResponseKey} be the list in {groupedFields} for
           {responseKey}; if no such list exists, create it as an empty list.
@@ -112,8 +112,10 @@ it should be evaluated normally.
 
 ## Evaluating a grouped field set
 
-The result of evaluating a grouped field set will be an unordered map. There
-will be an entry in this map for every item in the grouped field set.
+The result of evaluating a grouped field set will be an ordered map. For each
+item in the grouped field set, an entry is added to the resulting ordered map,
+where the key is the response key shared by all fields for that entry, and the
+value is the result of evaluating those fields.
 
 ### Field entries
 

@@ -234,9 +234,9 @@ While Scalar types describe the leaf values of these hierarchical queries, Objec
 describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values are serialized as unordered maps, where the
+a specific type. Object values are serialized as ordered maps, where the
 queried field names (or aliases) are the keys and the result of evaluating
-the field is the value.
+the field is the value, ordered by the order in which they appear in the query.
 
 For example, a type `Person` could be described as:
 
@@ -253,9 +253,9 @@ that will yield an `Int` value, and `picture` a field that will yield a
 `Url` value.
 
 A query of an object value must select at least one field. This selection of
-fields will yield an unordered map containing exactly the subset of the object
-queried. Only fields that are declared on the object type may validly be queried
-on that object.
+fields will yield an ordered map containing exactly the subset of the object
+queried, in the order in which they were queried. Only fields that are declared
+on the object type may validly be queried on that object.
 
 For example, selecting all the fields of `Person`:
 
@@ -281,8 +281,8 @@ While selecting a subset of fields:
 
 ```graphql
 {
-  name
   age
+  name
 }
 ```
 
@@ -290,8 +290,8 @@ Must only yield exactly that subset:
 
 ```js
 {
-  "name": "Mark Zuckerberg",
-  "age": 30
+  "age": 30,
+  "name": "Mark Zuckerberg"
 }
 ```
 
@@ -339,6 +339,99 @@ And will yield the subset of each object type queried:
   "relationship": {
     "name": "Priscilla Chan"
   }
+}
+```
+
+**Field Ordering**
+
+When querying an Object, the resulting mapping of fields are conceptually
+ordered in the same order in which they were encountered during query execution,
+excluding fragments for which the type does not apply and fields or
+fragments that are skipped via `@skip` or `@include` directives. This ordering
+is correctly produced when using the {CollectFields()} algorithm.
+
+Response formats which support ordered maps (such as JSON) must maintain this
+ordering. Response formats which do not support ordered maps may disregard
+this ordering.
+
+If a fragment is spread before other fields, the fields that fragment specifies
+occur in the response before the following fields.
+
+```graphql
+{
+  foo
+  ...Frag
+  qux
+}
+
+fragment Frag on Query {
+  bar
+  baz
+}
+```
+
+Produces the ordered result:
+
+```js
+{
+  "foo": 1,
+  "bar": 2,
+  "baz": 3,
+  "qux": 4
+}
+```
+
+If a field is queried multiple times in a selection, it is ordered by the first
+time it is encountered. However fragments for which the type does not apply does
+not affect ordering.
+
+```graphql
+{
+  foo
+  ...Ignored
+  ...Matching
+  bar
+}
+
+fragment Ignored on UnknownType {
+  qux
+  baz
+}
+
+fragment Matching on Query {
+  bar
+  qux
+  foo
+}
+```
+
+Produces the ordered result:
+
+```js
+{
+  "foo": 1,
+  "bar": 2,
+  "qux": 3
+}
+```
+
+Also, if directives result in fields being excluded, they are not considered in
+the ordering of fields.
+
+```graphql
+{
+  foo @skip(if: true)
+  bar
+  foo
+}
+```
+
+Produces the ordered result:
+
+```js
+{
+  "bar": 1,
+  "foo": 2
 }
 ```
 

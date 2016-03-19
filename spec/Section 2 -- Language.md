@@ -779,6 +779,25 @@ curly-braces `{ }`.  The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
+**Input object fields are unordered**
+
+Input object fields may be provided in any syntactic order and maintain
+identical semantic meaning.
+
+These two queries are semantically identical:
+
+```graphql
+{
+  nearestThing(location: { lon: 12.43, lat: -53.211 })
+}
+```
+
+```graphql
+{
+  nearestThing(location: { lat: -53.211, lon: 12.43 })
+}
+```
+
 **Semantics**
 
 ObjectValue : { }
