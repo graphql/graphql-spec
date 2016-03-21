@@ -1359,8 +1359,8 @@ since {isHousetrainedFragment} is used within the context of the operation
 {variableIsDefinedUsedInSingleFragment} and the variable is defined by that
 operation.
 
-On the contrary is a fragment is included within an operation that does
-not define a referenced variable, this is a validation error.
+On the other hand, if a fragment is included within an operation that does
+not define a referenced variable, the query is invalid.
 
 ```!graphql
 query variableIsNotDefinedUsedInSingleFragment {
@@ -1592,8 +1592,9 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 ```
 
 For list types, the same rules around nullability apply to both outer types
-and inner types. A nullable list cannot be passed to a non-null list, and a lists
+and inner types. A nullable list cannot be passed to a non-null list, and a list
 of nullable values cannot be passed to a list of non-null values.
+The following is valid:
 
 ```graphql
 query nonNullListToList($nonNullBooleanList: [Boolean]!) {
@@ -1603,7 +1604,7 @@ query nonNullListToList($nonNullBooleanList: [Boolean]!) {
 }
 ```
 
-However a nullable list could not be passed to a non-null list.
+However, a nullable list cannot be passed to a non-null list:
 
 ```!graphql
 query listToNonNullList($booleanList: [Boolean]) {
