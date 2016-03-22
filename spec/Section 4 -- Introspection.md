@@ -56,7 +56,9 @@ would return
 }
 ```
 
+
 ## General Principles
+
 
 ### Naming conventions
 
@@ -67,6 +69,7 @@ types.  Conversely, GraphQL type system authors must not define any types,
 fields, arguments, or any other type system artifact with two leading
 underscores.
 
+
 ### Documentation
 
 All types in the introspection system provide a `description` field of type
@@ -74,6 +77,7 @@ All types in the introspection system provide a `description` field of type
 capabilities. A GraphQL server may return the `description` field using Markdown
 syntax. Therefore it is recommended that any tool that displays description
 use a Markdown renderer.
+
 
 ### Deprecation
 
@@ -85,6 +89,7 @@ Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
 warnings.
 
+
 ### Type Name Introspection
 
 GraphQL supports type name introspection at any point within a query by the
@@ -95,6 +100,7 @@ This is most often used when querying against Interface or Union types to
 identify which actual type of the possible types has been returned.
 
 This field is implicit and does not appear in the fields list in any defined type.
+
 
 ## Schema Introspection
 
@@ -197,7 +203,7 @@ enum __DirectiveLocation {
 ```
 
 
-### The "__Type" Type
+### The __Type Type
 
 `__Type` is at the core of the type introspection system.
 It represents scalars, interfaces, object types, unions, enums in the system.
@@ -206,10 +212,12 @@ It represents scalars, interfaces, object types, unions, enums in the system.
 that it refers to (`ofType: __Type`). This is how we represent lists,
 non-nullable types, and the combinations thereof.
 
+
 ### Type Kinds
 
 There are several different kinds of type. In each kind, different fields are
 actually valid. These kinds are listed in the `__TypeKind` enumeration.
+
 
 #### Scalar
 
@@ -224,6 +232,7 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * All other fields must return {null}.
+
 
 #### Object
 
@@ -241,6 +250,7 @@ Fields
 * `interfaces`: The set of interfaces that an object implements.
 * All other fields must return {null}.
 
+
 #### Union
 
 Unions are an abstract types where no common fields are declared. The possible
@@ -255,6 +265,7 @@ Fields
 * `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
 * All other fields must return {null}.
+
 
 #### Interface
 
@@ -275,6 +286,7 @@ Fields
   They must be object types.
 * All other fields must return {null}.
 
+
 #### Enum
 
 Enums are special scalars that can only have a defined set of values.
@@ -289,6 +301,7 @@ Fields
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 * All other fields must return {null}.
+
 
 #### Input Object
 
@@ -312,6 +325,7 @@ Fields
 * `inputFields`: a list of `InputValue`.
 * All other fields must return {null}.
 
+
 #### List
 
 Lists represent sequences of values in GraphQL. A List type is a type modifier:
@@ -324,7 +338,8 @@ Fields
 * `ofType`: Any type.
 * All other fields must return {null}.
 
-#### Non-null
+
+#### Non-Null
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
@@ -335,6 +350,7 @@ required inputs for arguments and input object fields.
 * `kind` must return `__TypeKind.NON_NULL`.
 * `ofType`: Any type except Non-null.
 * All other fields must return {null}.
+
 
 #### Combining List and Non-Null
 

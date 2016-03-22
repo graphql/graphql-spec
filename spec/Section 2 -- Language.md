@@ -52,6 +52,7 @@ Note: GraphQL intentionally does not consider Unicode "Zs" category characters
 as white-space, avoiding misinterpretation by text editors and source
 control tools.
 
+
 ### Line Terminators
 
 LineTerminator ::
@@ -186,7 +187,7 @@ multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
 
 
-### Operations
+## Operations
 
 OperationDefinition :
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
@@ -231,7 +232,7 @@ For example, this unnamed query operation is written via query shorthand.
 Note: many examples below will use the query short-hand syntax.
 
 
-### Selection Sets
+## Selection Sets
 
 SelectionSet : { Selection+ }
 
@@ -255,7 +256,8 @@ under-fetching data.
 In this query, the `id`, `firstName`, and `lastName` fields form a selection
 set. Selection sets may also contain fragment references.
 
-### Fields
+
+## Fields
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
@@ -312,7 +314,7 @@ unique identifier.
 ```
 
 
-### Arguments
+## Arguments
 
 Arguments : ( Argument+ )
 
@@ -367,7 +369,7 @@ These two queries are semantically identical:
 ```
 
 
-### Field Alias
+## Field Alias
 
 Alias : Name :
 
@@ -427,7 +429,7 @@ A field's response key is its alias if an alias is provided, and it is
 otherwise the field's name.
 
 
-### Fragments
+## Fragments
 
 FragmentSpread : ... FragmentName Directives?
 
@@ -517,7 +519,8 @@ fragment standardProfilePic on User {
 The queries `noFragments`, `withFragments`, and `withNestedFragments` all
 produce the same response object.
 
-#### Type Conditions
+
+### Type Conditions
 
 TypeCondition : on NamedType
 
@@ -576,7 +579,8 @@ will be present and `friends` will not.
 }
 ```
 
-#### Inline Fragments
+
+### Inline Fragments
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
@@ -622,7 +626,7 @@ query inlineFragmentNoType($expandedInfo: Boolean) {
 ```
 
 
-### Input Values
+## Input Values
 
 Value[Const] :
   - [~Const] Variable
@@ -640,7 +644,8 @@ input values can be scalars, enumeration values, lists, or input objects.
 If not defined as constant (for example, in {DefaultValue}), input values can be
 specified as a variable. List and inputs objects may also contain variables (unless defined to be constant).
 
-#### Int Value
+
+### Int Value
 
 IntValue :: IntegerPart
 
@@ -656,7 +661,8 @@ NonZeroDigit :: Digit but not `0`
 
 An Int number is specified without a decimal point or exponent (ex. `1`).
 
-#### Float Value
+
+### Float Value
 
 FloatValue ::
   - IntegerPart FractionalPart
@@ -674,13 +680,15 @@ Sign :: one of + -
 A Float number includes either a decimal point (ex. `1.0`) or an exponent
 (ex. `1e50`) or both (ex. `6.0221413e23`).
 
-#### Boolean Value
+
+### Boolean Value
 
 BooleanValue : one of `true` `false`
 
 The two keywords `true` and `false` represent the two boolean values.
 
-#### String Value
+
+### String Value
 
 StringValue ::
   - `""`
@@ -728,7 +736,7 @@ StringCharacter :: \ EscapedCharacter
   * Return the character value of {EscapedCharacter}.
 
 
-#### Enum Value
+### Enum Value
 
 EnumValue : Name but not `true`, `false` or `null`
 
@@ -740,7 +748,8 @@ necessary to supply an enumeration type name in the literal.
 An enum value cannot be "null" in order to avoid confusion. GraphQL
 does not supply a value literal to represent the concept {null}.
 
-#### List Value
+
+### List Value
 
 ListValue[Const] :
   - [ ]
@@ -766,7 +775,8 @@ ListValue : [ Value+ ]
     * Append {value} to {inputList}.
   * Return {inputList}
 
-#### Input Object Values
+
+### Input Object Values
 
 ObjectValue[Const] :
   - { }
@@ -814,7 +824,7 @@ ObjectValue : { ObjectField+ }
   * Return {inputObject}
 
 
-### Variables
+## Variables
 
 Variable : $ Name
 
@@ -857,7 +867,7 @@ size `60` width:
 }
 ```
 
-#### Variable use within Fragments
+** Variable use within Fragments **
 
 Query variables can be used within fragments. Query variables have global scope
 with a given operation, so a variable used within a fragment must be declared
@@ -866,7 +876,7 @@ a variable is referenced in a fragment and is included by an operation that does
 not define that variable, the operation cannot be executed.
 
 
-### Input Types
+## Input Types
 
 Type :
   - NamedType
@@ -907,7 +917,7 @@ Type : Type !
   * Return {type}
 
 
-### Directives
+## Directives
 
 Directives : Directive+
 
