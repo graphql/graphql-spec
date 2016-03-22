@@ -12,7 +12,7 @@ Total request validation on the server-side during execution is optional. As
 schemas and systems change over time existing clients may end up emitting
 queries that are no longer valid given the current type system.  Servers
 (as described in the Execution section of this spec) attempt to satisfy as
-much as the request as possible and continue to execute in the presence
+much of the request as possible and continue to execute in the presence
 of type system errors rather than cease execution completely.
 
 For this section of this schema, we will assume the following type system
