@@ -8,6 +8,7 @@ request.
 A response may contain both a partial response as well as encountered errors in
 the case that an error occurred on a field which was replaced with null.
 
+
 ## Serialization Format
 
 GraphQL does not require a specific serialization format. However, clients
@@ -32,6 +33,7 @@ may be used as a substitute for those primitives.
  * Float
  * Enum Value
 
+
 ### JSON Serialization
 
 JSON is the preferred serialization format for GraphQL, though as noted above,
@@ -50,6 +52,7 @@ the following JSON concepts:
 | Int           | Number            |
 | Float         | Number            |
 | Enum Value    | String            |
+
 
 
 ## Response Format
@@ -75,6 +78,7 @@ To ensure future changes to the protocol do not break existing servers and
 clients, the top level response map must not contain any entries other than the
 three described above.
 
+
 ### Data
 
 The `data` entry in the response will be the result of the execution of the
@@ -87,6 +91,7 @@ not be present in the result.
 
 If an error was encountered during the execution that prevented a valid
 response, the `data` entry in the response should be `null`.
+
 
 ### Errors
 

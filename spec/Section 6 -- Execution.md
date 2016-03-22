@@ -2,6 +2,7 @@
 
 This section describes how GraphQL generates a response from a request.
 
+
 ## Evaluating requests
 
 To evaluate a request, the executor must have a parsed `Document` (as defined
@@ -14,13 +15,15 @@ error. If the operation is found, then the result of evaluating the request
 should be the result of evaluating the operation according to the “Evaluating
 operations” section.
 
-## Coercing Variables
+
+## Coercing Variable Values
 
 If the operation has defined any variables, then the values for
 those variables need to be coerced using the input coercion rules
 of variable's declared type. If a query error is encountered during
 input coercion of variable values, then the operation fails without
 execution.
+
 
 ## Evaluating operations
 
@@ -33,6 +36,7 @@ object. This selection set should be evaluated serially.
 
 If the operation is a query, the result of the operation is the result of
 evaluating the query’s top level selection set on the “Query Root” object.
+
 
 ## Evaluating selection sets
 
@@ -110,12 +114,14 @@ corresponding grouped field set. The corresponding grouped field set should be
 evaluated serially if the selection set is being evaluated serially, otherwise
 it should be evaluated normally.
 
+
 ## Evaluating a grouped field set
 
 The result of evaluating a grouped field set will be an ordered map. For each
 item in the grouped field set, an entry is added to the resulting ordered map,
 where the key is the response key shared by all fields for that entry, and the
 value is the result of evaluating those fields.
+
 
 ### Field entries
 
@@ -199,6 +205,7 @@ ResolveAbstractType(abstractType, objectValue):
     system for determining the Object type of {abstractType} given the
     value {objectValue}.
 
+
 ### Normal evaluation
 
 When evaluating a grouped field set without a serial execution order requirement,
@@ -223,6 +230,7 @@ For example, given the following grouped field set to be evaluated normally:
 
 A valid GraphQL executor can resolve the four fields in whatever order it
 chose.
+
 
 ### Serial execution
 
@@ -298,11 +306,13 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
+
 ### Error handling
 
 If an error occurs when resolving a field, it should be treated as though
 the field returned null, and an error must be added to the "errors" list
 in the response.
+
 
 ### Nullability
 

@@ -65,6 +65,7 @@ type QueryRoot {
 }
 ```
 
+
 ## Operations
 
 ### Named Operation Definitions
@@ -180,6 +181,7 @@ query getName {
 }
 ```
 
+
 ## Fields
 
 ### Field Selections on Objects, Interfaces, and Unions Types
@@ -254,6 +256,7 @@ fragment directFieldSelectionOnUnion on CatOrDog {
   barkVolume
 }
 ```
+
 
 ### Field Selection Merging
 
@@ -366,6 +369,7 @@ fragment safeDifferingArgs on Pet {
 }
 ```
 
+
 ### Leaf Field Selections
 
 ** Formal Specification **
@@ -430,10 +434,12 @@ query directQueryOnUnionWithoutSubFields {
 }
 ```
 
+
 ## Arguments
 
 Arguments are provided to both fields and directives. The following validation
 rules apply in both cases.
+
 
 ### Argument Names
 
@@ -507,6 +513,7 @@ fragment multipleArgsReverseOrder on Arguments {
 }
 ```
 
+
 ### Argument Uniqueness
 
 Fields and directives treat arguments as a mapping of argument name to value.
@@ -519,6 +526,7 @@ and invalid.
   * Let {argumentName} be the Name of {argument}.
   * Let {arguments} be all Arguments named {argumentName} in the Argument Set which contains {argument}.
   * {arguments} must be the set containing only {argument}.
+
 
 ### Argument Values Type Correctness
 
@@ -559,6 +567,7 @@ fragment stringIntoInt on Arguments {
   intArgField(intArg: "3")
 }
 ```
+
 
 #### Required Arguments
 
@@ -606,6 +615,7 @@ fragment missingRequiredArg on Arguments {
   nonNullBooleanArgField
 }
 ```
+
 
 ## Fragments
 
@@ -669,6 +679,7 @@ fragment fragmentOne on Dog {
 }
 ```
 
+
 #### Fragment Spread Type Existence
 
 ** Formal Specification **
@@ -717,6 +728,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
+
 #### Fragments On Composite Types
 
 ** Formal Specification **
@@ -763,6 +775,7 @@ fragment inlineFragOnScalar on Dog {
 }
 ```
 
+
 #### Fragments Must Be Used
 
 ** Formal Specification **
@@ -788,12 +801,14 @@ fragment nameFragment on Dog { # unused
 }
 ```
 
+
 ### Fragment Spreads
 
 Field selection is also determined by spreading fragments into one
 another. The selection set of the target fragment is unioned with
 the selection set at the level at which the target fragment is
 referenced.
+
 
 #### Fragment spread target defined
 
@@ -816,6 +831,7 @@ not defined, this is an error:
   }
 }
 ```
+
 
 #### Fragment spreads must not form cycles
 
@@ -901,6 +917,7 @@ fragment ownerFragment on Dog {
 }
 ```
 
+
 #### Fragment spread is possible
 
 ** Formal Specification **
@@ -925,6 +942,7 @@ runtime object type matches the type condition. They also are
 spread within the context of a parent type. A fragment spread
 is only valid if its type condition could ever apply within
 the parent type.
+
 
 ##### Object Spreads In Object Scope
 
@@ -951,6 +969,7 @@ fragment catInDogFragmentInvalid on Dog {
   }
 }
 ```
+
 
 ##### Abstract Spreads in Object Scope
 
@@ -990,6 +1009,7 @@ noting that if one inspected the contents of the {CatOrDogNameFragment}
 you could note that the no valid results would ever be returned. However
 we do not specify this as invalid because we only consider the fragment
 declaration, not its body.
+
 
 ##### Object Spreads In Abstract Scope
 
@@ -1039,6 +1059,7 @@ fragment humanOrAlienFragment on HumanOrAlien {
 is invalid. Likewise {Cat} is not a member of the union {HumanOrAlien}, and it
 can also never return meaningful results, making it invalid.
 
+
 ##### Abstract Spreads in Abstract Scope
 
 Union or interfaces fragments can be used within each other. As long as there
@@ -1077,7 +1098,9 @@ fragment sentientFragment on Sentient {
 is not valid because there exists no type that implements both {Pet}
 and {Sentient}.
 
+
 ## Values
+
 
 ### Input Object Field Uniqueness
 
@@ -1102,7 +1125,9 @@ For example the following query will not pass validation.
 }
 ```
 
+
 ## Directives
+
 
 ### Directives Are Defined
 
@@ -1257,6 +1282,7 @@ query intToFloatQuery($floatVar: Float = 1) {
 }
 ```
 
+
 ### Variables Are Input Types
 
 ** Formal Specification **
@@ -1324,6 +1350,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
   # ...
 }
 ```
+
 
 ### All Variable Uses Defined
 
@@ -1467,6 +1494,7 @@ This is because {housetrainedQueryTwoNotDefined} does not define
 a variable ${atOtherHomes} but that variable is used by {isHousetrainedFragment}
 which is included in that operation.
 
+
 ### All Variables Used
 
 ** Formal Specification **
@@ -1548,6 +1576,7 @@ fragment isHousetrainedFragment on Dog {
 
 This document is not valid because {queryWithExtraVar} defines
 an extraneous variable.
+
 
 ### All Variable Usages are Allowed
 

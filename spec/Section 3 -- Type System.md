@@ -22,6 +22,7 @@ any built in types (including Scalar and Introspection types).
 All directives within a GraphQL schema must have unique names. A directive
 and a type may share the same name, since there is no ambiguity between them.
 
+
 ## Types
 
 The fundamental unit of any GraphQL Schema is the type. There are eight kinds
@@ -58,6 +59,7 @@ continually unwrapping the type until a base type is found.
 Finally, oftentimes it is useful to provide complex structs as inputs to
 GraphQL queries; the `Input Object` type allows the schema to define exactly
 what data is expected from the client in these queries.
+
 
 ### Scalars
 
@@ -113,13 +115,14 @@ and floating-point values, they are interpreted as an integer input value if
 they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
 input value.
 
-#### Built-in Scalars
+**Built-in Scalars**
 
 GraphQL provides a basic set of well-defined Scalar types. A GraphQL server
 should support all of these types, and a GraphQL server which provide a type by
 these names must adhere to the behavior described below.
 
-##### Int
+
+#### Int
 
 The Int scalar type represents a signed 32-bit numeric non-fractional values.
 Response formats that support a 32-bit integer or a number type should use
@@ -143,7 +146,8 @@ Note: Numeric integer values larger than 32-bit should either use String or a
 custom-defined Scalar type, as not all platforms and transports support
 encoding integer numbers larger than 32-bit.
 
-##### Float
+
+#### Float
 
 The Float scalar type represents signed double-precision fractional values
 as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
@@ -165,7 +169,8 @@ other input values, including strings with numeric content, must raise a query
 error indicating an incorrect type. If the integer input value represents a
 value not representable by IEEE 754, a query error should be raised.
 
-##### String
+
+#### String
 
 The String scalar type represents textual data, represented as UTF-8 character
 sequences. The String type is most often used by GraphQL to represent free-form
@@ -185,7 +190,8 @@ When expected as an input type, only valid UTF-8 string input values are
 accepted. All other input values must raise a query error indicating an
 incorrect type.
 
-##### Boolean
+
+#### Boolean
 
 The Boolean scalar type represents `true` or `false`. Response formats should
 use a built-in boolean type if supported; otherwise, they should use their
@@ -202,7 +208,8 @@ otherwise they must raise a field error. Examples of this may include returning
 When expected as an input type, only boolean input values are accepted. All
 other input values must raise a query error indicating an incorrect type.
 
-##### ID
+
+#### ID
 
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as key for a cache. The ID type is serialized in the same way as
@@ -444,6 +451,7 @@ executor, so this is covered in that section of the spec.
 
 Objects are never valid inputs.
 
+
 #### Object Field Arguments
 
 Object fields are conceptually functions which yield values. Occasionally object
@@ -484,12 +492,14 @@ May yield the result:
 
 The type of an object field argument can be any Input type.
 
+
 #### Object Field deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
 application. It is still legal to query for these fields (to ensure existing
 clients are not broken by the change), but the fields should be appropriately
 treated in documentation and tooling.
+
 
 #### Object type validation
 
@@ -618,6 +628,7 @@ is the same as the result coercion of the object.
 
 Interfaces are never valid inputs.
 
+
 #### Interface type validation
 
 Interface types have the potential to be invalid if incorrectly defined.
@@ -698,6 +709,7 @@ same as the result coercion of the object.
 **Input Coercion**
 
 Unions are never valid inputs.
+
 
 #### Union type validation
 
@@ -793,6 +805,7 @@ the only item in the list. This is to allow inputs that accept a "var args"
 to declare their input type as a list; if only one argument is passed (a common
 case), the client can just pass that value rather than constructing the list.
 
+
 ### Non-Null
 
 By default, all types in GraphQL are nullable; the {null} value is a valid
@@ -858,6 +871,7 @@ engine supports.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
+
 ### @skip
 
 The `@skip` directive may be provided for fields, fragment spreads, and
@@ -872,6 +886,7 @@ query myQuery($someTest: Boolean) {
   experimentalField @skip(if: $someTest)
 }
 ```
+
 
 ### @include
 
@@ -891,7 +906,7 @@ query myQuery($someTest: Boolean) {
 In the case that both the `@skip` and `@include` directives are provided in the same context, the field or fragment *must* be queried only if the `@skip` condition is false *and* the `@include` condition is true. Stated conversely, the field/fragment must *not* be queried if either the `@skip` condition is true *or* the `@include` condition is false.
 
 
-## Starting types
+## Initial types
 
 A GraphQL schema includes types, indicating where query and mutation
 operations start. This provides the initial entry points into the
