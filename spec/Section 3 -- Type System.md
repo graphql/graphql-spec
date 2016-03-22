@@ -860,8 +860,9 @@ GraphQL implementations should provide the `@skip` and `@include` directives.
 
 ### @skip
 
-The `@skip` directive may be provided for fields or fragments, and allows
-for conditional exclusion during execution as described by the if argument.
+The `@skip` directive may be provided for fields, fragment spreads, and
+inline fragments, and allows for conditional exclusion during execution as
+described by the if argument.
 
 In this example `experimentalField` will be queried only if the `$someTest` is
 provided a `false` value.
@@ -874,8 +875,9 @@ query myQuery($someTest: Boolean) {
 
 ### @include
 
-The `@include` directive may be provided for fields or fragments, and allows
-for conditional inclusion during execution as described by the if argument.
+The `@include` directive may be provided for fields, fragment spreads, and
+inline fragments, and allows for conditional inclusion during execution as
+described by the if argument.
 
 In this example `experimentalField` will be queried only if the `$someTest` is
 provided a `true` value.

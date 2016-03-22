@@ -181,10 +181,18 @@ enum __TypeKind {
 type __Directive {
   name: String!
   description: String
+  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean!
-  onFragment: Boolean!
-  onField: Boolean!
+}
+
+enum __DirectiveLocation {
+  QUERY
+  MUTATION
+  SUBSCRIPTION
+  FIELD
+  FRAGMENT_DEFINITION
+  FRAGMENT_SPREAD
+  INLINE_FRAGMENT
 }
 ```
 
@@ -375,3 +383,17 @@ Fields
 * `defaultValue` may return a String encoding (using the GraphQL language) the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
+
+
+### The __Directive Type
+
+The `__Directive` type represents a Directive that a server supports.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `locations` returns a List of `__DirectiveLocation` representing the valid
+  locations this directive may be placed.
+* `args` returns a List of `__InputValue` representing the arguments this
+  directive accepts.

@@ -1116,6 +1116,34 @@ For example the following query will not pass validation.
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
 
+
+### Directives Are In Valid Locations
+
+** Formal Specification **
+
+  * For every {directive} in a document.
+  * Let {directiveName} be the name of {directive}.
+  * Let {directiveDefinition} be the directive named {directiveName}.
+  * Let {locations} be the valid locations for {directiveDefinition}.
+  * Let {adjacent} be the AST node the directive effects.
+  * {adjacent} must be represented by an item within {locations}.
+
+** Explanatory Text **
+
+GraphQL servers define what directives they support and where they support them.
+For each usage of a directive, the directive must be used in a location that the
+server has declared support for.
+
+For example the following query will not pass validation because `@skip` does
+not provide `QUERY` as a valid location.
+
+```!graphql
+query @skip(if: $foo) {
+  field
+}
+```
+
+
 ## Variables
 
 ### Variable Uniqueness
