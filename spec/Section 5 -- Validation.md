@@ -142,8 +142,10 @@ mutation dogOperation {
 
 ** Formal Specification **
 
-  * Let {operations} be all anonymous operation definitions in the document.
-  * {operations} must be a set of one.
+  * Let {operations} be all operation definitions in the document.
+  * Let {anonymous} be all anonymous operation definitions in the document.
+  * If {operations} is a set of more than 1:
+    * {anonymous} must be empty.
 
 ** Explanatory Text **
 
