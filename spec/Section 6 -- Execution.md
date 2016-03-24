@@ -16,6 +16,24 @@ should be the result of evaluating the operation according to the “Evaluating
 operations” section.
 
 
+## Validation of operation
+
+As explained in the Validation section, only requests which pass all validation
+rules should be executed. If validation errors are known, they should be
+reported in the list of "errors" in the response and the operation must fail
+without execution.
+
+Typically validation is performed in the context of a request immediately
+before execution, however a GraphQL service may execute a request without
+explicitly validating it if that exact same request is known to have been
+validated before. For example: the request may be validated during development,
+provided it does not later change, or a service may validate a request once and
+memoize the result to avoid validating the same request again in the future.
+
+A GraphQL service should only execute requests which *at some point* were
+known to be free of any validation errors, and have not changed since.
+
+
 ## Coercing Variable Values
 
 If the operation has defined any variables, then the values for

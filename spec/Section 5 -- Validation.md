@@ -1,19 +1,36 @@
 # Validation
 
-GraphQL does not just verify if a request is syntactically correct.
+GraphQL does not just verify if a request is syntactically correct, but also
+ensures that it is unambiguous and mistake-free in the context of a given
+GraphQL schema.
 
-Prior to execution, it can also verify that a request is valid
-within the context of a given GraphQL schema. Validation is primarily
-targeted at development-time tooling. Any client-side tooling
-should return errors and not allow the formulation of queries
-known to violate the type system at a given point in time.
+An invalid request is still technically executable, and will always produce a
+stable result as defined by the procedures in the Execution section, however
+that result may be ambiguous, surprising, or unexpected relative to the request
+containing validation errors, so execution should not occur for invalid requests.
 
-Total request validation on the server-side during execution is optional. As
-schemas and systems change over time existing clients may end up emitting
-queries that are no longer valid given the current type system.  Servers
-(as described in the Execution section of this spec) attempt to satisfy as
-much of the request as possible and continue to execute in the presence
-of type system errors rather than cease execution completely.
+Typically validation is performed in the context of a request immediately
+before execution, however a GraphQL service may execute a request without
+explicitly validating it if that exact same request is known to have been
+validated before. For example: the request may be validated during development,
+provided it does not later change, or a service may validate a request once and
+memoize the result to avoid validating the same request again in the future.
+Any client-side or development-time tool should report validation errors and not
+allow the formulation or execution of requests known to be invalid at that given
+point in time.
+
+**Type system evolution**
+
+As GraphQL type system schema evolve over time by adding new types and new
+fields, it is possible that a request which was previously valid could later
+become invalid. Any change that can cause a previously valid request to become
+invalid is considered a *breaking change*. GraphQL services and schema
+maintainers are encouraged to avoid breaking changes, however in order to be
+more resilient to these breaking changes, sophisticated GraphQL systems may
+still allow for the execution of requests which *at some point* were known to
+be free of any validation errors, and have not changed since.
+
+**Examples**
 
 For this section of this schema, we will assume the following type system
 in order to demonstrate examples:
