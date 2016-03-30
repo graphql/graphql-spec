@@ -549,7 +549,7 @@ typed fragments.
 For example, we might have the following type system:
 
 ```
-Union SearchResult = Photo | Person
+union SearchResult = Photo | Person
 
 type Person {
   name: String
