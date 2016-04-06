@@ -279,7 +279,10 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 ** Formal Specification **
 
-  * Let {set} be any selection set defined in the GraphQL document
+  * Let {set} be any selection set defined in the GraphQL document.
+  * {FieldsInSetCanMerge(set)} must be true.
+
+FieldsInSetCanMerge(set) :
   * Let {fieldsForName} be the set of selections with a given response name in
     {set} including visiting fragments and inline fragments.
   * Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
@@ -288,13 +291,16 @@ fragment directFieldSelectionOnUnion on CatOrDog {
       * {fieldA} and {fieldB} must have identical field names.
       * {fieldA} and {fieldB} must have identical return type.
       * {fieldA} and {fieldB} must have identical sets of arguments.
+      * Let {mergedSet} be the result of adding the selection set of {fieldA}
+        and the selection set of {fieldB}.
+      * {FieldsInSetCanMerge(mergedSet)} must be true.
 
 ** Explanatory Text **
 
 If multiple fields selections with the same response names are encountered
-during execution, the result should be unambiguous. Therefore any two field
-selections which might both be encountered for the same object are only valid if
-they are equivalent.
+during execution, the field and arguments to execute and the resulting value
+should be unambiguous. Therefore any two field selections which might both be
+encountered for the same object are only valid if they are equivalent.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
