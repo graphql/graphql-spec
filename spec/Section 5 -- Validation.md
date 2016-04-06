@@ -286,14 +286,36 @@ FieldsInSetCanMerge(set) :
   * Let {fieldsForName} be the set of selections with a given response name in
     {set} including visiting fragments and inline fragments.
   * Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+    * {SameResponseShape(fieldA, fieldB)} must be true.
     * If the parent types of {fieldA} and {fieldB} are equal or if either is not
       an Object Type:
       * {fieldA} and {fieldB} must have identical field names.
-      * {fieldA} and {fieldB} must have identical return type.
       * {fieldA} and {fieldB} must have identical sets of arguments.
       * Let {mergedSet} be the result of adding the selection set of {fieldA}
         and the selection set of {fieldB}.
       * {FieldsInSetCanMerge(mergedSet)} must be true.
+
+SameResponseShape(fieldA, fieldB) :
+  * Let {typeA} be the return type of {fieldA}.
+  * Let {typeB} be the return type of {fieldB}.
+  * If {typeA} or {typeB} is Non-Null.
+    * {typeA} and {typeB} must both be Non-Null.
+    * Let {typeA} be the nullable type of {typeA}
+    * Let {typeB} be the nullable type of {typeB}
+  * If {typeA} or {typeB} is List.
+    * {typeA} and {typeB} must both be List.
+    * Let {typeA} be the item type of {typeA}
+    * Let {typeB} be the item type of {typeB}
+    * Repeat from step 3.
+  * If {typeA} or {typeB} is Scalar or Enum.
+    * {typeA} and {typeB} must be the same type.
+  * Assert: {typeA} and {typeB} are both composite types.
+  * Let {mergedSet} be the result of adding the selection set of {fieldA} and
+    the selection set of {fieldB}.
+  * Let {fieldsForName} be the set of selections with a given response name in
+    {mergedSet} including visiting fragments and inline fragments.
+  * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
+    * {SameResponseShape(subfieldA, subfieldB)} must be true.
 
 ** Explanatory Text **
 
@@ -369,16 +391,16 @@ fragment differingArgs on Dog {
 }
 ```
 
-The following would not merge together, however both cannot be encountered
-against the same object:
+The following fields would not merge together, however both cannot be
+encountered against the same object, so they are safe:
 
 ```graphql
 fragment safeDifferingFields on Pet {
   ... on Dog {
-    name: nickname
+    volume: barkVolume
   }
   ... on Cat {
-    name
+    volume: meowVolume
   }
 }
 
@@ -388,6 +410,21 @@ fragment safeDifferingArgs on Pet {
   }
   ... on Cat {
     doesKnowCommand(catCommand: JUMP)
+  }
+}
+```
+
+However, the field responses must be shapes which can be merged. For example,
+scalar values must not differ. In this example, `someValue` might be a `String`
+or an `Int`:
+
+```!graphql
+fragment conflictingDifferingResponses on Pet {
+  ... on Dog {
+    someValue: nickname
+  }
+  ... on Cat {
+    someValue: meowVolume
   }
 }
 ```
