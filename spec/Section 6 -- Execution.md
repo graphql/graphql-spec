@@ -325,24 +325,28 @@ A correct executor must generate the following result for that selection set:
 ```
 
 
+### Nullability
+
+If the result of resolving a field is `null` (either because the function to
+resolve the field returned `null` or because an error occurred), and that
+field is of a `Non-Null` type, then a field error is thrown.
+
+If the field was `null` because of an error which has already been added to the
+`"errors"` list in the response, the `"errors"` list must not be
+further affected.
+
+If the field resolve function returned `null`, the resulting field error must be
+added to the `"errors"` list in the response.
+
+
 ### Error handling
 
 If an error occurs when resolving a field, it should be treated as though
-the field returned null, and an error must be added to the "errors" list
+the field returned `null`, and an error must be added to the `"errors"` list
 in the response.
 
+However, if the type of that field is of a `Non-Null` type, since the field
+cannot be `null` the error is propogated to be dealt with by the parent field.
 
-### Nullability
-
-If the result of resolving a field is null (either because the function to
-resolve the field returned null or because an error occurred), and that
-field is marked as being non-null in the type system, then the result
-of evaluating the entire field set that contains this field is now
-null.
-
-If the field was null because of an error, then the error has already been
-logged, and the "errors" list in the response must not be affected.
-
-If the field resolution function returned null, and the field was non-null,
-then no error has been logged, so an appropriate error must be added to
-the "errors" list.
+If all fields from the root of the request to the source of the error return
+`Non-Null` types, then the `"data"` entry in the response should be `null`.
