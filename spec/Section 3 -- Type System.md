@@ -903,7 +903,12 @@ query myQuery($someTest: Boolean) {
 }
 ```
 
-In the case that both the `@skip` and `@include` directives are provided in the same context, the field or fragment *must* be queried only if the `@skip` condition is false *and* the `@include` condition is true. Stated conversely, the field/fragment must *not* be queried if either the `@skip` condition is true *or* the `@include` condition is false.
+Note: Neither `@skip` nor `@include` has precedence over the other. In the case
+that both the `@skip` and `@include` directives are provided in on the same the
+field or fragment, it *must* be queried only if the `@skip` condition is false
+*and* the `@include` condition is true. Stated conversely, the field or fragment
+must *not* be queried if either the `@skip` condition is true *or* the
+`@include` condition is false.
 
 
 ## Initial types
