@@ -506,9 +506,10 @@ treated in documentation and tooling.
 Object types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Object type in a GraphQL schema.
 
-1. The fields of an Object type must have unique names within that Object type;
+1. An Object type must define one or more fields.
+2. The fields of an Object type must have unique names within that Object type;
    no two fields may share the same name.
-2. An object type must be a super-set of all interfaces it implements.
+3. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must be of a type which is equal to or a sub-type of
@@ -633,7 +634,8 @@ Interfaces are never valid inputs.
 
 Interface types have the potential to be invalid if incorrectly defined.
 
-1. The fields of an Interface type must have unique names within that Interface
+1. An Interface type must define one or more fields.
+2. The fields of an Interface type must have unique names within that Interface
    type; no two fields may share the same name.
 
 
@@ -776,6 +778,13 @@ corresponding entry, the value is the result of coercing null. The input
 coercion above should be performed according to the input coercion rules of the
 type declared by the input field.
 
+#### Input Object type validation
+
+1. An Input Object type must define one or more fields.
+2. The fields of an Input Object type must have unique names within that
+   Input Object type; no two fields may share the same name.
+3. The return types of each defined field must be an Input type.
+
 
 ### Lists
 
@@ -862,6 +871,10 @@ query withNullableVariable($var: String) {
   field(arg: $var)
 }
 ```
+
+#### Non-Null type validation
+
+1. A Non-Null type must not wrap another Non-Null type.
 
 
 ## Directives
