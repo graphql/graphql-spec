@@ -211,7 +211,7 @@ query getName {
 
 ** Explanatory Text **
 
-The target field of a field selection must defined on the scoped type of the
+The target field of a field selection must be defined on the scoped type of the
 selection set. There are no limitations on alias names.
 
 For example the following fragment would not pass validation:
@@ -227,7 +227,7 @@ fragment aliasedLyingFieldTargetNotDefined on Dog {
 ```
 
 For interfaces, direct field selection can only be done on fields. Fields
-of concrete implementors is not relevant to the validity of the given
+of concrete implementors are not relevant to the validity of the given
 interface-typed selection set.
 
 For example, the following is valid:
@@ -1066,7 +1066,7 @@ fragment unionWithObjectFragment on Dog {
 
 is valid because {Dog} is a member of the {CatOrDog} union. It is worth
 noting that if one inspected the contents of the {CatOrDogNameFragment}
-you could note that the no valid results would ever be returned. However
+you could note that no valid results would ever be returned. However
 we do not specify this as invalid because we only consider the fragment
 declaration, not its body.
 
@@ -1074,7 +1074,7 @@ declaration, not its body.
 ##### Object Spreads In Abstract Scope
 
 Union or interface spreads can be used within the context of an object type
-fragment, but only if the object type is one of the possible types of the
+fragment, but only if the object type is one of the possible types of
 that interface or union.
 
 For example, the following fragments are valid:
@@ -1174,8 +1174,8 @@ and {Sentient}.
 
 ** Explanatory Text **
 
-Input objects must not contain more than one fields of the same name, otherwise
-an amgibuity would exist which includes an ignored portion of syntax.
+Input objects must not contain more than one field of the same name, otherwise
+an ambiguity would exist which includes an ignored portion of syntax.
 
 For example the following query will not pass validation.
 
@@ -1212,7 +1212,7 @@ usage of a directive, the directive must be available on that server.
   * Let {directiveName} be the name of {directive}.
   * Let {directiveDefinition} be the directive named {directiveName}.
   * Let {locations} be the valid locations for {directiveDefinition}.
-  * Let {adjacent} be the AST node the directive effects.
+  * Let {adjacent} be the AST node the directive affects.
   * {adjacent} must be represented by an item within {locations}.
 
 ** Explanatory Text **
@@ -1287,7 +1287,7 @@ fragment HouseTrainedFragment {
   * For every {variable} on each {operation}
     * Let {variableType} be the type of {variable}
     * If {variableType} is non-null it cannot have a default value
-    * If {variable} has a default value it must be of the same types
+    * If {variable} has a default value it must be of the same type
       or able to be coerced to {variableType}
 
 ** Explanatory Text **
@@ -1352,12 +1352,12 @@ query intToFloatQuery($floatVar: Float = 1) {
     * Let {variableType} be the type of {variable}
     * While {variableType} is {LIST} or {NON_NULL}
       * Let {variableType} be the referenced type of {variableType}
-    * {variableType} must of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
+    * {variableType} must be of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
 
 ** Explanatory Text **
 
 Variables can only be scalars, enums, input objects, or lists and non-null
-variants of those types. These are known as input types. Object, unions,
+variants of those types. These are known as input types. Objects, unions,
 and interfaces cannot be used as inputs.
 
 For these examples, consider the following typesystem additions:
@@ -1417,16 +1417,16 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 ** Formal Specification **
 
   * For each {operation} in a document
-    * For each {variableUsage} in scope, variable must be operation's variable list.
-    * Let {fragments} be every fragment reference by that operation transitively
+    * For each {variableUsage} in scope, variable must be in {operation}'s variable list.
+    * Let {fragments} be every fragment referenced by that {operation} transitively
     * For each {fragment} in {fragments}
-      * For each {variableUsage} in scope of {fragment}, variable must be
+      * For each {variableUsage} in scope of {fragment}, variable must be in
         {operation}'s variable list.
 
 ** Explanatory Text **
 
 Variables are scoped on a per-operation basis. That means that any variable
-used within the context of a operation must be defined at the top level of that
+used within the context of an operation must be defined at the top level of that
 operation
 
 For example:
@@ -1581,7 +1581,7 @@ query variableUnused($atOtherHomes: Boolean) {
 }
 ```
 
-because ${atOtherHomes} in not referenced.
+because ${atOtherHomes} is not referenced.
 
 These rules apply to transitive fragment spreads as well:
 
@@ -1645,14 +1645,14 @@ an extraneous variable.
   * For each {operation} in {document}
   * Let {variableUsages} be all usages transitively included in the {operation}
   * For each {variableUsage} in {variableUsages}
-    * Let {variableType} be the type of variable definition in the operation
+    * Let {variableType} be the type of variable definition in the {operation}
     * Let {argumentType} be the type of the argument the variable is passed to.
     * Let {hasDefault} be true if the variable definition defines a default.
     * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}) must be true
 
   * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}):
     * If {hasDefault} is true, treat the {variableType} as non-null.
-    * If inner type of {argumentType} and {variableType} be different, return false
+    * If inner type of {argumentType} and {variableType} are different, return false
     * If {argumentType} and {variableType} have different list dimensions, return false
     * If any list level of {variableType} is not non-null, and the corresponding level
       in {argument} is non-null, the types are not compatible.
