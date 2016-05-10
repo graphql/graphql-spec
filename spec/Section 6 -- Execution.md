@@ -215,7 +215,7 @@ CompleteValue(fieldType, result, subSelectionSet):
     * If {fieldType} is an Object type.
       * Let {objectType} be {fieldType}.
     * Otherwise if {fieldType} is an Interface or Union type.
-      * Let {objectType} be ResolveAbstractType(fieldType, result).
+      * Let {objectType} be ResolveAbstractType({fieldType}, {result}).
     * Return the result of evaluating {subSelectionSet} on {objectType} normally.
 
 ResolveAbstractType(abstractType, objectValue):
@@ -346,7 +346,7 @@ the field returned `null`, and an error must be added to the `"errors"` list
 in the response.
 
 However, if the type of that field is of a `Non-Null` type, since the field
-cannot be `null` the error is propogated to be dealt with by the parent field.
+cannot be `null` the error is propagated to be dealt with by the parent field.
 
 If all fields from the root of the request to the source of the error return
 `Non-Null` types, then the `"data"` entry in the response should be `null`.
