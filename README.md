@@ -254,7 +254,7 @@ GraphQL queries declaratively describe what data the issuer wishes
 to fetch from whoever is fulfilling the GraphQL query.
 
 For our Star Wars example, the
-[starWarsQueryTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsQueryTests.js)
+[starWarsQueryTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsQuery-test.js)
 file in the GraphQL.js repository contains a number of queries and responses.
 That file is a test file that uses the schema discussed above and a set of
 sample data, located in
@@ -614,7 +614,7 @@ developers when an invalid query has been created, without having to rely
 on runtime checks.
 
 For our Star Wars example, the file
-[starWarsValidationTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsValidationTests.js)
+[starWarsValidationTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsValidation-test.js)
 contains a number of queries demonstrating various invalidities, and is a test
 file that can be run to exercise the reference implementation's validator.
 
@@ -752,7 +752,7 @@ queries it supports. GraphQL allows us to do so using the introspection
 system!
 
 For our Star Wars example, the file
-[starWarsIntrospectionTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsIntrospectionTests.js)
+[starWarsIntrospectionTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsIntrospection-test.js)
 contains a number of queries demonstrating the introspection system, and is a
 test file that can be run to exercise the reference implementation's
 introspection system.
