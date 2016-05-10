@@ -1663,7 +1663,7 @@ Variable usages must be compatible with the arguments they are passed to.
 
 Validation failures occur when variables are used in the context of types
 that are complete mismatches, or if a nullable type in a variable is passed to
-a not-null argument type.
+a non-null argument type.
 
 Types must match:
 

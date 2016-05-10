@@ -828,20 +828,20 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 **Result Coercion**
 
 In all of the above result coercion, {null} was considered a valid value.
-To coerce the result of a Non Null type, the coercion of the wrapped type
+To coerce the result of a Non-Null type, the coercion of the wrapped type
 should be performed. If that result was not {null}, then the result of coercing
-the Non Null type is that result. If that result was {null}, then a field error
+the Non-Null type is that result. If that result was {null}, then a field error
 must be raised.
 
 **Input Coercion**
 
-If the argument of a Non Null type is not provided, a query error must
+If the argument of a Non-Null type is not provided, a query error must
 be raised.
 
-If an argument of a Non Null type is provided with a literal value, it is
+If an argument of a Non-Null type is provided with a literal value, it is
 coerced using the input coercion for the wrapped type.
 
-If the argument of a Non Null is provided with a variable, a query error must be
+If the argument of a Non-Null is provided with a variable, a query error must be
 raised if the runtime provided value is not provided or is {null} in the
 provided representation (usually JSON). Otherwise, the coerced value is the
 result of using the input coercion for the wrapped type.
