@@ -395,7 +395,7 @@ Fields
 * `description` may return a String or {null}
 * `type` must return a `__Type` that represents the type this input
   value expects.
-* `defaultValue` may return a String encoding (using the GraphQL language) the
+* `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 
