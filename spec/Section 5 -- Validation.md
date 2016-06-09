@@ -99,7 +99,7 @@ type QueryRoot {
 
 ** Explanatory Text **
 
-Each named operation definitions must be unique within a document when referred
+Each named operation definition must be unique within a document when referred
 to by its name.
 
 For example the following document is valid:
