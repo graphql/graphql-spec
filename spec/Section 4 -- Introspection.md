@@ -252,7 +252,7 @@ Fields
 
 #### Union
 
-Unions are an abstract types where no common fields are declared. The possible
+Unions are an abstract type where no common fields are declared. The possible
 types of a union are explicitly listed out in `possibleTypes`. Types can be
 made parts of unions without modification of that type.
 
