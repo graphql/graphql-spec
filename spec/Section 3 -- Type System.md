@@ -256,7 +256,7 @@ type Person {
 ```
 
 Where `name` is a field that will yield a `String` value, and `age` is a field
-that will yield an `Int` value, and `picture` a field that will yield a
+that will yield an `Int` value, and `picture` is a field that will yield a
 `Url` value.
 
 A query of an object value must select at least one field. This selection of
