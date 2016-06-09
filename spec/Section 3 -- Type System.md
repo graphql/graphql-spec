@@ -537,7 +537,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 ### Interfaces
 
 GraphQL Interfaces represent a list of named fields and their arguments. GraphQL
-object can then implement an interface, which guarantees that they will
+objects can then implement an interface, which guarantees that they will
 contain the specified fields.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
