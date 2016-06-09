@@ -124,7 +124,7 @@ these names must adhere to the behavior described below.
 
 #### Int
 
-The Int scalar type represents a signed 32-bit numeric non-fractional values.
+The Int scalar type represents a signed 32-bit numeric non-fractional value.
 Response formats that support a 32-bit integer or a number type should use
 that type to represent this scalar.
 
