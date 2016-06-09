@@ -63,7 +63,7 @@ would return
 ### Naming conventions
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined type and fields are prefixed with two
+the same context as user-defined types and fields are prefixed with two
 underscores. This in order to avoid naming collisions with user-defined GraphQL
 types.  Conversely, GraphQL type system authors must not define any types,
 fields, arguments, or any other type system artifact with two leading
