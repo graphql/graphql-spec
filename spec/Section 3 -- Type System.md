@@ -827,7 +827,7 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Result Coercion**
 
-In all of the above result coercion, {null} was considered a valid value.
+In all of the above result coercions, {null} was considered a valid value.
 To coerce the result of a Non-Null type, the coercion of the wrapped type
 should be performed. If that result was not {null}, then the result of coercing
 the Non-Null type is that result. If that result was {null}, then a field error
