@@ -111,6 +111,12 @@ locations, where each location is a map with the keys `line` and `column`, both
 positive numbers starting from `1` which describe the beginning of an
 associated syntax element.
 
+If an error can be associated to a particular field in the GraphQL response, it
+should contain an entry with the key `path` with a list of path segments
+starting at the root of the response and ending with the field associated with
+the error. Path segments that represent object fields should be strings, and
+path segments that represent array indices should be 0-indexed integers.
+
 GraphQL servers may provide additional entries to error as they choose to
 produce more helpful or machine-readable errors, however future versions of the
 spec may describe additional entries to errors.
