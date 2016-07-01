@@ -241,7 +241,7 @@ While Scalar types describe the leaf values of these hierarchical queries, Objec
 describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values are serialized as ordered maps, where the
+a specific type. Object values should be serialized as ordered maps, where the
 queried field names (or aliases) are the keys and the result of evaluating
 the field is the value, ordered by the order in which they appear in the query.
 
@@ -261,8 +261,9 @@ that will yield an `Int` value, and `picture` a field that will yield a
 
 A query of an object value must select at least one field. This selection of
 fields will yield an ordered map containing exactly the subset of the object
-queried, in the order in which they were queried. Only fields that are declared
-on the object type may validly be queried on that object.
+queried, which should be represented in the order in which they were queried.
+Only fields that are declared on the object type may validly be queried on
+that object.
 
 For example, selecting all the fields of `Person`:
 
@@ -357,9 +358,14 @@ excluding fragments for which the type does not apply and fields or
 fragments that are skipped via `@skip` or `@include` directives. This ordering
 is correctly produced when using the {CollectFields()} algorithm.
 
-Response formats which support ordered maps (such as JSON) must maintain this
-ordering. Response formats which do not support ordered maps may disregard
-this ordering.
+Response serialization formats capable of representing ordered maps should
+maintain this ordering. Serialization formats which can only represent unordered
+maps should retain this order grammatically (such as JSON).
+
+Producing a response where fields are represented in the same order in which
+they appear in the request improves human readability during debugging and
+enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 If a fragment is spread before other fields, the fields that fragment specifies
 occur in the response before the following fields.
