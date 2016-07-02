@@ -197,7 +197,7 @@ MergeSelectionSets(fields):
 CompleteValue(fieldType, result, subSelectionSet):
   * If the {fieldType} is a Non-Null type:
     * Let {innerType} be the inner type of {fieldType}.
-    * Let {completedResult} be the result of calling {CompleteValue(innerType, result)}.
+    * Let {completedResult} be the result of calling {CompleteValue(innerType, result, subSelectionSet)}.
     * If {completedResult} is {null}, throw a field error.
     * Return {completedResult}.
   * If {result} is {null} or a value similar to {null} such as {undefined} or
@@ -206,7 +206,7 @@ CompleteValue(fieldType, result, subSelectionSet):
     * If {result} is not a collection of values, throw a field error.
     * Let {innerType} be the inner type of {fieldType}.
     * Return a list where each item is the result of calling
-      {CompleteValue(innerType, resultItem)}, where {resultItem} is each item
+      {CompleteValue(innerType, resultItem, subSelectionSet)}, where {resultItem} is each item
       in {result}.
   * If {fieldType} is a Scalar or Enum type:
     * Return the result of "coercing" {result}, ensuring it is a legal value of
