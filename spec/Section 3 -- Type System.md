@@ -124,7 +124,7 @@ these names must adhere to the behavior described below.
 
 #### Int
 
-The Int scalar type represents a signed 32-bit numeric non-fractional values.
+The Int scalar type represents a signed 32-bit numeric non-fractional value.
 Response formats that support a 32-bit integer or a number type should use
 that type to represent this scalar.
 
@@ -212,7 +212,7 @@ other input values must raise a query error indicating an incorrect type.
 #### ID
 
 The ID scalar type represents a unique identifier, often used to refetch an
-object or as key for a cache. The ID type is serialized in the same way as
+object or as the key for a cache. The ID type is serialized in the same way as
 a `String`; however, it is not intended to be human-readable. While it is
 often numeric, it should always serialize as a `String`.
 
@@ -256,7 +256,7 @@ type Person {
 ```
 
 Where `name` is a field that will yield a `String` value, and `age` is a field
-that will yield an `Int` value, and `picture` a field that will yield a
+that will yield an `Int` value, and `picture` is a field that will yield a
 `Url` value.
 
 A query of an object value must select at least one field. This selection of
@@ -537,7 +537,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 ### Interfaces
 
 GraphQL Interfaces represent a list of named fields and their arguments. GraphQL
-object can then implement an interface, which guarantees that they will
+objects can then implement an interface, which guarantees that they will
 contain the specified fields.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
@@ -717,7 +717,7 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. The member types of an Union type must all be Object base types;
+1. The member types of a Union type must all be Object base types;
    Scalar, Interface and Union types may not be member types of a Union.
    Similarly, wrapping types may not be member types of a Union.
 2. A Union type must define one or more member types.
@@ -827,7 +827,7 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Result Coercion**
 
-In all of the above result coercion, {null} was considered a valid value.
+In all of the above result coercions, {null} was considered a valid value.
 To coerce the result of a Non-Null type, the coercion of the wrapped type
 should be performed. If that result was not {null}, then the result of coercing
 the Non-Null type is that result. If that result was {null}, then a field error

@@ -936,5 +936,5 @@ of any input type.
 Directives can be used to describe additional information for fields, fragments,
 and operations.
 
-As future versions of GraphQL adopts new configurable execution capabilities,
+As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives.
