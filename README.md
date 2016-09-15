@@ -1,39 +1,17 @@
 # GraphQL
 
-This is a Working Draft of the Specification for GraphQL, a query language
-created by Facebook for describing data requirements on complex application
-data models.
+This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
 
-[Slack](https://graphql-slack.herokuapp.com/)
-[#graphql on Reactiflux](http://www.reactiflux.com/)
-
-## Technical Preview Contents
-
-This technical preview contains a draft specification for GraphQL and a reference
-implementation in JavaScript that implements that draft,
-[GraphQL.js](https://github.com/graphql/graphql-js).
-
-The reference implementation provides base libraries in JavaScript that would
-provide the basis for full GraphQL implementations and tools. It is not a fully
-standalone GraphQL server that a client developer could use to start
-manipulating and querying data. Most importantly it provides no mapping to a
-functioning, production-ready backend. The only “backend” that we have targeted for
-this early preview, are in-memory stubs in test cases.
-
-We are releasing this now, because after GraphQL was first discussed publicly,
-many engineers used this information to implement the parts of the system that
-we discussed publicly. We want to support those engineers by providing both a
-formal specification and a reference implementation for the system as a whole.
-
-To that end the target audience is not the client developer, but those who have,
+The target audience for this specification is not the client developer, but those who have,
 or are actively interested in, building their own GraphQL implementations and
-tools. Critically we also want feedback on the system and to incorporate that
-feedback in our final release.
+tools.
 
 In order to be broadly adopted, GraphQL will have to target a wide
 variety of backends, frameworks, and languages, which will necessitate a
-collaborative effort across projects and organizations. This technical preview
-marks the beginning of that process.
+collaborative effort across projects and organizations. This specification serves as a point of coordination for this effort.
+
+[Slack](https://graphql-slack.herokuapp.com/)
+[#graphql on Reactiflux](http://www.reactiflux.com/)
 
 ## Getting Started
 
