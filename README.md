@@ -10,8 +10,7 @@ In order to be broadly adopted, GraphQL will have to target a wide
 variety of backends, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This specification serves as a point of coordination for this effort.
 
-[Slack](https://graphql-slack.herokuapp.com/)
-[#graphql on Reactiflux](http://www.reactiflux.com/)
+Looking for help? Find resources [from the community](http://graphql.org/community/).
 
 ## Getting Started
 
