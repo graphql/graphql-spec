@@ -814,11 +814,16 @@ implementation.
 When expected as an input, list values are accepted only when each item in the
 list can be accepted by the list's item type.
 
-If the value passed as an input to a list type is *not* as list, it should be
-coerced as though the input was a list of size one, where the value passed is
-the only item in the list. This is to allow inputs that accept a "var args"
-to declare their input type as a list; if only one argument is passed (a common
-case), the client can just pass that value rather than constructing the list.
+If the value passed as an input to a list type is *not* a list and not the
+{null} value, it should be coerced as though the input was a list of size one,
+where the value passed is the only item in the list. This is to allow inputs
+that accept a "var args" to declare their input type as a list; if only one
+argument is passed (a common case), the client can just pass that value rather
+than constructing the list.
+
+Note that when a {null} value is provided via a runtime variable value for a
+list type that it is interpretted as no list being provided, and not a list of
+size one with the value {null}.
 
 
 ### Non-Null
@@ -878,7 +883,7 @@ query withNullableVariable($var: String) {
 }
 ```
 
-#### Non-Null type validation
+**Non-Null type validation**
 
 1. A Non-Null type must not wrap another Non-Null type.
 
