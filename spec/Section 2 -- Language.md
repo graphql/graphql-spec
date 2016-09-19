@@ -566,14 +566,14 @@ will be present and `friends` will not.
 
 ```js
 {
-  "profiles" : [
+  "profiles": [
     {
-      "handle" : "zuck",
-      "friends" : { "count" : 1234 }
+      "handle": "zuck",
+      "friends": { "count" : 1234 }
     },
     {
-      "handle" : "cocacola",
-      "likers" : { "count" : 90234512 }
+      "handle": "cocacola",
+      "likers": { "count" : 90234512 }
     }
   ]
 }

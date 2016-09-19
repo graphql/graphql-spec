@@ -42,7 +42,7 @@ type Dog implements Pet {
   name: String!
   nickname: String
   barkVolume: Int
-  doesKnowCommand(dogCommand: DogCommand!) : Boolean!
+  doesKnowCommand(dogCommand: DogCommand!): Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
   owner: Human
 }
@@ -69,7 +69,7 @@ enum CatCommand { JUMP }
 type Cat implements Pet {
   name: String!
   nickname: String
-  doesKnowCommand(catCommand: CatCommand!) : Boolean!
+  doesKnowCommand(catCommand: CatCommand!): Boolean!
   meowVolume: Int
 }
 

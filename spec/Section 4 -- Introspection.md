@@ -37,7 +37,7 @@ would return
 ```js
 {
   "__type": {
-    "name" : "User",
+    "name": "User",
     "fields": [
       {
         "name": "id",
@@ -109,8 +109,8 @@ and `__type` which are accessible from the type of the root of a query
 operation.
 
 ```
-__schema : __Schema!
-__type(name: String!) : __Type
+__schema: __Schema!
+__type(name: String!): __Type
 ```
 
 These fields are implicit and do not appear in the fields list in the root type
