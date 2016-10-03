@@ -150,7 +150,7 @@ lacks the punctuation often used to describe mathematical expressions.
 
 ### Names
 
-Name :: /[_A-Za-z][_0-9A-Za-z]*/
+Name :: /^[_A-Za-z][_0-9A-Za-z]*$/
 
 GraphQL query documents are full of named things: operations, fields, arguments,
 directives, fragments, and variables. All names must follow the same
