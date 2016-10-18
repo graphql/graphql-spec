@@ -1,48 +1,48 @@
 # 类型体系 Type System
 
-GraphQL Type system 描述了 GraphQL 服务器的功能，用来决定一个query是否有效。
+GraphQL Type system 描述了 GraphQL 服务器的功能，用于决定一个 query 是否有效，同时还描述了查询变量的输入类型，用于在运行时判断参数值是否有效。
 
 The GraphQL Type system describes the capabilities of a GraphQL server and is
 used to determine if a query is valid. The type system also describes the
 input types of query variables to determine if values provided at runtime
 are valid.
 
-GraphQL 服务器功能被称作服务器的“schema”。schema是依据它所支持的type和directive来定义的。
+GraphQL 服务器功能被称作服务器的“schema”。schema 是通过它所支持的 type 和 directive 来定义的。
 
 A GraphQL server's capabilities are referred to as that server's "schema".
 A schema is defined in terms of the types and directives it supports.
 
-某个指定的 GraphQL schema 自身必须内部有效。该章节描述了会用到的校验流程的规则。
+某个指定的 GraphQL schema 自身必须是有效。该章节描述了后续会用到的校验流程规则。
 
 A given GraphQL schema must itself be internally valid. This section describes
 the rules for this validation process where relevant.
 
-GraphQL schema  是使用针对每一种operation的root类型来表示的:query和mutation，这也确定了类型系统type system中 operation开始的地方。
+GraphQL schema  是使用针对每一种operation:query和mutation的root类型来表示的，这也确定了类型系统type system中 operation开始的地方。
 
 A GraphQL schema is represented by a root type for each kind of operation:
 query and mutation; this determines the place in the type system where those
 operations begin.
 
-GraphQL schema中的所有类型都必须拥有唯一的名称。不可能有2个类型名称一样。没有一个类型的名称会与任意内置类型的名称冲突(
-    包括Scalar和Introspection类型)
+GraphQL schema 中的所有类型都必须拥有唯一的名称。不可能有2个类型名称一样。没有一个类型的名称会与任意内置类型的名称冲突(
+    包括 Scalar 和 Introspection 类型)
 
 All types within a GraphQL schema must have unique names. No two provided types
 may have the same name. No provided type may have a name which conflicts with
 any built in types (including Scalar and Introspection types).
 
-GraphQL schema 中的所有directive 都必须有唯一的名称。由于一个directive和一个type之间不存在歧义，故可能是同一个名称。
+GraphQL schema 中的所有 directive 都必须有唯一的名称。由于一个 directive 和一个 type 之间不存在歧义，故可能是同一个名称。
 
 All directives within a GraphQL schema must have unique names. A directive
 and a type may share the same name, since there is no ambiguity between them.
 
 ## Types
 
-GraphQL schema 最基本的单元是类型type。在GraphQL中有8种类型type。
+GraphQL schema 最基本的单元是 type(类型)。在 GraphQL 中有8种 type(类型)。
 
 The fundamental unit of any GraphQL Schema is the type. There are eight kinds
 of types in GraphQL.
 
-最基本的类型type是‘Scalar’。一个scalar表示一个基本数据类型值，比如字符串或整数，通常，一个scalar类型字段的响应值是枚举型。在这种情况下，
+最基本的 type(类型)是‘Scalar’。一个 scalar 表示一个基本数据类型值，比如字符串或整数，通常，一个 scalar 类型字段的响应值是枚举型。在这种情况下，
 GraphQL提供了一种‘Enum’类型，其中规定了允许值/有效值的范围。
 
 The most basic type is a `Scalar`. A scalar represents a primitive value, like
@@ -50,7 +50,7 @@ a string or an integer. Oftentimes, the possible responses for a scalar field
 are enumerable. GraphQL offers an `Enum` type in those cases, where the type
 specifies the space of valid responses.
 
-Scalar和Enum构成了response的两片'树叶'；中间层是‘Object’类型，它定义了一些字段，每个字段可以是类型体系中的任意雷系，允许任意类型层次的定义。
+Scalar 和 Enum 构成了 response 的两片'树叶'；中间层是‘Object’类型，它定义了一些字段，每个字段可以是类型体系中的任意类型，允许任意类型层次的定义。
 
 Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another
@@ -60,22 +60,22 @@ GraphQL 支持2类抽象类型：interfaces and unions。
 
 GraphQL supports two abstract types: interfaces and unions.
 
-`Interface` 定义了包含多个字段的一个列表，实现该interface的`Object` 类型保证会实现这些字段。每当类型体系声称会返回一个interface时，总会返回一个有效的
+`Interface` 定义了包含多个字段的一个列表，实现该 interface 的`Object` 类型保证会实现这些字段。每当类型体系声称会返回一个 interface 时，总会返回一个有效的
 实现类型。
 
 An `Interface` defines a list of fields; `Object` types that implement that
 interface are guaranteed to implement those fields. Whenever the type system
 claims it will return an interface, it will return a valid implementing type.
 
-`Union`  定义了包含多个可能的类型的一个列表；与interface类似，每当类型体系声称会返回一个union时，将返回某个可能的类型。
+`Union`  定义了包含多个可能的类型的一个列表；与 interface 类似，每当类型体系声称会返回一个 union 时，将返回某个可能的类型。
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
-截止到目前的所有类型都是nullable和singular的：比方说，scalar 字符串要么返回null，要么返回一个 singular 字符串。类型体系可能会想定义返回
-一个其他类型的List；'List'类型就是为此存在的，对其他类型进行封装。类似的，’Non-Null’类型封装了另一个类型，表示结果不可能为空。这两个类型被称
-之为“wrapping type”；非wrapping-type被称之为“base type 基本类型”。每个wrapping type都有一个根本的base type，found by
+截止到目前的所有类型都是 nullable 和 singular 的：比方说，scalar 字符串要么返回null，要么返回一个 singular 字符串。类型体系可能会定义返回
+一个其他类型的 List；'List'类型就是为此存在的，对其他类型进行封装。类似的，’Non-Null’类型封装了另一个类型，表示结果不可能为空。这两个类型被称
+之为“wrapping type”；非wrapping-type被称之为“base type 基本类型”。每个 wrapping type 都有一个基本的 base type，found by
 continually unwrapping the type until a base type is found.
 
 All of the types so far are assumed to be both nullable and singular: e.g. a scalar
@@ -87,7 +87,7 @@ are referred to as "wrapping types"; non-wrapping types are referred to as
 "base types". A wrapping type has an underlying "base type", found by
 continually unwrapping the type until a base type is found.
 
-最后，在GraphQL query中提供复杂结构作为输入常常是很有用的。‘Input Object’ 类型使得schema 可以定义在这些查询中，客户端到底
+最后，在 GraphQL query 中提供复杂结构作为输入，常常是很有用的。‘Input Object’ 类型使得 schema 可以定义在这些查询中，客户端到底
 想要什么样的数据。
 
 Finally, oftentimes it is useful to provide complex structs as inputs to
