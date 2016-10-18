@@ -1,16 +1,13 @@
 GraphQL
 -------
 
-<<<<<<< HEAD:zh-cn/spec/GraphQL.md
-*草稿版 - 2015年7月*
-=======
+*草稿版 - 2016年4月*
+
 *Working Draft - April 2016*
->>>>>>> 6097d7b32c464552bccf116201cf310adb82835c:spec/GraphQL.md
 
 **简介**
 
-该文档是GraphQL的RFC标准草案，GraphQL由Facebook在2012年提出，是一种为了描述Client/Server结构应用程序中数据模型的功能和需求的查询语言。
-2015年才开始标准文档的开发工作。GraphQL是一个很新的，不断在演化的语言，目前还不完整。该标准的后续版本将持续增加一些重大调整。
+该文档是 GraphQL 的 RFC 标准草案，GraphQL 由 Facebook 在2012年提出，是一种为了描述 Client/Server 架构的应用程序中数据模型的功能和需求的查询语言。标准文档的开发工作始于2015年。GraphQL 是一个很新的，不断在演化的语言，目前还不完善。该标准的后续版本将持续进行改进。
 
 This is a Draft RFC Specification for GraphQL, a query language created by
 Facebook in 2012 for describing the capabilities and requirements of data models
