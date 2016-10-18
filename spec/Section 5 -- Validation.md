@@ -42,7 +42,7 @@ type Dog implements Pet {
   name: String!
   nickname: String
   barkVolume: Int
-  doesKnowCommand(dogCommand: DogCommand!) : Boolean!
+  doesKnowCommand(dogCommand: DogCommand!): Boolean!
   isHousetrained(atOtherHomes: Boolean): Boolean!
   owner: Human
 }
@@ -69,7 +69,7 @@ enum CatCommand { JUMP }
 type Cat implements Pet {
   name: String!
   nickname: String
-  doesKnowCommand(catCommand: CatCommand!) : Boolean!
+  doesKnowCommand(catCommand: CatCommand!): Boolean!
   meowVolume: Int
 }
 
@@ -99,7 +99,7 @@ type QueryRoot {
 
 ** Explanatory Text **
 
-Each named operation definitions must be unique within a document when referred
+Each named operation definition must be unique within a document when referred
 to by its name.
 
 For example the following document is valid:
@@ -319,7 +319,7 @@ SameResponseShape(fieldA, fieldB) :
 
 ** Explanatory Text **
 
-If multiple fields selections with the same response names are encountered
+If multiple field selections with the same response names are encountered
 during execution, the field and arguments to execute and the resulting value
 should be unambiguous. Therefore any two field selections which might both be
 encountered for the same object are only valid if they are equivalent.
