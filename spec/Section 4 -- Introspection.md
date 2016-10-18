@@ -37,7 +37,7 @@ would return
 ```js
 {
   "__type": {
-    "name" : "User",
+    "name": "User",
     "fields": [
       {
         "name": "id",
@@ -63,7 +63,7 @@ would return
 ### Naming conventions
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined type and fields are prefixed with two
+the same context as user-defined types and fields are prefixed with two
 underscores. This in order to avoid naming collisions with user-defined GraphQL
 types.  Conversely, GraphQL type system authors must not define any types,
 fields, arguments, or any other type system artifact with two leading
@@ -109,8 +109,8 @@ and `__type` which are accessible from the type of the root of a query
 operation.
 
 ```
-__schema : __Schema!
-__type(name: String!) : __Type
+__schema: __Schema!
+__type(name: String!): __Type
 ```
 
 These fields are implicit and do not appear in the fields list in the root type
@@ -252,7 +252,7 @@ Fields
 
 #### Union
 
-Unions are an abstract types where no common fields are declared. The possible
+Unions are an abstract type where no common fields are declared. The possible
 types of a union are explicitly listed out in `possibleTypes`. Types can be
 made parts of unions without modification of that type.
 
@@ -268,7 +268,7 @@ Fields
 
 #### Interface
 
-Interfaces is an abstract type where there are common fields declared. Any type
+Interfaces are an abstract type where there are common fields declared. Any type
 that implements an interface must define all the fields with names and types
 exactly matching. The implementations of this interface are explicitly listed
 out in `possibleTypes`.
@@ -395,7 +395,7 @@ Fields
 * `description` may return a String or {null}
 * `type` must return a `__Type` that represents the type this input
   value expects.
-* `defaultValue` may return a String encoding (using the GraphQL language) the
+* `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 

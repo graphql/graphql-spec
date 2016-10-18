@@ -21,9 +21,15 @@ representations of the following four primitives:
  * String
  * Null
 
-Serialization formats which only support an ordered map (such as JSON) must
-preserve ordering as it is defined by query execution. Serialization formats
-which only support an unordered map may omit this ordering information.
+Serialization formats which can represent an ordered map should preserve the
+order of requested fields as defined by query execution. Serialization formats
+which can only represent unordered maps should retain this order
+grammatically (such as JSON).
+
+Producing a response where fields are represented in the same order in which
+they appear in the request improves human readability during debugging and
+enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 A serialization format may support the following primitives, however, strings
 may be used as a substitute for those primitives.
@@ -53,6 +59,24 @@ the following JSON concepts:
 | Float         | Number            |
 | Enum Value    | String            |
 
+**Object Property Ordering**
+
+While JSON Objects are specified as an
+[unordered collection of key-value pairs](https://tools.ietf.org/html/rfc7159#section-4)
+the pairs are represented in an ordered manner. In other words, while the JSON
+strings `{ "name": "Mark", "age": 30 }` and `{ "age": 30, "name": "Mark" }`
+encode the same value, they also have observably different property orderings.
+
+Since the result of evaluating a selection set is ordered, the JSON object
+serialized should preserve this order by writing the object properties in the
+same order as those fields were requested as defined by query execution.
+
+For example, if the query was `{ name, age }`, a GraphQL server responding in
+JSON should respond with `{ "name": "Mark", "age": 30 }` and should not respond
+with `{ "age": 30, "name": "Mark" }`.
+
+NOTE: This does not violate the JSON spec, as clients may still interpret
+objects in the response as unordered Maps and arrive at a valid value.
 
 
 ## Response Format

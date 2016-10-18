@@ -124,7 +124,7 @@ these names must adhere to the behavior described below.
 
 #### Int
 
-The Int scalar type represents a signed 32-bit numeric non-fractional values.
+The Int scalar type represents a signed 32-bit numeric non-fractional value.
 Response formats that support a 32-bit integer or a number type should use
 that type to represent this scalar.
 
@@ -212,7 +212,7 @@ other input values must raise a query error indicating an incorrect type.
 #### ID
 
 The ID scalar type represents a unique identifier, often used to refetch an
-object or as key for a cache. The ID type is serialized in the same way as
+object or as the key for a cache. The ID type is serialized in the same way as
 a `String`; however, it is not intended to be human-readable. While it is
 often numeric, it should always serialize as a `String`.
 
@@ -241,7 +241,7 @@ While Scalar types describe the leaf values of these hierarchical queries, Objec
 describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values are serialized as ordered maps, where the
+a specific type. Object values should be serialized as ordered maps, where the
 queried field names (or aliases) are the keys and the result of evaluating
 the field is the value, ordered by the order in which they appear in the query.
 
@@ -256,13 +256,14 @@ type Person {
 ```
 
 Where `name` is a field that will yield a `String` value, and `age` is a field
-that will yield an `Int` value, and `picture` a field that will yield a
+that will yield an `Int` value, and `picture` is a field that will yield a
 `Url` value.
 
 A query of an object value must select at least one field. This selection of
 fields will yield an ordered map containing exactly the subset of the object
-queried, in the order in which they were queried. Only fields that are declared
-on the object type may validly be queried on that object.
+queried, which should be represented in the order in which they were queried.
+Only fields that are declared on the object type may validly be queried on
+that object.
 
 For example, selecting all the fields of `Person`:
 
@@ -357,9 +358,14 @@ excluding fragments for which the type does not apply and fields or
 fragments that are skipped via `@skip` or `@include` directives. This ordering
 is correctly produced when using the {CollectFields()} algorithm.
 
-Response formats which support ordered maps (such as JSON) must maintain this
-ordering. Response formats which do not support ordered maps may disregard
-this ordering.
+Response serialization formats capable of representing ordered maps should
+maintain this ordering. Serialization formats which can only represent unordered
+maps should retain this order grammatically (such as JSON).
+
+Producing a response where fields are represented in the same order in which
+they appear in the request improves human readability during debugging and
+enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 If a fragment is spread before other fields, the fields that fragment specifies
 occur in the response before the following fields.
@@ -537,7 +543,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 ### Interfaces
 
 GraphQL Interfaces represent a list of named fields and their arguments. GraphQL
-object can then implement an interface, which guarantees that they will
+objects can then implement an interface, which guarantees that they will
 contain the specified fields.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
@@ -717,7 +723,7 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. The member types of an Union type must all be Object base types;
+1. The member types of a Union type must all be Object base types;
    Scalar, Interface and Union types may not be member types of a Union.
    Similarly, wrapping types may not be member types of a Union.
 2. A Union type must define one or more member types.
@@ -808,11 +814,16 @@ implementation.
 When expected as an input, list values are accepted only when each item in the
 list can be accepted by the list's item type.
 
-If the value passed as an input to a list type is *not* as list, it should be
-coerced as though the input was a list of size one, where the value passed is
-the only item in the list. This is to allow inputs that accept a "var args"
-to declare their input type as a list; if only one argument is passed (a common
-case), the client can just pass that value rather than constructing the list.
+If the value passed as an input to a list type is *not* a list and not the
+{null} value, it should be coerced as though the input was a list of size one,
+where the value passed is the only item in the list. This is to allow inputs
+that accept a "var args" to declare their input type as a list; if only one
+argument is passed (a common case), the client can just pass that value rather
+than constructing the list.
+
+Note that when a {null} value is provided via a runtime variable value for a
+list type that it is interpretted as no list being provided, and not a list of
+size one with the value {null}.
 
 
 ### Non-Null
@@ -827,7 +838,7 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Result Coercion**
 
-In all of the above result coercion, {null} was considered a valid value.
+In all of the above result coercions, {null} was considered a valid value.
 To coerce the result of a Non-Null type, the coercion of the wrapped type
 should be performed. If that result was not {null}, then the result of coercing
 the Non-Null type is that result. If that result was {null}, then a field error
@@ -872,7 +883,7 @@ query withNullableVariable($var: String) {
 }
 ```
 
-#### Non-Null type validation
+**Non-Null type validation**
 
 1. A Non-Null type must not wrap another Non-Null type.
 
