@@ -1313,9 +1313,9 @@ In this example, a directive is defined which can be used to annotate a
 fragment definition:
 
 ```
-directive @someAnnotation on FRAGMENT_DEFINITION
+directive @someAnnotation(arg: String) on FRAGMENT_DEFINITION
 
-fragment SomeFragment on SomeType @someAnnotation {
+fragment SomeFragment on SomeType @someAnnotation(arg: "abc") {
   someField
 }
 ```
