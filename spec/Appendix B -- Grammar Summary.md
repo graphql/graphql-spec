@@ -187,7 +187,7 @@ TypeSystemDefinition :
   - TypeExtensionDefinition
   - DirectiveDefinition
 
-SchemaDefinition : schema { OperationTypeDefinition+ }
+SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
 
 OperationTypeDefinition : OperationType : NamedType
 
@@ -199,33 +199,33 @@ TypeDefinition :
   - EnumTypeDefinition
   - InputObjectTypeDefinition
 
-ScalarTypeDefinition : scalar Name
+ScalarTypeDefinition : scalar Name Directives?
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? { FieldDefinition+ }
+ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? { FieldDefinition+ }
 
 ImplementsInterfaces : implements NamedType+
 
-FieldDefinition : Name ArgumentsDefinition? : Type
+FieldDefinition : Name ArgumentsDefinition? : Type Directives?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
-InputValueDefinition : Name : Type DefaultValue?
+InputValueDefinition : Name : Type DefaultValue? Directives?
 
-InterfaceTypeDefinition : interface Name { FieldDefinition+ }
+InterfaceTypeDefinition : interface Name Directives? { FieldDefinition+ }
 
-UnionTypeDefinition : union Name = UnionMembers
+UnionTypeDefinition : union Name Directives? = UnionMembers
 
 UnionMembers :
   - NamedType
   - UnionMembers | NamedType
 
-EnumTypeDefinition : enum Name { EnumValueDefinition+ }
+EnumTypeDefinition : enum Name Directives? { EnumValueDefinition+ }
 
-EnumValueDefinition : EnumValue
+EnumValueDefinition : EnumValue Directives?
 
 EnumValue : Name
 
-InputObjectTypeDefinition : input Name { InputValueDefinition+ }
+InputObjectTypeDefinition : input Name Directives? { InputValueDefinition+ }
 
 TypeExtensionDefinition : extend ObjectTypeDefinition
 

@@ -1169,15 +1169,15 @@ scalar DateTime
 
 #### Object
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? { FieldDefinition+ }
+ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? { FieldDefinition+ }
 
 ImplementsInterfaces : implements NamedType+
 
-FieldDefinition : Name ArgumentsDefinition? : Type
+FieldDefinition : Name ArgumentsDefinition? : Type Directives?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
-InputValueDefinition : Name : Type DefaultValue?
+InputValueDefinition : Name : Type DefaultValue? Directives?
 
 Object types represent a list of named fields, each of which yield a value of a
 specific type. Each field itself may accept a list of named arguments.
@@ -1197,7 +1197,7 @@ type TodoItem implements Node {
 
 #### Interface
 
-InterfaceTypeDefinition : interface Name { FieldDefinition+ }
+InterfaceTypeDefinition : interface Name Directives? { FieldDefinition+ }
 
 Interface types, similarly to Object types represent a list of named fields.
 Interface types are used as the type of a field when one of many possible Object
@@ -1215,7 +1215,7 @@ interface Node {
 
 #### Union
 
-UnionTypeDefinition : union Name = UnionMembers
+UnionTypeDefinition : union Name Directives? = UnionMembers
 
 UnionMembers :
   - NamedType
@@ -1235,9 +1235,9 @@ union Actor = User | Business
 
 #### Enum
 
-EnumTypeDefinition : enum Name { EnumValueDefinition+ }
+EnumTypeDefinition : enum Name Directives? { EnumValueDefinition+ }
 
-EnumValueDefinition : EnumValue
+EnumValueDefinition : EnumValue Directives?
 
 EnumValue : Name
 
@@ -1257,7 +1257,7 @@ enum Direction {
 
 #### Input Object
 
-InputObjectTypeDefinition : input Name { InputValueDefinition+ }
+InputObjectTypeDefinition : input Name Directives? { InputValueDefinition+ }
 
 Input Object types represent complex input values which may be provided as an
 field argument. Input Object types cannot be the return type of an Object or
