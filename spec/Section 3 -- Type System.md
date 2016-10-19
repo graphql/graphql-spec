@@ -971,8 +971,14 @@ engine supports.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
+GraphQL implementations that support the type system language must provide the
+`@deprecated` directive when representing deprecated portions of the schema.
 
 ### @skip
+
+```graphql
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+```
 
 The `@skip` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional exclusion during execution as
@@ -989,6 +995,10 @@ query myQuery($someTest: Boolean) {
 
 
 ### @include
+
+```graphql
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+```
 
 The `@include` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional inclusion during execution as
@@ -1009,6 +1019,31 @@ field or fragment, it *must* be queried only if the `@skip` condition is false
 *and* the `@include` condition is true. Stated conversely, the field or fragment
 must *not* be queried if either the `@skip` condition is true *or* the
 `@include` condition is false.
+
+
+### @deprecated
+
+```graphql
+directive @deprecated(
+  reason: String = "No longer supported"
+) on FIELD_DEFINITION | ENUM_VALUE
+```
+
+The `@deprecated` directive is used within the type system language to indicate deprecated portions of the schema, such as deprecated fields on a type or
+deprecated enum values.
+
+Deprecations include a reason for why it is deprecated, which can include
+markdown formatting.
+
+In this example type definition, `oldField` is deprecated in favor of
+using `newField`.
+
+```graphql
+type ExampleType {
+  newField: String
+  oldField: String @deprecated(reason: "Use `newField`.")
+}
+```
 
 
 ## Initial types
