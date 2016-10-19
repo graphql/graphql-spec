@@ -1309,6 +1309,27 @@ Since the validation of a GraphQL document includes ensuring that any directives
 used are defined and used correctly, defining a directive allows for a validator
 to be aware of all possible validation rules.
 
+As part of validation, directives are only allowed to be used in locations
+that are explicitly declared. Directive locations must be one of:
+
+ * `QUERY`
+ * `MUTATION`
+ * `FIELD`
+ * `FRAGMENT_DEFINITION`
+ * `FRAGMENT_SPREAD`
+ * `INLINE_FRAGMENT`
+ * `SCHEMA`
+ * `SCALAR`
+ * `OBJECT`
+ * `FIELD_DEFINITION`
+ * `ARGUMENT_DEFINITION`
+ * `INTERFACE`
+ * `UNION`
+ * `ENUM`
+ * `ENUM_VALUE`
+ * `INPUT_OBJECT`
+ * `INPUT_FIELD_DEFINITION`
+
 In this example, a directive is defined which can be used to annotate a
 fragment definition:
 
@@ -1317,5 +1338,17 @@ directive @someAnnotation(arg: String) on FRAGMENT_DEFINITION
 
 fragment SomeFragment on SomeType @someAnnotation(arg: "abc") {
   someField
+}
+```
+
+Directives can also be used to annotate the schema language itself:
+
+```
+directive @some(thing: Int) on FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+type SomeType {
+  field(
+    arg: Int @some(thing: 1)
+  ): String @some(thing: 2)
 }
 ```
