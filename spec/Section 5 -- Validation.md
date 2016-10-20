@@ -36,6 +36,10 @@ For this section of this schema, we will assume the following type system
 in order to demonstrate examples:
 
 ```graphql example
+type Query {
+  dog: Dog
+}
+
 enum DogCommand { SIT, DOWN, HEEL }
 
 type Dog implements Pet {
@@ -76,10 +80,6 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
-
-type QueryRoot {
-  dog: Dog
-}
 ```
 
 
@@ -555,7 +555,7 @@ and unions without subfields are disallowed.
 Let's assume the following additions to the query root type of the schema:
 
 ```graphql example
-extend type QueryRoot {
+extend type Query {
   human: Human
   pet: Pet
   catOrDog: CatOrDog
@@ -640,7 +640,7 @@ type Arguments {
   booleanListArgField(booleanListArg: [Boolean]!): [Boolean]
 }
 
-extend type QueryRoot {
+extend type Query {
   arguments: Arguments
 }
 ```
@@ -1516,7 +1516,7 @@ For these examples, consider the following typesystem additions:
 ```graphql example
 input ComplexInput { name: String, owner: String }
 
-extend type QueryRoot {
+extend type Query {
   findDog(complex: ComplexInput): Dog
   booleanList(booleanListArg: [Boolean!]): Boolean
 }

@@ -1116,23 +1116,43 @@ SchemaDefinition : schema { OperationTypeDefinition+ }
 
 OperationTypeDefinition : OperationType : NamedType
 
-A GraphQL Type System includes exactly one Schema Definition, which defines
-the type to be used for each operation.
+A GraphQL Type System includes at most one Schema Definition, which defines
+the *root types* to be used for each operation.
 
-In this example, a GraphQL schema is defined with both query and mutation types:
+In this example, a GraphQL schema is defined with both query and mutation
+root types:
 
 ```graphql
 schema {
-  query: QueryRoot
-  mutation: MutationRoot
+  query: MyQueryRootType
+  mutation: MyMutationRootType
 }
 
-type QueryRoot {
+type MyQueryRootType {
   someField: String
 }
 
-type MutationRoot {
+type MyMutationRootType {
   setSomeField(to: String): String
+}
+```
+
+**Default Root Types**
+
+While any type can be the *root type* for a GraphQL query or mutation operation,
+GraphQL type system definitions can omit the schema definition when the query
+and mutation root types are named `Query` and `Mutation`, respectively.
+
+Similarly, when serializing a GraphQL schema using the type system language, a
+schema definition should be omitted if only uses the default root type names.
+
+This example describes a valid complete GraphQL schema, despite not explicitly
+including a schema definition. The `Query` type is presumed to be the query
+root type of the schema.
+
+```graphql
+type Query {
+  someField: String
 }
 ```
 
