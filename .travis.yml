@@ -1,4 +1,8 @@
+git:
+  depth: 5
+
 language: node_js
+node_js: 6
 
 deploy:
   provider: script
