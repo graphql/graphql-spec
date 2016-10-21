@@ -2,8 +2,8 @@
 
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
-operations (queries and mutations are both operations) as well as fragments, a
-common unit of composition allowing for query reuse.
+operations (queries, mutations, and subscriptions are all operations) as well as
+fragments, a common unit of composition allowing for query reuse.
 
 A GraphQL document is defined as a syntactic grammar where terminal symbols are
 tokens (indivisible lexical units). These tokens are defined in a lexical
@@ -193,12 +193,13 @@ OperationDefinition :
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
   - SelectionSet
 
-OperationType : one of `query` `mutation`
+OperationType : one of `query` `mutation` `subscription`
 
-There are two types of operations that GraphQL models:
+There are three types of operations that GraphQL models:
 
   * query - a read-only fetch.
   * mutation - a write followed by a fetch.
+  * subscription - a read-only fetch followed by a subscription.
 
 Each operation is represented by an optional operation name and a selection set.
 
@@ -208,6 +209,19 @@ new number of likes:
 ```
 mutation {
   likeStory(storyID: 12345) {
+    story {
+      likeCount
+    }
+  }
+}
+```
+
+This subscription operation will retrieve the current number of likes and create
+a subscription to receive the new count as it is updated:
+
+```
+subscription {
+  subscribeToStoryLikes(storyID: 12345) {
     story {
       likeCount
     }

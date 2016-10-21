@@ -108,7 +108,9 @@ three described above.
 The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an
 object of the schema's query root type; if the operation was a mutation, this
-output will be an object of the schema's mutation root type.
+output will be an object of the schema's mutation root type; if the operation
+was a subscription, this output will be an object of the schema's subscription
+root type.
 
 If an error was encountered before execution begins, the `data` entry should
 not be present in the result.
