@@ -786,7 +786,8 @@ not provided, or for which the value {null} was provided, an error should
 be thrown.
 
 The result of coercion is an environment-specific unordered map defining slots
-for each field of the input object type.
+for each field both defined by the input object type and provided by the
+original value.
 
 For each field of the input object type, if the original value has an entry with
 the same name, and the value at that entry is a literal value or a variable
@@ -796,6 +797,27 @@ name of the field.
 The value of that entry in the result is the outcome of input coercing the
 original entry value according to the input coercion rules of the
 type declared by the input field.
+
+Following are examples of Input Object coercion for the type:
+
+```graphql
+input ExampleInputObject {
+  a: String
+  b: Int!
+}
+```
+
+Original Value          | Variables       | Coerced Value
+-------------------------------------------------------------------------------
+`{ a: "abc", b: 123 }`  | `{}`            | `{ a: "abc", b: 123 }`
+`{ a: 123, b: "123" }`  | `{}`            | `{ a: "123", b: 123 }`
+`{ a: "abc" }`          | `{}`            | Error: Missing required field {b}
+`{ b: $var }`           | `{ var: 123 }`  | `{ b: 123 }`
+`{ b: $var }`           | `{ var: null }` | Error: {b} must be non-null.
+`{ b: $var }`           | `{}`            | Error: {b} must be non-null.
+`{ b: $var }`           | `{}`            | Error: {b} must be non-null.
+`{ a: $var, b: 1 }`     | `{ var: null }` | `{ a: null, b: 1 }`
+`{ a: $var, b: 1 }`     | `{}`            | `{ b: 1 }`
 
 #### Input Object type validation
 

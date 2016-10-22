@@ -11,14 +11,36 @@ A request for execution consists of a few pieces of information:
 * Optionally: An initial value corresponding to the root type being executed.
 
 Given this information, the result of {ExecuteRequest()} produces the response,
-to be formatted according to the Reponse section below.
+to be formatted according to the Response section below.
+
+
+## Validating Requests
+
+As explained in the Validation section, only requests which pass all validation
+rules should be executed. If validation errors are known, they should be
+reported in the list of "errors" in the response and the request must fail
+without execution.
+
+Typically validation is performed in the context of a request immediately
+before execution, however a GraphQL service may execute a request without
+immediately validating it if that exact same request is known to have been
+validated before. A GraphQL service should only execute requests which *at some
+point* were known to be free of any validation errors, and have since
+not changed.
+
+For example: the request may be validated during development, provided it does
+not later change, or a service may validate a request once and memoize the
+result to avoid validating the same request again in the future.
 
 
 ## Executing Requests
 
 To execute a request, the executor must have a parsed `Document` (as defined
 in the “Query Language” part of this spec) and a selected operation name to
-run if the document defines multiple operations.
+run if the document defines multiple operations, otherwise the document is
+expected to only contain a single operation. The result of the request is
+determined by the result of executing this operation according to the "Executing
+Operations” section below.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
@@ -28,12 +50,6 @@ ExecuteRequest(schema, document, operationName, variableValues, initialValue):
     * Return {ExecuteQuery(operation, schema, coercedVariableValues, initialValue)}.
   * Otherwise if {operation} is a mutation operation:
     * Return {ExecuteMutation(operation, schema, coercedVariableValues, initialValue)}.
-
-The executor should find the `Operation` in the `Document` with the given
-operation name. If no such operation exists, the executor should throw an
-error. If the operation is found, then the result of executing the request
-should be the result of executing the operation according to the "Executing
-Operations” section.
 
 GetOperation(document, operationName):
 
@@ -47,24 +63,6 @@ GetOperation(document, operationName):
     * Produce a query error requiring a non-null {operationName}.
 
 
-## Validation of operation
-
-As explained in the Validation section, only requests which pass all validation
-rules should be executed. If validation errors are known, they should be
-reported in the list of "errors" in the response and the operation must fail
-without execution.
-
-Typically validation is performed in the context of a request immediately
-before execution, however a GraphQL service may execute a request without
-explicitly validating it if that exact same request is known to have been
-validated before. For example: the request may be validated during development,
-provided it does not later change, or a service may validate a request once and
-memoize the result to avoid validating the same request again in the future.
-
-A GraphQL service should only execute requests which *at some point* were
-known to be free of any validation errors, and have not changed since.
-
-
 ## Coercing Variable Values
 
 If the operation has defined any variables, then the values for
@@ -73,10 +71,28 @@ of variable's declared type. If a query error is encountered during
 input coercion of variable values, then the operation fails without
 execution.
 
-If any variable defined as non-null is not provided, or is provided the value
-{null}, then the operation fails without execution.
+CoerceVariableValues(schema, operation, variableValues):
 
-CoerceVariableValues(schema, operation, variableValues)
+  * Let {coercedValues} be an empty unordered Map.
+  * Let {variables} be the variables defined by {operation}.
+  * For each {variables} as {variableName} and {variableType}:
+    * If no value was provided in {variableValues} for the name {variableName}:
+      * If {variableType} is a Non-Nullable type, throw a query error.
+      * Continue to the next variable.
+    * Let {value} be the value provided in {variableValues} for the name {variableName}.
+    * If {value} cannot be coerced according to the
+      input coercion rules of {variableType}, throw a query error.
+    * Let {coercedValue} be the result of coercing {value} according to the
+      input coercion rules of {variableType}.
+    * Add an entry to {coercedValues} named {variableName} with the value {coercedValue}.
+  * Return {coercedValues}.
+
+Note: This algorithm is very similar to {CoerceArgumentValues()}, however is
+less forgiving of non-coerceable values.
+
+Note: If any variable defined as non-null is not provided, or is provided the
+value {null}, then the operation fails without execution.
+
 
 ## Executing Operations
 
@@ -110,8 +126,6 @@ mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
-  * Let {variableValues} be the set of variable values to be used by any
-    field argument value coercion.
   * Let {mutationType} be the root Mutation type in {schema}.
   * Assert: {mutationType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {mutation}.
@@ -135,9 +149,8 @@ response map.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
-  * Initialize {visitedFragments} to be the empty set.
   * Let {groupedFieldSet} be the result of
-    {CollectFields(objectType, selectionSet, visitedFragments, variableValues)}.
+    {CollectFields(objectType, selectionSet, variableValues)}.
   * Initialize {resultMap} to an empty ordered map.
   * For each {groupedFields} in {groupedFieldSet}:
     * Let {entryTuple} be {GetFieldEntry(objectType, objectValue, groupedFields, variableValues)}.
@@ -151,7 +164,7 @@ is explained in greater detail in the Response section below.
 
 Note: Normally, each call to {GetFieldEntry()} in the algorithm above is
 performed in parallel. However there are conditions in which each call must be
-done in serial, such as for mutations. This is explain in more detail in the
+done in serial, such as for mutations. This is explained in more detail in the
 sections below.
 
 Before execution, the selection set is converted to a grouped field set by
@@ -161,8 +174,9 @@ fields that share a response key.
 This ensures all fields with the same response key (alias or field name)
 included via referenced fragments are executed at the same time.
 
-CollectFields(objectType, selectionSet, visitedFragments, variableValues):
+CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
+  * If {visitedFragments} if not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered list of lists.
   * For each {selection} in {selectionSet}:
     * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
@@ -203,7 +217,7 @@ CollectFields(objectType, selectionSet, visitedFragments, variableValues):
       * If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
+      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -502,22 +516,24 @@ CoerceArgumentValues(objectType, field, variableValues)
   * Let {fieldName} be the name of {field}.
   * Let {argumentDefinitions} be the arguments defined by {objectType} for the
     field named {fieldName}.
-  * Let {coercedArgumentValues} be an empty Map.
+  * Let {coercedValues} be an empty unordered Map.
   * For each {argumentDefinitions} as {argumentName} and {argumentType}:
     * If no value was provided in {argumentValues} for the name {argumentName}:
-      * Continue to the next argument definition.
+      * If {argumentType} is a Non-Nullable type, throw a field error.
+      * Otherwise, continue to the next argument definition.
     * Let {value} be the value provided in {argumentValues} for the name {argumentName}.
     * If {value} is a Variable:
       * If a value exists in {variableValues} for the Variable {value}:
-        * Add an entry to {coercedArgumentValues} named {argName} with the
+        * Add an entry to {coercedValues} named {argName} with the
           value of the Variable {value} found in {variableValues}.
-    * Otherwise:
+    * Otherwise if {value} can be coerced according to the input coercion rules
+      of {argType}:
       * Let {coercedValue} be the result of coercing {value} according to the
         input coercion rules of {argType}.
-      * Add an entry to {coercedArgumentValues} named {argName} with the
+      * Add an entry to {coercedValues} named {argName} with the
         value {coercedValue}.
-  * Return {coercedArgumentValues}.
+  * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
-based on the type of the variable, and valid queries must only allow usage of
-variables of appropriate types.
+before executing the request in {CoerceVariableValues()}, and valid queries must
+only allow usage of variables of appropriate types.
