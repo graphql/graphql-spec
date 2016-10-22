@@ -7,8 +7,11 @@ A request for execution consists of a few pieces of information:
 * The schema to use, typically solely provided by the GraphQL service.
 * A Document containing GraphQL Operations and Fragments to execute.
 * Optionally: The name of the Operation in the Document to execute.
-* Optionally: Values for Variables defined by the Operation.
-* Optionally: An initial value corresponding to the root type being executed.
+* Optionally: Values for any Variables defined by the Operation.
+* An initial value corresponding to the root type being executed.
+  Conceptually, an initial value represents the "universe" of data available via
+  a GraphQL Service. It is common for a GraphQL Service to always use the same
+  initial value for every request.
 
 Given this information, the result of {ExecuteRequest()} produces the response,
 to be formatted according to the Response section below.
