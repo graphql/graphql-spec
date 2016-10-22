@@ -22,9 +22,9 @@ representations of the following four primitives:
  * Null
 
 Serialization formats which can represent an ordered map should preserve the
-order of requested fields as defined by query execution. Serialization formats
-which can only represent unordered maps should retain this order
-grammatically (such as JSON).
+order of requested fields as defined by {CollectFields()} in the Execution
+section. Serialization formats which can only represent unordered maps should
+retain this order grammatically (such as JSON).
 
 Producing a response where fields are represented in the same order in which
 they appear in the request improves human readability during debugging and
