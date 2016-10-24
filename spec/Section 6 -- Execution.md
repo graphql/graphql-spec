@@ -81,19 +81,23 @@ CoerceVariableValues(schema, operation, variableValues):
   * For each {variableDefinition} in {variableDefinitions}:
     * Let {variableName} be the name of {variableDefinition}.
     * Let {variableType} be the expected type of {variableDefinition}.
-    * If no value was provided in {variableValues} for the name {variableName}:
-      * If {variableType} is a Non-Nullable type, throw a query error.
-      * Otherwise, continue to the next variable definition.
+    * Let {defaultValue} be the default value for {variableDefinition}.
     * Let {value} be the value provided in {variableValues} for the name {variableName}.
-    * If {value} cannot be coerced according to the
-      input coercion rules of {variableType}, throw a query error.
+    * If {value} does not exist (was not provided in {variableValues}):
+      * If {defaultValue} exists (including {null}):
+        * Add an entry to {coercedValues} named {variableName} with the
+          value {defaultValue}.
+      * Otherwise if {variableType} is a Non-Nullable type, throw a query error.
+      * Otherwise, continue to the next variable definition.
+    * Otherwise, if {value} cannot be coerced according to the input coercion
+      rules of {variableType}, throw a query error.
     * Let {coercedValue} be the result of coercing {value} according to the
       input coercion rules of {variableType}.
-    * Add an entry to {coercedValues} named {variableName} with the value {coercedValue}.
+    * Add an entry to {coercedValues} named {variableName} with the
+      value {coercedValue}.
   * Return {coercedValues}.
 
-Note: This algorithm is very similar to {CoerceArgumentValues()}, however is
-less forgiving of non-coerceable values.
+Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
 
 ## Executing Operations
@@ -382,26 +386,39 @@ At each argument position in a query may be a literal value or a variable to be
 provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
+  * Let {coercedValues} be an empty unordered Map.
   * Let {argumentValues} be the argument values provided in {field}.
   * Let {fieldName} be the name of {field}.
   * Let {argumentDefinitions} be the arguments defined by {objectType} for the
     field named {fieldName}.
-  * Let {coercedValues} be an empty unordered Map.
-  * For each {argumentDefinitions} as {argumentName} and {argumentType}:
-    * If no value was provided in {argumentValues} for the name {argumentName}:
-      * If {argumentType} is a Non-Nullable type, throw a field error.
-      * Otherwise, continue to the next argument definition.
+  * For each {argumentDefinition} in {argumentDefinitions}:
+    * Let {argumentName} be the name of {argumentDefinition}.
+    * Let {argumentType} be the expected type of {argumentDefinition}.
+    * Let {defaultValue} be the default value for {argumentDefinition}.
     * Let {value} be the value provided in {argumentValues} for the name {argumentName}.
     * If {value} is a Variable:
-      * If a value exists in {variableValues} for the Variable {value}:
+      * Let {variableName} be the name of Variable {value}.
+      * Let {variableValue} be the value provided in {variableValues} for the name {variableName}.
+      * If {variableValue} exists (including {null}):
         * Add an entry to {coercedValues} named {argName} with the
-          value of the Variable {value} found in {variableValues}.
-    * Otherwise if {value} can be coerced according to the input coercion rules
-      of {argType}:
-      * Let {coercedValue} be the result of coercing {value} according to the
-        input coercion rules of {argType}.
-      * Add an entry to {coercedValues} named {argName} with the
-        value {coercedValue}.
+          value {variableValue}.
+      * Otherwise, if {defaultValue} exists (including {null}):
+        * Add an entry to {coercedValues} named {argName} with the
+          value {defaultValue}.
+      * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
+      * Otherwise, continue to the next argument definition.
+    * Otherwise, if {value} does not exist (was not provided in {argumentValues}:
+      * If {defaultValue} exists (including {null}):
+        * Add an entry to {coercedValues} named {argName} with the
+          value {defaultValue}.
+      * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
+      * Otherwise, continue to the next argument definition.
+    * Otherwise, if {value} cannot be coerced according to the input coercion
+      rules of {argType}, throw a field error.
+    * Let {coercedValue} be the result of coercing {value} according to the
+      input coercion rules of {argType}.
+    * Add an entry to {coercedValues} named {argName} with the
+      value {coercedValue}.
   * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
