@@ -775,14 +775,49 @@ An input object is never a valid result.
 
 **Input Coercion**
 
-The input to an input object should be an unordered map, otherwise an error
-should be thrown. The result of the coercion is an unordered map, with an
-entry for each input field, whose key is the name of the input field.
-The value of an entry in the coerced map is the result of input coercing the
-value of the entry in the input with the same key; if the input does not have a
-corresponding entry, the value is the result of coercing null. The input
-coercion above should be performed according to the input coercion rules of the
+The value for an input object should be an input object literal or an unordered
+map, otherwise an error should be thrown. This unordered map should not contain
+any entries with names not defined by a field of this input object type,
+otherwise an error should be thrown.
+
+If any non-nullable fields defined by the input object do not have corresponding
+entries in the original value, were provided a variable for which a value was
+not provided, or for which the value {null} was provided, an error should
+be thrown.
+
+The result of coercion is an environment-specific unordered map defining slots
+for each field both defined by the input object type and provided by the
+original value.
+
+For each field of the input object type, if the original value has an entry with
+the same name, and the value at that entry is a literal value or a variable
+which was provided a runtime value, an entry is added to the result with the
+name of the field.
+
+The value of that entry in the result is the outcome of input coercing the
+original entry value according to the input coercion rules of the
 type declared by the input field.
+
+Following are examples of Input Object coercion for the type:
+
+```graphql
+input ExampleInputObject {
+  a: String
+  b: Int!
+}
+```
+
+Original Value          | Variables       | Coerced Value
+-------------------------------------------------------------------------------
+`{ a: "abc", b: 123 }`  | `{}`            | `{ a: "abc", b: 123 }`
+`{ a: 123, b: "123" }`  | `{}`            | `{ a: "123", b: 123 }`
+`{ a: "abc" }`          | `{}`            | Error: Missing required field {b}
+`{ b: $var }`           | `{ var: 123 }`  | `{ b: 123 }`
+`{ b: $var }`           | `{ var: null }` | Error: {b} must be non-null.
+`{ b: $var }`           | `{}`            | Error: {b} must be non-null.
+`{ b: $var }`           | `{}`            | Error: {b} must be non-null.
+`{ a: $var, b: 1 }`     | `{ var: null }` | `{ a: null, b: 1 }`
+`{ a: $var, b: 1 }`     | `{}`            | `{ b: 1 }`
 
 #### Input Object type validation
 
