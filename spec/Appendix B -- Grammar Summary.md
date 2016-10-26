@@ -152,7 +152,7 @@ VariableDefinitions : ( VariableDefinition+ )
 
 VariableDefinition : Variable : Type DefaultValue?
 
-Variable : $ Name
+Variable : $ [lookahead ! Ignored] Name
 
 DefaultValue : = Value[Const]
 

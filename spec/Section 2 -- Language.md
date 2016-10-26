@@ -855,7 +855,7 @@ ObjectValue : { ObjectField+ }
 
 ## Variables
 
-Variable : $ Name
+Variable : $ [lookahead ! Ignored] Name
 
 VariableDefinitions : ( VariableDefinition+ )
 
