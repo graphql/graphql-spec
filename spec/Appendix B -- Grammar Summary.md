@@ -127,11 +127,14 @@ Value[Const] :
   - FloatValue
   - StringValue
   - BooleanValue
+  - NullValue
   - EnumValue
   - ListValue[?Const]
   - ObjectValue[?Const]
 
 BooleanValue : one of `true` `false`
+
+NullValue : `null`
 
 EnumValue : Name but not `true`, `false` or `null`
 

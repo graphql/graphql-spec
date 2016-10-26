@@ -629,22 +629,26 @@ fragment stringIntoInt on Arguments {
 ```
 
 
-#### Required Arguments
+#### Required Non-Null Arguments
 
   * For each Field or Directive in the document.
   * Let {arguments} be the arguments provided by the Field or Directive.
   * Let {argumentDefinitions} be the set of argument definitions of that Field or Directive.
-  * For each {definition} in {argumentDefinitions}
-    * Let {type} be the expected type of {definition}
-    * If {type} is Non-Null
-      * Let {argumentName} be the name of {definition}
+  * For each {definition} in {argumentDefinitions}:
+    * Let {type} be the expected type of {definition}.
+    * If {type} is Non-Null:
+      * Let {argumentName} be the name of {definition}.
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
+      * Let {value} be the value of {argument}.
+      * {value} must not be the {null} literal.
 
 ** Explanatory Text **
 
 Arguments can be required. Arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional.
+is non-null. If it is not non-null, the argument is optional. When an argument
+type is non-null, and is required, the explicit value {null} may also not
+be provided.
 
 For example the following are valid:
 
@@ -676,6 +680,13 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
+Providing the explicit value {null} is also not valid.
+
+```!graphql
+fragment missingRequiredArg on Arguments {
+  notNullBooleanArgField(nonNullBooleanArg: null)
+}
+```
 
 ## Fragments
 
