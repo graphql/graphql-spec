@@ -116,7 +116,7 @@ they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
 input value.
 
 For all types below, with the exception of Non-Null, if the explicit value
-{null} is provided, then then the result of input coercion is {null}.
+{null} is provided, then the result of input coercion is {null}.
 
 **Built-in Scalars**
 
