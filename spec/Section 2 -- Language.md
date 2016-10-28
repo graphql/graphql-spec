@@ -738,14 +738,14 @@ StringCharacter :: \ EscapedCharacter
 
 | Escaped Character | Code Unit Value | Character Name               |
 ----------------------------------------------------------------------
-| `"`               | 0x0022          | double quote                 |
-| `\`               | 0x005C          | reverse solidus (back slash) |
-| `/`               | 0x002F          | solidus (forward slash)      |
-| `b`               | 0x0008          | backspace                    |
-| `f`               | 0x000C          | form feed                    |
-| `n`               | 0x000A          | line feed (new line)         |
-| `r`               | 0x000D          | carriage return              |
-| `t`               | 0x0009          | horizontal tab               |
+| `"`               | U+0022          | double quote                 |
+| `\`               | U+005C          | reverse solidus (back slash) |
+| `/`               | U+002F          | solidus (forward slash)      |
+| `b`               | U+0008          | backspace                    |
+| `f`               | U+000C          | form feed                    |
+| `n`               | U+000A          | line feed (new line)         |
+| `r`               | U+000D          | carriage return              |
+| `t`               | U+0009          | horizontal tab               |
 
 
 ### Null Value
