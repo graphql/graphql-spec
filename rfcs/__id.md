@@ -46,6 +46,10 @@ Just like `__typename` can be queried on any union or interface selection set,
 types have valid `__id`s and some don't, then some of the results will have
 `null` for that field.
 
+### Exposing whether or not an ID will be returned via introspection
+
+There might be cache implementations which would get an efficiency benefit from knowing which types have unique IDs before receiving a result from the server. GraphQL type definitions should have a way of specifying whether or not they support a unique ID so that clients can choose to introspect this feature if it is useful.
+
 ## Non-goals
 
 ### Refetchability.
@@ -56,5 +60,11 @@ exposed numerous examples of types for which a refetch token and a unique cache
 key were not the same thing. This proposal focusing only on the use case of
 uniquely identifying objects to use for caching and deduplicating
 result values.
+
+## Remaining questions
+
+### Dealing with absent IDs
+
+In previous proposals for this feature, there was the idea that the `__id` feature would simply be omitted from the response if the object being queried didn't have one. I think the most reasonable thing to do is to use GraphQL's existing concept of a nullable type, and just return `null` when no ID is available.
 
 > Credit to Lee Byron for some of the initial content.
