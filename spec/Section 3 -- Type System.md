@@ -80,6 +80,13 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the server to be a valid URL.
 
+A server may omit any of the built-in scalars from its schema, for example if a
+schema does not refer to a floating-point number, then it will not include the
+`Float` type. However, if a schema includes a type with the name of one of the
+types described here, it must adhere to the behavior described. As an example,
+a server must not include a type called `Int` and use it to represent
+128-bit numbers, or internationalization information.
+
 **Result Coercion**
 
 A GraphQL server, when preparing a field of a given scalar type, must uphold the
