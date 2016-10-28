@@ -125,6 +125,16 @@ error is a map.
 If no errors were encountered during the requested operation, the `errors`
 entry should not be present in the result.
 
+If the `data` entry in the response is `null` or not present, the `errors`
+entry in the response must not be empty. It must contain at least one error.
+The errors it contains should indicate why no data was able to be returned.
+
+If the `data` entry in the response is not `null`, the `errors` entry in the
+response may contain any errors that occurred during execution. If errors
+occurred during execution, it should contain those errors.
+
+**Error result format**
+
 Every error must contain an entry with the key `message` with a string
 description of the error intended for the developer as a guide to understand
 and correct the error.
@@ -135,20 +145,68 @@ locations, where each location is a map with the keys `line` and `column`, both
 positive numbers starting from `1` which describe the beginning of an
 associated syntax element.
 
-If an error can be associated to a particular field in the GraphQL response, it
+If an error can be associated to a particular field in the GraphQL result, it
 should contain an entry with the key `path` with a list of path segments
 starting at the root of the response and ending with the field associated with
 the error. Path segments that represent object fields should be strings, and
 path segments that represent array indices should be 0-indexed integers.
 
+If the error happens in an aliased field, the path to the error should use the
+aliased name, since it represents a path in the response, not than the query.
+
+For example, if fetching one of the friends' names fails in the following
+query:
+
+```graphql
+{
+  hero(episode: $episode) {
+    name
+    heroFriends: friends {
+      id
+      name
+    }
+  }
+}
+```
+
+The response might look like:
+
+```js
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "heroFriends": [
+        {
+          "id": "1000",
+          "name": "Luke Skywalker"
+        },
+        {
+          "id": "1002",
+          "name": null
+        },
+        {
+          "id": "1003",
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  },
+  "errors": [
+    {
+      "message": "Name for character with ID 1002 could not be fetched.",
+      "locations": [ { "line": 6, "column": 7 }],
+      "path": [ "hero", "heroFriends", 3, "name" ]
+    }
+  ]
+}
+```
+
+If the field which experienced an error was declared as `Non-Null`, the `null`
+result will bubble up to the next nullable field. In that case, the `path`
+for the error should include the full path to the result field where the error
+occurred, even if that field is not present in the response.
+
 GraphQL servers may provide additional entries to error as they choose to
 produce more helpful or machine-readable errors, however future versions of the
 spec may describe additional entries to errors.
-
-If the `data` entry in the response is `null` or not present, the `errors`
-entry in the response must not be empty. It must contain at least one error.
-The errors it contains should indicate why no data was able to be returned.
-
-If the `data` entry in the response is not `null`, the `errors` entry in the
-response may contain any errors that occurred during execution. If errors
-occurred during execution, it should contain those errors.
