@@ -729,12 +729,23 @@ StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
 StringCharacter :: \u EscapedUnicode
 
-  * Return the character value represented by the UTF16 hexidecimal
-    identifier {EscapedUnicode}.
+  * Return the character whose code unit value in the Unicode Basic Multilingual
+    Plane is the 16-bit hexadecimal value {EscapedUnicode}.
 
 StringCharacter :: \ EscapedCharacter
 
-  * Return the character value of {EscapedCharacter}.
+  * Return the character value of {EscapedCharacter} according to the table below.
+
+| Escaped Character | Code Unit Value | Character Name               |
+----------------------------------------------------------------------
+| `"`               | 0x0022          | double quote                 |
+| `\`               | 0x005C          | reverse solidus (back slash) |
+| `/`               | 0x002F          | solidus (forward slash)      |
+| `b`               | 0x0008          | backspace                    |
+| `f`               | 0x000C          | form feed                    |
+| `n`               | 0x000A          | line feed (new line)         |
+| `r`               | 0x000D          | carriage return              |
+| `t`               | 0x0009          | horizontal tab               |
 
 
 ### Null Value
