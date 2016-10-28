@@ -13,27 +13,43 @@ double-colon `::`).
 
 ## Source Text
 
-SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
+SourceCharacter :: "Any Unicode code point"
 
 GraphQL documents are expressed as a sequence of
-[Unicode](http://unicode.org/standard/standard.html) characters. However, with
-few exceptions, most of GraphQL is expressed only in the original non-control
-ASCII range so as to be as widely compatible with as many existing tools,
-languages, and serialization formats as possible and avoid display issues in
-text editors and source control.
+[Unicode](http://unicode.org/standard/standard.html) code points (referred to in
+this specification as characters). All Unicode code point values from U+0000 to
+U+10FFFF, including surrogate code points, may appear in this sequence where
+allowed by the grammatical rules below.
+
+A [combining character sequence](http://unicode.org/faq/char_combmark.html) is
+treated as a sequence of individual Unicode code points and a sequence of
+individual {SourceCharacter}, even though they may appear to a user as a
+single character.
+
+However, with the exceptions of {StringValue} and {Comment}, most of GraphQL is
+expressed only in the original non-control ASCII range so as to be as widely
+compatible with as many existing tools, languages, and serialization formats as
+possible and avoid display issues in text editors and source control.
+
+Note: The encoding used to represent a GraphQL document source is irrelevant to
+this specification. A document is not required to be stored or transmitted in an
+encoding which can represent every Unicode code point. Instead, given any
+encoding format, and the range of code points which it can encode, GraphQL
+documents may consist of any of those code points.
 
 
-### Unicode
+### Byte Order Mark
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
-
-Non-ASCII Unicode characters may freely appear within {StringValue} and
-{Comment} portions of GraphQL.
 
 The "Byte Order Mark" is a special Unicode character which
 may appear at the beginning of a file containing Unicode which programs may use
 to determine the fact that the text stream is Unicode, what endianness the text
 stream is in, and which of several Unicode encodings to interpret.
+
+GraphQL ignores this character anywhere ignored tokens may occur, regardless of
+if it appears at the beginning of a GraphQL document, as it may appear within a
+document due to file concatenation.
 
 
 ### White Space
@@ -65,7 +81,11 @@ text, any amount may appear before or after any other token and have no
 significance to the semantic meaning of a GraphQL query document. Line
 terminators are not found within any other token.
 
-Note: Any error reporting which provide the line number in the source of the
+Note: GraphQL intentionally does not consider Unicode line or paragraph
+separators outside the ASCII range as line terminators, avoiding
+misinterpretation by text editors and source control tools.
+
+Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
 the line number.
 
@@ -83,9 +103,13 @@ A comment can contain any Unicode code point except {LineTerminator} so a
 comment always consists of all code points starting with the {`#`} character up
 to but not including the line terminator.
 
-Comments behave like white space and may appear after any token, or before a
+Comments behave like white space and may appear after any token, or before any
 line terminator, and have no significance to the semantic meaning of a GraphQL
 query document.
+
+Any Unicode code point may appear within a Comment. Comments do not include
+escape sequences, so the character sequence `\n` or `\u000A` must not be
+interpreted as the end of a Comment.
 
 
 ### Insignificant Commas
@@ -704,13 +728,13 @@ EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
 
-Strings are sequences of characters wrapped in double-quotes (`"`). (ex.
-`"Hello World"`). White space and other otherwise-ignored characters are
-significant within a string value.
+Strings are sequences of zero or more source characters wrapped in double-quotes
+(`"`). (ex. `"Hello World"`).
 
-Note: Unicode characters are allowed within String value literals, however
-GraphQL source must not contain some ASCII control characters so escape
-sequences must be used to represent these characters.
+Any Unicode code point other than those explicitly excluded may appear literally
+within a String value. White-space and other characters otherwise ignored
+outside of string values are significant and included. Unicode code points may
+also be represented with escape sequences.
 
 **Semantics**
 

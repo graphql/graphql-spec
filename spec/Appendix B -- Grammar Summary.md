@@ -1,6 +1,6 @@
 # B. Appendix: Grammar Summary
 
-SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
+SourceCharacter :: "Any Unicode code point"
 
 
 ## Ignored Tokens
