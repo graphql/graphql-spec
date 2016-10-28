@@ -147,7 +147,8 @@ associated syntax element.
 
 If an error can be associated to a particular field in the GraphQL result, it
 should contain an entry with the key `path` that details the path of the
-response field which experienced the error.
+response field which experienced the error. This allows clients to identify
+whether a `null` result is intentional or caused by a runtime error.
 
 This field should be a list of path segments starting at the root of the
 response and ending with the field associated with the error. Path segments
