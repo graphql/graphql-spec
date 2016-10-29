@@ -1242,6 +1242,49 @@ query @skip(if: $foo) {
 ```
 
 
+### Directives Are Unique Per Location
+
+** Formal Specification **
+
+  * For every {location} in the document for which Directives can apply:
+    * Let {directives} be the set of Directives which apply to {location}.
+    * For each {directive} in {directives}:
+      * Let {directiveName} be the name of {directive}.
+      * Let {namedDirectives} be the set of all Directives named {directiveName}
+        in {directives}.
+      * {namedDirectives} must be a set of one.
+
+** Explanatory Text **
+
+Directives are used to describe some metadata or behavioral change on the
+definition they apply to. When more than one directive of the same name is used,
+the expected metadata or behavior becomes ambiguous, therefore only one of each
+directive is allowed per location.
+
+For example, the following query will not pass validation because `@skip` has
+been used twice for the same field:
+
+```!graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) @skip(if: $bar)
+}
+```
+
+However the following example is valid because `@skip` has been used only once
+per location, despite being used twice in the query and on the same named field:
+
+```graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) {
+    subfieldA
+  }
+  field @skip(if: $bar) {
+    subfieldB
+  }
+}
+```
+
+
 ## Variables
 
 ### Variable Uniqueness
