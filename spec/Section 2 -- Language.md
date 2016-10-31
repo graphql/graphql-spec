@@ -907,7 +907,7 @@ size `60` width:
 }
 ```
 
-** Variable use within Fragments **
+**Variable use within Fragments**
 
 Query variables can be used within fragments. Query variables have global scope
 with a given operation, so a variable used within a fragment must be declared
