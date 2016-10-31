@@ -716,25 +716,25 @@ sequences must be used to represent these characters.
 
 StringValue :: `""`
 
-  * Return an empty Unicode character sequence.
+  + Return an empty Unicode character sequence.
 
 StringValue :: `"` StringCharacter+ `"`
 
-  * Return the Unicode character sequence of all {StringCharacter}
+  + Return the Unicode character sequence of all {StringCharacter}
     Unicode character values.
 
 StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
-  * Return the character value of {SourceCharacter}.
+  + Return the character value of {SourceCharacter}.
 
 StringCharacter :: \u EscapedUnicode
 
-  * Return the character whose code unit value in the Unicode Basic Multilingual
+  + Return the character whose code unit value in the Unicode Basic Multilingual
     Plane is the 16-bit hexadecimal value {EscapedUnicode}.
 
 StringCharacter :: \ EscapedCharacter
 
-  * Return the character value of {EscapedCharacter} according to the table below.
+  + Return the character value of {EscapedCharacter} according to the table below.
 
 | Escaped Character | Code Unit Value | Character Name               |
 | ----------------- | --------------- | ---------------------------- |
