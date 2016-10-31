@@ -199,7 +199,7 @@ The response might look like:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [ { "line": 6, "column": 7 }],
-      "path": [ "hero", "heroFriends", 3, "name" ]
+      "path": [ "hero", "heroFriends", 1, "name" ]
     }
   ]
 }
