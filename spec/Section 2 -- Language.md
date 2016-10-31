@@ -737,7 +737,7 @@ StringCharacter :: \ EscapedCharacter
   * Return the character value of {EscapedCharacter} according to the table below.
 
 | Escaped Character | Code Unit Value | Character Name               |
-----------------------------------------------------------------------
+| ----------------- | --------------- | ---------------------------- |
 | `"`               | U+0022          | double quote                 |
 | `\`               | U+005C          | reverse solidus (back slash) |
 | `/`               | U+002F          | solidus (forward slash)      |

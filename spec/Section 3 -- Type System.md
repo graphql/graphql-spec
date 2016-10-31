@@ -818,12 +818,12 @@ input ExampleInputObject {
 ```
 
 Original Value          | Variables       | Coerced Value
--------------------------------------------------------------------------------
-`{ a: "abc", b: 123 }`  |                 | `{ a: "abc", b: 123 }`
-`{ a: 123, b: "123" }`  |                 | `{ a: "123", b: 123 }`
-`{ a: "abc" }`          |                 | Error: Missing required field {b}
-`{ a: "abc", b: null }` |                 | Error: {b} must be non-null.
-`{ a: null, b: 1 }`     |                 | `{ a: null, b: 1 }`
+----------------------- | --------------- | -----------------------------------
+`{ a: "abc", b: 123 }`  | {null}          | `{ a: "abc", b: 123 }`
+`{ a: 123, b: "123" }`  | {null}          | `{ a: "123", b: 123 }`
+`{ a: "abc" }`          | {null}          | Error: Missing required field {b}
+`{ a: "abc", b: null }` | {null}          | Error: {b} must be non-null.
+`{ a: null, b: 1 }`     | {null}          | `{ a: null, b: 1 }`
 `{ b: $var }`           | `{ var: 123 }`  | `{ b: 123 }`
 `{ b: $var }`           | `{}`            | Error: Missing required field {b}.
 `{ b: $var }`           | `{ var: null }` | Error: {b} must be non-null.
