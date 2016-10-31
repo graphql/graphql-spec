@@ -210,6 +210,38 @@ result will bubble up to the next nullable field. In that case, the `path`
 for the error should include the full path to the result field where the error
 occurred, even if that field is not present in the response.
 
+For example, if the `name` field from above had declared a `Non-Null` return
+type in the schema, the result would look different but the error reported would
+be the same:
+
+```js
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "heroFriends": [
+        {
+          "id": "1000",
+          "name": "Luke Skywalker"
+        },
+        null,
+        {
+          "id": "1003",
+          "name": "Leia Organa"
+        }
+      ]
+    }
+  },
+  "errors": [
+    {
+      "message": "Name for character with ID 1002 could not be fetched.",
+      "locations": [ { "line": 6, "column": 7 }],
+      "path": [ "hero", "heroFriends", 1, "name" ]
+    }
+  ]
+}
+```
+
 GraphQL servers may provide additional entries to error as they choose to
 produce more helpful or machine-readable errors, however future versions of the
 spec may describe additional entries to errors.
