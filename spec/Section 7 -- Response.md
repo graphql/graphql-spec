@@ -152,8 +152,8 @@ whether a `null` result is intentional or caused by a runtime error.
 
 This field should be a list of path segments starting at the root of the
 response and ending with the field associated with the error. Path segments
-that represent object fields should be strings, and path segments that
-represent array indices should be 0-indexed integers. If the error happens
+that represent fields should be strings, and path segments that
+represent list indices should be 0-indexed integers. If the error happens
 in an aliased field, the path to the error should use the aliased name, since
 it represents a path in the response, not in the query.
 
@@ -198,7 +198,7 @@ The response might look like:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 }],
+      "locations": [ { "line": 6, "column": 7 } ],
       "path": [ "hero", "heroFriends", 1, "name" ]
     }
   ]
@@ -235,7 +235,7 @@ be the same:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 }],
+      "locations": [ { "line": 6, "column": 7 } ],
       "path": [ "hero", "heroFriends", 1, "name" ]
     }
   ]
