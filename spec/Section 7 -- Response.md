@@ -146,7 +146,7 @@ positive numbers starting from `1` which describe the beginning of an
 associated syntax element.
 
 If an error can be associated to a particular field in the GraphQL result, it
-should contain an entry with the key `path` that details the path of the
+must contain an entry with the key `path` that details the path of the
 response field which experienced the error. This allows clients to identify
 whether a `null` result is intentional or caused by a runtime error.
 
