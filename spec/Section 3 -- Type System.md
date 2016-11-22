@@ -22,6 +22,10 @@ any built in types (including Scalar and Introspection types).
 All directives within a GraphQL schema must have unique names. A directive
 and a type may share the same name, since there is no ambiguity between them.
 
+All types and directives defined within a schema must not have a name which
+begins with {"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
 
 ## Types
 
@@ -255,6 +259,10 @@ a specific type. Object values should be serialized as ordered maps, where the
 queried field names (or aliases) are the keys and the result of evaluating
 the field is the value, ordered by the order in which they appear in the query.
 
+All fields defined within an Object type must not have a name which begins with
+{"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
 For example, a type `Person` could be described as:
 
 ```
@@ -475,6 +483,10 @@ fields can accept arguments to further specify the return value. Object field
 arguments are defined as a list of all possible argument names and their
 expected input types.
 
+All arguments defined within a field must not have a name which begins with
+{"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
 For example, a `Person` type with a `picture` field could accept an argument to
 determine what size of an image to return.
 
@@ -525,7 +537,9 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 1. An Object type must define one or more fields.
 2. The fields of an Object type must have unique names within that Object type;
    no two fields may share the same name.
-3. An object type must be a super-set of all interfaces it implements:
+3. Each field of an Object type must not have a name which begins with the
+   characters {"__"} (two underscores).
+4. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must be of a type which is equal to or a sub-type of
@@ -653,6 +667,8 @@ Interface types have the potential to be invalid if incorrectly defined.
 1. An Interface type must define one or more fields.
 2. The fields of an Interface type must have unique names within that Interface
    type; no two fields may share the same name.
+3. Each field of an Interface type must not have a name which begins with the
+   characters {"__"} (two underscores).
 
 
 ### Unions
