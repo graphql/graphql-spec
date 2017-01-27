@@ -888,7 +888,7 @@ argument is passed (a common case), the client can just pass that value rather
 than constructing the list.
 
 Note that when a {null} value is provided via a runtime variable value for a
-list type that it is interpretted as no list being provided, and not a list of
+list type that it is interpreted as no list being provided, and not a list of
 size one with the value {null}.
 
 
