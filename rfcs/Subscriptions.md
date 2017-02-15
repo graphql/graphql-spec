@@ -56,26 +56,35 @@ We'll try to define the irreducible components of a GraphQL Subscriptions system
 * **Events**: any “interesting thing” the system cares about. Events contain optional data to describe what happened. For example, a “new email” event might define a payload that contains the ID of the new email. The combination of query, query variables, and payload is executed to create a GraphQL response in the shape that the client expects.
 
 Reference-style:
-![blockdiagram]
+![](subscriptions_01.png)
 
-[blockdiagram]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png
+*Above, the light blue box on the left contains the components for a traditional request/response GraphQL system. The light green box on the right contains the new components needed to support GraphQL Subscriptions.*
 
+The lifetime of a subscription looks like this:
 
+* **Subscribe:** the Client initializes a subscription by sending a query and its variables to the server.  When the Subscription is created, the input query and variables are mapped to a set of events to which the Subscription listens.
 
-# [Overview](Section 1 -- Overview.md)
+* **Publish:** when any of the events associated with the subscription are triggered, the subscription executes the query, variables, and payload and sends the result to the client.
 
-# [Language](Section 2 -- Language.md)
+* **Unsubscribe:** when a client becomes unsubscribed from a subscription, it will no longer receive payloads. This can happen when the client explicitly unsubscribes or when the server determines that unsubscription should occur, for example when the client has disconnected.
 
-# [Type System](Section 3 -- Type System.md)
+**Subscribe/Unsubscribe:**
+![](subscriptions_02.png)
 
-# [Introspection](Section 4 -- Introspection.md)
+**Single Publish:**
+![](subscriptions_03.png)
+*Note: the notion of a “Single Subscription” is logical. The implementation does not need to create one subscription object per client.*
 
-# [Validation](Section 5 -- Validation.md)
+We welcome and look forward to comments, feedback, and discussion on this RFC.
 
-# [Execution](Section 6 -- Execution.md)
+**References**
 
-# [Response](Section 7 -- Response.md)
+[1] [Proposal for GraphQL Subscriptions by Apollo](https://dev-blog.apollodata.com/a-proposal-for-graphql-subscriptions-1d89b1934c18)
 
-# [Appendix: Notation Conventions](Appendix A -- Notation Conventions.md)
+[2] [Event-stream based GraphQL Subscriptions](https://gist.github.com/OlegIlyenko/a5a9ab1b000ba0b5b1ad)
 
-# [Appendix: Grammar Summary](Appendix B -- Grammar Summary.md)
+[3] [Subscriptions in GraphQL by Kadira](https://kadira.io/blog/graphql/subscriptions-in-graphql)
+
+[4] [Subscriptions in GraphQL and Relay](http://graphql.org/blog/subscriptions-in-graphql-and-relay/)
+
+[5] [Why not live queries?](http://graphql.org/blog/subscriptions-in-graphql-and-relay/#why-not-live-queries)
