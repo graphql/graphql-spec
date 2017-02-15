@@ -69,10 +69,12 @@ The lifetime of a subscription looks like this:
 * **Unsubscribe:** when a client becomes unsubscribed from a subscription, it will no longer receive payloads. This can happen when the client explicitly unsubscribes or when the server determines that unsubscription should occur, for example when the client has disconnected.
 
 **Subscribe/Unsubscribe:**
+
 ![](subscriptions_02.png)
 
 
 **Single Publish:**
+
 ![](subscriptions_03.png)
 
 *Note: the notion of a “Single Subscription” is logical. The implementation does not need to create one subscription object per client.*
