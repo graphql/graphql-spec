@@ -71,8 +71,10 @@ The lifetime of a subscription looks like this:
 **Subscribe/Unsubscribe:**
 ![](subscriptions_02.png)
 
+
 **Single Publish:**
 ![](subscriptions_03.png)
+
 *Note: the notion of a “Single Subscription” is logical. The implementation does not need to create one subscription object per client.*
 
 We welcome and look forward to comments, feedback, and discussion on this RFC.
