@@ -29,7 +29,7 @@ We broadly categorize realtime API solutions into three types:
 
   * **Data-transform pipelines**- for cases where data payloads differ between subscribers, there is a class of systems that use dynamically configurable data streams. These systems require a more sophisticated event layer capable of dynamically specifying per-subscriber data-transform logic. This way, the output payload from the event layer is already subscriber-specific. The drawback of these systems is high complexity and distributed business logic. Our proposal (GraphQL Subscriptions) builds on this type of solution.
 
- * **Live Queries**- the client issues a standard query to the server but annotates all or part of the query to be “live”. Whenever the answer to the query changes, the server pushes the new data to the client via a persistent, bi-directional transport. The key difference between Live Queries and Event-based Subscriptions is that Live Queries do not depend on the notion of events. The data itself is live and includes mechanisms to communicate changes. Note that many subscription use cases can be transformed into live queries and vice versa. Live Queries require reactive data layers, polling, or a combination of the two [5].
+ * **Live Queries**- the client issues a standard query. Whenever the answer to the query changes, the server pushes the new data to the client. The key difference between Live Queries and Event-based Subscriptions is that Live Queries do not depend on the notion of events. The data itself is live and includes mechanisms to communicate changes. Note that many event-based use cases can be modeled as live queries and vice versa. Live Queries require reactive data layers, polling, or a combination of the two [5].
 
 In the case of subscriptions and live queries, the addition of server-side state means production-grade systems will need to consider scalability, high-availability, throttling, buffering, and event/delivery rate mismatches in their designs.
 
@@ -43,7 +43,7 @@ At Facebook, we believe GraphQL Subscriptions exhibits a set of useful tradeoffs
 
 * Enable interoperability between GraphQL Subscription clients and servers without restricting implementation.
 
-* Enable a strong tooling ecosystem (like GraphiQL).
+* Enable a strong tooling ecosystem (including GraphiQL).
 
 * Provide concrete guidance to anyone currently building/operating systems to support GraphQL Subscriptions.
 
@@ -55,7 +55,6 @@ We'll try to define the irreducible components of a GraphQL Subscriptions system
 
 * **Events**: any “interesting thing” the system cares about. Events contain optional data to describe what happened. For example, a “new email” event might include the ID of the new email. The combination of query, query variables, and event data is executed to create a GraphQL response in the shape that the client expects.
 
-Reference-style:
 ![](subscriptions_01.png)
 
 *Above, the light blue box on the left contains the components for a traditional request/response GraphQL system. The light green box on the right contains the new components needed to support GraphQL Subscriptions.*
