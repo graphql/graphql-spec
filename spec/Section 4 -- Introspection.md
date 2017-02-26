@@ -399,6 +399,17 @@ Fields
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 
+### The __EnumValue Type
+
+The `__EnumValue` type represents one of possible values of an enum.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `isDeprecated` returns {true} if this field should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this field is deprecated.
 
 ### The __Directive Type
 
