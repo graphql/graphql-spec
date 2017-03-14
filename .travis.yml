@@ -1,4 +1,8 @@
+git:
+  depth: 5
+
 language: node_js
+node_js: 6
 
 deploy:
   provider: script
@@ -12,6 +16,7 @@ notifications:
     use_notice: true
     on_success: change
     on_failure: change
+    skip_join: true
     channels:
       - chat.freenode.net#graphql
 

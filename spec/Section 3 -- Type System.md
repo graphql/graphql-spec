@@ -22,6 +22,10 @@ any built in types (including Scalar and Introspection types).
 All directives within a GraphQL schema must have unique names. A directive
 and a type may share the same name, since there is no ambiguity between them.
 
+All types and directives defined within a schema must not have a name which
+begins with {"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
 
 ## Types
 
@@ -80,6 +84,13 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the server to be a valid URL.
 
+A server may omit any of the built-in scalars from its schema, for example if a
+schema does not refer to a floating-point number, then it will not include the
+`Float` type. However, if a schema includes a type with the name of one of the
+types described here, it must adhere to the behavior described. As an example,
+a server must not include a type called `Int` and use it to represent
+128-bit numbers, or internationalization information.
+
 **Result Coercion**
 
 A GraphQL server, when preparing a field of a given scalar type, must uphold the
@@ -114,6 +125,9 @@ some common serializations (ex. JSON) do not discriminate between integer
 and floating-point values, they are interpreted as an integer input value if
 they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
 input value.
+
+For all types below, with the exception of Non-Null, if the explicit value
+{null} is provided, then the result of input coercion is {null}.
 
 **Built-in Scalars**
 
@@ -244,6 +258,10 @@ GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
 queried field names (or aliases) are the keys and the result of evaluating
 the field is the value, ordered by the order in which they appear in the query.
+
+All fields defined within an Object type must not have a name which begins with
+{"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
 
 For example, a type `Person` could be described as:
 
@@ -465,6 +483,10 @@ fields can accept arguments to further specify the return value. Object field
 arguments are defined as a list of all possible argument names and their
 expected input types.
 
+All arguments defined within a field must not have a name which begins with
+{"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
 For example, a `Person` type with a `picture` field could accept an argument to
 determine what size of an image to return.
 
@@ -515,7 +537,9 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 1. An Object type must define one or more fields.
 2. The fields of an Object type must have unique names within that Object type;
    no two fields may share the same name.
-3. An object type must be a super-set of all interfaces it implements:
+3. Each field of an Object type must not have a name which begins with the
+   characters {"__"} (two underscores).
+4. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must be of a type which is equal to or a sub-type of
@@ -643,6 +667,8 @@ Interface types have the potential to be invalid if incorrectly defined.
 1. An Interface type must define one or more fields.
 2. The fields of an Interface type must have unique names within that Interface
    type; no two fields may share the same name.
+3. Each field of an Interface type must not have a name which begins with the
+   characters {"__"} (two underscores).
 
 
 ### Unions
@@ -775,14 +801,54 @@ An input object is never a valid result.
 
 **Input Coercion**
 
-The input to an input object should be an unordered map, otherwise an error
-should be thrown. The result of the coercion is an unordered map, with an
-entry for each input field, whose key is the name of the input field.
-The value of an entry in the coerced map is the result of input coercing the
-value of the entry in the input with the same key; if the input does not have a
-corresponding entry, the value is the result of coercing null. The input
-coercion above should be performed according to the input coercion rules of the
+The value for an input object should be an input object literal or an unordered
+map, otherwise an error should be thrown. This unordered map should not contain
+any entries with names not defined by a field of this input object type,
+otherwise an error should be thrown.
+
+If any non-nullable fields defined by the input object do not have corresponding
+entries in the original value, were provided a variable for which a value was
+not provided, or for which the value {null} was provided, an error should
+be thrown.
+
+The result of coercion is an environment-specific unordered map defining slots
+for each field both defined by the input object type and provided by the
+original value.
+
+For each field of the input object type, if the original value has an entry with
+the same name, and the value at that entry is a literal value or a variable
+which was provided a runtime value, an entry is added to the result with the
+name of the field.
+
+The value of that entry in the result is the outcome of input coercing the
+original entry value according to the input coercion rules of the
 type declared by the input field.
+
+Following are examples of Input Object coercion for the type:
+
+```graphql
+input ExampleInputObject {
+  a: String
+  b: Int!
+}
+```
+
+Original Value          | Variables       | Coerced Value
+----------------------- | --------------- | -----------------------------------
+`{ a: "abc", b: 123 }`  | {null}          | `{ a: "abc", b: 123 }`
+`{ a: 123, b: "123" }`  | {null}          | `{ a: "123", b: 123 }`
+`{ a: "abc" }`          | {null}          | Error: Missing required field {b}
+`{ a: "abc", b: null }` | {null}          | Error: {b} must be non-null.
+`{ a: null, b: 1 }`     | {null}          | `{ a: null, b: 1 }`
+`{ b: $var }`           | `{ var: 123 }`  | `{ b: 123 }`
+`{ b: $var }`           | `{}`            | Error: Missing required field {b}.
+`{ b: $var }`           | `{ var: null }` | Error: {b} must be non-null.
+`{ a: $var, b: 1 }`     | `{ var: null }` | `{ a: null, b: 1 }`
+`{ a: $var, b: 1 }`     | `{}`            | `{ b: 1 }`
+
+Note: there is a semantic difference between the input value
+explicitly declaring an input field's value as the value {null} vs having not
+declared the input field at all.
 
 #### Input Object type validation
 
@@ -822,7 +888,7 @@ argument is passed (a common case), the client can just pass that value rather
 than constructing the list.
 
 Note that when a {null} value is provided via a runtime variable value for a
-list type that it is interpretted as no list being provided, and not a list of
+list type, the value is interpreted as no list being provided, and not a list of
 size one with the value {null}.
 
 
@@ -832,9 +898,20 @@ By default, all types in GraphQL are nullable; the {null} value is a valid
 response for all of the above types. To declare a type that disallows null,
 the GraphQL Non-Null type can be used. This type wraps an underlying type,
 and this type acts identically to that wrapped type, with the exception
-that `null` is not a valid response for the wrapping type. A trailing
+that {null} is not a valid response for the wrapping type. A trailing
 exclamation mark is used to denote a field that uses a Non-Null type like this:
 `name: String!`.
+
+**Nullable vs. Optional**
+
+Fields are *always* optional within the context of a query, a field may be
+omitted and the query is still valid. However fields that return Non-Null types
+will never return the value {null} if queried.
+
+Inputs (such as field arguments), are always optional by default. However a
+non-null input type is required. In addition to not accepting the value {null},
+it also does not accept omission. For the sake of simplicity nullable types
+are always optional and non-null types are always required.
 
 **Result Coercion**
 
@@ -846,42 +923,40 @@ must be raised.
 
 **Input Coercion**
 
-If the argument of a Non-Null type is not provided, a query error must
-be raised.
+If an argument or input-object field of a Non-Null type is not provided, is
+provided with the literal value {null}, or is provided with a variable that was
+either not provided a value at runtime, or was provided the value {null}, then
+a query error must be raised.
 
-If an argument of a Non-Null type is provided with a literal value, it is
-coerced using the input coercion for the wrapped type.
+If the value provided to the Non-Null type is provided with a literal value
+other than {null}, or a Non-Null variable value, it is coerced using the input coercion for the wrapped type.
 
-If the argument of a Non-Null is provided with a variable, a query error must be
-raised if the runtime provided value is not provided or is {null} in the
-provided representation (usually JSON). Otherwise, the coerced value is the
-result of using the input coercion for the wrapped type.
-
-Note that `null` is not a value in GraphQL, so a query cannot look like:
+Example: A non-null argument cannot be omitted.
 
 ```!graphql
 {
-  field(arg: null)
+  fieldWithNonNullArg
 }
 ```
 
-to indicate that the argument is {null}. Instead, an argument would be {null}
-only if it is omitted:
+Example: The value {null} cannot be provided to a non-null argument.
 
-```graphql
+```!graphql
 {
-  field
+  fieldWithNonNullArg(nonNullArg: null)
 }
 ```
 
-Or if passed a variable of a nullable type that at runtime was not provided
-a value:
+Example: A variable of a nullable type cannot be provided to a non-null argument.
 
 ```graphql
 query withNullableVariable($var: String) {
-  field(arg: $var)
+  fieldWithNonNullArg(nonNullArg: $var)
 }
 ```
+
+Note: The Validation section defines providing a nullable variable type to
+a non-null input type as invalid.
 
 **Non-Null type validation**
 

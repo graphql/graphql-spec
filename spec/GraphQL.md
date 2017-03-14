@@ -1,7 +1,7 @@
 GraphQL
 -------
 
-*Working Draft - April 2016*
+*Working Draft - October 2016*
 
 **Introduction**
 
@@ -13,7 +13,7 @@ enhancement will continue in future editions of this specification.
 
 **Copyright notice**
 
-Copyright (c) 2015, Facebook, Inc. All rights reserved.
+Copyright (c) 2015-2016, Facebook, Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

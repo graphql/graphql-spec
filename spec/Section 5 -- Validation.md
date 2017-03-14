@@ -89,7 +89,7 @@ type QueryRoot {
 
 #### Operation Name Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For each operation definition {operation} in the document
   * Let {operationName} be the name of {operation}.
@@ -97,7 +97,7 @@ type QueryRoot {
     * Let {operations} be all operation definitions in the document named {operationName}.
     * {operations} must be a set of one.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Each named operation definition must be unique within a document when referred
 to by its name.
@@ -158,14 +158,14 @@ mutation dogOperation {
 
 #### Lone Anonymous Operation
 
-** Formal Specification **
+**Formal Specification**
 
   * Let {operations} be all operation definitions in the document.
   * Let {anonymous} be all anonymous operation definitions in the document.
   * If {operations} is a set of more than 1:
     * {anonymous} must be empty.
 
-** Explanatory Text **
+**Explanatory Text**
 
 GraphQL allows a short-hand form for defining query operations when only that
 one operation exists in the document.
@@ -203,13 +203,13 @@ query getName {
 
 ### Field Selections on Objects, Interfaces, and Unions Types
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {selection} in the document.
   * Let {fieldName} be the target field of {selection}
   * {fieldName} must be defined on type in scope
 
-** Explanatory Text **
+**Explanatory Text**
 
 The target field of a field selection must be defined on the scoped type of the
 selection set. There are no limitations on alias names.
@@ -277,7 +277,7 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 ### Field Selection Merging
 
-** Formal Specification **
+**Formal Specification**
 
   * Let {set} be any selection set defined in the GraphQL document.
   * {FieldsInSetCanMerge(set)} must be true.
@@ -317,7 +317,7 @@ SameResponseShape(fieldA, fieldB) :
   * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
     * {SameResponseShape(subfieldA, subfieldB)} must be true.
 
-** Explanatory Text **
+**Explanatory Text**
 
 If multiple field selections with the same response names are encountered
 during execution, the field and arguments to execute and the resulting value
@@ -432,7 +432,7 @@ fragment conflictingDifferingResponses on Pet {
 
 ### Leaf Field Selections
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {selection} in the document
   * Let {selectionType} be the result type of {selection}
@@ -441,7 +441,7 @@ fragment conflictingDifferingResponses on Pet {
   * If {selectionType} is an interface, union, or object
     * The subselection set of that selection must NOT BE empty
 
-** Explanatory Text **
+**Explanatory Text**
 
 Field selections on scalars are never allowed: scalars
 are the leaf nodes of any GraphQL query.
@@ -503,14 +503,14 @@ rules apply in both cases.
 
 ### Argument Names
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {argument} in the document
   * Let {argumentName} be the Name of {argument}.
   * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
   * {argumentDefinition} must exist.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Every argument provided to a field or directive must be defined in the set of
 possible arguments of that field or directive.
@@ -580,7 +580,7 @@ Fields and directives treat arguments as a mapping of argument name to value.
 More than one argument with the same name in an argument set is ambiguous
 and invalid.
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {argument} in the Document.
   * Let {argumentName} be the Name of {argument}.
@@ -592,7 +592,7 @@ and invalid.
 
 #### Compatible Values
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {argument} in the document
   * Let {value} be the Value of {argument}
@@ -602,7 +602,7 @@ and invalid.
     * Let {type} be the type expected by {argumentDefinition}.
     * The type of {literalArgument} must be coercible to {type}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Literal values must be compatible with the type defined by the argument they are
 being provided to, as per the coercion rules defined in the Type System chapter.
@@ -629,22 +629,26 @@ fragment stringIntoInt on Arguments {
 ```
 
 
-#### Required Arguments
+#### Required Non-Null Arguments
 
   * For each Field or Directive in the document.
   * Let {arguments} be the arguments provided by the Field or Directive.
   * Let {argumentDefinitions} be the set of argument definitions of that Field or Directive.
-  * For each {definition} in {argumentDefinitions}
-    * Let {type} be the expected type of {definition}
-    * If {type} is Non-Null
-      * Let {argumentName} be the name of {definition}
+  * For each {definition} in {argumentDefinitions}:
+    * Let {type} be the expected type of {definition}.
+    * If {type} is Non-Null:
+      * Let {argumentName} be the name of {definition}.
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
+      * Let {value} be the value of {argument}.
+      * {value} must not be the {null} literal.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Arguments can be required. Arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional.
+is non-null. If it is not non-null, the argument is optional. When an argument
+type is non-null, and is required, the explicit value {null} may also not
+be provided.
 
 For example the following are valid:
 
@@ -676,6 +680,13 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
+Providing the explicit value {null} is also not valid.
+
+```!graphql
+fragment missingRequiredArg on Arguments {
+  notNullBooleanArgField(nonNullBooleanArg: null)
+}
+```
 
 ## Fragments
 
@@ -683,14 +694,14 @@ fragment missingRequiredArg on Arguments {
 
 #### Fragment Name Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For each fragment definition {fragment} in the document
   * Let {fragmentName} be the name of {fragment}.
   * Let {fragments} be all fragment definitions in the document named {fragmentName}.
   * {fragments} must be a set of one.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Fragment definitions are referenced in fragment spreads by name. To avoid
 ambiguity, each fragment's name must be unique within a document.
@@ -742,13 +753,13 @@ fragment fragmentOne on Dog {
 
 #### Fragment Spread Type Existence
 
-** Formal Specification **
+**Formal Specification**
 
   * For each named spread {namedSpread} in the document
   * Let {fragment} be the target of {namedSpread}
   * The target type of {fragment} must be defined in the schema
 
-** Explanatory Text **
+**Explanatory Text**
 
 Fragments must be specified on types that exist in the schema. This
 applies for both named and inline fragments. If they are
@@ -791,13 +802,13 @@ fragment inlineNotExistingType on Dog {
 
 #### Fragments On Composite Types
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {fragment} defined in the document.
   * The target type of fragment must have kind {UNION}, {INTERFACE}, or
     {OBJECT}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Fragments can only be declared on unions, interfaces, and objects. They are
 invalid on scalars. They can only be applied on non-leaf fields. This rule
@@ -838,12 +849,12 @@ fragment inlineFragOnScalar on Dog {
 
 #### Fragments Must Be Used
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {fragment} defined in the document.
   * {fragment} must be the target of at least one spread in the document
 
-** Explanatory Text **
+**Explanatory Text**
 
 Defined fragments must be used within a query document.
 
@@ -872,13 +883,13 @@ referenced.
 
 #### Fragment spread target defined
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {namedSpread} in the document.
   * Let {fragment} be the target of {namedSpread}
   * {fragment} must be defined in the document
 
-** Explanatory Text **
+**Explanatory Text**
 
 Named fragment spreads must refer to fragments defined
 within the document.  If the target of a spread is
@@ -895,7 +906,7 @@ not defined, this is an error:
 
 #### Fragment spreads must not form cycles
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {fragmentDefinition} in the document
   * Let {visited} be the empty set.
@@ -909,7 +920,7 @@ not defined, this is an error:
     * Let {nextFragmentDefinition} be the target of {spread}
     * {DetectCycles(nextFragmentDefinition, nextVisited)}
 
-** Explanatory Text **
+**Explanatory Text**
 
 The graph of fragment spreads must not form any cycles including spreading itself.
 Otherwise an operation could infinitely spread or infinitely execute on cycles
@@ -980,7 +991,7 @@ fragment ownerFragment on Dog {
 
 #### Fragment spread is possible
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {spread} (named or inline) defined in the document.
   * Let {fragment} be the target of {spread}
@@ -995,7 +1006,7 @@ GetPossibleTypes(type) :
   * If {type} is an interface type, return the set of types implementing {type}
   * If {type} is a union type, return the set of possible types of {type}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Fragments are declared on a type and will only apply when the
 runtime object type matches the type condition. They also are
@@ -1164,7 +1175,7 @@ and {Sentient}.
 
 ### Input Object Field Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For each input object value {inputObject} in the document.
   * For every {inputField} in {inputObject}
@@ -1172,7 +1183,7 @@ and {Sentient}.
     * Let {fields} be all Input Object Fields named {name} in {inputObject}.
     * {fields} must be the set containing only {inputField}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Input objects must not contain more than one field of the same name, otherwise
 an ambiguity would exist which includes an ignored portion of syntax.
@@ -1191,14 +1202,14 @@ For example the following query will not pass validation.
 
 ### Directives Are Defined
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {directive} in a document.
   * Let {directiveName} be the name of {directive}.
   * Let {directiveDefinition} be the directive named {directiveName}.
   * {directiveDefinition} must exist.
 
-** Explanatory Text **
+**Explanatory Text**
 
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
@@ -1206,7 +1217,7 @@ usage of a directive, the directive must be available on that server.
 
 ### Directives Are In Valid Locations
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {directive} in a document.
   * Let {directiveName} be the name of {directive}.
@@ -1215,7 +1226,7 @@ usage of a directive, the directive must be available on that server.
   * Let {adjacent} be the AST node the directive affects.
   * {adjacent} must be represented by an item within {locations}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 GraphQL servers define what directives they support and where they support them.
 For each usage of a directive, the directive must be used in a location that the
@@ -1231,11 +1242,54 @@ query @skip(if: $foo) {
 ```
 
 
+### Directives Are Unique Per Location
+
+**Formal Specification**
+
+  * For every {location} in the document for which Directives can apply:
+    * Let {directives} be the set of Directives which apply to {location}.
+    * For each {directive} in {directives}:
+      * Let {directiveName} be the name of {directive}.
+      * Let {namedDirectives} be the set of all Directives named {directiveName}
+        in {directives}.
+      * {namedDirectives} must be a set of one.
+
+**Explanatory Text**
+
+Directives are used to describe some metadata or behavioral change on the
+definition they apply to. When more than one directive of the same name is used,
+the expected metadata or behavior becomes ambiguous, therefore only one of each
+directive is allowed per location.
+
+For example, the following query will not pass validation because `@skip` has
+been used twice for the same field:
+
+```!graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) @skip(if: $bar)
+}
+```
+
+However the following example is valid because `@skip` has been used only once
+per location, despite being used twice in the query and on the same named field:
+
+```graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) {
+    subfieldA
+  }
+  field @skip(if: $bar) {
+    subfieldB
+  }
+}
+```
+
+
 ## Variables
 
 ### Variable Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in the document
     * For every {variable} defined on {operation}
@@ -1244,7 +1298,7 @@ query @skip(if: $foo) {
         {operation}
       * {variables} must be a set of one
 
-** Explanatory Text **
+**Explanatory Text**
 
 If any operation defines more than one variable with the same name, it is
 ambiguous and invalid. It is invalid even if the type of the duplicate variable
@@ -1281,7 +1335,7 @@ fragment HouseTrainedFragment {
 
 ### Variable Default Values Are Correctly Typed
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in a document
   * For every {variable} on each {operation}
@@ -1290,7 +1344,7 @@ fragment HouseTrainedFragment {
     * If {variable} has a default value it must be of the same type
       or able to be coerced to {variableType}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variables defined by operations are allowed to define default values
 if the type of that variable is not non-null.
@@ -1345,7 +1399,7 @@ query intToFloatQuery($floatVar: Float = 1) {
 
 ### Variables Are Input Types
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in a {document}
   * For every {variable} on each {operation}
@@ -1354,7 +1408,7 @@ query intToFloatQuery($floatVar: Float = 1) {
       * Let {variableType} be the referenced type of {variableType}
     * {variableType} must be of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variables can only be scalars, enums, input objects, or lists and non-null
 variants of those types. These are known as input types. Objects, unions,
@@ -1414,7 +1468,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 
 ### All Variable Uses Defined
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {operation} in a document
     * For each {variableUsage} in scope, variable must be in {operation}'s variable list.
@@ -1423,7 +1477,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
       * For each {variableUsage} in scope of {fragment}, variable must be in
         {operation}'s variable list.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variables are scoped on a per-operation basis. That means that any variable
 used within the context of an operation must be defined at the top level of that
@@ -1557,7 +1611,7 @@ which is included in that operation.
 
 ### All Variables Used
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in the document.
   * Let {variables} be the variables defined by that {operation}
@@ -1565,7 +1619,7 @@ which is included in that operation.
     the operation scope itself or any fragment transitively referenced by that
     operation.
 
-** Explanatory Text **
+**Explanatory Text**
 
 All variables defined by an operation must be used in that operation or a
 fragment transitively included by that operation. Unused variables cause
@@ -1640,7 +1694,7 @@ an extraneous variable.
 
 ### All Variable Usages are Allowed
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {operation} in {document}
   * Let {variableUsages} be all usages transitively included in the {operation}
@@ -1657,7 +1711,7 @@ an extraneous variable.
     * If any list level of {variableType} is not non-null, and the corresponding level
       in {argument} is non-null, the types are not compatible.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variable usages must be compatible with the arguments they are passed to.
 

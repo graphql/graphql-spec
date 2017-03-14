@@ -63,9 +63,9 @@ would return
 ### Naming conventions
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined types and fields are prefixed with two
+the same context as user-defined types and fields are prefixed with {"__"} two
 underscores. This in order to avoid naming collisions with user-defined GraphQL
-types.  Conversely, GraphQL type system authors must not define any types,
+types. Conversely, GraphQL type system authors must not define any types,
 fields, arguments, or any other type system artifact with two leading
 underscores.
 
@@ -310,7 +310,7 @@ of named input values.
 For example the input object `Point` could be defined as:
 
 ```
-type Point {
+input Point {
   x: Int
   y: Int
 }
@@ -399,6 +399,17 @@ Fields
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 
+### The __EnumValue Type
+
+The `__EnumValue` type represents one of possible values of an enum.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `isDeprecated` returns {true} if this field should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this field is deprecated.
 
 ### The __Directive Type
 

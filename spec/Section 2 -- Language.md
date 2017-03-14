@@ -141,7 +141,7 @@ white space characters are permitted between the characters defining a
 
 ### Punctuators
 
-Punctuator :: one of ! $ ( ) ... : = @ [ ] { }
+Punctuator :: one of ! $ ( ) ... : = @ [ ] { | }
 
 GraphQL documents include punctuation in order to describe structure. GraphQL
 is a data description language and not a programming language, therefore GraphQL
@@ -634,6 +634,7 @@ Value[Const] :
   - FloatValue
   - StringValue
   - BooleanValue
+  - NullValue
   - EnumValue
   - ListValue[?Const]
   - ObjectValue[?Const]
@@ -728,12 +729,54 @@ StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
 StringCharacter :: \u EscapedUnicode
 
-  * Return the character value represented by the UTF16 hexidecimal
-    identifier {EscapedUnicode}.
+  * Return the character whose code unit value in the Unicode Basic Multilingual
+    Plane is the 16-bit hexadecimal value {EscapedUnicode}.
 
 StringCharacter :: \ EscapedCharacter
 
-  * Return the character value of {EscapedCharacter}.
+  * Return the character value of {EscapedCharacter} according to the table below.
+
+| Escaped Character | Code Unit Value | Character Name               |
+| ----------------- | --------------- | ---------------------------- |
+| `"`               | U+0022          | double quote                 |
+| `\`               | U+005C          | reverse solidus (back slash) |
+| `/`               | U+002F          | solidus (forward slash)      |
+| `b`               | U+0008          | backspace                    |
+| `f`               | U+000C          | form feed                    |
+| `n`               | U+000A          | line feed (new line)         |
+| `r`               | U+000D          | carriage return              |
+| `t`               | U+0009          | horizontal tab               |
+
+
+### Null Value
+
+NullValue : `null`
+
+Null values are represented as the keyword {null}.
+
+GraphQL has two semantically different ways to represent the lack of a value:
+
+  * Explicitly providing the literal value: {null}.
+  * Implicitly not providing a value at all.
+
+For example, these two field calls are similar, but are not identical:
+
+```graphql
+{
+  field(arg: null)
+  field
+}
+```
+
+The first has explictly provided {null} to the argument "arg", while the second
+has implicitly not provided a value to the argument "arg". These two forms may
+be interpreted differently. For example, a mutation representing deleting a
+field vs not altering a field, respectively. Neither form may be used for an
+input expecting a Non-Null type.
+
+Note: The same two methods of representing the lack of a value are possible via
+variables by either providing the a variable value as {null} and not providing
+a variable value at all.
 
 
 ### Enum Value
@@ -744,9 +787,6 @@ Enum values are represented as unquoted names (ex. `MOBILE_WEB`). It is
 recommended that Enum values be "all caps". Enum values are only used in
 contexts where the precise enumeration type is known. Therefore it's not
 necessary to supply an enumeration type name in the literal.
-
-An enum value cannot be "null" in order to avoid confusion. GraphQL
-does not supply a value literal to represent the concept {null}.
 
 
 ### List Value
@@ -867,7 +907,7 @@ size `60` width:
 }
 ```
 
-** Variable use within Fragments **
+**Variable use within Fragments**
 
 Query variables can be used within fragments. Query variables have global scope
 with a given operation, so a variable used within a fragment must be declared
