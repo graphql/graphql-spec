@@ -71,13 +71,13 @@ union HumanOrAlien = Human | Alien
 
 ### Field Selections on Objects, Interfaces, and Unions Types
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {selection} in the document.
   * Let {fieldName} be the target field of {selection}
   * {fieldName} must be defined on type in scope
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 field selection 的 target field必须定义在 selection set范围内的type上。对alias name 别名没有任何限制。
 
@@ -160,7 +160,7 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 ### Field Selection Merging
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
 <<<<<<< HEAD:zh-cn/spec/Section 5 -- Validation.md
   * Let {set} be any selection set defined in the GraphQL document
@@ -209,7 +209,7 @@ SameResponseShape(fieldA, fieldB) :
     * {SameResponseShape(subfieldA, subfieldB)} must be true.
 >>>>>>> 6097d7b32c464552bccf116201cf310adb82835c:spec/Section 5 -- Validation.md
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 在校验过程中要对重复的Selection 的名称进行合并和删除，但target field、argument、directive必须完全相同。
 
@@ -363,7 +363,7 @@ fragment conflictingDifferingResponses on Pet {
 >>>>>>> 6097d7b32c464552bccf116201cf310adb82835c:spec/Section 5 -- Validation.md
 ### Leaf Field Selections
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {selection} in the document
   * Let {selectionType} be the result type of {selection}
@@ -372,7 +372,7 @@ fragment conflictingDifferingResponses on Pet {
   * If {selectionType} is an interface, union, or object
     * The subselection set of that selection must NOT BE empty
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 决不允许对 scalar 进行field selection：scalar 是任何 GraphQL query的leaf nodes(叶节点) 。
 
@@ -447,14 +447,14 @@ rules apply in both cases.
 
 ### Argument Names
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {argument} in the document
   * Let {argumentName} be the Name of {argument}.
   * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
   * {argumentDefinition} must exist.
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 一个field 或directive 中出现的 argument 都必须存在于该字段所定义的可能会有的argument 集合之中。
 
@@ -528,7 +528,7 @@ fragment multipleArgsReverseOrder on Arguments {
 
 #### 兼容性问题 Compatible Values
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {argument} in the document
   * Let {value} be the Value of {argument}
@@ -538,7 +538,7 @@ fragment multipleArgsReverseOrder on Arguments {
     * Let {type} be the type expected by {argumentDefinition}.
     * The type of {literalArgument} must be coercible to {type}.
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 
 Literal values must be compatible with the type defined by the argument they are
@@ -565,7 +565,7 @@ fragment stringIntoInt on Arguments {
 }
 ```
 
-#### Required Arguments
+#### Required Non-Null Arguments
 
   * For each Field or Directive in the document.
   * Let {arguments} be the arguments provided by the Field or Directive.
@@ -576,13 +576,17 @@ fragment stringIntoInt on Arguments {
       * Let {argumentName} be the name of {definition}
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
+      * Let {value} be the value of {argument}.
+      * {value} must not be the {null} literal.
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 argument 可以是必须存在的。如果argument的数据类型是非空non-null类型，则该 argument 是必须存在的。如果不是非空类型，则argument 是可选项
 
 Arguments can be required. Arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional.
+is non-null. If it is not non-null, the argument is optional. When an argument
+type is non-null, and is required, the explicit value {null} may also not
+be provided.
 
 如下的例子是合法的：
 
@@ -622,19 +626,29 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
+
+
+Providing the explicit value {null} is also not valid.
+
+```!graphql
+fragment missingRequiredArg on Arguments {
+  notNullBooleanArgField(nonNullBooleanArg: null)
+}
+```
+
 ## Fragments
 
 ### Fragment Declarations
 
 #### Fragment Spread Type Existence
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each named spread {namedSpread} in the document
   * Let {fragment} be the target of {namedSpread}
   * The target type of {fragment} must be defined in the schema
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 只有存在于schema之中的类型才能规定/定义 fragment。对于有名称的和内嵌的fragment同样适用。
 如果schema中没有定义，则无法校验该query。
@@ -677,13 +691,13 @@ fragment inlineNotExistingType on Dog {
 
 #### Fragments On Composite Types
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {fragment} defined in the document.
   * The target type of fragment must have kind {UNION}, {INTERFACE}, or
     {OBJECT}.
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 只能对   unions, interfaces, and objects 定义 fragment。在scalar 中定义是非法的。fragment 只能用于非叶节点字段。这样的规则同样适用于内嵌式和有名称的fragment。
 
@@ -729,12 +743,12 @@ fragment inlineFragOnScalar on Dog {
 
 #### Fragments Must Be Used
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {fragment} defined in the document.
   * {fragment} must be the target of at least one spread in the document
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 定义好了的fragment 必须在 query document中使用。
 
@@ -765,13 +779,13 @@ referenced.
 
 #### Fragment spread target defined
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For every {namedSpread} in the document.
   * Let {fragment} be the target of {namedSpread}
   * {fragment} must be defined in the document
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 有名称的 fragment spreads 必须引用定义在document 中的某个fragment。如果spread的target未定义，就会出现错误：
 
@@ -790,7 +804,7 @@ not defined, this is an error:
 
 #### Fragment spreads must not form cycles
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {fragmentDefinition} in the document
   * Let {visited} be the empty set.
@@ -804,7 +818,7 @@ not defined, this is an error:
     * Let {nextFragmentDefinition} be the target of {spread}
     * {DetectCycles(nextFragmentDefinition, nextVisited)}
 
-** 说明性文字 Explanatory Text **
+**说明性文字 Explanatory Text**
 
 包括spreading自身在内，fragment spreads的graph 必须不能形成任意闭环。否则operation 就回无限spread或者在underlying data上无限制执行该循环。
 
@@ -881,7 +895,7 @@ fragment ownerFragment on Dog {
 
 #### Fragment spread is possible
 
-** 正式规范 Formal Specification **
+**正式规范 Formal Specification**
 
   * For each {spread} (named or inline) in defined in the document.
   * Let {fragment} be the target of {spread}
@@ -896,7 +910,7 @@ GetPossibleTypes(type) :
   * If {type} is an interface type, return the set of types implementing {type}
   * If {type} is a union type, return the set of possible types of {type}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Fragments are declared on a type and will only apply when the
 runtime object type matches the type condition. They also are
@@ -1065,7 +1079,7 @@ and {Sentient}.
 
 ### Input Object Field Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For each input object value {inputObject} in the document.
   * For every {inputField} in {inputObject}
@@ -1073,7 +1087,7 @@ and {Sentient}.
     * Let {fields} be all Input Object Fields named {name} in {inputObject}.
     * {fields} must be the set containing only {inputField}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Input objects must not contain more than one field of the same name, otherwise
 an ambiguity would exist which includes an ignored portion of syntax.
@@ -1092,14 +1106,14 @@ For example the following query will not pass validation.
 
 ### Directives Are Defined
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {directive} in a document.
   * Let {directiveName} be the name of {directive}.
   * Let {directiveDefinition} be the directive named {directiveName}.
   * {directiveDefinition} must exist.
 
-** Explanatory Text **
+**Explanatory Text**
 
 GraphQL servers define what directives they support. For each
 usage of a directive, the directive must be available on that server.
@@ -1111,7 +1125,7 @@ usage of a directive, the directive must be available on that server.
 =======
 ### Directives Are In Valid Locations
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {directive} in a document.
   * Let {directiveName} be the name of {directive}.
@@ -1120,7 +1134,7 @@ usage of a directive, the directive must be available on that server.
   * Let {adjacent} be the AST node the directive affects.
   * {adjacent} must be represented by an item within {locations}.
 
-** Explanatory Text **
+**Explanatory Text**
 
 GraphQL servers define what directives they support and where they support them.
 For each usage of a directive, the directive must be used in a location that the
@@ -1135,12 +1149,55 @@ query @skip(if: $foo) {
 }
 ```
 
+to-do 
+### Directives Are Unique Per Location
+
+**Formal Specification**
+
+  * For every {location} in the document for which Directives can apply:
+    * Let {directives} be the set of Directives which apply to {location}.
+    * For each {directive} in {directives}:
+      * Let {directiveName} be the name of {directive}.
+      * Let {namedDirectives} be the set of all Directives named {directiveName}
+        in {directives}.
+      * {namedDirectives} must be a set of one.
+
+**Explanatory Text**
+
+Directives are used to describe some metadata or behavioral change on the
+definition they apply to. When more than one directive of the same name is used,
+the expected metadata or behavior becomes ambiguous, therefore only one of each
+directive is allowed per location.
+
+For example, the following query will not pass validation because `@skip` has
+been used twice for the same field:
+
+```!graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) @skip(if: $bar)
+}
+```
+
+However the following example is valid because `@skip` has been used only once
+per location, despite being used twice in the query and on the same named field:
+
+```graphql
+query ($foo: Boolean = true, $bar: Boolean = false) {
+  field @skip(if: $foo) {
+    subfieldA
+  }
+  field @skip(if: $bar) {
+    subfieldB
+  }
+}
+```
+
 
 ## Variables
 
 ### Variable Uniqueness
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in the document
     * For every {variable} defined on {operation}
@@ -1149,7 +1206,7 @@ query @skip(if: $foo) {
         {operation}
       * {variables} must be a set of one
 
-** Explanatory Text **
+**Explanatory Text**
 
 If any operation defines more than one variable with the same name, it is
 ambiguous and invalid. It is invalid even if the type of the duplicate variable
@@ -1187,7 +1244,7 @@ fragment HouseTrainedFragment {
 
 #### Variable Default Values Are Correctly Typed
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in a document
   * For every {variable} on each {operation}
@@ -1196,7 +1253,7 @@ fragment HouseTrainedFragment {
     * If {variable} has a default value it must be of the same type
       or able to be coerced to {variableType}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variable defined by operations are allowed to define default values
 if the type of that variable not non-null.
@@ -1250,7 +1307,7 @@ query intToFloatQuery($floatVar: Float = 1) {
 
 #### Variables Are Input Types
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in a {document}
   * For every {variable} on each {operation}
@@ -1259,7 +1316,7 @@ query intToFloatQuery($floatVar: Float = 1) {
       * Let {variableType} be the referenced type of {variableType}
     * {variableType} must be of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variables can only be scalars, enums, input objects, or lists and non-null
 variants of those types. These are known as input types. Objects, unions,
@@ -1303,7 +1360,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 
 #### All Variable Uses Defined
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {operation} in a document
     * For each {variableUsage} in scope, variable must be in {operation}'s variable list.
@@ -1312,7 +1369,7 @@ query takesCatOrDog($catOrDog: CatOrDog) {
       * For each {variableUsage} in scope of {fragment}, variable must be in
         {operation}'s variable list.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variables are scoped on a per-operation basis. That means that any variable
 used within the context of an operation must be defined at the top level of that
@@ -1445,7 +1502,7 @@ which is included in that operation.
 
 #### All Variables Used
 
-** Formal Specification **
+**Formal Specification**
 
   * For every {operation} in the document.
   * Let {variables} be the variables defined by that {operation}
@@ -1453,7 +1510,7 @@ which is included in that operation.
     the operation scope itself or any fragment transitively referenced by that
     operation.
 
-** Explanatory Text **
+**Explanatory Text**
 
 All variables defined by an operation must be used in that operation or a
 fragment transitively included by that operation. Unused variables cause
@@ -1527,7 +1584,7 @@ an extraneous variable.
 
 #### All Variable Usages are Allowed
 
-** Formal Specification **
+**Formal Specification**
 
   * For each {operation} in {document}
   * Let {variableUsages} be all usages transitively included in the {operation}
@@ -1544,7 +1601,7 @@ an extraneous variable.
     * If any list level of {variableType} is not non-null, and the corresponding level
       in {argument} is non-null, the types are not compatible.
 
-** Explanatory Text **
+**Explanatory Text**
 
 Variable usages must be compatible with the arguments they are passed to.
 

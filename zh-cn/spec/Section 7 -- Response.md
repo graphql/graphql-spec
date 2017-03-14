@@ -30,6 +30,12 @@ representations of the following four primitives:
  * List
  * String
  * Null
+     
+
+Serialization formats which can represent an ordered map should preserve the order of requested fields as defined by {CollectFields()} in the Execution section. Serialization formats which can only represent unordered maps should retain this order grammatically (such as JSON).
+
+Producing a response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.
+
 
 序列化格式可能会支持如下的基本类型，但可以使用string来替代这些数据类型：
 * Boolean

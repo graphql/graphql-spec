@@ -1,9 +1,9 @@
 GraphQL
 -------
 
-*草稿版 - 2016年4月*
+*草稿版 - 2016年10月*
 
-*Working Draft - April 2016*
+*Working Draft - October 2016*
 
 **简介**
 
@@ -17,7 +17,7 @@ enhancement will continue in future editions of this specification.
 
 **版权声明**
 
-Copyright (c) 2015, Facebook, Inc. All rights reserved.
+Copyright (c) 2015-2016, Facebook, Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

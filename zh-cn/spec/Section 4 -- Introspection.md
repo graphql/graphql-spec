@@ -70,10 +70,8 @@ GraphQL introspection system 所要求的 Type 和field和用户自定义的type
 type的命名冲突。相反地，GraphQL type system 作者必须不能定义任何type，field，argument，或其他任何有2个下划线的type system artifact。
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined type and fields are prefixed with two
-underscores. This in order to avoid naming collisions with user-defined GraphQL
-types.  Conversely, GraphQL type system authors must not define any types,
-fields, arguments, or any other type system artifact with two leading
+the same context as user-defined types and fields are prefixed with {"__"} two underscores. This in order to avoid naming collisions with user-defined GraphQL
+types. Conversely, GraphQL type system authors must not define any types, fields, arguments, or any other type system artifact with two leading
 underscores.
 
 ### 文档 Documentation
@@ -354,7 +352,7 @@ of named input values.
 For example the input object `Point` could be defined as:
 
 ```
-type Point {
+input Point {
   x: Int
   y: Int
 }
@@ -424,3 +422,62 @@ another List of the second List's type.
 一个Non-Null 类型不能够修饰另外一个 Non-Null 类型。
 
 A Non-Null type cannot modify another Non-Null type.
+
+
+### The __Field Type
+
+The `__Field` type represents each field in an Object or Interface type.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `args` returns a List of `__InputValue` representing the arguments this
+  field accepts.
+* `type` must return a `__Type` that represents the type of value returned by
+  this field.
+* `isDeprecated` returns {true} if this field should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this field is deprecated.
+
+
+### The __InputValue Type
+
+The `__InputValue` type represents field and directive arguments as well as the
+`inputFields` of an input object.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `type` must return a `__Type` that represents the type this input
+  value expects.
+* `defaultValue` may return a String encoding (using the GraphQL language) of the
+  default value used by this input value in the condition a value is not
+  provided at runtime. If this input value has no default value, returns {null}.
+
+### The __EnumValue Type
+
+The `__EnumValue` type represents one of possible values of an enum.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `isDeprecated` returns {true} if this field should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this field is deprecated.
+
+### The __Directive Type
+
+The `__Directive` type represents a Directive that a server supports.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `locations` returns a List of `__DirectiveLocation` representing the valid
+  locations this directive may be placed.
+* `args` returns a List of `__InputValue` representing the arguments this
+  directive accepts.
+

@@ -1,15 +1,31 @@
 # Execution
 
 该部分介绍的是 GraphQL 如何根据request生成 response。
-
-This section describes how GraphQL generates a response from a request.
++GraphQL generates a response from a request via execution.
+ 
++A request for execution consists of a few pieces of information:  
 
 ## Evaluating requests
+
+
+
++* The schema to use, typically solely provided by the GraphQL service.
++* A Document containing GraphQL Operations and Fragments to execute.
++* Optionally: The name of the Operation in the Document to execute.
++* Optionally: Values for any Variables defined by the Operation.
++* An initial value corresponding to the root type being executed.
++  Conceptually, an initial value represents the "universe" of data available via
++  a GraphQL Service. It is common for a GraphQL Service to always use the same
++  initial value for every request.
+ 
+
 
 要评估一个request请求，执行器必须有一个已经解析好的‘Document’(就像该规范“Query Language”部分所定义的)和一个选定的operation
  name来运行是否该document定义了多个operation。
 
-To evaluate a request, the executor must have a parsed `Document` (as defined
+
++Given this information, the result of {ExecuteRequest()} produces the response,
++to be formatted according to the Response section below.
 in the “Query Language” part of this spec) and a selected operation name to
 run if the document defines multiple operations.
 
