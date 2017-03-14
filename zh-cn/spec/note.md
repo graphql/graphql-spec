@@ -8,6 +8,8 @@ type system 保持英文
 Field Selections  保持英文                 
 interfaces 保持英文          
 Fields 保持英文          
+mutation 保持英文         
+operation  方法           
 selection set 保持英文           
 Formal Specification 正式规范          
 Explanatory Text 说明性文字         
