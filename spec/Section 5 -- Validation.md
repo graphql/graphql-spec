@@ -212,7 +212,8 @@ query getName {
 **Explanatory Text**
 
 The target field of a field selection must be defined on the scoped type of the
-selection set. There are no limitations on alias names.
+selection set. Alias names must not begin with {"__"} (two underscores), as they
+can conflict with names used by GraphQL's introspection system.
 
 For example the following fragment would not pass validation:
 
