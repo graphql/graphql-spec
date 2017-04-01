@@ -1,14 +1,24 @@
 # GraphQL
 
-This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
+
+
+该文档是 GraphQL 的 RFC 标准草案，GraphQL 由 Facebook 在2012年提出.，是一种应用层查询语言。
+
+This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.    
+
+该规范的受众不是客户端开发人员，而是那些已经或者对构建自己的 GraphQL 实现和工具有兴趣的人员。 
 
 The target audience for this specification is not the client developer, but those who have,
 or are actively interested in, building their own GraphQL implementations and
 tools.
 
+为了能够大范围应用， GraphQL 将支持多种后端、框架和编程语言，这需要很多项目、组织的通力协作。
+
 In order to be broadly adopted, GraphQL will have to target a wide
 variety of backends, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This specification serves as a point of coordination for this effort.
+
+需要帮助的话，可以在[讨论社区](http://graphql.org/community/)寻找资源。 
 
 Looking for help? Find resources [from the community](http://graphql.org/community/).
 
