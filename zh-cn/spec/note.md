@@ -1,7 +1,6 @@
 # C. Appendix: 编者注         
 
 view hierarchies   视图层次            
-type system  类型体系            
 terminal symbol  终结符           
 literal values 字面值                             
 type system 保持英文            
