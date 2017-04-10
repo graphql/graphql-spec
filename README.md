@@ -75,7 +75,7 @@ type Human {
 ```
 
 Since we're talking about the Star Wars trilogy, it would be useful
-to describe what episodes each character appears in. To do so, we'll
+to describe the episodes in which each character appears. To do so, we'll
 first define an enum, which lists the three episodes in the trilogy:
 
 ```
@@ -111,8 +111,8 @@ and droids both have friends. But humans can be friends with both
 humans and droids. How do we refer to either a human or a droid?
 
 If we look, we note that there's common functionality between
-humans and droids; they both have IDs, names, and episodes
-they appear in. So we'll add an interface, `Character`, and make
+humans and droids; they both have IDs, names, and episodes in which
+they appear. So we'll add an interface, `Character`, and make
 both `Human` and `Droid` implement it. Once we have that, we can
 add the `friends` field, that returns a list of `Character`s.
 
@@ -554,7 +554,7 @@ Since R2-D2 is a droid, this will return
 
 This was particularly useful because `hero` was defined to return a `Character`,
 which is an interface; we might want to know what concrete type was actually
-returned. If we instead asked for the hero of episode V:
+returned. If we instead asked for the hero of Episode V:
 
 ```
 query CheckTypeOfLuke {
