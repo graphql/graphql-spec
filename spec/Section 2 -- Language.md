@@ -973,7 +973,7 @@ including or skipping a field. Directives provide this by describing additional 
 Directives have a name along with a list of arguments which may accept values
 of any input type.
 
-Directives can be used to describe additional information for fields, fragments,
+Directives can be used to describe additional information for types, fields, fragments
 and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
