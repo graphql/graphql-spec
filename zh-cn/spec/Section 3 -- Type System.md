@@ -910,7 +910,7 @@ to interfaces and unions, neither of which is appropriate for use as an
 input argument.  For this reason, input objects have a separate type in the
 system.
 
-`Input Object` 中定义了 input field 的集合；这些 input field 要么是 scalar、enum或其他input object。这样子 argument就可以使用任意的复杂结构。
+`Input Object` 中定义了 input field 的集合；这些 input field 要么是 scalar、enum 或其他 input object。这样子 argument 就可以使用任意的复杂结构。
 
 An `Input Object` defines a set of input fields; the input fields are either
 scalars, enums, or other input objects. This allows arguments to accept
@@ -918,7 +918,7 @@ arbitrarily complex structs.
 
 **Result Coercion**
 
-input object 不可能是有效的result。
+`Input Object` 不可能是有效的 result。
 
 An input object is never a valid result.
 

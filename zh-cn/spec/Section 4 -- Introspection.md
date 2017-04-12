@@ -76,15 +76,15 @@ underscores.
 
 ### 文档 Documentation
 
-在 introspection system 中的所有type 提供了一个type是‘String’叫‘description’的字段，type的设计人员可以发布一些除了功能之外的文档。GraphQL 
-服务器在返回的‘description’字段值中可能会使用Markdown语法.因此推荐任何想要展示description信息的工具使用Markdown 渲染器。
+在 introspection system 中的所有type 提供了一个 type 是‘String’叫‘description’的字段，type的设计人员可以发布一些除了功能之外的文档。GraphQL 
+服务器在返回的‘description’字段值中可能会使用 Markdown 语法(as specified by [CommonMark](http://commonmark.org/)).因此推荐任何想要展示description信息的工具使用 CommonMark-compliant 的 Markdown 渲染器。
 
 All types in the introspection system provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
 capabilities. A GraphQL server may return the `description` field using Markdown
-syntax. Therefore it is recommended that any tool that displays description
-use a Markdown renderer.
-
+syntax (as specified by [CommonMark](http://commonmark.org/)). Therefore it is
+recommended that any tool that displays `description` use a CommonMark-compliant
+Markdown renderer.
 ### Deprecation
 
 为了支持对向后兼容性的管理，GraphQL 字段和enum 值可以表示它们是否已废弃(`isDeprecated: Boolean`)，以及为何被废弃的原因描述 (`deprecationReason: String`).

@@ -1172,9 +1172,11 @@ Directives是有名称的以及可接受任意input type值的参数列表。
 Directives have a name along with a list of arguments which may accept values
 of any input type.
 
-Directive 可以为 field、fragment 和 operation 描述额外信息。
+Directive 可以为types、
 
-Directives can be used to describe additional information for fields, fragments,
+ field、fragment 和 operation 描述额外信息。
+
+Directives can be used to describe additional information for types, fields, fragments
 and operations.
 
 随着 GraphQL 的后续版本应用新的可配置的执行功能，可能会通过 directive 来暴露。
