@@ -539,7 +539,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    no two fields may share the same name.
 3. Each field of an Object type must not have a name which begins with the
    characters {"__"} (two underscores).
-4. An object type must be a super-set of all interfaces it implements:
+4. An object type may declare that it implements one or more unique interfaces.
+5. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must be of a type which is equal to or a sub-type of
