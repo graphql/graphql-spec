@@ -169,7 +169,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
-Note: {responseMap} is ordered by which fields appear first in the query. This
+Note: {resultMap} is ordered by which fields appear first in the query. This
 is explained in greater detail in the Field Collection section below.
 
 
