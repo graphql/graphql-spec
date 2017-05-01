@@ -35,7 +35,7 @@ In the case of subscriptions and live queries, the addition of server-side state
 
 **Proposed Solution: GraphQL Subscriptions**
 
-In "GraphQL Subscriptions", clients send the server a GraphQL query and query variables. The server maps these inputs to a set events, and executes the query when the events trigger. This model avoids overpushing/underpushing but requires a GraphQL backend. GraphQL Subscriptions provides an abstraction over individual events and exposes an API where the client subscribes to a query. Compared with existing data-transform pipeline techniques, GraphQL Subscriptions produces privacy-aware, right-sized payloads without pushing business logic to the event/messaging layer.
+With "GraphQL Subscriptions", clients send the server a GraphQL query and query variables. The server maps these inputs to a set events, and executes the query when the events trigger. This model avoids overpushing/underpushing but requires a GraphQL backend. GraphQL Subscriptions provides an abstraction over business-domain events and exposes an API where the client subscribes to a query. Compared with existing data-transform pipeline techniques, GraphQL Subscriptions produces privacy-aware, right-sized payloads without pushing business logic to the event/messaging layer.
 
 At Facebook, we believe GraphQL Subscriptions exhibits a set of useful tradeoffs and warrants definition and inclusion in the GraphQL specification. By specifying GraphQL Subscriptions, we hope to achieve the following goals:
 
@@ -51,7 +51,14 @@ At Facebook, we believe GraphQL Subscriptions exhibits a set of useful tradeoffs
 
 We'll try to define the irreducible components of a GraphQL Subscriptions system below:
 
-* **Subscriptions System:** a component that manages the lifetime of Subscription objects. Each individual subscription executes a query in response to one or more events. Subscriptions are created by specifying a query and optional query variables. These inputs are then mapped to a set of events. Whenever one of these events fires, the subscription executes the query, variables, and event data and invokes the specified callback function with the response.
+* **Bi-directional communication:** the client initializes the establishment of bi-direction communication channel with the server. Once initialized, either the client or server can send data across the channel or close it.
+
+* **Subscriptions System:** a component with the following responsibilities:
+    * **Subscribe:** handle incoming subscription operations sent by clients.
+    * **Parse:** parse, validate, and store queries, variables, and context send by clients (aka subscribers).
+    * **Map:** for valid subscription operations, map the combination of root field and query variables to an event stream. The event stream is deterministic with respect to the root field and query variables: if the two subscriptions with identical queries and variables are created at the same time, they will map to identical event streams.
+    * **Execute:** whenever any event from the mapped event stream triggers, the stored GraphQL query is executed, using the combination of saved variables, context, and event payload as input.
+    * **Publish:** The execution result from above is published to the originating subscriber.
 
 * **Events**: any “interesting thing” the system cares about. Events contain optional data to describe what happened. For example, a “new email” event might include the ID of the new email. The combination of query, query variables, and event data is executed to create a GraphQL response in the shape that the client expects.
 
@@ -61,7 +68,7 @@ We'll try to define the irreducible components of a GraphQL Subscriptions system
 
 The lifetime of a subscription looks like this:
 
-* **Subscribe:** the Client initializes a subscription by sending a query and its variables to the server.  When the Subscription is created, the input query and variables are mapped to a set of events to which the Subscription listens. The server _may_ send an initial response from executing the subscription operation. 
+* **Subscribe:** the Client initializes a subscription by sending a query and its variables to the server.  When the Subscription is created, the input query and variables are mapped to a set of events to which the Subscription listens. The server _may_ send an initial response from executing the subscription operation.
 
 * **Publish:** when any of the events associated with the subscription are triggered, the subscription executes the query, variables, and payload and sends the result to the client.
 
