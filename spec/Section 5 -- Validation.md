@@ -210,7 +210,7 @@ query getName {
 
 **Explanatory Text**
 
-Subscription operation must have exactly one root field.
+Subscription operations must have exactly one root field.
 
 Valid examples:
 
