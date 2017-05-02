@@ -154,7 +154,8 @@ the following capabilities:
   * **must** support observation of the associated publish stream (for example,
   via iteration, callbacks, or reactive semantics).
   * **must** support cancellation of the subscription (aka unsubscribe).
-  * **must** support a unique mapping to the subscriber (for example, a unique Id).
+  * **must** support a way to identify the subscriber/subscription pair (for
+    example, a GUID/callback table or closure over the callback).
   * **may** include an initial response associated with executing the selection
   set defined on the subscription operation.
 
@@ -182,11 +183,16 @@ Publish(subscription, schema, variableValues, payload, publishStream)
       {publishStream}.
 
 ### Unsubscribe
+The unsubscribe operation can be implemented in a number of ways. For example,
+by using a dedicated subscription manager, defining it as a method on the
+subscription object, or cancelling the iterator.
+
 Unsubscribe()
 
   * Let {publishStream} be a mapping of {null}
+  * Terminate and clean up {eventStream}
 
-### Recommendations and Considerations for supporting Subscriptions
+### Recommendations and Considerations for Supporting Subscriptions
 Supporting subscriptions is a large change for any GraphQL server. Query and
 mutation operations are stateless, allowing scaling via cloning GraphQL server
 instances. Subscriptions, by contrast, are stateful. The pieces of state for a
@@ -202,10 +208,11 @@ We recommend thinking about the behavior of your system when this state is lost
 due to single-node failures. We can improve durability and availability by using
 dedicated sub-systems to manage this state. For example, event streams can be
 built using modern pub-sub systems, and client channels can be handled with a
-dedicate client gateway.
+dedicated client gateway.
 
-Rather than mixing stateful and stateless systems, we recommend keeping the
-GraphQL server stateless and delegating all state persistence these sub-systems.
+Rather than mixing stateless (queries and mutations) and stateful
+(subscriptions), we recommend keeping the GraphQL server stateless and
+delegating all state persistence these sub-systems.
 
 ## Executing Selection Sets
 
