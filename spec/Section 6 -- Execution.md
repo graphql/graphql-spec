@@ -143,6 +143,76 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
+If the operation is a subscription, the result of the operation is a subscription
+object that supports these two operations:
+
+  * observation of the event stream, for example via iteration, callbacks, or
+    observables.
+  * unsubscribe, which halts the event stream.
+
+Unlike queries and mutations, subscriptions have a lifetime that consists of three
+phases. Between the the subscribe and unsubscribe phases, the subscription is
+considered to be in the "active" state.
+
+### Subscribe
+The result of executing a subscription operation is a subscription object with
+the following capabilities:
+
+  * **must** support observation of the associated publish stream (for example,
+  via iteration, callbacks, or reactive semantics).
+  * **must** support cancellation of the subscription (aka unsubscribe).
+  * **must** support a unique mapping to the subscriber (for example, a unique Id).
+  * **may** include an initial response associated with executing the selection
+  set defined on the subscription operation.
+
+Subscribe(subscription, schema, variableValues, initialValue):
+
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
+  * Let {rootField} be the first top level field in {selectionSet}.
+  * Let {eventStream} be a domain-specific transform of {rootField, variableValues}
+  * Let {publishStream} be a mapping of {eventStream} where each {event} is
+    mapped via Publish().
+
+### Publish
+Publish(subscription, schema, variableValues, payload, publishStream)
+
+  * For each {event, payload} in {eventStream}
+    * Let {data} be the result of running
+      {ExecuteSelectionSet(selectionSet, subscriptionType, payload, variableValues)}
+      *normally* (allowing parallelization).
+    * Let {errors} be any *field errors* produced while executing the
+      selection set.
+    * If {errors} is not empty, optionally terminate the subscription.
+    * Yield an unordered map containing {data} and, optionally, {errors} on
+      {publishStream}.
+
+### Unsubscribe
+Unsubscribe()
+
+  * Let {publishStream} be a mapping of {null}
+
+### Recommendations and Considerations for supporting Subscriptions
+Supporting subscriptions is a large change for any GraphQL server. Query and
+mutation operations are stateless, allowing scaling via cloning GraphQL server
+instances. Subscriptions, by contrast, are stateful. The pieces of state for a
+subscription are:
+
+  * Subscriber/client channel
+  * Subscription document
+  * Variables
+  * Execution context (for example, current logged in user, locale, etc.)
+  * Event stream resulting from Subscribe step (above)
+
+We recommend thinking about the behavior of your system when this state is lost
+due to single-node failures. We can improve durability and availability by using
+dedicated sub-systems to manage this state. For example, event streams can be
+built using modern pub-sub systems, and client channels can be handled with a
+dedicate client gateway.
+
+Rather than mixing stateful and stateless systems, we recommend keeping the
+GraphQL server stateless and delegating all state persistence these sub-systems.
 
 ## Executing Selection Sets
 
