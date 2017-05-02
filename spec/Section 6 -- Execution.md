@@ -143,13 +143,6 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
-If the operation is a subscription, the result of the operation is a subscription
-object that supports these two operations:
-
-  * observation of the event stream, for example via iteration, callbacks, or
-    observables.
-  * unsubscribe, which halts the event stream.
-
 Unlike queries and mutations, subscriptions have a lifetime that consists of three
 phases. Between the the subscribe and unsubscribe phases, the subscription is
 considered to be in the "active" state.
