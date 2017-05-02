@@ -166,15 +166,19 @@ Subscribe(subscription, schema, variableValues, initialValue):
   * Assert: {subscriptionType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {rootField} be the first top level field in {selectionSet}.
-  * Let {eventStream} be a domain-specific transform of {rootField, variableValues}
+  * Let {eventStream} be the result of running {MapSubscriptionEvents(rootField, variableValues)}.
   * Let {publishStream} be a mapping of {eventStream} where each {event} is
     mapped via Publish().
+
+MapSubscriptionEvents(rootField, variableValues):
+
+  * *Application-specific logic to map from root field/variables to events*
 
 ### Publish
 
 Publish(subscription, schema, variableValues, payload, publishStream)
 
-  * For each {event, payload} in {eventStream}
+  * For each {eventStream} as {event} and {payload}:
     * Let {data} be the result of running
       {ExecuteSelectionSet(selectionSet, subscriptionType, payload, variableValues)}
       *normally* (allowing parallelization).
