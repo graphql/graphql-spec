@@ -205,7 +205,7 @@ query getName {
 **Formal Specification**
 
   * For each subscription operation definition {subscription} in the document
-  * Let {rootFields} be the first level of fields on the operation's selection set.
+  * Let {rootFields} be the top level selection set on {subscription}.
     * {rootFields} must be a set of one.
 
 **Explanatory Text**
