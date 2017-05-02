@@ -148,6 +148,7 @@ phases. Between the the subscribe and unsubscribe phases, the subscription is
 considered to be in the "active" state.
 
 ### Subscribe
+
 The result of executing a subscription operation is a subscription object with
 the following capabilities:
 
@@ -170,6 +171,7 @@ Subscribe(subscription, schema, variableValues, initialValue):
     mapped via Publish().
 
 ### Publish
+
 Publish(subscription, schema, variableValues, payload, publishStream)
 
   * For each {event, payload} in {eventStream}
@@ -183,6 +185,7 @@ Publish(subscription, schema, variableValues, payload, publishStream)
       {publishStream}.
 
 ### Unsubscribe
+
 The unsubscribe operation can be implemented in a number of ways. For example,
 by using a dedicated subscription manager, defining it as a method on the
 subscription object, or cancelling the iterator.
@@ -193,6 +196,7 @@ Unsubscribe()
   * Terminate and clean up {eventStream}
 
 ### Recommendations and Considerations for Supporting Subscriptions
+
 Supporting subscriptions is a large change for any GraphQL server. Query and
 mutation operations are stateless, allowing scaling via cloning GraphQL server
 instances. Subscriptions, by contrast, are stateful. The pieces of state for a
