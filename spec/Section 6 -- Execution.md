@@ -161,10 +161,18 @@ the following capabilities:
   * **Must** support observation of the associated publish stream (for example,
   via iteration, callbacks, or reactive semantics).
   * **Must** support cancellation of the subscription, see {Unsubscribe}.
-  * **Must** support a way to identify the subscriber/subscription pair (for
-    example, a GUID/callback table or closure over the callback).
+  * **Must** support a way to send data to the subscriber.
   * **May** include an initial response associated with executing the selection
   set defined on the subscription operation.
+
+Most subscriptions can only be evaluated when event data is available. For
+example, a subscription tells us when users log on and off would require event
+data that tells us *who* logged on or off. Without this event data, the
+subscription cannot be evaluated. However, it is possible to define
+subscriptions that can be evaluated without event data (for example, the current
+time on the server, synthetically triggered every second). Subscriptions that do
+not require event data for evaluation can optionally return an initial response
+to the Subscribe() operation.
 
 Subscribe(schema, subscription, operationName, variableValues, initialValue):
 
@@ -185,9 +193,9 @@ Once a subscription is active, we listen for events on its event stream. Each
 event carries an optional payload, which we combine with the arguments from
 Subscribe() to resolve the selection set.
 
-  * For each {event} and {payload} on {eventStream}:
+  * For each {event} and {eventData} on {eventStream}:
     * Let {data} be the result of running
-      {ExecuteSelectionSet(selectionSet, subscriptionType, payload, variableValues)}
+      {ExecuteSelectionSet(selectionSet, subscriptionType, eventData, variableValues)}
       *normally* (allowing parallelization).
     * Let {errors} be any *field errors* produced while executing the
       selection set.
