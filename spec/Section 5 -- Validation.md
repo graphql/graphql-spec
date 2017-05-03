@@ -244,13 +244,11 @@ subscription sub {
     body
     sender
   }
-  # a second root field will cause this operation to fail validation
-  alarms {
-    name
-    snoozeCount
-  }
+  disallowedSecondRootField
 }
 ```
+
+Introspection fields are counted. The following example is also invalid:
 
 ```!graphql
 subscription sub {
@@ -258,7 +256,6 @@ subscription sub {
     body
     sender
   }
-  # this also applies to introspection fields
   __typename
 }
 ```

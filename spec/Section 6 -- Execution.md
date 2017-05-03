@@ -103,8 +103,10 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the “Type System” section of the spec, must
-provide a query root object type. If mutations are supported, it must also
-provide a mutation root object type.
+provide a query root object type. If mutations/subscriptions are supported, it must also
+provide a mutation/subscription root object type, respectively.
+
+### Query
 
 If the operation is a query, the result of the operation is the result of
 executing the query’s top level selection set with the query root object type.
@@ -122,6 +124,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
   * Let {errors} be any *field errors* produced while executing the
     selection set.
   * Return an unordered map containing {data} and {errors}.
+
+### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
 executing the mutation’s top level selection set on the mutation root
@@ -143,52 +147,56 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
+### Subscription
+
 Unlike queries and mutations, subscriptions have a lifetime that consists of three
 phases. Between the the subscribe and unsubscribe phases, the subscription is
 considered to be in the "active" state.
 
-### Subscribe
+#### Subscribe
 
 The result of executing a subscription operation is a subscription object with
 the following capabilities:
 
-  * **must** support observation of the associated publish stream (for example,
+  * **Must** support observation of the associated publish stream (for example,
   via iteration, callbacks, or reactive semantics).
-  * **must** support cancellation of the subscription (aka unsubscribe).
-  * **must** support a way to identify the subscriber/subscription pair (for
+  * **Must** support cancellation of the subscription, see {Unsubscribe}.
+  * **Must** support a way to identify the subscriber/subscription pair (for
     example, a GUID/callback table or closure over the callback).
-  * **may** include an initial response associated with executing the selection
+  * **May** include an initial response associated with executing the selection
   set defined on the subscription operation.
 
-Subscribe(subscription, schema, variableValues, initialValue):
+Subscribe(schema, subscription, operationName, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {rootField} be the first top level field in {selectionSet}.
   * Let {eventStream} be the result of running {MapSubscriptionEvents(rootField, variableValues)}.
-  * Let {publishStream} be a mapping of {eventStream} where each {event} is
-    mapped via Publish().
+  * Optionally: let {data} be the result of running {ExecuteRequest(schema, document, operationName, variableValues, initialValue)}, and return {data} on the subscription object.
 
 MapSubscriptionEvents(rootField, variableValues):
 
   * *Application-specific logic to map from root field/variables to events*
 
-### Publish
+#### Publish
 
-Publish(subscription, schema, variableValues, payload, publishStream)
+Once a subscription is active, we listen for events on its event stream. Each
+event carries an optional payload, which we combine with the arguments from
+Subscribe() to resolve the selection set.
 
-  * For each {eventStream} as {event} and {payload}:
+  * For each {event} and {payload} on {eventStream}:
     * Let {data} be the result of running
       {ExecuteSelectionSet(selectionSet, subscriptionType, payload, variableValues)}
       *normally* (allowing parallelization).
     * Let {errors} be any *field errors* produced while executing the
       selection set.
-    * If {errors} is not empty, optionally terminate the subscription.
+    * If {errors} is not empty, optionally, Unsubscribe() the subscription.
     * Yield an unordered map containing {data} and, optionally, {errors} on
       {publishStream}.
+  * Let {publishStream} be the sequence of outputs yielded above.
 
-### Unsubscribe
+#### Unsubscribe
 
 The unsubscribe operation can be implemented in a number of ways. For example,
 by using a dedicated subscription manager, defining it as a method on the
@@ -196,10 +204,10 @@ subscription object, or cancelling the iterator.
 
 Unsubscribe()
 
-  * Let {publishStream} be a mapping of {null}
+  * Terminate {publishStream} (For example, cancel iteration, detach mapping function)
   * Terminate and clean up {eventStream}
 
-### Recommendations and Considerations for Supporting Subscriptions
+#### Recommendations and Considerations for Supporting Subscriptions
 
 Supporting subscriptions is a large change for any GraphQL server. Query and
 mutation operations are stateless, allowing scaling via cloning GraphQL server
@@ -209,7 +217,7 @@ subscription are:
   * Subscriber/client channel
   * Subscription document
   * Variables
-  * Execution context (for example, current logged in user, locale, etc.)
+  * Execution context (for example, current logged-in user, locale, etc.)
   * Event stream resulting from Subscribe step (above)
 
 We recommend thinking about the behavior of your system when this state is lost
@@ -220,7 +228,7 @@ dedicated client gateway.
 
 Rather than mixing stateless (queries and mutations) and stateful
 (subscriptions), we recommend keeping the GraphQL server stateless and
-delegating all state persistence these sub-systems.
+delegating all state persistence to these sub-systems.
 
 ## Executing Selection Sets
 
