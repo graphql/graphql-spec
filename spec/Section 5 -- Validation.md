@@ -645,10 +645,9 @@ fragment stringIntoInt on Arguments {
 
 **Explanatory Text**
 
-Arguments can be required. Arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional. When an argument
-type is non-null, and is required, the explicit value {null} may also not
-be provided.
+Arguments can be required. If the argument type is non-null the argument is
+required and furthermore the explicit value {null} may not be provided.
+Otherwise, the argument is optional.
 
 For example the following are valid:
 
