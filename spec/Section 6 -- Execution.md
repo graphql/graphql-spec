@@ -103,8 +103,7 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the “Type System” section of the spec, must
-provide a query root object type. If mutations/subscriptions are supported, it must also
-provide a mutation/subscription root object type, respectively.
+provide a query root object type. If mutations or subscriptions are supported, it must also provide a mutation and subscription root object type, respectively.
 
 ### Query
 
@@ -149,9 +148,9 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 ### Subscription
 
-Unlike queries and mutations, subscriptions have a lifetime that consists of three
-phases. Between the the subscribe and unsubscribe phases, the subscription is
-considered to be in the "active" state.
+If the operation is a subscription, the result of the operation is the creation
+of a persistent object on the server that exists for the lifetime of the
+subscription.
 
 #### Subscribe
 
@@ -160,7 +159,7 @@ the following capabilities:
 
   * **Must** support observation of the associated publish stream (for example,
   via iteration, callbacks, or reactive semantics).
-  * **Must** support cancellation of the subscription, see {Unsubscribe}.
+  * **Must** support cancellation of the observation, see {Unsubscribe}.
   * **Must** support a way to send data to the subscriber.
   * **May** include an initial response associated with executing the selection
   set defined on the subscription operation.
@@ -189,7 +188,7 @@ MapSubscriptionEvents(rootField, variableValues):
 
 #### Publish
 
-Once a subscription is active, we listen for events on its event stream. Each
+Once a subscription is created, we listen for events on its event stream. Each
 event carries an optional payload, which we combine with the arguments from
 Subscribe() to resolve the selection set.
 
@@ -215,6 +214,35 @@ Unsubscribe()
   * Terminate {publishStream} (For example, cancel iteration, detach mapping function)
   * Terminate and clean up {eventStream}
 
+#### Example
+
+As an example, consider a chat application. To subscribe to new messages posted
+to the chat room, the client sends a request like so:
+
+```graphql
+subscription NewMessages {
+  newMessage(roomId: 123) {
+    sender
+    text
+  }
+}
+```
+
+While the client is subscribe, whenever new messages are posted to chat room
+with ```ID 123```, the selection for ```sender``` and ```text``` will be
+evaluated and published to the client, for example:
+
+```js
+{
+  "data": {
+    "newMessage": {
+      "sender": "Hagrid",
+      "text": "You're a wizard!"
+    }
+  }
+}
+```
+
 #### Recommendations and Considerations for Supporting Subscriptions
 
 Supporting subscriptions is a large change for any GraphQL server. Query and
@@ -231,12 +259,14 @@ subscription are:
 We recommend thinking about the behavior of your system when this state is lost
 due to single-node failures. We can improve durability and availability by using
 dedicated sub-systems to manage this state. For example, event streams can be
-built using modern pub-sub systems, and client channels can be handled with a
-dedicated client gateway.
+built using modern pub-sub systems, and payload delivery to clients can be
+handled by a dedicated client gateway tier.
 
-Rather than mixing stateless (queries and mutations) and stateful
-(subscriptions), we recommend keeping the GraphQL server stateless and
-delegating all state persistence to these sub-systems.
+For systems with high capacity, availability, and durability requirements, we
+recommend keeping the GraphQL server stateless and delegating all state
+persistence to sub-systems that are designed for stateful scaling. Note that
+subscription types are still defined in the original schema along with queries 
+and mutations.
 
 ## Executing Selection Sets
 
