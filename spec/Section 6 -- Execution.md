@@ -229,8 +229,8 @@ subscription NewMessages {
 ```
 
 While the client is subscribe, whenever new messages are posted to chat room
-with ```ID 123```, the selection for ```sender``` and ```text``` will be
-evaluated and published to the client, for example:
+with ID "123", the selection for "sender" and "text" will be evaluated and
+published to the client, for example:
 
 ```js
 {
@@ -265,7 +265,7 @@ handled by a dedicated client gateway tier.
 For systems with high capacity, availability, and durability requirements, we
 recommend keeping the GraphQL server stateless and delegating all state
 persistence to sub-systems that are designed for stateful scaling. Note that
-subscription types are still defined in the original schema along with queries 
+subscription types are still defined in the original schema along with queries
 and mutations.
 
 ## Executing Selection Sets
