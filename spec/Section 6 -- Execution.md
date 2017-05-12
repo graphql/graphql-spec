@@ -148,30 +148,19 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 ### Subscription
 
-If the operation is a subscription, the result of the operation is the creation
-of a persistent object on the server that exists for the lifetime of the
-subscription.
+We define an event stream as a sequence of discrete events over time that can be
+observed. An observer of an event stream may cancel observation to avoid stop
+future events.
+
+If the operation is a subscription, the result is an event stream called the
+"Publish Stream" where each event in the stream is called a "Publish Payload".
 
 #### Subscribe
 
-The result of executing a subscription operation is a subscription object with
-the following capabilities:
-
-  * **Must** support observation of the associated publish stream (for example,
-  via iteration, callbacks, or reactive semantics).
-  * **Must** support cancellation of the observation, see {Unsubscribe}.
-  * **Must** support a way to send data to the subscriber.
-  * **May** include an initial response associated with executing the selection
-  set defined on the subscription operation.
-
-Most subscriptions can only be evaluated when event data is available. For
-example, a subscription tells us when users log on and off would require event
-data that tells us *who* logged on or off. Without this event data, the
-subscription cannot be evaluated. However, it is possible to define
-subscriptions that can be evaluated without event data (for example, the current
-time on the server, synthetically triggered every second). Subscriptions that do
-not require event data for evaluation can optionally return an initial response
-to the Subscribe() operation.
+Executing a subscription creates a persistent function on the server that
+maps an underlying event stream to the Publish Stream. The logic to create the
+underlying event stream is domain-specific and takes the root field and query
+variables as inputs.
 
 Subscribe(schema, subscription, operationName, variableValues, initialValue):
 
@@ -179,40 +168,44 @@ Subscribe(schema, subscription, operationName, variableValues, initialValue):
   * Assert: {subscriptionType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {rootField} be the first top level field in {selectionSet}.
-  * Let {eventStream} be the result of running {MapSubscriptionEvents(rootField, variableValues)}.
-  * Optionally: let {data} be the result of running {ExecuteRequest(schema, document, operationName, variableValues, initialValue)}, and return {data} on the subscription object.
+  * Let {eventStream} be the result of running {CreateUnderlyingEventStream(rootField, variableValues)}.
+  * Let {publishStream} be the result of running {MapEventToPayload(eventStream)}
 
-MapSubscriptionEvents(rootField, variableValues):
+CreateUnderlyingEventStream(rootField, variableValues):
 
   * *Application-specific logic to map from root field/variables to events*
 
-#### Publish
+#### Publish Stream
 
-Once a subscription is created, we listen for events on its event stream. Each
-event carries an optional payload, which we combine with the arguments from
-Subscribe() to resolve the selection set.
+Each event in the underlying event stream triggers execution of the subscription
+selection set.
 
-  * For each {event} and {eventData} on {eventStream}:
-    * Let {data} be the result of running
-      {ExecuteSelectionSet(selectionSet, subscriptionType, eventData, variableValues)}
+MapEventToPayload(eventStream):
+
+  * For each {event} on {eventStream}:
+    * Let {publishPayload} be the result of running
+      {ExecuteSelectionSet(selectionSet, subscriptionType, event, variableValues)}
       *normally* (allowing parallelization).
     * Let {errors} be any *field errors* produced while executing the
       selection set.
-    * If {errors} is not empty, optionally, Unsubscribe() the subscription.
-    * Yield an unordered map containing {data} and, optionally, {errors} on
-      {publishStream}.
-  * Let {publishStream} be the sequence of outputs yielded above.
+    * Yield an unordered map containing {publishPayload} and, optionally,
+      {errors} on {publishStream}.
+  * At any time while the publish stream is active, the client or server may
+  Unsubscribe().
+
+Common reasons for Unsubscribe() include:
+  * client no longer wants to receive payloads for a subscription.
+  * The underlying event stream has produced an error or has naturally ended.
 
 #### Unsubscribe
 
-The unsubscribe operation can be implemented in a number of ways. For example,
-by using a dedicated subscription manager, defining it as a method on the
-subscription object, or cancelling the iterator.
+Unsubscribe cancels the Publish Stream. This is also a good opportunity for the
+server to clean up the underlying event stream and any other resources used by
+the subscription.
 
 Unsubscribe()
 
-  * Terminate {publishStream} (For example, cancel iteration, detach mapping function)
-  * Terminate and clean up {eventStream}
+  * Cancel {publishStream}
 
 #### Example
 
