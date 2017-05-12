@@ -177,6 +177,13 @@ The response might look like:
 
 ```js
 {
+  "errors": [
+    {
+      "message": "Name for character with ID 1002 could not be fetched.",
+      "locations": [ { "line": 6, "column": 7 } ],
+      "path": [ "hero", "heroFriends", 1, "name" ]
+    }
+  ],
   "data": {
     "hero": {
       "name": "R2-D2",
@@ -195,14 +202,7 @@ The response might look like:
         }
       ]
     }
-  },
-  "errors": [
-    {
-      "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
-    }
-  ]
+  }
 }
 ```
 
