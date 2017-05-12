@@ -125,13 +125,14 @@ error is a map.
 If no errors were encountered during the requested operation, the `errors`
 entry should not be present in the result.
 
-If the `data` entry in the response is `null` or not present, the `errors`
+If the `data` entry in the response is not present, the `errors`
 entry in the response must not be empty. It must contain at least one error.
 The errors it contains should indicate why no data was able to be returned.
 
-If the `data` entry in the response is not `null`, the `errors` entry in the
-response may contain any errors that occurred during execution. If errors
-occurred during execution, it should contain those errors.
+If the `data` entry in the response is present (including if it is the value 
+{null}), the `errors` entry in the response may contain any errors that 
+occurred during execution. If errors occurred during execution, it should 
+contain those errors.
 
 **Error result format**
 
