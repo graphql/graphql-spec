@@ -169,23 +169,21 @@ which are no longer necessary.
 #### Subscribe
 
 Executing a subscription creates a persistent function on the server that
-maps an underlying event stream to the Publish Stream. The logic to create the
-underlying event stream is application-specific and takes the root field and
-query variables as inputs.
+maps an underlying Source stream to the Publish Stream. The logic to create the
+Source stream is application-specific and takes the root field and query
+variables as inputs.
 
-Subscribe(schema, subscription, operationName, variableValues, initialValue):
+Subscribe(subscription, schema, variableValues, initialValue):
+
+  * Let {sourceStream} be the result of running {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
+  * Let {responseStream} be the result of running {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
+  * Return {responseStream}.
+
+CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {subscription}.
-  * Let {sourceStream} be the result of running {CreateSourceEventStream(schema, subscription, selectionSet, variableValues, initialValue)}.
-  * Let {responseStream} be the result of running
-    {MapSourceToResponseEvent(sourceStream)}
-  * Return {responseStream}.
-
-CreateSourceEventStream(schema, subscriptionType, selectionSet, variableValues,
-  initialValue):
-
   * Let {rootField} be the first top level field in {selectionSet}.
   * Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType, rootField, variableValues)}.
   * Let {fieldStream} be the result of running {ResolveFieldEventStream(subscriptionType, initialValue, rootField, argumentValues)}.
@@ -201,31 +199,38 @@ ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
 Each event in the underlying event stream triggers execution of the subscription
 selection set.
 
-MapSourceToResponseEvent(sourceStream, subscriptionType, selectionSet, variableValues):
+MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
-  * Return a new event stream {publishStream} which yields events as follows:
+  * Return a new event stream {responseStream} which yields events as follows:
   * For each {event} on {sourceStream}:
-    * Let {publishPayload} be the result of running
-      {ExecuteSelectionSet(selectionSet, subscriptionType, event, variableValues)}
-      *normally* (allowing parallelization).
-    * Let {errors} be any *field errors* produced while executing the
-      selection set.
-    * Let {response} be an unordered map containing {publishPayload} and, optionally,
-      {errors}.
+    * Let {response} be the result of running
+      {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
     * Yield an event containing {response}.
 
-Note: in large scale subscription systems, ExecuteSelectionSet and Subscribe
-algorithm may be run on separate services to maintain predictable scaling
-properties. See the section below on Supporting Subscriptions at Scale.
+ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
+
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
+  * Let {data} be the result of running
+    {ExecuteSelectionSet(selectionSet, subscriptionType, initialValue, variableValues)}
+    *normally* (allowing parallelization).
+  * Let {errors} be any *field errors* produced while executing the
+    selection set.
+  * Return an unordered map containing {data} and {errors}.
+
+Note: in large scale subscription systems, the {ExecuteSubscriptionEvent} and
+{Subscribe} algorithms may be run on separate services to maintain predictable
+scaling properties. See the section below on Supporting Subscriptions at Scale.
 
 #### Unsubscribe
 
-Unsubscribe cancels the Publish Stream. This is also a good opportunity for the
+Unsubscribe cancels the Response Stream. This is also a good opportunity for the
 server to clean up the underlying event stream and any other resources used by
 the subscription. Here are some example cases in which to Unsubscribe: client
 no longer wishes to receive payloads for a subscription; the source event stream
 produced an error or naturally ended; the server encountered an error during
-ExecuteSelectionSet.
+ExecuteSubscriptionEvent.
 
 Unsubscribe()
 
