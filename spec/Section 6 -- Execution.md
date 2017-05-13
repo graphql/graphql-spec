@@ -103,7 +103,8 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the “Type System” section of the spec, must
-provide a query root object type. If mutations or subscriptions are supported, it must also provide a mutation and subscription root object type, respectively.
+provide a query root object type. If mutations or subscriptions are supported,
+it must also provide a mutation and subscription root object type, respectively.
 
 ### Query
 
@@ -148,64 +149,87 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 ### Subscription
 
-We define an event stream as a sequence of discrete events over time that can be
-observed. An observer of an event stream may cancel observation to avoid stop
-future events.
-
 If the operation is a subscription, the result is an event stream called the
-"Publish Stream" where each event in the stream is called a "Publish Payload".
+"Response Stream" where each event in the event stream is the result of
+executing the operation for each new event on an underlying "Source Stream".
+
+An event stream represents a sequence of discrete events over time which can be
+observed. As an example, a "Pub-Sub" system may produce an event stream when
+"subscribing to a topic", with an event occurring on that event stream for each
+"publish" to that topic. Event streams may produce an infinite sequence of
+events or may complete at any point. Event streams may complete in response to
+an error or simply because no more events will occur. An observer may at any
+point decide to stop observing an event stream, after which it must receive no
+more events from that event stream.
+
+Note: If an event stream's observer has stopped observing, that may be a good
+opportunity to clean up any associated resources such as closing any connections
+which are no longer necessary.
 
 #### Subscribe
 
 Executing a subscription creates a persistent function on the server that
 maps an underlying event stream to the Publish Stream. The logic to create the
-underlying event stream is domain-specific and takes the root field and query
-variables as inputs.
+underlying event stream is application-specific and takes the root field and
+query variables as inputs.
 
 Subscribe(schema, subscription, operationName, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
   * Let {selectionSet} be the top level Selection Set in {subscription}.
+  * Let {sourceStream} be the result of running {CreateSourceEventStream(schema, subscription, selectionSet, variableValues, initialValue)}.
+  * Let {responseStream} be the result of running
+    {MapSourceToResponseEvent(sourceStream)}
+  * Return {responseStream}.
+
+CreateSourceEventStream(schema, subscriptionType, selectionSet, variableValues,
+  initialValue):
+
   * Let {rootField} be the first top level field in {selectionSet}.
-  * Let {eventStream} be the result of running {CreateUnderlyingEventStream(rootField, variableValues)}.
-  * Let {publishStream} be the result of running {MapEventToPayload(eventStream)}
+  * Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType, rootField, variableValues)}.
+  * Let {fieldStream} be the result of running {ResolveFieldEventStream(subscriptionType, initialValue, rootField, argumentValues)}.
+  * Return {fieldStream}.
 
-CreateUnderlyingEventStream(rootField, variableValues):
-
-  * *Application-specific logic to map from root field/variables to events*
+ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
+  * Let {resolver} be the internal function provided by {subscriptionType} for
+    determining the resolved value of a field named {fieldName}.
+  * Return the result of calling {resolver}, providing {rootValue} and {argumentValues}.
 
 #### Publish Stream
 
 Each event in the underlying event stream triggers execution of the subscription
 selection set.
 
-MapEventToPayload(eventStream):
+MapSourceToResponseEvent(sourceStream, subscriptionType, selectionSet, variableValues):
 
-  * For each {event} on {eventStream}:
+  * Return a new event stream {publishStream} which yields events as follows:
+  * For each {event} on {sourceStream}:
     * Let {publishPayload} be the result of running
       {ExecuteSelectionSet(selectionSet, subscriptionType, event, variableValues)}
       *normally* (allowing parallelization).
     * Let {errors} be any *field errors* produced while executing the
       selection set.
-    * Yield an unordered map containing {publishPayload} and, optionally,
-      {errors} on {publishStream}.
-  * At any time while the publish stream is active, the client or server may
-  Unsubscribe().
+    * Let {response} be an unordered map containing {publishPayload} and, optionally,
+      {errors}.
+    * Yield an event containing {response}.
 
-Common reasons for Unsubscribe() include:
-  * client no longer wants to receive payloads for a subscription.
-  * The underlying event stream has produced an error or has naturally ended.
+Note: in large scale subscription systems, ExecuteSelectionSet and Subscribe
+algorithm may be run on separate services to maintain predictable scaling
+properties. See the section below on Supporting Subscriptions at Scale.
 
 #### Unsubscribe
 
 Unsubscribe cancels the Publish Stream. This is also a good opportunity for the
 server to clean up the underlying event stream and any other resources used by
-the subscription.
+the subscription. Here are some example cases in which to Unsubscribe: client
+no longer wishes to receive payloads for a subscription; the source event stream
+produced an error or naturally ended; the server encountered an error during
+ExecuteSelectionSet.
 
 Unsubscribe()
 
-  * Cancel {publishStream}
+  * Cancel {responseStream}
 
 #### Example
 
@@ -236,30 +260,18 @@ published to the client, for example:
 }
 ```
 
-#### Recommendations and Considerations for Supporting Subscriptions
+#### Supporting Subscriptions at Scale
 
-Supporting subscriptions is a large change for any GraphQL server. Query and
-mutation operations are stateless, allowing scaling via cloning GraphQL server
-instances. Subscriptions, by contrast, are stateful. The pieces of state for a
-subscription are:
+Supporting subscriptions is a significant change for any GraphQL server. Query
+and mutation operations are stateless, allowing scaling via cloning GraphQL
+server instances. Subscriptions, by contrast, are stateful and require
+maintaining the GraphQL document, variables, and other context over the lifetime
+of the subscription.
 
-  * Subscriber/client channel
-  * Subscription document
-  * Variables
-  * Execution context (for example, current logged-in user, locale, etc.)
-  * Event stream resulting from Subscribe step (above)
-
-We recommend thinking about the behavior of your system when this state is lost
-due to single-node failures. We can improve durability and availability by using
-dedicated sub-systems to manage this state. For example, event streams can be
-built using modern pub-sub systems, and payload delivery to clients can be
-handled by a dedicated client gateway tier.
-
-For systems with high capacity, availability, and durability requirements, we
-recommend keeping the GraphQL server stateless and delegating all state
-persistence to sub-systems that are designed for stateful scaling. Note that
-subscription types are still defined in the original schema along with queries
-and mutations.
+Consider the behavior of your system when state is lost due to the failure of a
+single machine in a service. Durability and availability may be improved by
+having separate dedicated services for managing subscription state and client
+connectivity.
 
 ## Executing Selection Sets
 
