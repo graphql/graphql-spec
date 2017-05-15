@@ -34,12 +34,18 @@ ExecuteRequest(schema, document, operationName, variableValues, initialValue):
     * Return {ExecuteQuery(operation, schema, coercedVariableValues, initialValue)}.
   * Otherwise if {operation} is a mutation operation:
     * Return {ExecuteMutation(operation, schema, coercedVariableValues, initialValue)}.
+  * Otherwise if {operation} is a subscription operation:
+    * Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
 
 GetOperation(document, operationName):
 
   * If {operationName} is {null}:
     * If {document} contains exactly one operation.
-      * Return the Operation contained in the {document}.
+      * Let {operation} be the Operation contained in the {document}.
+      * If {operation} is a subscription operation:
+        * If {operation} contains more than one root field, produce a query error.
+        * Return {operation}.
+      * Otherwise return {operation}.
     * Otherwise produce a query error requiring {operationName}.
   * Otherwise:
     * Let {operation} be the Operation named {operationName} in {document}.
@@ -162,14 +168,53 @@ an error or simply because no more events will occur. An observer may at any
 point decide to stop observing an event stream, after which it must receive no
 more events from that event stream.
 
-Note: If an event stream's observer has stopped observing, that may be a good
-opportunity to clean up any associated resources such as closing any connections
-which are no longer necessary.
+As an example, consider a chat application. To subscribe to new messages posted
+to the chat room, the client sends a request like so:
+
+```graphql
+subscription NewMessages {
+  newMessage(roomId: 123) {
+    sender
+    text
+  }
+}
+```
+
+While the client is subscribed, whenever new messages are posted to chat room
+with ID "123", the selection for "sender" and "text" will be evaluated and
+published to the client, for example:
+
+```js
+{
+  "data": {
+    "newMessage": {
+      "sender": "Hagrid",
+      "text": "You're a wizard!"
+    }
+  }
+}
+```
+
+The "new message posted to chat room" could use a "Pub-Sub" system where the
+chat room ID is the "topic" and each "publish" contains the sender and text.
+
+**Supporting Subscriptions at Scale**
+
+Supporting subscriptions is a significant change for any GraphQL server. Query
+and mutation operations are stateless, allowing scaling via cloning of GraphQL
+server instances. Subscriptions, by contrast, are stateful and require
+maintaining the GraphQL document, variables, and other context over the lifetime
+of the subscription.
+
+Consider the behavior of your system when state is lost due to the failure of a
+single machine in a service. Durability and availability may be improved by
+having separate dedicated services for managing subscription state and client
+connectivity.
 
 #### Subscribe
 
 Executing a subscription creates a persistent function on the server that
-maps an underlying Source stream to the Publish Stream. The logic to create the
+maps an underlying Source stream to the Response Stream. The logic to create the
 Source stream is application-specific and takes the root field and query
 variables as inputs.
 
@@ -194,7 +239,10 @@ ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
     determining the resolved value of a field named {fieldName}.
   * Return the result of calling {resolver}, providing {rootValue} and {argumentValues}.
 
-#### Publish Stream
+Note: this algorithm is intentionally similar to {ResolveFieldValue} to enable
+consistency when defining resolvers on any operation type.
+
+#### Response Stream
 
 Each event in the underlying event stream triggers execution of the subscription
 selection set.
@@ -221,7 +269,9 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 Note: in large scale subscription systems, the {ExecuteSubscriptionEvent} and
 {Subscribe} algorithms may be run on separate services to maintain predictable
-scaling properties. See the section below on Supporting Subscriptions at Scale.
+scaling properties. See the section above on Supporting Subscriptions at Scale.
+This algorithm is intentionally similar to {ExecuteQuery} since this is where
+the subscription's selection set is executed.
 
 #### Unsubscribe
 
@@ -230,53 +280,11 @@ server to clean up the underlying event stream and any other resources used by
 the subscription. Here are some example cases in which to Unsubscribe: client
 no longer wishes to receive payloads for a subscription; the source event stream
 produced an error or naturally ended; the server encountered an error during
-ExecuteSubscriptionEvent.
+{ExecuteSubscriptionEvent}.
 
 Unsubscribe()
 
   * Cancel {responseStream}
-
-#### Example
-
-As an example, consider a chat application. To subscribe to new messages posted
-to the chat room, the client sends a request like so:
-
-```graphql
-subscription NewMessages {
-  newMessage(roomId: 123) {
-    sender
-    text
-  }
-}
-```
-
-While the client is subscribe, whenever new messages are posted to chat room
-with ID "123", the selection for "sender" and "text" will be evaluated and
-published to the client, for example:
-
-```js
-{
-  "data": {
-    "newMessage": {
-      "sender": "Hagrid",
-      "text": "You're a wizard!"
-    }
-  }
-}
-```
-
-#### Supporting Subscriptions at Scale
-
-Supporting subscriptions is a significant change for any GraphQL server. Query
-and mutation operations are stateless, allowing scaling via cloning GraphQL
-server instances. Subscriptions, by contrast, are stateful and require
-maintaining the GraphQL document, variables, and other context over the lifetime
-of the subscription.
-
-Consider the behavior of your system when state is lost due to the failure of a
-single machine in a service. Durability and availability may be improved by
-having separate dedicated services for managing subscription state and client
-connectivity.
 
 ## Executing Selection Sets
 
