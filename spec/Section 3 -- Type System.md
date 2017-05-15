@@ -12,8 +12,8 @@ A given GraphQL schema must itself be internally valid. This section describes
 the rules for this validation process where relevant.
 
 A GraphQL schema is represented by a root type for each kind of operation:
-query and mutation; this determines the place in the type system where those
-operations begin.
+query, mutation, and subscription; this determines the place in the type system
+where those operations begin.
 
 All types within a GraphQL schema must have unique names. No two provided types
 may have the same name. No provided type may have a name which conflicts with
@@ -1013,12 +1013,14 @@ must *not* be queried if either the `@skip` condition is true *or* the
 
 ## Initial types
 
-A GraphQL schema includes types, indicating where query and mutation
-operations start. This provides the initial entry points into the
+A GraphQL schema includes types, indicating where query, mutation, and
+subscription operations start. This provides the initial entry points into the
 type system. The query type must always be provided, and is an Object
 base type. The mutation type is optional; if it is null, that means
 the system does not support mutations. If it is provided, it must
-be an object base type.
+be an object base type. Similarly, the subscription type is optional; if it is
+null, the system does not support subscriptions. If it is provided, it must be
+an object base type.
 
 The fields on the query type indicate what fields are available at
 the top level of a GraphQL query. For example, a basic GraphQL query
@@ -1043,3 +1045,14 @@ mutation setName {
 
 Is valid when the type provided for the mutation starting type is not null,
 and has a field named "setName" with a string argument named "name".
+
+```graphql
+subscription {
+  newMessage {
+    text
+  }
+}
+```
+
+Is valid when the type provided for the subscription starting type is not null,
+and has a field named "newMessage" and only contains a single root field. 

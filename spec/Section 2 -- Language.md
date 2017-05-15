@@ -2,7 +2,7 @@
 
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
-operations (queries and mutations are both operations) as well as fragments, a
+operations (queries, mutations, and subscriptions) as well as fragments, a
 common unit of composition allowing for query reuse.
 
 A GraphQL document is defined as a syntactic grammar where terminal symbols are
@@ -193,12 +193,14 @@ OperationDefinition :
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
   - SelectionSet
 
-OperationType : one of `query` `mutation`
+OperationType : one of `query` `mutation` `subscription`
 
-There are two types of operations that GraphQL models:
+There are three types of operations that GraphQL models:
 
   * query - a read-only fetch.
   * mutation - a write followed by a fetch.
+  * subscription - a long-lived request that returns data whenever a domain
+    event triggers.
 
 Each operation is represented by an optional operation name and a selection set.
 
