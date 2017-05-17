@@ -155,14 +155,27 @@ If the operation is a subscription, the result is an event stream called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
+Executing a subscription creates a persistent function on the server that
+maps an underlying Source Stream to a returned Response Stream.
+
+Subscribe(subscription, schema, variableValues, initialValue):
+
+  * Let {sourceStream} be the result of running {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
+  * Let {responseStream} be the result of running {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
+  * Return {responseStream}.
+
+Note: In large scale subscription systems, the {Subscribe} and {ExecuteSubscriptionEvent} 
+algorithms may be run on separate services to maintain predictable scaling 
+properties. See the section below on Supporting Subscriptions at Scale.
+
 An event stream represents a sequence of discrete events over time which can be
 observed. As an example, a "Pub-Sub" system may produce an event stream when
 "subscribing to a topic", with an event occurring on that event stream for each
 "publish" to that topic. Event streams may produce an infinite sequence of
 events or may complete at any point. Event streams may complete in response to
 an error or simply because no more events will occur. An observer may at any
-point decide to stop observing an event stream, after which it must receive no
-more events from that event stream.
+point decide to stop observing an event stream by cancelling it, after which it 
+must receive no more events from that event stream.
 
 As an example, consider a chat application. To subscribe to new messages posted
 to the chat room, the client sends a request like so:
@@ -207,18 +220,11 @@ single machine in a service. Durability and availability may be improved by
 having separate dedicated services for managing subscription state and client
 connectivity.
 
-#### Subscribe
+#### Source Stream
 
-Executing a subscription creates a persistent function on the server that
-maps an underlying Source stream to the Response Stream. The logic to create the
-Source stream is application-specific and takes the root field and query
-variables as inputs.
-
-Subscribe(subscription, schema, variableValues, initialValue):
-
-  * Let {sourceStream} be the result of running {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
-  * Let {responseStream} be the result of running {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
-  * Return {responseStream}.
+A Source Stream represents the sequence of events, each of which will 
+trigger a GraphQL execution corresponding to that event. Like field value
+resolution, the logic to create a Source Stream is application-specific.
 
 CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
@@ -232,16 +238,17 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
 ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
   * Let {resolver} be the internal function provided by {subscriptionType} for
-    determining the resolved value of a field named {fieldName}.
+    determining the resolved event stream of a subscription field named {fieldName}.
   * Return the result of calling {resolver}, providing {rootValue} and {argumentValues}.
 
-Note: this algorithm is intentionally similar to {ResolveFieldValue} to enable
-consistency when defining resolvers on any operation type.
+Note: This {ResolveFieldEventStream} algorithm is intentionally similar 
+to {ResolveFieldValue} to enable consistency when defining resolvers 
+on any operation type.
 
 #### Response Stream
 
-Each event in the underlying event stream triggers execution of the subscription
-selection set.
+Each event in the underlying Source Stream triggers execution of the subscription
+selection set using that event as a root value.
 
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
@@ -250,6 +257,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
     * Let {response} be the result of running
       {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
     * Yield an event containing {response}.
+  * When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
@@ -263,22 +271,17 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
-Note: in large scale subscription systems, the {ExecuteSubscriptionEvent} and
-{Subscribe} algorithms may be run on separate services to maintain predictable
-scaling properties. See the section above on Supporting Subscriptions at Scale.
-This algorithm is intentionally similar to {ExecuteQuery} since this is where
-the subscription's selection set is executed.
+Note: The {ExecuteSubscriptionEvent} algorithm is intentionally similar to 
+{ExecuteQuery} since this is how the each event result is produced.
 
 #### Unsubscribe
 
-Unsubscribe cancels the Response Stream. This is also a good opportunity for the
-server to clean up the underlying event stream and any other resources used by
-the subscription. Here are some example cases in which to Unsubscribe: client
-no longer wishes to receive payloads for a subscription; the source event stream
-produced an error or naturally ended; the server encountered an error during
-{ExecuteSubscriptionEvent}.
+Unsubscribe cancels the Response Stream when a client no longer wishes to receive 
+payloads for a subscription. This may in turn also cancel the Source Stream.
+This is also a good opportunity to clean up any other resources used by
+the subscription.
 
-Unsubscribe()
+Unsubscribe(responseStream)
 
   * Cancel {responseStream}
 
