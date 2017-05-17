@@ -168,6 +168,8 @@ Note: In large scale subscription systems, the {Subscribe} and {ExecuteSubscript
 algorithms may be run on separate services to maintain predictable scaling 
 properties. See the section below on Supporting Subscriptions at Scale.
 
+**Event Streams**
+
 An event stream represents a sequence of discrete events over time which can be
 observed. As an example, a "Pub-Sub" system may produce an event stream when
 "subscribing to a topic", with an event occurring on that event stream for each
