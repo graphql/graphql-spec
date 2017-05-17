@@ -164,20 +164,10 @@ Subscribe(subscription, schema, variableValues, initialValue):
   * Let {responseStream} be the result of running {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
   * Return {responseStream}.
 
-Note: In large scale subscription systems, the {Subscribe} and {ExecuteSubscriptionEvent} 
-algorithms may be run on separate services to maintain predictable scaling 
-properties. See the section below on Supporting Subscriptions at Scale.
-
-**Event Streams**
-
-An event stream represents a sequence of discrete events over time which can be
-observed. As an example, a "Pub-Sub" system may produce an event stream when
-"subscribing to a topic", with an event occurring on that event stream for each
-"publish" to that topic. Event streams may produce an infinite sequence of
-events or may complete at any point. Event streams may complete in response to
-an error or simply because no more events will occur. An observer may at any
-point decide to stop observing an event stream by cancelling it, after which it 
-must receive no more events from that event stream.
+Note: In large scale subscription systems, the {Subscribe()} and
+{ExecuteSubscriptionEvent()} algorithms may be run on separate services to
+maintain predictable scaling properties. See the section below on Supporting
+Subscriptions at Scale.
 
 As an example, consider a chat application. To subscribe to new messages posted
 to the chat room, the client sends a request like so:
@@ -209,6 +199,17 @@ published to the client, for example:
 The "new message posted to chat room" could use a "Pub-Sub" system where the
 chat room ID is the "topic" and each "publish" contains the sender and text.
 
+**Event Streams**
+
+An event stream represents a sequence of discrete events over time which can be
+observed. As an example, a "Pub-Sub" system may produce an event stream when
+"subscribing to a topic", with an event occurring on that event stream for each
+"publish" to that topic. Event streams may produce an infinite sequence of
+events or may complete at any point. Event streams may complete in response to
+an error or simply because no more events will occur. An observer may at any
+point decide to stop observing an event stream by cancelling it, after which it
+must receive no more events from that event stream.
+
 **Supporting Subscriptions at Scale**
 
 Supporting subscriptions is a significant change for any GraphQL server. Query
@@ -224,7 +225,7 @@ connectivity.
 
 #### Source Stream
 
-A Source Stream represents the sequence of events, each of which will 
+A Source Stream represents the sequence of events, each of which will
 trigger a GraphQL execution corresponding to that event. Like field value
 resolution, the logic to create a Source Stream is application-specific.
 
@@ -243,8 +244,8 @@ ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
     determining the resolved event stream of a subscription field named {fieldName}.
   * Return the result of calling {resolver}, providing {rootValue} and {argumentValues}.
 
-Note: This {ResolveFieldEventStream} algorithm is intentionally similar 
-to {ResolveFieldValue} to enable consistency when defining resolvers 
+Note: This {ResolveFieldEventStream()} algorithm is intentionally similar
+to {ResolveFieldValue()} to enable consistency when defining resolvers
 on any operation type.
 
 #### Response Stream
@@ -273,12 +274,12 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
-Note: The {ExecuteSubscriptionEvent} algorithm is intentionally similar to 
-{ExecuteQuery} since this is how the each event result is produced.
+Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
+{ExecuteQuery()} since this is how the each event result is produced.
 
 #### Unsubscribe
 
-Unsubscribe cancels the Response Stream when a client no longer wishes to receive 
+Unsubscribe cancels the Response Stream when a client no longer wishes to receive
 payloads for a subscription. This may in turn also cancel the Source Stream.
 This is also a good opportunity to clean up any other resources used by
 the subscription.
