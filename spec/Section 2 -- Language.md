@@ -166,9 +166,9 @@ characters to support interoperation with as many other systems as possible.
 
 ## Query Document
 
-Document : Definition+
+Document :: Definition+
 
-Definition :
+Definition ::
   - OperationDefinition
   - FragmentDefinition
 
@@ -189,11 +189,11 @@ be executed must also be provided.
 
 ## Operations
 
-OperationDefinition :
+OperationDefinition ::
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
   - SelectionSet
 
-OperationType : one of `query` `mutation`
+OperationType :: one of `query` `mutation`
 
 There are two types of operations that GraphQL models:
 
@@ -234,9 +234,9 @@ Note: many examples below will use the query short-hand syntax.
 
 ## Selection Sets
 
-SelectionSet : { Selection+ }
+SelectionSet :: { Selection+ }
 
-Selection :
+Selection ::
   - Field
   - FragmentSpread
   - InlineFragment
@@ -259,7 +259,7 @@ set. Selection sets may also contain fragment references.
 
 ## Fields
 
-Field : Alias? Name Arguments? Directives? SelectionSet?
+Field :: Alias? Name Arguments? Directives? SelectionSet?
 
 A selection set is primarily composed of fields. A field describes one discrete
 piece of information available to request within a selection set.
@@ -316,9 +316,9 @@ unique identifier.
 
 ## Arguments
 
-Arguments : ( Argument+ )
+Arguments :: ( Argument+ )
 
-Argument : Name : Value
+Argument :: Name : Value
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
@@ -371,7 +371,7 @@ These two queries are semantically identical:
 
 ## Field Alias
 
-Alias : Name :
+Alias :: Name :
 
 By default, the key in the response object will use the field name
 queried. However, you can define a different name by specifying an alias.
@@ -431,11 +431,11 @@ otherwise the field's name.
 
 ## Fragments
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread :: ... FragmentName Directives?
 
 FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
 
-FragmentName : Name but not `on`
+FragmentName :: Name but not `on`
 
 Fragments are the primary unit of composition in GraphQL.
 
@@ -522,7 +522,7 @@ produce the same response object.
 
 ### Type Conditions
 
-TypeCondition : on NamedType
+TypeCondition :: on NamedType
 
 Fragments must specify the type they apply to. In this example, `friendFields`
 can be used in the context of querying a `User`.
@@ -582,7 +582,7 @@ will be present and `friends` will not.
 
 ### Inline Fragments
 
-InlineFragment : ... TypeCondition? Directives? SelectionSet
+InlineFragment :: ... TypeCondition? Directives? SelectionSet
 
 Fragments can be defined inline within a selection set. This is done to
 conditionally include fields based on their runtime type. This feature of
@@ -628,7 +628,7 @@ query inlineFragmentNoType($expandedInfo: Boolean) {
 
 ## Input Values
 
-Value[Const] :
+Value[Const] ::
   - [~Const] Variable
   - IntValue
   - FloatValue
@@ -684,7 +684,7 @@ A Float number includes either a decimal point (ex. `1.0`) or an exponent
 
 ### Boolean Value
 
-BooleanValue : one of `true` `false`
+BooleanValue :: one of `true` `false`
 
 The two keywords `true` and `false` represent the two boolean values.
 
@@ -716,25 +716,25 @@ sequences must be used to represent these characters.
 
 StringValue :: `""`
 
-  * Return an empty Unicode character sequence.
+  + Return an empty Unicode character sequence.
 
 StringValue :: `"` StringCharacter+ `"`
 
-  * Return the Unicode character sequence of all {StringCharacter}
+  + Return the Unicode character sequence of all {StringCharacter}
     Unicode character values.
 
 StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
-  * Return the character value of {SourceCharacter}.
+  + Return the character value of {SourceCharacter}.
 
 StringCharacter :: \u EscapedUnicode
 
-  * Return the character whose code unit value in the Unicode Basic Multilingual
+  + Return the character whose code unit value in the Unicode Basic Multilingual
     Plane is the 16-bit hexadecimal value {EscapedUnicode}.
 
 StringCharacter :: \ EscapedCharacter
 
-  * Return the character value of {EscapedCharacter} according to the table below.
+  + Return the character value of {EscapedCharacter} according to the table below.
 
 | Escaped Character | Code Unit Value | Character Name               |
 | ----------------- | --------------- | ---------------------------- |
@@ -750,7 +750,7 @@ StringCharacter :: \ EscapedCharacter
 
 ### Null Value
 
-NullValue : `null`
+NullValue :: `null`
 
 Null values are represented as the keyword {null}.
 
@@ -781,7 +781,7 @@ a variable value at all.
 
 ### Enum Value
 
-EnumValue : Name but not `true`, `false` or `null`
+EnumValue :: Name but not `true`, `false` or `null`
 
 Enum values are represented as unquoted names (ex. `MOBILE_WEB`). It is
 recommended that Enum values be "all caps". Enum values are only used in
@@ -791,7 +791,7 @@ necessary to supply an enumeration type name in the literal.
 
 ### List Value
 
-ListValue[Const] :
+ListValue[Const] ::
   - [ ]
   - [ Value[?Const]+ ]
 
@@ -803,11 +803,11 @@ commas do not represent missing values.
 
 **Semantics**
 
-ListValue : [ ]
+ListValue :: [ ]
 
   * Return a new empty list value.
 
-ListValue : [ Value+ ]
+ListValue :: [ Value+ ]
 
   * Let {inputList} be a new empty list value.
   * For each {Value+}
@@ -818,7 +818,7 @@ ListValue : [ Value+ ]
 
 ### Input Object Values
 
-ObjectValue[Const] :
+ObjectValue[Const] ::
   - { }
   - { ObjectField[?Const]+ }
 
@@ -850,11 +850,11 @@ These two queries are semantically identical:
 
 **Semantics**
 
-ObjectValue : { }
+ObjectValue :: { }
 
   * Return a new input object value with no fields.
 
-ObjectValue : { ObjectField+ }
+ObjectValue :: { ObjectField+ }
 
   * Let {inputObject} be a new input object value with no fields.
   * For each {field} in {ObjectField+}
@@ -866,13 +866,13 @@ ObjectValue : { ObjectField+ }
 
 ## Variables
 
-Variable : $ Name
+Variable :: $ Name
 
-VariableDefinitions : ( VariableDefinition+ )
+VariableDefinitions :: ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue?
+VariableDefinition :: Variable : Type DefaultValue?
 
-DefaultValue : = Value[Const]
+DefaultValue :: = Value[Const]
 
 A GraphQL query can be parameterized with variables, maximizing query reuse,
 and avoiding costly string building in clients at runtime.
@@ -918,16 +918,16 @@ not define that variable, the operation cannot be executed.
 
 ## Input Types
 
-Type :
+Type ::
   - NamedType
   - ListType
   - NonNullType
 
-NamedType : Name
+NamedType :: Name
 
-ListType : [ Type ]
+ListType :: [ Type ]
 
-NonNullType :
+NonNullType ::
   - NamedType !
   - ListType !
 
@@ -937,20 +937,20 @@ input type.
 
 **Semantics**
 
-Type : Name
+Type :: Name
 
   * Let {name} be the string value of {Name}
   * Let {type} be the type defined in the Schema named {name}
   * {type} must not be {null}
   * Return {type}
 
-Type : [ Type ]
+Type :: [ Type ]
 
   * Let {itemType} be the result of evaluating {Type}
   * Let {type} be a List type where {itemType} is the contained type.
   * Return {type}
 
-Type : Type !
+Type :: Type !
 
   * Let {nullableType} be the result of evaluating {Type}
   * Let {type} be a Non-Null type where {nullableType} is the contained type.
@@ -959,9 +959,9 @@ Type : Type !
 
 ## Directives
 
-Directives : Directive+
+Directives :: Directive+
 
-Directive : @ Name Arguments?
+Directive :: @ Name Arguments?
 
 Directives provide a way to describe alternate runtime execution and type
 validation behavior in a GraphQL document.
