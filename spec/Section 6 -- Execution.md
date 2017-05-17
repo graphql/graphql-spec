@@ -41,11 +41,7 @@ GetOperation(document, operationName):
 
   * If {operationName} is {null}:
     * If {document} contains exactly one operation.
-      * Let {operation} be the Operation contained in the {document}.
-      * If {operation} is a subscription operation:
-        * If {operation} contains more than one root field, produce a query error.
-        * Return {operation}.
-      * Otherwise return {operation}.
+      * Return the Operation contained in the {document}.
     * Otherwise produce a query error requiring {operationName}.
   * Otherwise:
     * Let {operation} be the Operation named {operationName} in {document}.
