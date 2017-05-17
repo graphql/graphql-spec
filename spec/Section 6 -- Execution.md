@@ -106,7 +106,7 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
 The type system, as described in the “Type System” section of the spec, must
 provide a query root object type. If mutations or subscriptions are supported,
-it must also provide a mutation and subscription root object type, respectively.
+it must also provide a mutation or subscription root object type, respectively.
 
 ### Query
 
