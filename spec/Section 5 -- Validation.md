@@ -198,6 +198,67 @@ query getName {
 }
 ```
 
+### Subscription Operation Definitions
+
+#### Single root field
+
+**Formal Specification**
+
+  * For each subscription operation definition {subscription} in the document
+  * Let {rootFields} be the top level selection set on {subscription}.
+    * {rootFields} must be a set of one.
+
+**Explanatory Text**
+
+Subscription operations must have exactly one root field.
+
+Valid examples:
+
+```graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+}
+```
+
+```graphql
+fragment newMessageFields on Message {
+  body
+  sender
+}
+
+subscription sub {
+  newMessage {
+    ... newMessageFields  
+  }
+}
+```
+
+Invalid:
+
+```!graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+  disallowedSecondRootField
+}
+```
+
+Introspection fields are counted. The following example is also invalid:
+
+```!graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+  __typename
+}
+```
 
 ## Fields
 

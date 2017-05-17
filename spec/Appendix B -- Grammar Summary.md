@@ -94,7 +94,7 @@ OperationDefinition :
   - SelectionSet
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
 
-OperationType : one of query mutation
+OperationType : one of query mutation subscription
 
 SelectionSet : { Selection+ }
 
