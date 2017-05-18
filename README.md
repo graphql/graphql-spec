@@ -212,7 +212,7 @@ takes an optional argument that allows us to fetch the hero of a specific
 episode instead.
  - `human` accepts a non-null string as a query argument, a human's ID, and
 returns the human with that ID.
- - `droid` does the same for droids.
+ - `droid` does the same as human.
 
 These fields demonstrate another feature of the type system, the ability
 for a field to specify arguments that configure their behavior.
