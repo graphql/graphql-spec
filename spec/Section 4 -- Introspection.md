@@ -146,7 +146,7 @@ type __Type {
   # INPUT_OBJECT only
   inputFields: [__InputValue!]
 
-  # NON_NULL and LIST only
+  # SCALAR, NON_NULL and LIST only
   ofType: __Type
 }
 
@@ -231,7 +231,8 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 #### Scalar
 
-Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
+Represents scalar types such as Int, String, and Boolean or scalar aliases.
+Scalars cannot have fields.
 
 A GraphQL type designer should describe the data format and scalar coercion
 rules in the description field of any scalar.
@@ -241,6 +242,7 @@ Fields
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
 * `description` may return a String or {null}.
+* `ofType`: must return a base scalar type if alias or {null}.
 * All other fields must return {null}.
 
 
