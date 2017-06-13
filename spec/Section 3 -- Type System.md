@@ -755,6 +755,22 @@ Union types have the potential to be invalid if incorrectly defined.
    Similarly, wrapping types may not be member types of a Union.
 2. A Union type must define one or more unique member types.
 
+#### Union type syntax
+
+Union types are a list of types joined with a vertical bar `|`
+
+```graphql
+union SearchResult = Photo | Person
+```
+
+You may also use a leading vertical bar
+
+```graphql
+union SearchResult =
+  | Photo
+  | Person
+```
+
 ### Enums
 
 GraphQL Enums are a variant on the Scalar type, which represents one of a
