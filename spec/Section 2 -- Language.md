@@ -1098,11 +1098,11 @@ interface Node {
 UnionTypeDefinition : union Name Directives? = UnionMembers
 
 UnionMembers :
-  - NamedType
+  - |? NamedType
   - UnionMembers | NamedType
 
 Union types represent a list of named Object types. Union types are used as the
-type of a field when one of many possible Object types may yielded during
+type of a field when one of many possible Object types may be yielded during
 execution, and no fields are guaranteed. An Object type is a possible type of a
 Union when it is declared by the Union.
 
@@ -1112,6 +1112,19 @@ In this example, a Union type called `Actor` is defined:
 union Actor = User | Business
 ```
 
+You may also use a leading vertical bar:
+
+```graphql
+union SearchResult =
+  | Photo
+  | Person
+```
+
+Trailing delimiters are not supported:
+
+```!graphql
+union SearchResult = Photo | Person |
+```
 
 #### Enum
 
