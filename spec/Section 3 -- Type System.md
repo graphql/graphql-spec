@@ -757,19 +757,21 @@ Union types have the potential to be invalid if incorrectly defined.
 
 #### Union type syntax
 
-Union types are a list of types joined with a vertical bar `|`
+Union types are defined by delimiting one or more types with a single vertical bar character `|`:
 
 ```graphql
 union SearchResult = Photo | Person
 ```
 
-You may also use a leading vertical bar
+You may also use a leading vertical bar.
 
 ```graphql
 union SearchResult =
   | Photo
   | Person
 ```
+
+Note Trailing vertical bars are not supported.
 
 ### Enums
 
