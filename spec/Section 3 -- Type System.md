@@ -763,7 +763,7 @@ Union types are defined by delimiting one or more types with a single vertical b
 union SearchResult = Photo | Person
 ```
 
-You may also use a leading vertical bar.
+You may also use a leading vertical bar:
 
 ```graphql
 union SearchResult =
@@ -771,7 +771,11 @@ union SearchResult =
   | Person
 ```
 
-Note Trailing vertical bars are not supported.
+Trailing delimiters are not supported:
+
+```!graphql
+union SearchResult = Photo | Person |
+```
 
 ### Enums
 
