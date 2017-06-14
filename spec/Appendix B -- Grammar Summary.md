@@ -206,7 +206,7 @@ InterfaceTypeDefinition : interface Name Directives? { FieldDefinition+ }
 UnionTypeDefinition : union Name Directives? = UnionMembers
 
 UnionMembers :
-  - NamedType
+  - |? NamedType
   - UnionMembers | NamedType
 
 EnumTypeDefinition : enum Name Directives? { EnumValueDefinition+ }
