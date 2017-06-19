@@ -76,13 +76,7 @@ response format being used, there may be a more appropriate primitive for the
 given scalar type, and server should use those types when appropriate.
 
 GraphQL provides a number of built-in scalars, but type systems can add
-additional scalars with semantic meaning. For example, a GraphQL system could
-define a scalar called `Time` which, while serialized as a string, promises to
-conform to ISO-8601. When querying a field of type `Time`, you can then rely on
-the ability to parse the result with an ISO-8601 parser and use a
-client-specific primitive for time. Another example of a potentially useful
-custom scalar is `Url`, which serializes as a string, but is guaranteed by
-the server to be a valid URL.
+additional custom scalars with specific semantic meaning.
 
 A server may omit any of the built-in scalars from its schema, for example if a
 schema does not refer to a floating-point number, then it will not include the
@@ -132,8 +126,8 @@ For all types below, with the exception of Non-Null, if the explicit value
 **Built-in Scalars**
 
 GraphQL provides a basic set of well-defined Scalar types. A GraphQL server
-should support all of these types, and a GraphQL server which provide a type by
-these names must adhere to the behavior described below.
+should support all of these types, and a GraphQL server which provides a type by
+these names must adhere to the behavior described for that type.
 
 
 #### Int
@@ -246,6 +240,63 @@ When expected as an input type, any string (such as `"4"`) or integer (such
 as `4`) input value should be coerced to ID as appropriate for the ID formats
 a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
+
+
+### Custom Scalars
+
+In addition to GraphQL's built-in scalars, a type system may add additional
+custom scalars which provide specific semantic meaning.
+
+For example, a type system might define a scalar called `Time` which, while
+serialized as `String`, promises to conform to ISO-8601. When querying a field
+of type `Time`, you can then rely on the ability to parse the result with an
+ISO-8601 parser and use a client-specific primitive for time.
+
+Another example of a potentially useful custom scalar is `Url`, which serializes
+as `String`, but is guaranteed by the server to be a valid URL.
+
+**Serialize as type**
+
+A custom scalar may provide a built-in scalar type which describes how the
+custom scalar is serialized. This provides more information for how execution
+responses are query variable inputs are coerced. If provided, this built-in
+scalar can be used both for improved validation results and stricter guarantees
+during execution.
+
+While a custom scalar type is not required to provide a serialize as type, if
+one is provided it must be one of the built-in scalar types (`Int`, `Float`,
+`String`, `Boolean`, `ID`).
+
+**Result Coercion**
+
+If a custom scalar provides a built-in scalar type which it serializes as, then
+that custom scalar must coerce using the same rules as that built-in scalar
+type. Using the example above, if a custom scalar `Time` declares it serializes
+as a `String`, then the result of a field of type `Time` must produce a
+`String`, which may be subject to additional coercion rules specific to the
+custom scalar type.
+
+If a custom scalar does not provide a built-in scalar type which it serializes
+as, then since this coercion behavior is not observable to clients of the
+GraphQL server, the precise rules of coercion are left to the implementation,
+and the serialized form will not be known ahead of time.
+
+**Input Coercion**
+
+If a custom scalar provides a built-in scalar type which it serializes as, then
+that custom scalar should accept the same kinds of input which that built-in
+scalar type accepts and must produce an error for the kinds of input for which
+that built-in scalar type would produce an error. Using the example above, if a
+custom scalar `Time` declares it serializes as a `String`, then it should accept
+`String` values and must not accept `Int` or `Float` values as input.
+
+A custom scalar may provide additional rules for coercing input values as
+implementation details, producing a query error when it deems necessary.
+
+If a custom scalar does not provide a built-in scalar type which it serializes
+as, then since this input coercion behavior is not observable to clients of the
+GraphQL server, the precise rules of coercion are left to the implementation,
+and the allowed input values will not be known ahead of time.
 
 
 ### Objects
@@ -1055,4 +1106,4 @@ subscription {
 ```
 
 Is valid when the type provided for the subscription starting type is not null,
-and has a field named "newMessage" and only contains a single root field. 
+and has a field named "newMessage" and only contains a single root field.
