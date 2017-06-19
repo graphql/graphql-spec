@@ -58,6 +58,7 @@ the following JSON concepts:
 | Int           | Number            |
 | Float         | Number            |
 | Enum Value    | String            |
+| Any           | Any value         |
 
 **Object Property Ordering**
 
