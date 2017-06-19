@@ -247,6 +247,30 @@ as `4`) input value should be coerced to ID as appropriate for the ID formats
 a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
 
+### Scalar aliases
+
+Scalar aliases should be used to add specific semantic or validation on top
+of the existing scalar type.
+
+Note: only scalar types can be aliassed, not other aliases.
+
+For example, a type `DateTime` could be described as:
+
+```
+scalar alias DateTime = String
+```
+
+Where `DateTime` is the name of alias and `String` is the name of the base scalar type.
+
+**Result Coercion**
+
+Coertion of the scalar alias value should include coertion of base type as the
+last step.
+
+**Input Coercion**
+
+Coertion of the scalar alias value should include coertion of base type as the
+first step.
 
 ### Objects
 
