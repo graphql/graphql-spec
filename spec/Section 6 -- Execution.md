@@ -275,7 +275,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
   * Return an unordered map containing {data} and {errors}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
-{ExecuteQuery()} since this is how the each event result is produced.
+{ExecuteQuery()} since this is how each event result is produced.
 
 #### Unsubscribe
 
