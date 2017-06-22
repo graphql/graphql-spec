@@ -695,57 +695,72 @@ The two keywords `true` and `false` represent the two boolean values.
 
 StringValue ::
   - `"` StringCharacter* `"`
-  - `"""` MultiLineStringCharacter* `"""`
+  - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \u EscapedUnicode
   - \ EscapedCharacter
 
-MultiLineStringCharacter ::
-  - SourceCharacter but not `"""` or `\"""`
-  - `\"""`
-
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
+
+BlockStringCharacter ::
+  - SourceCharacter but not `"""` or `\"""`
+  - `\"""`
 
 Strings are sequences of characters wrapped in double-quotes (`"`). (ex.
 `"Hello World"`). White space and other otherwise-ignored characters are
 significant within a string value.
 
 Note: Unicode characters are allowed within String value literals, however
-GraphQL source must not contain some ASCII control characters so escape
+{SourceCharacter} must not contain some ASCII control characters so escape
 sequences must be used to represent these characters.
 
-**Multi-line Strings**
+**Block Strings**
 
-Multi-line strings are sequences of characters wrapped in triple-quotes (`"""`).
-White space, line terminators, and quote and backslash characters may all be
-used unescaped, enabling freeform text. Characters must all be valid
-{SourceCharacter} to ensure printable source text. If non-printable ASCII
-characters need to be used, escape sequences must be used within standard
-double-quote strings.
+Block strings are sequences of characters wrapped in triple-quotes (`"""`).
+White space, line terminators, quote, and backslash characters may all be
+used unescaped to enable verbatim text. Characters must all be valid
+{SourceCharacter}.
+
+Since block strings represent freeform text often used in indented
+positions, the string value semantics of a block string excludes uniform
+indentation and blank initial and trailing lines via {BlockStringValue()}.
+
+For example, the following operation containing a block string:
+
+```graphql
+mutation {
+  sendEmail(message: """
+    Hello,
+      World!
+
+    Yours,
+      GraphQL.
+  """)
+}
+```
+
+Is identical to the standard quoted string:
+
+```graphql
+mutation {
+  sendEmail(message: "Hello,\n  World!\n\nYours,\n  GraphQL.")
+}
+```
+
+Note: If non-printable ASCII characters are needed in a string value, a standard
+quoted string with appropriate escape sequences must be used instead of a
+block string.
 
 **Semantics**
 
 StringValue :: `"` StringCharacter* `"`
 
   * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values (which may be empty).
-
-StringValue :: `"""` MultiLineStringCharacter* `"""`
-
-  * Return the Unicode character sequence of all {MultiLineStringCharacter}
-    Unicode character values (which may be empty).
-
-MultiLineStringCharacter :: SourceCharacter but not `"""` or `\"""`
-
-  * Return the character value of {SourceCharacter}.
-
-MultiLineStringCharacter :: `\"""`
-
-  * Return the character sequence `"""`.
+    Unicode character values (which may be an empty sequence).
 
 StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
@@ -770,6 +785,50 @@ StringCharacter :: \ EscapedCharacter
 | `n`               | U+000A          | line feed (new line)         |
 | `r`               | U+000D          | carriage return              |
 | `t`               | U+0009          | horizontal tab               |
+
+StringValue :: `"""` BlockStringCharacter* `"""`
+
+  * Let {rawValue} be the Unicode character sequence of all
+    {BlockStringCharacter} Unicode character values (which may be an empty
+    sequence).
+  * Return the result of {BlockStringValue(rawValue)}.
+
+BlockStringCharacter :: SourceCharacter but not `"""` or `\"""`
+
+  * Return the character value of {SourceCharacter}.
+
+BlockStringCharacter :: `\"""`
+
+  * Return the character sequence `"""`.
+
+BlockStringValue(rawValue):
+
+  * Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
+  * Let {commonIndent} be {null}.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}, continue to the next line.
+    * Let {length} be the number of characters in {line}.
+    * Let {indent} be the number of leading consecutive {WhiteSpace} characters
+      in {line}.
+    * If {indent} is less than {length}:
+      * If {commonIndent} is {null} or {indent} is less than {commonIndent}:
+        * Let {commonIndent} be {indent}.
+  * If {commonIndent} is not {null}:
+    * For each {line} in {lines}:
+      * If {line} is the first item in {lines}, continue to the next line.
+      * Remove {commonIndent} characters from the beginning of {line}.
+  * While the first item {line} in {lines} contains only {WhiteSpace}:
+    * Remove the first item from {lines}.
+  * While the last item {line} in {lines} contains only {WhiteSpace}:
+    * Remove the last item from {lines}.
+  * Let {formatted} be the empty character sequence.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}:
+      * Append {formatted} with {line}.
+    * Otherwise:
+      * Append {formatted} with a line feed character (U+000A).
+      * Append {formatted} with {line}.
+  * Return {formatted}.
 
 
 ### Null Value

@@ -70,20 +70,23 @@ Sign :: one of + -
 
 StringValue ::
   - `"` StringCharacter* `"`
-  - `"""` MultiLineStringCharacter* `"""`
+  - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \u EscapedUnicode
   - \ EscapedCharacter
 
-MultiLineStringCharacter ::
-  - SourceCharacter but not `"""` or `\"""`
-  - `\"""`
-
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
+
+BlockStringCharacter ::
+  - SourceCharacter but not `"""` or `\"""`
+  - `\"""`
+
+Note: Block string values are interpretted to exclude blank initial and trailing
+lines and uniform indentation with {BlockStringValue()}.
 
 
 ## Query Document
