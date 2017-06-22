@@ -69,13 +69,17 @@ ExponentIndicator :: one of `e` `E`
 Sign :: one of + -
 
 StringValue ::
-  - `""`
-  - `"` StringCharacter+ `"`
+  - `"` StringCharacter* `"`
+  - `"""` MultiLineStringCharacter* `"""`
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \u EscapedUnicode
   - \ EscapedCharacter
+
+MultiLineStringCharacter ::
+  - SourceCharacter but not `"""` or `\"""`
+  - `\"""`
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 

@@ -694,13 +694,17 @@ The two keywords `true` and `false` represent the two boolean values.
 ### String Value
 
 StringValue ::
-  - `""`
-  - `"` StringCharacter+ `"`
+  - `"` StringCharacter* `"`
+  - `"""` MultiLineStringCharacter* `"""`
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \u EscapedUnicode
   - \ EscapedCharacter
+
+MultiLineStringCharacter ::
+  - SourceCharacter but not `"""` or `\"""`
+  - `\"""`
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
@@ -714,16 +718,34 @@ Note: Unicode characters are allowed within String value literals, however
 GraphQL source must not contain some ASCII control characters so escape
 sequences must be used to represent these characters.
 
+**Multi-line Strings**
+
+Multi-line strings are sequences of characters wrapped in triple-quotes (`"""`).
+White space, line terminators, and quote and backslash characters may all be
+used unescaped, enabling freeform text. Characters must all be valid
+{SourceCharacter} to ensure printable source text. If non-printable ASCII
+characters need to be used, escape sequences must be used within standard
+double-quote strings.
+
 **Semantics**
 
-StringValue :: `""`
-
-  * Return an empty Unicode character sequence.
-
-StringValue :: `"` StringCharacter+ `"`
+StringValue :: `"` StringCharacter* `"`
 
   * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values.
+    Unicode character values (which may be empty).
+
+StringValue :: `"""` MultiLineStringCharacter* `"""`
+
+  * Return the Unicode character sequence of all {MultiLineStringCharacter}
+    Unicode character values (which may be empty).
+
+MultiLineStringCharacter :: SourceCharacter but not `"""` or `\"""`
+
+  * Return the character value of {SourceCharacter}.
+
+MultiLineStringCharacter :: `\"""`
+
+  * Return the character sequence `"""`.
 
 StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 
