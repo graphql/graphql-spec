@@ -85,6 +85,9 @@ EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
 
+Note: Multi-line string values have common indentation removed with
+{RemoveIndentation()} when a document is interpretted.
+
 
 ## Query Document
 

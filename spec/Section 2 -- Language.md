@@ -727,6 +727,62 @@ used unescaped, enabling freeform text. Characters must all be valid
 characters need to be used, escape sequences must be used within standard
 double-quote strings.
 
+Since multi-line strings are often used in indented positions, the common
+indentation within a multi-line string is removed along with empty initial and
+trailing lines.
+
+For example, the following operation containing a multi-line string:
+
+```graphql
+mutation {
+  sendEmail(message: """
+    Hello,
+      World!
+
+    Yours,
+      GraphQL.
+  """)
+}
+```
+
+Is identical to the escaped string:
+
+```graphql
+mutation {
+  sendEmail(message: "Hello,\n  World!\n\nYours,\n  GraphQL.")
+}
+```
+
+This common indentation is removed when a document is interpretted.
+
+RemoveIndentation(rawValue):
+
+  * Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
+  * Let {minIndent} be Infinity.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}, continue to the next line.
+    * Let {length} be the number of characters in {line}.
+    * Let {indent} be the number of leading consecutive {WhiteSpace} characters
+      in {line}.
+    * If {indent} is less than {length} and {indent} is less than {minIndent}:
+      * Let {minIndent} be {indent}.
+  * If {minIndent} is not Infinity:
+    * For each {line} in {lines}:
+      * If {line} is the first item in {lines}, continue to the next line.
+      * Remove {minIndent} characters from the beginning of {line}.
+  * While the first {line} in {lines} contains no characters:
+    * Remove the first {line} from {lines}.
+  * While the last {line} in {lines} contains no characters:
+    * Remove the last {line} from {lines}.
+  * Let {formatted} be the empty character sequence.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}:
+      * Append {formatted} with {line}.
+    * Otherwise:
+      * Append {formatted} with a new line character (U+000A).
+      * Append {formatted} with {line}.
+  * Return {formatted}.
+
 **Semantics**
 
 StringValue :: `"` StringCharacter* `"`
@@ -736,8 +792,9 @@ StringValue :: `"` StringCharacter* `"`
 
 StringValue :: `"""` MultiLineStringCharacter* `"""`
 
-  * Return the Unicode character sequence of all {MultiLineStringCharacter}
-    Unicode character values (which may be empty).
+  * Let {rawValue} be the Unicode character sequence of all
+    {MultiLineStringCharacter} Unicode character values (which may be empty).
+  * Return the result of {RemoveIndentation(rawValue)}.
 
 MultiLineStringCharacter :: SourceCharacter but not `"""` or `\"""`
 
