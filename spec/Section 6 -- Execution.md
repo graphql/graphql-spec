@@ -34,6 +34,8 @@ ExecuteRequest(schema, document, operationName, variableValues, initialValue):
     * Return {ExecuteQuery(operation, schema, coercedVariableValues, initialValue)}.
   * Otherwise if {operation} is a mutation operation:
     * Return {ExecuteMutation(operation, schema, coercedVariableValues, initialValue)}.
+  * Otherwise if {operation} is a subscription operation:
+    * Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
 
 GetOperation(document, operationName):
 
@@ -103,8 +105,10 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the “Type System” section of the spec, must
-provide a query root object type. If mutations are supported, it must also
-provide a mutation root object type.
+provide a query root object type. If mutations or subscriptions are supported,
+it must also provide a mutation or subscription root object type, respectively.
+
+### Query
 
 If the operation is a query, the result of the operation is the result of
 executing the query’s top level selection set with the query root object type.
@@ -122,6 +126,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
   * Let {errors} be any *field errors* produced while executing the
     selection set.
   * Return an unordered map containing {data} and {errors}.
+
+### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
 executing the mutation’s top level selection set on the mutation root
@@ -143,6 +149,144 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
     selection set.
   * Return an unordered map containing {data} and {errors}.
 
+### Subscription
+
+If the operation is a subscription, the result is an event stream called the
+"Response Stream" where each event in the event stream is the result of
+executing the operation for each new event on an underlying "Source Stream".
+
+Executing a subscription creates a persistent function on the server that
+maps an underlying Source Stream to a returned Response Stream.
+
+Subscribe(subscription, schema, variableValues, initialValue):
+
+  * Let {sourceStream} be the result of running {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
+  * Let {responseStream} be the result of running {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
+  * Return {responseStream}.
+
+Note: In large scale subscription systems, the {Subscribe()} and
+{ExecuteSubscriptionEvent()} algorithms may be run on separate services to
+maintain predictable scaling properties. See the section below on Supporting
+Subscriptions at Scale.
+
+As an example, consider a chat application. To subscribe to new messages posted
+to the chat room, the client sends a request like so:
+
+```graphql
+subscription NewMessages {
+  newMessage(roomId: 123) {
+    sender
+    text
+  }
+}
+```
+
+While the client is subscribed, whenever new messages are posted to chat room
+with ID "123", the selection for "sender" and "text" will be evaluated and
+published to the client, for example:
+
+```js
+{
+  "data": {
+    "newMessage": {
+      "sender": "Hagrid",
+      "text": "You're a wizard!"
+    }
+  }
+}
+```
+
+The "new message posted to chat room" could use a "Pub-Sub" system where the
+chat room ID is the "topic" and each "publish" contains the sender and text.
+
+**Event Streams**
+
+An event stream represents a sequence of discrete events over time which can be
+observed. As an example, a "Pub-Sub" system may produce an event stream when
+"subscribing to a topic", with an event occurring on that event stream for each
+"publish" to that topic. Event streams may produce an infinite sequence of
+events or may complete at any point. Event streams may complete in response to
+an error or simply because no more events will occur. An observer may at any
+point decide to stop observing an event stream by cancelling it, after which it
+must receive no more events from that event stream.
+
+**Supporting Subscriptions at Scale**
+
+Supporting subscriptions is a significant change for any GraphQL server. Query
+and mutation operations are stateless, allowing scaling via cloning of GraphQL
+server instances. Subscriptions, by contrast, are stateful and require
+maintaining the GraphQL document, variables, and other context over the lifetime
+of the subscription.
+
+Consider the behavior of your system when state is lost due to the failure of a
+single machine in a service. Durability and availability may be improved by
+having separate dedicated services for managing subscription state and client
+connectivity.
+
+#### Source Stream
+
+A Source Stream represents the sequence of events, each of which will
+trigger a GraphQL execution corresponding to that event. Like field value
+resolution, the logic to create a Source Stream is application-specific.
+
+CreateSourceEventStream(subscription, schema, variableValues, initialValue):
+
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
+  * Let {rootField} be the first top level field in {selectionSet}.
+  * Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType, rootField, variableValues)}.
+  * Let {fieldStream} be the result of running {ResolveFieldEventStream(subscriptionType, initialValue, rootField, argumentValues)}.
+  * Return {fieldStream}.
+
+ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
+  * Let {resolver} be the internal function provided by {subscriptionType} for
+    determining the resolved event stream of a subscription field named {fieldName}.
+  * Return the result of calling {resolver}, providing {rootValue} and {argumentValues}.
+
+Note: This {ResolveFieldEventStream()} algorithm is intentionally similar
+to {ResolveFieldValue()} to enable consistency when defining resolvers
+on any operation type.
+
+#### Response Stream
+
+Each event in the underlying Source Stream triggers execution of the subscription
+selection set using that event as a root value.
+
+MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
+
+  * Return a new event stream {responseStream} which yields events as follows:
+  * For each {event} on {sourceStream}:
+    * Let {response} be the result of running
+      {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
+    * Yield an event containing {response}.
+  * When {responseStream} completes: complete this event stream.
+
+ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
+
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
+  * Let {data} be the result of running
+    {ExecuteSelectionSet(selectionSet, subscriptionType, initialValue, variableValues)}
+    *normally* (allowing parallelization).
+  * Let {errors} be any *field errors* produced while executing the
+    selection set.
+  * Return an unordered map containing {data} and {errors}.
+
+Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
+{ExecuteQuery()} since this is how each event result is produced.
+
+#### Unsubscribe
+
+Unsubscribe cancels the Response Stream when a client no longer wishes to receive
+payloads for a subscription. This may in turn also cancel the Source Stream.
+This is also a good opportunity to clean up any other resources used by
+the subscription.
+
+Unsubscribe(responseStream)
+
+  * Cancel {responseStream}
 
 ## Executing Selection Sets
 
@@ -169,7 +313,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
-Note: {responseMap} is ordered by which fields appear first in the query. This
+Note: {resultMap} is ordered by which fields appear first in the query. This
 is explained in greater detail in the Field Collection section below.
 
 
@@ -548,6 +692,11 @@ Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
 to {null}, otherwise if it is a `Non-Null` type, the field error is further
 propagated to it's parent field.
+
+If a `List` type wraps a `Non-Null` type, and one of the elements of that list
+resolves to {null}, then the entire list must resolve to {null}. 
+If the `List` type is also wrapped in a `Non-Null`, the field error continues 
+to propagate upwards.
 
 If all fields from the root of the request to the source of the error return
 `Non-Null` types, then the {"data"} entry in the response should be {null}.

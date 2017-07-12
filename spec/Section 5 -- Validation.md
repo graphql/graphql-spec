@@ -198,6 +198,67 @@ query getName {
 }
 ```
 
+### Subscription Operation Definitions
+
+#### Single root field
+
+**Formal Specification**
+
+  * For each subscription operation definition {subscription} in the document
+  * Let {rootFields} be the top level selection set on {subscription}.
+    * {rootFields} must be a set of one.
+
+**Explanatory Text**
+
+Subscription operations must have exactly one root field.
+
+Valid examples:
+
+```graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+}
+```
+
+```graphql
+fragment newMessageFields on Message {
+  body
+  sender
+}
+
+subscription sub {
+  newMessage {
+    ... newMessageFields  
+  }
+}
+```
+
+Invalid:
+
+```!graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+  disallowedSecondRootField
+}
+```
+
+Introspection fields are counted. The following example is also invalid:
+
+```!graphql
+subscription sub {
+  newMessage {
+    body
+    sender
+  }
+  __typename
+}
+```
 
 ## Fields
 
@@ -645,10 +706,9 @@ fragment stringIntoInt on Arguments {
 
 **Explanatory Text**
 
-Arguments can be required. Arguments are required if the type of the argument
-is non-null. If it is not non-null, the argument is optional. When an argument
-type is non-null, and is required, the explicit value {null} may also not
-be provided.
+Arguments can be required. If the argument type is non-null the argument is
+required and furthermore the explicit value {null} may not be provided.
+Otherwise, the argument is optional.
 
 For example the following are valid:
 
