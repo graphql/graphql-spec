@@ -20,7 +20,7 @@ the rules for this validation process where relevant.
 GraphQL schema  是使用针对每一种operation:query和mutation的root类型来表示的，这也确定了类型系统type system中 operation开始的地方。
 
 A GraphQL schema is represented by a root type for each kind of operation:
-query and mutation; this determines the place in the type system where those
+query, mutation, and subscription; this determines the place in the type system where those
 operations begin.
 
 GraphQL schema 中的所有类型都必须拥有唯一的名称。不可能有2个类型名称一样。没有一个类型的名称会与任意内置类型的名称冲突(
@@ -608,7 +608,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    no two fields may share the same name.
 3. Each field of an Object type must not have a name which begins with the
    characters {"__"} (two underscores).
-4. An object type must be a super-set of all interfaces it implements:
+4. An object type may declare that it implements one or more unique interfaces.
+5. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must include an argument of the same name for every
@@ -854,7 +855,7 @@ Union types have the potential to be invalid if incorrectly defined.
 1. The member types of an Union type must all be Object base types;
    Scalar, Interface and Union types may not be member types of a Union.
    Similarly, wrapping types may not be member types of a Union.
-2. A Union type must define two or more member types.
+2. A Union type must define one or more unique member types.
 
 ### Enums
 
@@ -880,7 +881,10 @@ reasonable coercion is not possible they must raise a field error.
 GraphQL 有一个constant literal 来表示 enum的输入值。 不能使用string
 literals 作为 enum 输入值，这样做会抛出查询错误/异常。
 
-GraphQL has a constant literal to represent enum input values. GraphQL string
+.
+
+
+GraphQL has a constant literal torepresent enum input values. GraphQL string
 literals must not be accepted as an enum input and instead raise a query error.
 
 对于非字符串的符号值有不同的表示方法，比如[EDN](https://github.com/edn-format/edn)的Query variable 传输序列化而言，应只将此类值当做enum 输入值。
@@ -1195,12 +1199,14 @@ must *not* be queried if either the `@skip` condition is true *or* the
 GraphQL schema 包含了数据类型，表示query和mutation操作从哪里开始。这也是整个type system的起始入口点。query type总是存在的，是一个Object
 base type。mutation type是可选的，如果是null的话，意味着system 不支持mutation。如果存在的话，必须是object base type。
 
-A GraphQL schema includes types, indicating where query and mutation
+A GraphQL schema includes types, indicating where query, mutation, and subscription 
 operations start. This provides the initial entry points into the
 type system. The query type must always be provided, and is an Object
 base type. The mutation type is optional; if it is null, that means
 the system does not support mutations. If it is provided, it must
-be an object base type.
+be an object base type. Similarly, the subscription type is optional; if it is
+null, the system does not support subscriptions. If it is provided, it must be
+an object base type
 
 query type中的字段field表示一个 GraphQL query 的最高级存在哪些字段field。比如，一个基本的 GraphQL query 如下所示：
 
@@ -1220,12 +1226,16 @@ Is valid when the type provided for the query starting type has a field
 named "me". Similarly
 
 ```graphql
-mutation setName {
-  setName(name: "Zuck") {
-    newName
+subscription {
+  newMessage {
+    text
   }
 }
 ```
+
+Is valid when the type provided for the subscription starting type is not null,
+and has a field named "newMessage" and only contains a single root field. 
+
 
 当存在 mutation 起始类型不为空时是有效的，存在一个字段叫 "setName"，该字段有一个叫"name"的argument。
 

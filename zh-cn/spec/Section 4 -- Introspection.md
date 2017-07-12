@@ -143,6 +143,7 @@ type __Schema {
   types: [__Type!]!
   queryType: __Type!
   mutationType: __Type
+  subscriptionType: __Type 
   directives: [__Directive!]!
 }
 
@@ -218,6 +219,7 @@ type __Directive {
 enum __DirectiveLocation {
   QUERY
   MUTATION
+  SUBSCRIPTION 
   FIELD
   FRAGMENT_DEFINITION
   FRAGMENT_SPREAD

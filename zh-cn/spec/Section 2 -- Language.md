@@ -1,11 +1,11 @@
 # 语言 Language
 
 客户端利用 GraphQL 查询语言向 GraphQL 服务发送请求，我们把这些请求源称之为 document(文档)。
-一份 document(文档)可能会包含若干 operations(操作)(查询和mutation都是操作)和 fragment(片段)(可以在查询中复用的通用组件)。
+一份 document(文档)可能会包含若干 operations(操作)(queries, mutations, and subscriptions)和 fragment(片段)(可以在查询中复用的通用组件)。
 
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
-operations (queries and mutations are both operations) as well as fragments, a
+operations (queries, mutations, and subscriptions) as well as fragments, a
 common unit of composition allowing for query reuse.
 
 一份 GraphQL 的 document(文档)语法结构定义中终结符是 token(不可再分割的词汇单元)。这些 token 定义的词汇语法能够匹配源字符的模式(使用双冒号来定义"::")
@@ -262,11 +262,11 @@ OperationDefinition :
   - OperationType Name VariableDefinitions? Directives? SelectionSet
   - SelectionSet
 
-OperationType : one of `query` `mutation`
+OperationType : one of `query` `mutation` `subscription`
 
 GraphQL 中有2类 operation：
 
-There are two types of operations that GraphQL models:
+There are three  types of operations that GraphQL models:
 
   * query - 只读的获取操作 a read-only fetch.
   * mutation - 获取之后的写操作 a write followed by a fetch.
