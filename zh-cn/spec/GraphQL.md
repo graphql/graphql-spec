@@ -1,9 +1,13 @@
 GraphQL
 -------
 
+*草稿版 - 2016年10月*
+
 *Working Draft - October 2016*
 
-**Introduction**
+**简介**
+
+该文档是 GraphQL 的 RFC 标准草案，GraphQL 由 Facebook 在2012年提出，是一种为了描述 Client/Server 架构的应用程序中数据模型的功能和需求的查询语言。标准文档的开发工作始于2015年。GraphQL 是一个很新的，不断在演化的语言，目前还不完善。该标准的后续版本将持续进行改进。
 
 This is a Draft RFC Specification for GraphQL, a query language created by
 Facebook in 2012 for describing the capabilities and requirements of data models
@@ -11,7 +15,7 @@ for client-server applications. The development of this standard started
 in 2015. GraphQL is a new and evolving language and is not complete. Significant
 enhancement will continue in future editions of this specification.
 
-**Copyright notice**
+**版权声明**
 
 Copyright (c) 2015-2017, Facebook, Inc. All rights reserved.
 
@@ -40,20 +44,22 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# [Overview](Section 1 -- Overview.md)
+# [概述](Section 1 -- Overview.md)
 
-# [Language](Section 2 -- Language.md)
+# [语言本身](Section 2 -- Language.md)
 
-# [Type System](Section 3 -- Type System.md)
+# [类型体系](Section 3 -- Type System.md)
 
 # [Introspection](Section 4 -- Introspection.md)
 
-# [Validation](Section 5 -- Validation.md)
+# [校验](Section 5 -- Validation.md)
 
-# [Execution](Section 6 -- Execution.md)
+# [执行](Section 6 -- Execution.md)
 
-# [Response](Section 7 -- Response.md)
+# [响应](Section 7 -- Response.md)
 
-# [Appendix: Notation Conventions](Appendix A -- Notation Conventions.md)
+# [附录: 标记规范Notation Conventions](Appendix A -- Notation Conventions.md)
 
-# [Appendix: Grammar Summary](Appendix B -- Grammar Summary.md)
+# [附录: 语法概述Grammar Summary](Appendix B -- Grammar Summary.md)
+
+# [附录: 编者注](note.md)

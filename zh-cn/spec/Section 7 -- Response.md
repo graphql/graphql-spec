@@ -1,15 +1,25 @@
 # Response
 
+当 GraphQL 服务器接收到请求时，必须返回符合要求的response。服务器response描述了所请求的操作执行结果是否成功，以及请求执行时所遇到的任何错误。
+
 When a GraphQL server receives a request, it must return a well-formed
 response. The server's response describes the result of executing the requested
 operation if successful, and describes any errors encountered during the
 request.
 
+当一个字段被替换成null的错误出现时，一个 response 可能会包含一部分response和遇到的错误。
+
 A response may contain both a partial response as well as encountered errors in
 the case that an error occurred on a field which was replaced with null.
 
+## 序列化格式 Serialization Format
 
-## Serialization Format
+GraphQL 并不要求某种特定的序列化格式。但是，客户端应该使用某一种支持 GraphQL中大部分基本类型的序列化格式。特别是，
+序列化格式必须支持以下4种基本类型的表达：
+* Map
+* List
+* String
+* Null
 
 GraphQL does not require a specific serialization format. However, clients
 should use a serialization format that supports the major primitives in the
@@ -20,16 +30,18 @@ representations of the following four primitives:
  * List
  * String
  * Null
+     
 
-Serialization formats which can represent an ordered map should preserve the
-order of requested fields as defined by {CollectFields()} in the Execution
-section. Serialization formats which can only represent unordered maps should
-retain this order grammatically (such as JSON).
+Serialization formats which can represent an ordered map should preserve the order of requested fields as defined by {CollectFields()} in the Execution section. Serialization formats which can only represent unordered maps should retain this order grammatically (such as JSON).
 
-Producing a response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can
-be anticipated.
+Producing a response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.
+
+
+序列化格式可能会支持如下的基本类型，但可以使用string来替代这些数据类型：
+* Boolean
+* Int
+* Float
+* Enum Value
 
 A serialization format may support the following primitives, however, strings
 may be used as a substitute for those primitives.
@@ -39,17 +51,13 @@ may be used as a substitute for those primitives.
  * Float
  * Enum Value
 
-
 ### JSON Serialization
 
-JSON is the preferred serialization format for GraphQL, though as noted above,
-GraphQL does not require a specific serialization format. For consistency and
-ease of notation, examples of the response are given in JSON throughout the
-spec. In particular, in our JSON examples, we will represent primitives using
-the following JSON concepts:
-
+JSON是 GraphQL 优先选择的序列化格式，尽管如上所述，
+GraphQL 并不要求某种特定的序列化格式。出于一致性和简化标记的目的，整个规范中response的例子都是用JSON来表示的。
+特别是，在我们的示例中，我们使用如下的JSON 概念来表示基本数据类型：
 | GraphQL Value | JSON Value        |
-| ------------- | ----------------- |
+|:--------------|:------------------|
 | Map           | Object            |
 | List          | Array             |
 | Null          | {null}            |
@@ -59,71 +67,94 @@ the following JSON concepts:
 | Float         | Number            |
 | Enum Value    | String            |
 
-**Object Property Ordering**
 
-While JSON Objects are specified as an
-[unordered collection of key-value pairs](https://tools.ietf.org/html/rfc7159#section-4)
-the pairs are represented in an ordered manner. In other words, while the JSON
-strings `{ "name": "Mark", "age": 30 }` and `{ "age": 30, "name": "Mark" }`
-encode the same value, they also have observably different property orderings.
+JSON is the preferred serialization format for GraphQL, though as noted above,
+GraphQL does not require a specific serialization format. For consistency and
+ease of notation, examples of the response are given in JSON throughout the
+spec. In particular, in our JSON examples, we will represent primitives using
+the following JSON concepts:
 
-Since the result of evaluating a selection set is ordered, the JSON object
-serialized should preserve this order by writing the object properties in the
-same order as those fields were requested as defined by query execution.
-
-For example, if the query was `{ name, age }`, a GraphQL server responding in
-JSON should respond with `{ "name": "Mark", "age": 30 }` and should not respond
-with `{ "age": 30, "name": "Mark" }`.
-
-NOTE: This does not violate the JSON spec, as clients may still interpret
-objects in the response as unordered Maps and arrive at a valid value.
+| GraphQL Value | JSON Value        |
+|:--------------|:------------------|
+| Map           | Object            |
+| List          | Array             |
+| Null          | {null}            |
+| String        | String            |
+| Boolean       | {true} or {false} |
+| Int           | Number            |
+| Float         | Number            |
+| Enum Value    | String            |
 
 
 ## Response Format
 
+GraphQL operation 的response 响应 必须是一个map。
+
 A response to a GraphQL operation must be a map.
 
-If the operation included execution, the response map must contain a first entry
+如果 operation 包含了 execution，响应的map 必须包含一个key值为‘data’的entry。这个entry值的描述在”Data”章节。如果由于语法错误、信息缺失、
+校验错误，该operation 在execution执行之前就失败了，那么 entry 就不存在。
+
+
+If the operation included execution, the response map must contain an entry
 with key `data`. The value of this entry is described in the "Data" section. If
 the operation failed before execution, due to a syntax error, missing
 information, or validation error, this entry must not be present.
 
-If the operation encountered any errors, the response map must contain a next
-entry with key `errors`. The value of this entry is described in the "Errors"
+如果 operation 遇到任何错误，response map 必须包含一个key值为 ‘errors’的entry。该entry 值的描述在"Errors"章节。如果operation没有遇到任何错误顺利完成，
+该entry必须不存在。
+
+If the operation encountered any errors, the response map must contain an entry
+with key `errors`. The value of this entry is described in the "Errors"
 section. If the operation completed without encountering any errors, this entry
 must not be present.
+
+response map 也可以包含一个key值为 ‘extensions’的entry。如果存在该entry，其值必须是一个map。该entry用来让开发人员按照自己意愿来扩展该协议，
+因此对于它的内容没有任何额外的限制。
 
 The response map may also contain an entry with key `extensions`. This entry,
 if set, must have a map as its value. This entry is reserved for implementors
 to extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
+为了保证将来协议的变更不会破坏已有的服务器和客户端，顶层的response map 必须不能包含上述三种以外的任何entry。
+
 To ensure future changes to the protocol do not break existing servers and
 clients, the top level response map must not contain any entries other than the
 three described above.
 
-
 ### Data
+
+response 中的`data`  entry是所请求的operation执行的结果。如果该operation 是一个query，输出结果是schema中query root类型的对象；如果是mutation，
+输出结果是schema中mutation root类型的对象。
 
 The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an
 object of the schema's query root type; if the operation was a mutation, this
 output will be an object of the schema's mutation root type.
 
+如果在开始执行之前遇到任何错误，结果中不应该包含`data` entry。
+
 If an error was encountered before execution begins, the `data` entry should
 not be present in the result.
+
+如果在执行时遇到一个错误，导致response 无效，则`data`  entry应为 ‘null’。
 
 If an error was encountered during the execution that prevented a valid
 response, the `data` entry in the response should be `null`.
 
-
 ### Errors
+
+response 中的`errors` entry 是一个非空的error 列表，其中每个error都是一个map。
 
 The `errors` entry in the response is a non-empty list of errors, where each
 error is a map.
 
+如果在请求的operation 执行时没有遇到任何错误，结果中不应该存在`errors` entry 。
+
 If no errors were encountered during the requested operation, the `errors`
 entry should not be present in the result.
+
 
 If the `data` entry in the response is not present, the `errors`
 entry in the response must not be empty. It must contain at least one error.
@@ -134,8 +165,11 @@ If the `data` entry in the response is present (including if it is the value
 occurred during execution. If errors occurred during execution, it should 
 contain those errors.
 
+
 **Error result format**
 
+
+每个error必须包含一个key值为‘message’的entry，其值为一个字符串描述的错误信息，供开发人员来理解和校对错误。
 Every error must contain an entry with the key `message` with a string
 description of the error intended for the developer as a guide to understand
 and correct the error.

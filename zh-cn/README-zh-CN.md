@@ -1,28 +1,45 @@
 # GraphQL
 
-This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
+
+
+该文档是 GraphQL 的 RFC 标准草案，GraphQL 由 Facebook 在2012年提出. GraphQL 是一种应用层查询语言。
+
+This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.    
+
+该规范的受众不是客户端开发人员，而是那些已经或者对构建自己的 GraphQL 实现和工具有兴趣的人员。 
 
 The target audience for this specification is not the client developer, but those who have,
 or are actively interested in, building their own GraphQL implementations and
 tools.
 
+为了能够大范围应用， GraphQL 将支持多种后端、框架和编程语言，这需要很多项目、组织的通力协作。
+
 In order to be broadly adopted, GraphQL will have to target a wide
 variety of backends, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This specification serves as a point of coordination for this effort.
 
+需要帮助的话，可以在[讨论社区](http://graphql.org/community/)寻找资源。 
+
 Looking for help? Find resources [from the community](http://graphql.org/community/).
 
 ## Getting Started
+
+GraphQL 包括了 type system, query language and execution semantics,
+static validation, and type introspection，后面对每一部分进行了概述。为了帮助大家理解每个部分，我们设计了一个实例来说明 GraphQL的不同内容。
 
 GraphQL consists of a type system, query language and execution semantics,
 static validation, and type introspection, each outlined below. To guide you
 through each of these components, we've written an example designed to
 illustrate the various pieces of GraphQL.
 
+这个实例不是很全面，主要是为了让大家能够快速理解 GraphQL 的核心概念，在深入了解规范 的[GraphQL.js](https://github.com/graphql/graphql-js)实现之前对语境有所了解。
+
 This example is not comprehensive, but it is designed to quickly introduce
 the core concepts of GraphQL, to provide some context before diving into
 the more detailed specification or the [GraphQL.js](https://github.com/graphql/graphql-js)
 reference implementation.
+
+假设我们想要使用 GraphQL 来查询 星球大战三部曲(电影)中的人物角色和地名。
 
 The premise of the example is that we want to use GraphQL to query for
 information about characters and locations in the original Star Wars
@@ -30,16 +47,31 @@ trilogy.
 
 ### Type System
 
+
+任何一种 GraphQL 实现的核心都是对能够返回的对象类型的描述，使用 GraphQ 的Type System来描述，格式遵循 GraphQL 的schema。
+
+
 At the heart of any GraphQL implementation is a description of what types
 of objects it can return, described in a GraphQL type system and returned
 in the GraphQL Schema.
+
+以星球大战为例，[starWarsSchema.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsSchema.js)。 在GraphQL.js 的实现中该文件定义了 Type System。
 
 For our Star Wars example, the
 [starWarsSchema.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsSchema.js)
 file in GraphQL.js defines this type system.
 
+这个系统中最基本的类型会是 `Humana`,用来表示类如Luke、Leia、Han等人物角色。 所有人都有姓名，所以 `Human`这个类型中我们定义了一个叫 `name` 的字段。该字段的返回值是 String 数据类型。而且非空，所以 `name` 字段我们将其定义为非空字符串。后续的规范和文档中我们会沿用简写的标记，`Human` 类型的定义如下：
+
+```
+type Human {
+  name: String
+}
+```
+
+
 The most basic type in the system will be `Human`, representing characters
-like Luke, Leia, and Han. All humans in our type system will have a name,
+like Luke, Leia, and Han. All  humans in our type system will have a name,
 so we define the `Human` type to have a field called "name". This returns
 a String, and we know that it is not null (since all `Human`s have a name),
 so we will define the "name" field to be a non-nullable String. Using a
@@ -52,6 +84,10 @@ type Human {
 }
 ```
 
+
+这种简写方式对于描述 type system 的基本内容是很方便的。Javascript 的实现中则更加详细，可以对类型和字段进行详细描述。同时你可以将基础数据和 type system 进行一一对应。比如在 GraphQL.js中，最基础的数据是 [set of JavaScript objects](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsData.js),但通常情况下，可以通过服务调用的方式获取后台数据，这样的一层 type system扮演的角色就是将类型和字段映射到具体的服务中去。
+
+
 This shorthand is convenient for describing the basic shape of a type
 system; the JavaScript implementation is more full-featured, and allows types
 and fields to be documented. It also sets up the mapping between the
@@ -60,6 +96,18 @@ underlying data is a [set of JavaScript objects](https://github.com/graphql/grap
 but in most cases the backing data will be accessed through some service, and
 this type system layer will be responsible for mapping from types and fields to
 that service.
+
+
+
+在很多 API 中通常是这样，实际上 GraphQL 中 我们会分配给每个对象一个 ID，用于后续再次访问/读取这个对象。因此我们添加这个字段到 Human 类型中去，同时我们用另一个字符串来表示他们的母星。    
+
+```
+type Human {
+  id: String
+  name: String
+  homePlanet: String
+}
+```
 
 A common pattern in many APIs, and indeed in GraphQL is to give
 objects an ID that can be used to refetch the object. So let's add
@@ -74,12 +122,29 @@ type Human {
 }
 ```
 
+
+鉴于我们聊得是 星球大战三部曲，如果能够描述这个任务角色是哪一部中出现的。为此，我们首先要定义一个枚举类型，其中罗列了三部曲的这三部：
+
+```
+enum Episode { NEWHOPE, EMPIRE, JEDI }
+```
+
 Since we're talking about the Star Wars trilogy, it would be useful
-to describe the episodes in which each character appears. To do so, we'll
+to describe what episodes each character appears in. To do so, we'll
 first define an enum, which lists the three episodes in the trilogy:
 
 ```
 enum Episode { NEWHOPE, EMPIRE, JEDI }
+```
+
+然后我们给 `Human` 新增一个字段，用来表示角色出现在哪一部中，这个字段的取值是剧集的列表：
+```
+type Human {
+  id: String
+  name: String
+  appearsIn: [Episode]
+  homePlanet: String
+}
 ```
 
 Now we want to add a field to `Human` describing what episodes they
@@ -94,6 +159,17 @@ type Human {
 }
 ```
 
+然后我们引入一个叫 `Droid` 的类型：
+```
+type Droid {
+  id: String
+  name: String
+  appearsIn: [Episode]
+  primaryFunction: String
+}
+```
+
+
 Now, let's introduce another type, `Droid`:
 
 
@@ -106,15 +182,22 @@ type Droid {
 }
 ```
 
+这样我们就有了两种类型。Let's add a way of going between them:  human 和 droid 都有 friend。但human 既可以是human 也可以是droid的朋友。如何来区分 human 和 droid呢？
+
 Now we have two types! Let's add a way of going between them: humans
 and droids both have friends. But humans can be friends with both
 humans and droids. How do we refer to either a human or a droid?
 
+仔细一分析，就可以看出 human 和 droid 之间存在共性：都有 ID，name，episodes
+they appear in。因此我们新增一个叫 `Character` 的接口interface， `Human` `Droid`都实现了这个接口。这样，我们就可以新增一个 `friends`字段，取值则是 `Character`的集合。
+
 If we look, we note that there's common functionality between
-humans and droids; they both have IDs, names, and episodes in which
-they appear. So we'll add an interface, `Character`, and make
+humans and droids; they both have IDs, names, and episodes
+they appear in. So we'll add an interface, `Character`, and make
 both `Human` and `Droid` implement it. Once we have that, we can
 add the `friends` field, that returns a list of `Character`s.
+
+目前为止 我们的type system是这样子的：
 
 Our type system so far is:
 
@@ -145,6 +228,8 @@ type Droid implements Character {
 }
 ```
 
+我们可能会心存疑问，这些字段之中哪些可以取 `null` 值。默认地，由于 GraphQL 的查询通常需要和多个服务进行交互，这些服务可能是不可用的，因此 GraphQL 中的任意类型都可以是 `null`。然而，如果 type system 能够保证返回值不会为null，我们可以将其标记为非空字段。使用在字段后加 `!`来标记。我们可以将 type system 中的 `id`标记为非空。
+
 One question we might ask, though, is whether any of those fields can return
 `null`. By default, `null` is a permitted value for any type in GraphQL,
 since fetching data to fulfill a GraphQL query often requires talking
@@ -153,6 +238,8 @@ type system can guarantee that a type is never null, then we can mark
 it as Non Null in the type system. We indicate that in our shorthand
 by adding an "!" after the type. We can update our type system to note
 that the `id` is never null.
+
+需要注意的是在我们最新的实现中，很多字段都是非空的。但我们并未将其标记为非空。大家可以这样理解，最终我们会用后台服务替换现在的硬编码数据，但后台服务未必是可靠的。将这些字段设为可为空，这样我们就可以使用空值来表示我们的后台服务出错了，同时让客户端知道出现了错误。
 
 Note that while in our current implementation, we can guarantee that more
 fields are non-null (since our current implementation has hard-coded data),
@@ -188,6 +275,7 @@ type Droid implements Character {
   primaryFunction: String
 }
 ```
+
 
 We're missing one last piece: an entry point into the type system.
 
@@ -554,7 +642,7 @@ Since R2-D2 is a droid, this will return
 
 This was particularly useful because `hero` was defined to return a `Character`,
 which is an interface; we might want to know what concrete type was actually
-returned. If we instead asked for the hero of Episode V:
+returned. If we instead asked for the hero of episode V:
 
 ```
 query CheckTypeOfLuke {
@@ -841,7 +929,7 @@ and we get back:
 And that matches what we said in the type system section, that
 the `Query` type is where we will start! Note that the naming here
 was just by convention; we could have named our `Query` type anything
-else, and it still would have been returned here if we had specified it
+else, and it still would have been returned here if we had we specified it
 as the starting type for queries. Naming it `Query`, though, is a useful
 convention.
 

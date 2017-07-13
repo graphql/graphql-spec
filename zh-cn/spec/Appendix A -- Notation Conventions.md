@@ -22,7 +22,7 @@ of the sequences it is defined by, until all non-terminal symbols have been
 replaced by terminal characters.
 
 Terminals are represented in this document in a monospace font in two forms: a
-specific Unicode character or sequence of Unicode characters (ex. {`=`} or {`terminal`}), and a pattern of Unicode characters defined by a regular expression
+specific unicode character or sequence of unicode characters (ex. {`=`} or {`terminal`}), and a pattern of unicode characters defined by a regular expression
 (ex {/[0-9]+/}).
 
 Non-terminal production rules are represented in this document using the
@@ -48,12 +48,12 @@ ListOfLetterA :
 
 The GraphQL language is defined in a syntactic grammar where terminal symbols
 are tokens. Tokens are defined in a lexical grammar which matches patterns of
-source characters. The result of parsing a sequence of source Unicode characters
+source characters. The result of parsing a sequence of source unicode characters
 produces a GraphQL AST.
 
 A Lexical grammar production describes non-terminal "tokens" by
-patterns of terminal Unicode characters. No "whitespace" or other ignored
-characters may appear between any terminal Unicode characters in the lexical
+patterns of terminal unicode characters. No "whitespace" or other ignored
+characters may appear between any terminal unicode characters in the lexical
 grammar production. A lexical grammar production is distinguished by a two colon
 `::` definition.
 
@@ -88,7 +88,7 @@ means that the nonterminal {SafeName} may be replaced by any sequence of
 characters that could replace {Name} provided that the same sequence of
 characters could not replace {SevenCarlinWords}.
 
-A grammar may also list a number of restrictions after "but not" separated
+A grammar may also list a number of restrictions after "but not" seperated
 by "or".
 
 For example:
@@ -166,16 +166,13 @@ Example_param :
 This specification describes the semantic value of many grammar productions in
 the form of a list of algorithmic steps.
 
-For example, this describes how a parser should interpret a string literal:
+For example, this describes how a parser should interpret a unicode escape
+sequence which appears in a string literal:
 
-StringValue :: `""`
+EscapedUnicode :: u /[0-9A-Fa-f]{4}/
 
-  * Return an empty Unicode character sequence.
-
-StringValue :: `"` StringCharacter+ `"`
-
-  * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values.
+  * Let {codePoint} be the number represented by the four-digit hexidecimal sequence.
+  * The string value is the unicode character represented by {codePoint}.
 
 
 ## Algorithms

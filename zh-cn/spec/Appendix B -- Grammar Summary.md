@@ -1,29 +1,31 @@
 # B. Appendix: Grammar Summary
 
-SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
+SourceCharacter :: "Any Unicode code point"
 
 
 ## Ignored Tokens
 
 Ignored ::
-  - UnicodeBOM
   - WhiteSpace
   - LineTerminator
   - Comment
   - Comma
 
-UnicodeBOM :: "Byte Order Mark (U+FEFF)"
-
 WhiteSpace ::
   - "Horizontal Tab (U+0009)"
+  - "Vertical Tab (U+000B)"
+  - "Form Feed (U+000C)"
   - "Space (U+0020)"
+  - "No-break Space (U+00A0)"
 
 LineTerminator ::
   - "New Line (U+000A)"
-  - "Carriage Return (U+000D)" [ lookahead ! "New Line (U+000A)" ]
-  - "Carriage Return (U+000D)" "New Line (U+000A)"
+  - "Carriage Return (U+000D)"
+  - "Line Separator (U+2028)"
+  - "Paragraph Separator (U+2029)"
 
-Comment :: `#` CommentChar*
+Comment ::
+  - `#` CommentChar*
 
 CommentChar :: SourceCharacter but not LineTerminator
 
@@ -74,10 +76,10 @@ StringValue ::
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
-  - \u EscapedUnicode
+  - \ EscapedUnicode
   - \ EscapedCharacter
 
-EscapedUnicode :: /[0-9A-Fa-f]{4}/
+EscapedUnicode :: u /[0-9A-Fa-f]{4}/
 
 EscapedCharacter :: one of `"` \ `/` b f n r t
 
@@ -92,7 +94,7 @@ Definition :
 
 OperationDefinition :
   - SelectionSet
-  - OperationType Name? VariableDefinitions? Directives? SelectionSet
+  - OperationType Name VariableDefinitions? Directives? SelectionSet
 
 OperationType : one of query mutation subscription
 
@@ -113,13 +115,13 @@ Argument : Name : Value
 
 FragmentSpread : ... FragmentName Directives?
 
-InlineFragment : ... TypeCondition? Directives? SelectionSet
+InlineFragment : ... on TypeCondition Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
+FragmentDefinition : fragment FragmentName on TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
-TypeCondition : on NamedType
+TypeCondition : NamedType
 
 Value[Const] :
   - [~Const] Variable
@@ -127,14 +129,11 @@ Value[Const] :
   - FloatValue
   - StringValue
   - BooleanValue
-  - NullValue
   - EnumValue
   - ListValue[?Const]
   - ObjectValue[?Const]
 
 BooleanValue : one of `true` `false`
-
-NullValue : `null`
 
 EnumValue : Name but not `true`, `false` or `null`
 
