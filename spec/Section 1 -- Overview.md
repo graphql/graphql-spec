@@ -44,7 +44,7 @@ GraphQL has a number of design principles:
 
  * **Product-centric**: GraphQL is unapologetically driven by the requirements
    of views and the front-end engineers that write them. GraphQL starts with
-   their way of thinking and requirements and build the language and runtime
+   their way of thinking and requirements and builds the language and runtime
    necessary to enable that.
 
  * **Strong-typing**: Every GraphQL server defines an application-specific
