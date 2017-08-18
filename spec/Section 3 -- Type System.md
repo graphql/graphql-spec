@@ -994,8 +994,8 @@ The `@include` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional inclusion during execution as
 described by the if argument.
 
-In this example `experimentalField` will be queried only if the `$someTest` is
-provided a `true` value.
+In this example `experimentalField` will only be queried if the variable 
+`$someTest` has the value `true`
 
 ```graphql
 query myQuery($someTest: Boolean) {
