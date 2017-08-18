@@ -694,13 +694,17 @@ The two keywords `true` and `false` represent the two boolean values.
 ### String Value
 
 StringValue ::
-  - `""`
-  - `"` StringCharacter+ `"`
+  - `"` StringCharacter* `"`
+  - `"""` MultiLineStringCharacter* `"""`
 
 StringCharacter ::
   - SourceCharacter but not `"` or \ or LineTerminator
   - \u EscapedUnicode
   - \ EscapedCharacter
+
+MultiLineStringCharacter ::
+  - SourceCharacter but not `"""` or `\"""`
+  - `\"""`
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
@@ -714,16 +718,91 @@ Note: Unicode characters are allowed within String value literals, however
 GraphQL source must not contain some ASCII control characters so escape
 sequences must be used to represent these characters.
 
+**Multi-line Strings**
+
+Multi-line strings are sequences of characters wrapped in triple-quotes (`"""`).
+White space, line terminators, and quote and backslash characters may all be
+used unescaped, enabling freeform text. Characters must all be valid
+{SourceCharacter} to ensure printable source text. If non-printable ASCII
+characters need to be used, escape sequences must be used within standard
+double-quote strings.
+
+Since multi-line strings are often used in indented positions, the common
+indentation within a multi-line string is removed along with empty initial and
+trailing lines.
+
+For example, the following operation containing a multi-line string:
+
+```graphql
+mutation {
+  sendEmail(message: """
+    Hello,
+      World!
+
+    Yours,
+      GraphQL.
+  """)
+}
+```
+
+Is identical to the escaped string:
+
+```graphql
+mutation {
+  sendEmail(message: "Hello,\n  World!\n\nYours,\n  GraphQL.")
+}
+```
+
+This common indentation is removed when a document is interpretted.
+
+RemoveIndentation(rawValue):
+
+  * Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
+  * Let {minIndent} be Infinity.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}, continue to the next line.
+    * Let {length} be the number of characters in {line}.
+    * Let {indent} be the number of leading consecutive {WhiteSpace} characters
+      in {line}.
+    * If {indent} is less than {length} and {indent} is less than {minIndent}:
+      * Let {minIndent} be {indent}.
+  * If {minIndent} is not Infinity:
+    * For each {line} in {lines}:
+      * If {line} is the first item in {lines}, continue to the next line.
+      * Remove {minIndent} characters from the beginning of {line}.
+  * While the first {line} in {lines} contains no characters:
+    * Remove the first {line} from {lines}.
+  * While the last {line} in {lines} contains no characters:
+    * Remove the last {line} from {lines}.
+  * Let {formatted} be the empty character sequence.
+  * For each {line} in {lines}:
+    * If {line} is the first item in {lines}:
+      * Append {formatted} with {line}.
+    * Otherwise:
+      * Append {formatted} with a new line character (U+000A).
+      * Append {formatted} with {line}.
+  * Return {formatted}.
+
 **Semantics**
 
-StringValue :: `""`
-
-  * Return an empty Unicode character sequence.
-
-StringValue :: `"` StringCharacter+ `"`
+StringValue :: `"` StringCharacter* `"`
 
   * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values.
+    Unicode character values (which may be empty).
+
+StringValue :: `"""` MultiLineStringCharacter* `"""`
+
+  * Let {rawValue} be the Unicode character sequence of all
+    {MultiLineStringCharacter} Unicode character values (which may be empty).
+  * Return the result of {RemoveIndentation(rawValue)}.
+
+MultiLineStringCharacter :: SourceCharacter but not `"""` or `\"""`
+
+  * Return the character value of {SourceCharacter}.
+
+MultiLineStringCharacter :: `\"""`
+
+  * Return the character sequence `"""`.
 
 StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
 

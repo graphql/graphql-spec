@@ -978,8 +978,8 @@ The `@skip` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional exclusion during execution as
 described by the if argument.
 
-In this example `experimentalField` will be queried only if the `$someTest` is
-provided a `false` value.
+In this example `experimentalField` will only be queried if the variable `$someTest` 
+has the value `false`.
 
 ```graphql
 query myQuery($someTest: Boolean) {
