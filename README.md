@@ -1,5 +1,19 @@
 # GraphQL
 
+The GraphQL specification is edited in the markdown files found in [`/spec`](./spec)
+the latest release of which is published at http://facebook.github.io/graphql/.
+
+The latest draft specification can be found at http://facebook.github.io/graphql/draft/
+which tracks the latest commit to the master branch in this repository.
+
+Previous releases of the GraphQL specification can be found at permalinks that
+match their [release tag](https://github.com/facebook/graphql/releases). For
+example, https://github.com/facebook/graphql/October2016. If you are linking
+directly to the GraphQL specification, it's best to link to a tagged permalink
+for the particular referenced version.
+
+## Overview
+
 This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
 
 The target audience for this specification is not the client developer, but those who have,
