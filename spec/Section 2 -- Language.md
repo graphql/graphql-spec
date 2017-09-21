@@ -184,7 +184,7 @@ represented in the shorthand form, which omits both the query keyword and
 operation name. Otherwise, if a GraphQL query document contains multiple
 operations, each operation must be named. When submitting a query document with
 multiple operations to a GraphQL service, the name of the desired operation to
-be executed must also be provided.
+be executed must also be provided. How the name is provided is up to the GraphQL implementation.
 
 
 ## Operations

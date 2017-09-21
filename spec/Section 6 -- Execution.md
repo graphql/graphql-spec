@@ -22,7 +22,7 @@ to be formatted according to the Response section below.
 To execute a request, the executor must have a parsed `Document` (as defined
 in the “Query Language” part of this spec) and a selected operation name to
 run if the document defines multiple operations, otherwise the document is
-expected to only contain a single operation. The result of the request is
+expected to only contain a single operation. How this information is passed to the executor is determined by the implementation. The result of the request is
 determined by the result of executing this operation according to the "Executing
 Operations” section below.
 
