@@ -129,9 +129,9 @@ If the `data` entry in the response is not present, the `errors`
 entry in the response must not be empty. It must contain at least one error.
 The errors it contains should indicate why no data was able to be returned.
 
-If the `data` entry in the response is present (including if it is the value 
-{null}), the `errors` entry in the response may contain any errors that 
-occurred during execution. If errors occurred during execution, it should 
+If the `data` entry in the response is present (including if it is the value
+{null}), the `errors` entry in the response may contain any errors that
+occurred during execution. If errors occurred during execution, it should
 contain those errors.
 
 **Error result format**
@@ -161,7 +161,7 @@ it represents a path in the response, not in the query.
 For example, if fetching one of the friends' names fails in the following
 query:
 
-```graphql
+```graphql example
 {
   hero(episode: $episode) {
     name
@@ -175,7 +175,7 @@ query:
 
 The response might look like:
 
-```js
+```json example
 {
   "errors": [
     {
@@ -215,7 +215,7 @@ For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
 be the same:
 
-```js
+```json example
 {
   "errors": [
     {
