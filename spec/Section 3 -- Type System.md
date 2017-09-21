@@ -265,7 +265,7 @@ introspection system.
 
 For example, a type `Person` could be described as:
 
-```
+```graphql example
 type Person {
   name: String
   age: Int
@@ -285,7 +285,7 @@ that object.
 
 For example, selecting all the fields of `Person`:
 
-```graphql
+```graphql example
 {
   name
   age
@@ -295,7 +295,7 @@ For example, selecting all the fields of `Person`:
 
 Would yield the object:
 
-```js
+```json example
 {
   "name": "Mark Zuckerberg",
   "age": 30,
@@ -305,7 +305,7 @@ Would yield the object:
 
 While selecting a subset of fields:
 
-```graphql
+```graphql example
 {
   age
   name
@@ -314,7 +314,7 @@ While selecting a subset of fields:
 
 Must only yield exactly that subset:
 
-```js
+```json example
 {
   "age": 30,
   "name": "Mark Zuckerberg"
@@ -327,7 +327,7 @@ underlying base type is one of those five.
 
 For example, the `Person` type might include a `relationship`:
 
-```
+```graphql example
 type Person {
   name: String
   age: Int
@@ -339,7 +339,7 @@ type Person {
 Valid queries must supply a nested field set for a field that returns
 an object, so this query is not valid:
 
-```!graphql
+```graphql counter-example
 {
   name
   relationship
@@ -348,7 +348,7 @@ an object, so this query is not valid:
 
 However, this example is valid:
 
-```graphql
+```graphql example
 {
   name
   relationship {
@@ -359,7 +359,7 @@ However, this example is valid:
 
 And will yield the subset of each object type queried:
 
-```js
+```json example
 {
   "name": "Mark Zuckerberg",
   "relationship": {
@@ -388,7 +388,7 @@ be anticipated.
 If a fragment is spread before other fields, the fields that fragment specifies
 occur in the response before the following fields.
 
-```graphql
+```graphql example
 {
   foo
   ...Frag
@@ -403,7 +403,7 @@ fragment Frag on Query {
 
 Produces the ordered result:
 
-```js
+```json example
 {
   "foo": 1,
   "bar": 2,
@@ -416,7 +416,7 @@ If a field is queried multiple times in a selection, it is ordered by the first
 time it is encountered. However fragments for which the type does not apply does
 not affect ordering.
 
-```graphql
+```graphql example
 {
   foo
   ...Ignored
@@ -438,7 +438,7 @@ fragment Matching on Query {
 
 Produces the ordered result:
 
-```js
+```json example
 {
   "foo": 1,
   "bar": 2,
@@ -449,7 +449,7 @@ Produces the ordered result:
 Also, if directives result in fields being excluded, they are not considered in
 the ordering of fields.
 
-```graphql
+```graphql example
 {
   foo @skip(if: true)
   bar
@@ -459,7 +459,7 @@ the ordering of fields.
 
 Produces the ordered result:
 
-```js
+```json example
 {
   "bar": 1,
   "foo": 2
@@ -490,7 +490,7 @@ introspection system.
 For example, a `Person` type with a `picture` field could accept an argument to
 determine what size of an image to return.
 
-```
+```graphql example
 type Person {
   name: String
   picture(size: Int): Url
@@ -502,7 +502,7 @@ these arguments.
 
 This example query:
 
-```graphql
+```graphql example
 {
   name
   picture(size: 600)
@@ -511,7 +511,7 @@ This example query:
 
 May yield the result:
 
-```js
+```json example
 {
   "name": "Mark Zuckerberg",
   "picture": "http://some.cdn/picture_600.jpg"
@@ -578,7 +578,7 @@ type whose base type is one of those five.
 For example, an interface may describe a required field and types such as
 `Person` or `Business` may then implement this interface.
 
-```
+```graphql example
 interface NamedEntity {
   name: String
 }
@@ -599,7 +599,7 @@ expected, but some fields should be guaranteed.
 
 To continue the example, a `Contact` might refer to `NamedEntity`.
 
-```
+```graphql example
 type Contact {
   entity: NamedEntity
   phoneNumber: String
@@ -610,7 +610,7 @@ type Contact {
 This allows us to write a query for a `Contact` that can select the
 common fields.
 
-```graphql
+```graphql example
 {
   entity {
     name
@@ -624,7 +624,7 @@ the interface may be queried. In the above example, `entity` returns a
 `NamedEntity`, and `name` is defined on `NamedEntity`, so it is valid. However,
 the following would not be a valid query:
 
-```!graphql
+```graphql counter-example
 {
   entity {
     name
@@ -638,7 +638,7 @@ because `entity` refers to a `NamedEntity`, and `age` is not defined on that
 interface. Querying for `age` is only valid when the result of `entity` is a
 `Person`; the query can express this using a fragment or an inline fragment:
 
-```graphql
+```graphql example
 {
   entity {
     name
@@ -687,7 +687,7 @@ typed fragments.
 
 For example, we might have the following type system:
 
-```
+```graphql example
 union SearchResult = Photo | Person
 
 type Person {
@@ -711,7 +711,7 @@ type. If the query wanted the name if the result was a Person, and the height if
 it was a photo, the following query is invalid, because the union itself
 defines no fields:
 
-```!graphql
+```graphql counter-example
 {
   firstSearchResult {
     name
@@ -722,7 +722,7 @@ defines no fields:
 
 Instead, the query would be:
 
-```graphql
+```graphql example
 {
   firstSearchResult {
     ... on Person {
@@ -827,7 +827,7 @@ type declared by the input field.
 
 Following are examples of Input Object coercion for the type:
 
-```graphql
+```graphql example
 input ExampleInputObject {
   a: String
   b: Int!
@@ -934,7 +934,7 @@ other than {null}, or a Non-Null variable value, it is coerced using the input c
 
 Example: A non-null argument cannot be omitted.
 
-```!graphql
+```graphql counter-example
 {
   fieldWithNonNullArg
 }
@@ -942,7 +942,7 @@ Example: A non-null argument cannot be omitted.
 
 Example: The value {null} cannot be provided to a non-null argument.
 
-```!graphql
+```graphql counter-example
 {
   fieldWithNonNullArg(nonNullArg: null)
 }
@@ -950,7 +950,7 @@ Example: The value {null} cannot be provided to a non-null argument.
 
 Example: A variable of a nullable type cannot be provided to a non-null argument.
 
-```graphql
+```graphql example
 query withNullableVariable($var: String) {
   fieldWithNonNullArg(nonNullArg: $var)
 }
@@ -978,10 +978,10 @@ The `@skip` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional exclusion during execution as
 described by the if argument.
 
-In this example `experimentalField` will only be queried if the variable 
+In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
 
-```graphql
+```graphql example
 query myQuery($someTest: Boolean) {
   experimentalField @skip(if: $someTest)
 }
@@ -994,10 +994,10 @@ The `@include` directive may be provided for fields, fragment spreads, and
 inline fragments, and allows for conditional inclusion during execution as
 described by the if argument.
 
-In this example `experimentalField` will only be queried if the variable 
+In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
 
-```graphql
+```graphql example
 query myQuery($someTest: Boolean) {
   experimentalField @include(if: $someTest)
 }
@@ -1026,7 +1026,7 @@ The fields on the query type indicate what fields are available at
 the top level of a GraphQL query. For example, a basic GraphQL query
 like this one:
 
-```graphql
+```graphql example
 query getMe {
   me
 }
@@ -1035,7 +1035,7 @@ query getMe {
 Is valid when the type provided for the query starting type has a field
 named "me". Similarly
 
-```graphql
+```graphql example
 mutation setName {
   setName(name: "Zuck") {
     newName
@@ -1046,7 +1046,7 @@ mutation setName {
 Is valid when the type provided for the mutation starting type is not null,
 and has a field named "setName" with a string argument named "name".
 
-```graphql
+```graphql example
 subscription {
   newMessage {
     text
@@ -1055,4 +1055,4 @@ subscription {
 ```
 
 Is valid when the type provided for the subscription starting type is not null,
-and has a field named "newMessage" and only contains a single root field. 
+and has a field named "newMessage" and only contains a single root field.

@@ -172,7 +172,7 @@ Subscriptions at Scale.
 As an example, consider a chat application. To subscribe to new messages posted
 to the chat room, the client sends a request like so:
 
-```graphql
+```graphql example
 subscription NewMessages {
   newMessage(roomId: 123) {
     sender
@@ -185,7 +185,7 @@ While the client is subscribed, whenever new messages are posted to chat room
 with ID "123", the selection for "sender" and "text" will be evaluated and
 published to the client, for example:
 
-```js
+```json example
 {
   "data": {
     "newMessage": {
@@ -327,7 +327,7 @@ freedom to execute the field entries in whatever order it deems optimal.
 
 For example, given the following grouped field set to be executed normally:
 
-```graphql
+```graphql example
 {
   birthday {
     month
@@ -352,7 +352,7 @@ before it continues on to the next item in the grouped field set:
 
 For example, given the following selection set to be executed serially:
 
-```graphql
+```graphql example
 {
   changeBirthday(birthday: $newBirthday) {
     month
@@ -374,7 +374,7 @@ As an illustrative example, let's assume we have a mutation field
 `changeTheNumber` that returns an object containing one field,
 `theNumber`. If we execute the following selection set serially:
 
-```graphql
+```graphql example
 {
   first: changeTheNumber(newNumber: 1) {
     theNumber
@@ -399,7 +399,7 @@ The executor will execute the following serially:
 
 A correct executor must generate the following result for that selection set:
 
-```js
+```json example
 {
   "first": {
     "theNumber": 1
@@ -425,7 +425,7 @@ same time.
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
 
-```graphql
+```graphql example
 {
   a {
     subfield1
@@ -649,7 +649,7 @@ continue execution of the sub-selection sets.
 An example query illustrating parallel fields with the same name with
 sub-selections.
 
-```graphql
+```graphql example
 {
   me {
     firstName
@@ -694,8 +694,8 @@ to {null}, otherwise if it is a `Non-Null` type, the field error is further
 propagated to it's parent field.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
-resolves to {null}, then the entire list must resolve to {null}. 
-If the `List` type is also wrapped in a `Non-Null`, the field error continues 
+resolves to {null}, then the entire list must resolve to {null}.
+If the `List` type is also wrapped in a `Non-Null`, the field error continues
 to propagate upwards.
 
 If all fields from the root of the request to the source of the error return

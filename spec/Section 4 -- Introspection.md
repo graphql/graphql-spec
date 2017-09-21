@@ -8,7 +8,7 @@ three fields: id, name, and birthday.
 
 For example, given a server with the following type definition:
 
-```
+```graphql example
 type User {
   id: String
   name: String
@@ -18,7 +18,7 @@ type User {
 
 The query
 
-```graphql
+```graphql example
 {
   __type(name: "User") {
     name
@@ -34,7 +34,7 @@ The query
 
 would return
 
-```js
+```json example
 {
   "__type": {
     "name": "User",
@@ -109,7 +109,7 @@ The schema introspection system is accessible from the meta-fields `__schema`
 and `__type` which are accessible from the type of the root of a query
 operation.
 
-```
+```graphql
 __schema: __Schema!
 __type(name: String!): __Type
 ```
@@ -119,7 +119,7 @@ of the query operation.
 
 The schema of the GraphQL schema introspection system:
 
-```
+```graphql
 type __Schema {
   types: [__Type!]!
   queryType: __Type!
@@ -312,7 +312,7 @@ of named input values.
 
 For example the input object `Point` could be defined as:
 
-```
+```graphql example
 input Point {
   x: Int
   y: Int

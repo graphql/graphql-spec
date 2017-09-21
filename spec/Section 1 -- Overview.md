@@ -7,7 +7,7 @@ requirements and interactions.
 For example, this GraphQL request will receive the name of the user with id 4
 from the Facebook implementation of GraphQL.
 
-```graphql
+```graphql example
 {
   user(id: 4) {
     name
@@ -17,7 +17,7 @@ from the Facebook implementation of GraphQL.
 
 Which produces the resulting data (in JSON):
 
-```js
+```json example
 {
   "user": {
     "name": "Mark Zuckerberg"

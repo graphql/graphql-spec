@@ -207,7 +207,7 @@ Each operation is represented by an optional operation name and a selection set.
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
-```
+```graphql example
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -225,7 +225,7 @@ short-hand form which omits the query keyword and query name.
 
 For example, this unnamed query operation is written via query shorthand.
 
-```graphql
+```graphql example
 {
   field
 }
@@ -247,7 +247,7 @@ An operation selects the set of information it needs, and will receive exactly
 that information and nothing more, avoiding over-fetching and
 under-fetching data.
 
-```graphql
+```graphql example
 {
   id
   firstName
@@ -275,7 +275,7 @@ shaped response.
 For example, this operation selects fields of complex data and relationships
 down to scalar values.
 
-```graphql
+```graphql example
 {
   me {
     id
@@ -298,7 +298,7 @@ viewer. Some typical examples of these top fields include references to a
 current logged-in viewer, or accessing certain types of data referenced by a
 unique identifier.
 
-```graphql
+```graphql example
 # `me` could represent the currently logged in viewer.
 {
   me {
@@ -329,7 +329,7 @@ function arguments within a GraphQL server's implementation.
 In this example, we want to query a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:
 
-```graphql
+```graphql example
 {
   user(id: 4) {
     id
@@ -341,7 +341,7 @@ argument) and their profile picture of a specific `size`:
 
 Many arguments can exist for a given field:
 
-```graphql
+```graphql example
 {
   user(id: 4) {
     id
@@ -358,13 +358,13 @@ semantic meaning.
 
 These two queries are semantically identical:
 
-```graphql
+```graphql example
 {
   picture(width: 200, height: 100)
 }
 ```
 
-```graphql
+```graphql example
 {
   picture(height: 100, width: 200)
 }
@@ -381,7 +381,7 @@ queried. However, you can define a different name by specifying an alias.
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting object will not have duplicate keys:
 
-```graphql
+```graphql example
 {
   user(id: 4) {
     id
@@ -394,7 +394,7 @@ the resulting object will not have duplicate keys:
 
 Which returns the result:
 
-```js
+```json example
 {
   "user": {
     "id": 4,
@@ -407,7 +407,7 @@ Which returns the result:
 
 Since the top level of a query is a field, it also can be given an alias:
 
-```graphql
+```graphql example
 {
   zuck: user(id: 4) {
     id
@@ -418,7 +418,7 @@ Since the top level of a query is a field, it also can be given an alias:
 
 Returns the result:
 
-```js
+```json example
 {
   "zuck": {
     "id": 4,
@@ -449,7 +449,7 @@ or union.
 For example, if we wanted to fetch some common information about mutual friends
 as well as friends of some user:
 
-```graphql
+```graphql example
 query noFragments {
   user(id: 4) {
     friends(first: 10) {
@@ -469,7 +469,7 @@ query noFragments {
 The repeated fields could be extracted into a fragment and composed by
 a parent fragment or query.
 
-```graphql
+```graphql example
 query withFragments {
   user(id: 4) {
     friends(first: 10) {
@@ -495,7 +495,7 @@ spreads.
 
 For example:
 
-```graphql
+```graphql example
 query withNestedFragments {
   user(id: 4) {
     friends(first: 10) {
@@ -539,7 +539,7 @@ it is operating on matches the type of the fragment.
 
 For example in this query on the Facebook data model:
 
-```graphql
+```graphql example
 query FragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
     handle
@@ -566,7 +566,7 @@ The `profiles` root field returns a list where each element could be a `Page` or
 present and `likers` will not. Conversely when the result is a `Page`, `likers`
 will be present and `friends` will not.
 
-```js
+```json example
 {
   "profiles": [
     {
@@ -591,7 +591,7 @@ conditionally include fields based on their runtime type. This feature of
 standard fragment inclusion was demonstrated in the `query FragmentTyping`
 example. We could accomplish the same thing using inline fragments.
 
-```graphql
+```graphql example
 query inlineFragmentTyping {
   profiles(handles: ["zuck", "cocacola"]) {
     handle
@@ -613,7 +613,7 @@ Inline fragments may also be used to apply a directive to a group of fields.
 If the TypeCondition is omitted, an inline fragment is considered to be of the
 same type as the enclosing context.
 
-```graphql
+```graphql example
 query inlineFragmentNoType($expandedInfo: Boolean) {
   user(handle: "zuck") {
     id
@@ -763,7 +763,7 @@ GraphQL has two semantically different ways to represent the lack of a value:
 
 For example, these two field calls are similar, but are not identical:
 
-```graphql
+```graphql example
 {
   field(arg: null)
   field
@@ -838,13 +838,13 @@ identical semantic meaning.
 
 These two queries are semantically identical:
 
-```graphql
+```graphql example
 {
   nearestThing(location: { lon: 12.43, lat: -53.211 })
 }
 ```
 
-```graphql
+```graphql example
 {
   nearestThing(location: { lat: -53.211, lon: 12.43 })
 }
@@ -888,7 +888,7 @@ throughout the execution of that operation.
 In this example, we want to fetch a profile picture size based on the size
 of a particular device:
 
-```graphql
+```graphql example
 query getZuckProfile($devicePicSize: Int) {
   user(id: 4) {
     id
@@ -903,7 +903,7 @@ request so they may be substituted during execution. If providing JSON for the
 variables' values, we could run this query and request profilePic of
 size `60` width:
 
-```js
+```json example
 {
   "devicePicSize": 60
 }
