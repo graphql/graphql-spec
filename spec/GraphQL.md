@@ -88,6 +88,10 @@ the specification. Examples are either introduced explicitly in prose
 This is an example of a non-normative example.
 ```
 
+```counter-example
+This is an example of a non-normative counter-example.
+```
+
 Notes in this document are non-normative, and are presented to clarify intent,
 draw attention to potential edge-cases and pit-falls, and answer common
 questions that arise during implementation. Notes are either introduced
