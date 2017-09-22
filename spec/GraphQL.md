@@ -77,12 +77,13 @@ optimized implementations.
 **Non-Normative Portions**
 
 All contents of this document are normative except portions explicitly
-declared as non-normative, including examples and notes.
+declared as non-normative.
 
 Examples in this document are non-normative, and are presented to aid
 understanding of introduced concepts and the behavior of normative portions of
 the specification. Examples are either introduced explicitly in prose
-(e.g. "for example") or are set apart in an example block, like this:
+(e.g. "for example") or are set apart in example or counter-example blocks,
+like this:
 
 ```example
 This is an example of a non-normative example.
