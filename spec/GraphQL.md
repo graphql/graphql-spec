@@ -43,8 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 **Conformance**
 
-A conforming implementation of GraphQL must fulfill all described normative
-requirements. Conformance requirements are described in this document via both
+A conforming implementation of GraphQL must fulfill all normative requirements. 
+Conformance requirements are described in this document via both
 descriptive assertions and key words with clearly defined meanings.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
