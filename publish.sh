@@ -39,8 +39,8 @@ fi
 echo "Pushing update"
 git config user.name "Travis CI"
 git config user.email "github@fb.com"
-git add .
-git commit -m "Deploy to GitHub Pages"
+git add -A .
+git commit -a -m "Deploy to GitHub Pages"
 git push > /dev/null 2>&1
 
 echo "Pushed"
