@@ -6,7 +6,7 @@
     "Nicholas Schrock <schrockn@fb.com>",
     "Daniel Schafer <dschafer@fb.com>"
   ],
-  "license": "BSD",
+  "license": "OWFa-1.0",
   "homepage": "https://facebook.github.io/graphql",
   "bugs": {
     "url": "https://github.com/facebook/graphql/issues"
