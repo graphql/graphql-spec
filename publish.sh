@@ -40,8 +40,12 @@ echo "Pushing update"
 git config user.name "Travis CI"
 git config user.email "github@fb.com"
 git add -A .
-git commit -a -m "Deploy to GitHub Pages"
-git push > /dev/null 2>&1
+if git diff --staged --quiet; then
+  echo "Nothing to publish"
+else
+  git diff --quiet git commit -a -m "Deploy to GitHub Pages"
+  git push > /dev/null 2>&1
+  echo "Pushed"
+fi
 
-echo "Pushed"
 popd > /dev/null 2>&1
