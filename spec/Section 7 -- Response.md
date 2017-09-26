@@ -23,8 +23,10 @@ representations of the following four primitives:
 
 Serialization formats which can represent an ordered map should preserve the
 order of requested fields as defined by {CollectFields()} in the Execution
-section. Serialization formats which can only represent unordered maps should
-retain this order grammatically (such as JSON).
+section. Serialization formats which can only represent unordered maps
+(such as JSON) should retain this order textually. That is, if two fields
+`{foo, bar}` were queried in that order, the resulting JSON serialization
+should contain `{"foo": "...", "bar": "..."}` in the same order.
 
 Producing a response where fields are represented in the same order in which
 they appear in the request improves human readability during debugging and

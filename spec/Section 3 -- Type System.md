@@ -378,7 +378,9 @@ is correctly produced when using the {CollectFields()} algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
-maps should retain this order grammatically (such as JSON).
+maps (such as JSON) should retain this order textually. That is, if two fields
+`{foo, bar}` were queried in that order, the resulting JSON serialization
+should contain `{"foo": "...", "bar": "..."}` in the same order.
 
 Producing a response where fields are represented in the same order in which
 they appear in the request improves human readability during debugging and
