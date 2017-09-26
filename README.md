@@ -8,7 +8,7 @@ which tracks the latest commit to the master branch in this repository.
 
 Previous releases of the GraphQL specification can be found at permalinks that
 match their [release tag](https://github.com/facebook/graphql/releases). For
-example, https://github.com/facebook/graphql/October2016. If you are linking
+example, http://facebook.github.io/graphql/October2016/. If you are linking
 directly to the GraphQL specification, it's best to link to a tagged permalink
 for the particular referenced version.
 
