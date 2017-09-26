@@ -11,6 +11,9 @@ for client-server applications. The development of this standard started
 in 2015. GraphQL is a new and evolving language and is not complete. Significant
 enhancement will continue in future editions of this specification.
 
+Previous releases of the GraphQL specification can be found at permalinks that
+match their [release tag](https://github.com/facebook/graphql/releases).
+
 **Copyright notice**
 
 Copyright (c) 2015-2017, Facebook, Inc. All rights reserved.
@@ -43,7 +46,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 **Conformance**
 
-A conforming implementation of GraphQL must fulfill all normative requirements. 
+A conforming implementation of GraphQL must fulfill all normative requirements.
 Conformance requirements are described in this document via both
 descriptive assertions and key words with clearly defined meanings.
 

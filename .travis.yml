@@ -7,7 +7,7 @@ node_js: 6
 deploy:
   provider: script
   skip_cleanup: true
-  script: npm run deploy
+  script: ./publish.sh
   on:
     branch: master
 
