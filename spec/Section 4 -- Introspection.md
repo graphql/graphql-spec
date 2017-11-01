@@ -131,8 +131,6 @@ type __Type {
 
   # OBJECT and INTERFACE only
   fields(includeDeprecated: Boolean = false): [__Field!]
-
-  # OBJECT only
   interfaces: [__Type!]
 
   # INTERFACE and UNION only
@@ -291,6 +289,7 @@ Fields
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
+* `interfaces`: The set of interfaces that an interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
 * All other fields must return {null}.
