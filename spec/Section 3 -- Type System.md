@@ -95,7 +95,7 @@ a server must not include a type called `Int` and use it to represent
 
 A GraphQL server, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or
-producing an error.
+producing a field error.
 
 For example, a GraphQL server could be preparing a field with the scalar type
 `Int` and encounter a floating-point number. Since the server must not break the
@@ -805,10 +805,10 @@ An input object is never a valid result.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise an error should be thrown. In either
+map supplied by a variable, otherwise an query error should be thrown. In either
 case, the input object literal or unordered map should not contain any entries
-with names not defined by a field of this input object type, otherwise an error
-should be thrown.
+with names not defined by a field of this input object type, otherwise an query
+error should be thrown.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and provided with a value. If the value {null}

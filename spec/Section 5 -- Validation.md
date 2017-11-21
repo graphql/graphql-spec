@@ -935,7 +935,7 @@ referenced.
 
 Named fragment spreads must refer to fragments defined
 within the document.  If the target of a spread is
-not defined, this is an error:
+not defined, this is a validation error:
 
 ```graphql counter-example
 {
