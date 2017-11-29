@@ -1127,4 +1127,4 @@ system, query execution, validation, and introspection systems. There's more
 in both [GraphQL.js](https://github.com/graphql/graphql-js/) and specification,
 including a description and implementation for executing queries, how to format
 a response, explaining how a type system maps to an underlying implementation,
-and how to format a GraphQL response, as well as a grammar for GraphQL.
+and how to format a GraphQL response, as well as the grammar for GraphQL.
