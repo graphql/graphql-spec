@@ -85,15 +85,15 @@ objects in the response as unordered Maps and arrive at a valid value.
 
 A response to a GraphQL operation must be a map.
 
-If the operation included execution, the response map must contain a first entry
-with key `data`. The value of this entry is described in the "Data" section. If
-the operation failed before execution, due to a syntax error, missing
-information, or validation error, this entry must not be present.
-
-If the operation encountered any errors, the response map must contain a next
+If the operation encountered any errors, the response map must contain an
 entry with key `errors`. The value of this entry is described in the "Errors"
 section. If the operation completed without encountering any errors, this entry
 must not be present.
+
+If the operation included execution, the response map must contain an entry
+with key `data`. The value of this entry is described in the "Data" section. If
+the operation failed before execution, due to a syntax error, missing
+information, or validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry,
 if set, must have a map as its value. This entry is reserved for implementors
@@ -104,6 +104,9 @@ To ensure future changes to the protocol do not break existing servers and
 clients, the top level response map must not contain any entries other than the
 three described above.
 
+Note: When `errors` is present in the response, it may be helpful for it to 
+appear first when serialized to make it more clear when errors are present
+in a response during debugging.
 
 ### Data
 
