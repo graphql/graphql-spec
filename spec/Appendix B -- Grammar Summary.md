@@ -235,6 +235,7 @@ DirectiveLocations :
   - Name
   - DirectiveLocations | Name
 
-TypeExtension : extend ObjectTypeExtension
+TypeExtension :
+  - ObjectTypeExtension
 
-ObjectTypeExtension : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?

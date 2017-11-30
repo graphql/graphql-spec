@@ -1404,7 +1404,8 @@ directive @invalidExample(
 
 ### Type Extension
 
-TypeExtension : extend ObjectTypeExtension
+TypeExtension :
+  - ObjectTypeExtension
 
 Type extensions are used to represent a GraphQL type system which has been
 extended from some original type system. For example, this might be used by a
@@ -1414,7 +1415,7 @@ or by a GraphQL service which is itself an extension of another GraphQL service.
 
 #### Object Type Extension
 
-ObjectTypeExtension : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
 
 The named Object type must already exist and be an Object type. Any fields,
 interfaces, or directives provided by the extension must not already exist on
