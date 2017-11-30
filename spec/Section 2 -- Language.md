@@ -1261,8 +1261,6 @@ EnumTypeDefinition : enum Name Directives[Const]? { EnumValueDefinition+ }
 
 EnumValueDefinition : EnumValue Directives[Const]?
 
-EnumValue : Name
-
 Enum types, like Scalar types, also represent leaf values in a GraphQL type
 system. However Enum types describe the set of legal values.
 

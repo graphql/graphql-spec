@@ -225,8 +225,6 @@ EnumTypeDefinition : enum Name Directives[Const]? { EnumValueDefinition+ }
 
 EnumValueDefinition : EnumValue Directives[Const]?
 
-EnumValue : Name
-
 InputObjectTypeDefinition : input Name Directives[Const]? { InputValueDefinition+ }
 
 DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
