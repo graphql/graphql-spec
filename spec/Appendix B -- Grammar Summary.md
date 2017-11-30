@@ -184,8 +184,8 @@ Directive : @ Name Arguments?
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
-  - TypeExtensionDefinition
   - DirectiveDefinition
+  - TypeExtension
 
 SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
 
@@ -201,9 +201,11 @@ TypeDefinition :
 
 ScalarTypeDefinition : scalar Name Directives?
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? { FieldDefinition+ }
+ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? FieldDefinitions
 
 ImplementsInterfaces : implements NamedType+
+
+FieldDefinitions : { FieldDefinition+ }
 
 FieldDefinition : Name ArgumentsDefinition? : Type Directives?
 
@@ -211,7 +213,7 @@ ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Name : Type DefaultValue? Directives?
 
-InterfaceTypeDefinition : interface Name Directives? { FieldDefinition+ }
+InterfaceTypeDefinition : interface Name Directives? FieldDefinitions
 
 UnionTypeDefinition : union Name Directives? = UnionMembers
 
@@ -227,10 +229,12 @@ EnumValue : Name
 
 InputObjectTypeDefinition : input Name Directives? { InputValueDefinition+ }
 
-TypeExtensionDefinition : extend ObjectTypeDefinition
-
 DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
   - Name
   - DirectiveLocations | Name
+
+TypeExtension : extend ObjectTypeExtension
+
+ObjectTypeExtension : type Name ImplementsInterfaces? Directives? FieldDefinitions?
