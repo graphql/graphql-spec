@@ -1144,7 +1144,7 @@ GraphQL type system definitions can omit the schema definition when the query
 and mutation root types are named `Query` and `Mutation`, respectively.
 
 Similarly, when serializing a GraphQL schema using the type system language, a
-schema definition should be omitted if only uses the default root type names.
+schema definition should be omitted if it only uses the default root type names.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a schema definition. The `Query` type is presumed to be the query
@@ -1355,6 +1355,15 @@ type SomeType {
   ): String @some(thing: 2)
 }
 ```
+
+While defining a directive, it may not reference itself directly or indirectly:
+
+```graphql counter-example
+directive @invalidExample(
+  arg: String @invalidExample(arg: "references itself")
+) on ARGUMENT_DEFINITION
+```
+
 
 ### Type Extension
 
