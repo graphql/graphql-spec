@@ -1718,7 +1718,9 @@ If that fragment did not have a reference to ${atOtherHomes} it would be not val
 
 ```graphql counter-example
 query variableNotUsedWithinFragment($atOtherHomes: Boolean) {
-  ...isHousetrainedWithoutVariableFragment
+  dog {
+    ...isHousetrainedWithoutVariableFragment
+  }
 }
 
 fragment isHousetrainedWithoutVariableFragment on Dog {
