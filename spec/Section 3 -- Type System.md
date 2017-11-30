@@ -975,8 +975,8 @@ engine supports.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
-GraphQL implementations that support the type system language must provide the
-`@deprecated` directive when representing deprecated portions of the schema.
+GraphQL implementations that support the schema definition language must provide
+the `@deprecated` directive when representing deprecated portions of the schema.
 
 ### @skip
 
@@ -1033,11 +1033,12 @@ directive @deprecated(
 ) on FIELD_DEFINITION | ENUM_VALUE
 ```
 
-The `@deprecated` directive is used within the type system language to indicate deprecated portions of the schema, such as deprecated fields on a type or
-deprecated enum values.
+The `@deprecated` directive is used within the schema definition language to
+indicate deprecated portions of the schema, such as deprecated fields on a type
+or deprecated enum values.
 
-Deprecations include a reason for why it is deprecated, which can include
-markdown formatting.
+Deprecations include a reason for why it is deprecated, which is formatted using
+Markdown syntax (as specified by [CommonMark](http://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of
 using `newField`.
