@@ -323,9 +323,9 @@ unique identifier.
 
 ## Arguments
 
-Arguments : ( Argument+ )
+Arguments[Const] : ( Argument[?Const]+ )
 
-Argument : Name : Value
+Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
@@ -1064,9 +1064,9 @@ Type : Type !
 
 ## Directives
 
-Directives : Directive+
+Directives[Const] : Directive[?Const]+
 
-Directive : @ Name Arguments?
+Directive[Const] : @ Name Arguments[?Const]?
 
 Directives provide a way to describe alternate runtime execution and type
 validation behavior in a GraphQL document.
@@ -1112,7 +1112,7 @@ when illustrating example type systems.
 
 ### Schema Definition
 
-SchemaDefinition : schema { OperationTypeDefinition+ }
+SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
 
 OperationTypeDefinition : OperationType : NamedType
 
@@ -1172,7 +1172,7 @@ A GraphQL Type System is defined by many different kinds of types.
 
 #### Scalar
 
-ScalarTypeDefinition : scalar Name
+ScalarTypeDefinition : scalar Name Directives[Const]?
 
 Scalar types represent leaf values in a GraphQL type system. While this GraphQL
 specification describes a set of Scalar types which all GraphQL services must
@@ -1189,17 +1189,17 @@ scalar DateTime
 
 #### Object
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? FieldDefinitions
+ObjectTypeDefinition : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
 
 ImplementsInterfaces : implements NamedType+
 
 FieldDefinitions : { FieldDefinition+ }
 
-FieldDefinition : Name ArgumentsDefinition? : Type Directives?
+FieldDefinition : Name ArgumentsDefinition? : Type Directives[Const]?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
-InputValueDefinition : Name : Type DefaultValue? Directives?
+InputValueDefinition : Name : Type DefaultValue? Directives[Const]?
 
 Object types represent a list of named fields, each of which yield a value of a
 specific type. Each field itself may accept a list of named arguments.
@@ -1219,7 +1219,7 @@ type TodoItem implements Node {
 
 #### Interface
 
-InterfaceTypeDefinition : interface Name Directives? FieldDefinitions
+InterfaceTypeDefinition : interface Name Directives[Const]? FieldDefinitions
 
 Interface types, similarly to Object types represent a list of named fields.
 Interface types are used as the type of a field when one of many possible Object
@@ -1237,7 +1237,7 @@ interface Node {
 
 #### Union
 
-UnionTypeDefinition : union Name Directives? = UnionMembers
+UnionTypeDefinition : union Name Directives[Const]? = UnionMembers
 
 UnionMembers :
   - NamedType
@@ -1257,9 +1257,9 @@ union Actor = User | Business
 
 #### Enum
 
-EnumTypeDefinition : enum Name Directives? { EnumValueDefinition+ }
+EnumTypeDefinition : enum Name Directives[Const]? { EnumValueDefinition+ }
 
-EnumValueDefinition : EnumValue Directives?
+EnumValueDefinition : EnumValue Directives[Const]?
 
 EnumValue : Name
 
@@ -1279,7 +1279,7 @@ enum Direction {
 
 #### Input Object
 
-InputObjectTypeDefinition : input Name Directives? { InputValueDefinition+ }
+InputObjectTypeDefinition : input Name Directives[Const]? { InputValueDefinition+ }
 
 Input Object types represent complex input values which may be provided as an
 field argument. Input Object types cannot be the return type of an Object or
@@ -1368,7 +1368,7 @@ or by a GraphQL service which is itself an extension of another GraphQL service.
 
 #### Object Type Extension
 
-ObjectTypeExtension : type Name ImplementsInterfaces? Directives? FieldDefinitions?
+ObjectTypeExtension : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
 
 The named Object type must already exist and be an Object type. Any fields,
 interfaces, or directives provided by the extension must not already exist on

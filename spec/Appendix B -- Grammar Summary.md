@@ -115,9 +115,9 @@ Field : Alias? Name Arguments? Directives? SelectionSet?
 
 Alias : Name :
 
-Arguments : ( Argument+ )
+Arguments[Const] : ( Argument[?Const]+ )
 
-Argument : Name : Value
+Argument[Const] : Name : Value[?Const]
 
 FragmentSpread : ... FragmentName Directives?
 
@@ -177,9 +177,9 @@ NonNullType :
   - NamedType !
   - ListType !
 
-Directives : Directive+
+Directives[Const] : Directive[?Const]+
 
-Directive : @ Name Arguments?
+Directive[Const] : @ Name Arguments[?Const]?
 
 TypeSystemDefinition :
   - SchemaDefinition
@@ -187,7 +187,7 @@ TypeSystemDefinition :
   - DirectiveDefinition
   - TypeExtension
 
-SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
+SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
 
 OperationTypeDefinition : OperationType : NamedType
 
@@ -199,35 +199,35 @@ TypeDefinition :
   - EnumTypeDefinition
   - InputObjectTypeDefinition
 
-ScalarTypeDefinition : scalar Name Directives?
+ScalarTypeDefinition : scalar Name Directives[Const]?
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? Directives? FieldDefinitions
+ObjectTypeDefinition : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
 
 ImplementsInterfaces : implements NamedType+
 
 FieldDefinitions : { FieldDefinition+ }
 
-FieldDefinition : Name ArgumentsDefinition? : Type Directives?
+FieldDefinition : Name ArgumentsDefinition? : Type Directives[Const]?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
-InputValueDefinition : Name : Type DefaultValue? Directives?
+InputValueDefinition : Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : interface Name Directives? FieldDefinitions
+InterfaceTypeDefinition : interface Name Directives[Const]? FieldDefinitions
 
-UnionTypeDefinition : union Name Directives? = UnionMembers
+UnionTypeDefinition : union Name Directives[Const]? = UnionMembers
 
 UnionMembers :
   - NamedType
   - UnionMembers | NamedType
 
-EnumTypeDefinition : enum Name Directives? { EnumValueDefinition+ }
+EnumTypeDefinition : enum Name Directives[Const]? { EnumValueDefinition+ }
 
-EnumValueDefinition : EnumValue Directives?
+EnumValueDefinition : EnumValue Directives[Const]?
 
 EnumValue : Name
 
-InputObjectTypeDefinition : input Name Directives? { InputValueDefinition+ }
+InputObjectTypeDefinition : input Name Directives[Const]? { InputValueDefinition+ }
 
 DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
 
@@ -237,4 +237,4 @@ DirectiveLocations :
 
 TypeExtension : extend ObjectTypeExtension
 
-ObjectTypeExtension : type Name ImplementsInterfaces? Directives? FieldDefinitions?
+ObjectTypeExtension : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
