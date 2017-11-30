@@ -5,9 +5,9 @@ ensures that it is unambiguous and mistake-free in the context of a given
 GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
-stable result as defined by the procedures in the Execution section, however
-that result may be ambiguous, surprising, or unexpected relative to the request
-containing validation errors, so execution should not occur for invalid requests.
+stable result as defined by the algorithms in the Execution section, however
+that result may be ambiguous, surprising, or unexpected relative to a request
+containing validation errors, so execution should only occur for valid requests.
 
 Typically validation is performed in the context of a request immediately
 before execution, however a GraphQL service may execute a request without
@@ -83,6 +83,44 @@ union HumanOrAlien = Human | Alien
 ```
 
 
+## Documents
+
+### Executable Definitions
+
+**Formal Specification**
+
+  * For each definition {definition} in the document.
+  * {definition} must be {OperationDefinition} or {FragmentDefinition} (it must
+    not be {TypeSystemDefinition}).
+
+**Explanatory Text**
+
+GraphQL execution will only consider the executable definitions Operation and
+Fragment. Type system definitions and extensions are not executable, and are not
+considered during execution.
+
+To avoid ambiguity, a document containing {TypeSystemDefinition} is invalid
+for execution.
+
+GraphQL documents not intended to be directly executed may include
+{TypeSystemDefinition}.
+
+For example, the following document is invalid for execution since the original
+executing schema may not know about the provided type extension:
+
+```graphql counter-example
+query getDogName {
+  dog {
+    name
+    color
+  }
+}
+
+extend type Dog {
+  color: String
+}
+```
+
 ## Operations
 
 ### Named Operation Definitions
@@ -91,7 +129,7 @@ union HumanOrAlien = Human | Alien
 
 **Formal Specification**
 
-  * For each operation definition {operation} in the document
+  * For each operation definition {operation} in the document.
   * Let {operationName} be the name of {operation}.
   * If {operationName} exists
     * Let {operations} be all operation definitions in the document named {operationName}.

@@ -5,7 +5,7 @@ GraphQL generates a response from a request via execution.
 A request for execution consists of a few pieces of information:
 
 * The schema to use, typically solely provided by the GraphQL service.
-* A Document containing GraphQL Operations and Fragments to execute.
+* A {Document} which must contain GraphQL {OperationDefinition} and may contain {FragmentDefinition}.
 * Optionally: The name of the Operation in the Document to execute.
 * Optionally: Values for any Variables defined by the Operation.
 * An initial value corresponding to the root type being executed.
@@ -19,8 +19,7 @@ to be formatted according to the Response section below.
 
 ## Executing Requests
 
-To execute a request, the executor must have a parsed `Document` (as defined
-in the “Query Language” part of this spec) and a selected operation name to
+To execute a request, the executor must have a parsed {Document} and a selected operation name to
 run if the document defines multiple operations, otherwise the document is
 expected to only contain a single operation. The result of the request is
 determined by the result of executing this operation according to the "Executing
