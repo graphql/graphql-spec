@@ -184,8 +184,8 @@ Directive[Const] : @ Name Arguments[?Const]?
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
-  - DirectiveDefinition
   - TypeExtension
+  - DirectiveDefinition
 
 SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
 
@@ -229,13 +229,13 @@ EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputValueDefinition+ }
 
+TypeExtension :
+  - ObjectTypeExtension
+
+ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
   - Name
   - DirectiveLocations | Name
-
-TypeExtension :
-  - ObjectTypeExtension
-
-ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?

@@ -1090,8 +1090,8 @@ they may be exposed via directives.
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
-  - DirectiveDefinition
   - TypeExtension
+  - DirectiveDefinition
 
 The GraphQL language also includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
@@ -1331,6 +1331,44 @@ input Point2D {
 }
 ```
 
+
+### Type Extension
+
+TypeExtension :
+  - ObjectTypeExtension
+
+Type extensions are used to represent a GraphQL type system which has been
+extended from some original type system. For example, this might be used by a
+client-side service to represent fields a GraphQL client only accesses locally,
+or by a GraphQL service which is itself an extension of another GraphQL service.
+
+
+#### Object Type Extension
+
+ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+
+The named Object type must already exist and be an Object type. Any fields,
+interfaces, or directives provided by the extension must not already exist on
+the original Object type.
+
+In this example, a client only field is added to a `Story` type:
+
+```graphql example
+extend type Story {
+  isHiddenLocally: Boolean
+}
+```
+
+Object type extensions may not add additional fields, instead only adding
+interfaces or directives.
+
+In this example, a directive is added to a `User` type without adding fields:
+
+```graphql example
+extend type User @addedDirective
+```
+
+
 ### Directive Definition
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
@@ -1399,41 +1437,4 @@ While defining a directive, it may not reference itself directly or indirectly:
 directive @invalidExample(
   arg: String @invalidExample(arg: "references itself")
 ) on ARGUMENT_DEFINITION
-```
-
-
-### Type Extension
-
-TypeExtension :
-  - ObjectTypeExtension
-
-Type extensions are used to represent a GraphQL type system which has been
-extended from some original type system. For example, this might be used by a
-client-side service to represent fields a GraphQL client only accesses locally,
-or by a GraphQL service which is itself an extension of another GraphQL service.
-
-
-#### Object Type Extension
-
-ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
-
-The named Object type must already exist and be an Object type. Any fields,
-interfaces, or directives provided by the extension must not already exist on
-the original Object type.
-
-In this example, a client only field is added to a `Story` type:
-
-```graphql example
-extend type Story {
-  isHiddenLocally: Boolean
-}
-```
-
-Object type extensions may not add additional fields, instead only adding
-interfaces or directives.
-
-In this example, a directive is added to a `User` type without adding fields:
-
-```graphql example
-extend type User @addedDirective
 ```
