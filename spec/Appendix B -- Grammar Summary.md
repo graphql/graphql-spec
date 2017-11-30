@@ -199,35 +199,37 @@ TypeDefinition :
   - EnumTypeDefinition
   - InputObjectTypeDefinition
 
-ScalarTypeDefinition : scalar Name Directives[Const]?
+Description : StringValue
 
-ObjectTypeDefinition : type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+ScalarTypeDefinition : Description? scalar Name Directives[Const]?
+
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
 
 ImplementsInterfaces : implements NamedType+
 
 FieldDefinitions : { FieldDefinition+ }
 
-FieldDefinition : Name ArgumentsDefinition? : Type Directives[Const]?
+FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
-InputValueDefinition : Name : Type DefaultValue? Directives[Const]?
+InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : interface Name Directives[Const]? FieldDefinitions
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions
 
-UnionTypeDefinition : union Name Directives[Const]? = UnionMembers
+UnionTypeDefinition : Description? union Name Directives[Const]? = UnionMembers
 
 UnionMembers :
   - NamedType
   - UnionMembers | NamedType
 
-EnumTypeDefinition : enum Name Directives[Const]? { EnumValueDefinition+ }
+EnumTypeDefinition : Description? enum Name Directives[Const]? { EnumValueDefinition+ }
 
-EnumValueDefinition : EnumValue Directives[Const]?
+EnumValueDefinition : Description? EnumValue Directives[Const]?
 
-InputObjectTypeDefinition : input Name Directives[Const]? { InputValueDefinition+ }
+InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputValueDefinition+ }
 
-DirectiveDefinition : directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
   - Name
