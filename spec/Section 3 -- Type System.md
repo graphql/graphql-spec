@@ -839,7 +839,6 @@ input ExampleInputObject {
 Original Value          | Variables       | Coerced Value
 ----------------------- | --------------- | -----------------------------------
 `{ a: "abc", b: 123 }`  | {null}          | `{ a: "abc", b: 123 }`
-`{ a: 123, b: "123" }`  | {null}          | `{ a: "123", b: 123 }`
 `{ a: "abc" }`          | {null}          | Error: Missing required field {b}
 `{ a: "abc", b: null }` | {null}          | Error: {b} must be non-null.
 `{ a: null, b: 1 }`     | {null}          | `{ a: null, b: 1 }`
