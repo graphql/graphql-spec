@@ -2015,8 +2015,10 @@ extend type QueryRoot <span class="token punctuation">{</span>
 <span class="token keyword">fragment</span> isHousetrainedFragment <span class="token keyword">on</span> Dog <span class="token punctuation">{</span>
   isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
-</code></pre><p>The above is valid since $<var>atOtherHomes</var> is used in <var>isHousetrainedFragment</var> which is included by <var>variableUsedInFragment</var>.</p><p>If that fragment did not have a reference to $<var>atOtherHomes</var> it would be not valid:</p><pre id="example-de8e4" class="spec-counter-example"><a href="#example-de8e4">Counter Example № 146</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-  <span class="token operator">...</span>isHousetrainedWithoutVariableFragment
+</code></pre><p>The above is valid since $<var>atOtherHomes</var> is used in <var>isHousetrainedFragment</var> which is included by <var>variableUsedInFragment</var>.</p><p>If that fragment did not have a reference to $<var>atOtherHomes</var> it would be not valid:</p><pre id="example-f6c72" class="spec-counter-example"><a href="#example-f6c72">Counter Example № 146</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  dog <span class="token punctuation">{</span>
+    <span class="token operator">...</span>isHousetrainedWithoutVariableFragment
+  <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">fragment</span> isHousetrainedWithoutVariableFragment <span class="token keyword">on</span> Dog <span class="token punctuation">{</span>
