@@ -167,14 +167,28 @@ type Query {
   """
   translate(
     "The original language that `text` is provided in."
-    fromLanguage: String
+    fromLanguage: Language
 
     "The translated language to be returned."
-    toLanguage: String
+    toLanguage: Language
 
     "The text to be translated."
     text: String
   ): String
+}
+
+"""
+The set of languages supported by `translate`.
+"""
+enum Language {
+  "English"
+  EN
+
+  "French"
+  FR
+
+  "Chinese"
+  CH
 }
 ```
 
