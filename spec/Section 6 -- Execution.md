@@ -19,11 +19,11 @@ to be formatted according to the Response section below.
 
 ## Executing Requests
 
-To execute a request, the executor must have a parsed {Document} and a selected operation name to
-run if the document defines multiple operations, otherwise the document is
-expected to only contain a single operation. The result of the request is
-determined by the result of executing this operation according to the "Executing
-Operations” section below.
+To execute a request, the executor must have a parsed {Document} and a selected
+operation name to run if the document defines multiple operations, otherwise the
+document is expected to only contain a single operation. The result of the
+request is determined by the result of executing this operation according to the
+"Executing Operations” section below.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 

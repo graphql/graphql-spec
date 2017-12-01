@@ -5,32 +5,199 @@ used to determine if a query is valid. The type system also describes the
 input types of query variables to determine if values provided at runtime
 are valid.
 
-A GraphQL server's capabilities are referred to as that server's "schema".
-A schema is defined in terms of the types and directives it supports.
+TypeSystemDefinition :
+  - SchemaDefinition
+  - TypeDefinition
+  - TypeExtension
+  - DirectiveDefinition
 
-A given GraphQL schema must itself be internally valid. This section describes
-the rules for this validation process where relevant.
+The GraphQL language includes an
+[IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
+describe a GraphQL service's type system. Tools may use this definition language
+to provide utilities such as client code generation or service boot-strapping.
 
-A GraphQL schema is represented by a root type for each kind of operation:
+GraphQL tools which only seek to provide GraphQL query execution may not parse {TypeSystemDefinition}.
+
+A GraphQL Document which contains {TypeSystemDefinition} must not be executed;
+GraphQL execution services which receive a GraphQL Document containing type
+system definitions should return a descriptive error.
+
+Note: The type system definition language is used throughout the remainder of
+this specification document when illustrating example type systems.
+
+
+## Schema
+
+SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+
+RootOperationTypeDefinition : OperationType : NamedType
+
+A GraphQL service's collective type system capabilities are referred to as that
+service's "schema". A schema is defined in terms of the types and directives it
+supports as well as the root operation types for each kind of operation:
 query, mutation, and subscription; this determines the place in the type system
 where those operations begin.
+
+A GraphQL schema must itself be internally valid. This section describes
+the rules for this validation process where relevant.
 
 All types within a GraphQL schema must have unique names. No two provided types
 may have the same name. No provided type may have a name which conflicts with
 any built in types (including Scalar and Introspection types).
 
-All directives within a GraphQL schema must have unique names. A directive
-and a type may share the same name, since there is no ambiguity between them.
+All directives within a GraphQL schema must have unique names.
 
 All types and directives defined within a schema must not have a name which
 begins with {"__"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
+### Root Operation Types
+
+A schema defines the initial root operation type for each kind of operation it
+supports: query, mutation, and subscription; this determines the place in the
+type system where those operations begin.
+
+The `query` root operation type must be provided and must be an Object type.
+
+The `mutation` root operation type is optional; if it is not provided, the
+service does not support mutations. If it is provided, it must be an
+Object type.
+
+Similarly, the `subscription` root operation type is also optional; if it is not
+provided, the service does not support subscriptions. If it is provided, it must
+be an Object type.
+
+The fields on the `query` root operation type indicate what fields are available
+at the top level of a GraphQL query. For example, a basic GraphQL query like:
+
+```graphql example
+query {
+  me
+}
+```
+
+Is valid when the `query` root operation type has a field named "me".
+
+```graphql example
+type Query {
+  me: User
+}
+```
+
+Similarly, the following mutation is valid if a `mutation` root operation type
+has a field named "setName". Note that the `query` and `mutation` root types
+should be different types.
+
+```graphql example
+mutation {
+  setName(name: "Zuck") {
+    newName
+  }
+}
+```
+
+When using the type system definition language, a document must include at most one `schema` definition.
+
+In this example, a GraphQL schema is defined with both query and mutation
+root types:
+
+```graphql example
+schema {
+  query: MyQueryRootType
+  mutation: MyMutationRootType
+}
+
+type MyQueryRootType {
+  someField: String
+}
+
+type MyMutationRootType {
+  setSomeField(to: String): String
+}
+```
+
+**Default Root Operation Type Names**
+
+While any type can be the root operation type for a GraphQL operation, the type
+system definition language can omit the schema definition when the `query`, `mutation`, and `subscription` root types are named `Query`, `Mutation`, and
+`Subscription` respectively.
+
+Likewise, when representing a GraphQL schema using the type system language, a
+schema definition should be omitted if it only uses the default root operation
+type names.
+
+This example describes a valid complete GraphQL schema, despite not explicitly
+including a `schema` definition. The `Query` type is presumed to be the `query`
+root operation type of the schema.
+
+```graphql example
+type Query {
+  someField: String
+}
+```
+
+
+## Descriptions
+
+Description : StringValue
+
+Documentation is first-class feature of GraphQL type systems. To ensure
+the documentation of a GraphQL service remains consistent with its capabilities,
+descriptions of GraphQL definitions are provided alongside their definitions and
+made available via introspection.
+
+To allow GraphQL service designers to easily publish documentation alongside the
+capabilities of a GraphQL service, GraphQL descriptions are defined using the
+Markdown syntax (as specified by [CommonMark](http://commonmark.org/)). In the type system definition language, these description strings (often {BlockString})
+occur immediately before the definition they describe.
+
+All GraphQL types, fields, arguments and other definitions which can be
+described should provide a {Description} unless they are considered self
+descriptive.
+
+As an example, this simple GraphQL schema is well described:
+
+```graphql example
+"""
+A simple GraphQL schema which is well described.
+"""
+type Query {
+  """
+  Translates a string from a given language into a different language.
+  """
+  translate(
+    """
+    The original language that `text` is provided in.
+    """
+    fromLanguage: String
+
+    """
+    The translated language to be returned.
+    """
+    toLanguage: String
+
+    """
+    The text to be translated from an original language into a
+    translated language.
+    """
+    text: String
+  ): String
+}
+```
+
 
 ## Types
 
-The fundamental unit of any GraphQL Schema is the type. There are eight kinds
-of types in GraphQL.
+TypeDefinition :
+  - ScalarTypeDefinition
+  - ObjectTypeDefinition
+  - InterfaceTypeDefinition
+  - UnionTypeDefinition
+  - EnumTypeDefinition
+  - InputObjectTypeDefinition
+
+The fundamental unit of any GraphQL Schema is the type. There are six kinds
+of named type definitions in GraphQL, and two wrapping types.
 
 The most basic type is a `Scalar`. A scalar represents a primitive value, like
 a string or an integer. Oftentimes, the possible responses for a scalar field
@@ -51,25 +218,45 @@ A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
-All of the types so far are assumed to be both nullable and singular: e.g. a scalar
-string returns either null or a singular string. The type system might want to
-define that it returns a list of other types; the `List` type is provided for
-this reason, and wraps another type. Similarly, the `Non-Null` type wraps
-another type, and denotes that the result will never be null. These two types
-are referred to as "wrapping types"; non-wrapping types are referred to as
-"base types". A wrapping type has an underlying "base type", found by
-continually unwrapping the type until a base type is found.
-
 Finally, oftentimes it is useful to provide complex structs as inputs to
-GraphQL queries; the `Input Object` type allows the schema to define exactly
-what data is expected from the client in these queries.
+GraphQL field arguments or variables; the `Input Object` type allows the schema
+to define exactly what data is expected.
 
 
-### Scalars
+### Wrapping Types
 
-As expected by the name, a scalar represents a primitive value in GraphQL.
-GraphQL responses take the form of a hierarchical tree; the leaves on these trees
-are GraphQL scalars.
+All of the types so far are assumed to be both nullable and singular: e.g. a
+scalar string returns either null or a singular string.
+
+A GraphQL schema may describe that a field represents list of another types;
+the `List` type is provided for this reason, and wraps another type.
+
+Similarly, the `Non-Null` type wraps another type, and denotes that the
+resulting value will never be null.
+
+These two types are referred to as "wrapping types"; non-wrapping types are
+referred to as "named types". A wrapping type has an underlying named type,
+found by continually unwrapping the type until a named type is found.
+
+
+### Type Extensions
+
+TypeExtension :
+  - ObjectTypeExtension
+
+Type extensions are used to represent a GraphQL type system which has been
+extended from some original type system. For example, this might be used by a
+local service to represent data a GraphQL client only accesses locally, or by a
+GraphQL service which is itself an extension of another GraphQL service.
+
+
+## Scalars
+
+ScalarTypeDefinition : Description? scalar Name Directives[Const]?
+
+Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
+responses take the form of a hierarchical tree; the leaves on these trees are
+GraphQL scalars.
 
 All GraphQL scalars are representable as strings, though depending on the
 response format being used, there may be a more appropriate primitive for the
@@ -84,12 +271,21 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the server to be a valid URL.
 
+```graphql example
+scalar Time
+scalar Url
+```
+
 A server may omit any of the built-in scalars from its schema, for example if a
-schema does not refer to a floating-point number, then it will not include the
+schema does not refer to a floating-point number, then it must not include the
 `Float` type. However, if a schema includes a type with the name of one of the
 types described here, it must adhere to the behavior described. As an example,
 a server must not include a type called `Int` and use it to represent
-128-bit numbers, or internationalization information.
+128-bit numbers, internationalization information, or anything other than what
+is defined in this document.
+
+When representing a GraphQL schema using the type system definition language,
+the built-in scalar types should be omitted for brevity.
 
 **Result Coercion**
 
@@ -136,7 +332,7 @@ should support all of these types, and a GraphQL server which provide a type by
 these names must adhere to the behavior described below.
 
 
-#### Int
+### Int
 
 The Int scalar type represents a signed 32-bit numeric non-fractional value.
 Response formats that support a 32-bit integer or a number type should use
@@ -161,7 +357,7 @@ custom-defined Scalar type, as not all platforms and transports support
 encoding integer numbers larger than 32-bit.
 
 
-#### Float
+### Float
 
 The Float scalar type represents signed double-precision fractional values
 as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
@@ -184,7 +380,7 @@ error indicating an incorrect type. If the integer input value represents a
 value not representable by IEEE 754, a query error should be raised.
 
 
-#### String
+### String
 
 The String scalar type represents textual data, represented as UTF-8 character
 sequences. The String type is most often used by GraphQL to represent free-form
@@ -205,7 +401,7 @@ accepted. All other input values must raise a query error indicating an
 incorrect type.
 
 
-#### Boolean
+### Boolean
 
 The Boolean scalar type represents `true` or `false`. Response formats should
 use a built-in boolean type if supported; otherwise, they should use their
@@ -223,7 +419,7 @@ When expected as an input type, only boolean input values are accepted. All
 other input values must raise a query error indicating an incorrect type.
 
 
-#### ID
+### ID
 
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as the key for a cache. The ID type is serialized in the same way as
@@ -248,7 +444,15 @@ a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
 
 
-### Objects
+## Objects
+
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+
+ImplementsInterfaces : Description? implements NamedType+
+
+FieldDefinitions : { FieldDefinition+ }
+
+FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
 GraphQL queries are hierarchical and composed, describing a tree of information.
 While Scalar types describe the leaf values of these hierarchical queries, Objects
@@ -477,8 +681,48 @@ executor, so this is covered in that section of the spec.
 
 Objects are never valid inputs.
 
+**Type Validation**
 
-#### Object Field Arguments
+Object types have the potential to be invalid if incorrectly defined. This set
+of rules must be adhered to by every Object type in a GraphQL schema.
+
+1. An Object type must define one or more fields.
+2. The fields of an Object type must have unique names within that Object type;
+   no two fields may share the same name.
+3. Each field of an Object type must not have a name which begins with the
+   characters {"__"} (two underscores).
+4. An object type may declare that it implements one or more unique interfaces.
+5. An object type must be a super-set of all interfaces it implements:
+   1. The object type must include a field of the same name for every field
+      defined in an interface.
+      1. The object field must be of a type which is equal to or a sub-type of
+         the interface field (covariant).
+         1. An object field type is a valid sub-type if it is equal to (the same
+            type as) the interface field type.
+         2. An object field type is a valid sub-type if it is an Object type and
+            the interface field type is either an Interface type or a Union type
+            and the object field type is a possible type of the interface field
+            type.
+         3. An object field type is a valid sub-type if it is a List type and
+            the interface field type is also a List type and the list-item type
+            of the object field type is a valid sub-type of the list-item type
+            of the interface field type.
+         4. An object field type is a valid sub-type if it is a Non-Null variant
+            of a valid sub-type of the interface field type.
+      2. The object field must include an argument of the same name for every
+         argument defined in the interface field.
+         1. The object field argument must accept the same type (invariant) as
+            the interface field argument.
+      3. The object field may include additional arguments not defined in the
+         interface field, but any additional argument must not be required, e.g.
+         must not be of a non-nullable type.
+
+
+### Field Arguments
+
+ArgumentsDefinition : ( InputValueDefinition+ )
+
+InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
 Object fields are conceptually functions which yield values. Occasionally object
 fields can accept arguments to further specify the return value. Object field
@@ -523,63 +767,80 @@ May yield the result:
 The type of an object field argument can be any Input type.
 
 
-#### Object Field deprecation
+### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
 application. It is still legal to query for these fields (to ensure existing
 clients are not broken by the change), but the fields should be appropriately
 treated in documentation and tooling.
 
+When using the type system definition language, `@deprecated` directives are
+used to indicate that a field is deprecated:
 
-#### Object type validation
-
-Object types have the potential to be invalid if incorrectly defined. This set
-of rules must be adhered to by every Object type in a GraphQL schema.
-
-1. An Object type must define one or more fields.
-2. The fields of an Object type must have unique names within that Object type;
-   no two fields may share the same name.
-3. Each field of an Object type must not have a name which begins with the
-   characters {"__"} (two underscores).
-4. An object type may declare that it implements one or more unique interfaces.
-5. An object type must be a super-set of all interfaces it implements:
-   1. The object type must include a field of the same name for every field
-      defined in an interface.
-      1. The object field must be of a type which is equal to or a sub-type of
-         the interface field (covariant).
-         1. An object field type is a valid sub-type if it is equal to (the same
-            type as) the interface field type.
-         2. An object field type is a valid sub-type if it is an Object type and
-            the interface field type is either an Interface type or a Union type
-            and the object field type is a possible type of the interface field
-            type.
-         3. An object field type is a valid sub-type if it is a List type and
-            the interface field type is also a List type and the list-item type
-            of the object field type is a valid sub-type of the list-item type
-            of the interface field type.
-         4. An object field type is a valid sub-type if it is a Non-Null variant
-            of a valid sub-type of the interface field type.
-      2. The object field must include an argument of the same name for every
-         argument defined in the interface field.
-         1. The object field argument must accept the same type (invariant) as
-            the interface field argument.
-      3. The object field may include additional arguments not defined in the
-         interface field, but any additional argument must not be required, e.g. 
-         must not be of a non-nullable type.
+```graphql example
+type ExampleType {
+  oldField: String @deprecated
+}
+```
 
 
-### Interfaces
+### Object Type Extension
 
-GraphQL Interfaces represent a list of named fields and their arguments. GraphQL
-objects can then implement an interface, which guarantees that they will
-contain the specified fields.
+ObjectTypeExtension :
+  - extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+  - extend type Name ImplementsInterfaces? Directives[Const]
+  - extend type Name ImplementsInterfaces
+
+Object type extensions are used to represent a type which has been extended from some original type. For example, this might be used to represent local data, or
+by a GraphQL service which is itself an extension of another GraphQL service.
+
+In this example, a local data field is added to a `Story` type:
+
+```graphql example
+extend type Story {
+  isHiddenLocally: Boolean
+}
+```
+
+Object type extensions may not add additional fields, instead only adding
+interfaces or directives.
+
+In this example, a directive is added to a `User` type without adding fields:
+
+```graphql example
+extend type User @addedDirective
+```
+
+**Type Validation**
+
+Object type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be an Object type.
+2. The fields of an Object type extension must have unique names; no two fields
+   may share the same name.
+3. Any fields of an Object type extension must not be already defined on the
+   original Object type.
+4. Any directives provided must not already apply to the original Object type.
+5. Any interfaces provided must not be already implemented by the original
+   Object type.
+6. The resulting extended object type must be a super-set of all interfaces it
+   implements.
+
+
+## Interfaces
+
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions
+
+GraphQL interfaces represent a list of named fields and their arguments. GraphQL
+objects can then implement these interfaces which requires that the object type will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
 type whose base type is one of those five.
 
-For example, an interface may describe a required field and types such as
-`Person` or `Business` may then implement this interface.
+For example, an interface `NamedEntity` may describe a required field and types
+such as `Person` or `Business` may then implement this interface to guarantee
+this field will always exist.
 
 ```graphql example
 interface NamedEntity {
@@ -663,8 +924,7 @@ is the same as the result coercion of the object.
 
 Interfaces are never valid inputs.
 
-
-#### Interface type validation
+**Type Validation**
 
 Interface types have the potential to be invalid if incorrectly defined.
 
@@ -675,7 +935,13 @@ Interface types have the potential to be invalid if incorrectly defined.
    characters {"__"} (two underscores).
 
 
-### Unions
+## Unions
+
+UnionTypeDefinition : Description? union Name Directives[Const]? = UnionMembers
+
+UnionMembers :
+  - NamedType
+  - UnionMembers | NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
 Object types, but provides for no guaranteed fields between those types.
@@ -686,9 +952,9 @@ With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments
 must be used. This is the same as for unions, but unions do not define any
 fields, so **no** fields may be queried on this type without the use of
-typed fragments.
+type refining fragments or inline fragments.
 
-For example, we might have the following type system:
+For example, we might define the following types:
 
 ```graphql example
 union SearchResult = Photo | Person
@@ -748,8 +1014,7 @@ same as the result coercion of the object.
 
 Unions are never valid inputs.
 
-
-#### Union type validation
+**Type Validation**
 
 Union types have the potential to be invalid if incorrectly defined.
 
@@ -758,13 +1023,29 @@ Union types have the potential to be invalid if incorrectly defined.
    Similarly, wrapping types may not be member types of a Union.
 2. A Union type must define one or more unique member types.
 
-### Enums
 
-GraphQL Enums are a variant on the Scalar type, which represents one of a
-finite set of possible values.
+## Enums
 
-GraphQL Enums are not references for a numeric value, but are unique values in
-their own right. They serialize as a string: the name of the represented value.
+EnumTypeDefinition : Description? enum Name Directives[Const]? { EnumValueDefinition+ }
+
+EnumValueDefinition : Description? EnumValue Directives[Const]?
+
+GraphQL Enum types, like scalar types, also represent leaf values in a GraphQL
+type system. However Enum types describe the set of possible values.
+
+Enums are not references for a numeric value, but are unique values in their own
+right. They may serialize as a string: the name of the represented value.
+
+In this example, an Enum type called `Direction` is defined:
+
+```graphql example
+enum Direction {
+  NORTH
+  EAST
+  SOUTH
+  WEST
+}
+```
 
 **Result Coercion**
 
@@ -782,26 +1063,43 @@ should only allow such values as enum input values. Otherwise, for most
 transport serializations that do not, strings may be interpreted as the enum
 input value with the same name.
 
+**Type Validation**
 
-### Input Objects
+Enum types have the potential to be invalid if incorrectly defined.
 
-Fields can define arguments that the client passes up with the query,
-to configure their behavior. These inputs can be Strings or Enums, but
-they sometimes need to be more complex than this.
+1. A Enum type must define one or more unique enum values.
 
-The `Object` type defined above is inappropriate for re-use here, because
-`Object`s can contain fields that express circular references or references
-to interfaces and unions, neither of which is appropriate for use as an
-input argument. For this reason, input objects have a separate type in the
-system.
 
-An `Input Object` defines a set of input fields; the input fields are either
+## Input Objects
+
+InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputValueDefinition+ }
+
+Fields may accept arguments to configure their behavior. These inputs are often
+scalars or enums, but they sometimes need to represent more complex values.
+
+A GraphQL Input Object defines a set of input fields; the input fields are either
 scalars, enums, or other input objects. This allows arguments to accept
 arbitrarily complex structs.
 
+In this example, an Input Object called `Point2D` describes `x` and `y` inputs:
+
+```graphql example
+input Point2D {
+  x: Float
+  y: Float
+}
+```
+
+Note: The GraphQL Object type ({ObjectTypeDefinition}) defined above is
+inappropriate for re-use here, because Object types can contain fields that
+define arguments or contain references to interfaces and unions, neither of
+which is appropriate for use as an input argument. For this reason, input
+objects have a separate type in the system.
+
 **Result Coercion**
 
-An input object is never a valid result.
+An input object is never a valid result. Input Object types cannot be the return
+type of an Object or Interface field.
 
 **Input Coercion**
 
@@ -855,7 +1153,7 @@ Literal Value            | Variables               | Coerced Value
 `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
 `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}
 
-#### Input Object type validation
+**Type Validation**
 
 1. An Input Object type must define one or more fields.
 2. The fields of an Input Object type must have unique names within that
@@ -863,7 +1161,7 @@ Literal Value            | Variables               | Coerced Value
 3. The return types of each defined field must be an Input type.
 
 
-### Lists
+## List
 
 A GraphQL list is a special collection type which declares the type of each
 item in the List (referred to as the *item type* of the list). List values are
@@ -897,7 +1195,7 @@ list type, the value is interpreted as no list being provided, and not a list of
 size one with the value {null}.
 
 
-### Non-Null
+## Non-Null
 
 By default, all types in GraphQL are nullable; the {null} value is a valid
 response for all of the above types. To declare a type that disallows null,
@@ -963,20 +1261,75 @@ query withNullableVariable($var: String) {
 Note: The Validation section defines providing a nullable variable type to
 a non-null input type as invalid.
 
-**Non-Null type validation**
+**Type Validation**
 
 1. A Non-Null type must not wrap another Non-Null type.
 
 
 ## Directives
 
-A GraphQL schema includes a list of the directives the execution
-engine supports.
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+
+DirectiveLocations :
+  - DirectiveLocation
+  - DirectiveLocations | DirectiveLocation
+
+DirectiveLocation : one of
+  `QUERY`                 `SCHEMA`                `ENUM`
+  `MUTATION`              `SCALAR`                `ENUM_VALUE`
+  `SUBSCRIPTION`          `OBJECT`                `INPUT_OBJECT`
+  `FIELD`                 `FIELD_DEFINITION`      `INPUT_FIELD_DEFINITION`
+  `FRAGMENT_DEFINITION`   `ARGUMENT_DEFINITION`
+  `FRAGMENT_SPREAD`       `INTERFACE`
+  `INLINE_FRAGMENT`       `UNION`
+
+A GraphQL schema describes directives which are used to annotate various parts
+of a GraphQL document as an indicator that they should be evaluated differently
+by a validator, executor, or client tool such as a code generator.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
-GraphQL implementations that support the schema definition language must provide
-the `@deprecated` directive when representing deprecated portions of the schema.
+GraphQL implementations that support the type system definition language must
+provide the `@deprecated` directive if representing deprecated portions of
+the schema.
+
+Directives must only be used in the locations they are declared to belong in.
+In this example, a directive is defined which can be used to annotate a
+fragment definition:
+
+```graphql example
+directive @example on FIELD
+
+fragment SomeFragment on SomeType {
+  field @example
+}
+```
+
+Directives can also be used to annotate the type system definition language
+as well, which is :
+
+```graphql example
+directive @example on FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+type SomeType {
+  field(arg: Int @example): String @example
+}
+```
+
+While defining a directive, it may not reference itself directly or indirectly:
+
+```graphql counter-example
+directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
+```
+
+**Validation**
+
+1. A directive definition may not contain the use of a directive which
+   references itself directly.
+2. A directive definition may not contain the use of a directive which
+   references itself indirectly by reference a Type or Directive which
+   transitively includes a reference to this directive.
+
 
 ### @skip
 
@@ -1033,9 +1386,9 @@ directive @deprecated(
 ) on FIELD_DEFINITION | ENUM_VALUE
 ```
 
-The `@deprecated` directive is used within the schema definition language to
-indicate deprecated portions of the schema, such as deprecated fields on a type
-or deprecated enum values.
+The `@deprecated` directive is used within the type system definition language
+to indicate deprecated portions of a GraphQL service's schema, such as
+deprecated fields on a type or deprecated enum values.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](http://commonmark.org/)).
@@ -1043,56 +1396,9 @@ Markdown syntax (as specified by [CommonMark](http://commonmark.org/)).
 In this example type definition, `oldField` is deprecated in favor of
 using `newField`.
 
-```graphql
+```graphql example
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
 }
 ```
-
-
-## Initial types
-
-A GraphQL schema includes types, indicating where query, mutation, and
-subscription operations start. This provides the initial entry points into the
-type system. The query type must always be provided, and is an Object
-base type. The mutation type is optional; if it is not provided, that means
-the system does not support mutations. If it is provided, it must
-be an object base type. Similarly, the subscription type is optional; if it is
-not provided, the system does not support subscriptions. If it is provided, it
-must be an object base type.
-
-The fields on the query type indicate what fields are available at
-the top level of a GraphQL query. For example, a basic GraphQL query
-like this one:
-
-```graphql example
-query getMe {
-  me
-}
-```
-
-Is valid when the type provided for the query starting type has a field
-named "me". Similarly
-
-```graphql example
-mutation setName {
-  setName(name: "Zuck") {
-    newName
-  }
-}
-```
-
-Is valid when the type provided for the mutation starting type is not null,
-and has a field named "setName" with a string argument named "name".
-
-```graphql example
-subscription {
-  newMessage {
-    text
-  }
-}
-```
-
-Is valid when the type provided for the subscription starting type is not null,
-and has a field named "newMessage" and only contains a single root field.

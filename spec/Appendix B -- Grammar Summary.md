@@ -191,6 +191,8 @@ SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
 
 OperationTypeDefinition : OperationType : NamedType
 
+Description : StringValue
+
 TypeDefinition :
   - ScalarTypeDefinition
   - ObjectTypeDefinition
@@ -199,11 +201,17 @@ TypeDefinition :
   - EnumTypeDefinition
   - InputObjectTypeDefinition
 
-Description : StringValue
+TypeExtension :
+  - ObjectTypeExtension
 
 ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
 ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+
+ObjectTypeExtension :
+  - extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+  - extend type Name ImplementsInterfaces? Directives[Const]
+  - extend type Name ImplementsInterfaces
 
 ImplementsInterfaces : implements NamedType+
 
@@ -229,13 +237,17 @@ EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputValueDefinition+ }
 
-TypeExtension :
-  - ObjectTypeExtension
-
-ObjectTypeExtension : extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
-
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
-  - Name
-  - DirectiveLocations | Name
+  - DirectiveLocation
+  - DirectiveLocations | DirectiveLocation
+
+DirectiveLocation : one of
+  `QUERY`                 `SCHEMA`                `ENUM`
+  `MUTATION`              `SCALAR`                `ENUM_VALUE`
+  `SUBSCRIPTION`          `OBJECT`                `INPUT_OBJECT`
+  `FIELD`                 `FIELD_DEFINITION`      `INPUT_FIELD_DEFINITION`
+  `FRAGMENT_DEFINITION`   `ARGUMENT_DEFINITION`
+  `FRAGMENT_SPREAD`       `INTERFACE`
+  `INLINE_FRAGMENT`       `UNION`
