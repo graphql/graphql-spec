@@ -1334,7 +1334,7 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 1. A directive definition may not contain the use of a directive which
    references itself directly.
 2. A directive definition may not contain the use of a directive which
-   references itself indirectly by reference a Type or Directive which
+   references itself indirectly by referencing a Type or Directive which
    transitively includes a reference to this directive.
 
 
