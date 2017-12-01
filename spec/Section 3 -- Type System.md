@@ -166,20 +166,13 @@ type Query {
   Translates a string from a given language into a different language.
   """
   translate(
-    """
-    The original language that `text` is provided in.
-    """
+    "The original language that `text` is provided in."
     fromLanguage: String
 
-    """
-    The translated language to be returned.
-    """
+    "The translated language to be returned."
     toLanguage: String
 
-    """
-    The text to be translated from an original language into a
-    translated language.
-    """
+    "The text to be translated."
     text: String
   ): String
 }

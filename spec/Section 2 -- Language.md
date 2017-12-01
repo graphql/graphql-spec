@@ -1021,7 +1021,7 @@ a variable is referenced in a fragment and is included by an operation that does
 not define that variable, the operation cannot be executed.
 
 
-## Input Types
+## Type References
 
 Type :
   - NamedType
