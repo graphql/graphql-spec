@@ -947,7 +947,7 @@ Interface types have the potential to be invalid if incorrectly defined.
 UnionTypeDefinition : Description? union Name Directives[Const]? = UnionMembers
 
 UnionMembers :
-  - NamedType
+  - `|`? NamedType
   - UnionMembers | NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
@@ -1009,6 +1009,15 @@ Instead, the query would be:
     }
   }
 }
+```
+
+Union members may be defined with an optional leading `|` character to aid
+formatting when representing a longer list of possible types:
+
+```graphql example
+union SearchResult =
+  | Photo
+  | Person
 ```
 
 **Result Coercion**
@@ -1278,7 +1287,7 @@ a non-null input type as invalid.
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
-  - DirectiveLocation
+  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
 
 DirectiveLocation : one of
@@ -1310,6 +1319,16 @@ directive @example on FIELD
 fragment SomeFragment on SomeType {
   field @example
 }
+```
+
+Directive locations may be defined with an optional leading `|` character to aid
+formatting when representing a longer list of possible locations:
+
+```graphql example
+directive @example on
+  | FIELD
+  | FRAGMENT_SPREAD
+  | INLINE_FRAGMENT
 ```
 
 Directives can also be used to annotate the type system definition language

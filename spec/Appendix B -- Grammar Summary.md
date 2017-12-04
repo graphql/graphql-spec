@@ -228,7 +228,7 @@ InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDe
 UnionTypeDefinition : Description? union Name Directives[Const]? = UnionMembers
 
 UnionMembers :
-  - NamedType
+  - `|`? NamedType
   - UnionMembers | NamedType
 
 EnumTypeDefinition : Description? enum Name Directives[Const]? { EnumValueDefinition+ }
@@ -240,7 +240,7 @@ InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputVa
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
-  - DirectiveLocation
+  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
 
 DirectiveLocation : one of
