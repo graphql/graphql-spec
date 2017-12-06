@@ -249,7 +249,12 @@ found by continually unwrapping the type until a named type is found.
 ### Type Extensions
 
 TypeExtension :
+  - ScalarTypeExtension
   - ObjectTypeExtension
+  - InterfaceTypeExtension
+  - UnionTypeExtension
+  - EnumTypeExtension
+  - InputObjectTypeExtension
 
 Type extensions are used to represent a GraphQL type system which has been
 extended from some original type system. For example, this might be used by a
@@ -451,9 +456,26 @@ a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
 
 
+### Scalar Extensions
+
+ScalarTypeExtension :
+  - extend scalar Name Directives[Const]
+
+Scalar type extensions are used to represent a scalar type which has been
+extended from some original scalar type. For example, this might be used by a
+GraphQL tool or service which adds directives to an existing scalar.
+
+**Type Validation**
+
+Scalar type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be a Scalar type.
+2. Any directives provided must not already apply to the original Scalar type.
+
+
 ## Objects
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
 
 ImplementsInterfaces : Description? implements NamedType+
 
@@ -791,14 +813,15 @@ type ExampleType {
 ```
 
 
-### Object Type Extension
+### Object Extensions
 
 ObjectTypeExtension :
   - extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
   - extend type Name ImplementsInterfaces? Directives[Const]
   - extend type Name ImplementsInterfaces
 
-Object type extensions are used to represent a type which has been extended from some original type. For example, this might be used to represent local data, or
+Object type extensions are used to represent a type which has been extended from
+some original type. For example, this might be used to represent local data, or
 by a GraphQL service which is itself an extension of another GraphQL service.
 
 In this example, a local data field is added to a `Story` type:
@@ -836,10 +859,11 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 ## Interfaces
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions?
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects can then implement these interfaces which requires that the object type will define all fields defined by those interfaces.
+objects can then implement these interfaces which requires that the object type
+will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -942,9 +966,63 @@ Interface types have the potential to be invalid if incorrectly defined.
    characters {"__"} (two underscores).
 
 
+### Interface Extensions
+
+InterfaceTypeExtension :
+  - extend interface Name Directives[Const]? FieldDefinitions
+  - extend interface Name Directives[Const]
+
+Interface type extensions are used to represent an interface which has been
+extended from some original interface. For example, this might be used to
+represent common local data on many types, or by a GraphQL service which is
+itself an extension of another GraphQL service.
+
+In this example, an extended data field is added to a `NamedEntity` type along
+with the types which implement it:
+
+```graphql example
+extend interface NamedEntity {
+  nickname: String
+}
+
+extend type Person {
+  nickname: String
+}
+
+extend type Business {
+  nickname: String
+}
+```
+
+Interface type extensions may not add additional fields, instead only adding
+directives.
+
+In this example, a directive is added to a `NamedEntity` type without
+adding fields:
+
+```graphql example
+extend type NamedEntity @addedDirective
+```
+
+**Type Validation**
+
+Interface type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be an Interface type.
+2. The fields of an Interface type extension must have unique names; no two
+   fields may share the same name.
+3. Any fields of an Interface type extension must not be already defined on the
+   original Interface type.
+4. Any Object type which implemented the original Interface type must also be a
+   super-set of the fields of the Interface type extension.
+5. Any directives provided must not already apply to the original Interface type.
+
+
 ## Unions
 
-UnionTypeDefinition : Description? union Name Directives[Const]? = UnionMembers
+UnionTypeDefinition : Description? union Name Directives[Const]? UnionMembersDefinition?
+
+UnionMembersDefinition : = UnionMembers
 
 UnionMembers :
   - `|`? NamedType
@@ -1040,9 +1118,35 @@ Union types have the potential to be invalid if incorrectly defined.
 2. A Union type must define one or more unique member types.
 
 
+### Union Extensions
+
+UnionTypeExtension :
+  - extend union Name Directives[Const]? UnionMembersDefinition
+  - extend union Name Directives[Const]
+
+Union type extensions are used to represent a union type which has been
+extended from some original union type. For example, this might be used to
+represent additional local data, or by a GraphQL service which is itself an
+extension of another GraphQL service.
+
+**Type Validation**
+
+Union type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be a Union type.
+2. The member types of a Union type extension must all be Object base types;
+   Scalar, Interface and Union types may not be member types of a Union.
+   Similarly, wrapping types may not be member types of a Union.
+3. All member types of a Union type extension must be unique.
+4. All member types of a Union type extension must not already be a member of
+   the original Union type.
+5. Any directives provided must not already apply to the original Union type.
+
 ## Enums
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? { EnumValueDefinition+ }
+EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValueDefinitions?
+
+EnumValueDefinitions : { EnumValueDefinition+ }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
@@ -1086,9 +1190,33 @@ Enum types have the potential to be invalid if incorrectly defined.
 1. A Enum type must define one or more unique enum values.
 
 
+### Enum Extensions
+
+EnumTypeExtension :
+  - extend enum Name Directives[Const]? EnumValueDefinitions
+  - extend enum Name Directives[Const]
+
+Enum type extensions are used to represent an enum type which has been
+extended from some original enum type. For example, this might be used to
+represent additional local data, or by a GraphQL service which is itself an
+extension of another GraphQL service.
+
+**Type Validation**
+
+Enum type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be a Enum type.
+3. All values of a Enum type extension must be unique.
+4. All values of a Enum type extension must not already be a value of
+   the original Enum.
+5. Any directives provided must not already apply to the original Enum type.
+
+
 ## Input Objects
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? { InputValueDefinition+ }
+InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldDefinitions?
+
+InputFieldDefinitions : { InputValueDefinition+ }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1175,6 +1303,27 @@ Literal Value            | Variables               | Coerced Value
 2. The fields of an Input Object type must have unique names within that
    Input Object type; no two fields may share the same name.
 3. The return types of each defined field must be an Input type.
+
+
+### Input Object Extensions
+
+InputObjectTypeExtension :
+  - extend input Name Directives[Const]? InputFieldDefinitions
+  - extend input Name Directives[Const]
+
+Input object type extensions are used to represent an input object type which
+has been extended from some original input object type. For example, this might
+be used by a GraphQL service which is itself an extension of another GraphQL service.
+
+**Type Validation**
+
+Input object type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be a Input Object type.
+3. All fields of an Input Object type extension must have unique names.
+4. All fields of an Input Object type extension must not already be a field of
+   the original Input Object.
+5. Any directives provided must not already apply to the original Input Object type.
 
 
 ## List
