@@ -475,11 +475,11 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 ## Objects
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 ImplementsInterfaces : Description? implements NamedType+
 
-FieldDefinitions : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
@@ -816,7 +816,7 @@ type ExampleType {
 ### Object Extensions
 
 ObjectTypeExtension :
-  - extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+  - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
   - extend type Name ImplementsInterfaces? Directives[Const]
   - extend type Name ImplementsInterfaces
 
@@ -859,7 +859,7 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 ## Interfaces
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions?
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects can then implement these interfaces which requires that the object type
@@ -969,7 +969,7 @@ Interface types have the potential to be invalid if incorrectly defined.
 ### Interface Extensions
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldDefinitions
+  - extend interface Name Directives[Const]? FieldsDefinition
   - extend interface Name Directives[Const]
 
 Interface type extensions are used to represent an interface which has been
@@ -1020,13 +1020,13 @@ Interface type extensions have the potential to be invalid if incorrectly define
 
 ## Unions
 
-UnionTypeDefinition : Description? union Name Directives[Const]? UnionMembersDefinition?
+UnionTypeDefinition : Description? union Name Directives[Const]? MemberTypesDefinition?
 
-UnionMembersDefinition : = UnionMembers
+MemberTypesDefinition : = MemberTypes
 
-UnionMembers :
+MemberTypes :
   - `|`? NamedType
-  - UnionMembers | NamedType
+  - MemberTypes | NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
 Object types, but provides for no guaranteed fields between those types.
@@ -1121,7 +1121,7 @@ Union types have the potential to be invalid if incorrectly defined.
 ### Union Extensions
 
 UnionTypeExtension :
-  - extend union Name Directives[Const]? UnionMembersDefinition
+  - extend union Name Directives[Const]? MemberTypesDefinition
   - extend union Name Directives[Const]
 
 Union type extensions are used to represent a union type which has been
@@ -1144,9 +1144,9 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 ## Enums
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValueDefinitions?
+EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
 
-EnumValueDefinitions : { EnumValueDefinition+ }
+EnumValuesDefinition : { EnumValueDefinition+ }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
@@ -1193,7 +1193,7 @@ Enum types have the potential to be invalid if incorrectly defined.
 ### Enum Extensions
 
 EnumTypeExtension :
-  - extend enum Name Directives[Const]? EnumValueDefinitions
+  - extend enum Name Directives[Const]? EnumValuesDefinition
   - extend enum Name Directives[Const]
 
 Enum type extensions are used to represent an enum type which has been
@@ -1214,9 +1214,9 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 
 ## Input Objects
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldDefinitions?
+InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
 
-InputFieldDefinitions : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition+ }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1308,7 +1308,7 @@ Literal Value            | Variables               | Coerced Value
 ### Input Object Extensions
 
 InputObjectTypeExtension :
-  - extend input Name Directives[Const]? InputFieldDefinitions
+  - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const]
 
 Input object type extensions are used to represent an input object type which

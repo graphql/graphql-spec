@@ -214,16 +214,16 @@ ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 ScalarTypeExtension :
   - extend scalar Name Directives[Const]
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions?
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 ObjectTypeExtension :
-  - extend type Name ImplementsInterfaces? Directives[Const]? FieldDefinitions
+  - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
   - extend type Name ImplementsInterfaces? Directives[Const]
   - extend type Name ImplementsInterfaces
 
 ImplementsInterfaces : implements NamedType+
 
-FieldDefinitions : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
@@ -231,40 +231,40 @@ ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldDefinitions?
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldDefinitions
+  - extend interface Name Directives[Const]? FieldsDefinition
   - extend interface Name Directives[Const]
 
-UnionTypeDefinition : Description? union Name Directives[Const]? UnionMembersDefinition?
+UnionTypeDefinition : Description? union Name Directives[Const]? MemberTypesDefinition?
 
-UnionMembersDefinition : = UnionMembers
+MemberTypesDefinition : = MemberTypes
 
-UnionMembers :
+MemberTypes :
   - `|`? NamedType
-  - UnionMembers | NamedType
+  - MemberTypes | NamedType
 
 UnionTypeExtension :
-  - extend union Name Directives[Const]? UnionMembersDefinition
+  - extend union Name Directives[Const]? MemberTypesDefinition
   - extend union Name Directives[Const]
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValueDefinitions?
+EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
 
-EnumValueDefinitions : { EnumValueDefinition+ }
+EnumValuesDefinition : { EnumValueDefinition+ }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 EnumTypeExtension :
-  - extend enum Name Directives[Const]? EnumValueDefinitions
+  - extend enum Name Directives[Const]? EnumValuesDefinition
   - extend enum Name Directives[Const]
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldDefinitions?
+InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
 
-InputFieldDefinitions : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition+ }
 
 InputObjectTypeExtension :
-  - extend input Name Directives[Const]? InputFieldDefinitions
+  - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const]
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
