@@ -16,7 +16,8 @@ The GraphQL language includes an
 describe a GraphQL service's type system. Tools may use this definition language
 to provide utilities such as client code generation or service boot-strapping.
 
-GraphQL tools which only seek to provide GraphQL query execution may not parse {TypeSystemDefinition}.
+GraphQL tools which only seek to provide GraphQL query execution may choose not
+to parse {TypeSystemDefinition}.
 
 A GraphQL Document which contains {TypeSystemDefinition} must not be executed;
 GraphQL execution services which receive a GraphQL Document containing type
@@ -832,8 +833,8 @@ extend type Story {
 }
 ```
 
-Object type extensions may not add additional fields, instead only adding
-interfaces or directives.
+Object type extensions may choose not to add additional fields, instead only
+adding interfaces or directives.
 
 In this example, a directive is added to a `User` type without adding fields:
 
@@ -994,8 +995,8 @@ extend type Business {
 }
 ```
 
-Interface type extensions may not add additional fields, instead only adding
-directives.
+Interface type extensions may choose not to add additional fields, instead only
+adding directives.
 
 In this example, a directive is added to a `NamedEntity` type without
 adding fields:
@@ -1014,7 +1015,8 @@ Interface type extensions have the potential to be invalid if incorrectly define
 3. Any fields of an Interface type extension must not be already defined on the
    original Interface type.
 4. Any Object type which implemented the original Interface type must also be a
-   super-set of the fields of the Interface type extension.
+   super-set of the fields of the Interface type extension (which may be due to
+   Object type extension).
 5. Any directives provided must not already apply to the original Interface type.
 
 
@@ -1113,8 +1115,8 @@ Unions are never valid inputs.
 Union types have the potential to be invalid if incorrectly defined.
 
 1. The member types of a Union type must all be Object base types;
-   Scalar, Interface and Union types may not be member types of a Union.
-   Similarly, wrapping types may not be member types of a Union.
+   Scalar, Interface and Union types must not be member types of a Union.
+   Similarly, wrapping types must not be member types of a Union.
 2. A Union type must define one or more unique member types.
 
 
@@ -1135,8 +1137,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Union type.
 2. The member types of a Union type extension must all be Object base types;
-   Scalar, Interface and Union types may not be member types of a Union.
-   Similarly, wrapping types may not be member types of a Union.
+   Scalar, Interface and Union types must not be member types of a Union.
+   Similarly, wrapping types must not be member types of a Union.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
    the original Union type.
@@ -1491,7 +1493,7 @@ type SomeType {
 }
 ```
 
-While defining a directive, it may not reference itself directly or indirectly:
+While defining a directive, it must not reference itself directly or indirectly:
 
 ```graphql counter-example
 directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
@@ -1499,9 +1501,9 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 
 **Validation**
 
-1. A directive definition may not contain the use of a directive which
+1. A directive definition must not contain the use of a directive which
    references itself directly.
-2. A directive definition may not contain the use of a directive which
+2. A directive definition must not contain the use of a directive which
    references itself indirectly by referencing a Type or Directive which
    transitively includes a reference to this directive.
 
