@@ -94,9 +94,12 @@ lines and uniform indentation with {BlockStringValue()}.
 Document : Definition+
 
 Definition :
+  - ExecutableDefinition
+  - TypeSystemDefinition
+
+ExecutableDefinition :
   - OperationDefinition
   - FragmentDefinition
-  - TypeSystemDefinition
 
 OperationDefinition :
   - SelectionSet

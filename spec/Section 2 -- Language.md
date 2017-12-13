@@ -153,7 +153,7 @@ lacks the punctuation often used to describe mathematical expressions.
 Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
 GraphQL Documents are full of named things: operations, fields, arguments,
-directives, fragments, and variables. All names must follow the same
+types, directives, fragments, and variables. All names must follow the same
 grammatical form.
 
 Names in GraphQL are case-sensitive. That is to say `name`, `Name`, and `NAME`
@@ -169,17 +169,23 @@ characters to support interoperation with as many other systems as possible.
 Document : Definition+
 
 Definition :
-  - OperationDefinition
-  - FragmentDefinition
+  - ExecutableDefinition
   - TypeSystemDefinition
 
+ExecutableDefinition :
+  - OperationDefinition
+  - FragmentDefinition
+
 A GraphQL Document describes a complete file or request string operated on
-by a GraphQL service or client tool. A document contains multiple definitions of
-Operations and Fragments, and if consumed by a client tool may also include Type
-Definitions. GraphQL Documents are only executable by a server if they
-contain an Operation but do not contain a Type Definition. However documents
-which do not contain Operations may still be parsed and validated to allow
-client tools to represent a single request across many documents.
+by a GraphQL service or client. A document contains multiple definitions, either
+executable or representative of a GraphQL type system.
+
+Documents are only executable by a GraphQL service if they contain an
+{OperationDefinition}, only contain {ExecutableDefinition} and do not contain
+{TypeSystemDefinition}. However documents which do not contain
+{OperationDefinition} or do contain {TypeSystemDefinition} may still be parsed
+and validated to allow client tools to represent many GraphQL uses which may
+appear across many individual files.
 
 If a Document contains only one operation, that operation may be unnamed or
 represented in the shorthand form, which omits both the query keyword and
@@ -188,8 +194,9 @@ operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
 
-GraphQL implementations which only seek to provide GraphQL query execution may
-omit the {TypeSystemDefinition} rule from {Definition}.
+GraphQL services which only seek to provide GraphQL query execution may choose
+to only include {ExecutableDefinition} and omit the {TypeSystemDefinition} rule
+from {Definition}.
 
 
 ## Operations
