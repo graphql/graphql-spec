@@ -73,21 +73,21 @@ at the top level of a GraphQL query. For example, a basic GraphQL query like:
 
 ```graphql example
 query {
-  me
+  myName
 }
 ```
 
-Is valid when the `query` root operation type has a field named "me".
+Is valid when the `query` root operation type has a field named "myName".
 
 ```graphql example
 type Query {
-  me: User
+  myName: String
 }
 ```
 
 Similarly, the following mutation is valid if a `mutation` root operation type
 has a field named "setName". Note that the `query` and `mutation` root types
-should be different types.
+must be different types.
 
 ```graphql example
 mutation {
@@ -97,7 +97,8 @@ mutation {
 }
 ```
 
-When using the type system definition language, a document must include at most one `schema` definition.
+When using the type system definition language, a document must include at most
+one `schema` definition.
 
 In this example, a GraphQL schema is defined with both query and mutation
 root types:
@@ -120,7 +121,8 @@ type MyMutationRootType {
 **Default Root Operation Type Names**
 
 While any type can be the root operation type for a GraphQL operation, the type
-system definition language can omit the schema definition when the `query`, `mutation`, and `subscription` root types are named `Query`, `Mutation`, and
+system definition language can omit the schema definition when the `query`,
+`mutation`, and `subscription` root types are named `Query`, `Mutation`, and
 `Subscription` respectively.
 
 Likewise, when representing a GraphQL schema using the type system language, a
@@ -149,7 +151,8 @@ made available via introspection.
 
 To allow GraphQL service designers to easily publish documentation alongside the
 capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](http://commonmark.org/)). In the type system definition language, these description strings (often {BlockString})
+Markdown syntax (as specified by [CommonMark](http://commonmark.org/)). In the
+type system definition language, these description strings (often {BlockString})
 occur immediately before the definition they describe.
 
 All GraphQL types, fields, arguments and other definitions which can be
@@ -240,7 +243,8 @@ A GraphQL schema may describe that a field represents list of another types;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be null.
+resulting value will never be {null} (and that an error cannot result in a
+{null} value).
 
 These two types are referred to as "wrapping types"; non-wrapping types are
 referred to as "named types". A wrapping type has an underlying named type,
@@ -1002,7 +1006,7 @@ In this example, a directive is added to a `NamedEntity` type without
 adding fields:
 
 ```graphql example
-extend type NamedEntity @addedDirective
+extend interface NamedEntity @addedDirective
 ```
 
 **Type Validation**
@@ -1189,7 +1193,7 @@ input value with the same name.
 
 Enum types have the potential to be invalid if incorrectly defined.
 
-1. A Enum type must define one or more unique enum values.
+1. An Enum type must define one or more unique enum values.
 
 
 ### Enum Extensions
@@ -1207,11 +1211,11 @@ extension of another GraphQL service.
 
 Enum type extensions have the potential to be invalid if incorrectly defined.
 
-1. The named type must already be defined and must be a Enum type.
-3. All values of a Enum type extension must be unique.
-4. All values of a Enum type extension must not already be a value of
+1. The named type must already be defined and must be an Enum type.
+2. All values of an Enum type extension must be unique.
+3. All values of an Enum type extension must not already be a value of
    the original Enum.
-5. Any directives provided must not already apply to the original Enum type.
+4. Any directives provided must not already apply to the original Enum type.
 
 
 ## Input Objects
@@ -1391,6 +1395,10 @@ should be performed. If that result was not {null}, then the result of coercing
 the Non-Null type is that result. If that result was {null}, then a field error
 must be raised.
 
+Note: When a field error is raised on a non-null value, the error propogates to
+the parent field. For more information on this process, see
+"Errors and Non-Nullability" within the Execution section.
+
 **Input Coercion**
 
 If an argument or input-object field of a Non-Null type is not provided, is
@@ -1399,7 +1407,8 @@ either not provided a value at runtime, or was provided the value {null}, then
 a query error must be raised.
 
 If the value provided to the Non-Null type is provided with a literal value
-other than {null}, or a Non-Null variable value, it is coerced using the input coercion for the wrapped type.
+other than {null}, or a Non-Null variable value, it is coerced using the input
+coercion for the wrapped type.
 
 Example: A non-null argument cannot be omitted.
 
@@ -1441,14 +1450,31 @@ DirectiveLocations :
   - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
 
-DirectiveLocation : one of
-  `QUERY`                 `SCHEMA`                `ENUM`
-  `MUTATION`              `SCALAR`                `ENUM_VALUE`
-  `SUBSCRIPTION`          `OBJECT`                `INPUT_OBJECT`
-  `FIELD`                 `FIELD_DEFINITION`      `INPUT_FIELD_DEFINITION`
-  `FRAGMENT_DEFINITION`   `ARGUMENT_DEFINITION`
-  `FRAGMENT_SPREAD`       `INTERFACE`
-  `INLINE_FRAGMENT`       `UNION`
+DirectiveLocation :
+  - ExecutableDirectiveLocation
+  - TypeSystemDirectiveLocation
+
+ExecutableDirectiveLocation : one of
+  `QUERY`
+  `MUTATION`
+  `SUBSCRIPTION`
+  `FIELD`
+  `FRAGMENT_DEFINITION`
+  `FRAGMENT_SPREAD`
+  `INLINE_FRAGMENT`
+
+TypeSystemDirectiveLocation : one of
+  `SCHEMA`
+  `SCALAR`
+  `OBJECT`
+  `FIELD_DEFINITION`
+  `ARGUMENT_DEFINITION`
+  `INTERFACE`
+  `UNION`
+  `ENUM`
+  `ENUM_VALUE`
+  `INPUT_OBJECT`
+  `INPUT_FIELD_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
@@ -1483,7 +1509,11 @@ directive @example on
 ```
 
 Directives can also be used to annotate the type system definition language
-as well, which is :
+as well, which can be a useful tool for supplying additional metadata in order
+to generate GraphQL execution services, produce client generated runtime code,
+or many other useful extensions of the GraphQL semantics.
+
+In this example, the directive `@example` annotates field and argument definitions:
 
 ```graphql example
 directive @example on FIELD_DEFINITION | ARGUMENT_DEFINITION

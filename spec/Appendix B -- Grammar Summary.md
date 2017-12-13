@@ -276,11 +276,28 @@ DirectiveLocations :
   - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
 
-DirectiveLocation : one of
-  `QUERY`                 `SCHEMA`                `ENUM`
-  `MUTATION`              `SCALAR`                `ENUM_VALUE`
-  `SUBSCRIPTION`          `OBJECT`                `INPUT_OBJECT`
-  `FIELD`                 `FIELD_DEFINITION`      `INPUT_FIELD_DEFINITION`
-  `FRAGMENT_DEFINITION`   `ARGUMENT_DEFINITION`
-  `FRAGMENT_SPREAD`       `INTERFACE`
-  `INLINE_FRAGMENT`       `UNION`
+DirectiveLocation :
+  - ExecutableDirectiveLocation
+  - TypeSystemDirectiveLocation
+
+ExecutableDirectiveLocation : one of
+  `QUERY`
+  `MUTATION`
+  `SUBSCRIPTION`
+  `FIELD`
+  `FRAGMENT_DEFINITION`
+  `FRAGMENT_SPREAD`
+  `INLINE_FRAGMENT`
+
+TypeSystemDirectiveLocation : one of
+  `SCHEMA`
+  `SCALAR`
+  `OBJECT`
+  `FIELD_DEFINITION`
+  `ARGUMENT_DEFINITION`
+  `INTERFACE`
+  `UNION`
+  `ENUM`
+  `ENUM_VALUE`
+  `INPUT_OBJECT`
+  `INPUT_FIELD_DEFINITION`
