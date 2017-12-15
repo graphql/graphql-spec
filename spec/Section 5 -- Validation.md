@@ -649,47 +649,6 @@ and invalid.
   * {arguments} must be the set containing only {argument}.
 
 
-### Argument Values Type Correctness
-
-#### Compatible Values
-
-**Formal Specification**
-
-  * For each {argument} in the document
-  * Let {value} be the Value of {argument}
-  * If {value} is not a Variable
-    * Let {argumentName} be the Name of {argument}.
-    * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
-    * Let {type} be the type expected by {argumentDefinition}.
-    * The type of {literalArgument} must be coercible to {type}.
-
-**Explanatory Text**
-
-Literal values must be compatible with the type defined by the argument they are
-being provided to, as per the coercion rules defined in the Type System chapter.
-
-For example, an Int can be coerced into a Float.
-
-```graphql example
-fragment goodBooleanArg on Arguments {
-  booleanArgField(booleanArg: true)
-}
-
-fragment coercedIntIntoFloatArg on Arguments {
-  floatArgField(floatArg: 1)
-}
-```
-
-An incoercible conversion, is string to int. Therefore, the
-following example is invalid.
-
-```graphql counter-example
-fragment stringIntoInt on Arguments {
-  intArgField(intArg: "3")
-}
-```
-
-
 #### Required Non-Null Arguments
 
   * For each Field or Directive in the document.
@@ -1233,6 +1192,87 @@ and {Sentient}.
 ## Values
 
 
+### Values of Correct Type
+
+**Format Specification**
+
+  * For each input Value {value} in the document.
+    * Let {type} be the type expected in the position {value} is found.
+    * {value} must be coercible to {type}.
+
+**Explanatory Text**
+
+Literal values must be compatible with the type expected in the position they
+are found as per the coercion rules defined in the Type System chapter.
+
+The type expected in a position include the type defined by the argument a value
+is provided for, the type defined by an input object field a value is provided
+for, and the type of a variable definition a default value is provided for.
+
+The following examples are valid use of value literals:
+
+```graphql example
+fragment goodBooleanArg on Arguments {
+  booleanArgField(booleanArg: true)
+}
+
+fragment coercedIntIntoFloatArg on Arguments {
+  # Note: The input coercion rules for Float allow Int literals.
+  floatArgField(floatArg: 123)
+}
+
+query goodComplexDefaultValue($search: ComplexInput = { name: "Fido" }) {
+  findDog(complex: $search)
+}
+```
+
+Non-coercible values (such as a String into an Int) are invalid. The
+following examples are invalid:
+
+```graphql counter-example
+fragment stringIntoInt on Arguments {
+  intArgField(intArg: "123")
+}
+
+query badComplexValue {
+  findDog(complex: { name: 123 })
+}
+```
+
+
+### Input Object Field Names
+
+**Formal Specification**
+
+  * For each Input Object Field {inputField} in the document
+  * Let {inputFieldName} be the Name of {inputField}.
+  * Let {inputFieldDefinition} be the input field definition provided by the
+    parent input object type named {inputFieldName}.
+  * {inputFieldDefinition} must exist.
+
+**Explanatory Text**
+
+Every input field provided in an input object value must be defined in the set
+of possible fields of that input object's expected type.
+
+For example the following example input object is valid:
+
+```graphql example
+{
+  findDog(complex: { name: "Fido" })
+}
+```
+
+While the following example input-object uses a field "favoriteCookieFlavor"
+which is not defined on the expected type:
+
+```graphql counter-example
+{
+  findDog(complex: { favoriteCookieFlavor: "Bacon" })
+}
+```
+
+
 ### Input Object Field Uniqueness
 
 **Formal Specification**
@@ -1393,16 +1433,15 @@ fragment HouseTrainedFragment {
 ```
 
 
-### Variable Default Values Are Correctly Typed
+### Variable Default Value Is Allowed
 
 **Formal Specification**
 
-  * For every {operation} in a document
-  * For every {variable} on each {operation}
-    * Let {variableType} be the type of {variable}
-    * If {variableType} is non-null it cannot have a default value
-    * If {variable} has a default value it must be of the same type
-      or able to be coerced to {variableType}
+  * For every Variable Definition {variableDefinition} in a document
+    * Let {variableType} be the type of {variableDefinition}
+    * Let {defaultValue} be the default value of {variableDefinition}
+    * If {variableType} is Non-null:
+      * {defaultValue} must be undefined.
 
 **Explanatory Text**
 
@@ -1427,31 +1466,6 @@ validation
 query houseTrainedQuery($atOtherHomes: Boolean! = true) {
   dog {
     isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-Default values must be compatible with the types of variables.
-Types must match or they must be coercible to the type.
-
-Non-matching types fail, such as in the following example:
-
-```graphql counter-example
-query houseTrainedQuery($atOtherHomes: Boolean = "true") {
-  dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-However if a type is coercible the query will pass validation.
-
-For example:
-
-```graphql example
-query intToFloatQuery($floatVar: Float = 1) {
-  arguments {
-    floatArgField(floatArg: $floatVar)
   }
 }
 ```
