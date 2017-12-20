@@ -224,7 +224,9 @@ ObjectTypeExtension :
   - extend type Name ImplementsInterfaces? Directives[Const]
   - extend type Name ImplementsInterfaces
 
-ImplementsInterfaces : implements NamedType+
+ImplementsInterfaces :
+  - implements `&`? NamedType
+  - ImplementsInterfaces & NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -240,16 +242,14 @@ InterfaceTypeExtension :
   - extend interface Name Directives[Const]? FieldsDefinition
   - extend interface Name Directives[Const]
 
-UnionTypeDefinition : Description? union Name Directives[Const]? MemberTypesDefinition?
+UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
-MemberTypesDefinition : = MemberTypes
-
-MemberTypes :
-  - `|`? NamedType
-  - MemberTypes | NamedType
+UnionMemberTypes :
+  - = `|`? NamedType
+  - UnionMemberTypes | NamedType
 
 UnionTypeExtension :
-  - extend union Name Directives[Const]? MemberTypesDefinition
+  - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
 EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
