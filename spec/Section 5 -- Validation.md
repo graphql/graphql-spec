@@ -278,6 +278,11 @@ subscription sub {
 }
 ```
 
+Note: While each subscription must have exactly one root field, a document may
+contain any number of operations, each of which may contain different root
+fields. When executed, a document containing multiple subscription operations
+must provide the operation name as described in {GetOperation()}.
+
 ## Fields
 
 ### Field Selections on Objects, Interfaces, and Unions Types
