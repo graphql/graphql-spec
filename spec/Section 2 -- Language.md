@@ -731,7 +731,7 @@ indentation and blank initial and trailing lines via {BlockStringValue()}.
 
 For example, the following operation containing a block string:
 
-```graphql
+```graphql example
 mutation {
   sendEmail(message: """
     Hello,
@@ -745,10 +745,27 @@ mutation {
 
 Is identical to the standard quoted string:
 
-```graphql
+```graphql example
 mutation {
   sendEmail(message: "Hello,\n  World!\n\nYours,\n  GraphQL.")
 }
+```
+
+Since block string values strip leading and trailing empty lines, there is no
+single canonical printed block string for a given value. Because block strings
+typically represent freeform text, it is considered easier to read if they begin
+and end with an empty line.
+
+```graphql example
+"""
+This starts with and ends with an empty line,
+which makes it easier to read.
+"""
+```
+
+```graphql counter-example
+"""This does not start with or end with any empty lines,
+which makes it a little harder to read."""
 ```
 
 Note: If non-printable ASCII characters are needed in a string value, a standard
