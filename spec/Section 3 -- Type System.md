@@ -1019,11 +1019,11 @@ must *not* be queried if either the `@skip` condition is true *or* the
 A GraphQL schema includes types, indicating where query, mutation, and
 subscription operations start. This provides the initial entry points into the
 type system. The query type must always be provided, and is an Object
-base type. The mutation type is optional; if it is null, that means
+base type. The mutation type is optional; if it is not provided, that means
 the system does not support mutations. If it is provided, it must
 be an object base type. Similarly, the subscription type is optional; if it is
-null, the system does not support subscriptions. If it is provided, it must be
-an object base type.
+not provided, the system does not support subscriptions. If it is provided, it
+must be an object base type.
 
 The fields on the query type indicate what fields are available at
 the top level of a GraphQL query. For example, a basic GraphQL query
