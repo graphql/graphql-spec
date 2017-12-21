@@ -85,7 +85,7 @@ BlockStringCharacter ::
   - SourceCharacter but not `"""` or `\"""`
   - `\"""`
 
-Note: Block string values are interpretted to exclude blank initial and trailing
+Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 
