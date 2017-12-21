@@ -205,8 +205,12 @@ query getName {
 **Formal Specification**
 
   * For each subscription operation definition {subscription} in the document
-  * Let {rootFields} be the top level selection set on {subscription}.
-    * {rootFields} must be a set of one.
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Let {selectionSet} be the top level selection set on {subscription}.
+  * Let {variableValues} be the empty set.
+  * Let {groupedFieldSet} be the result of
+    {CollectFields(subscriptionType, selectionSet, variableValues)}.
+  * {groupedFieldSet} must have exactly one entry.
 
 **Explanatory Text**
 
@@ -224,14 +228,14 @@ subscription sub {
 ```
 
 ```graphql example
-fragment newMessageFields on Message {
-  body
-  sender
+subscription sub {
+  ...newMessageFields
 }
 
-subscription sub {
+fragment newMessageFields on Subscription {
   newMessage {
-    ... newMessageFields
+    body
+    sender
   }
 }
 ```
@@ -240,6 +244,20 @@ Invalid:
 
 ```graphql counter-example
 subscription sub {
+  newMessage {
+    body
+    sender
+  }
+  disallowedSecondRootField
+}
+```
+
+```graphql counter-example
+subscription sub {
+  ...multipleSubscriptions
+}
+
+fragment multipleSubscriptions on Subscription {
   newMessage {
     body
     sender
