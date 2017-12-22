@@ -210,7 +210,7 @@ TypeExtension :
   - InterfaceTypeExtension
   - UnionTypeExtension
   - EnumTypeExtension
-  - InputObjectTypeDefinition
+  - InputObjectTypeExtension
 
 ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
