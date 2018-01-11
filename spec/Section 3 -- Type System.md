@@ -29,7 +29,7 @@ introspection system.
 
 ## Types
 
-The fundamental unit of any GraphQL Schema is the type. There are eight kinds
+The fundamental unit of any GraphQL Schema is the type. There are nine kinds
 of types in GraphQL.
 
 The most basic type is a `Scalar`. A scalar represents a primitive value, like
@@ -41,7 +41,7 @@ Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another
 type in the system, allowing the definition of arbitrary type hierarchies.
 
-GraphQL supports two abstract types: interfaces and unions.
+GraphQL supports three abstract types: interfaces, unions, and inputUnions.
 
 An `Interface` defines a list of fields; `Object` types that implement that
 interface are guaranteed to implement those fields. Whenever the type system
@@ -50,6 +50,9 @@ claims it will return an interface, it will return a valid implementing type.
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
+
+An `Input Union` defines a list of possible `Input Object` types; `Input Union`
+types are fulfilled by a single member `Input Object`.
 
 All of the types so far are assumed to be both nullable and singular: e.g. a scalar
 string returns either null or a singular string. The type system might want to
@@ -795,7 +798,7 @@ input argument.  For this reason, input objects have a separate type in the
 system.
 
 An `Input Object` defines a set of input fields; the input fields are either
-scalars, enums, or other input objects. This allows arguments to accept
+scalars, enums, input unions, or other input objects. This allows arguments to accept
 arbitrarily complex structs.
 
 **Result Coercion**
@@ -860,6 +863,104 @@ Literal Value            | Variables               | Coerced Value
 2. The fields of an Input Object type must have unique names within that
    Input Object type; no two fields may share the same name.
 3. The return types of each defined field must be an Input type.
+
+
+### Input Unions
+
+GraphQL Input Unions represent an argument that could be one of a list of GraphQL
+Input Object types, determined at execution.
+
+The `Union` type defined above is inappropriate for re-use here, because a `Union`
+contains `Object` types. `Object` types are not permitted as inputs, and `Input Object`
+types are not permitted in query results so these types should be grouped separately.
+
+`Input Union` types may also be used as values for input objects, allowing for
+arbitrarily nested structs. In order to determine the concrete `Object` type fulfilling
+the Input Union, the `__inputname` field must be specified as a member of the input object.
+This field value must be a string representing a type name of the `Input Object` which is
+both a member of the `Input Union` and is fulfilled by the fields of the input.
+
+For example, we might have the following type system:
+
+```graphql example
+inputUnion ContentBlock = ParagraphInput | PhotoInput
+
+input ParagraphInput {
+  text: String
+}
+
+type PhotoInput {
+  image: String!
+  title: String!
+}
+
+type Mutation {
+  createPost(content: [ContentBlock]!): Post
+}
+```
+
+When executing the `createPost` mutation, the mutation accepts the input union
+`ContentBlock`, and the values provided must both be a member of the input union
+and specify which input object type it is fulfilling.
+
+Examples of valid input:
+
+```graphql-example
+[
+  {__inputname: "ParagraphInput", text: "This is a block of text" },
+  {__inputname: "PhotoInput", image: "http://example.com/image.png", title: "Example Image"},
+  {__inputname: "ParagraphInput", text: "This is a block of after the photo" },
+]
+```
+
+```graphql-example
+{__inputname: "ParagraphInput", text: "This is a block of text with a single member" }
+```
+
+And invalid inputs:
+
+```graphql counter-example
+[
+  {text: "invalid:, __inputname is not specified"}
+]
+```
+
+```graphql counter-example
+[
+  {
+    __inputname: "PhotoInput",
+    text: "invalid: text is not a member of input",
+    image: "http://example.com/error.png",
+    title: "Error Image"
+  }
+]
+```
+
+**Result Coercion**
+
+An input object is never a valid result.
+
+**Input Coercion**
+
+The value for an input union should be an input object literal or an unordered
+map supplied by a variable, otherwise an error should be thrown. The input
+object literal must contain a property `__inputname` with a string value
+of the name of the input object member of the input union, otherwise an error
+should be throw. All other fields must be valid in fulfilling the input object
+represented by the `__inputname` as defined in Input Object coercion.
+
+The result of coercion is that of a standard input object coercion, with an
+additional field `__inputname` containing the name of the type fulfilling the
+input union.
+
+#### Input Union type validation
+
+Input Union types have the potential to be invalid if incorrectly defined.
+
+1. The member types of an Input Union type must all be Input Object base types;
+   Scalar, Interface and Input Union types may not be member types of an
+   Input Union. Similarly, wrapping types may not be member types of a Union.
+2. An Input Union type must define one or more unique member types.
 
 
 ### Lists

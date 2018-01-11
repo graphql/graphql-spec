@@ -139,7 +139,7 @@ type __Type {
   # OBJECT only
   interfaces: [__Type!]
 
-  # INTERFACE and UNION only
+  # INTERFACE, UNION, and INPUT_UNION only
   possibleTypes: [__Type!]
 
   # ENUM only
@@ -182,6 +182,7 @@ enum __TypeKind {
   UNION
   ENUM
   INPUT_OBJECT
+  INPUT_UNION
   LIST
   NON_NULL
 }
@@ -268,6 +269,21 @@ Fields
   union. They must be object types.
 * All other fields must return {null}.
 
+#### Input Union
+
+Input Unions are an abstract type containing possible a list of possible valid
+input values. The possible inputs of an input union are explicitly listed out
+in `possibleTypes`. Input types can be made parts of input unions without
+modification of that type.
+
+Fields
+
+* `kind` must return `__TypeKind.INPUT_UNION`.
+* `name` must return a String.
+* `description` may return a String or {null}.
+* `possibleTypes` returns the list of types that can be represented within this
+  union. They must be input object types.
+* All other fields must return {null}.
 
 #### Interface
 

@@ -1507,7 +1507,7 @@ query houseTrainedQuery($atOtherHomes: Boolean! = true) {
 
 **Explanatory Text**
 
-Variables can only be scalars, enums, input objects, or lists and non-null
+Variables can only be scalars, enums, input objects, input unions, or lists and non-null
 variants of those types. These are known as input types. Objects, unions,
 and interfaces cannot be used as inputs.
 
@@ -1516,8 +1516,13 @@ For these examples, consider the following typesystem additions:
 ```graphql example
 input ComplexInput { name: String, owner: String }
 
+input AlternateComplexInput { breed: String }
+
+inputUnion ComplexInputUnion = ComplexInput | AlternateComplexInput
+
 extend type QueryRoot {
   findDog(complex: ComplexInput): Dog
+  findDogs(complexUnion: ComplexInputUnion): [Dog]
   booleanList(booleanListArg: [Boolean!]): Boolean
 }
 ```
@@ -1539,6 +1544,12 @@ query takesComplexInput($complexInput: ComplexInput) {
 
 query TakesListOfBooleanBang($booleans: [Boolean!]) {
   booleanList(booleanListArg: $booleans)
+}
+
+query fulfillsComplexInputUnion($complexUnion: ComplexInputUnion) {
+  findDogs(complexUnion: $complexUnion) {
+    name
+  }
 }
 ```
 
@@ -1806,6 +1817,10 @@ an extraneous variable.
   * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}):
     * If {hasDefault} is true, treat the {variableType} as non-null.
     * If inner type of {argumentType} and {variableType} are different, return false
+    * If {variableType} is an input union
+      * Let {inputName} be the value of the `__inputname` property of {argumentType}
+      * Let {possibleTypes} be a set of possible types of {variableType}
+      * If {inputName} is not a member of {possibleTypes}, return false
     * If {argumentType} and {variableType} have different list dimensions, return false
     * If any list level of {variableType} is not non-null, and the corresponding level
       in {argument} is non-null, the types are not compatible.
