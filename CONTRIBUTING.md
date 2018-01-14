@@ -14,10 +14,7 @@ status and progress of proposals.
 Any changes to the specification that affect the behavior of **GraphQL server
 or client implementations** should go through the stages below no matter how
 small they are. All other changes should be labeled as “editorial” and may
-be merged right away.
-
-## Code of Conduct
-The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+be merged right away.  Also, please read the [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## Stage -2: proposed change (optional)
 
