@@ -16,6 +16,9 @@ or client implementations** should go through the stages below no matter how
 small they are. All other changes should be labeled as “editorial” and may
 be merged right away.
 
+## Code of Conduct
+The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
+
 ## Stage -2: proposed change (optional)
 
 **Prerequisite**: Described problem/change should be specific to the content of
