@@ -934,7 +934,7 @@ referenced.
 **Explanatory Text**
 
 Named fragment spreads must refer to fragments defined
-within the document.  If the target of a spread is
+within the document. If the target of a spread is
 not defined, this is an error:
 
 ```graphql counter-example

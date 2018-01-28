@@ -49,7 +49,7 @@ Conformance requirements are described in this document via both
 descriptive assertions and key words with clearly defined meanings.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-"SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in the normative portions of
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative portions of
 this document are to be interpreted as described in [IETF RFC 2119](https://tools.ietf.org/html/rfc2119).
 These key words may appear in lowercase and still retain their meaning unless
 explicitly declared as non-normative.

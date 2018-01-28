@@ -488,7 +488,7 @@ fragment friendFields on User {
 }
 ```
 
-Fragments are consumed by using the spread operator (`...`).  All fields selected
+Fragments are consumed by using the spread operator (`...`). All fields selected
 by the fragment will be added to the query field selection at the same level
 as the fragment invocation. This happens through multiple levels of fragment
 spreads.
@@ -925,7 +925,7 @@ ObjectValue[Const] :
 ObjectField[Const] : Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
-curly-braces `{ }`.  The values of an object literal may be any input value
+curly-braces `{ }`. The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
