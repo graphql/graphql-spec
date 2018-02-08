@@ -248,6 +248,25 @@ a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
 
 
+#### Any
+
+The Any scalar type represents any value that is supported by underlying
+serialization protocol (including lists and maps). It is intended to be used
+as an opt-out type in cases when the exact type is not known in advance.
+
+Note: If Any is wrapped by Non-Null then standard rules are applied. That means
+{null} value will produce error both for input and output values.
+
+**Result Coercion**
+
+GraphQL servers should coerce raw value to the value compatible with underlying
+serialization protocol when possible otherwise they must raise a field error.
+
+**Input Coercion**
+
+When expected as an input type, any input values are accepted.
+
+
 ### Objects
 
 GraphQL queries are hierarchical and composed, describing a tree of information.
