@@ -1040,7 +1040,7 @@ UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberType
 
 UnionMemberTypes :
   - = `|`? NamedType
-  - MemberTypes | NamedType
+  - UnionMemberTypes | NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
 Object types, but provides for no guaranteed fields between those types.
