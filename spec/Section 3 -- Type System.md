@@ -564,7 +564,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          1. The object field argument must accept the same type (invariant) as
             the interface field argument.
       3. The object field may include additional arguments not defined in the
-         interface field, but any additional argument must not be required.
+         interface field, but any additional argument must not be required, e.g. 
+         must not be of a non-nullable type.
 
 
 ### Interfaces
