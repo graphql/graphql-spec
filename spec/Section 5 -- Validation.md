@@ -5,9 +5,9 @@ ensures that it is unambiguous and mistake-free in the context of a given
 GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
-stable result as defined by the procedures in the Execution section, however
-that result may be ambiguous, surprising, or unexpected relative to the request
-containing validation errors, so execution should not occur for invalid requests.
+stable result as defined by the algorithms in the Execution section, however
+that result may be ambiguous, surprising, or unexpected relative to a request
+containing validation errors, so execution should only occur for valid requests.
 
 Typically validation is performed in the context of a request immediately
 before execution, however a GraphQL service may execute a request without
@@ -36,6 +36,10 @@ For this section of this schema, we will assume the following type system
 in order to demonstrate examples:
 
 ```graphql example
+type Query {
+  dog: Dog
+}
+
 enum DogCommand { SIT, DOWN, HEEL }
 
 type Dog implements Pet {
@@ -76,12 +80,46 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
-
-type QueryRoot {
-  dog: Dog
-}
 ```
 
+
+## Documents
+
+### Executable Definitions
+
+**Formal Specification**
+
+  * For each definition {definition} in the document.
+  * {definition} must be {OperationDefinition} or {FragmentDefinition} (it must
+    not be {TypeSystemDefinition}).
+
+**Explanatory Text**
+
+GraphQL execution will only consider the executable definitions Operation and
+Fragment. Type system definitions and extensions are not executable, and are not
+considered during execution.
+
+To avoid ambiguity, a document containing {TypeSystemDefinition} is invalid
+for execution.
+
+GraphQL documents not intended to be directly executed may include
+{TypeSystemDefinition}.
+
+For example, the following document is invalid for execution since the original
+executing schema may not know about the provided type extension:
+
+```graphql counter-example
+query getDogName {
+  dog {
+    name
+    color
+  }
+}
+
+extend type Dog {
+  color: String
+}
+```
 
 ## Operations
 
@@ -91,7 +129,7 @@ type QueryRoot {
 
 **Formal Specification**
 
-  * For each operation definition {operation} in the document
+  * For each operation definition {operation} in the document.
   * Let {operationName} be the name of {operation}.
   * If {operationName} exists
     * Let {operations} be all operation definitions in the document named {operationName}.
@@ -555,7 +593,7 @@ and unions without subfields are disallowed.
 Let's assume the following additions to the query root type of the schema:
 
 ```graphql example
-extend type QueryRoot {
+extend type Query {
   human: Human
   pet: Pet
   catOrDog: CatOrDog
@@ -640,7 +678,7 @@ type Arguments {
   booleanListArgField(booleanListArg: [Boolean]!): [Boolean]
 }
 
-extend type QueryRoot {
+extend type Query {
   arguments: Arguments
 }
 ```
@@ -898,9 +936,9 @@ fragment inlineFragOnScalar on Dog {
 
 **Explanatory Text**
 
-Defined fragments must be used within a query document.
+Defined fragments must be used within a document.
 
-For example the following is an invalid query document:
+For example the following is an invalid document:
 
 ```graphql counter-example
 fragment nameFragment on Dog { # unused
@@ -1516,7 +1554,7 @@ For these examples, consider the following typesystem additions:
 ```graphql example
 input ComplexInput { name: String, owner: String }
 
-extend type QueryRoot {
+extend type Query {
   findDog(complex: ComplexInput): Dog
   booleanList(booleanListArg: [Boolean!]): Boolean
 }
