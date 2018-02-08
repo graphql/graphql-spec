@@ -104,7 +104,7 @@ To ensure future changes to the protocol do not break existing servers and
 clients, the top level response map must not contain any entries other than the
 three described above.
 
-Note: When `errors` is present in the response, it may be helpful for it to 
+Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present
 in a response during debugging.
 

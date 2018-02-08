@@ -792,7 +792,7 @@ they sometimes need to be more complex than this.
 The `Object` type defined above is inappropriate for re-use here, because
 `Object`s can contain fields that express circular references or references
 to interfaces and unions, neither of which is appropriate for use as an
-input argument.  For this reason, input objects have a separate type in the
+input argument. For this reason, input objects have a separate type in the
 system.
 
 An `Input Object` defines a set of input fields; the input fields are either
