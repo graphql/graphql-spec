@@ -248,6 +248,25 @@ a given GraphQL server expects. Any other input value, including float input
 values (such as `4.0`), must raise a query error indicating an incorrect type.
 
 
+#### DateTime
+
+The DateTime scalar represents a timestamp, represented as a string serialized
+date-time conforming to the RFC 3339(https://www.ietf.org/rfc/rfc3339.txt) profile
+of the ISO 8601 standard for representation of dates and times using the
+Gregorian calendar.
+
+**Result Coercion**
+
+GraphQL servers should coerce both Unix timestamps and primitive date-time types
+to DateTime when possible. Invalid Unix timestamps must raise a field error.
+
+**Input Coercion**
+
+When expected as an input type, only string serialized RFC 3339 date-times are
+accepted. All other input values must raise a query error indicating an
+incorrect type.
+
+
 ### Objects
 
 GraphQL queries are hierarchical and composed, describing a tree of information.
