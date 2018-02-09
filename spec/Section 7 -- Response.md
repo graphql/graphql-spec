@@ -248,6 +248,42 @@ be the same:
 }
 ```
 
-GraphQL servers may provide additional entries to error as they choose to
-produce more helpful or machine-readable errors, however future versions of the
-spec may describe additional entries to errors.
+GraphQL servers may provide an additional entry with key `extensions`. This
+entry, if set, must have a map as its value. This entry is reserved for
+implementors to extend errors however they see fit, and hence there are no
+additional restrictions on its contents.
+
+To provide compatibility with the previous versions of this spec, it is allowed
+to add additional entries to error itself. However such non-standard entries are
+highly discouraged since they may conflict with additional entries that can be
+added in the future versions of the spec.
+
+```json example
+{
+  "errors": [
+    {
+      "message": "Name for character with ID 1002 could not be fetched.",
+      "locations": [ { "line": 6, "column": 7 } ],
+      "path": [ "hero", "heroFriends", 1, "name" ],
+      "extensions": {
+        "code": "CAN_NOT_FETCH_BY_ID",
+        "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
+      }
+    }
+  ]
+}
+```
+
+```json counter-example
+{
+  "errors": [
+    {
+      "message": "Name for character with ID 1002 could not be fetched.",
+      "locations": [ { "line": 6, "column": 7 } ],
+      "path": [ "hero", "heroFriends", 1, "name" ]
+      "code": "CAN_NOT_FETCH_BY_ID",
+      "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
+    }
+  ]
+}
+```
