@@ -1836,17 +1836,33 @@ an extraneous variable.
   * For each {operation} in {document}
   * Let {variableUsages} be all usages transitively included in the {operation}
   * For each {variableUsage} in {variableUsages}
-    * Let {variableType} be the type of variable definition in the {operation}
-    * Let {argumentType} be the type of the argument the variable is passed to.
-    * Let {hasDefault} be true if the variable definition defines a default.
-    * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}) must be true
+    * Let {variableName} be the name of {variableUsage}
+    * Let {variableDefinition} be the {VariableDefinition} in {operation}.
+    * Let {variableType} be the type of {variableDefinition}.
+    * Let {defaultValue} be the default value of {variableDefinition}.
+    * If {variableType} is not a non-null and {defaultValue} is provided and not {null}:
+      * Let {variableType} be the non-null of {variableType}.
+    * Let {argumentType} be the type of the argument {variableUsage} is passed to.
+    * AreTypesCompatible({argumentType}, {variableType}) must be {true}.
 
-  * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}):
-    * If {hasDefault} is true, treat the {variableType} as non-null.
-    * If inner type of {argumentType} and {variableType} are different, return false
-    * If {argumentType} and {variableType} have different list dimensions, return false
-    * If any list level of {variableType} is not non-null, and the corresponding level
-      in {argument} is non-null, the types are not compatible.
+AreTypesCompatible(argumentType, variableType):
+  * If {argumentType} is a non-null type:
+    * If {variableType} is a non-null type:
+      * Let {nullableArgumentType} be the nullable type of {argumentType}.
+      * Let {nullableVariableType} be the nullable type of {variableType}.
+      * Return {AreTypesCompatible(nullableArgumentType, nullableVariableType)}.
+    * Otherwise return {false}.
+  * If {variableType} is a non-null type:
+    * Let {nullableVariableType} be the nullable type of {variableType}.
+    * Return {AreTypesCompatible(argumentType, nullableVariableType)}.
+  * If {argumentType} is a list type:
+    * If {variableType} is a list type:
+      * Let {itemArgumentType} be the item type of {argumentType}.
+      * Let {itemVariableType} be the item type of {variableType}.
+      * Return {AreTypesCompatible(itemArgumentType, itemVariableType)}.
+    * Otherwise return {false}.
+  * If {variableType} is a list type return {false}.
+  * Return if {variableType} and {argumentType} are identical.
 
 **Explanatory Text**
 
@@ -1890,8 +1906,8 @@ query booleanArgQuery($booleanArg: Boolean) {
 }
 ```
 
-A notable exception is when default arguments are provided. They are, in effect,
-treated as non-nulls.
+A notable exception is when a default value are provided. They are, in effect,
+treated as non-nulls as long as the default value is not {null}.
 
 ```graphql example
 query booleanArgQueryWithDefault($booleanArg: Boolean = true) {

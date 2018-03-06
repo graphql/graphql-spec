@@ -82,20 +82,27 @@ CoerceVariableValues(schema, operation, variableValues):
   * For each {variableDefinition} in {variableDefinitions}:
     * Let {variableName} be the name of {variableDefinition}.
     * Let {variableType} be the expected type of {variableDefinition}.
+    * Assert: {variableType} must be an input type.
     * Let {defaultValue} be the default value for {variableDefinition}.
-    * Let {value} be the value provided in {variableValues} for the name {variableName}.
-    * If {value} does not exist (was not provided in {variableValues}):
-      * If {defaultValue} exists (including {null}):
+    * Let {hasValue} be {true} if {variableValues} provides a value for the
+      name {variableName}.
+    * Let {value} be the value provided in {variableValues} for the
+      name {variableName}.
+    * If {hasValue} is not {true} or if {value} is {null}:
+      * If {variableType} is a Non-Nullable type, throw a query error.
+      * Otherwise if {defaultValue} exists (including {null}):
         * Add an entry to {coercedValues} named {variableName} with the
           value {defaultValue}.
-      * Otherwise if {variableType} is a Non-Nullable type, throw a query error.
-      * Otherwise, continue to the next variable definition.
-    * Otherwise, if {value} cannot be coerced according to the input coercion
-      rules of {variableType}, throw a query error.
-    * Let {coercedValue} be the result of coercing {value} according to the
-      input coercion rules of {variableType}.
-    * Add an entry to {coercedValues} named {variableName} with the
-      value {coercedValue}.
+      * Otherwise if {hasValue} is {true} and {value} is {null}:
+        * Add an entry to {coercedValues} named {variableName} with the
+          value {null}.
+    * Otherwise, {value} must not be {null}:
+      * If {value} cannot be coerced according to the input coercion
+        rules of {variableType}, throw a query error.
+      * Let {coercedValue} be the result of coercing {value} according to the
+        input coercion rules of {variableType}.
+      * Add an entry to {coercedValues} named {variableName} with the
+        value {coercedValue}.
   * Return {coercedValues}.
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
@@ -530,8 +537,8 @@ order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type: Scalars, Enum, Input Object, or
 List or Non-Null wrapped variations of these three.
 
-At each argument position in a query may be a literal value or a variable to be
-provided at runtime.
+At each argument position in a query may be a literal {Value} or {Variable} to
+be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
   * Let {coercedValues} be an empty unordered Map.
@@ -543,30 +550,36 @@ CoerceArgumentValues(objectType, field, variableValues):
     * Let {argumentName} be the name of {argumentDefinition}.
     * Let {argumentType} be the expected type of {argumentDefinition}.
     * Let {defaultValue} be the default value for {argumentDefinition}.
-    * Let {value} be the value provided in {argumentValues} for the name {argumentName}.
-    * If {value} is a Variable:
-      * Let {variableName} be the name of Variable {value}.
-      * Let {variableValue} be the value provided in {variableValues} for the name {variableName}.
-      * If {variableValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
-          value {variableValue}.
+    * Let {hasValue} be {true} if {argumentValues} provides a value for the
+      name {argumentName}.
+    * Let {value} be the value provided in {argumentValues} for the
+      name {argumentName}.
+    * If {hasValue} is not {true} or if {value} is {null}:
+      * If {argumentType} is a Non-Nullable type, throw a field error.
       * Otherwise, if {defaultValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
+        * Add an entry to {coercedValues} named {argumentName} with the
           value {defaultValue}.
+      * Otherwise, if {hasValue} is {true} and {value} is {null}:
+        * Add an entry to {coercedValues} named {argumentName} with the
+          value {null}.
+    * Otherwise, if {value} is a {Variable}:
+      * Let {variableName} be the name of {value}.
+      * If {variableValues} provides a value for the name {variableName}:
+        * Let {variableValue} be the value provided in {variableValues} for the
+          name {variableName}.
+        * Add an entry to {coercedValues} named {argumentName} with the
+          value {variableValue}.
       * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
-      * Otherwise, continue to the next argument definition.
-    * Otherwise, if {value} does not exist (was not provided in {argumentValues}:
-      * If {defaultValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
+      * Otherwise, if {defaultValue} exists (including {null}):
+        * Add an entry to {coercedValues} named {argumentName} with the
           value {defaultValue}.
-      * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
-      * Otherwise, continue to the next argument definition.
-    * Otherwise, if {value} cannot be coerced according to the input coercion
-      rules of {argType}, throw a field error.
-    * Let {coercedValue} be the result of coercing {value} according to the
-      input coercion rules of {argType}.
-    * Add an entry to {coercedValues} named {argName} with the
-      value {coercedValue}.
+    * Otherwise, {value} must be a {Value} and not {null}:
+      * If {value} cannot be coerced according to the input coercion
+        rules of {argType}, throw a field error.
+      * Let {coercedValue} be the result of coercing {value} according to the
+        input coercion rules of {argType}.
+      * Add an entry to {coercedValues} named {argumentName} with the
+        value {coercedValue}.
   * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
