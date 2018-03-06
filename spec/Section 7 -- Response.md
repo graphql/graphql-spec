@@ -248,9 +248,9 @@ be the same:
 }
 ```
 
-GraphQL services may provide an additional entry to errors with key `extensions`. 
+GraphQL services may provide an additional entry to errors with key `extensions`.
 This entry, if set, must have a map as its value. This entry is reserved for
-implementors to add additional information to errors however they see fit, and 
+implementors to add additional information to errors however they see fit, and
 there are no additional restrictions on its contents.
 
 ```json example
@@ -269,11 +269,11 @@ there are no additional restrictions on its contents.
 }
 ```
 
-GraphQL services should not provide any additional entries to the error format, 
-since they could conflict with additional entries that may be added in future 
+GraphQL services should not provide any additional entries to the error format
+since they could conflict with additional entries that may be added in future
 versions of this specification.
 
-> Note: Previous versions of this spec did not describe the `extensions` entry 
+> Note: Previous versions of this spec did not describe the `extensions` entry
 > for error formatting. While non-specified entries are not violations, they are
 > still discouraged.
 
