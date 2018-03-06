@@ -17,9 +17,11 @@
   },
   "scripts": {
     "test": "spec-md spec/GraphQL.md > /dev/null",
-    "build": "mkdir -p out; spec-md spec/GraphQL.md > out/index.html"
+    "build": "mkdir -p out; spec-md spec/GraphQL.md > out/index.html",
+    "watch": "mkdir -p out; nodemon --exec 'spec-md > out/index.html' spec/GraphQL.md"
   },
   "devDependencies": {
-    "spec-md": "0.5.1"
+    "nodemon": "1.17.1",
+    "spec-md": "0.6.0"
   }
 }
