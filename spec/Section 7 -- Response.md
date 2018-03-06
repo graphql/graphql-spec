@@ -248,8 +248,8 @@ be the same:
 }
 ```
 
-GraphQL services may provide an additional entry with key `extensions`. This
-entry, if set, must have a map as its value. This entry is reserved for
+GraphQL services may provide an additional entry to errors with key `extensions`. 
+This entry, if set, must have a map as its value. This entry is reserved for
 implementors to add additional information to errors however they see fit, and 
 there are no additional restrictions on its contents.
 
