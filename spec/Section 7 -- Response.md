@@ -270,7 +270,7 @@ there are no additional restrictions on its contents.
 ```
 
 GraphQL services should not provide any additional entries to the error format, 
-since they may conflict with additional entries that may be added in future 
+since they could conflict with additional entries that may be added in future 
 versions of this specification.
 
 > Note: Previous versions of this spec did not describe the `extensions` entry 
