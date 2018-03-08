@@ -273,9 +273,9 @@ GraphQL services should not provide any additional entries to the error format
 since they could conflict with additional entries that may be added in future
 versions of this specification.
 
-> Note: Previous versions of this spec did not describe the `extensions` entry
-> for error formatting. While non-specified entries are not violations, they are
-> still discouraged.
+Note: Previous versions of this spec did not describe the `extensions` entry
+for error formatting. While non-specified entries are not violations, they are
+still discouraged.
 
 ```json counter-example
 {
