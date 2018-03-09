@@ -979,6 +979,7 @@ Interface types have the potential to be invalid if incorrectly defined.
    type; no two fields may share the same name.
 3. Each field of an Interface type must not have a name which begins with the
    characters {"__"} (two underscores).
+4. An Interface type must be implemented by at least one Object type
 
 
 ### Interface Extensions
