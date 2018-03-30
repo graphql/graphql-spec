@@ -710,15 +710,16 @@ and invalid.
   * {arguments} must be the set containing only {argument}.
 
 
-#### Required Non-Null Arguments
+#### Required Arguments
 
   * For each Field or Directive in the document.
   * Let {arguments} be the arguments provided by the Field or Directive.
   * Let {argumentDefinitions} be the set of argument definitions of that Field or Directive.
-  * For each {definition} in {argumentDefinitions}:
-    * Let {type} be the expected type of {definition}.
-    * If {type} is Non-Null:
-      * Let {argumentName} be the name of {definition}.
+  * For each {argumentDefinition} in {argumentDefinitions}:
+    * Let {type} be the expected type of {argumentDefinition}.
+    * Let {defaultValue} be the default value of {argumentDefinition}.
+    * If {type} is Non-Null and {defaultValue} does not exist:
+      * Let {argumentName} be the name of {argumentDefinition}.
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
       * Let {value} be the value of {argument}.
@@ -726,9 +727,9 @@ and invalid.
 
 **Explanatory Text**
 
-Arguments can be required. If the argument type is non-null the argument is
-required and furthermore the explicit value {null} may not be provided.
-Otherwise, the argument is optional.
+Arguments can be required. If the argument type is non-null and does not have a
+default value, the argument is required and furthermore the explicit value
+{null} may not be provided. Otherwise, the argument is optional.
 
 For example the following are valid:
 
@@ -738,7 +739,7 @@ fragment goodBooleanArg on Arguments {
 }
 
 fragment goodNonNullArg on Arguments {
-  nonNullBooleanArgField(nonNullBooleanArg: true)
+  requiredBooleanArgField(requiredBooleanArg: true)
 }
 ```
 
@@ -752,11 +753,11 @@ fragment goodBooleanArgDefault on Arguments {
 }
 ```
 
-but this is not valid on a non-null argument.
+but this is not valid on a required argument.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
-  nonNullBooleanArgField
+  requiredBooleanArgField
 }
 ```
 
@@ -764,7 +765,7 @@ Providing the explicit value {null} is also not valid.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
-  notNullBooleanArgField(nonNullBooleanArg: null)
+  requiredBooleanArgField(requiredBooleanArg: null)
 }
 ```
 
@@ -1358,6 +1359,31 @@ For example the following query will not pass validation.
 ```
 
 
+### Input Object Required Fields
+
+**Formal Specification**
+
+  * For each Input Object in the document.
+    * Let {fields} be the fields provided by that Input Object.
+    * Let {fieldDefinitions} be the set of input field definitions of that Input Object.
+  * For each {fieldDefinition} in {fieldDefinitions}:
+    * Let {type} be the expected type of {fieldDefinition}.
+    * Let {defaultValue} be the default value of {fieldDefinition}.
+    * If {type} is Non-Null and {defaultValue} does not exist:
+      * Let {fieldName} be the name of {fieldDefinition}.
+      * Let {field} be the input field in {fields} named {fieldName}
+      * {field} must exist.
+      * Let {value} be the value of {field}.
+      * {value} must not be the {null} literal.
+
+**Explanatory Text**
+
+Input object fields can be required. If the input object field type is non-null
+and does not have a default value, the input object field is required and
+furthermore the explicit value {null} may not be provided. Otherwise, the input
+object field is optional.
+
+
 ## Directives
 
 
@@ -1487,44 +1513,6 @@ query B($atOtherHomes: Boolean) {
 }
 
 fragment HouseTrainedFragment {
-  dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-
-### Variable Default Value Is Allowed
-
-**Formal Specification**
-
-  * For every Variable Definition {variableDefinition} in a document
-    * Let {variableType} be the type of {variableDefinition}
-    * Let {defaultValue} be the default value of {variableDefinition}
-    * If {variableType} is Non-null:
-      * {defaultValue} must be undefined.
-
-**Explanatory Text**
-
-Variables defined by operations are allowed to define default values
-if the type of that variable is not non-null.
-
-For example the following query will pass validation.
-
-```graphql example
-query houseTrainedQuery($atOtherHomes: Boolean = true) {
-  dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-However if the variable is defined as non-null, default values
-are unreachable. Therefore queries such as the following fail
-validation
-
-```graphql counter-example
-query houseTrainedQuery($atOtherHomes: Boolean! = true) {
   dog {
     isHousetrained(atOtherHomes: $atOtherHomes)
   }
@@ -1906,8 +1894,12 @@ query booleanArgQuery($booleanArg: Boolean) {
 }
 ```
 
-A notable exception is when a default value are provided. They are, in effect,
-treated as non-nulls as long as the default value is not {null}.
+A notable exception is when a default value is provided. Variables which include
+a default value may be provided to a non-null argument as long as the default
+value is not {null}.
+
+Note: The value {null} could still be provided to a variable at runtime, and
+a non-null argument must produce a field error if provided such a variable.
 
 ```graphql example
 query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
