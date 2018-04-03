@@ -727,9 +727,8 @@ and invalid.
 
 **Explanatory Text**
 
-Arguments can be required. If the argument type is non-null and does not have a
-default value, the argument is required and furthermore the explicit value
-{null} may not be provided. Otherwise, the argument is optional.
+Arguments can be required. An argument is required if the argument type is
+non-null and does not have a default value. Otherwise, the argument is optional.
 
 For example the following are valid:
 
@@ -761,7 +760,8 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
-Providing the explicit value {null} is also not valid.
+Providing the explicit value {null} is also not valid since required arguments
+always have a non-null type.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
@@ -1378,10 +1378,10 @@ For example the following query will not pass validation.
 
 **Explanatory Text**
 
-Input object fields can be required. If the input object field type is non-null
-and does not have a default value, the input object field is required and
-furthermore the explicit value {null} may not be provided. Otherwise, the input
-object field is optional.
+Input object fields may be required. Much like a field may have required
+arguments, an input object may have required fields. An input field is required
+if it has a non-null type and does not have a default value. Otherwise, the
+input object field is optional.
 
 
 ## Directives
@@ -1821,15 +1821,12 @@ an extraneous variable.
 
 **Formal Specification**
 
-  * For each {operation} in {document}
-  * Let {variableUsages} be all usages transitively included in the {operation}
-  * For each {variableUsage} in {variableUsages}
-    * Let {variableName} be the name of {variableUsage}
+  * For each {operation} in {document}:
+  * Let {variableUsages} be all usages transitively included in the {operation}.
+  * For each {variableUsage} in {variableUsages}:
+    * Let {variableName} be the name of {variableUsage}.
     * Let {variableDefinition} be the {VariableDefinition} in {operation}.
-    * Let {variableType} be the type of {variableDefinition}.
-    * Let {defaultValue} be the default value of {variableDefinition}.
-    * If {variableType} is not a non-null and {defaultValue} is provided and not {null}:
-      * Let {variableType} be the non-null of {variableType}.
+    * Let {variableType} be {EffectiveVariableType(variableDefinition)}.
     * Let {argumentType} be the type of the argument {variableUsage} is passed to.
     * AreTypesCompatible({argumentType}, {variableType}) must be {true}.
 
@@ -1839,7 +1836,7 @@ AreTypesCompatible(argumentType, variableType):
       * Let {nullableArgumentType} be the nullable type of {argumentType}.
       * Let {nullableVariableType} be the nullable type of {variableType}.
       * Return {AreTypesCompatible(nullableArgumentType, nullableVariableType)}.
-    * Otherwise return {false}.
+    * Otherwise, return {false}.
   * If {variableType} is a non-null type:
     * Let {nullableVariableType} be the nullable type of {variableType}.
     * Return {AreTypesCompatible(argumentType, nullableVariableType)}.
@@ -1848,9 +1845,9 @@ AreTypesCompatible(argumentType, variableType):
       * Let {itemArgumentType} be the item type of {argumentType}.
       * Let {itemVariableType} be the item type of {variableType}.
       * Return {AreTypesCompatible(itemArgumentType, itemVariableType)}.
-    * Otherwise return {false}.
-  * If {variableType} is a list type return {false}.
-  * Return if {variableType} and {argumentType} are identical.
+    * Otherwise, return {false}.
+  * If {variableType} is a list type, return {false}.
+  * Return {true} if {variableType} and {argumentType} are identical, otherwise {false}.
 
 **Explanatory Text**
 
@@ -1894,21 +1891,6 @@ query booleanArgQuery($booleanArg: Boolean) {
 }
 ```
 
-A notable exception is when a default value is provided. Variables which include
-a default value may be provided to a non-null argument as long as the default
-value is not {null}.
-
-Note: The value {null} could still be provided to a variable at runtime, and
-a non-null argument must produce a field error if provided such a variable.
-
-```graphql example
-query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
-  arguments {
-    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
-  }
-}
-```
-
 For list types, the same rules around nullability apply to both outer types
 and inner types. A nullable list cannot be passed to a non-null list, and a list
 of nullable values cannot be passed to a list of non-null values.
@@ -1933,5 +1915,37 @@ query listToNonNullList($booleanList: [Boolean]) {
 ```
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
-
 Similarly a `[T]` cannot be passed to a `[T!]`.
+
+**Supporting legacy operations**
+
+EffectiveVariableType(variableDefinition):
+  * Let {variableType} be the expected type of {variableDefinition}.
+  * If service supports operations written before this specification edition:
+    * If {variableType} is not a non-null type:
+      * Let {defaultValue} be the default value of {variableDefinition}.
+      * If {defaultValue} is provided and not the value {null}:
+        * Return the non-null of {variableType}.
+  * Otherwise, return {variableType}.
+
+A notable exception to type compatibility a GraphQL service may support is
+allowing a variable definition with a nullable type and provided default value
+to be provided to a non-null position as long as that variable's default value
+is also not the value {null}.
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
+}
+```
+
+Earlier editions of this specification explicitly allowed such operations due to
+a slightly different interpretation of default values and {null} values. GraphQL
+services accepting operations written before this edition of the specification
+may continue to allow such operations, however GraphQL services established
+after this edition should not allow such operations.
+
+Note: The value {null} could still be provided to a such a variable at runtime.
+A non-null argument must produce a field error if provided a {null} value.
