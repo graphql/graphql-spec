@@ -1832,21 +1832,19 @@ an extraneous variable.
 
 AreTypesCompatible(argumentType, variableType):
   * If {argumentType} is a non-null type:
-    * If {variableType} is a non-null type:
-      * Let {nullableArgumentType} be the nullable type of {argumentType}.
-      * Let {nullableVariableType} be the nullable type of {variableType}.
-      * Return {AreTypesCompatible(nullableArgumentType, nullableVariableType)}.
-    * Otherwise, return {false}.
-  * If {variableType} is a non-null type:
+    * If {variableType} is NOT a non-null type, return {false}.
+    * Let {nullableArgumentType} be the nullable type of {argumentType}.
+    * Let {nullableVariableType} be the nullable type of {variableType}.
+    * Return {AreTypesCompatible(nullableArgumentType, nullableVariableType)}.
+  * Otherwise, if {variableType} is a non-null type:
     * Let {nullableVariableType} be the nullable type of {variableType}.
     * Return {AreTypesCompatible(argumentType, nullableVariableType)}.
-  * If {argumentType} is a list type:
-    * If {variableType} is a list type:
-      * Let {itemArgumentType} be the item type of {argumentType}.
-      * Let {itemVariableType} be the item type of {variableType}.
-      * Return {AreTypesCompatible(itemArgumentType, itemVariableType)}.
-    * Otherwise, return {false}.
-  * If {variableType} is a list type, return {false}.
+  * Otherwise, if {argumentType} is a list type:
+    * If {variableType} is NOT a list type, return {false}.
+    * Let {itemArgumentType} be the item type of {argumentType}.
+    * Let {itemVariableType} be the item type of {variableType}.
+    * Return {AreTypesCompatible(itemArgumentType, itemVariableType)}.
+  * Otherwise, if {variableType} is a list type, return {false}.
   * Return {true} if {variableType} and {argumentType} are identical, otherwise {false}.
 
 **Explanatory Text**
