@@ -283,7 +283,7 @@ still discouraged.
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "path": [ "hero", "heroFriends", 1, "name" ],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
