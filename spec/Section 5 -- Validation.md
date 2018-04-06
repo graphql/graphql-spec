@@ -739,7 +739,7 @@ fragment goodBooleanArg on Arguments {
 }
 
 fragment goodNonNullArg on Arguments {
-  requiredBooleanArgField(requiredBooleanArg: true)
+  nonNullBooleanArgField(nonNullBooleanArg: true)
 }
 ```
 
@@ -757,7 +757,7 @@ but this is not valid on a required argument.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
-  requiredBooleanArgField
+  nonNullBooleanArgField
 }
 ```
 
@@ -766,7 +766,7 @@ always have a non-null type.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
-  requiredBooleanArgField(requiredBooleanArg: null)
+  nonNullBooleanArgField(nonNullBooleanArg: null)
 }
 ```
 
