@@ -49,7 +49,7 @@ Conformance requirements are described in this document via both
 descriptive assertions and key words with clearly defined meanings.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
-"SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in the normative portions of
+"SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative portions of
 this document are to be interpreted as described in [IETF RFC 2119](https://tools.ietf.org/html/rfc2119).
 These key words may appear in lowercase and still retain their meaning unless
 explicitly declared as non-normative.
@@ -102,20 +102,20 @@ explicitly in prose (e.g. "Note: ") or are set apart in a note block, like this:
 Note: This is an example of a non-normative note.
 
 
-# [Overview](Section 1 -- Overview.md)
+# [Overview](Section%201%20--%20Overview.md)
 
-# [Language](Section 2 -- Language.md)
+# [Language](Section%202%20--%20Language.md)
 
-# [Type System](Section 3 -- Type System.md)
+# [Type System](Section%203%20--%20Type%20System.md)
 
-# [Introspection](Section 4 -- Introspection.md)
+# [Introspection](Section%204%20--%20Introspection.md)
 
-# [Validation](Section 5 -- Validation.md)
+# [Validation](Section%205%20--%20Validation.md)
 
-# [Execution](Section 6 -- Execution.md)
+# [Execution](Section%206%20--%20Execution.md)
 
-# [Response](Section 7 -- Response.md)
+# [Response](Section%207%20--%20Response.md)
 
-# [Appendix: Notation Conventions](Appendix A -- Notation Conventions.md)
+# [Appendix: Notation Conventions](Appendix%20A%20--%20Notation%20Conventions.md)
 
-# [Appendix: Grammar Summary](Appendix B -- Grammar Summary.md)
+# [Appendix: Grammar Summary](Appendix%20B%20--%20Grammar%20Summary.md)

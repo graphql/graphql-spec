@@ -5,7 +5,7 @@ GraphQL generates a response from a request via execution.
 A request for execution consists of a few pieces of information:
 
 * The schema to use, typically solely provided by the GraphQL service.
-* A Document containing GraphQL Operations and Fragments to execute.
+* A {Document} which must contain GraphQL {OperationDefinition} and may contain {FragmentDefinition}.
 * Optionally: The name of the Operation in the Document to execute.
 * Optionally: Values for any Variables defined by the Operation.
 * An initial value corresponding to the root type being executed.
@@ -19,12 +19,11 @@ to be formatted according to the Response section below.
 
 ## Executing Requests
 
-To execute a request, the executor must have a parsed `Document` (as defined
-in the “Query Language” part of this spec) and a selected operation name to
-run if the document defines multiple operations, otherwise the document is
-expected to only contain a single operation. The result of the request is
-determined by the result of executing this operation according to the "Executing
-Operations” section below.
+To execute a request, the executor must have a parsed {Document} and a selected
+operation name to run if the document defines multiple operations, otherwise the
+document is expected to only contain a single operation. The result of the
+request is determined by the result of executing this operation according to the
+"Executing Operations” section below.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
@@ -83,20 +82,28 @@ CoerceVariableValues(schema, operation, variableValues):
   * For each {variableDefinition} in {variableDefinitions}:
     * Let {variableName} be the name of {variableDefinition}.
     * Let {variableType} be the expected type of {variableDefinition}.
+    * Assert: {variableType} must be an input type.
     * Let {defaultValue} be the default value for {variableDefinition}.
-    * Let {value} be the value provided in {variableValues} for the name {variableName}.
-    * If {value} does not exist (was not provided in {variableValues}):
-      * If {defaultValue} exists (including {null}):
+    * Let {hasValue} be {true} if {variableValues} provides a value for the
+      name {variableName}.
+    * Let {value} be the value provided in {variableValues} for the
+      name {variableName}.
+    * If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+      * Add an entry to {coercedValues} named {variableName} with the
+        value {defaultValue}.
+    * Otherwise if {variableType} is a Non-Nullable type, and either {hasValue}
+      is not {true} or {value} is {null}, throw a query error.
+    * Otherwise if {hasValue} is true:
+      * If {value} is {null}:
         * Add an entry to {coercedValues} named {variableName} with the
-          value {defaultValue}.
-      * Otherwise if {variableType} is a Non-Nullable type, throw a query error.
-      * Otherwise, continue to the next variable definition.
-    * Otherwise, if {value} cannot be coerced according to the input coercion
-      rules of {variableType}, throw a query error.
-    * Let {coercedValue} be the result of coercing {value} according to the
-      input coercion rules of {variableType}.
-    * Add an entry to {coercedValues} named {variableName} with the
-      value {coercedValue}.
+          value {null}.
+      * Otherwise:
+        * If {value} cannot be coerced according to the input coercion
+          rules of {variableType}, throw a query error.
+        * Let {coercedValue} be the result of coercing {value} according to the
+          input coercion rules of {variableType}.
+        * Add an entry to {coercedValues} named {variableName} with the
+          value {coercedValue}.
   * Return {coercedValues}.
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
@@ -531,8 +538,8 @@ order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type: Scalars, Enum, Input Object, or
 List or Non-Null wrapped variations of these three.
 
-At each argument position in a query may be a literal value or a variable to be
-provided at runtime.
+At each argument position in a query may be a literal {Value}, or a {Variable}
+to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
   * Let {coercedValues} be an empty unordered Map.
@@ -544,30 +551,36 @@ CoerceArgumentValues(objectType, field, variableValues):
     * Let {argumentName} be the name of {argumentDefinition}.
     * Let {argumentType} be the expected type of {argumentDefinition}.
     * Let {defaultValue} be the default value for {argumentDefinition}.
-    * Let {value} be the value provided in {argumentValues} for the name {argumentName}.
-    * If {value} is a Variable:
-      * Let {variableName} be the name of Variable {value}.
-      * Let {variableValue} be the value provided in {variableValues} for the name {variableName}.
-      * If {variableValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
-          value {variableValue}.
-      * Otherwise, if {defaultValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
-          value {defaultValue}.
-      * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
-      * Otherwise, continue to the next argument definition.
-    * Otherwise, if {value} does not exist (was not provided in {argumentValues}:
-      * If {defaultValue} exists (including {null}):
-        * Add an entry to {coercedValues} named {argName} with the
-          value {defaultValue}.
-      * Otherwise, if {argumentType} is a Non-Nullable type, throw a field error.
-      * Otherwise, continue to the next argument definition.
-    * Otherwise, if {value} cannot be coerced according to the input coercion
-      rules of {argType}, throw a field error.
-    * Let {coercedValue} be the result of coercing {value} according to the
-      input coercion rules of {argType}.
-    * Add an entry to {coercedValues} named {argName} with the
-      value {coercedValue}.
+    * Let {hasValue} be {true} if {argumentValues} provides a value for the
+      name {argumentName}.
+    * Let {argumentValue} be the value provided in {argumentValues} for the
+      name {argumentName}.
+    * If {argumentValue} is a {Variable}:
+      * Let {variableName} be the name of {argumentValue}.
+      * Let {hasValue} be {true} if {variableValues} provides a value for the
+        name {variableName}.
+      * Let {value} be the value provided in {variableValues} for the
+        name {variableName}.
+    * Otherwise, let {value} be {argumentValue}.
+    * If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+      * Add an entry to {coercedValues} named {argumentName} with the
+        value {defaultValue}.
+    * Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue}
+      is not {true} or {value} is {null}, throw a field error.
+    * Otherwise if {hasValue} is true:
+      * If {value} is {null}:
+        * Add an entry to {coercedValues} named {argumentName} with the
+          value {null}.
+      * Otherwise, if {argumentValue} is a {Variable}:
+        * Add an entry to {coercedValues} named {argumentName} with the
+          value {value}.
+      * Otherwise:
+        * If {value} cannot be coerced according to the input coercion
+            rules of {variableType}, throw a field error.
+        * Let {coercedValue} be the result of coercing {value} according to the
+          input coercion rules of {variableType}.
+        * Add an entry to {coercedValues} named {argumentName} with the
+          value {coercedValue}.
   * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced

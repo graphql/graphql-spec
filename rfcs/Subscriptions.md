@@ -69,7 +69,7 @@ We'll try to define the irreducible components of a GraphQL Subscriptions system
 
 The lifetime of a subscription looks like this:
 
-* **Subscribe:** the Client initializes a subscription by sending a query and its variables to the server.  When the Subscription is created, the input query and variables are mapped to a stream of events to which the Subscription listens. The server _may_ send an initial publish from executing the subscription operation.
+* **Subscribe:** the Client initializes a subscription by sending a query and its variables to the server. When the Subscription is created, the input query and variables are mapped to a stream of events to which the Subscription listens. The server _may_ send an initial publish from executing the subscription operation.
 
 * **Publish:** when any of the events associated with the subscription are triggered, the subscription executes the query, variables, and payload and sends the result to the client.
 

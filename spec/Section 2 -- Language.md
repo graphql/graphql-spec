@@ -45,7 +45,7 @@ WhiteSpace ::
 White space is used to improve legibility of source text and act as separation
 between tokens, and any amount of white space may appear before or after any
 token. White space between tokens is not significant to the semantic meaning of
-a GraphQL query document, however white space characters may appear within a
+a GraphQL Document, however white space characters may appear within a
 {String} or {Comment} token.
 
 Note: GraphQL intentionally does not consider Unicode "Zs" category characters
@@ -62,7 +62,7 @@ LineTerminator ::
 
 Like white space, line terminators are used to improve the legibility of source
 text, any amount may appear before or after any other token and have no
-significance to the semantic meaning of a GraphQL query document. Line
+significance to the semantic meaning of a GraphQL Document. Line
 terminators are not found within any other token.
 
 Note: Any error reporting which provide the line number in the source of the
@@ -84,8 +84,8 @@ comment always consists of all code points starting with the {`#`} character up
 to but not including the line terminator.
 
 Comments behave like white space and may appear after any token, or before a
-line terminator, and have no significance to the semantic meaning of a GraphQL
-query document.
+line terminator, and have no significance to the semantic meaning of a
+GraphQL Document.
 
 
 ### Insignificant Commas
@@ -94,7 +94,7 @@ Comma :: ,
 
 Similar to white space and line terminators, commas ({`,`}) are used to improve
 the legibility of source text and separate lexical tokens but are otherwise
-syntactically and semantically insignificant within GraphQL query documents.
+syntactically and semantically insignificant within GraphQL Documents.
 
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
@@ -115,8 +115,8 @@ Token ::
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters.
 
-Tokens are later used as terminal symbols in a GraphQL query document syntactic
-grammars.
+Tokens are later used as terminal symbols in a GraphQL Document
+syntactic grammars.
 
 
 ### Ignored Tokens
@@ -152,8 +152,8 @@ lacks the punctuation often used to describe mathematical expressions.
 
 Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
-GraphQL query documents are full of named things: operations, fields, arguments,
-directives, fragments, and variables. All names must follow the same
+GraphQL Documents are full of named things: operations, fields, arguments,
+types, directives, fragments, and variables. All names must follow the same
 grammatical form.
 
 Names in GraphQL are case-sensitive. That is to say `name`, `Name`, and `NAME`
@@ -164,27 +164,39 @@ Names in GraphQL are limited to this <acronym>ASCII</acronym> subset of possible
 characters to support interoperation with as many other systems as possible.
 
 
-## Query Document
+## Document
 
 Document : Definition+
 
 Definition :
+  - ExecutableDefinition
+  - TypeSystemDefinition
+
+ExecutableDefinition :
   - OperationDefinition
   - FragmentDefinition
 
-A GraphQL query document describes a complete file or request string received by
-a GraphQL service. A document contains multiple definitions of Operations and
-Fragments. GraphQL query documents are only executable by a server if they
-contain an operation. However documents which do not contain operations may
-still be parsed and validated to allow client to represent a single request
-across many documents.
+A GraphQL Document describes a complete file or request string operated on
+by a GraphQL service or client. A document contains multiple definitions, either
+executable or representative of a GraphQL type system.
 
-If a document contains only one operation, that operation may be unnamed or
+Documents are only executable by a GraphQL service if they contain an
+{OperationDefinition}, only contain {ExecutableDefinition} and do not contain
+{TypeSystemDefinition}. However documents which do not contain
+{OperationDefinition} or do contain {TypeSystemDefinition} may still be parsed
+and validated to allow client tools to represent many GraphQL uses which may
+appear across many individual files.
+
+If a Document contains only one operation, that operation may be unnamed or
 represented in the shorthand form, which omits both the query keyword and
-operation name. Otherwise, if a GraphQL query document contains multiple
-operations, each operation must be named. When submitting a query document with
+operation name. Otherwise, if a GraphQL Document contains multiple
+operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
+
+GraphQL services which only seek to provide GraphQL query execution may choose
+to only include {ExecutableDefinition} and omit the {TypeSystemDefinition} rule
+from {Definition}.
 
 
 ## Operations
@@ -318,9 +330,9 @@ unique identifier.
 
 ## Arguments
 
-Arguments : ( Argument+ )
+Arguments[Const] : ( Argument[?Const]+ )
 
-Argument : Name : Value
+Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
@@ -488,7 +500,7 @@ fragment friendFields on User {
 }
 ```
 
-Fragments are consumed by using the spread operator (`...`).  All fields selected
+Fragments are consumed by using the spread operator (`...`). All fields selected
 by the fragment will be added to the query field selection at the same level
 as the fragment invocation. This happens through multiple levels of fragment
 spreads.
@@ -925,7 +937,7 @@ ObjectValue[Const] :
 ObjectField[Const] : Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
-curly-braces `{ }`.  The values of an object literal may be any input value
+curly-braces `{ }`. The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
@@ -1016,7 +1028,7 @@ a variable is referenced in a fragment and is included by an operation that does
 not define that variable, the operation cannot be executed.
 
 
-## Input Types
+## Type References
 
 Type :
   - NamedType
@@ -1059,9 +1071,9 @@ Type : Type !
 
 ## Directives
 
-Directives : Directive+
+Directives[Const] : Directive[?Const]+
 
-Directive : @ Name Arguments?
+Directive[Const] : @ Name Arguments[?Const]?
 
 Directives provide a way to describe alternate runtime execution and type
 validation behavior in a GraphQL document.

@@ -89,11 +89,15 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 
-## Query Document
+## Document
 
 Document : Definition+
 
 Definition :
+  - ExecutableDefinition
+  - TypeSystemDefinition
+
+ExecutableDefinition :
   - OperationDefinition
   - FragmentDefinition
 
@@ -114,9 +118,9 @@ Field : Alias? Name Arguments? Directives? SelectionSet?
 
 Alias : Name :
 
-Arguments : ( Argument+ )
+Arguments[Const] : ( Argument[?Const]+ )
 
-Argument : Name : Value
+Argument[Const] : Name : Value[?Const]
 
 FragmentSpread : ... FragmentName Directives?
 
@@ -176,6 +180,124 @@ NonNullType :
   - NamedType !
   - ListType !
 
-Directives : Directive+
+Directives[Const] : Directive[?Const]+
 
-Directive : @ Name Arguments?
+Directive[Const] : @ Name Arguments[?Const]?
+
+TypeSystemDefinition :
+  - SchemaDefinition
+  - TypeDefinition
+  - TypeExtension
+  - DirectiveDefinition
+
+SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
+
+OperationTypeDefinition : OperationType : NamedType
+
+Description : StringValue
+
+TypeDefinition :
+  - ScalarTypeDefinition
+  - ObjectTypeDefinition
+  - InterfaceTypeDefinition
+  - UnionTypeDefinition
+  - EnumTypeDefinition
+  - InputObjectTypeDefinition
+
+TypeExtension :
+  - ScalarTypeExtension
+  - ObjectTypeExtension
+  - InterfaceTypeExtension
+  - UnionTypeExtension
+  - EnumTypeExtension
+  - InputObjectTypeExtension
+
+ScalarTypeDefinition : Description? scalar Name Directives[Const]?
+
+ScalarTypeExtension :
+  - extend scalar Name Directives[Const]
+
+ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+
+ObjectTypeExtension :
+  - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - extend type Name ImplementsInterfaces? Directives[Const]
+  - extend type Name ImplementsInterfaces
+
+ImplementsInterfaces :
+  - implements `&`? NamedType
+  - ImplementsInterfaces & NamedType
+
+FieldsDefinition : { FieldDefinition+ }
+
+FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
+
+ArgumentsDefinition : ( InputValueDefinition+ )
+
+InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
+
+InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
+
+InterfaceTypeExtension :
+  - extend interface Name Directives[Const]? FieldsDefinition
+  - extend interface Name Directives[Const]
+
+UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
+
+UnionMemberTypes :
+  - = `|`? NamedType
+  - UnionMemberTypes | NamedType
+
+UnionTypeExtension :
+  - extend union Name Directives[Const]? UnionMemberTypes
+  - extend union Name Directives[Const]
+
+EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
+
+EnumValuesDefinition : { EnumValueDefinition+ }
+
+EnumValueDefinition : Description? EnumValue Directives[Const]?
+
+EnumTypeExtension :
+  - extend enum Name Directives[Const]? EnumValuesDefinition
+  - extend enum Name Directives[Const]
+
+InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
+
+InputFieldsDefinition : { InputValueDefinition+ }
+
+InputObjectTypeExtension :
+  - extend input Name Directives[Const]? InputFieldsDefinition
+  - extend input Name Directives[Const]
+
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+
+DirectiveLocations :
+  - `|`? DirectiveLocation
+  - DirectiveLocations | DirectiveLocation
+
+DirectiveLocation :
+  - ExecutableDirectiveLocation
+  - TypeSystemDirectiveLocation
+
+ExecutableDirectiveLocation : one of
+  `QUERY`
+  `MUTATION`
+  `SUBSCRIPTION`
+  `FIELD`
+  `FRAGMENT_DEFINITION`
+  `FRAGMENT_SPREAD`
+  `INLINE_FRAGMENT`
+
+TypeSystemDirectiveLocation : one of
+  `SCHEMA`
+  `SCALAR`
+  `OBJECT`
+  `FIELD_DEFINITION`
+  `ARGUMENT_DEFINITION`
+  `INTERFACE`
+  `UNION`
+  `ENUM`
+  `ENUM_VALUE`
+  `INPUT_OBJECT`
+  `INPUT_FIELD_DEFINITION`
