@@ -974,7 +974,7 @@ referenced.
 **Explanatory Text**
 
 Named fragment spreads must refer to fragments defined within the 
-document. It is a validation error if the target of a spread is 
+document. It is a validation error if the target of a spread is
 not defined.
 
 ```graphql counter-example
