@@ -716,5 +716,6 @@ resolves to {null}, then the entire list must resolve to {null}.
 If the `List` type is also wrapped in a `Non-Null`, the field error continues
 to propagate upwards.
 
-If all fields from the root of the request to the source of the error return
-`Non-Null` types, then the {"data"} entry in the response should be {null}.
+If all fields from the root of the request to the source of the field error
+return `Non-Null` types, then the {"data"} entry in the response should
+be {null}.
