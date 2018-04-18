@@ -676,6 +676,7 @@ type Arguments {
   intArgField(intArg: Int): Int
   nonNullBooleanArgField(nonNullBooleanArg: Boolean!): Boolean!
   booleanListArgField(booleanListArg: [Boolean]!): [Boolean]
+  optionalNonNullBooleanArgField(optionalBooleanArg: Boolean! = false): Boolean!
 }
 
 extend type Query {
@@ -710,15 +711,16 @@ and invalid.
   * {arguments} must be the set containing only {argument}.
 
 
-#### Required Non-Null Arguments
+#### Required Arguments
 
   * For each Field or Directive in the document.
   * Let {arguments} be the arguments provided by the Field or Directive.
   * Let {argumentDefinitions} be the set of argument definitions of that Field or Directive.
-  * For each {definition} in {argumentDefinitions}:
-    * Let {type} be the expected type of {definition}.
-    * If {type} is Non-Null:
-      * Let {argumentName} be the name of {definition}.
+  * For each {argumentDefinition} in {argumentDefinitions}:
+    * Let {type} be the expected type of {argumentDefinition}.
+    * Let {defaultValue} be the default value of {argumentDefinition}.
+    * If {type} is Non-Null and {defaultValue} does not exist:
+      * Let {argumentName} be the name of {argumentDefinition}.
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
       * Let {value} be the value of {argument}.
@@ -726,9 +728,8 @@ and invalid.
 
 **Explanatory Text**
 
-Arguments can be required. If the argument type is non-null the argument is
-required and furthermore the explicit value {null} may not be provided.
-Otherwise, the argument is optional.
+Arguments can be required. An argument is required if the argument type is
+non-null and does not have a default value. Otherwise, the argument is optional.
 
 For example the following are valid:
 
@@ -752,7 +753,7 @@ fragment goodBooleanArgDefault on Arguments {
 }
 ```
 
-but this is not valid on a non-null argument.
+but this is not valid on a required argument.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
@@ -760,11 +761,12 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
-Providing the explicit value {null} is also not valid.
+Providing the explicit value {null} is also not valid since required arguments
+always have a non-null type.
 
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
-  notNullBooleanArgField(nonNullBooleanArg: null)
+  nonNullBooleanArgField(nonNullBooleanArg: null)
 }
 ```
 
@@ -1358,6 +1360,31 @@ For example the following query will not pass validation.
 ```
 
 
+### Input Object Required Fields
+
+**Formal Specification**
+
+  * For each Input Object in the document.
+    * Let {fields} be the fields provided by that Input Object.
+    * Let {fieldDefinitions} be the set of input field definitions of that Input Object.
+  * For each {fieldDefinition} in {fieldDefinitions}:
+    * Let {type} be the expected type of {fieldDefinition}.
+    * Let {defaultValue} be the default value of {fieldDefinition}.
+    * If {type} is Non-Null and {defaultValue} does not exist:
+      * Let {fieldName} be the name of {fieldDefinition}.
+      * Let {field} be the input field in {fields} named {fieldName}
+      * {field} must exist.
+      * Let {value} be the value of {field}.
+      * {value} must not be the {null} literal.
+
+**Explanatory Text**
+
+Input object fields may be required. Much like a field may have required
+arguments, an input object may have required fields. An input field is required
+if it has a non-null type and does not have a default value. Otherwise, the
+input object field is optional.
+
+
 ## Directives
 
 
@@ -1487,44 +1514,6 @@ query B($atOtherHomes: Boolean) {
 }
 
 fragment HouseTrainedFragment {
-  dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-
-### Variable Default Value Is Allowed
-
-**Formal Specification**
-
-  * For every Variable Definition {variableDefinition} in a document
-    * Let {variableType} be the type of {variableDefinition}
-    * Let {defaultValue} be the default value of {variableDefinition}
-    * If {variableType} is Non-null:
-      * {defaultValue} must be undefined.
-
-**Explanatory Text**
-
-Variables defined by operations are allowed to define default values
-if the type of that variable is not non-null.
-
-For example the following query will pass validation.
-
-```graphql example
-query houseTrainedQuery($atOtherHomes: Boolean = true) {
-  dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
-  }
-}
-```
-
-However if the variable is defined as non-null, default values
-are unreachable. Therefore queries such as the following fail
-validation
-
-```graphql counter-example
-query houseTrainedQuery($atOtherHomes: Boolean! = true) {
   dog {
     isHousetrained(atOtherHomes: $atOtherHomes)
   }
@@ -1833,20 +1822,45 @@ an extraneous variable.
 
 **Formal Specification**
 
-  * For each {operation} in {document}
-  * Let {variableUsages} be all usages transitively included in the {operation}
-  * For each {variableUsage} in {variableUsages}
-    * Let {variableType} be the type of variable definition in the {operation}
-    * Let {argumentType} be the type of the argument the variable is passed to.
-    * Let {hasDefault} be true if the variable definition defines a default.
-    * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}) must be true
+  * For each {operation} in {document}:
+  * Let {variableUsages} be all usages transitively included in the {operation}.
+  * For each {variableUsage} in {variableUsages}:
+    * Let {variableName} be the name of {variableUsage}.
+    * Let {variableDefinition} be the {VariableDefinition} named {variableName}
+      defined within {operation}.
+    * {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
 
-  * AreTypesCompatible({argumentType}, {variableType}, {hasDefault}):
-    * If {hasDefault} is true, treat the {variableType} as non-null.
-    * If inner type of {argumentType} and {variableType} are different, return false
-    * If {argumentType} and {variableType} have different list dimensions, return false
-    * If any list level of {variableType} is not non-null, and the corresponding level
-      in {argument} is non-null, the types are not compatible.
+IsVariableUsageAllowed(variableDefinition, variableUsage):
+  * Let {variableType} be the expected type of {variableDefinition}.
+  * Let {locationType} be the expected type of the {Argument}, {ObjectField},
+    or {ListValue} entry where {variableUsage} is located.
+  * If {locationType} is a non-null type AND {variableType} is NOT a non-null type:
+    * Let {hasNonNullVariableDefaultValue} be {true} if a default value exists
+      for {variableDefinition} and is not the value {null}.
+    * Let {hasLocationDefaultValue} be {true} if a default value exists for
+      the {Argument} or {ObjectField} where {variableUsage} is located.
+    * If {hasNonNullVariableDefaultValue} is NOT {true} AND
+      {hasLocationDefaultValue} is NOT {true}, return {false}.
+    * Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
+    * Return {AreTypesCompatible(variableType, nullableLocationType)}.
+  * Return {AreTypesCompatible(variableType, locationType)}.
+
+AreTypesCompatible(variableType, locationType):
+  * If {locationType} is a non-null type:
+    * If {variableType} is NOT a non-null type, return {false}.
+    * Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
+    * Let {nullableVariableType} be the unwrapped nullable type of {variableType}.
+    * Return {AreTypesCompatible(nullableVariableType, nullableLocationType)}.
+  * Otherwise, if {variableType} is a non-null type:
+    * Let {nullableVariableType} be the nullable type of {variableType}.
+    * Return {AreTypesCompatible(nullableVariableType, locationType)}.
+  * Otherwise, if {locationType} is a list type:
+    * If {variableType} is NOT a list type, return {false}.
+    * Let {itemLocationType} be the unwrapped item type of {locationType}.
+    * Let {itemVariableType} be the unwrapped item type of {variableType}.
+    * Return {AreTypesCompatible(itemVariableType, itemLocationType)}.
+  * Otherwise, if {variableType} is a list type, return {false}.
+  * Return {true} if {variableType} and {locationType} are identical, otherwise {false}.
 
 **Explanatory Text**
 
@@ -1890,17 +1904,6 @@ query booleanArgQuery($booleanArg: Boolean) {
 }
 ```
 
-A notable exception is when default arguments are provided. They are, in effect,
-treated as non-nulls.
-
-```graphql example
-query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
-  arguments {
-    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
-  }
-}
-```
-
 For list types, the same rules around nullability apply to both outer types
 and inner types. A nullable list cannot be passed to a non-null list, and a list
 of nullable values cannot be passed to a list of non-null values.
@@ -1925,5 +1928,36 @@ query listToNonNullList($booleanList: [Boolean]) {
 ```
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
-
 Similarly a `[T]` cannot be passed to a `[T!]`.
+
+**Allowing optional variables when default values exist**
+
+A notable exception to typical variable type compatibility is allowing a
+variable definition with a nullable type to be provided to a non-null location
+as long as either that variable or that location provides a default value.
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean) {
+  arguments {
+    optionalNonNullBooleanArgField(optionalBooleanArg: $booleanArg)
+  }
+}
+```
+
+In the example above, an optional variable is allowed to be used in an non-null argument which provides a default value.
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
+}
+```
+
+In the example above, a variable provides a default value and can be used in a
+non-null argument. This behavior is explicitly supported for compatibility with
+earlier editions of this specification. GraphQL authoring tools may wish to
+report this is a warning with the suggestion to replace `Boolean` with `Boolean!`.
+
+Note: The value {null} could still be provided to a such a variable at runtime.
+A non-null argument must produce a field error if provided a {null} value.

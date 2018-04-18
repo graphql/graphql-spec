@@ -1263,25 +1263,36 @@ type of an Object or Interface field.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise an error should be thrown. In either
-case, the input object literal or unordered map should not contain any entries
+map supplied by a variable, otherwise an error must be thrown. In either
+case, the input object literal or unordered map must not contain any entries
 with names not defined by a field of this input object type, otherwise an error
-should be thrown.
+must be thrown.
 
 The result of coercion is an unordered map with an entry for each field both
-defined by the input object type and provided with a value. If the value {null}
-was provided, an entry in the coerced unordered map must exist for that field.
-In other words, there is a semantic difference between the explicitly provided
-value {null} versus having not provided a value.
+defined by the input object type and for which a value exists. The resulting map
+is constructed with the following rules:
 
-The value of each entry in the coerced unordered map is the result of input
-coercion of the value provided for that field for the type of the field defined
-by the input object type
+* If no value is provided for a defined input object field and that field
+  definition provides a default value, the default value should be used. If no
+  default value is provided and the input object field's type is non-null, an
+  error should be thrown. Otherwise, if the field is not required, then no entry
+  is added to the coerced unordered map.
 
-Any non-nullable field defined by the input object type which does not have
-a corresponding entry in the original value, or is represented by a variable
-which was not provided a value, or for which the value {null} was provided, an
-error should be thrown.
+* If the value {null} was provided for an input object field, and the field's
+  type is not a non-null type, an entry in the coerced unordered map is given
+  the value {null}. In other words, there is a semantic difference between the
+  explicitly provided value {null} versus having not provided a value.
+
+* If a literal value is provided for an input object field, an entry in the
+  coerced unordered map is given the result of coercing that value according
+  to the input coercion rules for the type of that field.
+
+* If a variable is provided for an input object field, the runtime value of that
+  variable must be used. If the runtime value is {null} and the field type
+  is non-null, a field error must be thrown. If no runtime value is provided,
+  the variable definition's default value should be used. If the variable
+  definition does not provide a default value, the input object field
+  definition's default value should be used.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
