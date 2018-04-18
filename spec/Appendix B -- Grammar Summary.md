@@ -187,10 +187,18 @@ Directive[Const] : @ Name Arguments[?Const]?
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
-  - TypeExtension
   - DirectiveDefinition
+  - TypeSystemExtension
+
+TypeSystemExtension :
+  - SchemaExtension
+  - TypeExtension
 
 SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
+
+SchemaExtension :
+  - extend schema Directives[Const]? { OperationTypeDefinition+ }
+  - extend schema Directives[Const]
 
 OperationTypeDefinition : OperationType : NamedType
 
