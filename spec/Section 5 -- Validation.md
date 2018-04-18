@@ -1825,11 +1825,12 @@ an extraneous variable.
   * For each {operation} in {document}:
   * Let {variableUsages} be all usages transitively included in the {operation}.
   * For each {variableUsage} in {variableUsages}:
-    * {IsVariableUsageAllowed(variableUsage)} must be {true}.
+    * Let {variableName} be the name of {variableUsage}.
+    * Let {variableDefinition} be the {VariableDefinition} named {variableName}
+      defined within {operation}.
+    * {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
 
-IsVariableUsageAllowed(variableUsage):
-  * Let {variableName} be the name of {variableUsage}.
-  * Let {variableDefinition} be the {VariableDefinition} in {operation}.
+IsVariableUsageAllowed(variableDefinition, variableUsage):
   * Let {variableType} be the expected type of {variableDefinition}.
   * Let {locationType} be the expected type of the {Argument}, {ObjectField},
     or {ListValue} entry where {variableUsage} is located.

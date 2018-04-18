@@ -538,8 +538,8 @@ order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type: Scalars, Enum, Input Object, or
 List or Non-Null wrapped variations of these three.
 
-At each argument position in a query may be a literal {Value} or {Variable} to
-be provided at runtime.
+At each argument position in a query may be a literal {Value}, or a {Variable}
+to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
   * Let {coercedValues} be an empty unordered Map.
