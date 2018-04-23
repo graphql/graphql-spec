@@ -8,7 +8,6 @@ are valid.
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
-  - TypeExtension
   - DirectiveDefinition
 
 The GraphQL language includes an
@@ -25,6 +24,18 @@ system definitions should return a descriptive error.
 
 Note: The type system definition language is used throughout the remainder of
 this specification document when illustrating example type systems.
+
+
+## Type System Extensions
+
+TypeSystemExtension :
+  - SchemaExtension
+  - TypeExtension
+
+Type system extensions are used to represent a GraphQL type system which has been
+extended from some original type system. For example, this might be used by a
+local service to represent data a GraphQL client only accesses locally, or by a
+GraphQL service which is itself an extension of another GraphQL service.
 
 
 ## Schema
@@ -138,6 +149,16 @@ type Query {
   someField: String
 }
 ```
+
+### Schema Extension
+
+SchemaExtension :
+  - extend schema Directives[Const]? { OperationTypeDefinition+ }
+  - extend schema Directives[Const]
+
+Schema extensions are used to represent a schema which has been extended from
+an original schema. For example, this might be used by a GraphQL service which
+adds additional operation types, or additional directives to an existing schema.
 
 
 ## Descriptions
@@ -261,10 +282,9 @@ TypeExtension :
   - EnumTypeExtension
   - InputObjectTypeExtension
 
-Type extensions are used to represent a GraphQL type system which has been
-extended from some original type system. For example, this might be used by a
-local service to represent data a GraphQL client only accesses locally, or by a
-GraphQL service which is itself an extension of another GraphQL service.
+Type extensions are used to represent a GraphQL type which has been extended
+from some original type. For example, this might be used by a local service to
+represent additional fields a GraphQL client only accesses locally.
 
 
 ## Scalars
