@@ -96,6 +96,7 @@ Document : Definition+
 Definition :
   - ExecutableDefinition
   - TypeSystemDefinition
+  - TypeSystemExtension
 
 ExecutableDefinition :
   - OperationDefinition
@@ -188,7 +189,6 @@ TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
   - DirectiveDefinition
-  - TypeSystemExtension
 
 TypeSystemExtension :
   - SchemaExtension
