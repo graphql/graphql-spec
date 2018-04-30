@@ -230,6 +230,16 @@ single machine in a service. Durability and availability may be improved by
 having separate dedicated services for managing subscription state and client
 connectivity.
 
+**Delivery Agnostic**
+
+GraphQL subscriptions do not require any specific serialization format or
+transport mechanism. Subscriptions specifies algorithms for the creation of a
+stream, the content of each payload on that stream, and the closing of that
+stream. There are intentionally no specifications for message acknoledgement,
+buffering, resend requests, or any other quality of service (QoS) details.
+Message serialization, transport mechanisms, and quality of service details
+should be chosen by the implementing service.
+
 #### Source Stream
 
 A Source Stream represents the sequence of events, each of which will
