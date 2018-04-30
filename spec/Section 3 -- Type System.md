@@ -1398,10 +1398,19 @@ in square brackets like this: `pets: [Pet]`.
 
 GraphQL servers must return an ordered list as the result of a list type. Each
 item in the list must be the result of a result coercion of the item type. If a
-reasonable coercion is not possible they must raise a field error. In
+reasonable coercion is not possible it must raise a field error. In
 particular, if a non-list is returned, the coercion should fail, as this
 indicates a mismatch in expectations between the type system and the
 implementation.
+
+If a list's item type is nullable, then errors occuring during preparation or
+coercion of an individual item in the list must result in a the value {null} at
+that position in the list along with an error added to the response. If a list's
+item type is non-null, an error occuring at an individual item in the list must
+result in a field error for the entire list.
+
+Note: For more information on the error handling process, see "Errors and
+Non-Nullability" within the Execution section.
 
 **Input Coercion**
 
@@ -1409,15 +1418,27 @@ When expected as an input, list values are accepted only when each item in the
 list can be accepted by the list's item type.
 
 If the value passed as an input to a list type is *not* a list and not the
-{null} value, it should be coerced as though the input was a list of size one,
-where the value passed is the only item in the list. This is to allow inputs
-that accept a "var args" to declare their input type as a list; if only one
-argument is passed (a common case), the client can just pass that value rather
-than constructing the list.
+{null} value, then the result of input coercion is a list of size one,
+where the single item value is the result of input coercion for the list's item
+type on the provided value (note this may apply recursively for nested lists).
 
-Note that when a {null} value is provided via a runtime variable value for a
-list type, the value is interpreted as no list being provided, and not a list of
-size one with the value {null}.
+This allow inputs which accept one or many arguments (sometimes referred to as
+"var args") to declare their input type as a list while for the common case of a
+single value, a client can just pass that value directly rather than
+constructing the list.
+
+Following are examples of input coercion with various list types and values:
+
+Expected Type | Provided Value   | Coerced Value
+------------- | ---------------- | ---------------------------
+`[Int]`       | `[1, 2, 3]`      | `[1, 2, 3]`
+`[Int]`       | `[1, "b", true]` | Error: Incorrect item value
+`[Int]`       | `1`              | `[1]`
+`[Int]`       | `null`           | `null`
+`[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]`
+`[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value
+`[[Int]]`     | `1`              | `[[1]]`
+`[[Int]]`     | `null`           | `null`
 
 
 ## Non-Null
