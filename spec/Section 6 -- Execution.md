@@ -319,10 +319,9 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     * Let {fieldName} be the name of the first entry in {fields}.
       Note: This value is unaffected if an alias is used.
     * Let {fieldType} be the return type defined for the field {fieldName} of {objectType}.
-    * If {fieldType} is {null}:
-      * Continue to the next iteration of {groupedFieldSet}.
-    * Let {responseValue} be {ExecuteField(objectType, objectValue, fields, fieldType, variableValues)}.
-    * Set {responseValue} as the value for {responseKey} in {resultMap}.
+    * If {fieldType} is defined:
+      * Let {responseValue} be {ExecuteField(objectType, objectValue, fields, fieldType, variableValues)}.
+      * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the query. This
