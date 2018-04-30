@@ -180,17 +180,25 @@ StringValue :: `"` StringCharacter+ `"`
 
 ## Algorithms
 
-This specification describes some algorithms used by the static and runtime semantics, they're defined in the form of a function-like syntax along with a
-list of algorithmic steps to take.
+This specification describes some algorithms used by the static and runtime
+semantics, they're defined in the form of a function-like syntax with the
+algorithm's name and the arguments it accepts along with a list of algorithmic
+steps to take in the order listed. Each step may establish references to other
+values, check various conditions, call other algorithms, and eventually return
+a value representing the outcome of the algorithm for the provided arguments.
 
-For example, this describes if a fragment should be spread into place given a
-runtime {objectType} and the fragment's {fragmentType}:
+For example, the following example describes an algorithm named {Fibonacci} which
+accepts a single argument {number}. The algoritm's steps produce the next number
+in the Fibonacci sequence:
 
-doesFragmentTypeApply(objectType, fragmentType):
-  * If {fragmentType} is an Object Type:
-    * if {objectType} and {fragmentType} are the same type, return {true}, otherwise return {false}.
-  * If {fragmentType} is an Interface Type:
-    * if {objectType} is an implementation of {fragmentType}, return {true} otherwise return {false}.
-  * If {fragmentType} is a Union:
-    * if {objectType} is a possible type of {fragmentType}, return {true} otherwise return {false}.
+Fibonacci(number):
+  * If {number} is {0}:
+    * Return {1}.
+  * If {number} is {1}:
+    * Return {2}.
+  * Let {previousNumber} be {number} - {1}.
+  * Let {previousPreviousNumber} be {number} - {2}.
+  * Return {Fibonacci(previousNumber)} + {Fibonacci(previousPreviousNumber)}.
 
+Note: Algorithms described in this document are written to be easy to understand.
+Implementers are encouraged to include equivalent but optimized implementations.

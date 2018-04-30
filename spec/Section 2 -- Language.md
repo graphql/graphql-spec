@@ -10,6 +10,9 @@ tokens (indivisible lexical units). These tokens are defined in a lexical
 grammar which matches patterns of source characters (defined by a
 double-colon `::`).
 
+Note: See [Appendix A](#sec-Appendix-Notation-Conventions) for more details about the definition of lexical and syntactic grammar and other notational conventions
+used in this document.
+
 
 ## Source Text
 

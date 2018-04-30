@@ -74,6 +74,10 @@ is equivalent. Algorithms described in this document are written to be easy to
 understand. Implementers are encouraged to include equivalent but
 optimized implementations.
 
+See [Appendix A](#sec-Appendix-Notation-Conventions) for more details
+about the definition of algorithms and other notational conventions used in this
+document.
+
 
 **Non-Normative Portions**
 
