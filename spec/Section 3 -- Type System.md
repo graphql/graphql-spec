@@ -327,17 +327,14 @@ the built-in scalar types should be omitted for brevity.
 **Result Coercion**
 
 A GraphQL server, when preparing a field of a given scalar type, must uphold the
-contract the scalar type describes, either by coercing the value or
-producing a field error.
+contract the scalar type describes, either by coercing the value or producing a
+field error if a value cannot be coerced or if coercion may result in data loss.
 
-For example, a GraphQL server could be preparing a field with the scalar type
-`Int` and encounter a floating-point number. Since the server must not break the
-contract by yielding a non-integer, the server should truncate the fractional
-value and only yield the integer value. If the server encountered a boolean
-`true` value, it should return `1`. If the server encountered a string, it may
-attempt to parse the string for a base-10 integer value. If the server
-encounters some value that cannot be reasonably coerced to an `Int`, then it
-must raise a field error.
+A GraphQL service may decide to allow coercing different internal types to the
+expected return type. For example when coercing a field of type `Int` a boolean
+`true` value may produce `1` or a string value `"123"` may be parsed as base-10
+`123`. However if internal type coercion cannot be reasonably performed without
+losing information, then it must raise a field error.
 
 Since this coercion behavior is not observable to clients of the GraphQL server,
 the precise rules of coercion are left to the implementation. The only
@@ -377,9 +374,18 @@ that type to represent this scalar.
 
 **Result Coercion**
 
-GraphQL servers should coerce non-int raw values to Int when possible
-otherwise they must raise a field error. Examples of this may include returning
-`1` for the floating-point number `1.0`, or `2` for the string `"2"`.
+Fields returning the type `Int` expect to encounter 32-bit integer
+internal values.
+
+GraphQL servers may coerce non-integer internal values to integers when
+reasonable without losing information, otherwise they must raise a field error.
+Examples of this may include returning `1` for the floating-point number `1.0`,
+or returning `123` for the string `"123"`. In scenarios where coercion may lose
+data, raising a field error is more appropriate. For example, a floating-point
+number `1.2` should raise a field error instead of being truncated to `1`.
+
+If the integer internal value represents a value less than -2<sup>31</sup> or
+greater than or equal to 2<sup>31</sup>, a field error should be raised.
 
 **Input Coercion**
 
@@ -403,9 +409,13 @@ should use that type to represent this scalar.
 
 **Result Coercion**
 
-GraphQL servers should coerce non-floating-point raw values to Float when
-possible otherwise they must raise a field error. Examples of this may include
-returning `1.0` for the integer number `1`, or `2.0` for the string `"2"`.
+Fields returning the type `Float` expect to encounter double-precision
+floating-point internal values.
+
+GraphQL servers may coerce non-floating-point internal values to `Float` when
+reasonable without losing information, otherwise they must raise a field error.
+Examples of this may include returning `1.0` for the integer number `1`, or
+`123.0` for the string `"123"`.
 
 **Input Coercion**
 
@@ -426,10 +436,12 @@ and that representation must be used here.
 
 **Result Coercion**
 
-GraphQL servers should coerce non-string raw values to String when possible
-otherwise they must raise a field error. Examples of this may include returning
-the string `"true"` for a boolean true value, or the string `"1"` for the
-integer `1`.
+Fields returning the type `String` expect to encounter UTF-8 string internal values.
+
+GraphQL servers may coerce non-string raw values to `String` when reasonable
+without losing information, otherwise they must raise a field error. Examples of
+this may include returning the string `"true"` for a boolean true value, or the
+string `"1"` for the integer `1`.
 
 **Input Coercion**
 
@@ -446,9 +458,11 @@ representation of the integers `1` and `0`.
 
 **Result Coercion**
 
-GraphQL servers should coerce non-boolean raw values to Boolean when possible
-otherwise they must raise a field error. Examples of this may include returning
-`true` for any non-zero number.
+Fields returning the type `Boolean` expect to encounter boolean internal values.
+
+GraphQL servers may coerce non-boolean raw values to `Boolean` when reasonable
+without losing information, otherwise they must raise a field error. Examples of
+this may include returning `true` for non-zero numbers.
 
 **Input Coercion**
 
