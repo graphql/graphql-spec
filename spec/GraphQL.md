@@ -5,14 +5,15 @@ GraphQL
 
 **Introduction**
 
-This is a Draft RFC Specification for GraphQL, a query language created by
-Facebook in 2012 for describing the capabilities and requirements of data models
-for client-server applications. The development of this standard started
-in 2015. GraphQL is a new and evolving language and is not complete. Significant
-enhancement will continue in future editions of this specification.
+This is the specification for GraphQL, a query language and execution engine
+originally created at Facebook in 2012 for describing the capabilities and
+requirements of data models for client-server applications. The development of
+this open standard started in 2015.
 
-Previous releases of the GraphQL specification can be found at permalinks that
-match their [release tag](https://github.com/facebook/graphql/releases).
+GraphQL has evolved and may continue to evolve in future editions of this
+specification. Previous editions of the GraphQL specification can be found at
+permalinks that match their [release tag](https://github.com/facebook/graphql/releases).
+The latest working draft release can be found at [facebook.github.io/graphql/draft/](http://facebook.github.io/graphql/draft/).
 
 **Copyright notice**
 
@@ -22,7 +23,7 @@ As of September 26, 2017, the following persons or entities have made this
 Specification available under the Open Web Foundation Final Specification
 Agreement (OWFa 1.0), which is available at [openwebfoundation.org](http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0).
 
-Facebook, Inc.
+* Facebook, Inc.
 
 You can review the signed copies of the Open Web Foundation Final Specification
 Agreement Version 1.0 for this specification at [github.com/facebook/graphql](https://github.com/facebook/graphql/tree/master/signed-agreements),
