@@ -1161,10 +1161,11 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. The member types of a Union type must all be Object base types;
+1. A Union type must include one or more member types.
+2. The member types of a Union type must all be Object base types;
    Scalar, Interface and Union types must not be member types of a Union.
    Similarly, wrapping types must not be member types of a Union.
-2. A Union type must define one or more unique member types.
+3. A Union type must define one or more unique member types.
 
 
 ### Union Extensions
@@ -1359,7 +1360,7 @@ Literal Value            | Variables               | Coerced Value
 
 **Type Validation**
 
-1. An Input Object type must define one or more fields.
+1. An Input Object type must define one or more input fields.
 2. The fields of an Input Object type must have unique names within that
    Input Object type; no two fields may share the same name.
 3. The return types of each defined field must be an Input type.
