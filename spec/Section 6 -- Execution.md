@@ -450,9 +450,9 @@ A correct executor must generate the following result for that selection set:
 
 Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key. This ensures all fields with the same response
-key (alias or field name) included via referenced fragments are executed at the
-same time.
+fields that share a response key (the alias if defined, otherwise the field
+name). This ensures all fields with the same response key included via
+referenced fragments are executed at the same time.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -489,7 +489,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       * If {includeDirective}'s {if} argument is not {true} and is not a variable in {variableValues} with the value {true}, continue with the next
       {selection} in {selectionSet}.
     * If {selection} is a {Field}:
-      * Let {responseKey} be the response key of {selection}.
+      * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       * Append {selection} to the {groupForResponseKey}.
@@ -509,7 +509,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       * Let {fragmentGroupedFieldSet} be the result of calling
         {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-        * Let {responseKey} be the response key shared by all fields in {fragmentGroup}
+        * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
           {responseKey}; if no such list exists, create it as an empty list.
         * Append all items in {fragmentGroup} to {groupForResponseKey}.
@@ -520,7 +520,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
       * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-        * Let {responseKey} be the response key shared by all fields in {fragmentGroup}
+        * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
           {responseKey}; if no such list exists, create it as an empty list.
         * Append all items in {fragmentGroup} to {groupForResponseKey}.
