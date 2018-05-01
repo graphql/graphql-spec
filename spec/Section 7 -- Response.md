@@ -13,7 +13,7 @@ the case that a field error occurred on a field which was replaced with null.
 
 GraphQL does not require a specific serialization format. However, clients
 should use a serialization format that supports the major primitives in the
-GraphQL response. In particular, the serialization format must support
+GraphQL response. In particular, the serialization format must at least support
 representations of the following four primitives:
 
  * Map
@@ -21,34 +21,28 @@ representations of the following four primitives:
  * String
  * Null
 
-Serialization formats which can represent an ordered map should preserve the
-order of requested fields as defined by {CollectFields()} in the Execution
-section. Serialization formats which can only represent unordered maps
-(such as JSON) should retain this order textually. That is, if two fields
-`{foo, bar}` were queried in that order, the resulting JSON serialization
-should contain `{"foo": "...", "bar": "..."}` in the same order.
-
-Producing a response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can
-be anticipated.
-
-A serialization format may support the following primitives, however, strings
-may be used as a substitute for those primitives.
+A serialization format should also support the following primitives, each
+representing one of the common GraphQL scalar types, however a string or simpler
+primitive may be used as a substitute if any are not directly supported:
 
  * Boolean
  * Int
  * Float
  * Enum Value
 
+This is not meant to be an exhaustive list of what a serialization format may
+encode. For example custom scalars representing a Date, Time, URI, or number
+with a different precision may be represented in whichever relevant format a
+given serialization format may support.
+
 
 ### JSON Serialization
 
-JSON is the preferred serialization format for GraphQL, though as noted above,
-GraphQL does not require a specific serialization format. For consistency and
-ease of notation, examples of the response are given in JSON throughout the
-spec. In particular, in our JSON examples, we will represent primitives using
-the following JSON concepts:
+JSON is the most common serialization format for GraphQL. Though as mentioned
+above, GraphQL does not require a specific serialization format.
+
+When using JSON as a serialization of GraphQL responses, the following JSON
+values should be used to encode the related GraphQL values:
 
 | GraphQL Value | JSON Value        |
 | ------------- | ----------------- |
@@ -61,7 +55,29 @@ the following JSON concepts:
 | Float         | Number            |
 | Enum Value    | String            |
 
-**Object Property Ordering**
+Note: For consistency and ease of notation, examples of responses are given in
+JSON format throughout this document.
+
+
+### Serialized Map Ordering
+
+Since the result of evaluating a selection set is ordered, the serialized Map of
+results should preserve this order by writing the map entries in the same order
+as those fields were requested as defined by query execution. Producing a
+serialized response where fields are represented in the same order in which
+they appear in the request improves human readability during debugging and
+enables more efficient parsing of responses if the order of properties can
+be anticipated.
+
+Serialization formats which represent an ordered map should preserve the
+order of requested fields as defined by {CollectFields()} in the Execution
+section. Serialization formats which only represent unordered maps but where
+order is still implicit in the serialization's textual order (such as JSON)
+should preserve the order of requested fields textually.
+
+For example, if the request was `{ name, age }`, a GraphQL service responding in
+JSON should respond with `{ "name": "Mark", "age": 30 }` and should not respond
+with `{ "age": 30, "name": "Mark" }`.
 
 While JSON Objects are specified as an
 [unordered collection of key-value pairs](https://tools.ietf.org/html/rfc7159#section-4)
@@ -69,15 +85,7 @@ the pairs are represented in an ordered manner. In other words, while the JSON
 strings `{ "name": "Mark", "age": 30 }` and `{ "age": 30, "name": "Mark" }`
 encode the same value, they also have observably different property orderings.
 
-Since the result of evaluating a selection set is ordered, the JSON object
-serialized should preserve this order by writing the object properties in the
-same order as those fields were requested as defined by query execution.
-
-For example, if the query was `{ name, age }`, a GraphQL server responding in
-JSON should respond with `{ "name": "Mark", "age": 30 }` and should not respond
-with `{ "age": 30, "name": "Mark" }`.
-
-NOTE: This does not violate the JSON spec, as clients may still interpret
+Note: This does not violate the JSON spec, as clients may still interpret
 objects in the response as unordered Maps and arrive at a valid value.
 
 
