@@ -337,11 +337,22 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 Note: {resultMap} is ordered by which fields appear first in the query. This
 is explained in greater detail in the Field Collection section below.
 
+**Errors and Non-Null Fields**
+
+If during {ExecuteSelectionSet()} a field with a non-null {fieldType} throws a
+field error then that error must propagate to this entire selection set, either
+resolving to {null} if allowed or further propagated to a parent field.
+
+If this occurs, any sibling fields which have not yet executed or have not yet
+yielded a value may be cancelled to avoid unnecessary work.
+
+See the [Errors and Non-Nullability](#sec-Errors-and-Non-Nullability) section
+of Field Execution for more about this behavior.
 
 ### Normal and Serial Execution
 
 Normally the executor can execute the entries in a grouped field set in whatever
-order it chooses (often in parallel). Because the resolution of fields other
+order it chooses (normally in parallel). Because the resolution of fields other
 than top-level mutation fields must always be side effect-free and idempotent,
 the execution order must not affect the result, and hence the server has the
 freedom to execute the field entries in whatever order it deems optimal.
@@ -364,7 +375,7 @@ chose (however of course `birthday` must be resolved before `month`, and
 `address` before `street`).
 
 When executing a mutation, the selections in the top most selection set will be
-executed in serial order.
+executed in serial order, starting with the first appearing field textually.
 
 When executing a grouped field set serially, the executor must consider each entry
 from the grouped field set in the order provided in the grouped field set. It must
