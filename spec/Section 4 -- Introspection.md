@@ -56,11 +56,7 @@ would return
 }
 ```
 
-
-## General Principles
-
-
-### Naming conventions
+## Reserved Names
 
 Types and fields required by the GraphQL introspection system that are used in
 the same context as user-defined types and fields are prefixed with {"__"} two
@@ -70,7 +66,7 @@ fields, arguments, or any other type system artifact with two leading
 underscores.
 
 
-### Documentation
+## Documentation
 
 All types in the introspection system provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
@@ -80,7 +76,7 @@ recommended that any tool that displays `description` use a CommonMark-compliant
 Markdown renderer.
 
 
-### Deprecation
+## Deprecation
 
 To support the management of backwards compatibility, GraphQL fields and enum
 values can indicate whether or not they are deprecated (`isDeprecated: Boolean`)
@@ -91,10 +87,10 @@ discouraging deprecated use through information hiding or developer-facing
 warnings.
 
 
-### Type Name Introspection
+## Type Name Introspection
 
 GraphQL supports type name introspection at any point within a query by the
-meta field `__typename: String!` when querying against any Object, Interface,
+meta-field `__typename: String!` when querying against any Object, Interface,
 or Union. It returns the name of the object type currently being queried.
 
 This is most often used when querying against Interface or Union types to
