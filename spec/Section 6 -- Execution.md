@@ -546,6 +546,7 @@ set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
   * Let {field} be the first entry in {fields}.
+  * Let {fieldName} be the field name of {field}.
   * Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field, variableValues)}
   * Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName, argumentValues)}.
   * Return the result of {CompleteValue(fieldType, fields, resolvedValue, variableValues)}.
