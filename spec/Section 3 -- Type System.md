@@ -1517,6 +1517,39 @@ a non-null input type as invalid.
 1. A Non-Null type must not wrap another Non-Null type.
 
 
+### Combining List and Non-Null
+
+The List and Non-Null wrapping types can compose, representing more complex
+types. The rules for result coercion and input coercion of Lists and Non-Null
+types apply in a recursive fashion.
+
+For example if the inner item type of a List is Non-Null (e.g. `[T!]`), then
+that List may not contain any {null} items. However if the inner type of a
+Non-Null is a List (e.g. `[T]!`), then {null} is not accepted however an empty
+list is accepted.
+
+Following are examples of result coercion with various types and values:
+
+Expected Type | Internal Value   | Coerced Result
+------------- | ---------------- | ---------------------------
+`[Int]`       | `[1, 2, 3]`      | `[1, 2, 3]`
+`[Int]`       | `null`           | `null`
+`[Int]`       | `[1, 2, null]`   | `[1, 2, null]`
+`[Int]`       | `[1, 2, Error]`  | `[1, 2, null]` (With logged error)
+`[Int]!`      | `[1, 2, 3]`      | `[1, 2, 3]`
+`[Int]!`      | `null`           | Error: Value cannot be null
+`[Int]!`      | `[1, 2, null]`   | `[1, 2, null]`
+`[Int]!`      | `[1, 2, Error]`  | `[1, 2, null]` (With logged error)
+`[Int!]`      | `[1, 2, 3]`      | `[1, 2, 3]`
+`[Int!]`      | `null`           | `null`
+`[Int!]`      | `[1, 2, null]`   | `null` (With logged coercion error)
+`[Int!]`      | `[1, 2, Error]`  | `null` (With logged error)
+`[Int!]!`     | `[1, 2, 3]`      | `[1, 2, 3]`
+`[Int!]!`     | `null`           | Error: Value cannot be null
+`[Int!]!`     | `[1, 2, null]`   | Error: Item cannot be null
+`[Int!]!`     | `[1, 2, Error]`  | Error: Error occurred in item
+
+
 ## Directives
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
