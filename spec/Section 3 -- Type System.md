@@ -1486,7 +1486,7 @@ If the value provided to the Non-Null type is provided with a literal value
 other than {null}, or a Non-Null variable value, it is coerced using the input
 coercion for the wrapped type.
 
-Example: A non-null argument cannot be omitted.
+A non-null argument cannot be omitted:
 
 ```graphql counter-example
 {
@@ -1494,7 +1494,7 @@ Example: A non-null argument cannot be omitted.
 }
 ```
 
-Example: The value {null} cannot be provided to a non-null argument.
+The value {null} cannot be provided to a non-null argument:
 
 ```graphql counter-example
 {
@@ -1502,7 +1502,7 @@ Example: The value {null} cannot be provided to a non-null argument.
 }
 ```
 
-Example: A variable of a nullable type cannot be provided to a non-null argument.
+A variable of a nullable type cannot be provided to a non-null argument:
 
 ```graphql example
 query withNullableVariable($var: String) {
