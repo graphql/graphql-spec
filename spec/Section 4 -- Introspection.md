@@ -361,22 +361,6 @@ required inputs for arguments and input object fields.
 * All other fields must return {null}.
 
 
-#### Combining List and Non-Null
-
-List and Non-Null can compose, representing more complex types.
-
-If the modified type of a List is Non-Null, then that List may not contain any
-{null} items.
-
-If the modified type of a Non-Null is List, then {null} is not accepted,
-however an empty list is accepted.
-
-If the modified type of a List is a List, then each item in the first List is
-another List of the second List's type.
-
-A Non-Null type cannot modify another Non-Null type.
-
-
 ### The __Field Type
 
 The `__Field` type represents each field in an Object or Interface type.
