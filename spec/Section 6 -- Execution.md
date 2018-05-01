@@ -647,9 +647,9 @@ CompleteValue(fieldType, fields, result, variableValues):
     * If {fieldType} is an Object type.
       * Let {objectType} be {fieldType}.
     * Otherwise if {fieldType} is an Interface or Union type.
-      * Let {objectType} be ResolveAbstractType({fieldType}, {result}).
+      * Let {objectType} be {ResolveAbstractType(fieldType, result)}.
     * Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-    * Return the result of evaluating ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues) *normally* (allowing for parallelization).
+    * Return the result of evaluating {ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues)} *normally* (allowing for parallelization).
 
 **Resolving Abstract Types**
 
