@@ -561,7 +561,7 @@ fragment conflictingDifferingResponses on Pet {
 
   * For each {selection} in the document
   * Let {selectionType} be the result type of {selection}
-  * If {selectionType} is a scalar:
+  * If {selectionType} is a scalar or enum:
     * The subselection set of that selection must be empty
   * If {selectionType} is an interface, union, or object
     * The subselection set of that selection must NOT BE empty
