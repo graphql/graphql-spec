@@ -432,13 +432,13 @@ SameResponseShape(fieldA, fieldB) :
   * If {typeA} or {typeB} is Scalar or Enum.
     * If {typeA} and {typeB} are the same type return true, otherwise return
       false.
-  * If {typeA} and {typeB} is not a composite type, return false.
+  * If {typeA} or {typeB} is not a composite type, return false.
   * Let {mergedSet} be the result of adding the selection set of {fieldA} and
     the selection set of {fieldB}.
   * Let {fieldsForName} be the set of selections with a given response name in
     {mergedSet} including visiting fragments and inline fragments.
   * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
-    * If SameResponseShape(subfieldA, subfieldB)} is false, return false.
+    * If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
   * Return true.
 
 **Explanatory Text**
