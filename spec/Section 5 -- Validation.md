@@ -568,7 +568,7 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Field selections on scalars or enums are never allowed: scalars and enums
+Field selections on scalars or enums are never allowed, because they
 are the leaf nodes of any GraphQL query.
 
 The following is valid.
