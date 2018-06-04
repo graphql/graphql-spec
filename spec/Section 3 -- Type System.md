@@ -160,6 +160,13 @@ Schema extensions are used to represent a schema which has been extended from
 an original schema. For example, this might be used by a GraphQL service which
 adds additional operation types, or additional directives to an existing schema.
 
+**Schema Validation**
+
+Schema extensions have the potential to be invalid if incorrectly defined.
+
+1. The Schema must already be defined.
+2. Any directives provided must not already apply to the original Schema.
+
 
 ## Descriptions
 
