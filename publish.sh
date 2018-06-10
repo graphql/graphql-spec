@@ -12,31 +12,97 @@ GITTAG=$(git tag --points-at HEAD)
 echo "Cloning gh-pages"
 rm -rf gh-pages
 git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/graphql.git" gh-pages > /dev/null 2>&1
-pushd gh-pages > /dev/null 2>&1
 
 # Replace /draft with this build.
 echo "Publishing to: /draft"
-rm -rf draft
-cp -r ../out/ draft
+rm -rf gh-pages/draft
+cp -r out/ gh-pages/draft
 
 # If this is a tagged commit, publish to a permalink and index.
 if [ -n "$GITTAG" ]; then
   echo "Publishing to: /$GITTAG"
-  cp -r ../out/ "$GITTAG"
-
-  echo "Linking from: / (index)"
-  echo '<html>
-  <head>
-    <meta http-equiv="refresh" content="0; url=./'"$GITTAG"'" />
-    <title>GraphQL Specification</title>
-  </head>
-  <body>
-    Redirecting to the latest release: <a href="./'"$GITTAG"'">'"$GITTAG"'</a>
-  </body>
-</html>' > index.html
+  cp -r out/ "gh-pages/$GITTAG"
 fi
 
+# Create the index file
+echo "Rebuilding: / (index)"
+HTML="<html>
+  <head>
+    <title>GraphQL Specification Versions</title>
+    <style>
+      body {
+        color: #333333;
+        font: 13pt/18pt Cambria, 'Palatino Linotype', Palatino, 'Liberation Serif', serif;
+        margin: 6rem auto 3rem;
+        max-width: 780px;
+      }
+      @media (min-width: 1240px) {
+        body {
+          padding-right: 300px;
+        }
+      }
+      h1 {
+        font-size: 1.5em;
+        margin: 8rem 0 2em;
+      }
+      td {
+        padding-bottom: 5px;
+      }
+      td + td {
+        padding-left: 2ch;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GraphQL</h1>
+    <table>"
+
+# Include latest draft
+GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" HEAD)
+HTML="$HTML
+    <tr>
+      <td><em>Prerelease</em></td>
+      <td><a href=\"./draft\" keep-hash>Working Draft</a></td>
+      <td>$GITDATE</td>
+      <td></td>
+    </tr>"
+
+GITHUB_RELEASES="https://github.com/facebook/graphql/releases/tag"
+for GITTAG in $(git tag -l --sort='-*committerdate') ; do
+  HTML="$HTML
+    <tr>"
+
+  [ -z $HAS_LATEST_RELEASE ] && HTML="$HTML
+      <td><em>Latest Release</em></td>" || HTML="$HTML
+      <td></td>"
+  HAS_LATEST_RELEASE=1
+
+  TAGGEDCOMMIT=$(git rev-list -1 "$GITTAG")
+  GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" $TAGGEDCOMMIT)
+  HTML="$HTML
+      <td><a href=\"./$GITTAG\" keep-hash>$GITTAG</a></td>
+      <td>$GITDATE</td>
+      <td><a href=\"$GITHUB_RELEASES/$GITTAG\">Release Notes</a></td>
+    </tr>"
+done
+
+HTML="$HTML
+    </table>
+    <script>
+      var links = document.getElementsByTagName('a');
+      for (var i = 0; i < links.length; i++) {
+        if (links[i].hasAttribute('keep-hash')) {
+          links[i].href += location.hash;
+        }
+      }
+    </script>
+  </body>
+</html>"
+
+echo $HTML > "gh-pages/index.html"
+
 echo "Pushing update"
+cd gh-pages
 git config user.name "Travis CI"
 git config user.email "github@fb.com"
 git add -A .
@@ -47,5 +113,3 @@ else
   git push > /dev/null 2>&1
   echo "Pushed"
 fi
-
-popd > /dev/null 2>&1
