@@ -1,5 +1,5 @@
 git:
-  depth: 5
+  depth: false
 
 language: node_js
 node_js: 9
