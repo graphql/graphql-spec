@@ -1533,15 +1533,12 @@ fragment HouseTrainedFragment {
   * For every {operation} in a {document}
   * For every {variable} on each {operation}
     * Let {variableType} be the type of {variable}
-    * While {variableType} is {LIST} or {NON_NULL}
-      * Let {variableType} be the referenced type of {variableType}
-    * {variableType} must be of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
+    * {IsInputType(variableType)} must be {true}
 
 **Explanatory Text**
 
-Variables can only be scalars, enums, input objects, or lists and non-null
-variants of those types. These are known as input types. Objects, unions,
-and interfaces cannot be used as inputs.
+Variables can only be input types. Objects, unions, and interfaces cannot be
+used as inputs.
 
 For these examples, consider the following typesystem additions:
 

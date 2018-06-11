@@ -82,7 +82,7 @@ CoerceVariableValues(schema, operation, variableValues):
   * For each {variableDefinition} in {variableDefinitions}:
     * Let {variableName} be the name of {variableDefinition}.
     * Let {variableType} be the expected type of {variableDefinition}.
-    * Assert: {variableType} must be an input type.
+    * Assert: {IsInputType(variableType)} must be {true}.
     * Let {defaultValue} be the default value for {variableDefinition}.
     * Let {hasValue} be {true} if {variableValues} provides a value for the
       name {variableName}.
@@ -556,8 +556,7 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
 Fields may include arguments which are provided to the underlying runtime in
 order to correctly produce a value. These arguments are defined by the field in
-the type system to have a specific input type: Scalars, Enum, Input Object, or
-List or Non-Null wrapped variations of these three.
+the type system to have a specific input type.
 
 At each argument position in a query may be a literal {Value}, or a {Variable}
 to be provided at runtime.
