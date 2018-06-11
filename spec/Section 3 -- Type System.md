@@ -801,7 +801,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    4. For each argument of the field:
       1. The argument must not have a name which begins with the
          characters {"__"} (two underscores).
-      2. The argument must accept a type where {IsInputType(argumentType)} returns {true}.
+      2. The argument must accept a type where {IsInputType(argumentType)}
+         returns {true}.
 4. An object type may declare that it implements one or more unique interfaces.
 5. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
@@ -1698,7 +1699,13 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 2. A directive definition must not contain the use of a directive which
    references itself indirectly by referencing a Type or Directive which
    transitively includes a reference to this directive.
-
+3. The directive must not have a name which begins with the characters
+   {"__"} (two underscores).
+4. For each argument of the directive:
+   1. The argument must not have a name which begins with the
+      characters {"__"} (two underscores).
+   2. The argument must accept a type where {IsInputType(argumentType)}
+      returns {true}.
 
 ### @skip
 
