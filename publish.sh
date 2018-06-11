@@ -41,6 +41,13 @@ HTML="<html>
           padding-right: 300px;
         }
       }
+      a {
+        color: #3B5998;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
       h1 {
         font-size: 1.5em;
         margin: 8rem 0 2em;
