@@ -76,6 +76,11 @@ HTML="$HTML
 
 GITHUB_RELEASES="https://github.com/facebook/graphql/releases/tag"
 for GITTAG in $(git tag -l --sort='-*committerdate') ; do
+  VERSIONYEAR=${GITTAG: -4}
+  TAGTITLE="${GITTAG%$VERSIONYEAR} $VERSIONYEAR"
+  TAGGEDCOMMIT=$(git rev-list -1 "$GITTAG")
+  GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" $TAGGEDCOMMIT)
+
   HTML="$HTML
     <tr>"
 
@@ -84,10 +89,8 @@ for GITTAG in $(git tag -l --sort='-*committerdate') ; do
       <td></td>"
   HAS_LATEST_RELEASE=1
 
-  TAGGEDCOMMIT=$(git rev-list -1 "$GITTAG")
-  GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" $TAGGEDCOMMIT)
   HTML="$HTML
-      <td><a href=\"./$GITTAG\" keep-hash>$GITTAG</a></td>
+      <td><a href=\"./$GITTAG\" keep-hash>$TAGTITLE</a></td>
       <td>$GITDATE</td>
       <td><a href=\"$GITHUB_RELEASES/$GITTAG\">Release Notes</a></td>
     </tr>"
@@ -100,6 +103,7 @@ HTML="$HTML
       for (var i = 0; i < links.length; i++) {
         if (links[i].hasAttribute('keep-hash')) {
           links[i].href += location.hash;
+          links[i].removeAttribute('keep-hash');
         }
       }
     </script>
