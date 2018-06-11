@@ -1211,11 +1211,10 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. A Union type must include one or more member types.
+1. A Union type must include one or more unique member types.
 2. The member types of a Union type must all be Object base types;
    Scalar, Interface and Union types must not be member types of a Union.
    Similarly, wrapping types must not be member types of a Union.
-3. A Union type must define one or more unique member types.
 
 
 ### Union Extensions
