@@ -272,6 +272,34 @@ referred to as "named types". A wrapping type has an underlying named type,
 found by continually unwrapping the type until a named type is found.
 
 
+### Input and Output Types
+
+Types are used throughout GraphQL to describe both the values accepted as input
+to arguments and variables as well as the values output by fields. These two
+uses categorize types as *input types* and *output types*. Some kinds of types,
+like Scalar and Enum types, can be used as both input types and output types;
+other kinds types can only be used in one or the other. Input Object types can
+only be used as input types. Object, Interface, and Union types can only be used
+as output types. Lists and Non-Null types may be used as input types or output
+types depending on how the wrapped type may be used.
+
+IsInputType(type) :
+  * If {type} is a List type or Non-Null type:
+    * Let {unwrappedType} be the unwrapped type of {type}.
+    * Return IsInputType({unwrappedType})
+  * If {type} is a Scalar, Enum, or Input Object type:
+    * Return {true}
+  * Return {false}
+
+IsOutputType(type) :
+  * If {type} is a List type or Non-Null type:
+    * Let {unwrappedType} be the unwrapped type of {type}.
+    * Return IsOutputType({unwrappedType})
+  * If {type} is a Scalar, Object, Interface, Union, or Enum type:
+    * Return {true}
+  * Return {false}
+
+
 ### Type Extensions
 
 TypeExtension :
@@ -757,10 +785,16 @@ Object types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Object type in a GraphQL schema.
 
 1. An Object type must define one or more fields.
-2. The fields of an Object type must have unique names within that Object type;
-   no two fields may share the same name.
-3. Each field of an Object type must not have a name which begins with the
-   characters {"__"} (two underscores).
+2. For each field of an Object type:
+   1. The field must have a unique name within that Object type;
+      no two fields may share the same name.
+   2. The field must not have a name which begins with the
+      characters {"__"} (two underscores).
+   3. The field must return a type where {IsOutputType(fieldType)} returns {true}.
+   4. For each argument of the field:
+      1. The argument must not have a name which begins with the
+         characters {"__"} (two underscores).
+      2. The argument must accept a type where {IsInputType(argumentType)} returns {true}.
 4. An object type may declare that it implements one or more unique interfaces.
 5. An object type must be a super-set of all interfaces it implements:
    1. The object type must include a field of the same name for every field
@@ -834,7 +868,8 @@ May yield the result:
 }
 ```
 
-The type of an object field argument can be any Input type.
+The type of an object field argument must be an input type (any type except an
+Object, Interface, or Union type).
 
 
 ### Field Deprecation
@@ -1009,11 +1044,19 @@ Interfaces are never valid inputs.
 Interface types have the potential to be invalid if incorrectly defined.
 
 1. An Interface type must define one or more fields.
-2. The fields of an Interface type must have unique names within that Interface
-   type; no two fields may share the same name.
-3. Each field of an Interface type must not have a name which begins with the
-   characters {"__"} (two underscores).
-4. An Interface type must be implemented by at least one Object type.
+2. For each field of an Interface type:
+   1. The field must have a unique name within that Interface type;
+      no two fields may share the same name.
+   2. The field must not have a name which begins with the
+      characters {"__"} (two underscores).
+   3. The field must return a type where {IsOutputType(fieldType)}
+      returns {true}.
+   4. For each argument of the field:
+      1. The argument must not have a name which begins with the
+         characters {"__"} (two underscores).
+      2. The argument must accept a type where {IsInputType(argumentType)}
+         returns {true}.
+3. An Interface type must be implemented by at least one Object type.
 
 
 ### Interface Extensions
@@ -1361,9 +1404,13 @@ Literal Value            | Variables               | Coerced Value
 **Type Validation**
 
 1. An Input Object type must define one or more input fields.
-2. The fields of an Input Object type must have unique names within that
-   Input Object type; no two fields may share the same name.
-3. The return types of each defined field must be an Input type.
+2. For each input field of an Input Object type:
+   1. The input field must have a unique name within that Input Object type;
+      no two input fields may share the same name.
+   2. The input field must not have a name which begins with the
+      characters {"__"} (two underscores).
+   3. The input field must accept a type where {IsInputType(inputFieldType)}
+      returns {true}.
 
 
 ### Input Object Extensions

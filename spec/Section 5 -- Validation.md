@@ -421,23 +421,25 @@ SameResponseShape(fieldA, fieldB) :
   * Let {typeA} be the return type of {fieldA}.
   * Let {typeB} be the return type of {fieldB}.
   * If {typeA} or {typeB} is Non-Null.
-    * {typeA} and {typeB} must both be Non-Null.
+    * If {typeA} or {typeB} is nullable, return false.
     * Let {typeA} be the nullable type of {typeA}
     * Let {typeB} be the nullable type of {typeB}
   * If {typeA} or {typeB} is List.
-    * {typeA} and {typeB} must both be List.
+    * If {typeA} or {typeB} is not List, return false.
     * Let {typeA} be the item type of {typeA}
     * Let {typeB} be the item type of {typeB}
     * Repeat from step 3.
   * If {typeA} or {typeB} is Scalar or Enum.
-    * {typeA} and {typeB} must be the same type.
-  * Assert: {typeA} and {typeB} are both composite types.
+    * If {typeA} and {typeB} are the same type return true, otherwise return
+      false.
+  * If {typeA} or {typeB} is not a composite type, return false.
   * Let {mergedSet} be the result of adding the selection set of {fieldA} and
     the selection set of {fieldB}.
   * Let {fieldsForName} be the set of selections with a given response name in
     {mergedSet} including visiting fragments and inline fragments.
   * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
-    * {SameResponseShape(subfieldA, subfieldB)} must be true.
+    * If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
+  * Return true.
 
 **Explanatory Text**
 
@@ -1531,15 +1533,12 @@ fragment HouseTrainedFragment {
   * For every {operation} in a {document}
   * For every {variable} on each {operation}
     * Let {variableType} be the type of {variable}
-    * While {variableType} is {LIST} or {NON_NULL}
-      * Let {variableType} be the referenced type of {variableType}
-    * {variableType} must be of kind {SCALAR}, {ENUM} or {INPUT_OBJECT}
+    * {IsInputType(variableType)} must be {true}
 
 **Explanatory Text**
 
-Variables can only be scalars, enums, input objects, or lists and non-null
-variants of those types. These are known as input types. Objects, unions,
-and interfaces cannot be used as inputs.
+Variables can only be input types. Objects, unions, and interfaces cannot be
+used as inputs.
 
 For these examples, consider the following typesystem additions:
 
