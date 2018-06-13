@@ -218,7 +218,7 @@ TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 SchemaExtension :
   - extend schema Directives[Const]? { RootOperationTypeDefinition+ }

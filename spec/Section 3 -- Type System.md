@@ -53,15 +53,22 @@ Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
 type system definition language, these description strings (often {BlockString})
 occur immediately before the definition they describe.
 
-All GraphQL types, fields, arguments and other definitions which can be
-described should provide a {Description} unless they are considered self
-descriptive.
+GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
+which can be described should provide a {Description} unless they are considered
+self descriptive.
 
 As an example, this simple GraphQL schema is well described:
 
 ```graphql example
 """
 A simple GraphQL schema which is well described.
+"""
+schema {
+  query: Query
+}
+
+"""
+Root type for all your queries
 """
 type Query {
   """
@@ -97,7 +104,7 @@ enum Language {
 
 ## Schema
 
-SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 RootOperationTypeDefinition : OperationType : NamedType
 
