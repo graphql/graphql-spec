@@ -12,7 +12,7 @@ containing validation errors, so execution should only occur for valid requests.
 Typically validation is performed in the context of a request immediately
 before execution, however a GraphQL service may execute a request without
 explicitly validating it if that exact same request is known to have been
-validated before. For example: the request may be validated during development,
+validated before. For example: the request may be validated during developmment,
 provided it does not later change, or a service may validate a request once and
 memoize the result to avoid validating the same request again in the future.
 Any client-side or development-time tool should report validation errors and not
@@ -697,7 +697,7 @@ fragment multipleArgs on Arguments {
 }
 
 fragment multipleArgsReverseOrder on Arguments {
-  multipleReqs(y: 1, x: 2)
+  multipleReqs(y: 2, x: 1)
 }
 ```
 
