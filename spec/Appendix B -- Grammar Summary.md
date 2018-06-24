@@ -278,7 +278,7 @@ InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const]
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? `unique`? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
   - `|`? DirectiveLocation

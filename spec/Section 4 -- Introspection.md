@@ -187,6 +187,7 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  unique: Boolean!
 }
 
 enum __DirectiveLocation {
@@ -417,3 +418,4 @@ Fields
   locations this directive may be placed.
 * `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
+* `unique` must return a Boolean which identifies the directive as unique per location.
