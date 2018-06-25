@@ -1715,7 +1715,7 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 ### @skip
 
 ```graphql
-directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+unique directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@skip` directive may be provided for fields, fragment spreads, and
@@ -1735,7 +1735,7 @@ query myQuery($someTest: Boolean) {
 ### @include
 
 ```graphql
-directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+unique directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@include` directive may be provided for fields, fragment spreads, and
@@ -1762,7 +1762,7 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ### @deprecated
 
 ```graphql
-directive @deprecated(
+unique directive @deprecated(
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
 ```
