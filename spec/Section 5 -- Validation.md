@@ -1435,13 +1435,13 @@ query @skip(if: $foo) {
 ```
 
 
-### @skip And @include Directives Are Unique Per Location
+### @skip, @include And @deprecated Directives Are Unique Per Location
 
 **Formal Specification**
 
   * For every {location} in the document for which Directives can apply:
     * Let {directives} be the set of Directives which apply to {location}.
-    * For each {directive} with name `"skip"` or `"include"` in {directives}:
+    * For each {directive} with name `"skip"`, `"include"` or `"deprecated"` in {directives}:
       * Let {directiveName} be the name of {directive}.
       * Let {namedDirectives} be the set of all Directives named {directiveName}
         in {directives}.
