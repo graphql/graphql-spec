@@ -235,7 +235,7 @@ connectivity.
 GraphQL subscriptions do not require any specific serialization format or
 transport mechanism. Subscriptions specifies algorithms for the creation of a
 stream, the content of each payload on that stream, and the closing of that
-stream. There are intentionally no specifications for message acknoledgement,
+stream. There are intentionally no specifications for message acknowledgement,
 buffering, resend requests, or any other quality of service (QoS) details.
 Message serialization, transport mechanisms, and quality of service details
 should be chosen by the implementing service.
