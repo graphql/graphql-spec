@@ -697,7 +697,7 @@ fragment multipleArgs on Arguments {
 }
 
 fragment multipleArgsReverseOrder on Arguments {
-  multipleReqs(y: 1, x: 2)
+  multipleReqs(y: 2, x: 1)
 }
 ```
 
