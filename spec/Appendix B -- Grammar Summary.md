@@ -162,7 +162,7 @@ ObjectField[Const] : Name : Value[?Const]
 
 VariableDefinitions : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type Directives? DefaultValue?
+VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 Variable : $ Name
 

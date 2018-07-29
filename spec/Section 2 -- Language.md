@@ -986,7 +986,7 @@ Variable : $ Name
 
 VariableDefinitions : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type Directives? DefaultValue?
+VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 DefaultValue : = Value[Const]
 
