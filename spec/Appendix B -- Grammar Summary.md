@@ -162,7 +162,7 @@ ObjectField[Const] : Name : Value[?Const]
 
 VariableDefinitions : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue?
+VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 Variable : $ Name
 
@@ -296,6 +296,7 @@ ExecutableDirectiveLocation : one of
   `FRAGMENT_DEFINITION`
   `FRAGMENT_SPREAD`
   `INLINE_FRAGMENT`
+  `VARIABLE_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
   `SCHEMA`
