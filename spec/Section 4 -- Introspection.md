@@ -71,7 +71,7 @@ underscores.
 All types in the introspection system provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
 capabilities. A GraphQL server may return the `description` field using Markdown
-syntax (as specified by [CommonMark](http://commonmark.org/)). Therefore it is
+syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
 recommended that any tool that displays `description` use a CommonMark-compliant
 Markdown renderer.
 

@@ -179,7 +179,7 @@ made available via introspection.
 
 To allow GraphQL service designers to easily publish documentation alongside the
 capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](http://commonmark.org/)). In the
+Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
 type system definition language, these description strings (often {BlockString})
 occur immediately before the definition they describe.
 
@@ -438,7 +438,7 @@ encoding integer numbers larger than 32-bit.
 ### Float
 
 The Float scalar type represents signed double-precision fractional values
-as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).
+as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).
 Response formats that support an appropriate double-precision number type
 should use that type to represent this scalar.
 
@@ -517,7 +517,7 @@ often numeric, it should always serialize as a `String`.
 GraphQL is agnostic to ID format, and serializes to string to ensure consistency
 across many formats ID could represent, from small auto-increment numbers, to
 large 128-bit random numbers, to base64 encoded values, or string values of a
-format like [GUID](http://en.wikipedia.org/wiki/Globally_unique_identifier).
+format like [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier).
 
 GraphQL servers should coerce as appropriate given the ID formats they expect.
 When coercion is not possible they must raise a field error.
@@ -1766,7 +1766,7 @@ to indicate deprecated portions of a GraphQL service's schema, such as
 deprecated fields on a type or deprecated enum values.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
-Markdown syntax (as specified by [CommonMark](http://commonmark.org/)).
+Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of
 using `newField`.
