@@ -1857,7 +1857,10 @@ AreTypesCompatible(variableType, locationType):
     * Let {nullableVariableType} be the nullable type of {variableType}.
     * Return {AreTypesCompatible(nullableVariableType, locationType)}.
   * Otherwise, if {locationType} is a list type:
-    * If {variableType} is NOT a list type, return {false}.
+    * If {variableType} is NOT a list type:
+      * Let {itemLocationType} be the unwrapped item type of {locationType}.
+      * Let {nullableItemLocationType} be the unwrapped nullable type of {itemLocationType} if {itemLocationType} is non-null, or {itemLocationType} if {itemLocationType} is nullable.
+      * Return {AreTypesCompatible(variableType, nullableItemLocationType)}.
     * Let {itemLocationType} be the unwrapped item type of {locationType}.
     * Let {itemVariableType} be the unwrapped item type of {variableType}.
     * Return {AreTypesCompatible(itemVariableType, itemLocationType)}.
@@ -1884,13 +1887,24 @@ query intCannotGoIntoBoolean($intArg: Int) {
 
 ${intArg} typed as {Int} cannot be used as a argument to {booleanArg}, typed as {Boolean}.
 
-List cardinality must also be the same. For example, lists cannot be passed into singular
+List cardinality must be compatible. For example, lists cannot be passed into singular
 values.
 
 ```graphql counter-example
 query booleanListCannotGoIntoBoolean($booleanListArg: [Boolean]) {
   arguments {
     booleanArgField(booleanArg: $booleanListArg)
+  }
+}
+```
+
+However, for consistency with type coercion, singular values can be passed into lists,
+including nullable singular values for nullable lists of non-nullable values.
+
+```graphql example
+query booleanCanGoIntoBooleanList($booleanArg: Boolean!) {
+  arguments {
+    booleanListArgField(booleanListArg: $booleanArg)
   }
 }
 ```
