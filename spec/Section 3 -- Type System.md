@@ -1489,11 +1489,10 @@ Expected Type | Provided Value   | Coerced Value
 `[Int]`       | `[1, "b", true]` | Error: Incorrect item value
 `[Int]`       | `1`              | `[1]`
 `[Int]`       | `null`           | `null`
-`[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]`
+`[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`
 `[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value
 `[[Int]]`     | `1`              | `[[1]]`
 `[[Int]]`     | `null`           | `null`
-
 
 ## Non-Null
 
