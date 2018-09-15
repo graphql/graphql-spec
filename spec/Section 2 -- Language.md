@@ -884,7 +884,7 @@ For example, these two field calls are similar, but are not identical:
 }
 ```
 
-The first has explictly provided {null} to the argument "arg", while the second
+The first has explicitly provided {null} to the argument "arg", while the second
 has implicitly not provided a value to the argument "arg". These two forms may
 be interpreted differently. For example, a mutation representing deleting a
 field vs not altering a field, respectively. Neither form may be used for an

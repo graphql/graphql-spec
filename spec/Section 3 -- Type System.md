@@ -1457,10 +1457,10 @@ particular, if a non-list is returned, the coercion should fail, as this
 indicates a mismatch in expectations between the type system and the
 implementation.
 
-If a list's item type is nullable, then errors occuring during preparation or
+If a list's item type is nullable, then errors occurring during preparation or
 coercion of an individual item in the list must result in a the value {null} at
 that position in the list along with an error added to the response. If a list's
-item type is non-null, an error occuring at an individual item in the list must
+item type is non-null, an error occurring at an individual item in the list must
 result in a field error for the entire list.
 
 Note: For more information on the error handling process, see "Errors and
@@ -1524,7 +1524,7 @@ should be performed. If that result was not {null}, then the result of coercing
 the Non-Null type is that result. If that result was {null}, then a field error
 must be raised.
 
-Note: When a field error is raised on a non-null value, the error propogates to
+Note: When a field error is raised on a non-null value, the error propagates to
 the parent field. For more information on this process, see
 "Errors and Non-Nullability" within the Execution section.
 
