@@ -1649,8 +1649,7 @@ provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
 Directives must only be used in the locations they are declared to belong in.
-In this example, a directive is defined which can be used to annotate a
-fragment definition:
+In this example, a directive is defined which can be used to annotate a field:
 
 ```graphql example
 directive @example on FIELD
