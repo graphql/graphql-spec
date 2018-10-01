@@ -13,7 +13,7 @@ this open standard started in 2015.
 GraphQL has evolved and may continue to evolve in future editions of this
 specification. Previous editions of the GraphQL specification can be found at
 permalinks that match their [release tag](https://github.com/facebook/graphql/releases).
-The latest working draft release can be found at [facebook.github.io/graphql/draft/](http://facebook.github.io/graphql/draft/).
+The latest working draft release can be found at [facebook.github.io/graphql/draft/](https://facebook.github.io/graphql/draft/).
 
 **Copyright notice**
 
