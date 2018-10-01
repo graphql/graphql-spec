@@ -1489,7 +1489,7 @@ Expected Type | Provided Value   | Coerced Value
 `[Int]`       | `[1, "b", true]` | Error: Incorrect item value
 `[Int]`       | `1`              | `[1]`
 `[Int]`       | `null`           | `null`
-`[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]`
+`[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`
 `[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value
 `[[Int]]`     | `1`              | `[[1]]`
 `[[Int]]`     | `null`           | `null`
@@ -1745,7 +1745,7 @@ query myQuery($someTest: Boolean) {
 ```
 
 Note: Neither `@skip` nor `@include` has precedence over the other. In the case
-that both the `@skip` and `@include` directives are provided in on the same the
+that both the `@skip` and `@include` directives are provided on the same
 field or fragment, it *must* be queried only if the `@skip` condition is false
 *and* the `@include` condition is true. Stated conversely, the field or fragment
 must *not* be queried if either the `@skip` condition is true *or* the
