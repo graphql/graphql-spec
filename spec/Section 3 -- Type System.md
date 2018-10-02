@@ -1065,6 +1065,7 @@ Interface types have the potential to be invalid if incorrectly defined.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+3. An Interface type must be implemented by at least one Object type.
 
 
 ### Interface Extensions
