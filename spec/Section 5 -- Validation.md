@@ -1938,9 +1938,9 @@ A notable exception to typical variable type compatibility is allowing a
 variable definition with a nullable type to be provided to a non-null location
 as long as either that variable or that location provides a default value.
 
-In the example below, an optional variable is allowed to be used in an 
-non-null optional argument (`optionalBooleanArg`) because it provides a default 
-value (`false`).
+In the example below, an optional variable `$booleanArg` is allowed to be used
+in the non-null argument `optionalBooleanArg` because the field argument is
+optional since it provides a default value in the schema.
 
 ```graphql example
 query booleanArgQueryWithDefault($booleanArg: Boolean) {
@@ -1950,11 +1950,12 @@ query booleanArgQueryWithDefault($booleanArg: Boolean) {
 }
 ```
 
-In the example below, an optional variable (`$booleanArg`) provides a default 
-value (`true`) and can be used in a non-null requied argument. This behavior is 
-explicitly supported for compatibility with earlier editions of this 
-specification. GraphQL authoring tools may wish to report this is a warning with 
-the suggestion to replace `Boolean` with `Boolean!` to avoid ambiguity.
+In the example below, an optional variable `$booleanArg` is allowed to be used
+in the non-null argument (`nonNullBooleanArg`) because the variable provides
+a default value in the query. This behavior is explicitly supported for
+compatibility with earlier editions of this specification. GraphQL authoring
+tools may wish to report this is a warning with the suggestion to replace
+`Boolean` with `Boolean!` to avoid ambiguity.
 
 ```graphql example
 query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
