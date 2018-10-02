@@ -1,11 +1,11 @@
-#    Please do not ask general questions via Issues    #
+!!! IMPORTANT !!!
 
-Instead, find community resources at https://graphql.org/community/
+Before creating your issue:
 
-#    Please do not make feature requests via Issues    #
+* Have a question? Find community resources at https://graphql.org/community/
 
-Instead, read https://github.com/facebook/graphql/blob/master/CONTRIBUTING.md and create a Pull Request!
+* Find an editing mistake? Create a Pull Request with the edited fix! The Github UI allows you to edit files directly, find the source files at: https://github.com/facebook/graphql/tree/master/spec
 
-#    Please do not report spelling or editing mistakes via Issues    #
+* Improvements to documentation? Head over to https://github.com/graphql/graphql.github.io
 
-Instead, create a Pull Request with the edited fix! The Github UI allows you to edit files directly, find the source files at: https://github.com/facebook/graphql/tree/master/spec
+* Feature request? First read https://github.com/facebook/graphql/blob/master/CONTRIBUTING.md and prefer creating a Pull Request!
