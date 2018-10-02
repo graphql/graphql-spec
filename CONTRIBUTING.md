@@ -178,7 +178,7 @@ solution is preferred. A *draft's* goal is to precisely and completely describe
 the solution and resolve any concerns through library implementations. A *draft*
 must be a pull request.
 
-*Entrance criteria*
+*Entrance criteria:*
 
 * Consensus the solution is preferred (typically via Working Group)
 * Resolution of identified concerns and challenges
@@ -205,7 +205,7 @@ editor it is ready to be merged as-is into the spec document. The RFC is
 ready to be deployed in GraphQL libraries. An *accepted* RFC must be 
 implemented in GraphQL.js.
 
-*Entrance criteria*
+*Entrance criteria:*
 
 * Consensus the solution is complete (via editor or working group)
 * Complete spec edits, including examples and prose
