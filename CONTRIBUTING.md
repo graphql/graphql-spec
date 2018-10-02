@@ -65,7 +65,7 @@ move forward. See editor Lee Byron talk about
   As GraphQL is implemented in over a dozen languages under the collaboration
   of hundreds of individuals, incorporating any change has a high cost.
   Accordingly, proposed changes must meet a very high bar of added value.
-  The burden of proof of value is on the contributor to illustrate this value.
+  The burden of proof is on the contributor to illustrate this value.
 
 * **Enable new capabilities motivated by real use cases**
 
@@ -116,7 +116,7 @@ entrance criteria and next steps detailed below. RFCs typically advance one
 stage at a time, however may advance multiple stages at a time. Stage
 advancements typically occur during
 [Working Group](https://github.com/graphql/graphql-wg) meetings, however may
-occur online.
+occur on GitHub.
 
 All RFCs start as either a *strawman* or *proposal*.
 
@@ -124,9 +124,9 @@ All RFCs start as either a *strawman* or *proposal*.
 
 A RFC at the *strawman* stage captures a described problem or
 partially-considered solutions. A *strawman* does not need to meet any entrance
-criteria. A *strawman's* goal is prove or disprove a problem and guide
-discussion towards rejection or a preferred solution. A *strawman* may be an
-issue or a pull request (though an illustrative pull request is preferrable).
+criteria. A *strawman's* goal is to prove or disprove a problem and guide
+discussion towards either rejection or a preferred solution. A *strawman* may 
+be an issue or a pull request (though an illustrative pull request is preferrable).
 
 *There is no entrance criteria for a Strawman*
 
@@ -160,19 +160,20 @@ A *proposal* is subject to the same discussion as a *strawman*: ensuring that it
 is well aligned with the *guiding principles*, is a problem worth solving, and
 is the preferred solution to that problem. A *champion* is not expected to have
 confidence in every detail at this stage and should instead focus on identifying
-and resolving issues and edge-cases. To better understand the ramifications of a
-*proposal*, a *champion* is encouraged to implement it in a GraphQL library.
+and resolving issues and edge-cases. To better understand the technical 
+ramifications of the *proposal*, a *champion* is encouraged to implement it in a 
+GraphQL library.
 
 Most *proposals* are expected to evolve or change and may be rejected. Therefore,
 it is unwise to rely on a *proposal* in a production GraphQL service. GraphQL
 libraries *may* implement *proposals*, though are encouraged to not enable the
-*proposal* feature without explicit opt-in.
+*proposed* feature without explicit opt-in.
 
 
 ## Stage 2: *Draft*
 
 An RFC at the *draft* stage is a fully formed solution. There is working group
-consensus that the problem identified is worth solving, and this particular
+consensus that the problem identified should be solved, and this particular
 solution is preferred. A *draft's* goal is to precisely and completely describe
 the solution and resolve any concerns through library implementations. A *draft*
 must be a pull request.
@@ -182,7 +183,7 @@ must be a pull request.
 * Consensus the solution is preferred (typically via Working Group)
 * Resolution of identified concerns and challenges
 * Precisely described with spec edits
-* Compliant implementation in GraphQL.js (via unmerged pull request)
+* Compliant implementation in GraphQL.js (might not be merged)
 
 A *proposal* becomes a *draft* when the set of problems or drawbacks have been
 fully considered and accepted or resolved, and the solution is deemed
@@ -200,15 +201,15 @@ feature without explicit opt-in when possible.
 ## Stage 3: *Accepted*
 
 An RFC at the *accepted* stage is a completed solution. According to a spec
-editor it is ready to be merged as-is into the spec. The RFC is ready to be
-deployed in GraphQL libraries. An *accepted* RFC must be implemented
-in GraphQL.js.
+editor it is ready to be merged as-is into the spec document. The RFC is 
+ready to be deployed in GraphQL libraries. An *accepted* RFC must be 
+implemented in GraphQL.js.
 
 *Entrace criteria*
 
 * Consensus the solution is complete (via editor or working group)
 * Complete spec edits, including examples and prose
-* Compliant implementation in GraphQL.js (fully tested and merged)
+* Compliant implementation in GraphQL.js (fully tested and merged or ready to merge)
 
 A *draft* is *accepted* when it has learned via implementation and tests that it
 appropriately handles all edge cases, that the spec edits do not only precisely
