@@ -165,7 +165,7 @@ adds additional operation types, or additional directives to an existing schema.
 Schema extensions have the potential to be invalid if incorrectly defined.
 
 1. The Schema must already be defined.
-2. Any unique directives provided must not already apply to the original Schema.
+2. Any non-`repeatable` directives provided must not already apply to the original Schema.
 
 
 ## Descriptions
@@ -544,7 +544,7 @@ GraphQL tool or service which adds directives to an existing scalar.
 Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Scalar type.
-2. Any unique directives provided must not already apply to the original Scalar type.
+2. Any non-`repeatable` directives provided must not already apply to the original Scalar type.
 
 
 ## Objects
@@ -934,7 +934,7 @@ Object type extensions have the potential to be invalid if incorrectly defined.
    may share the same name.
 3. Any fields of an Object type extension must not be already defined on the
    original Object type.
-4. Any unique directives provided must not already apply to the original Object type.
+4. Any non-`repeatable` directives provided must not already apply to the original Object type.
 5. Any interfaces provided must not be already implemented by the original
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
@@ -1116,7 +1116,7 @@ Interface type extensions have the potential to be invalid if incorrectly define
 4. Any Object type which implemented the original Interface type must also be a
    super-set of the fields of the Interface type extension (which may be due to
    Object type extension).
-5. Any unique directives provided must not already apply to the original Interface type.
+5. Any non-`repeatable` directives provided must not already apply to the original Interface type.
 
 
 ## Unions
@@ -1239,7 +1239,7 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
    the original Union type.
-5. Any unique directives provided must not already apply to the original Union type.
+5. Any non-`repeatable` directives provided must not already apply to the original Union type.
 
 ## Enums
 
@@ -1308,7 +1308,7 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 2. All values of an Enum type extension must be unique.
 3. All values of an Enum type extension must not already be a value of
    the original Enum.
-4. Any unique directives provided must not already apply to the original Enum type.
+4. Any non-`repeatable` directives provided must not already apply to the original Enum type.
 
 
 ## Input Objects
@@ -1437,7 +1437,7 @@ Input object type extensions have the potential to be invalid if incorrectly def
 3. All fields of an Input Object type extension must have unique names.
 4. All fields of an Input Object type extension must not already be a field of
    the original Input Object.
-5. Any unique directives provided must not already apply to the original Input Object type.
+5. Any non-`repeatable` directives provided must not already apply to the original Input Object type.
 
 
 ## List
@@ -1606,7 +1606,7 @@ Expected Type | Internal Value   | Coerced Result
 
 ## Directives
 
-DirectiveDefinition : Description? `unique`? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
   - `|`? DirectiveLocation
@@ -1660,10 +1660,10 @@ fragment SomeFragment on SomeType {
 }
 ```
 
-Directive may be defined as unique per location with the `unique` keyword:
+Directive may be defined as repeatable per location with the `repeatable` keyword:
 
 ```graphql example
-unique directive @example on OBJECT | INTERFACE
+directive @example repeatable on OBJECT | INTERFACE
 ```
 
 Directive locations may be defined with an optional leading `|` character to aid
@@ -1715,7 +1715,7 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 ### @skip
 
 ```graphql
-unique directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@skip` directive may be provided for fields, fragment spreads, and
@@ -1735,7 +1735,7 @@ query myQuery($someTest: Boolean) {
 ### @include
 
 ```graphql
-unique directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@include` directive may be provided for fields, fragment spreads, and
@@ -1762,7 +1762,7 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ### @deprecated
 
 ```graphql
-unique directive @deprecated(
+directive @deprecated(
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
 ```

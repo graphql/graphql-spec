@@ -418,4 +418,4 @@ Fields
   locations this directive may be placed.
 * `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
-* `unique` must return a Boolean which identifies the directive as unique per location.
+* `repeatable` must return a Boolean which permits using the directive multiple times at the same location.

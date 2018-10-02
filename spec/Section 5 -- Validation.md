@@ -1440,7 +1440,7 @@ query @skip(if: $foo) {
 **Formal Specification**
 
   * For every {location} in the document for which Directives can apply:
-    * Let {directives} be the set of Directives which apply to {location} and marked as `unique`.
+    * Let {directives} be the set of Directives which apply to {location} and not marked as `repeatable`.
     * For each {directive} in {directives}:
       * Let {directiveName} be the name of {directive}.
       * Let {namedDirectives} be the set of all Directives named {directiveName}
