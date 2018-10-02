@@ -1644,7 +1644,8 @@ A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
 
-GraphQL implementations should provide the `@skip` and `@include` directives.
+GraphQL implementations should provide the `@skip`, `@include` and
+`ignoreIfUnknown` directives.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
@@ -1753,6 +1754,20 @@ field or fragment, it *must* be queried only if the `@skip` condition is false
 must *not* be queried if either the `@skip` condition is true *or* the
 `@include` condition is false.
 
+### @ignoreIfUnknown
+
+The `@ignoreIfUnknown` directive may be provided for fields to safely ignore
+them during validation and execution of the query in case they are not defined.
+
+In this example `experimentalField` will be queried only if Query type defines
+this field. However, this query will always pass validation even if 
+`experimentalField` is not defined inside Query type.
+
+```graphql
+{
+  experimentalField @ignoreIfUnknown
+}
+```
 
 ### @deprecated
 
