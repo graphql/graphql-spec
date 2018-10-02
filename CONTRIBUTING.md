@@ -35,8 +35,9 @@ or RFC *draft*. In fact, a spec contribution RFC won't be *accepted* until it
 has experience being implemented in a GraphQL library.
 
 To allow a library to remain spec compliant while also implementing *proposals*
-or *drafts*, these features are often either disabled by default or might simply
-wait to merge a well-tested pull request until the spec proposal is *accepted*.
+and *drafts*, it may request that these features are built so they are disabled
+by default with opt-in option flags or it may simply wait to merge a well-tested
+pull request until the spec proposal is *accepted*.
 
 
 ## Guiding Principles
@@ -88,6 +89,7 @@ move forward. See editor Lee Byron talk about
   option to loosen when motivated by a real use case.
 
 * **Understandability is just as important as correctness**
+
   The GraphQL spec, despite describing technical behavior, is intended to be
   read by people. Use natural tone and include motivation and examples.
 
@@ -120,10 +122,11 @@ All RFCs start as either a *strawman* or *proposal*.
 
 ## Stage 0: *Strawman*
 
-The *strawman* stage captures described problems or partially-considered
-solutions which lack the entrance criteria to be considered a *proposal*. A
-*strawman* may be an issue or a pull request (though an illustrative pull
-request is preferrable).
+A RFC at the *strawman* stage captures a described problem or
+partially-considered solutions. A *strawman* does not need to meet any entrance
+criteria. A *strawman's* goal is prove or disprove a problem and guide
+discussion towards rejection or a preferred solution. A *strawman* may be an
+issue or a pull request (though an illustrative pull request is preferrable).
 
 *There is no entrance criteria for a Strawman*
 
@@ -140,9 +143,10 @@ criteria for *proposal*.
 ## Stage 1: *Proposal*
 
 An RFC at the *proposal* stage is a solution to a problem with enough fidelity
-to be discussed in detail, backed by a willing *champion*. A *proposal*'s goal
-is to make a compelling case for acceptance by describing both the problem and
-the solution via examples and spec edits. A *proposal* should be a pull request.
+to be discussed in detail. It must be backed by a willing *champion*.
+A *proposal*'s goal is to make a compelling case for acceptance by describing
+both the problem and the solution via examples and spec edits. A *proposal*
+should be a pull request.
 
 *Entrance criteria:*
 
@@ -167,10 +171,11 @@ libraries *may* implement *proposals*, though are encouraged to not enable the
 
 ## Stage 2: *Draft*
 
-An RFC at the *draft* stage is a fully formed solution which has working group
-consensus that it is a problem worth solving and the solution is preferred.
-A *draft's* goal is to precisely and completely describe the solution and
-resolve any implementation concerns. A *draft* must be a pull request.
+An RFC at the *draft* stage is a fully formed solution. There is working group
+consensus that the problem identified is worth solving, and this particular
+solution is preferred. A *draft's* goal is to precisely and completely describe
+the solution and resolve any concerns through library implementations. A *draft*
+must be a pull request.
 
 *Entrance criteria*
 
@@ -194,9 +199,10 @@ feature without explicit opt-in when possible.
 
 ## Stage 3: *Accepted*
 
-An RFC at the *accepted* stage is a completed solution which is ready to be
-merged as-is into the spec according to a spec editor and is ready to be
-deployed in GraphQL libraries.
+An RFC at the *accepted* stage is a completed solution. According to a spec
+editor it is ready to be merged as-is into the spec. The RFC is ready to be
+deployed in GraphQL libraries. An *accepted* RFC must be implemented
+in GraphQL.js.
 
 *Entrace criteria*
 
