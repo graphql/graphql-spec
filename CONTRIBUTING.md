@@ -205,7 +205,7 @@ editor it is ready to be merged as-is into the spec document. The RFC is
 ready to be deployed in GraphQL libraries. An *accepted* RFC must be 
 implemented in GraphQL.js.
 
-*Entrace criteria*
+*Entrance criteria*
 
 * Consensus the solution is complete (via editor or working group)
 * Complete spec edits, including examples and prose
