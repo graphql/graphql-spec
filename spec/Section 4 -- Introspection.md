@@ -187,7 +187,7 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  unique: Boolean!
+  isRepeatable: Boolean!
 }
 
 enum __DirectiveLocation {
@@ -418,4 +418,4 @@ Fields
   locations this directive may be placed.
 * `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
-* `repeatable` must return a Boolean which permits using the directive multiple times at the same location.
+* `isRepeatable` must return a Boolean which permits using the directive multiple times at the same location.
