@@ -1663,7 +1663,13 @@ fragment SomeFragment on SomeType {
 Directive may be defined as repeatable per location with the `repeatable` keyword:
 
 ```graphql example
-directive @example repeatable on OBJECT | INTERFACE
+directive @delegateField(name: String!) repeatable on OBJECT | INTERFACE
+
+type Book @delegateField(name: "pageCount") @delegateField(name: "author") {
+  id: ID!
+}
+
+extend type Book @delegateField(name: "index")
 ```
 
 Directive locations may be defined with an optional leading `|` character to aid
