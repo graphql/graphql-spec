@@ -1660,7 +1660,10 @@ fragment SomeFragment on SomeType {
 }
 ```
 
-Directive may be defined as repeatable per location with the `repeatable` keyword:
+A directive may be defined as repeatable per location with the `repeatable` keyword. 
+Repeatable directives often useful when the same directive should be used with 
+different arguments at the one location, especially in cases where additional information 
+need to be provided in a form of directive via a type or a schema extension:
 
 ```graphql example
 directive @delegateField(name: String!) repeatable on OBJECT | INTERFACE
