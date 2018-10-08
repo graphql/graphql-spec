@@ -1660,8 +1660,8 @@ fragment SomeFragment on SomeType {
 }
 ```
 
-A directive may be defined as repeatable per location with the `repeatable` keyword. 
-Repeatable directives often useful when the same directive should be used with 
+A directive may be defined as repeatable at any permitted location with the `repeatable` 
+keyword. Repeatable directives often useful when the same directive should be used with 
 different arguments at the one location, especially in cases where additional information 
 need to be provided in a form of directive via a type or a schema extension:
 
