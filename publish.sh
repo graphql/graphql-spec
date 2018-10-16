@@ -16,12 +16,12 @@ git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/graphql.git" gh-p
 # Replace /draft with this build.
 echo "Publishing to: /draft"
 rm -rf gh-pages/draft
-cp -r out/ gh-pages/draft
+cp -R out/ gh-pages/draft
 
 # If this is a tagged commit, publish to a permalink and index.
 if [ -n "$GITTAG" ]; then
   echo "Publishing to: /$GITTAG"
-  cp -r out/ "gh-pages/$GITTAG"
+  cp -R out/ "gh-pages/$GITTAG"
 fi
 
 # Create the index file
