@@ -401,9 +401,9 @@ Fields
 
 * `name` must return a String
 * `description` may return a String or {null}
-* `isDeprecated` returns {true} if this field should no longer be used,
+* `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this field is deprecated.
+* `deprecationReason` optionally provides a reason why this enum value is deprecated.
 
 ### The __Directive Type
 
