@@ -1901,7 +1901,7 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
 ```
 
 The `@deprecated` directive is used within the type system definition language
@@ -1918,5 +1918,17 @@ using `newField`.
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
+}
+```
+
+In this example type definition, `oldArg` is deprecated in favor of
+using `newArg`.
+
+```graphql example
+type ExampleType {
+  existingField(
+    newArg: String,
+    oldArg: String @deprecated(reason: "Use `newArg`.")
+  ): String
 }
 ```

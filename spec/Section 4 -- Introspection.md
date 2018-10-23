@@ -50,7 +50,7 @@ would return
       {
         "name": "birthday",
         "type": { "name": "Date" }
-      },
+      }
     ]
   }
 }
@@ -59,12 +59,11 @@ would return
 ## Reserved Names
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined types and fields are prefixed with {"__"} two
+the same context as user-defined types and fields are prefixed with {"\_\_"} two
 underscores. This in order to avoid naming collisions with user-defined GraphQL
 types. Conversely, GraphQL type system authors must not define any types,
 fields, arguments, or any other type system artifact with two leading
 underscores.
-
 
 ## Documentation
 
@@ -74,7 +73,6 @@ capabilities. A GraphQL server may return the `description` field using Markdown
 syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
 recommended that any tool that displays `description` use a CommonMark-compliant
 Markdown renderer.
-
 
 ## Deprecation
 
@@ -86,7 +84,6 @@ Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
 warnings.
 
-
 ## Type Name Introspection
 
 GraphQL supports type name introspection at any point within a query by the
@@ -97,7 +94,6 @@ This is most often used when querying against Interface or Union types to
 identify which actual type of the possible types has been returned.
 
 This field is implicit and does not appear in the fields list in any defined type.
-
 
 ## Schema Introspection
 
@@ -143,7 +139,7 @@ type __Type {
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
   # should be non-null for INPUT_OBJECT only, must be null for the others
-  inputFields: [__InputValue!]
+  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
@@ -163,6 +159,8 @@ type __InputValue {
   description: String
   type: __Type!
   defaultValue: String
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 type __EnumValue {
@@ -213,8 +211,7 @@ enum __DirectiveLocation {
 }
 ```
 
-
-### The __Type Type
+### The \_\_Type Type
 
 `__Type` is at the core of the type introspection system.
 It represents scalars, interfaces, object types, unions, enums, input objects types in the system.
@@ -223,12 +220,10 @@ It represents scalars, interfaces, object types, unions, enums, input objects ty
 that it refers to (`ofType: __Type`). This is how we represent lists,
 non-nullable types, and the combinations thereof.
 
-
 ### Type Kinds
 
 There are several different kinds of type. In each kind, different fields are
 actually valid. These kinds are listed in the `__TypeKind` enumeration.
-
 
 #### Scalar
 
@@ -239,11 +234,10 @@ rules in the description field of any scalar.
 
 Fields
 
-* `kind` must return `__TypeKind.SCALAR`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* All other fields must return {null}.
-
+- `kind` must return `__TypeKind.SCALAR`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- All other fields must return {null}.
 
 #### Object
 
@@ -252,15 +246,14 @@ introspection types (e.g. `__Type`, `__Field`, etc) are examples of objects.
 
 Fields
 
-* `kind` must return `__TypeKind.OBJECT`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* `fields`: The set of fields query-able on this type.
-  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+- `kind` must return `__TypeKind.OBJECT`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `fields`: The set of fields query-able on this type.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `interfaces`: The set of interfaces that an object implements.
-* All other fields must return {null}.
-
+- `interfaces`: The set of interfaces that an object implements.
+- All other fields must return {null}.
 
 #### Union
 
@@ -270,13 +263,12 @@ made parts of unions without modification of that type.
 
 Fields
 
-* `kind` must return `__TypeKind.UNION`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* `possibleTypes` returns the list of types that can be represented within this
+- `kind` must return `__TypeKind.UNION`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
-* All other fields must return {null}.
-
+- All other fields must return {null}.
 
 #### Interface
 
@@ -287,17 +279,16 @@ out in `possibleTypes`.
 
 Fields
 
-* `kind` must return `__TypeKind.INTERFACE`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* `fields`: The set of fields required by this interface.
-  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+- `kind` must return `__TypeKind.INTERFACE`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `fields`: The set of fields required by this interface.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `interfaces`: The set of interfaces that this interface implements.
-* `possibleTypes` returns the list of types that implement this interface.
+- `interfaces`: The set of interfaces that this interface implements.
+- `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
-* All other fields must return {null}.
-
+- All other fields must return {null}.
 
 #### Enum
 
@@ -305,15 +296,14 @@ Enums are special scalars that can only have a defined set of values.
 
 Fields
 
-* `kind` must return `__TypeKind.ENUM`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* `enumValues`: The list of `EnumValue`. There must be at least one and they
+- `kind` must return `__TypeKind.ENUM`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `enumValues`: The list of `EnumValue`. There must be at least one and they
   must have unique names.
-  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
-* All other fields must return {null}.
-
+- All other fields must return {null}.
 
 #### Input Object
 
@@ -331,12 +321,13 @@ input Point {
 
 Fields
 
-* `kind` must return `__TypeKind.INPUT_OBJECT`.
-* `name` must return a String.
-* `description` may return a String or {null}.
-* `inputFields`: a list of `InputValue`.
-* All other fields must return {null}.
-
+- `kind` must return `__TypeKind.INPUT_OBJECT`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `inputFields`: a list of `InputValue`.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated enum values are also returned.
+- All other fields must return {null}.
 
 #### List
 
@@ -346,10 +337,9 @@ each item in the list.
 
 Fields
 
-* `kind` must return `__TypeKind.LIST`.
-* `ofType`: Any type.
-* All other fields must return {null}.
-
+- `kind` must return `__TypeKind.LIST`.
+- `ofType`: Any type.
+- All other fields must return {null}.
 
 #### Non-Null
 
@@ -359,66 +349,67 @@ A Non-null type is a type modifier: it wraps another type instance in the
 `ofType` field. Non-null types do not allow {null} as a response, and indicate
 required inputs for arguments and input object fields.
 
-* `kind` must return `__TypeKind.NON_NULL`.
-* `ofType`: Any type except Non-null.
-* All other fields must return {null}.
+- `kind` must return `__TypeKind.NON_NULL`.
+- `ofType`: Any type except Non-null.
+- All other fields must return {null}.
 
-
-### The __Field Type
+### The \_\_Field Type
 
 The `__Field` type represents each field in an Object or Interface type.
 
 Fields
 
-* `name` must return a String
-* `description` may return a String or {null}
-* `args` returns a List of `__InputValue` representing the arguments this
+- `name` must return a String
+- `description` may return a String or {null}
+- `args` returns a List of `__InputValue` representing the arguments this
   field accepts.
-* `type` must return a `__Type` that represents the type of value returned by
+- `type` must return a `__Type` that represents the type of value returned by
   this field.
-* `isDeprecated` returns {true} if this field should no longer be used,
+- `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this field is deprecated.
+- `deprecationReason` optionally provides a reason why this field is deprecated.
 
-
-### The __InputValue Type
+### The \_\_InputValue Type
 
 The `__InputValue` type represents field and directive arguments as well as the
 `inputFields` of an input object.
 
 Fields
 
-* `name` must return a String
-* `description` may return a String or {null}
-* `type` must return a `__Type` that represents the type this input
+- `name` must return a String
+- `description` may return a String or {null}
+- `type` must return a `__Type` that represents the type this input
   value expects.
-* `defaultValue` may return a String encoding (using the GraphQL language) of the
+- `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
+- `isDeprecated` returns {true} if this field or argument should no longer be used,
+  otherwise {false}.
+- `deprecationReason` optionally provides a reason why this field or argument is deprecated.
 
-### The __EnumValue Type
+### The \_\_EnumValue Type
 
 The `__EnumValue` type represents one of possible values of an enum.
 
 Fields
 
-* `name` must return a String
-* `description` may return a String or {null}
-* `isDeprecated` returns {true} if this enum value should no longer be used,
+- `name` must return a String
+- `description` may return a String or {null}
+- `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this enum value is deprecated.
+- `deprecationReason` optionally provides a reason why this enum value is deprecated.
 
-### The __Directive Type
+### The \_\_Directive Type
 
 The `__Directive` type represents a Directive that a server supports.
 
 Fields
 
-* `name` must return a String
-* `description` may return a String or {null}
-* `locations` returns a List of `__DirectiveLocation` representing the valid
+- `name` must return a String
+- `description` may return a String or {null}
+- `locations` returns a List of `__DirectiveLocation` representing the valid
   locations this directive may be placed.
-* `args` returns a List of `__InputValue` representing the arguments this
+- `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
-* `isRepeatable` must return a Boolean that indicates if the directive may be
+- `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
