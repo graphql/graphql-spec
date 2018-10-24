@@ -1906,26 +1906,20 @@ directive @deprecated(
 
 The `@deprecated` directive is used within the type system definition language
 to indicate deprecated portions of a GraphQL service's schema, such as
-deprecated fields on a type or deprecated enum values.
+deprecated fields on a type or input, deprecated arguments, or deprecated 
+enum values.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of
-using `newField`.
+using `newField` and `oldArg` is deprecated in favor of using `newArg`
 
 ```graphql example
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
-}
-```
 
-In this example type definition, `oldArg` is deprecated in favor of
-using `newArg`.
-
-```graphql example
-type ExampleType {
   existingField(
     newArg: String,
     oldArg: String @deprecated(reason: "Use `newArg`.")

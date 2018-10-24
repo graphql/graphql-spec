@@ -148,7 +148,7 @@ type __Type {
 type __Field {
   name: String!
   description: String
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -321,6 +321,7 @@ input Point {
 
 Fields
 
+<<<<<<< HEAD
 - `kind` must return `__TypeKind.INPUT_OBJECT`.
 - `name` must return a String.
 - `description` may return a String or {null}.
@@ -328,6 +329,16 @@ Fields
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 - All other fields must return {null}.
+=======
+* `kind` must return `__TypeKind.INPUT_OBJECT`.
+* `name` must return a String.
+* `description` may return a String or {null}.
+* `inputFields`: a list of `InputValue`.
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
+* All other fields must return {null}.
+
+>>>>>>> Update with suggested fixes
 
 #### List
 
@@ -363,7 +374,13 @@ Fields
 - `description` may return a String or {null}
 - `args` returns a List of `__InputValue` representing the arguments this
   field accepts.
+<<<<<<< HEAD
 - `type` must return a `__Type` that represents the type of value returned by
+=======
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated arguments are also returned.
+* `type` must return a `__Type` that represents the type of value returned by
+>>>>>>> Update with suggested fixes
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
@@ -385,7 +402,11 @@ Fields
   provided at runtime. If this input value has no default value, returns {null}.
 - `isDeprecated` returns {true} if this field or argument should no longer be used,
   otherwise {false}.
+<<<<<<< HEAD
 - `deprecationReason` optionally provides a reason why this field or argument is deprecated.
+=======
+* `deprecationReason` optionally provides a reason why this input field or argument is deprecated.
+>>>>>>> Update with suggested fixes
 
 ### The \_\_EnumValue Type
 
