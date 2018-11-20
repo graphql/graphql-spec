@@ -172,7 +172,7 @@ Schema extensions have the potential to be invalid if incorrectly defined.
 
 Description : StringValue
 
-Documentation is first-class feature of GraphQL type systems. To ensure
+Documentation is a first-class feature of GraphQL type systems. To ensure
 the documentation of a GraphQL service remains consistent with its capabilities,
 descriptions of GraphQL definitions are provided alongside their definitions and
 made available via introspection.
