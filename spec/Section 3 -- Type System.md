@@ -349,7 +349,7 @@ scalar Url
 ```
 
 A server may omit any of the built-in scalars from its schema, for example if a
-schema does not refer to a floating-point number, then it must not include the
+schema does not refer to a floating-point number, then it may omit the
 `Float` type. However, if a schema includes a type with the name of one of the
 types described here, it must adhere to the behavior described. As an example,
 a server must not include a type called `Int` and use it to represent
