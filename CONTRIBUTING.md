@@ -2,7 +2,7 @@
 
 GraphQL is still an evolving language. This repository contains the
 specification text as well as Pull Requests with suggested improvements and
-contibutions.
+contributions.
 
 Contributions which do not change the interpretation of the spec but instead
 improve legibility, fix editorial errors, clear up ambiguity and improve
@@ -187,7 +187,7 @@ must be a pull request.
 
 A *proposal* becomes a *draft* when the set of problems or drawbacks have been
 fully considered and accepted or resolved, and the solution is deemed
-desireable. A *draft*'s goal is to complete final spec edits that are ready to
+desirable. A *draft*'s goal is to complete final spec edits that are ready to
 be merged and implement the *draft* in GraphQL libraries along with tests to
 gain confidence that the spec text is sufficient.
 
@@ -216,7 +216,7 @@ appropriately handles all edge cases, that the spec edits do not only precisely
 describe the new syntax and semantics but include motivating prose, examples,
 and include edits to any other affected areas of the spec. Once *accepted*, a
 *champion* should encourage adoption of the RFC by opening issues or pull
-requests on other popular GraphQL libaries.
+requests on other popular GraphQL libraries.
 
 An *accepted* RFC is merged into the GraphQL spec's master branch by an editor
 and will be included in the next released revision.
@@ -229,7 +229,7 @@ An RFC may be *rejected* at any point and for any reason. Most often because a
 principles*, or failed to meet the entrance criteria to become a *proposal*.
 A *proposal* may become *rejected* for similar reasons as well as if it fails to
 reach consensus or loses the confidence of its *champion*. Likewise a *draft*
-may encounter unforseen issues during implementions which cause it to lose
+may encounter unforeseen issues during implementations which cause it to lose
 consensus or the confidence of its *champion*.
 
 RFCs which have lost a *champion* will not be *rejected* immediately, but may
