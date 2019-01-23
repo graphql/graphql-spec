@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
-
+#https://github.com/oscarg933/apollo-1.git 
 # Build the specification document into publishable form
 echo "Building spec"
 npm run build > /dev/null 2>&1
