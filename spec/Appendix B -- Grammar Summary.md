@@ -285,6 +285,7 @@ DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
 
 DirectiveLocation :
+  - `DOCUMENT`
   - ExecutableDirectiveLocation
   - TypeSystemDirectiveLocation
 

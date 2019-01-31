@@ -190,6 +190,7 @@ type __Directive {
 }
 
 enum __DirectiveLocation {
+  DOCUMENT
   QUERY
   MUTATION
   SUBSCRIPTION

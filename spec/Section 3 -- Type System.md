@@ -1614,6 +1614,7 @@ DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
 
 DirectiveLocation :
+  - `DOCUMENT`
   - ExecutableDirectiveLocation
   - TypeSystemDirectiveLocation
 
@@ -1669,6 +1670,14 @@ directive @example on
   | FIELD
   | FRAGMENT_SPREAD
   | INLINE_FRAGMENT
+```
+
+Special directive location `DOCUMENT` allows free top level directives:
+
+```graphql example
+directive @import(from: String! only:[String!]) on DOCUMENT
+
+@import(from: "./common.graphql")
 ```
 
 Directives can also be used to annotate the type system definition language
