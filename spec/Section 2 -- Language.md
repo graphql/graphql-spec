@@ -169,10 +169,9 @@ characters to support interoperation with as many other systems as possible.
 
 ## Document
 
-Document : Definition+
+Document : Directives[Const]? Definition+
 
 Definition :
-  - DocumentDirective
   - ExecutableDefinition
   - TypeSystemDefinition
   - TypeSystemExtension
@@ -1095,24 +1094,3 @@ and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives.
-
-
-## Document Directives
-
-DocumentDirective :
-  - Directive[Const]
-
-{DocumentDirective} is special kind of {Definition} and should be handled
-on AST level by implementation in similar way like {TypeSystemDefinition}
-or {ExecutableDefinition}.
-
-Documents of any kind may contain zero or more {DocumentDirective}s.
-Same directive may be repeated multiple times at document level:
-
-```graphql example
-@import(from: "./common")
-@import(from: "./user")
-```
-
-Unknown directives may be ignored, but it is recommended for services to fail
-if directive is not recognized.

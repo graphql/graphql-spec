@@ -1672,14 +1672,6 @@ directive @example on
   | INLINE_FRAGMENT
 ```
 
-Special directive location `DOCUMENT` allows free top level directives:
-
-```graphql example
-directive @import(from: String! only:[String!]) on DOCUMENT
-
-@import(from: "./common.graphql")
-```
-
 Directives can also be used to annotate the type system definition language
 as well, which can be a useful tool for supplying additional metadata in order
 to generate GraphQL execution services, produce client generated runtime code,

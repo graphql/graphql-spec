@@ -91,16 +91,12 @@ lines and uniform indentation with {BlockStringValue()}.
 
 ## Document
 
-Document : Definition+
+Document : Directives[Const]? Definition+
 
 Definition :
-  - DocumentDirective
   - ExecutableDefinition
   - TypeSystemDefinition
   - TypeSystemExtension
-
-DocumentDirective :
-  - Directive[Const]
 
 ExecutableDefinition :
   - OperationDefinition
