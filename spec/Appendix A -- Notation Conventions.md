@@ -43,6 +43,20 @@ ListOfLetterA :
   - `a`
   - ListOfLetterA `a`
 
+The GraphQL grammar is greedy; this means that given a choice between matching an optional token or a subsequent rule, the optional token prevails. For example, given the following grammar:
+
+Example :
+  - Letters 
+  - Letters Example
+
+Letters :
+  - `a` LetterB?
+  - LetterB
+
+LetterB :: `b`
+
+The sequence of tokens `ab` are matched by a single {Letters} production, rather than two productions matching `a` and `b`, respectively.
+
 
 ## Lexical and Syntactical Grammar
 
