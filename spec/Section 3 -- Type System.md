@@ -153,7 +153,7 @@ type Query {
 ### Schema Extension
 
 SchemaExtension :
-  - extend schema Directives[Const]? { OperationTypeDefinition+ }
+  - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
   - extend schema Directives[Const]
 
 Schema extensions are used to represent a schema which has been extended from

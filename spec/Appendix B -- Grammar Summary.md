@@ -200,7 +200,7 @@ SchemaExtension :
   - extend schema Directives[Const]? { OperationTypeDefinition+ }
   - extend schema Directives[Const]
 
-OperationTypeDefinition : OperationType : NamedType
+RootOperationTypeDefinition : OperationType : NamedType
 
 Description : StringValue
 
