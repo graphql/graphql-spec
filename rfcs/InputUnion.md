@@ -3,117 +3,180 @@ RFC: GraphQL Input Union
 
 ## Possible Solutions
 
-### Value-based Discriminator field
+Categories:
 
-These options rely the _value_ of a particular input field to determine the concrete type.
+* Value-based discriminator field
+* Structural discrimination
+
+### Value-based discriminator field
+
+These options rely the _value_ of a specific input field to express the concrete type.
 
 #### Single `__typename` field; value is the `type`
 
 ```graphql
-input SummaryMetric {
-  min: Integer
-  max: Integer
+input AddPostInput {
+  title: String!
+  body: String!
 }
-input CounterMetric {
-  count: Integer
-}
-input HistogramMetric {
-  percentiles: [Integer]
+input AddImageInput {
+  title: String!
+  photo: String!
+  caption: String
 }
 
-inputUnion MetricInputUnion = SummaryMetric | CounterMetric | HistogramMetric
+inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
 
-{__typename: "SummaryMetric", min: 123, max: 456}
-{__typename: "CounterMetric", count: 789}
-{__typename: "HistogramMetric", percentiles: [12, 34, 56, 78, 90]}
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
+
+# Variables:
+{
+  content: {
+    "__typename": "AddPostInput",
+    title: "Title",
+    body: "body..."
+  }
+}
 ```
 
 #### Single user-chosen field; value is the `type`
 
 ```graphql
-input SummaryMetric {
-  metricType: <MetricInputUnion>
-  min: Integer
-  max: Integer
+input AddPostInput {
+  kind: <AddMediaBlockInput>
+  title: String!
+  body: String!
 }
-input CounterMetric {
-  metricType: <MetricInputUnion>
-  count: Integer
-}
-input HistogramMetric {
-  metricType: <MetricInputUnion>
-  percentiles: [Integer]
+input AddImageInput {
+  kind: <AddMediaBlockInput>
+  title: String!
+  photo: String!
+  caption: String
 }
 
-inputUnion MetricInputUnion = SummaryMetric | CounterMetric | HistogramMetric
+inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
 
-{metricType: "SummaryMetric", min: 123, max: 456}
-{metricType: "CounterMetric", count: 789}
-{metricType: "HistogramMetric", percentiles: [12, 34, 56, 78, 90]}
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
+
+# Variables:
+{
+  content: {
+    kind: "AddPostInput",
+    title: "Title",
+    body: "body..."
+  }
+}
 ```
 
 #### Single user-chosen field; value is a literal
 
 ```graphql
-enum MetricType {
-  SUMMARY
-  COUNTER
-  HISTOGRAM
+enum MediaType {
+  POST
+  IMAGE
 }
-input SummaryMetric {
-  metricType: MetricType::SUMMARY
-  min: Integer
-  max: Integer
+input AddPostInput {
+  kind: MediaType::POST
+  title: String!
+  body: String!
 }
-input CounterMetric {
-  metricType: MetricType::COUNTER
-  count: Integer
-}
-input HistogramMetric {
-  metricType: MetricType::HISTOGRAM
-  percentiles: [Integer]
+input AddImageInput {
+  kind: MediaType::IMAGE
+  title: String!
+  photo: String!
+  caption: String
 }
 
-inputUnion MetricInputUnion = SummaryMetric | CounterMetric | HistogramMetric
+inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
 
-{metricType: SUMMARY, min: 123, max: 456}
-{metricType: COUNTER, count: 789}
-{metricType: HISTOGRAM, percentiles: [12, 34, 56, 78, 90]}
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
+
+# Variables:
+{
+  content: {
+    kind: "POST",
+    title: "Title",
+    body: "body..."
+  }
+}
 ```
 
-### Structural Discrimination
+### Structural discrimination
 
 These options rely on the _structure_ of the input to determine the concrete type.
 
 #### Unique structure
 
-Schema Rule: Each type in the union must have a unique set of required fields
+Schema Rule: Each type in the union must have a unique set of required field names
 
 ```graphql
-input SummaryMetric {
-  name: String!
-  min: Float!
-  max: Float!
-  count: Integer
+input AddPostInput {
+  title: String!
+  body: String!
 }
-input CounterMetric {
-  name: String!
-  count: Integer!
-}
-input HistogramMetric {
-  name: String!
-  percentiles: [Integer]!
-  width: Integer
+input AddImageInput {
+  photo: String!
+  caption: String
 }
 
-inputUnion MetricInputUnion = SummaryMetric | CounterMetric | HistogramMetric
+inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
 
-{name: "my.metric", min: 123.4, max: 456.7, count: 89}
-{name: "my.metric", count: 789}
-{name: "my.metric", percentiles: [12, 34, 56, 78, 90]}
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
+
+# Variables:
+{
+  content: {
+    title: "Title",
+    body: "body..."
+  }
+}
+```
+
+An invalid schema:
+
+```graphql
+input AddPostInput {
+  title: String!
+  body: String!
+}
+input AddDatedPostInput {
+  title: String!
+  body: String!
+  date: Int
+}
+input AddImageInput {
+  photo: String!
+  caption: String
+}
+
+inputUnion AddMediaBlockInput = AddPostInput | AddDatedPostInput | AddImageInput
+
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
 ```
 
 Problems:
 
 * Optional fields could prevent determining a unique type
 
+```graphql
+input AddPostInput {
+  title: String!
+  body: String!
+  date: Int
+}
+input AddDatedPostInput {
+  title: String!
+  body: String!
+  date: Int!
+}
+```
