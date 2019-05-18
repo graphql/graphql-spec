@@ -1440,6 +1440,20 @@ Input object type extensions have the potential to be invalid if incorrectly def
    the original Input Object.
 5. Any directives provided must not already apply to the original Input Object type.
 
+### Input Objects Requiring Exactly One Field
+
+A GraphQL schema may wish to represent a situation where an input could take
+one of many different options. When using the type system definition language,
+`@oneField` is used to indicate that the input object accepts exactly one
+field:
+
+```graphql
+input UserUniqueCondition @oneField {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+```
 
 ## List
 
@@ -1650,6 +1664,10 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
+GraphQL implementations that support the type system definition language must
+provide the `@oneField` directive if representing input types that should
+accept exactly one field.
+
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
 
@@ -1776,5 +1794,33 @@ using `newField`.
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
+}
+```
+
+### @oneField
+
+
+```graphql
+directive @oneField on INPUT_OBJECT
+```
+
+The `@oneField` directive is used within the type system definition language to
+indicate an input object where the user should specify exactly one field, such
+as where the schema wishes to accept different types for an input.
+
+The `@oneField` directive does not accept any arguments.
+
+Any inputs of this type present in a query must provide one and only one field
+from the input object, and that field (and only that field) is treated as
+non-nullable for the purposes of validation.
+
+In this example type definition, media blocks can be of different types, and
+these are enumerated via a `@oneField` input object.
+
+```graphql example
+input MediaBlockInput @oneField {
+  post: PostInput
+  image: ImageInput
+  href: String
 }
 ```

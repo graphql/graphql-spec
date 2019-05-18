@@ -1389,6 +1389,24 @@ arguments, an input object may have required fields. An input field is required
 if it has a non-null type and does not have a default value. Otherwise, the
 input object field is optional.
 
+### Input Object With Requires Exactly One Field
+
+**Formal Specification**
+
+  * For each Input Object in the document for which {requiresExactlyOneField} is {true}:
+    * Let {fields} be the fields provided by that Input Object.
+    * Let {fieldDefinitions} be the set of input field definitions of that Input Object.
+    * {fieldDefinitions} must contain exactly one entry
+    * For the sole {fieldDefinition} in {fieldDefinitions}:
+      * Let {fieldName} be the name of {fieldDefinition}.
+      * Let {field} be the input field in {fields} named {fieldName}
+      * Let {value} be the value of {field}.
+      * {value} must not be the {null} literal.
+
+**Explanatory Text**
+
+When an input object requires exactly one field, exactly one field must be
+supplied and that field may not be null.
 
 ## Directives
 

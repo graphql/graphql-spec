@@ -142,6 +142,7 @@ type __Type {
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
   # INPUT_OBJECT only
+  requiresExactlyOneField: Boolean!
   inputFields: [__InputValue!]
 
   # NON_NULL and LIST only
@@ -331,7 +332,12 @@ Fields
 * `kind` must return `__TypeKind.INPUT_OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
+* `requiresExactlyOneField` must return a Boolean
 * `inputFields`: a list of `InputValue`.
+  * if `requiresExactlyOneField` is {true}:
+    * for each {inputValue} in {inputFields}
+      * the {type} of {inputValue} must not be Non-Null
+      * the {defaultValue} of {inputValue} must be {null}
 * All other fields must return {null}.
 
 
