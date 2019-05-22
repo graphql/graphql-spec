@@ -275,3 +275,40 @@ Workaround? : Each type must have at least one unique required field
 ##### Variations:
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
+
+#### One Of (Tagged Union)
+
+This solution was presented in https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
+
+The type is determined by using an intermediate input type that maps field name to type.
+
+A directive has also been discussed to specify that only one of the fields may be selected. See https://github.com/graphql/graphql-spec/pull/586.
+
+```graphql
+input AddPostInput {
+  title: String!
+  body: String!
+}
+input AddImageInput {
+  photo: String!
+  caption: String
+}
+input AddMediaBlockInput @oneOf {
+  post: AddPostInput
+  image: AddImageInput
+}
+
+type Mutation {
+   addContent(content: AddMediaBlockInput!): Content
+}
+
+# Variables:
+{
+  content: {
+    post: {
+      title: "Title",
+      body: "body..."
+    }
+  }
+}
+```
