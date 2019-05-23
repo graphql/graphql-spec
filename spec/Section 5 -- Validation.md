@@ -1406,7 +1406,7 @@ input object field is optional.
 **Explanatory Text**
 
 When an input object requires exactly one field, exactly one field must be
-supplied and that field may not be null.
+supplied and that field must not be null.
 
 ## Directives
 
