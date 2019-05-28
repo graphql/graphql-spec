@@ -2,7 +2,7 @@ git:
   depth: false
 
 language: node_js
-node_js: 9
+node_js: 6
 
 deploy:
   provider: script
