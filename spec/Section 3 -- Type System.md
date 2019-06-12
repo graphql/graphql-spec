@@ -1444,8 +1444,8 @@ Input object type extensions have the potential to be invalid if incorrectly def
 
 A GraphQL schema may wish to represent a situation where an input could take
 one of many different options. When using the type system definition language,
-`@oneField` is used to indicate that the input object accepts exactly one
-field:
+`@oneField` is used to indicate that the input object requires exactly one
+field be provided (and the value of that field must not be {null}):
 
 ```graphql
 input UserUniqueCondition @oneField {
@@ -1665,8 +1665,8 @@ provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
 GraphQL implementations that support the type system definition language must
-provide the `@oneField` directive if representing input types that should
-accept exactly one field.
+provide the `@oneField` directive if representing input types that accept
+exactly one field.
 
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
