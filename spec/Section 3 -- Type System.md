@@ -553,8 +553,8 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 ImplementsInterfaces :
-  - implements `&`? NamedType
   - ImplementsInterfaces & NamedType
+  - implements `&`? NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -1125,8 +1125,8 @@ Interface type extensions have the potential to be invalid if incorrectly define
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
-  - = `|`? NamedType
   - UnionMemberTypes | NamedType
+  - = `|`? NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
 Object types, but provides for no guaranteed fields between those types.
@@ -1610,8 +1610,8 @@ Expected Type | Internal Value   | Coerced Result
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
-  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
+  - `|`? DirectiveLocation
 
 DirectiveLocation :
   - ExecutableDirectiveLocation

@@ -40,8 +40,8 @@ A definition may refer to itself, which describes repetitive sequences,
 for example:
 
 ListOfLetterA :
-  - `a`
   - ListOfLetterA `a`
+  - `a`
 
 
 ## Lexical and Syntactical Grammar
@@ -108,11 +108,11 @@ Sentence : Noun Verb Adverb?
 is shorthand for
 
 Sentence :
-  - Noun Verb
   - Noun Verb Adverb
+  - Noun Verb
 
-A subscript suffix "{Symbol+}" is shorthand for a list of
-one or more of that symbol.
+A subscript suffix "{Symbol+}" is shorthand for a list of one or more of that
+symbol, represented as an additional recursive production.
 
 As an example:
 
@@ -123,8 +123,8 @@ is shorthand for
 Book : Cover Page_list Cover
 
 Page_list :
-  - Page
   - Page_list Page
+  - Page
 
 
 **Parameterized Grammar Productions**
