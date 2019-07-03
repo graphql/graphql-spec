@@ -39,7 +39,7 @@ Token ::
   - FloatValue
   - StringValue
 
-Punctuator :: one of ! $ ( ) ... : = @ [ ] { | } &
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
