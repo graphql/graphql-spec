@@ -21,7 +21,7 @@
     "watch": "mkdir -p out; nodemon --exec 'spec-md > out/index.html' spec/GraphQL.md"
   },
   "devDependencies": {
-    "nodemon": "1.17.1",
-    "spec-md": "0.6.0"
+    "nodemon": "1.19.1",
+    "spec-md": "1.0.0"
   }
 }
