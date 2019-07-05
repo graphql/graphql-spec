@@ -285,7 +285,7 @@ Types are used throughout GraphQL to describe both the values accepted as input
 to arguments and variables as well as the values output by fields. These two
 uses categorize types as *input types* and *output types*. Some kinds of types,
 like Scalar and Enum types, can be used as both input types and output types;
-other kinds types can only be used in one or the other. Input Object types can
+other kinds of types can only be used in one or the other. Input Object types can
 only be used as input types. Object, Interface, and Union types can only be used
 as output types. Lists and Non-Null types may be used as input types or output
 types depending on how the wrapped type may be used.
