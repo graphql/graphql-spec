@@ -3514,22 +3514,22 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
   <span class="token attr-name">description</span><span class="token punctuation">:</span> String
 
-  <span class="token comment"># OBJECT and INTERFACE only</span>
+  <span class="token comment"># should be non-null for OBJECT and INTERFACE only, must be null for the others</span>
   <span class="token attr-name">fields</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__Field<span class="token operator">!</span><span class="token punctuation">]</span>
 
-  <span class="token comment"># OBJECT only</span>
+  <span class="token comment"># should be non-null for OBJECT only, must be null for the others</span>
   <span class="token attr-name">interfaces</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__Type<span class="token operator">!</span><span class="token punctuation">]</span>
 
-  <span class="token comment"># INTERFACE and UNION only</span>
+  <span class="token comment"># should be non-null for INTERFACE and UNION only, always null for the others</span>
   <span class="token attr-name">possibleTypes</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__Type<span class="token operator">!</span><span class="token punctuation">]</span>
 
-  <span class="token comment"># ENUM only</span>
+  <span class="token comment"># should be non-null for ENUM only, must be null for the others</span>
   <span class="token attr-name">enumValues</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__EnumValue<span class="token operator">!</span><span class="token punctuation">]</span>
 
-  <span class="token comment"># INPUT_OBJECT only</span>
+  <span class="token comment"># should be non-null for INPUT_OBJECT only, must be null for the others</span>
   <span class="token attr-name">inputFields</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__InputValue<span class="token operator">!</span><span class="token punctuation">]</span>
 
-  <span class="token comment"># NON_NULL and LIST only</span>
+  <span class="token comment"># should be non-null for NON_NULL and LIST only, must be null for the others</span>
   <span class="token attr-name">ofType</span><span class="token punctuation">:</span> __Type
 <span class="token punctuation">}</span>
 
@@ -5337,20 +5337,20 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <section id="sec-All-Variable-Usages-are-Allowed.Allowing-optional-variables-when-default-values-exist" class="subsec">
 <h6><a href="#sec-All-Variable-Usages-are-Allowed.Allowing-optional-variables-when-default-values-exist" title="link to this subsection">Allowing optional variables when default values exist</a></h6>
 <p>A notable exception to typical variable type compatibility is allowing a variable definition with a nullable type to be provided to a non&#8208;null location as long as either that variable or that location provides a default value.</p>
+<p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non&#8208;null argument <code>optionalBooleanArg</code> because the field argument is optional since it provides a default value in the schema.</p>
 <pre id="example-0877c" class="spec-example"><a href="#example-0877c">Example № 174</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     optionalNonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">optionalBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>In the example above, an optional variable is allowed to be used in an non&#8208;null argument which provides a default value.</p>
+<p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non&#8208;null argument (<code>nonNullBooleanArg</code>) because the variable provides a default value in the query. This behavior is explicitly supported for compatibility with earlier editions of this specification. GraphQL authoring tools may wish to report this is a warning with the suggestion to replace <code>Boolean</code> with <code>Boolean!</code> to avoid ambiguity.</p>
 <pre id="example-d24d9" class="spec-example"><a href="#example-d24d9">Example № 175</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     nonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>In the example above, a variable provides a default value and can be used in a non&#8208;null argument. This behavior is explicitly supported for compatibility with earlier editions of this specification. GraphQL authoring tools may wish to report this is a warning with the suggestion to replace <code>Boolean</code> with <code>Boolean!</code>.</p>
 <div id="note-241c3" class="spec-note">
 <a href="#note-241c3">Note</a>
 The value <span class="spec-keyword">null</span> could still be provided to a such a variable at runtime. A non&#8208;null argument must produce a field error if provided a <span class="spec-keyword">null</span> value. </div>
