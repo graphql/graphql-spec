@@ -2400,7 +2400,7 @@ The set of languages supported by `translate`.
 <pre id="example-cb7e7" class="spec-example"><a href="#example-cb7e7">Example № 40</a><code><span class="token keyword">scalar</span> <span class="token class-name">Time</span>
 <span class="token keyword">scalar</span> <span class="token class-name">Url</span>
 </code></pre>
-<p>A server may omit any of the built&#8208;in scalars from its schema, for example if a schema does not refer to a floating&#8208;point number, then it must not include the <code>Float</code> type. However, if a schema includes a type with the name of one of the types described here, it must adhere to the behavior described. As an example, a server must not include a type called <code>Int</code> and use it to represent 128&#8208;bit numbers, internationalization information, or anything other than what is defined in this document.</p>
+<p>A server may omit any of the built&#8208;in scalars from its schema, for example if a schema does not refer to a floating&#8208;point number, then it may omit the <code>Float</code> type. However, if a schema includes a type with the name of one of the types described here, it must adhere to the behavior described. As an example, a server must not include a type called <code>Int</code> and use it to represent 128&#8208;bit numbers, internationalization information, or anything other than what is defined in this document.</p>
 <p>When representing a GraphQL schema using the type system definition language, the built&#8208;in scalar types should be omitted for brevity.</p>
 <section id="sec-Scalars.Result-Coercion" class="subsec">
 <h6><a href="#sec-Scalars.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
