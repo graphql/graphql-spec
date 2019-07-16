@@ -153,7 +153,7 @@ type Query {
 ### Schema Extension
 
 SchemaExtension :
-  - extend schema Directives[Const]? { OperationTypeDefinition+ }
+  - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
   - extend schema Directives[Const]
 
 Schema extensions are used to represent a schema which has been extended from
@@ -286,7 +286,7 @@ Types are used throughout GraphQL to describe both the values accepted as input
 to arguments and variables as well as the values output by fields. These two
 uses categorize types as *input types* and *output types*. Some kinds of types,
 like Scalar and Enum types, can be used as both input types and output types;
-other kinds types can only be used in one or the other. Input Object types can
+other kinds of types can only be used in one or the other. Input Object types can
 only be used as input types. Object, Interface, and Union types can only be used
 as output types. Lists and Non-Null types may be used as input types or output
 types depending on how the wrapped type may be used.
@@ -350,7 +350,7 @@ scalar Url
 ```
 
 A server may omit any of the built-in scalars from its schema, for example if a
-schema does not refer to a floating-point number, then it must not include the
+schema does not refer to a floating-point number, then it may omit the
 `Float` type. However, if a schema includes a type with the name of one of the
 types described here, it must adhere to the behavior described. As an example,
 a server must not include a type called `Int` and use it to represent

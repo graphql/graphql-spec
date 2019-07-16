@@ -39,7 +39,7 @@ Token ::
   - FloatValue
   - StringValue
 
-Punctuator :: one of ! $ ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name :: /[_A-Za-z][_0-9A-Za-z]*/
 
@@ -103,10 +103,10 @@ ExecutableDefinition :
   - FragmentDefinition
 
 OperationDefinition :
-  - SelectionSet
   - OperationType Name? VariableDefinitions? Directives? SelectionSet
+  - SelectionSet
 
-OperationType : one of query mutation subscription
+OperationType : one of `query` `mutation` `subscription`
 
 SelectionSet : { Selection+ }
 
@@ -194,13 +194,13 @@ TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-SchemaDefinition : schema Directives[Const]? { OperationTypeDefinition+ }
+SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 SchemaExtension :
-  - extend schema Directives[Const]? { OperationTypeDefinition+ }
+  - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
   - extend schema Directives[Const]
 
-OperationTypeDefinition : OperationType : NamedType
+RootOperationTypeDefinition : OperationType : NamedType
 
 Description : StringValue
 
