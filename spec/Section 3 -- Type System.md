@@ -1666,8 +1666,9 @@ the schema.
 
 GraphQL implementations that support the type system definition language must
 provide the `@oneField` directive if representing input types that implement
-the [Input Objects Requiring Exactly One
-Field](#input-objects-requiring-exactly-one-field) feature.
+the
+[Input Objects Requiring Exactly One Field](#input-objects-requiring-exactly-one-field)
+feature.
 
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
