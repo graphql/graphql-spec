@@ -129,23 +129,25 @@ type __Type {
   name: String
   description: String
 
-  # OBJECT and INTERFACE only
+  # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
 
-  # OBJECT only
+  # should be non-null for OBJECT only, must be null for the others
   interfaces: [__Type!]
 
-  # INTERFACE and UNION only
+  # should be non-null for INTERFACE and UNION only, always null for the others
   possibleTypes: [__Type!]
 
-  # ENUM only
+  # should be non-null for ENUM only, must be null for the others
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
-  # INPUT_OBJECT only
+  # should be non-null for INPUT_OBJECT only, must be null for the others
   requiresExactlyOneField: Boolean!
+
+  # should be non-null for INPUT_OBJECT only, must be null for the others
   inputFields: [__InputValue!]
 
-  # NON_NULL and LIST only
+  # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
 }
 
@@ -407,9 +409,9 @@ Fields
 
 * `name` must return a String
 * `description` may return a String or {null}
-* `isDeprecated` returns {true} if this field should no longer be used,
+* `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this field is deprecated.
+* `deprecationReason` optionally provides a reason why this enum value is deprecated.
 
 ### The __Directive Type
 
