@@ -233,8 +233,8 @@ ObjectTypeExtension :
   - extend type Name ImplementsInterfaces
 
 ImplementsInterfaces :
-  - implements `&`? NamedType
   - ImplementsInterfaces & NamedType
+  - implements `&`? NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -253,8 +253,8 @@ InterfaceTypeExtension :
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
-  - = `|`? NamedType
   - UnionMemberTypes | NamedType
+  - = `|`? NamedType
 
 UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
@@ -281,8 +281,8 @@ InputObjectTypeExtension :
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
 
 DirectiveLocations :
-  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
+  - `|`? DirectiveLocation
 
 DirectiveLocation :
   - ExecutableDirectiveLocation
