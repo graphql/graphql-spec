@@ -814,13 +814,11 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          1. An object field type is a valid sub-type if it is equal to (the same
             type as) the interface field type.
          2. An object field type is a valid sub-type if it is an Object type and
-            the interface field type is either an Interface type or a Union type
-            and the object field type is a possible type of the interface field
-            type.
-         3. An object field type is a valid sub-type if it is an Interface type
-            and the interface field type is either an Interface type or a Union
-            type and the object field type is a possible type of the interface
-            field type.
+            the interface field type is a Union type and the object field type
+            is a possible type of the interface field type.
+         3. An object field type is a valid sub-type if it is an Object or
+            Interface type and the interface field type is an Interface type and
+            the object field type implements the interface field type.
          4. An object field type is a valid sub-type if it is a List type and
             the interface field type is also a List type and the list-item type
             of the object field type is a valid sub-type of the list-item type
@@ -834,6 +832,9 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       3. The object field may include additional arguments not defined in the
          interface field, but any additional argument must not be required, e.g.
          must not be of a non-nullable type.
+5. If an object type declares that it implements one or more interfaces that
+   implement other interfaces, it must also include each transitively
+   implemented interface in its list of implemented interfaces.
 
 
 ### Field Arguments
@@ -953,7 +954,7 @@ InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsD
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
-the object type will define all fields defined by those interfaces.
+the implementing type will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1043,6 +1044,8 @@ interface. Querying for `age` is only valid when the result of `entity` is a
 }
 ```
 
+**Interfaces Implementing Interfaces**
+
 When defining an interface that implements another interface, the implementing
 interface must define each field that is specified by the implemented interface.
 For example, the interface Resource must define the field id to implement the
@@ -1058,6 +1061,29 @@ interface Resource implements Node {
   url: String
 }
 ```
+
+Transitively implemented interfaces (interfaces implemented by the interface
+that is being implemented) must also be defined on an implementing type or
+interface. For example, `Image` cannot implement `Resource` without also
+implementing `Node`:
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}
+```
+
 
 **Result Coercion**
 
@@ -1096,13 +1122,13 @@ Interface types have the potential to be invalid if incorrectly defined.
          1. An implementing interface field type is a valid sub-type if it is
             equal to (the same type as) the implemented interface field type.
          2. An implementing interface field type is a valid sub-type if it is an
-            Object type and the implemented interface field type is either an
-            Interface type or a Union type and the implementing interface field
-            type is a possible type of the implemented interface field type.
+            Object type and the implemented interface field type is a Union type
+            and the implementing interface field type is a possible type of the
+            implemented interface field type.
          3. An implementing interface field type is a valid sub-type if it is an
-            Interface type and the implemented interface field type is either an
-            Interface type or a Union type and the implementing interface field
-            type is a possible type of the implemented interface field type.
+            Object or Interface type and the implemented interface field type is
+            an Interface type and the implementing interface field type
+            implements the implemented interface field type.
          4. An implementing interface field type is a valid sub-type if it is a
             List type and the implemented interface field type is also a List
             type and the list-item type of the implementing interface field type
@@ -1118,6 +1144,9 @@ Interface types have the potential to be invalid if incorrectly defined.
       3. The implementing interface field may include additional arguments not
          defined in the implemented interface field, but any additional argument
          must not be required.
+5. If an interface type declares that it implements one or more interfaces that
+   implement other interfaces, it must also include each transitively
+   implemented interface in its list of implemented interfaces.
 
 
 ### Interface Extensions

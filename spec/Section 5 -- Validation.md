@@ -1131,8 +1131,8 @@ fragment catInDogFragmentInvalid on Dog {
 
 ##### Abstract Spreads in Object Scope
 
-In scope of an object or interface type, unions or interface spreads can be
-used if the type implements the interface or is a member of the union.
+In scope of an object type, unions or interface spreads can be used
+if the type implements the interface or is a member of the union.
 
 For example
 
