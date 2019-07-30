@@ -1264,9 +1264,9 @@ source-map@^0.6.0, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
 
-spec-md@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/spec-md/-/spec-md-1.1.0.tgz#20fa48952bffdc93cbe1b901d59b9954e71d1268"
+spec-md@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/spec-md/-/spec-md-1.1.1.tgz#76fe54df83b5a09948becafb43d40a2db1f99cde"
   dependencies:
     prismjs ">=1.16.0"
     terser "^4.1.2"
