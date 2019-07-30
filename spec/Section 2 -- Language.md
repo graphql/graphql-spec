@@ -725,7 +725,7 @@ specified as a variable. List and inputs objects may also contain variables (unl
 
 ### Int Value
 
-IntValue :: IntegerPart [lookahead != {Digit, `.`, ExponentIndicator}]
+IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
   - NegativeSign? 0
@@ -744,16 +744,18 @@ token is always the longest possible valid sequence. The source characters
 {2}. This also means the source {00} is invalid since it can neither be
 interpreted as a single token nor two {0} tokens.
 
-An {IntValue} must not be followed by a {.} or {ExponentIndicator}. If either
-follows then the token must only be interpreted as a possible {FloatValue}.
+An {IntValue} must not be followed by a {`.`} or {NameStart}. If either {`.`} or
+{ExponentIndicator} follows then the token must only be interpreted as a
+possible {FloatValue}. No other {NameStart} character can follow. For example
+the sequences `0x123` and `123L` have no valid lexical representations.
 
 
 ### Float Value
 
 FloatValue ::
-  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, ExponentIndicator}]
-  - IntegerPart FractionalPart [lookahead != {Digit, `.`, ExponentIndicator}]
-  - IntegerPart ExponentPart [lookahead != {Digit, `.`, ExponentIndicator}]
+  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart FractionalPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
 
 FractionalPart :: . Digit+
 
@@ -772,9 +774,15 @@ token is always the longest possible valid sequence. The source characters
 {1.23} cannot be interpreted as two tokens since {1.2} is followed by the
 {Digit} {3}.
 
-A {FloatValue} must not be followed by a {.} or {ExponentIndicator}. If either
-follows then a parse error occurs. For example, the sequence {1.23.4} cannot be
-interpreted as two tokens ({1.2}, {3.4}).
+A {FloatValue} must not be followed by a {.}. For example, the sequence {1.23.4}
+cannot be interpreted as two tokens ({1.2}, {3.4}).
+
+A {FloatValue} must not be followed by a {NameStart}. For example the sequence
+`0x1.2p3` has no valid lexical representation.
+
+Note: The numeric literals {IntValue} and {FloatValue} both restrict being
+immediately followed by a letter (or other {NameStart}) to reduce confusion
+or unexpected behavior since GraphQL only supports decimal numbers.
 
 
 ### Boolean Value
