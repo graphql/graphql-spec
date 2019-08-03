@@ -432,7 +432,6 @@ SameResponseShape(fieldA, fieldB) :
   * If {typeA} or {typeB} is Scalar or Enum.
     * If {typeA} and {typeB} are the same type return true, otherwise return
       false.
-  * If {typeA} or {typeB} is not a composite type, return false.
   * Let {mergedSet} be the result of adding the selection set of {fieldA} and
     the selection set of {fieldB}.
   * Let {fieldsForName} be the set of selections with a given response name in
