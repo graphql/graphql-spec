@@ -330,7 +330,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
       Note: This value is unaffected if an alias is used.
     * Let {fieldType} be the return type defined for the field {fieldName} of {objectType}.
     * If {fieldType} is defined:
-      * Let {responseValue} be {ExecuteField(objectType, objectValue, fields, fieldType, variableValues)}.
+      * Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType, fields, variableValues)}.
       * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
