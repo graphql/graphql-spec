@@ -4188,7 +4188,7 @@ While each subscription must have exactly one root field, a document may contain
 <li>If <var data-name="typeA">typeA</var> and <var data-name="typeB">typeB</var> are the same type return true, otherwise return false.</li>
 </ol>
 </li>
-<li>If <var data-name="typeA">typeA</var> or <var data-name="typeB">typeB</var> is not a composite type, return false.</li>
+<li>Assert: <var data-name="typeA">typeA</var> and <var data-name="typeB">typeB</var> are both composite types.</li>
 <li>Let <var data-name="mergedSet">mergedSet</var> be the result of adding the selection set of <var data-name="fieldA">fieldA</var> and the selection set of <var data-name="fieldB">fieldB</var>.</li>
 <li>Let <var data-name="fieldsForName">fieldsForName</var> be the set of selections with a given response name in <var data-name="mergedSet">mergedSet</var> including visiting fragments and inline fragments.</li>
 <li>Given each pair of members <var data-name="subfieldA">subfieldA</var> and <var data-name="subfieldB">subfieldB</var> in <var data-name="fieldsForName">fieldsForName</var>:<ol>
