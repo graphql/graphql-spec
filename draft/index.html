@@ -1387,7 +1387,7 @@ Any error reporting which provide the line number in the source of the offending
 <div class="spec-rhs"><span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Comma" data-name="Comma">Comma</a></span></div>
 </div>
-<p>Before and after every lexical token may be any amount of ignored tokens including <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> and <span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span>. No ignored regions of a source document are significant, however ignored source characters may appear within a lexical token in a significant way, for example a <span class="spec-nt"><span data-name="String">String</span></span> may contain white space characters.</p>
+<p>Before and after every lexical token may be any amount of ignored tokens including <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> and <span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span>. No ignored regions of a source document are significant, however otherwise ignored source characters may appear within a lexical token in a significant way, for example a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> may contain white space characters and commas.</p>
 <p>No characters are ignored while parsing a given token, as an example no white space characters are permitted between the characters defining a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>.</p>
 </section>
 <section id="sec-Punctuators" secid="2.1.8">
@@ -4845,7 +4845,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <section id="sec-Values-of-Correct-Type.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Values-of-Correct-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Literal values must be compatible with the type expected in the position they are found as per the coercion rules defined in the Type System chapter.</p>
-<p>The type expected in a position include the type defined by the argument a value is provided for, the type defined by an input object field a value is provided for, and the type of a variable definition a default value is provided for.</p>
+<p>The type expected in a position includes the type defined by the argument a value is provided for, the type defined by an input object field a value is provided for, and the type of a variable definition a default value is provided for.</p>
 <p>The following examples are valid use of value literals:</p>
 <pre id="example-7ee0e" class="spec-example"><a href="#example-7ee0e">Example № 145</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   booleanArgField<span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
