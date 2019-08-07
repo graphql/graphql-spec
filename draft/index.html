@@ -2392,7 +2392,7 @@ The set of languages supported by `translate`.
 <section id="sec-Wrapping-Types" secid="3.4.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Wrapping-Types">3.4.1</a></span>Wrapping Types</h4>
 <p>All of the types so far are assumed to be both nullable and singular: e.g. a scalar string returns either null or a singular string.</p>
-<p>A GraphQL schema may describe that a field represents list of another types; the <code>List</code> type is provided for this reason, and wraps another type.</p>
+<p>A GraphQL schema may describe that a field represents a list of another type; the <code>List</code> type is provided for this reason, and wraps another type.</p>
 <p>Similarly, the <code>Non-Null</code> type wraps another type, and denotes that the resulting value will never be <span class="spec-keyword">null</span> (and that an error cannot result in a <span class="spec-keyword">null</span> value).</p>
 <p>These two types are referred to as &ldquo;wrapping types&rdquo;; non&#8208;wrapping types are referred to as &ldquo;named types&rdquo;. A wrapping type has an underlying named type, found by continually unwrapping the type until a named type is found.</p>
 </section>
