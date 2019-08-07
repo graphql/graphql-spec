@@ -267,7 +267,7 @@ to define exactly what data is expected.
 All of the types so far are assumed to be both nullable and singular: e.g. a
 scalar string returns either null or a singular string.
 
-A GraphQL schema may describe that a field represents list of another types;
+A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
