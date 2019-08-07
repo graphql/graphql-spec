@@ -1273,7 +1273,7 @@ and {Sentient}.
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
 
-The type expected in a position include the type defined by the argument a value
+The type expected in a position includes the type defined by the argument a value
 is provided for, the type defined by an input object field a value is provided
 for, and the type of a variable definition a default value is provided for.
 
