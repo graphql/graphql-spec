@@ -352,7 +352,9 @@ represent additional fields a GraphQL client only accesses locally.
 
 ## Scalars
 
-ScalarTypeDefinition : Description? scalar Name Directives[Const]?
+ScalarTypeDefinition : Description? scalar Name URI? Directives[Const]?
+
+URI : StringValue but compliant with RFC3986
 
 Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
@@ -367,9 +369,20 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
+When providing an additional scalar, GraphQL systems should provide an
+RFC3986-compliant URI pointing to a human-readable specification of the data
+format, serialization, and coercion rules for the scalar. When a specification
+is provided, systems must conform to the described rules. For
+example, a GraphQL system providing a `Date` or `DateTime` scalar might link to
+TODO Andi's DateTime spec.
+
+The specification should be stable, i.e. if the format is in flux, the system
+should link to a fixed version rather than to a resource whose contents might
+change.
+
 ```graphql example
-scalar Time
-scalar Url
+scalar Time "TODO Andi's spec"
+scalar Url "https://tools.ietf.org/html/rfc3986"
 ```
 
 **Built-in Scalars**
@@ -572,7 +585,8 @@ type.
 ### Scalar Extensions
 
 ScalarTypeExtension :
-  - extend scalar Name Directives[Const]
+  - extend scalar Name URI
+  - extend scalar Name URI? Directives[Const]
 
 Scalar type extensions are used to represent a scalar type which has been
 extended from some original scalar type. For example, this might be used by a
@@ -585,6 +599,8 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 1. The named type must already be defined and must be a Scalar type.
 2. Any non-repeatable directives provided must not already apply to the
    original Scalar type.
+3. If a specification URI is provided, the original Scalar type must not have a
+   defined specification URI.
 
 
 ## Objects

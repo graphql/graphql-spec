@@ -253,10 +253,13 @@ TypeExtension :
   - EnumTypeExtension
   - InputObjectTypeExtension
 
-ScalarTypeDefinition : Description? scalar Name Directives[Const]?
+ScalarTypeDefinition : Description? scalar Name URI? Directives[Const]?
+
+URI : StringValue but compliant with RFC3986
 
 ScalarTypeExtension :
-  - extend scalar Name Directives[Const]
+  - extend scalar Name URI
+  - extend scalar Name URI? Directives[Const]
 
 ObjectTypeDefinition :
   - Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
