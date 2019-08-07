@@ -1094,3 +1094,21 @@ and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives.
+
+**Directive order is significant**
+
+Directives may be provided in a specific syntactic order which may have semantic interpretation.
+
+These two type definitions may have different semantic meaning:
+
+```graphql example
+type Person @addExternalFields(source: "profiles") @excludeField(name: "photo") {
+  name: String
+}
+```
+
+```graphql example
+type Person @excludeField(name: "photo") @addExternalFields(source: "profiles") {
+  name: String
+}
+```
