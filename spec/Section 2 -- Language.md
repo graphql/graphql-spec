@@ -133,9 +133,9 @@ Ignored ::
 
 Before and after every lexical token may be any amount of ignored tokens
 including {WhiteSpace} and {Comment}. No ignored regions of a source
-document are significant, however ignored source characters may appear within
-a lexical token in a significant way, for example a {String} may contain white
-space characters.
+document are significant, however otherwise ignored source characters may appear
+within a lexical token in a significant way, for example a {StringValue} may
+contain white space characters and commas.
 
 No characters are ignored while parsing a given token, as an example no
 white space characters are permitted between the characters defining a
