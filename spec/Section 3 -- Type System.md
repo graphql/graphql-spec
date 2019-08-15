@@ -369,16 +369,19 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
-When providing an additional scalar, GraphQL systems should provide an
+When defining an additional scalar, GraphQL systems should provide an
 RFC3986-compliant URI pointing to a human-readable specification of the data
-format, serialization, and coercion rules for the scalar. When a specification
-is provided, systems must conform to the described rules. For
-example, a GraphQL system providing a `Date` or `DateTime` scalar might link to
-TODO Andi's DateTime spec.
+format, serialization, and coercion rules for the scalar. For example, a GraphQL
+system providing a `Date` or `DateTime` scalar might link to
+TODO Andi's DateTime spec. If a specification URI is present, systems must
+conform to the described rules.
 
-The specification should be stable, i.e. if the format is in flux, the system
-should link to a fixed version rather than to a resource whose contents might
-change.
+Specifications linked in this way should be stable. This means that if the
+specification is in flux, the system should link to a fixed version rather than
+to a resource whose contents might change. It is also recommended that the URI
+associated with a scalar not be changed once defined; doing so is likely to
+disrupt tooling, and may come with changes to the specification contents which
+are themselves breaking.
 
 ```graphql example
 scalar Time "TODO Andi's spec"
