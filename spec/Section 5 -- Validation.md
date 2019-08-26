@@ -66,6 +66,7 @@ type Alien implements Sentient {
 
 type Human implements Sentient {
   name: String!
+  pets: [Pet!]
 }
 
 enum CatCommand { JUMP }
@@ -1067,7 +1068,7 @@ fragment dogFragment on Dog {
   }
 }
 
-fragment ownerFragment on Dog {
+fragment ownerFragment on Human {
   name
   pets {
     ...dogFragment
