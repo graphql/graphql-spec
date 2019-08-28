@@ -98,6 +98,8 @@ identify which actual type of the possible types has been returned.
 
 This field is implicit and does not appear in the fields list in any defined type.
 
+Note: The `__typename` field can always be queried, even if an Object or Interface does not define any fields.
+
 
 ## Schema Introspection
 
