@@ -1400,8 +1400,10 @@ Literal Value            | Variables               | Coerced Value
 `$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Incorrect value for field {b}
 `{ a: "abc" }`           | `{}`                    | Error: Missing required field {b}
-`{ b: $var }`            | `{}`                    | Error: Missing required field {b}.
+`{ b: $var }`            | `{}`                    | Error: Missing required field {b}
+`{ }`                    | `{}`                    | Error: Missing required field {b}
 `$var`                   | `{ var: { a: "abc" } }` | Error: Missing required field {b}
+`$var`                   | `{ var: { } }`          | Error: Missing required field {b}
 `{ a: "abc", b: null }`  | `{}`                    | Error: {b} must be non-null.
 `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
 `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}
