@@ -96,6 +96,9 @@ type Query {
 }
 ```
 
+Note: A `query` root operation type which does not define any fields still
+allows for [Schema Introspection](#sec-Schema-Introspection).
+
 Similarly, the following mutation is valid if a `mutation` root operation type
 has a field named "setName". Note that the `query` and `mutation` root types
 must be different types.
