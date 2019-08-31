@@ -3838,7 +3838,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Validation.Examples" class="subsec">
 <h6><a href="#sec-Validation.Examples" title="link to this subsection">Examples</a></h6>
 <p>For this section of this schema, we will assume the following type system in order to demonstrate examples:</p>
-<pre id="example-26a9d" class="spec-example"><a href="#example-26a9d">Example № 92</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-87e77" class="spec-example"><a href="#example-87e77">Example № 92</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dog</span><span class="token punctuation">:</span> Dog
 <span class="token punctuation">}</span>
 
@@ -3868,6 +3868,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 
 <span class="token keyword">type</span> <span class="token class-name">Human</span> <span class="token keyword">implements</span> <span class="token class-name">Sentient</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token operator">!</span>
+  <span class="token attr-name">pets</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Pet<span class="token operator">!</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">enum</span> <span class="token class-name">CatCommand</span> <span class="token punctuation">{</span> <span class="token constant">JUMP</span> <span class="token punctuation">}</span>
@@ -4693,7 +4694,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <span class="token punctuation">}</span>
 </code></pre>
 <p>This also invalidates fragments that would result in an infinite recursion when executed against cyclic data:</p>
-<pre id="example-6bbad" class="spec-counter-example"><a href="#example-6bbad">Counter Example № 138</a><code><span class="token punctuation">{</span>
+<pre id="example-cd11c" class="spec-counter-example"><a href="#example-cd11c">Counter Example № 138</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">dogFragment</span>
   <span class="token punctuation">}</span>
@@ -4706,7 +4707,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">ownerFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">ownerFragment</span> <span class="token keyword">on</span> <span class="token class-name">Human</span> <span class="token punctuation">{</span>
   name
   pets <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">dogFragment</span>
