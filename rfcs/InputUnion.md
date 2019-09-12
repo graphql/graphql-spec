@@ -7,6 +7,16 @@ This document attempts to bring together all the various solutions that have bee
 
 From that shared understanding, this document can then evolve into a proposed solution.
 
+## Problem Statement
+
+TODO:
+* [ ] Describe at a high level the problem that Input Union is trying to solve.
+
+## Use Cases
+
+TODO:
+* [ ] Collect use cases from the community's related Issues / PRs.
+
 ## Possible Solutions
 
 Categories:
