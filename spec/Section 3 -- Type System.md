@@ -1084,8 +1084,8 @@ interface Image implements Resource & Node {
 }
 ```
 
-Interfaces definitions must not contain cyclic references. This example is
-invalid because Node and Named implement each other.
+Interface definitions must not contain cyclic references. This example is
+invalid because `Node` and `Named` implement each other.
 
 ```graphgl counter-example
 interface Node implements Named {
