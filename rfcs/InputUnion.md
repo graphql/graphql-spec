@@ -18,8 +18,119 @@ To help bring this idea to reality, you can contribute through two channels:
 
 ## Problem Statement
 
-TODO:
-* [ ] Describe at a high level the problem that Input Union is trying to solve.
+GraphQL currently provides abstract types that operate on **Object** types, but they aren't allowed on **Input** types.
+
+Over the years there have been numerous proposals from the community to add an abstract input type. Without an abstract type, users have had to resort to a handful of work-arounds to model their domains. These work-arounds lead to schemas that aren't as expressive as they could be, and even schemas that model data differently across queries & mutations.
+
+Let's imagine an animal shelter for our example. When querying for a list of the animals, it's easy to see how abstract types are useful - we can get data specific to the type of the animal easily.
+
+```graphql
+{
+  animalShelter(location: "Portland, OR") {
+    animals {
+      __typename
+      name
+      age
+      ... on Cat { livesLeft }
+      ... on Dog { breed }
+      ... on Snake { venom }
+    }
+  }
+}
+```
+
+However, when we want to submit data, we can't use an `interface` or `union`, so we must model around that.
+
+One technique commonly used to is a **Tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {cat: {name: "Buster", age: 3, livesLeft: 7}}
+    ]
+  )
+}
+```
+
+Unfortunately, this opens up a set of problems, since the Tagged union input type actually contains many fields, any of which could be submitted.
+
+```graphql
+input AnimalDropOff {
+  cat: Cat
+  dog: Dog
+  snake: Snake
+}
+```
+
+This leads to non-sensical mutations that are totally valid, like an animal that is both a `Cat` and a `Dog`
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {
+        cat: {name: "Buster", age: 3, livesLeft: 7},
+        dog: {name: "Ripple", age: 2, breed: WHIPPET}
+      }
+    ]
+  )
+}
+```
+
+In addition, relying on this layer of abstraction means that this domain is modeled differently across input & output. This puts a large burden on the developer interacting with the API, as they have to code against this.
+
+```json
+// JSON structure returned from a query
+{
+  "animals": [
+    {"__typename": "Cat", "name": "Ruby", "age": 2, "livesLeft": 9}
+    {"__typename": "Snake", "name": "Monty", "age": 13, "venom": "POISON"}
+  ]
+}
+```
+
+```json
+// JSON structure submitted to a mutation
+{
+  "animals": [
+    {"cat": {"name": "Ruby", "age": 2, "livesLeft": 9}},
+    {"snake": {"name": "Monty", "age": 13, "venom": "POISON"}}
+  ]
+}
+```
+
+Another common approach is to provide a unique mutation for every type. So you'd have a `logCatDropOff` and `logDogDropOff` and `logSnakeDropOff`. That removes the potential for modeling non-sensical situations, but it explodes the number of mutations in an API.
+
+These workarounds only get worse at scale. Real world APIs can have dozens if not hundreds of possible types.
+
+The idea of the **Input Union** is to bring an abstract type to inputs. This would enable us to model our domain as elegantly in input as we can in output.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {name: "Buster", age: 3, livesLeft: 7},
+      {name: "Ripple", age: 2, __typename: "Dog"},
+    ]
+  )
+}
+```
+
+```graphql
+inputunion AnimalDropOff = Dog | Cat | Snake
+
+type Mutation {
+  logAnimalDropOff(location: String, animals: [AnimalDropOff]): Boolean
+}
+```
+
+In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted. In a query, we have the `... on Cat` fragment which explicitly identifies the concrete type of the interface or union.
+
+A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
 ## Use Cases
 
