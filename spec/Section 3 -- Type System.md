@@ -1084,6 +1084,21 @@ interface Image implements Resource & Node {
 }
 ```
 
+Interfaces definitions must not contain cyclic references. This example is
+invalid because Node and Named implement each other.
+
+```graphgl counter-example
+interface Node implements Named {
+  id: ID!
+  name: String
+}
+
+interface Named implementes Node {
+  id: ID!
+  name: String
+}
+```
+
 
 **Result Coercion**
 
@@ -1147,6 +1162,8 @@ Interface types have the potential to be invalid if incorrectly defined.
 5. If an interface type declares that it implements one or more interfaces that
    implement other interfaces, it must also include each transitively
    implemented interface in its list of implemented interfaces.
+6. An interface cannot implement an interface that in turn implements the
+   original interface.
 
 
 ### Interface Extensions
