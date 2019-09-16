@@ -1093,7 +1093,7 @@ interface Node implements Named {
   name: String
 }
 
-interface Named implementes Node {
+interface Named implements Node {
   id: ID!
   name: String
 }
