@@ -20,7 +20,7 @@ To help bring this idea to reality, you can contribute through two channels:
 
 GraphQL currently provides abstract types that operate on **Object** types, but they aren't allowed on **Input** types.
 
-Over the years there have been numerous proposals from the community to add an abstract input type. Without an abstract type, users have had to resort to a handful of work-arounds to model their domains. These work-arounds lead to schemas that aren't as expressive as they could be, and even schemas that model data differently across queries & mutations.
+Over the years there have been numerous proposals from the community to add an abstract input type. Without an abstract type, users have had to resort to a handful of work-arounds to model their domains. These work-arounds have led to schemas that aren't as expressive as they could be, and schemas where some mutations that would be expected to reflect queries have instead been modeled differently by necessity.
 
 Let's imagine an animal shelter for our example. When querying for a list of the animals, it's easy to see how abstract types are useful - we can get data specific to the type of the animal easily.
 
@@ -41,7 +41,7 @@ Let's imagine an animal shelter for our example. When querying for a list of the
 
 However, when we want to submit data, we can't use an `interface` or `union`, so we must model around that.
 
-One technique commonly used to is a **Tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
+One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
 
 ```graphql
 mutation {
@@ -64,7 +64,7 @@ input AnimalDropOff {
 }
 ```
 
-This leads to non-sensical mutations that are totally valid, like an animal that is both a `Cat` and a `Dog`
+This allows non-sensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
 
 ```graphql
 mutation {
@@ -80,7 +80,7 @@ mutation {
 }
 ```
 
-In addition, relying on this layer of abstraction means that this domain is modeled differently across input & output. This puts a large burden on the developer interacting with the API, as they have to code against this.
+In addition, relying on this layer of abstraction means that this domain must be modelled differently across input & output. This can put a larger burden on the developer interacting with the schema, both in terms of lines of code and complexity.
 
 ```json
 // JSON structure returned from a query
@@ -102,11 +102,11 @@ In addition, relying on this layer of abstraction means that this domain is mode
 }
 ```
 
-Another common approach is to provide a unique mutation for every type. So you'd have a `logCatDropOff` and `logDogDropOff` and `logSnakeDropOff`. That removes the potential for modeling non-sensical situations, but it explodes the number of mutations in an API.
+Another common approach is to provide a unique mutation for every type. A schema employing this technique might have `logCatDropOff`, `logDogDropOff` and `logSnakeDropOff` mutations. This removes the potential for modeling non-sensical situations, but it explodes the number of mutations in a schema, making the schema less accessible.
 
 These workarounds only get worse at scale. Real world APIs can have dozens if not hundreds of possible types.
 
-The idea of the **Input Union** is to bring an abstract type to inputs. This would enable us to model our domain as elegantly in input as we can in output.
+The idea of the **Input Union** is to bring an abstract type to inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
 
 ```graphql
 mutation {
@@ -130,7 +130,7 @@ type Mutation {
 
 In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted. In a query, we have the `... on Cat` fragment which explicitly identifies the concrete type of the interface or union.
 
-A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
+A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions). In the example above we employed a `__typename` field to indicate the type of animal, but this is only one possible solution.
 
 ## Use Cases
 
