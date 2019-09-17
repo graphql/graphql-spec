@@ -104,9 +104,9 @@ In addition, relying on this layer of abstraction means that this domain must be
 
 Another common approach is to provide a unique mutation for every type. A schema employing this technique might have `logCatDropOff`, `logDogDropOff` and `logSnakeDropOff` mutations. This removes the potential for modeling non-sensical situations, but it explodes the number of mutations in a schema, making the schema less accessible.
 
-These workarounds only get worse at scale. Real world APIs can have dozens if not hundreds of possible types.
+These workarounds only get worse at scale. Real world GraphQL schemas can have dozens if not hundreds of possible types for a single `Interface` or `Union`.
 
-The idea of the **Input Union** is to bring an abstract type to inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
+The goal of the **Input Union** is to bring an abstract type to inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
 
 ```graphql
 mutation {
