@@ -18,9 +18,13 @@ To help bring this idea to reality, you can contribute through two channels:
 
 ## Problem Statement
 
-GraphQL currently provides abstract types that operate on **Object** types, but they aren't allowed on **Input** types.
+GraphQL currently provides polymorphic types that enable schema authors to model complex **Object** types that have multiple shapes while remaining type-safe, but lacks an equivilant capability for **Input** types.
 
-Over the years there have been numerous proposals from the community to add an abstract input type. Without an abstract type, users have had to resort to a handful of work-arounds to model their domains. These work-arounds have led to schemas that aren't as expressive as they could be, and schemas where some mutations that would be expected to reflect queries have instead been modeled differently by necessity.
+Over the years there have been numerous proposals from the community to add a polymorphic input type. Without such a type, schema authors have resorted to a handful of work-arounds to model their domains. These work-arounds have led to schemas that aren't as expressive as they could be, and schemas where mutations that ideally mirror queries are forced to be modeled differently.
+
+## Problem Sketch
+
+To understand the problem space a little more, we'll sketch out an example that explores a domain from the perspective of a Query and a Mutation. However, it's important to note that the problem is not limited to mutations, since `Input` types are used in field arguments for any GraphQL operation type.
 
 Let's imagine an animal shelter for our example. When querying for a list of the animals, it's easy to see how abstract types are useful - we can get data specific to the type of the animal easily.
 
@@ -106,7 +110,7 @@ Another common approach is to provide a unique mutation for every type. A schema
 
 These workarounds only get worse at scale. Real world GraphQL schemas can have dozens if not hundreds of possible types for a single `Interface` or `Union`.
 
-The goal of the **Input Union** is to bring an abstract type to inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
+The goal of the **Input Union** is to bring a polymorphic type to Inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
 
 ```graphql
 mutation {
