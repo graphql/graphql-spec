@@ -61,10 +61,10 @@ mutation {
 Unfortunately, this opens up a set of problems, since the Tagged union input type actually contains many fields, any of which could be submitted.
 
 ```graphql
-input AnimalDropOff {
-  cat: Cat
-  dog: Dog
-  snake: Snake
+input AnimalDropOffInput {
+  cat: CatInput
+  dog: DogInput
+  snake: SnakeInput
 }
 ```
 
@@ -118,7 +118,7 @@ mutation {
     location: "Portland, OR"
     animals: [
       {name: "Buster", age: 3, livesLeft: 7},
-      {name: "Ripple", age: 2, __typename: "Dog"},
+      {name: "Ripple", age: 2, __typename: "DogInput"},
     ]
   )
 }
