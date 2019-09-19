@@ -18,8 +18,120 @@ To help bring this idea to reality, you can contribute through two channels:
 
 ## Problem Statement
 
-TODO:
-* [ ] Describe at a high level the problem that Input Union is trying to solve.
+GraphQL currently provides polymorphic types that enable schema authors to model complex **Object** types that have multiple shapes while remaining type-safe, but lacks an equivilant capability for **Input** types.
+
+Over the years there have been numerous proposals from the community to add a polymorphic input type. Without such a type, schema authors have resorted to a handful of work-arounds to model their domains. These work-arounds have led to schemas that aren't as expressive as they could be, and schemas where mutations that ideally mirror queries are forced to be modeled differently.
+
+## Problem Sketch
+
+To understand the problem space a little more, we'll sketch out an example that explores a domain from the perspective of a Query and a Mutation. However, it's important to note that the problem is not limited to mutations, since `Input` types are used in field arguments for any GraphQL operation type.
+
+Let's imagine an animal shelter for our example. When querying for a list of the animals, it's easy to see how abstract types are useful - we can get data specific to the type of the animal easily.
+
+```graphql
+{
+  animalShelter(location: "Portland, OR") {
+    animals {
+      __typename
+      name
+      age
+      ... on Cat { livesLeft }
+      ... on Dog { breed }
+      ... on Snake { venom }
+    }
+  }
+}
+```
+
+However, when we want to submit data, we can't use an `interface` or `union`, so we must model around that.
+
+One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {cat: {name: "Buster", age: 3, livesLeft: 7}}
+    ]
+  )
+}
+```
+
+Unfortunately, this opens up a set of problems, since the Tagged union input type actually contains many fields, any of which could be submitted.
+
+```graphql
+input AnimalDropOffInput {
+  cat: CatInput
+  dog: DogInput
+  snake: SnakeInput
+}
+```
+
+This allows non-sensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {
+        cat: {name: "Buster", age: 3, livesLeft: 7},
+        dog: {name: "Ripple", age: 2, breed: WHIPPET}
+      }
+    ]
+  )
+}
+```
+
+In addition, relying on this layer of abstraction means that this domain must be modelled differently across input & output. This can put a larger burden on the developer interacting with the schema, both in terms of lines of code and complexity.
+
+```json
+// JSON structure returned from a query
+{
+  "animals": [
+    {"__typename": "Cat", "name": "Ruby", "age": 2, "livesLeft": 9}
+    {"__typename": "Snake", "name": "Monty", "age": 13, "venom": "POISON"}
+  ]
+}
+```
+
+```json
+// JSON structure submitted to a mutation
+{
+  "animals": [
+    {"cat": {"name": "Ruby", "age": 2, "livesLeft": 9}},
+    {"snake": {"name": "Monty", "age": 13, "venom": "POISON"}}
+  ]
+}
+```
+
+Another common approach is to provide a unique mutation for every type. A schema employing this technique might have `logCatDropOff`, `logDogDropOff` and `logSnakeDropOff` mutations. This removes the potential for modeling non-sensical situations, but it explodes the number of mutations in a schema, making the schema less accessible. If the type is nested inside other inputs, this approach simply isn't feasable.
+
+These workarounds only get worse at scale. Real world GraphQL schemas can have dozens if not hundreds of possible types for a single `Interface` or `Union`.
+
+The goal of the **Input Union** is to bring a polymorphic type to Inputs. This would enable us to model situations where an input may be of different types in a type-safe and elegant manner, like we can with outputs.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+
+    # Problem: we need to determine the type of each Animal
+    animals: [
+      # This is meant to be a CatInput
+      {name: "Buster", age: 3, livesLeft: 7},
+
+      # This is meant to be a DogInput
+      {name: "Ripple", age: 2},
+    ]
+  )
+}
+```
+
+In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted.
+
+A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
 ## Use Cases
 
