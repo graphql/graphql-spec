@@ -116,25 +116,22 @@ The goal of the **Input Union** is to bring a polymorphic type to Inputs. This w
 mutation {
   logAnimalDropOff(
     location: "Portland, OR"
+
+    # Problem: we need to determine the type of each Animal
     animals: [
+      # This is meant to be a CatInput
       {name: "Buster", age: 3, livesLeft: 7},
-      {name: "Ripple", age: 2, __typename: "DogInput"},
+
+      # This is meant to be a DogInput
+      {name: "Ripple", age: 2},
     ]
   )
 }
 ```
 
-```graphql
-inputunion AnimalDropOff = Dog | Cat | Snake
+In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted.
 
-type Mutation {
-  logAnimalDropOff(location: String, animals: [AnimalDropOff]): Boolean
-}
-```
-
-In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted. In a query, we have the `... on Cat` fragment which explicitly identifies the concrete type of the interface or union.
-
-A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions). In the example above we employed a `__typename` field to indicate the type of animal, but this is only one possible solution.
+A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
 ## Use Cases
 
