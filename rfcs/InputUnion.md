@@ -443,3 +443,39 @@ type Mutation {
   }
 }
 ```
+
+-----
+
+### Consensus Solution
+
+Basic steps:
+
+1) Attempt to read `__inputname`
+2) Attempt basic structural discrimination
+3) Fail
+
+Features:
+
+* Members of an Input Union must be Input Object Types
+  * Matches the behavior of the Union
+
+
+DiscriminateInputType(_providedArguments_, _inputUnion_):
+
+1. Let _possibleInputTypes_ be a list of _inputUnion_'s member Input Object Types
+1. Let _possibleInputNames_ be a list of the Names of _possibleInputTypes_
+1. If an Argument with the Name `__inputname` is a member of _providedArguments_:
+   1. Let _explicitInputName_ be the Value of `__inputname`
+   1. If _explicitInputName_ is a member of _possibleInputNames_:
+      1. Return _explicitInputName_
+   1. If _explicitInputName_ is not a member of _possibleInputNames_:
+      1. Return a query error
+1. Let _providedArgumentNames_ be the set of argument names in _providedArguments_
+1. Let _matchingTypes_ be an empty list
+1. For each _possibleInputType_ in _possibleInputTypes_:
+   1. Let _possibleInputTypeFieldNames_ be the set of field names in _possibleInputType_
+   1. If _providedArgumentNames_ is a subset of _possibleInputTypeFieldNames_:
+      1. Add _possibleInputType_ to _matchingTypes_
+1. If _matchingTypes_ is a list with a single item
+   1. Return the Name of the single Input Object Type in _matchingTypes_
+1. Return a query error
