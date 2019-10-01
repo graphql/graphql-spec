@@ -123,7 +123,7 @@ mutation {
       {name: "Buster", age: 3, livesLeft: 7},
 
       # This is meant to be a DogInput
-      {name: "Ripple", age: 2},
+      {name: "Ripple", age: 2}
     ]
   )
 }
@@ -132,6 +132,10 @@ mutation {
 In this mutation, we encounter the main challenge of the **Input Union** - we need to determine the correct type of the data submitted.
 
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
+
+## Requirements
+
+1. **Backwards compatible** Adding a new member type to an Input Union must not break previously valid operations
 
 ## Use Cases
 
