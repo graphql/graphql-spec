@@ -135,7 +135,10 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 ## Requirements
 
-1. **Backwards compatible** Adding a new member type to an Input Union must not break previously valid operations
+1. **Backwards compatible** ─ the following actions must not break previously valid operations:
+    1. Adding a new member type to an Input Union
+    1. Adding a new optional field to a member Input Object type of an Input Union
+    1. Changing a field from non-nullable to nullable in a member Input Object type of an Input Union
 
 ## Use Cases
 
