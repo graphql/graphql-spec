@@ -139,19 +139,26 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 ## Use Cases
 
-TODO:
-* [ ] Collect use cases from the community's related Issues / PRs.
+There have been a variety of use cases described by users asking for an abstract input type.
+
+* [Observability Metrics](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489495267)
+* [Login Options](https://github.com/graphql/graphql-js/issues/207#issuecomment-228543259)
+* [Abstract Syntax Tree](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489611199)
+* [Content Widgets](https://github.com/graphql/graphql-js/issues/207#issuecomment-308344371)
+* [Filtering](https://github.com/graphql/graphql-spec/issues/202#issue-170560819)
+* [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
+* [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
 ## Possible Solutions
 
-Categories:
+Broadly speaking, there are two categories of solutions to the problem of type discrimination:
 
 * Value-based discriminator field
 * Structural discrimination
 
 ### Value-based discriminator field
 
-These options rely the **value** of a specific input field to express the concrete type.
+These solutions rely the **value** of a specific input field to determine the concrete type.
 
 #### Single `__typename` field; value is the `type`
 
@@ -284,7 +291,7 @@ input AddImageInput {
 
 ### Structural discrimination
 
-These options rely on the **structure** of the input to determine the concrete type.
+These solutions rely on the **structure** of the input to determine the concrete type.
 
 #### Order based type matching
 
