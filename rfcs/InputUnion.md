@@ -135,7 +135,9 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 ## Requirements
 
-1. **Backwards compatible** Adding a new member type to an Input Union must not break previously valid operations
+1. **Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)** ─ adding a new member type to an Input Union or doing any non-breaking change to existing member types must not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable must not break previously valid client operations.
+
+**Note**: Input Unions may enforce some restrictions on member types, but if they do so compliance with these restrictions must be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
 ## Use Cases
 
