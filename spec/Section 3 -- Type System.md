@@ -1244,7 +1244,7 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 ## Enums
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
+EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition
 
 EnumValuesDefinition : { EnumValueDefinition+ }
 
