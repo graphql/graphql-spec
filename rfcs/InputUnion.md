@@ -133,10 +133,12 @@ In this mutation, we encounter the main challenge of the **Input Union** - we ne
 
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
-## Requirements
+## Criteria
+
+The following list of criteria allow us to compare the proposed solutions:
 
 1. **Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)** ─ adding a new member type to an Input Union or doing any non-breaking change to existing member types must not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable must not break previously valid client operations.
-1. **Does not increase payload size** ─ when issuing queries that use an Input Union, is the client required to send a larger amount of data to pass the arguments or variables?
+1. **Increase payload size** ─ when issuing queries that use an Input Union, is the client required to send a larger amount of data to pass the arguments or variables in comparison with a plain input type?
 
 **Note**: Input Unions may enforce some restrictions on member types, but if they do so compliance with these restrictions must be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
