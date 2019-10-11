@@ -111,7 +111,8 @@ __type(name: String!): __Type
 ```
 
 These fields are implicit and do not appear in the fields list in the root type
-of the query operation.
+of the query operation. They are available even if the schema does not provide
+its own root type for the query operation.
 
 The schema of the GraphQL schema introspection system:
 
