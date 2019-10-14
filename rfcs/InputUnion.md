@@ -9,12 +9,7 @@ From that shared understanding, this document can then evolve into a proposed so
 
 ### Contributing
 
-To help bring this idea to reality, you can contribute through two channels:
-
-* Discuss the idea in this Github Issue:
-  * https://github.com/graphql/graphql-spec/issues/617
-* Submit PRs to this RFC document
-  * https://github.com/graphql/graphql-spec/blob/master/rfcs/InputUnion.md
+To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/master/rfcs/InputUnion.md)
 
 ## Problem Statement
 
