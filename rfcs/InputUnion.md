@@ -133,13 +133,13 @@ In this mutation, we encounter the main challenge of the **Input Union** - we ne
 
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
-## Solution Shape - Aims & Objections
+## Solution Criteria
 
 Hypothetical goals that a solution might attempt to fulfill.
 
 ### GraphQL should contain a polymorphic Input type
 
-The premise of this RFC - GraphQL should contain a polymorphic Input Union type.
+The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
 ### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
 
@@ -149,15 +149,12 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
-### A member type may be a Scalar
+### A member type may be a Leaf type
 
-In addition to containing Input types, an Input Union may also contain Scalars.
+In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
 
-### A member type may be an Enum
-
-In addition to containing Input types, an Input Union may also contain `Scalar`s or `Enum`s.
-
-* Objection: An input union containing both a `String` and an `Enum` would be impossible to distinguish.
+* Objection: Multiple Leaf types serialize the same way, making it impossible to distinguish the type. For example, a `String`, `ID` and `Enum`.
+* Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
 ## Use Cases
 
