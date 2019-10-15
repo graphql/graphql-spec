@@ -5,7 +5,7 @@ The addition of an Input Union type has been discussed in the GraphQL community 
 
 This document attempts to bring together all the various solutions and perspectives that have been discussed with the goal of reaching a shared understanding of the problem space.
 
-From that shared understanding, the GraphQL Working Group aims to reach a concensus on how to address the proposal.
+From that shared understanding, the GraphQL Working Group aims to reach a consensus on how to address the proposal.
 
 ### Contributing
 
@@ -137,7 +137,7 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 Hypothetical goals that a solution might attempt to fulfill.
 
-### GraphQL should contain an Input Union type
+### GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input Union type.
 
