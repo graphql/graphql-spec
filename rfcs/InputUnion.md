@@ -141,6 +141,10 @@ Hypothetical goals that a solution might attempt to fulfill.
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
+### Input polymorphism matches output polymorphism
+
+Any data structure that can be modeled with output type polymorphism should be able to be modeled with Input polymorphism.
+
 ### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
