@@ -143,7 +143,7 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
 ### Input polymorphism matches output polymorphism
 
-Any data structure that can be modeled with output type polymorphism should be able to be modeled with Input polymorphism.
+Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
 
 ### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
 
