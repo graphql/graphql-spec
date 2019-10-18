@@ -135,7 +135,15 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 ## Solution Criteria
 
-Hypothetical goals that a solution might attempt to fulfill.
+Hypothetical goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
+
+* Backwards compatibility
+* Performance is a feature
+* Favor no change
+* Enable new capabilities motivated by real use cases
+* Simplicity and consistency over expressiveness and terseness
+* Preserve option value
+* Understandability is just as important as correctness
 
 ### GraphQL should contain a polymorphic Input type
 
