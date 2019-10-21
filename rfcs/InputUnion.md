@@ -3,9 +3,9 @@ RFC: GraphQL Input Union
 
 The addition of an Input Union type has been discussed in the GraphQL community for many years now. The value of this feature has largely been agreed upon, but the implementation has not.
 
-This document attempts to bring together all the various solutions that have been discussed with the goal of reaching a shared understanding of the problem space.
+This document attempts to bring together all the various solutions and perspectives that have been discussed with the goal of reaching a shared understanding of the problem space.
 
-From that shared understanding, this document can then evolve into a proposed solution.
+From that shared understanding, the GraphQL Working Group aims to reach a consensus on how to address the proposal.
 
 ### Contributing
 
@@ -128,11 +128,40 @@ In this mutation, we encounter the main challenge of the **Input Union** - we ne
 
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
-## Requirements
+## Solution Criteria
 
-1. **Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)** ─ adding a new member type to an Input Union or doing any non-breaking change to existing member types must not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable must not break previously valid client operations.
+Hypothetical goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
 
-**Note**: Input Unions may enforce some restrictions on member types, but if they do so compliance with these restrictions must be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
+* Backwards compatibility
+* Performance is a feature
+* Favor no change
+* Enable new capabilities motivated by real use cases
+* Simplicity and consistency over expressiveness and terseness
+* Preserve option value
+* Understandability is just as important as correctness
+
+### GraphQL should contain a polymorphic Input type
+
+The premise of this RFC - GraphQL should contain a polymorphic Input type.
+
+### Input polymorphism matches output polymorphism
+
+Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
+
+### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
+
+Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
+
+### Any member type restrictions are validated in schema
+
+If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
+
+### A member type may be a Leaf type
+
+In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
+
+* Objection: Multiple Leaf types serialize the same way, making it impossible to distinguish the type. For example, a `String`, `ID` and `Enum`.
+* Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
 ## Use Cases
 
