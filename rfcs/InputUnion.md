@@ -148,6 +148,8 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
 Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
 
+* Objection: input types and output types are distinct. Output types support aliases and arguments whereas input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
+
 ### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
@@ -160,8 +162,47 @@ If a solution places any restrictions on member types, compliance with these res
 
 In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
 
-* Objection: Multiple Leaf types serialize the same way, making it impossible to distinguish the type. For example, a `String`, `ID` and `Enum`.
+* Objection: Multiple Leaf types serialize the same way, making it impossible to distinguish the type without additional information. For example, a `String`, `ID` and `Enum`.
+  * Potential solution: only allow a single built-in leaf type per input union.
 * Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
+
+### Changing field from an input type to an input union including that type is non-breaking
+
+Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
+
+* Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
+* Objection: achieving this by indicating a default type in the input field is verbose/potentially ugly.
+
+### Input unions may include other input unions
+
+To ease development.
+
+### Input unions don't need "discriminator" field
+
+Differentiate types structurally, e.g. by checking the input value against each candidate input type in turn until a viable match is found.
+
+* Objection: many input objects may not have unique required attributes (i.e. are heterogenous), leading to ambiguity.
+  * Potential solution: input union order is signficant.
+* Objection: making a field in an input object nullable may result in an existing input value being interpretted as a different input object type at a later time (breaks forwards compatibility).
+* Objection: does not work with scalars.
+* Objection: this may have a noticable performance cost for larger input unions.
+
+### Input unions don't use wrapper objects
+
+For consistency with output unions/interfaces each union should resolve to a single JSON object; i.e. `{__typename:"MyInput",value:3}` rather than `{MyInput:{value:3}}`.
+
+* Objection: wrapper objects can be more concise than including `__typename` or similar in each value.
+* Objection: the "tagged union" pattern is already in common usage.
+* Objection: this pattern enables support for leaf types (e.g. scalars) in unions.
+* Objection: this pattern enables support for individual input object list types in unions.
+
+### Input unions should be easy to upgrade from existing solutions
+
+Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
+
+### A GraphQL schema that supports input unions can be queried by older GraphQL clients
+
+Preferably without loss of functionality.
 
 ## Use Cases
 
