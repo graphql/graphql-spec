@@ -1693,11 +1693,11 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 ```
 
 When returning the set of directives from the `__Schema` introspection type, both
-@skip and @include directives must be included. @deprecated directive may be included
+`@skip` and `@include` directives must be included. `@deprecated` directive may be included
 if GraphQL implementation supports the type system definition language. 
 
-When representing a GraphQL schema using the type system definition language, both @skip,
-@include and @deprecated directives can be omitted for brevity.
+When representing a GraphQL schema using the type system definition language, both `@skip`,
+`@include` and `@deprecated` directives can be omitted for brevity.
 
 **Validation**
 
