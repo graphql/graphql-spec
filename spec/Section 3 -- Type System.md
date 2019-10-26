@@ -1697,7 +1697,7 @@ When returning the set of directives from the `__Schema` introspection type, bot
 if GraphQL implementation supports the type system definition language. 
 
 When representing a GraphQL schema using the type system definition language, both @skip,
-@include and @deprecated directives can be omitted for brevity.
+@include and @deprecated directives should be omitted for brevity.
 
 **Validation**
 
