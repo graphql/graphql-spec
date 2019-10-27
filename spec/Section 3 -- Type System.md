@@ -1644,12 +1644,6 @@ A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
 
-GraphQL implementations should provide the `@skip` and `@include` directives.
-
-GraphQL implementations that support the type system definition language must
-provide the `@deprecated` directive if representing deprecated portions of
-the schema.
-
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
 
@@ -1692,12 +1686,19 @@ While defining a directive, it must not reference itself directly or indirectly:
 directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 ```
 
-When returning the set of directives from the `__Schema` introspection type, both
-`@skip` and `@include` directives must be included. `@deprecated` directive may be included
-if GraphQL implementation supports the type system definition language. 
+**Built-in Directives**
 
-When representing a GraphQL schema using the type system definition language, both `@skip`,
-`@include` and `@deprecated` directives can be omitted for brevity.
+GraphQL implementations should provide the `@skip` and `@include` directives.
+When returning the set of directives from the `__Schema` introspection type, both
+`@skip` and `@include` directives must be included.
+
+GraphQL implementations that support the type system definition language must
+provide the `@deprecated` directive if representing deprecated portions of
+the schema, in this case `@deprecated` directive may be included when returning
+the set of directives from the `__Schema` introspection type.
+
+When representing a GraphQL schema using the type system definition language,
+both `@skip`, `@include` and `@deprecated` directives can be omitted for brevity.
 
 **Validation**
 
@@ -1714,6 +1715,7 @@ When representing a GraphQL schema using the type system definition language, bo
    2. The argument must accept a type where {IsInputType(argumentType)}
       returns {true}.
 
+###
 ### @skip
 
 ```graphql
