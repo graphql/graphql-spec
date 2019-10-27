@@ -1715,7 +1715,6 @@ both `@skip`, `@include` and `@deprecated` directives can be omitted for brevity
    2. The argument must accept a type where {IsInputType(argumentType)}
       returns {true}.
 
-###
 ### @skip
 
 ```graphql
