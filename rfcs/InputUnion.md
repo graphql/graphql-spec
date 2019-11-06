@@ -156,6 +156,8 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
+However this restriction may be in conflict with criteria `Input polymorphism matches output polymorphism` because for describing output union one can use `__resolveType` in order to resolve which exactly type this union member resolves to.
+
 ### A member type may be a Leaf type
 
 In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
