@@ -216,6 +216,13 @@ There have been a variety of use cases described by users asking for an abstract
 * [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
 * [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
+## Prior art
+
+Other technologies/languages also faced the same problems and there things we can learn from them:
+
+* [Wiki article on Tagged_union](https://en.wikipedia.org/wiki/Tagged_union)
+* [gRPC Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)
+
 ## Possible Solutions
 
 Broadly speaking, there are two categories of solutions to the problem of type discrimination:
