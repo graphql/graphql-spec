@@ -162,7 +162,7 @@ If a solution places any restrictions on member types, compliance with these res
 
 In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
 
-* Objection: Multiple Leaf types serialize the same way, making it impossible to distinguish the type without additional information. For example, a `String`, `ID` and `Enum`.
+* Objection: multiple Leaf types serialize the same way, making it impossible to distinguish the type without additional information. For example, a `String`, `ID` and `Enum`.
   * Potential solution: only allow a single built-in leaf type per input union.
 * Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
