@@ -11,7 +11,7 @@ GITTAG=$(git tag --points-at HEAD)
 # Check out gh-pages locally.
 echo "Cloning gh-pages"
 rm -rf gh-pages
-git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/graphql.git" gh-pages > /dev/null 2>&1
+git clone -b gh-pages "https://${GH_TOKEN}@github.com/graphql/graphql-spec.git" gh-pages > /dev/null 2>&1
 
 # Replace /draft with this build.
 echo "Publishing to: /draft"
@@ -74,7 +74,7 @@ HTML="$HTML
       <td></td>
     </tr>"
 
-GITHUB_RELEASES="https://github.com/facebook/graphql/releases/tag"
+GITHUB_RELEASES="https://github.com/graphql/graphql-spec/releases/tag"
 for GITTAG in $(git tag -l --sort='-*committerdate') ; do
   VERSIONYEAR=${GITTAG: -4}
   TAGTITLE="${GITTAG%$VERSIONYEAR} $VERSIONYEAR"
