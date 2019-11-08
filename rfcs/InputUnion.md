@@ -154,6 +154,7 @@ There have been a variety of use cases described by users asking for an abstract
 Other technologies/languages also faced the same problems and there things we can learn from them:
 
 * [Wiki article on Tagged_union](https://en.wikipedia.org/wiki/Tagged_union)
+* [TypeScript Discriminated Unions](http://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions)
 * [gRPC Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)
 
 ## Possible Solutions
