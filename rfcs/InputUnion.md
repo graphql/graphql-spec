@@ -177,6 +177,11 @@ Since the input object type is now a member of the input union, existing input o
 
 To ease development.
 
+### Input unions should accept plain data from clients
+
+Clients should be able to pass "natural" input data to unions without
+specially formatting it, adding extra metadata, or otherwise doing work.
+
 ### Input unions should be easy to upgrade from existing solutions
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
