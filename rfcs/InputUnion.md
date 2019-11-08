@@ -204,6 +204,14 @@ Many people in the wild are solving the need for input unions with validation at
 
 Preferably without loss of functionality.
 
+### Input unions should be expressed efficiently in the query and on the wire
+
+The less typing and fewer bytes transmitted, the better.
+
+### Input unions should be performant for servers
+
+Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
+
 ## Use Cases
 
 There have been a variety of use cases described by users asking for an abstract input type.
