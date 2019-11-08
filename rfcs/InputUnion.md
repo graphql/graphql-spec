@@ -177,25 +177,6 @@ Since the input object type is now a member of the input union, existing input o
 
 To ease development.
 
-### Input unions don't need "discriminator" field
-
-Differentiate types structurally, e.g. by checking the input value against each candidate input type in turn until a viable match is found.
-
-* Objection: many input objects may not have unique required attributes (i.e. are heterogenous), leading to ambiguity.
-  * Potential solution: input union order is signficant.
-* Objection: making a field in an input object nullable may result in an existing input value being interpretted as a different input object type at a later time (breaks forwards compatibility).
-* Objection: does not work with scalars.
-* Objection: this may have a noticable performance cost for larger input unions.
-
-### Input unions don't use wrapper objects
-
-For consistency with output unions/interfaces each union should resolve to a single JSON object; i.e. `{__typename:"MyInput",value:3}` rather than `{MyInput:{value:3}}`.
-
-* Objection: wrapper objects can be more concise than including `__typename` or similar in each value.
-* Objection: the "tagged union" pattern is already in common usage.
-* Objection: this pattern enables support for leaf types (e.g. scalars) in unions.
-* Objection: this pattern enables support for individual input object list types in unions.
-
 ### Input unions should be easy to upgrade from existing solutions
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
