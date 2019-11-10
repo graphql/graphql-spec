@@ -133,7 +133,7 @@ A wide variety of solutions have been explored by the community, and they are ou
 
 Many other technologies provide polymorphic types, and have done so using a variety of techniques.
 
-Tech | Solution | Read | Write
+Tech | Type | Read | Write
 ---- | -------- | ---- | -----
 GraphQL | [Union](https://graphql.github.io/graphql-spec/June2018/#sec-Unions) | ✅ | ❌
 Protocol Buffers | [Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof) | ✅ | ✅
