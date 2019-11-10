@@ -140,6 +140,8 @@ Hypothetical goals that a solution might attempt to fulfill. These goals will be
 * Preserve option value
 * Understandability is just as important as correctness
 
+Each criteria is identified with a Letter so they can be referenced in the rest of the document. New criteria must be added to the end of the list.
+
 ### A) GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
