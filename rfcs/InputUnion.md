@@ -140,25 +140,27 @@ Hypothetical goals that a solution might attempt to fulfill. These goals will be
 * Preserve option value
 * Understandability is just as important as correctness
 
-### GraphQL should contain a polymorphic Input type
+Each criteria is identified with a Letter so they can be referenced in the rest of the document. New criteria must be added to the end of the list.
+
+### A) GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
-### Input polymorphism matches output polymorphism
+### B) Input polymorphism matches output polymorphism
 
 Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
 
 * Objection: input types and output types are distinct. Output types support aliases and arguments whereas input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
 
-### Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
+### C) Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
 
-### Any member type restrictions are validated in schema
+### D) Any member type restrictions are validated in schema
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
-### A member type may be a Leaf type
+### E) A member type may be a Leaf type
 
 In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
 
@@ -166,35 +168,35 @@ In addition to containing Input types, member type may also contain Leaf types l
   * Potential solution: only allow a single built-in leaf type per input union.
 * Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
-### Changing field from an input type to an input union including that type is non-breaking
+### F) Changing field from an input type to a polymorphic type including that type is non-breaking
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
 * Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * Objection: achieving this by indicating a default type in the input field is verbose/potentially ugly.
 
-### Input unions may include other input unions
+### G) Input unions may include other input unions
 
 To ease development.
 
-### Input unions should accept plain data from clients
+### H) Input unions should accept plain data from clients
 
 Clients should be able to pass "natural" input data to unions without
 specially formatting it, adding extra metadata, or otherwise doing work.
 
-### Input unions should be easy to upgrade from existing solutions
+### I) Input unions should be easy to upgrade from existing solutions
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
 
-### A GraphQL schema that supports input unions can be queried by older GraphQL clients
+### J) A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
 Preferably without loss of functionality.
 
-### Input unions should be expressed efficiently in the query and on the wire
+### K) Input unions should be expressed efficiently in the query and on the wire
 
 The less typing and fewer bytes transmitted, the better.
 
-### Input unions should be performant for servers
+### L) Input unions should be performant for servers
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
