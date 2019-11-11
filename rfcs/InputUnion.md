@@ -128,9 +128,38 @@ In this mutation, we encounter the main challenge of the **Input Union** - we ne
 
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
+
+## Prior Art
+
+Many other technologies provide polymorphic types, and have done so using a variety of techniques.
+
+Tech | Type | Read | Write
+---- | -------- | ---- | -----
+GraphQL | [Union](https://graphql.github.io/graphql-spec/June2018/#sec-Unions) | ✅ | ❌
+Protocol Buffers | [Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof) | ✅ | ✅
+FlatBuffers | [Union](https://google.github.io/flatbuffers/flatbuffers_guide_writing_schema.html) | ✅ | ✅
+Cap'n Proto | [Union](https://capnproto.org/language.html#unions) | ✅ | ✅
+Thrift | [Union](https://thrift.apache.org/docs/idl#union) | ✅ | ✅
+Arvo | [Union](https://avro.apache.org/docs/current/spec.html#Unions) | ✅ | ✅
+OpenAPI 3 | [oneOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/) | ✅ | ✅
+JSON Schema | [oneOf](https://json-schema.org/understanding-json-schema/reference/combining.html#oneof) | ✅ | ✅
+Typescript | [Union](http://www.typescriptlang.org/docs/handbook/advanced-types.html#union-types) | ✅ | ✅
+Typescript | [Discriminated Union](http://www.typescriptlang.org/docs/handbook/advanced-types.html#discriminated-unions) | ✅ | ✅
+Rust | [Enum](https://doc.rust-lang.org/rust-by-example/custom_types/enum.html) | ✅ | ✅
+Swift | [Enumeration](https://docs.swift.org/swift-book/LanguageGuide/Enumerations.html) | ✅ | ✅
+Haskell | [Algebraic data types](http://learnyouahaskell.com/making-our-own-types-and-typeclasses) | ✅ | ✅
+
+The topic has also been extensively explored in Computer Science more generally.
+
+* [Wikipedia: Algebraic data type](https://en.wikipedia.org/wiki/Algebraic_data_type)
+* [Wikipedia: Union type](https://en.wikipedia.org/wiki/Union_type)
+* [Wikipedia: Tagged Union](https://en.wikipedia.org/wiki/Tagged_union)
+* [C2 Wiki: Nominative And Structural Typing](http://wiki.c2.com/?NominativeAndStructuralTyping)
+
+
 ## Solution Criteria
 
-Hypothetical goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
+This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
 
 * Backwards compatibility
 * Performance is a feature
@@ -212,12 +241,6 @@ There have been a variety of use cases described by users asking for an abstract
 * [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
 * [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
-## Prior art
-
-Other technologies/languages also faced the same problems and there things we can learn from them:
-
-* [Wiki article on Tagged_union](https://en.wikipedia.org/wiki/Tagged_union)
-* [gRPC Oneof](https://developers.google.com/protocol-buffers/docs/proto3#oneof)
 
 ## Possible Solutions
 
