@@ -372,19 +372,21 @@ the service to be a valid URL.
 When defining an additional scalar, GraphQL systems should provide an
 RFC3986-compliant URI pointing to a human-readable specification of the data
 format, serialization, and coercion rules for the scalar. For example, a GraphQL
-system providing a `Date` or `DateTime` scalar might link to
-TODO Andi's DateTime spec. If a specification URI is present, systems must
-conform to the described rules.
+system providing a `Date` or `DateTime` scalar might link to RFC 3339, or some
+document defining a reasonable subset of that RFC. If a specification
+URI is present, systems must conform to the described rules. Built-in scalar
+types should not provide a URI.
 
 Specifications linked in this way should be stable. This means that if the
 specification is in flux, the system should link to a fixed version rather than
 to a resource whose contents might change. It is also recommended that the URI
 associated with a scalar not be changed once defined; doing so is likely to
 disrupt tooling, and may come with changes to the specification contents which
-are themselves breaking.
+are themselves breaking. Finally, linked documents should only specify a single
+scalar format to avoid ambiguity.
 
 ```graphql example
-scalar Time "TODO Andi's spec"
+scalar Time "https://tools.ietf.org/html/rfc3339"
 scalar Url "https://tools.ietf.org/html/rfc3986"
 ```
 
