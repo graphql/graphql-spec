@@ -233,123 +233,131 @@ These solutions rely the **value** of a specific input field to determine the co
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
 ```graphql
-input AddPostInput {
-  title: String!
-  body: String!
+input CatInput {
+  name: String!
+  age: Int
+  livesLeft: Int
 }
-input AddImageInput {
-  title: String!
-  photo: String!
-  caption: String
+input DogInput {
+  name: String!
+  age: Int
+  breed: DogBreed
 }
 
-inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
+inputunion AnimalInput = CatInput | DogInput
 
 type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
 }
 
 # Variables:
 {
-  content: {
-    "__typename": "AddPostInput",
-    title: "Title",
-    body: "body..."
-  }
+  location: "Portland, OR",
+  animals: [
+    {
+      __typename: "CatInput",
+      name: "Buster",
+      livesLeft: 7
+    }
+  ]
 }
 ```
 
 ##### Variations:
 
-* A `default` annotation may be provided, for which specifying the `__typename` is not required. This enables a field migration from an `Input` to an `Input Union`
+* A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
 #### Single user-chosen field; value is the `type`
 
 ```graphql
-input AddPostInput {
-  kind: <AddMediaBlockInput>
-  title: String!
-  body: String!
+input CatInput {
+  kind: CatInput
+  name: String!
+  age: Int
+  livesLeft: Int
 }
-input AddImageInput {
-  kind: <AddMediaBlockInput>
-  title: String!
-  photo: String!
-  caption: String
+input DogInput {
+  kind: DogInput
+  name: String!
+  age: Int
+  breed: DogBreed
 }
 
-inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
+inputunion AnimalInput = CatInput | DogInput
 
 type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
 }
 
 # Variables:
 {
-  content: {
-    kind: "AddPostInput",
-    title: "Title",
-    body: "body..."
-  }
+  location: "Portland, OR",
+  animals: [
+    {
+      kind: "CatInput",
+      name: "Buster",
+      livesLeft: 7
+    }
+  ]
 }
 ```
 
 ##### Problems:
 
-* The discriminator field is non-sensical if the input is used _outside_ of an input union.
+* The discriminator field is non-sensical if the input is used _outside_ of an input union, or in multiple input unions.
 
-#### Single user-chosen field; value is a literal
+##### Variations:
 
-This solution is derrived from one discussed in https://github.com/graphql/graphql-spec/issues/488
+* Value is a `Enum` literal
+
+This solution is derrived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
 ```graphql
-enum MediaType {
-  POST
-  IMAGE
-}
-input AddPostInput {
-  kind: MediaType::POST
-  title: String!
-  body: String!
-}
-input AddImageInput {
-  kind: MediaType::IMAGE
-  title: String!
-  photo: String!
-  caption: String
+enum AnimalKind {
+  CAT
+  DOG
 }
 
-inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
-
-type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+input CatInput {
+  kind: AnimalKind::CAT
+  name: String!
+  age: Int
+  livesLeft: Int
+}
+input DogInput {
+  kind: AnimalKind::DOG
+  name: String!
+  age: Int
+  breed: DogBreed
 }
 
 # Variables:
 {
-  content: {
-    kind: "POST",
-    title: "Title",
-    body: "body..."
-  }
+  location: "Portland, OR",
+  animals: [
+    {
+      kind: "CAT",
+      name: "Buster",
+      livesLeft: 7
+    }
+  ]
 }
 ```
 
-##### Variations:
-
-* Literal strings used instead of an `enum`
+* Value is a `String` literal
 
 ```graphql
-input AddPostInput {
-  kind: 'post'
-  title: String!
-  body: String!
+input CatInput {
+  kind: "cat"
+  name: String!
+  age: Int
+  livesLeft: Int
 }
-input AddImageInput {
-  kind: 'image'
-  title: String!
-  photo: String!
-  caption: String
+input DogInput {
+  kind: "dog"
+  name: String!
+  age: Int
+  breed: DogBreed
 }
 ```
 
@@ -366,39 +374,39 @@ These solutions rely on the **structure** of the input to determine the concrete
 The concrete type is the first type in the input union definition that matches.
 
 ```graphql
-input AddPostInput {
-  title: String!
-  publishedAt: Int
-  body: String
+input CatInput {
+  name: String!
+  age: Int
+  livesLeft: Int
 }
-input AddImageInput {
-  title: String!
-  publishedAt: Int
-  photo: String
-  caption: String
+input DogInput {
+  name: String!
+  age: Int
+  breed: DogBreed
 }
 
-inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
+inputunion AnimalInput = CatInput | DogInput
 
 type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
 }
 
 # Variables:
 {
-  content: {
-    title: "Title",
-    date: 1558066429
-    # AddPostInput
-  }
-}
-{
-  content: {
-    title: "Title",
-    date: 1558066429
-    photo: "photo.png"
-    # AddImageInput
-  }
+  location: "Portland, OR",
+  animals: [
+    {
+      name: "Buster",
+      age: 3
+      # => CatInput
+    },
+    {
+      name: "Buster",
+      age: 3,
+      breed: "WHIPPET"
+      # => DogInput
+    }
+  ]
 }
 ```
 
@@ -407,80 +415,61 @@ type Mutation {
 Schema Rule: Each type in the union must have a unique set of required field names
 
 ```graphql
-input AddPostInput {
-  title: String!
-  body: String!
+input CatInput {
+  name: String!
+  age: Int
+  livesLeft: Int!
 }
-input AddImageInput {
-  photo: String!
-  caption: String
+input DogInput {
+  name: String!
+  age: Int
+  breed: DogBreed!
 }
 
-inputUnion AddMediaBlockInput = AddPostInput | AddImageInput
+inputunion AnimalInput = CatInput | DogInput
 
 type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
 }
 
 # Variables:
 {
-  content: {
-    title: "Title",
-    body: "body..."
-    # AddPostInput
-  }
+  location: "Portland, OR",
+  animals: [
+    {
+      name: "Buster",
+      age: 3,
+      livesLeft: 7
+      # => CatInput
+    },
+    {
+      name: "Buster",
+      breed: "WHIPPET"
+      # => DogInput
+    }
+  ]
 }
 ```
 
 An invalid schema:
 
 ```graphql
-input AddPostInput {
-  title: String!
-  body: String!
+input CatInput {
+  name: String!
+  age: Int!
+  livesLeft: Int
 }
-input AddDatedPostInput {
-  title: String!
-  body: String!
-  date: Int
-}
-input AddImageInput {
-  photo: String!
-  caption: String
-}
-
-inputUnion AddMediaBlockInput = AddPostInput | AddDatedPostInput | AddImageInput
-
-type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+input DogInput {
+  name: String!
+  age: Int!
+  breed: DogBreed
 }
 ```
 
 ##### Problems:
 
-* Optional fields could prevent determining a unique type
+* Inputs may be pushed to include extraneous fields
 
-```graphql
-input AddPostInput {
-  title: String!
-  body: String!
-  date: Int
-}
-input AddDatedPostInput {
-  title: String!
-  body: String!
-  date: Int!
-}
-```
-
-Workaround? : Each type's set of required fields must be uniquely identifying
-
-  - A type's set of required field names must not match the set of another type's required field names
-  - A type's set of required field names must not overlap with the set of another type's required or optional field names
-
-Workaround? : Each type must have at least one unique required field
-
-  - A type must contain one required field that is not a field in any other type
 
 ##### Variations:
 
@@ -488,37 +477,47 @@ Workaround? : Each type must have at least one unique required field
 
 #### One Of (Tagged Union)
 
-This solution was presented in https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
+This solution was presented in:
+* https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
+* https://github.com/graphql/graphql-spec/pull/586
 
-The type is determined by using an intermediate input type that maps field name to type.
+The type is discriminated using features already available, with an intermediate input type that acts to "tag" the field.
 
-A directive has also been discussed to specify that only one of the fields may be selected. See https://github.com/graphql/graphql-spec/pull/586.
+A proposed directive would specify that only one of the fields may be selected.
 
 ```graphql
-input AddPostInput {
-  title: String!
-  body: String!
+input CatInput {
+  name: String!
+  age: Int!
+  livesLeft: Int
 }
-input AddImageInput {
-  photo: String!
-  caption: String
+input DogInput {
+  name: String!
+  age: Int!
+  breed: DogBreed
 }
-input AddMediaBlockInput @oneOf {
-  post: AddPostInput
-  image: AddImageInput
+
+input AnimalInput @oneOf {
+  cat: CatInput
+  dog: DogInput
 }
 
 type Mutation {
-   addContent(content: AddMediaBlockInput!): Content
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
 }
 
 # Variables:
 {
-  content: {
-    post: {
-      title: "Title",
-      body: "body..."
+  location: "Portland, OR",
+  animals: [
+    cat: {
+      name: "Buster",
+      livesLeft: 7
     }
-  }
+  ]
 }
 ```
+
+##### Problems:
+
+* Forces data to be modeled with different structure for input and output types.
