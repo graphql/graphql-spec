@@ -483,7 +483,7 @@ This solution was presented in:
 
 The type is discriminated using features already available, with an intermediate input type that acts to "tag" the field.
 
-A prposed directive would specify that only one of the fields may be selected.
+A proposed directive would specify that only one of the fields may be selected.
 
 ```graphql
 input CatInput {
