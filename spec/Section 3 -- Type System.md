@@ -352,9 +352,7 @@ represent additional fields a GraphQL client only accesses locally.
 
 ## Scalars
 
-ScalarTypeDefinition : Description? scalar Name URI? Directives[Const]?
-
-URI : StringValue but compliant with RFC3986
+ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
 Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
@@ -369,25 +367,17 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
-When defining an additional scalar, GraphQL systems should provide an
-RFC3986-compliant URI pointing to a human-readable specification of the data
-format, serialization, and coercion rules for the scalar. For example, a GraphQL
-system providing a `Date` or `DateTime` scalar might link to RFC 3339, or some
-document defining a reasonable subset of that RFC. If a specification
-URI is present, systems must conform to the described rules. Built-in scalar
-types should not provide a URI.
-
-Specifications linked in this way should be stable. This means that if the
-specification is in flux, the system should link to a fixed version rather than
-to a resource whose contents might change. It is also recommended that the URI
-associated with a scalar not be changed once defined; doing so is likely to
-disrupt tooling, and may come with changes to the specification contents which
-are themselves breaking. Finally, linked documents should only specify a single
-scalar format to avoid ambiguity.
+When defining an additional scalar, GraphQL systems should use the `@specified`
+directive to provide an RFC3986-compliant URI pointing to a human-readable
+specification of the data format, serialization, and coercion rules for the
+scalar. For example, a GraphQL system providing a `Date` or `DateTime` scalar
+might link to RFC 3339, or some document defining a reasonable subset of that
+RFC. If a specification URI is present, systems must conform to the described
+rules. Built-in scalar types should not provide a URI.
 
 ```graphql example
-scalar Time "https://tools.ietf.org/html/rfc3339"
-scalar Url "https://tools.ietf.org/html/rfc3986"
+scalar Time @specified(by: "https://tools.ietf.org/html/rfc3339")
+scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```
 
 **Built-in Scalars**
@@ -590,8 +580,7 @@ type.
 ### Scalar Extensions
 
 ScalarTypeExtension :
-  - extend scalar Name URI
-  - extend scalar Name URI? Directives[Const]
+  - extend scalar Name Directives[Const]
 
 Scalar type extensions are used to represent a scalar type which has been
 extended from some original scalar type. For example, this might be used by a
@@ -604,8 +593,6 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 1. The named type must already be defined and must be a Scalar type.
 2. Any non-repeatable directives provided must not already apply to the
    original Scalar type.
-3. If a specification URI is provided, the original Scalar type must not have a
-   defined specification URI.
 
 
 ## Objects
@@ -1871,6 +1858,10 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
+GraphQL implementations that support the type system definition language should
+provide the `@specified` directive if representing custom scalar
+definitions.
+
 **Custom Directives**
 
 GraphQL services and client tooling may provide additional directives beyond
@@ -2032,4 +2023,37 @@ type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
 }
+```
+
+
+### @specified
+
+```graphql
+directive @specified(
+  by: String!
+) on SCALAR
+```
+
+The `@specified` directive is used within the type system definition language
+to provide an RFC3986-compliant URI for specifying the behaviour of custom
+scalar definitions. The URI should point to a human-readable specification of
+the data format, serialization, and coercion rules for the scalar. For example,
+a GraphQL system providing a `Date` or `DateTime` scalar might link to RFC 3339,
+or some document defining a reasonable subset of that RFC. If a specification
+URI is present, systems must conform to the described rules. Built-in scalar
+types should not provide a URI in this way.
+
+Specifications linked in this way should provide a single, stable scalar format
+to avoid ambiguity. This means that if the specification is in flux, the system
+should link to a fixed version rather than to a resource whose contents might
+change. It is also recommended that the URI associated with a scalar not be
+changed once defined; doing so is likely to disrupt tooling, and may come with
+changes to the specification contents which are themselves breaking.
+
+In this example, two custom scalar types are defined with URIs pointing to the
+relevant IETF specifications.
+
+```graphql example
+scalar Time @specified(by: "https://tools.ietf.org/html/rfc3339")
+scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```

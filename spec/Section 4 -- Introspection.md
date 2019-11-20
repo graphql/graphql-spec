@@ -152,7 +152,7 @@ type __Type {
   ofType: __Type
 
   # should be non-null for SCALAR only, must be null for the others
-  specificationUri: String
+  specifiedBy: String
 }
 
 type __Field {
@@ -241,15 +241,16 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
-A GraphQL type designer should provide a specification URI describing the data
-format, serialization, and coercion rules for the scalar. It is recommended to
-also summarize the format and provide an example in the description field.
+A GraphQL type designer should provide use the `@specified` directive to provide
+a specification URI describing the data format, serialization, and coercion
+rules for the scalar. It is recommended to also summarize the format and provide
+an example in the description field.
 
 Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `specificationUri` may return an RFC3986-compliant URI or {null}.
+* `specifiedBy` may return an RFC3986-compliant URI or {null}.
 * `description` may return a String or {null}.
 * All other fields must return {null}.
 
