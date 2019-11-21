@@ -249,6 +249,30 @@ There have been a variety of use cases described by users asking for an abstract
 
 Each of the solutions should be evaluated against each of the criteria.
 
+To get an overview, the following table broadly rates how good the solution fulfils
+a certain criteria. Positive is always *good*, so if a criteria is something bad and
+the solution does avoid the negative aspact, it gets a o
+- `o` Positive
+- `-` Neutral/Not applicable
+- `x` Negative
+
+|   | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| A |   |   |   |   |   |
+| B |   |   |   |   | x |
+| C |   |   |   | x |   |
+| D |   |   |   |   |   |
+| E |   |   |   |   |   |
+| F |   |   |   |   |   |
+| G |   |   |   |   |   |
+| H | x | x |   |   |   |
+| I |   |   |   |   |   |
+| J |   |   |   |   |   |
+| K |   |   |   |   |   |
+| L | x | x |   |   |   |
+
+More detailed evaluations are to be placed in each solution's description.
+
 ### 1. Single `__typename` field; value is the `type`
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
@@ -502,8 +526,6 @@ type Mutation {
 ##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
 
 ##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
-
-The additional field bloats the query.
 
 ##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
 
