@@ -260,7 +260,7 @@ the solution does avoid the negative aspact, it gets a o
 |---|---|---|---|---|---|
 | A |   |   |   |   |   |
 | B |   |   |   |   | x |
-| C |   |   |   | x |   |
+| C |   |   | x | x |   |
 | D |   |   |   |   |   |
 | E |   |   |   |   |   |
 | F |   |   |   |   |   |
@@ -510,6 +510,53 @@ type Mutation {
 ##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+
+Adding a nullable field to an input object could change the detected type of
+fields or arguments in pre-existing operations.
+
+Assuming we have this schema:
+
+```graphql
+input InputA {
+  foo: Int
+}
+input InputB {
+  foo: Int
+  bar: Int
+}
+input InputC {
+  foo: Int
+  bar: Int
+  baz: Int
+}
+inputUnion InputU = InputA | InputB | InputC
+
+type A {...}
+type B {...}
+type C {...}
+union U = A | B | C
+
+type Query {
+  field(u: InputU): U
+}
+```
+
+Given this query:
+
+```graphql
+query ($u: InputU = {foo: 3, baz: 3}) {
+  field(u: $u) {
+    __typename
+    ... on C {
+      # ...
+    }
+  }
+}
+```
+
+the default value of `$u` would be detected as type InputC. However adding the
+field `baz: Int` to type InputA would result in the same value now being detected
+as type InputA, which could be a breaking change for application behaviour.
 
 ##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
 
