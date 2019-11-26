@@ -157,6 +157,19 @@ The topic has also been extensively explored in Computer Science more generally.
 * [C2 Wiki: Nominative And Structural Typing](http://wiki.c2.com/?NominativeAndStructuralTyping)
 
 
+## Use Cases
+
+There have been a variety of use cases described by users asking for an abstract input type.
+
+* [Observability Metrics](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489495267)
+* [Login Options](https://github.com/graphql/graphql-js/issues/207#issuecomment-228543259)
+* [Abstract Syntax Tree](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489611199)
+* [Content Widgets](https://github.com/graphql/graphql-js/issues/207#issuecomment-308344371)
+* [Filtering](https://github.com/graphql/graphql-spec/issues/202#issue-170560819)
+* [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
+* [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
+
+
 ## Solution Criteria
 
 This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
@@ -200,25 +213,28 @@ In addition to containing Input types, member type may also contain Leaf types l
   * Potential solution: only allow a single built-in leaf type per input union.
 * Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
-### F) Changing field from an input type to a polymorphic type including that type is non-breaking
+### F) Migrating a field to a polymorphic input type is non-breaking
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
 * Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
-* Objection: achieving this by indicating a default type in the input field is verbose/potentially ugly.
+* Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
 ### G) Input unions may include other input unions
 
 To ease development.
 
-### H) Input unions should accept plain data from clients
+* Objection: Adds complexity without enabling any new use cases.
 
-Clients should be able to pass "natural" input data to unions without
-specially formatting it, adding extra metadata, or otherwise doing work.
+### H) Input unions should accept plain data
+
+Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
 
 ### I) Input unions should be easy to upgrade from existing solutions
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
+
+* Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
 
 ### J) A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
@@ -228,52 +244,19 @@ Preferably without loss of functionality.
 
 The less typing and fewer bytes transmitted, the better.
 
+* Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programatic.
+* Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
+
 ### L) Input unions should be performant for servers
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
-## Use Cases
-
-There have been a variety of use cases described by users asking for an abstract input type.
-
-* [Observability Metrics](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489495267)
-* [Login Options](https://github.com/graphql/graphql-js/issues/207#issuecomment-228543259)
-* [Abstract Syntax Tree](https://github.com/graphql/graphql-spec/pull/395#issuecomment-489611199)
-* [Content Widgets](https://github.com/graphql/graphql-js/issues/207#issuecomment-308344371)
-* [Filtering](https://github.com/graphql/graphql-spec/issues/202#issue-170560819)
-* [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
-* [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
+* Objection: None of the solutions discussed so far do anything that is computationally expensive.
 
 
 ## Possible Solutions
 
-Each of the solutions should be evaluated against each of the criteria.
-
-To get an overview, the following table broadly rates how good the solution fulfils
-a certain criteria. Positive is always *good*, so if a criteria is something bad and
-the solution does avoid the negative aspact, it gets a o
-- `o` Positive
-- `-` Neutral/Not applicable
-- `x` Negative
-
-|   | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|
-| A |   |   |   |   |   |
-| B |   |   |   |   | x |
-| C |   |   | x | x |   |
-| D |   |   |   |   |   |
-| E |   |   |   |   |   |
-| F |   |   |   |   |   |
-| G |   |   |   |   |   |
-| H | x | x |   |   |   |
-| I |   |   |   |   |   |
-| J |   |   |   |   |   |
-| K |   |   |   |   |   |
-| L | x | x |   |   |   |
-
-More detailed evaluations are to be placed in each solution's description.
-
-### 1. Single `__typename` field; value is the `type`
+### 1. Explicit `__typename` Discriminator field
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
@@ -314,15 +297,12 @@ type Mutation {
 
 #### Evaluation
 
-##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
+##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
 
-No, as there is an additional field that has to be added.
+* `x` One additional field is required.
 
-##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
 
-The additional field bloats the query.
-
-### 2. Single user-chosen field; value is the `type`
+### 2. Configurable Discriminator field
 
 ```graphql
 input CatInput {
@@ -414,13 +394,10 @@ input DogInput {
 
 #### Evaluation
 
-##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
+##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
 
-No, as there is an additional field that has to be added.
+* `x` One additional field is required.
 
-##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
-
-The additional field bloats the query.
 
 ### 3. Order based type matching
 
@@ -467,52 +444,8 @@ type Mutation {
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
-Adding a nullable field to an input object could change the detected type of
-fields or arguments in pre-existing operations.
+* `x` Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
-Assuming we have this schema:
-
-```graphql
-input InputA {
-  foo: Int
-}
-input InputB {
-  foo: Int
-  bar: Int
-}
-input InputC {
-  foo: Int
-  bar: Int
-  baz: Int
-}
-inputUnion InputU = InputA | InputB | InputC
-
-type A {...}
-type B {...}
-type C {...}
-union U = A | B | C
-
-type Query {
-  field(u: InputU): U
-}
-```
-
-Given this query:
-
-```graphql
-query ($u: InputU = {foo: 3, baz: 3}) {
-  field(u: $u) {
-    __typename
-    ... on C {
-      # ...
-    }
-  }
-}
-```
-
-the default value of `$u` would be detected as type InputC. However adding the
-field `baz: Int` to type InputA would result in the same value now being detected
-as type InputA, which could be a breaking change for application behaviour.
 
 ### 4. Structural uniqueness
 
@@ -574,6 +507,8 @@ input DogInput {
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
+#### Evaluation
+
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
 Inputs may be pushed to include extraneous fields to ensure uniqueness.
@@ -625,5 +560,4 @@ type Mutation {
 
 ##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
 
-The shape of the input type is forced to have a different structure than the
-corresponding output type.
+The shape of the input type is forced to have a different structure than the corresponding output type.
