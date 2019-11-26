@@ -314,33 +314,13 @@ type Mutation {
 
 #### Evaluation
 
-##### [GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-
-##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
-
-##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-
-##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
-
-##### [A member type may be a Leaf type](#e-a-member-type-may-be-a-leaf-type)
-
-##### [Changing field from an input type to a polymorphic type including that type is non-breaking](#f-changing-field-from-an-input-type-to-a-polymorphic-type-including-that-type-is-non-breaking)
-
-##### [Input unions may include other input unions](#g-input-unions-may-include-other-input-unions)
-
 ##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
 
 No, as there is an additional field that has to be added.
 
-##### [Input unions should be easy to upgrade from existing solutions](#i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
-
-##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
-
 ##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
 
 The additional field bloats the query.
-
-##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
 
 ### 2. Single user-chosen field; value is the `type`
 
@@ -434,33 +414,13 @@ input DogInput {
 
 #### Evaluation
 
-##### [GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-
-##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
-
-##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-
-##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
-
-##### [A member type may be a Leaf type](#e-a-member-type-may-be-a-leaf-type)
-
-##### [Changing field from an input type to a polymorphic type including that type is non-breaking](#f-changing-field-from-an-input-type-to-a-polymorphic-type-including-that-type-is-non-breaking)
-
-##### [Input unions may include other input unions](#g-input-unions-may-include-other-input-unions)
-
 ##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
 
 No, as there is an additional field that has to be added.
 
-##### [Input unions should be easy to upgrade from existing solutions](#i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
-
-##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
-
 ##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
 
 The additional field bloats the query.
-
-##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
 
 ### 3. Order based type matching
 
@@ -504,10 +464,6 @@ type Mutation {
 ```
 
 #### Evaluation
-
-##### [GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-
-##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
@@ -557,24 +513,6 @@ query ($u: InputU = {foo: 3, baz: 3}) {
 the default value of `$u` would be detected as type InputC. However adding the
 field `baz: Int` to type InputA would result in the same value now being detected
 as type InputA, which could be a breaking change for application behaviour.
-
-##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
-
-##### [A member type may be a Leaf type](#e-a-member-type-may-be-a-leaf-type)
-
-##### [Changing field from an input type to a polymorphic type including that type is non-breaking](#f-changing-field-from-an-input-type-to-a-polymorphic-type-including-that-type-is-non-breaking)
-
-##### [Input unions may include other input unions](#g-input-unions-may-include-other-input-unions)
-
-##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
-
-##### [Input unions should be easy to upgrade from existing solutions](#i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
-
-##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
-
-##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
-
-##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
 
 ### 4. Structural uniqueness
 
@@ -636,31 +574,9 @@ input DogInput {
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-##### [GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-
-##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
-
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
 Inputs may be pushed to include extraneous fields to ensure uniqueness.
-
-##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
-
-##### [A member type may be a Leaf type](#e-a-member-type-may-be-a-leaf-type)
-
-##### [Changing field from an input type to a polymorphic type including that type is non-breaking](#f-changing-field-from-an-input-type-to-a-polymorphic-type-including-that-type-is-non-breaking)
-
-##### [Input unions may include other input unions](#g-input-unions-may-include-other-input-unions)
-
-##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
-
-##### [Input unions should be easy to upgrade from existing solutions](#i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
-
-##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
-
-##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
-
-##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
 
 ### 5. One Of (Tagged Union)
 
@@ -707,29 +623,7 @@ type Mutation {
 
 #### Evaluation
 
-##### [GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-
 ##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
 
 The shape of the input type is forced to have a different structure than the
 corresponding output type.
-
-##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-
-##### [Any member type restrictions are validated in schema](#d-any-member-type-restrictions-are-validated-in-schema)
-
-##### [A member type may be a Leaf type](#e-a-member-type-may-be-a-leaf-type)
-
-##### [Changing field from an input type to a polymorphic type including that type is non-breaking](#f-changing-field-from-an-input-type-to-a-polymorphic-type-including-that-type-is-non-breaking)
-
-##### [Input unions may include other input unions](#g-input-unions-may-include-other-input-unions)
-
-##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
-
-##### [Input unions should be easy to upgrade from existing solutions](#i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
-
-##### [A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
-
-##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
-
-##### [Input unions should be performant for servers](#l-input-unions-should-be-performant-for-servers)
