@@ -376,7 +376,7 @@ RFC. If a specification URI is present, systems must conform to the described
 rules. Built-in scalar types should not provide a URI.
 
 ```graphql example
-scalar Time @specified(by: "https://tools.ietf.org/html/rfc3339")
+scalar DateTime @specified(by: "https://tools.ietf.org/html/rfc3339")
 scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```
 
@@ -2054,6 +2054,6 @@ In this example, two custom scalar types are defined with URIs pointing to the
 relevant IETF specifications.
 
 ```graphql example
-scalar Time @specified(by: "https://tools.ietf.org/html/rfc3339")
+scalar DateTime @specified(by: "https://tools.ietf.org/html/rfc3339")
 scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```
