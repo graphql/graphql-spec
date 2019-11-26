@@ -181,7 +181,10 @@ Any data structure that can be modeled with output type polymorphism should be a
 
 * Objection: composite input types and composite output types are distinct. Fields on composite output types support aliases and arguments whereas fields on composite input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
 
-### C) Doesn't inhibit [schema evolution](https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution)
+### C) Doesn't inhibit schema evolution
+
+The GraphQL specification mentions the ability to evolve your schema as one of its core values:
+https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
 
@@ -244,16 +247,33 @@ There have been a variety of use cases described by users asking for an abstract
 
 ## Possible Solutions
 
-Broadly speaking, there are two categories of solutions to the problem of type discrimination:
+Each of the solutions should be evaluated against each of the criteria.
 
-* Value-based discriminator field
-* Structural discrimination
+To get an overview, the following table broadly rates how good the solution fulfils
+a certain criteria. Positive is always *good*, so if a criteria is something bad and
+the solution does avoid the negative aspact, it gets a o
+- `o` Positive
+- `-` Neutral/Not applicable
+- `x` Negative
 
-### Value-based discriminator field
+|   | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| A |   |   |   |   |   |
+| B |   |   |   |   | x |
+| C |   |   | x | x |   |
+| D |   |   |   |   |   |
+| E |   |   |   |   |   |
+| F |   |   |   |   |   |
+| G |   |   |   |   |   |
+| H | x | x |   |   |   |
+| I |   |   |   |   |   |
+| J |   |   |   |   |   |
+| K |   |   |   |   |   |
+| L | x | x |   |   |   |
 
-These solutions rely the **value** of a specific input field to determine the concrete type.
+More detailed evaluations are to be placed in each solution's description.
 
-#### Single `__typename` field; value is the `type`
+### 1. Single `__typename` field; value is the `type`
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
@@ -288,11 +308,21 @@ type Mutation {
 }
 ```
 
-##### Variations:
+#### Variations:
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
-#### Single user-chosen field; value is the `type`
+#### Evaluation
+
+##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
+
+No, as there is an additional field that has to be added.
+
+##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+
+The additional field bloats the query.
+
+### 2. Single user-chosen field; value is the `type`
 
 ```graphql
 input CatInput {
@@ -327,15 +357,11 @@ type Mutation {
 }
 ```
 
-##### Problems:
-
-* The discriminator field is non-sensical if the input is used _outside_ of an input union, or in multiple input unions.
-
-##### Variations:
+#### Variations:
 
 * Value is a `Enum` literal
 
-This solution is derrived from discussions in https://github.com/graphql/graphql-spec/issues/488
+This solution is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
 ```graphql
 enum AnimalKind {
@@ -386,15 +412,17 @@ input DogInput {
 }
 ```
 
-##### Problems:
+#### Evaluation
 
-* The discriminator field is redundant if the input is used _outside_ of an input union.
+##### [Input unions should accept plain data from clients](#h-input-unions-should-accept-plain-data-from-clients)
 
-### Structural discrimination
+No, as there is an additional field that has to be added.
 
-These solutions rely on the **structure** of the input to determine the concrete type.
+##### [Input unions should be expressed efficiently in the query and on the wire](#k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
 
-#### Order based type matching
+The additional field bloats the query.
+
+### 3. Order based type matching
 
 The concrete type is the first type in the input union definition that matches.
 
@@ -435,7 +463,58 @@ type Mutation {
 }
 ```
 
-#### Structural uniqueness
+#### Evaluation
+
+##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+
+Adding a nullable field to an input object could change the detected type of
+fields or arguments in pre-existing operations.
+
+Assuming we have this schema:
+
+```graphql
+input InputA {
+  foo: Int
+}
+input InputB {
+  foo: Int
+  bar: Int
+}
+input InputC {
+  foo: Int
+  bar: Int
+  baz: Int
+}
+inputUnion InputU = InputA | InputB | InputC
+
+type A {...}
+type B {...}
+type C {...}
+union U = A | B | C
+
+type Query {
+  field(u: InputU): U
+}
+```
+
+Given this query:
+
+```graphql
+query ($u: InputU = {foo: 3, baz: 3}) {
+  field(u: $u) {
+    __typename
+    ... on C {
+      # ...
+    }
+  }
+}
+```
+
+the default value of `$u` would be detected as type InputC. However adding the
+field `baz: Int` to type InputA would result in the same value now being detected
+as type InputA, which could be a breaking change for application behaviour.
+
+### 4. Structural uniqueness
 
 Schema Rule: Each type in the union must have a unique set of required field names
 
@@ -491,16 +570,15 @@ input DogInput {
 }
 ```
 
-##### Problems:
-
-* Inputs may be pushed to include extraneous fields
-
-
-##### Variations:
+#### Variations:
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-#### One Of (Tagged Union)
+##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+
+Inputs may be pushed to include extraneous fields to ensure uniqueness.
+
+### 5. One Of (Tagged Union)
 
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
@@ -543,6 +621,9 @@ type Mutation {
 }
 ```
 
-##### Problems:
+#### Evaluation
 
-* Forces data to be modeled with different structure for input and output types.
+##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+
+The shape of the input type is forced to have a different structure than the
+corresponding output type.
