@@ -413,6 +413,7 @@ input DogInput {
   name: String!
   age: Int
   breed: DogBreed
+  owner: ID
 }
 
 inputunion AnimalInput = CatInput | DogInput
@@ -444,8 +445,28 @@ type Mutation {
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
-* `x` Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
+* [🚫] Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
+<details>
+  <summary>
+    Demonstration
+  </summary>
+
+  Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
+
+  ```graphql
+  mutation {
+    logAnimalDropOff(
+      location: "Portland, OR",
+      animals: [
+        {name: "Spot", age: 5, owner: "Sally"}
+      ]
+    )
+  }
+  ```
+
+  Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, that becomes `CatInput` even though the mutation submitted has not changed.
+</details>
 
 ### 4. Structural uniqueness
 
