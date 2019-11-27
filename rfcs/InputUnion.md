@@ -295,12 +295,13 @@ type Mutation {
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
-#### Evaluation
+#### 🔬 Evaluation
 
 ##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
 
-* `x` One additional field is required.
+* ⚠️ One additional field is required.
 
+-----
 
 ### 2. Configurable Discriminator field
 
@@ -392,12 +393,13 @@ input DogInput {
 }
 ```
 
-#### Evaluation
+#### 🔬 Evaluation
 
 ##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
 
-* `x` One additional field is required.
+* ⚠️ One additional field is required.
 
+-----
 
 ### 3. Order based type matching
 
@@ -441,11 +443,11 @@ type Mutation {
 }
 ```
 
-#### Evaluation
+#### 🔬 Evaluation
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
-* [🚫] Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
+* 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
 <details>
   <summary>
@@ -467,6 +469,8 @@ type Mutation {
 
   Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, that becomes `CatInput` even though the mutation submitted has not changed.
 </details>
+
+-----
 
 ### 4. Structural uniqueness
 
@@ -528,11 +532,13 @@ input DogInput {
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-#### Evaluation
+#### 🔬 Evaluation
 
 ##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
 
-Inputs may be pushed to include extraneous fields to ensure uniqueness.
+* ⚠️ Inputs may be pushed to include extraneous fields to ensure uniqueness.
+
+-----
 
 ### 5. One Of (Tagged Union)
 
@@ -577,8 +583,8 @@ type Mutation {
 }
 ```
 
-#### Evaluation
+#### 🔬 Evaluation
 
 ##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
 
-The shape of the input type is forced to have a different structure than the corresponding output type.
+* 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
