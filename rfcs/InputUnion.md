@@ -407,7 +407,7 @@ This variation is derived from discussions in https://github.com/graphql/graphql
   }
   ```
 
-</<details>
+</details>
 
 #### 🔬 Evaluation
 
