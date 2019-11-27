@@ -291,15 +291,16 @@ type Mutation {
 }
 ```
 
-#### Variations:
+#### Variations
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
 #### 🔬 Evaluation
 
-##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-
-* ⚠️ One additional field is required.
+* [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
+  * ✅
+* [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ⚠️ One additional field is required.
 
 -----
 
@@ -338,66 +339,82 @@ type Mutation {
 }
 ```
 
-#### Variations:
+#### Variations
 
 * Value is a `Enum` literal
 
-This solution is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
+This variation is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
-```graphql
-enum AnimalKind {
-  CAT
-  DOG
-}
+<details>
+  <summary>
+    Demonstration
+  </summary>
 
-input CatInput {
-  kind: AnimalKind::CAT
-  name: String!
-  age: Int
-  livesLeft: Int
-}
-input DogInput {
-  kind: AnimalKind::DOG
-  name: String!
-  age: Int
-  breed: DogBreed
-}
+  ```graphql
+  enum AnimalKind {
+    CAT
+    DOG
+  }
 
-# Variables:
-{
-  location: "Portland, OR",
-  animals: [
-    {
-      kind: "CAT",
-      name: "Buster",
-      livesLeft: 7
-    }
-  ]
-}
-```
+  input CatInput {
+    kind: AnimalKind::CAT
+    name: String!
+    age: Int
+    livesLeft: Int
+  }
+  input DogInput {
+    kind: AnimalKind::DOG
+    name: String!
+    age: Int
+    breed: DogBreed
+  }
+
+  # Variables:
+  {
+    location: "Portland, OR",
+    animals: [
+      {
+        kind: "CAT",
+        name: "Buster",
+        livesLeft: 7
+      }
+    ]
+  }
+  ```
+
+</details>
+
 
 * Value is a `String` literal
 
-```graphql
-input CatInput {
-  kind: "cat"
-  name: String!
-  age: Int
-  livesLeft: Int
-}
-input DogInput {
-  kind: "dog"
-  name: String!
-  age: Int
-  breed: DogBreed
-}
-```
+<details>
+  <summary>
+    Demonstration
+  </summary>
+
+  ```graphql
+  input CatInput {
+    kind: "cat"
+    name: String!
+    age: Int
+    livesLeft: Int
+  }
+  input DogInput {
+    kind: "dog"
+    name: String!
+    age: Int
+    breed: DogBreed
+  }
+  ```
+
+</<details>
 
 #### 🔬 Evaluation
 
-##### [Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-
-* ⚠️ One additional field is required.
+* [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
+  * ✅
+* [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ⚠️ One additional field is required.
 
 -----
 
@@ -445,9 +462,10 @@ type Mutation {
 
 #### 🔬 Evaluation
 
-##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-
-* 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
+* [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
+  * ✅
+* [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+  * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
 <details>
   <summary>
@@ -528,15 +546,16 @@ input DogInput {
 }
 ```
 
-#### Variations:
+#### Variations
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
 #### 🔬 Evaluation
 
-##### [Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-
-* ⚠️ Inputs may be pushed to include extraneous fields to ensure uniqueness.
+* [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
+  * ✅
+* [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+  * ⚠️ Inputs may be pushed to include extraneous fields to ensure uniqueness.
 
 -----
 
@@ -546,9 +565,9 @@ This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
 * https://github.com/graphql/graphql-spec/pull/586
 
-The type is discriminated using features already available, with an intermediate input type that acts to "tag" the field.
+The type is discriminated using features already available in GraphQL, with an intermediate input type that acts to "tag" the field.
 
-A proposed directive would specify that only one of the fields may be selected.
+A proposed directive would specify that only one of the fields in an input type may be provided. This provides schema-level validation instead of relying on a runtime error to express the restriction.
 
 ```graphql
 input CatInput {
@@ -585,6 +604,7 @@ type Mutation {
 
 #### 🔬 Evaluation
 
-##### [Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
-
-* 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
+* [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
+  * ⚠️ This isn't a polymorphic input type, it's extra schema validation for a "wrapper" type
+* [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+  * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
