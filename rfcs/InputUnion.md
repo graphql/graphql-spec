@@ -244,7 +244,7 @@ Preferably without loss of functionality.
 
 The less typing and fewer bytes transmitted, the better.
 
-* Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programatic.
+* Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
 ### L) Input unions should be performant for servers
