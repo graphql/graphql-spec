@@ -169,6 +169,7 @@ There have been a variety of use cases described by users asking for an abstract
 * [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
 * [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
+-----
 
 ## ⚖️ Solution Criteria
 
@@ -253,6 +254,7 @@ Ideally a server does not have to do much computation to determine which concret
 
 * ✂️ Objection: None of the solutions discussed so far do anything that is computationally expensive.
 
+-----
 
 ## 🏗 Possible Solutions
 
@@ -475,26 +477,18 @@ type Mutation {
 * [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
-<details>
-  <summary>
-    Demonstration
-  </summary>
+    Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
 
-  Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
+    ```graphql
+    mutation {
+      logAnimalDropOff(
+        location: "Portland, OR"
+        animals: [{name: "Old Yeller", age: 10, owner: "Travis"}]
+      )
+    }
+    ```
 
-  ```graphql
-  mutation {
-    logAnimalDropOff(
-      location: "Portland, OR",
-      animals: [
-        {name: "Spot", age: 5, owner: "Sally"}
-      ]
-    )
-  }
-  ```
-
-  Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, that becomes `CatInput` even though the mutation submitted has not changed.
-</details>
+    Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
 
 -----
 
