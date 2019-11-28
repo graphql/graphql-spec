@@ -212,7 +212,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | 🚫 | ⚠️ | ✅ |
+| ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 
 ### D) Any member type restrictions are validated in schema
 
@@ -354,6 +354,8 @@ type Mutation {
 * [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`)
+* [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+  * ✅ Discriminator is explicit
 * [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
 
@@ -469,6 +471,8 @@ input DogInput {
   * ✅
 * [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother
+* [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+  * ✅ Discriminator is explicit
 * [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
 
