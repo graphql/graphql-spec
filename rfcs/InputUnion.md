@@ -169,8 +169,6 @@ There have been a variety of use cases described by users asking for an abstract
 * [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
 * [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
------
-
 ## ⚖️ Solution Criteria
 
 This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
@@ -302,8 +300,6 @@ Ideally a server does not have to do much computation to determine which concret
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
------
-
 ## 🏗 Possible Solutions
 
 ### 💡 1. Explicit `__typename` Discriminator field
@@ -361,8 +357,6 @@ type Mutation {
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
-
------
 
 ### 💡 2. Explicit configurable Discriminator field
 
@@ -484,8 +478,6 @@ input DogInput {
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
 
------
-
 ### 💡 3. Order based discrimination
 
 The concrete type is the first type in the input union definition that matches.
@@ -551,8 +543,6 @@ type Mutation {
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ Listing the old input type first enables migration
-
------
 
 ### 💡 4. Structural uniqueness
 
@@ -625,8 +615,6 @@ input DogInput {
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ All new types added to the union must differ structurally from the previous type
-
------
 
 ### 💡 5. One Of (Tagged Union)
 
