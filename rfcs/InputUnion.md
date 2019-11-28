@@ -275,11 +275,11 @@ Many people in the wild are solving the need for input unions with validation at
 
 ### J) A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
-Preferably without loss of functionality.
+Preferably without a loss of or change in functionality.
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ### K) Input unions should be expressed efficiently in the query and on the wire
 
@@ -359,6 +359,8 @@ type Mutation {
   * ✅ Defaulting to the previous input type enables migration.
 * [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
+* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+  * ✅ Changes are additive only
 
 ### 💡 2. Explicit configurable Discriminator field
 
@@ -479,6 +481,8 @@ input DogInput {
   * ✅ Defaulting to the previous input type enables migration.
 * [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
+* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+  * ✅ Changes are additive only
 
 ### 💡 3. Order based discrimination
 
@@ -530,10 +534,6 @@ type Mutation {
   * ✅ Data structures can mirror eachother
 * [C) Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * ✅ Listing the old input type first enables migration
-* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-  * ✅
 
     Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
 
@@ -547,6 +547,12 @@ type Mutation {
     ```
 
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
+* [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+  * ✅ Listing the old input type first enables migration
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ✅ No extra fields or structure required
+* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+  * ✅ Changes are additive only
 
 ### 💡 4. Structural uniqueness
 
@@ -620,7 +626,9 @@ input DogInput {
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ All new types added to the union must differ structurally from the previous type
 * [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-  * ✅
+  * ✅ No extra fields or structure required
+* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+  * ✅ Changes are additive only
 
 ### 💡 5. One Of (Tagged Union)
 
@@ -677,3 +685,5 @@ type Mutation {
   * ✅ No migration required, as this is already possible
 * [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * 🚫 The shape of a data structure is forced to contain an intermediate type
+* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+  * ✅ Changes are additive only
