@@ -291,20 +291,35 @@ type Mutation {
 }
 ```
 
-#### Variations
+#### 🎲 Variations
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
-#### 🔬 Evaluation
+* The discriminator field may be `__inputname` to differentiate from an Output's `__typename`
+
+#### 🔮 Evaluation
 
 * [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
+* [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+  * ✅ Data structures can mirror eachother
+  * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`)
 * [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
 
 -----
 
-### 2. Configurable Discriminator field
+### 2. Explicit configurable Discriminator field
+
+A configurable discriminator field enables schema authors to model type discrimination into their schema more naturally.
+
+A schema author may choose to add their chosen type discriminator field to output types as well to completely mirror the structure in a way that enables sending data back and forth through input & output with no transformations.
+
+The mechanism for configuring the discriminator field is open to debate, in this example it's represented with the use of a schema directive.
+
+#### 🎲 Variations
+
+* Value is the input's type name
 
 ```graphql
 input CatInput {
@@ -320,7 +335,9 @@ input DogInput {
   breed: DogBreed
 }
 
-inputunion AnimalInput = CatInput | DogInput
+inputunion AnimalInput @discriminator(field: "kind") =
+  | CatInput
+  | DogInput
 
 type Mutation {
   logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
@@ -339,80 +356,69 @@ type Mutation {
 }
 ```
 
-#### Variations
-
 * Value is a `Enum` literal
 
 This variation is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
-<details>
-  <summary>
-    Demonstration
-  </summary>
+```graphql
+enum AnimalKind {
+  CAT
+  DOG
+}
 
-  ```graphql
-  enum AnimalKind {
-    CAT
-    DOG
-  }
+input CatInput {
+  kind: AnimalKind::CAT
+  # ...
+}
+input DogInput {
+  kind: AnimalKind::DOG
+  # ...
+}
 
-  input CatInput {
-    kind: AnimalKind::CAT
-    name: String!
-    age: Int
-    livesLeft: Int
-  }
-  input DogInput {
-    kind: AnimalKind::DOG
-    name: String!
-    age: Int
-    breed: DogBreed
-  }
-
-  # Variables:
-  {
-    location: "Portland, OR",
-    animals: [
-      {
-        kind: "CAT",
-        name: "Buster",
-        livesLeft: 7
-      }
-    ]
-  }
-  ```
-
-</details>
-
+# Variables:
+{
+  location: "Portland, OR",
+  animals: [
+    {
+      kind: "CAT",
+      name: "Buster",
+      livesLeft: 7
+    }
+  ]
+}
+```
 
 * Value is a `String` literal
 
-<details>
-  <summary>
-    Demonstration
-  </summary>
+```graphql
+input CatInput {
+  kind: "cat"
+  # ...
+}
+input DogInput {
+  kind: "dog"
+  # ...
+}
 
-  ```graphql
-  input CatInput {
-    kind: "cat"
-    name: String!
-    age: Int
-    livesLeft: Int
-  }
-  input DogInput {
-    kind: "dog"
-    name: String!
-    age: Int
-    breed: DogBreed
-  }
-  ```
+# Variables:
+{
+  location: "Portland, OR",
+  animals: [
+    {
+      kind: "cat",
+      name: "Buster",
+      livesLeft: 7
+    }
+  ]
+}
+```
 
-</details>
-
-#### 🔬 Evaluation
+#### 🔮 Evaluation
 
 * [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
+* [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+  * ✅ Data structures can mirror eachother
 * [H - Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
 
@@ -460,10 +466,12 @@ type Mutation {
 }
 ```
 
-#### 🔬 Evaluation
+#### 🔮 Evaluation
 
 * [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
+* [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+  * ✅ Data structures can mirror eachother
 * [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
@@ -546,16 +554,19 @@ input DogInput {
 }
 ```
 
-#### Variations
+#### 🎲 Variations
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-#### 🔬 Evaluation
+#### 🔮 Evaluation
 
 * [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
+* [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
+  * ✅ Data structures can mirror eachother's fields
+  * ⚠️ Restrictions on required fields may prevent matching output types
 * [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
-  * ⚠️ Inputs may be pushed to include extraneous fields to ensure uniqueness.
+  * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
 
 -----
 
@@ -602,9 +613,11 @@ type Mutation {
 }
 ```
 
-#### 🔬 Evaluation
+#### 🔮 Evaluation
 
 * [A - GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
-  * ⚠️ This isn't a polymorphic input type, it's extra schema validation for a "wrapper" type
+  * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
 * [B - Input polymorphism matches output polymorphism](#b-input-polymorphism-matches-output-polymorphism)
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
+* [C - Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
+  * ✅ This technique is already in use in many schemas with the extra validation
