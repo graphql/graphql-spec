@@ -227,7 +227,7 @@ If a solution places any restrictions on member types, compliance with these res
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## 🎯 E. A member type may be a Leaf type
 
@@ -383,6 +383,8 @@ type Mutation {
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
 * [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
+* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+  * ✅ No member type restrictions
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Requires a type to provide a discriminator field
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
@@ -507,6 +509,8 @@ input DogInput {
   * ✅ Data structures can mirror eachother.
 * [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
+* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+  * ✅ Schema validation can check that all members of the input union have the discriminator field
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Requires a type to provide a discriminator field
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
@@ -580,6 +584,8 @@ type Mutation {
     ```
 
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
+* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+  * ✅ No member type restrictions
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * ✅ Scalars could be listed in the inputunion and evaluated in order
   * ⚠️ Subject to subtle dangerous behavior. ie: `String` listed before an Enum could never match the Enum
@@ -659,6 +665,8 @@ input DogInput {
   * ⚠️ Restrictions on required fields may prevent matching output types
 * [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
+* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+  * ✅ A "uniqueness" algorithm must be applied during schema validation
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Ambiguous types unable to be discriminated. ex: `String` vs `Enum` vs `ID`
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
@@ -719,6 +727,8 @@ type Mutation {
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
 * [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ This technique is already in use in many schemas with the extra validation
+* [D. Any member type restrictions are validated in schema](#-e-a-member-type-may-be-a-leaf-type)
+  * ✅ No schema changes, only an additional client side validation is added
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * ✅ Any GraphQL type may be used
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
@@ -738,7 +748,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [A](#-a-graphql-should-contain-a-polymorphic-input-type) | ✅ | ✅ | ✅ | ✅ | ⚠️ |
 | [B](#-b-input-polymorphism-matches-output-polymorphism) | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 | [C](#-c-doesnt-inhibit-schema-evolution) | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
-| [D](#-d-any-member-type-restrictions-are-validated-in-schema) | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [D](#-d-any-member-type-restrictions-are-validated-in-schema) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | 🚫✅ | 🚫✅ | ✅ | ✅ | ✅ |
 | [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
