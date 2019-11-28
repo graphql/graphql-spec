@@ -239,7 +239,7 @@ In addition to containing Input types, member type may also contain Leaf types l
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 
 ## 🎯 F. Migrating a field to a polymorphic input type is non-breaking
 
@@ -376,19 +376,21 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
-* [B) Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother.
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
-* [C) Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+  * 🚫 Requires a type to provide a discriminator field
+* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
-* [H) Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
-* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
 ## 💡 2. Explicit configurable Discriminator field
@@ -499,18 +501,20 @@ input DogInput {
 
 ### ⚖️ Evaluation
 
-* [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
-* [B) Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother.
-* [C) Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+  * 🚫 Requires a type to provide a discriminator field
+* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
-* [H) Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
-* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
 ## 💡 3. Order based discrimination
@@ -557,11 +561,11 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
-* [B) Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother
-* [C) Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
     Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
@@ -576,11 +580,14 @@ type Mutation {
     ```
 
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+  * ✅ Scalars could be listed in the inputunion and evaluated in order
+  * ⚠️ Subject to subtle dangerous behavior. ie: `String` listed before an Enum could never match the Enum
+* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ Listing the old input type first enables migration
-* [H) Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ✅ No extra fields or structure required
-* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
 ## 💡 4. Structural uniqueness
@@ -645,18 +652,20 @@ input DogInput {
 
 ### ⚖️ Evaluation
 
-* [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
-* [B) Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
   * ✅ Data structures can mirror eachother's fields
   * ⚠️ Restrictions on required fields may prevent matching output types
-* [C) Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+  * 🚫 Ambiguous types unable to be discriminated. ex: `String` vs `Enum` vs `ID`
+* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ All new types added to the union must differ structurally from the previous type
-* [H) Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ✅ No extra fields or structure required
-* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
 ## 💡 5. One Of (Tagged Union)
@@ -704,17 +713,19 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
-* [B) Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
-* [C) Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
   * ✅ This technique is already in use in many schemas with the extra validation
-* [F) Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+  * ✅ Any GraphQL type may be used
+* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ No migration required, as this is already possible
-* [H) Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * 🚫 The shape of a data structure is forced to contain an intermediate type
-* [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
 
@@ -728,7 +739,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [B](#-b-input-polymorphism-matches-output-polymorphism) | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 | [C](#-c-doesnt-inhibit-schema-evolution) | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D](#-d-any-member-type-restrictions-are-validated-in-schema) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [E](#-e-a-member-type-may-be-a-leaf-type) | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | 🚫✅ | 🚫✅ | ✅ | ✅ | ✅ |
 | [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
 | [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
