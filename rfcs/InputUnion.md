@@ -257,9 +257,11 @@ To ease development.
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
 
+* ✂️ Objection: This is a matter of taste - legitimate [Prior Art](#-prior-art) exists that require formatting / extra metadata.
+
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ⚠️ | ⚠️ | ❔ | ❔ | ❔ |
+| ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
 
 ### I) Input unions should be easy to upgrade from existing solutions
 
@@ -352,11 +354,11 @@ type Mutation {
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
 * [C) Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
-* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-  * ⚠️ One additional field is required.
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ⚠️ One additional field is required.
 
 ### 💡 2. Explicit configurable Discriminator field
 
@@ -472,11 +474,11 @@ input DogInput {
   * ✅ Data structures can mirror eachother.
 * [C) Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * ✅ Discriminator is explicit.
-* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
-  * ⚠️ One additional field is required.
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * 🚫 Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ⚠️ One additional field is required.
 
 ### 💡 3. Order based discrimination
 
@@ -528,6 +530,10 @@ type Mutation {
   * ✅ Data structures can mirror eachother
 * [C) Doesn't inhibit schema evolution](#c-doesnt-inhibit-schema-evolution)
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
+* [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+  * ✅ Listing the old input type first enables migration
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ✅
 
     Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
 
@@ -541,8 +547,6 @@ type Mutation {
     ```
 
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
-* [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * ✅ Listing the old input type first enables migration
 
 ### 💡 4. Structural uniqueness
 
@@ -615,6 +619,8 @@ input DogInput {
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ All new types added to the union must differ structurally from the previous type
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * ✅
 
 ### 💡 5. One Of (Tagged Union)
 
@@ -669,3 +675,5 @@ type Mutation {
   * ✅ This technique is already in use in many schemas with the extra validation
 * [F) Migrating a field to a polymorphic input type is non-breaking](#f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ No migration required, as this is already possible
+* [H) Input unions should accept plain data](#h-input-unions-should-accept-plain-data)
+  * 🚫 The shape of a data structure is forced to contain an intermediate type
