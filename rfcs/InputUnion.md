@@ -11,13 +11,13 @@ From that shared understanding, the GraphQL Working Group aims to reach a consen
 
 To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/master/rfcs/InputUnion.md)
 
-## 📜 Problem Statement
+# 📜 Problem Statement
 
 GraphQL currently provides polymorphic types that enable schema authors to model complex **Object** types that have multiple shapes while remaining type-safe, but lacks an equivilant capability for **Input** types.
 
 Over the years there have been numerous proposals from the community to add a polymorphic input type. Without such a type, schema authors have resorted to a handful of work-arounds to model their domains. These work-arounds have led to schemas that aren't as expressive as they could be, and schemas where mutations that ideally mirror queries are forced to be modeled differently.
 
-## 🐕 Problem Sketch
+# 🐕 Problem Sketch
 
 To understand the problem space a little more, we'll sketch out an example that explores a domain from the perspective of a Query and a Mutation. However, it's important to note that the problem is not limited to mutations, since `Input` types are used in field arguments for any GraphQL operation type.
 
@@ -129,7 +129,7 @@ In this mutation, we encounter the main challenge of the **Input Union** - we ne
 A wide variety of solutions have been explored by the community, and they are outlined in detail in this document under [Possible Solutions](#Possible-Solutions).
 
 
-## 🎨 Prior Art
+# 🎨 Prior Art
 
 Many other technologies provide polymorphic types, and have done so using a variety of techniques.
 
@@ -157,7 +157,7 @@ The topic has also been extensively explored in Computer Science more generally.
 * [C2 Wiki: Nominative And Structural Typing](http://wiki.c2.com/?NominativeAndStructuralTyping)
 
 
-## 🛠 Use Cases
+# 🛠 Use Cases
 
 There have been a variety of use cases described by users asking for an abstract input type.
 
@@ -169,7 +169,7 @@ There have been a variety of use cases described by users asking for an abstract
 * [Observability Cloud Integrations](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#cloud-integrations)
 * [Observability Dashboards](https://gist.github.com/binaryseed/f2dd63d1a1406124be70c17e2e796891#dashboards)
 
-## 📋 Solution Criteria
+# 📋 Solution Criteria
 
 This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
 
@@ -192,7 +192,7 @@ Solutions are evaluated and scored using a simple 3 part scale. A solution may h
 
 Passing or failing a specific criteria is NOT the final word. Both the Criteria _and_ the Solutions are up for debate.
 
-### 🎯 A. GraphQL should contain a polymorphic Input type
+## 🎯 A. GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
@@ -200,7 +200,7 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
 
-### 🎯 B. Input polymorphism matches output polymorphism
+## 🎯 B. Input polymorphism matches output polymorphism
 
 Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
 
@@ -210,7 +210,7 @@ Any data structure that can be modeled with output type polymorphism should be a
 |----|----|----|----|----|
 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 
-### 🎯 C. Doesn't inhibit schema evolution
+## 🎯 C. Doesn't inhibit schema evolution
 
 The GraphQL specification mentions the ability to evolve your schema as one of its core values:
 https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evolution
@@ -221,7 +221,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 |----|----|----|----|----|
 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 
-### 🎯 D. Any member type restrictions are validated in schema
+## 🎯 D. Any member type restrictions are validated in schema
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
@@ -229,7 +229,7 @@ If a solution places any restrictions on member types, compliance with these res
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 E. A member type may be a Leaf type
+## 🎯 E. A member type may be a Leaf type
 
 In addition to containing Input types, member type may also contain Leaf types like `Scalar`s or `Enum`s.
 
@@ -241,7 +241,7 @@ In addition to containing Input types, member type may also contain Leaf types l
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 F. Migrating a field to a polymorphic input type is non-breaking
+## 🎯 F. Migrating a field to a polymorphic input type is non-breaking
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
@@ -252,7 +252,7 @@ Since the input object type is now a member of the input union, existing input o
 |----|----|----|----|----|
 | 🚫✅ | 🚫✅ | ✅ | ✅ | ✅ |
 
-### 🎯 G. Input unions may include other input unions
+## 🎯 G. Input unions may include other input unions
 
 To ease development.
 
@@ -262,7 +262,7 @@ To ease development.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 H. Input unions should accept plain data
+## 🎯 H. Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
 
@@ -272,7 +272,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
 
-### 🎯 I. Input unions should be easy to upgrade from existing solutions
+## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
 
@@ -282,7 +282,7 @@ Many people in the wild are solving the need for input unions with validation at
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 J. A GraphQL schema that supports input unions can be queried by older GraphQL clients
+## 🎯 J. A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
 Preferably without a loss of or change in functionality.
 
@@ -290,7 +290,7 @@ Preferably without a loss of or change in functionality.
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-### 🎯 K. Input unions should be expressed efficiently in the query and on the wire
+## 🎯 K. Input unions should be expressed efficiently in the query and on the wire
 
 The less typing and fewer bytes transmitted, the better.
 
@@ -301,7 +301,7 @@ The less typing and fewer bytes transmitted, the better.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 L. Input unions should be performant for servers
+## 🎯 L. Input unions should be performant for servers
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
@@ -311,7 +311,7 @@ Ideally a server does not have to do much computation to determine which concret
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 M. Existing SDL parsers are backwards compatible with SDL additions
+## 🎯 M. Existing SDL parsers are backwards compatible with SDL additions
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
@@ -319,7 +319,7 @@ Common tools that parse GraphQL SDL should not fail when pointed at a schema whi
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-### 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
+## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
 For example, GraphiQL should successfully render when pointed at a schema which contains polymorphic input types. It should continue to function even if it can't support the polymorphic input type.
 
@@ -327,13 +327,13 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-## 🏗 Possible Solutions
+# 🏗 Possible Solutions
 
 The community has imagined a variety of possible solutions, synthesized here.
 
 Each solution is identified with a `Number` so they can be referenced in the rest of the document. New solutions must be added to the end of the list.
 
-### 💡 1. Explicit `__typename` Discriminator field
+## 💡 1. Explicit `__typename` Discriminator field
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
@@ -368,13 +368,13 @@ type Mutation {
 }
 ```
 
-#### 🎲 Variations
+### 🎲 Variations
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
 * The discriminator field may be `__inputname` to differentiate from an Output's `__typename`
 
-#### ⚖️ Evaluation
+### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -391,7 +391,7 @@ type Mutation {
 * [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
-### 💡 2. Explicit configurable Discriminator field
+## 💡 2. Explicit configurable Discriminator field
 
 A configurable discriminator field enables schema authors to model type discrimination into their schema more naturally.
 
@@ -399,7 +399,7 @@ A schema author may choose to add their chosen type discriminator field to outpu
 
 The mechanism for configuring the discriminator field is open to debate, in this example it's represented with the use of a schema directive.
 
-#### 🎲 Variations
+### 🎲 Variations
 
 * Value is the input's type name
 
@@ -497,7 +497,7 @@ input DogInput {
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
-#### ⚖️ Evaluation
+### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -513,7 +513,7 @@ input DogInput {
 * [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
-### 💡 3. Order based discrimination
+## 💡 3. Order based discrimination
 
 The concrete type is the first type in the input union definition that matches.
 
@@ -555,7 +555,7 @@ type Mutation {
 }
 ```
 
-#### ⚖️ Evaluation
+### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -583,7 +583,7 @@ type Mutation {
 * [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
-### 💡 4. Structural uniqueness
+## 💡 4. Structural uniqueness
 
 Schema Rule: Each type in the union must have a unique set of required field names
 
@@ -639,11 +639,11 @@ input DogInput {
 }
 ```
 
-#### 🎲 Variations
+### 🎲 Variations
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-#### ⚖️ Evaluation
+### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -659,7 +659,7 @@ input DogInput {
 * [J) A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
-### 💡 5. One Of (Tagged Union)
+## 💡 5. One Of (Tagged Union)
 
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
@@ -702,7 +702,7 @@ type Mutation {
 }
 ```
 
-#### ⚖️ Evaluation
+### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
   * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
@@ -718,7 +718,7 @@ type Mutation {
   * ✅ Changes are additive only
 
 
-## 🏆 Evaluation Overview
+# 🏆 Evaluation Overview
 
 A quick glance at the evaluation results. Remember that passing or failing a specific criteria is NOT the final word.
 
