@@ -343,7 +343,7 @@ type Mutation {
 
 * The discriminator field may be `__inputname` to differentiate from an Output's `__typename`
 
-#### 🔮 Evaluation
+#### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -464,7 +464,7 @@ input DogInput {
 
 * A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
 
-#### 🔮 Evaluation
+#### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -520,7 +520,7 @@ type Mutation {
 }
 ```
 
-#### 🔮 Evaluation
+#### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -604,7 +604,7 @@ input DogInput {
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
 
-#### 🔮 Evaluation
+#### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ✅
@@ -659,7 +659,7 @@ type Mutation {
 }
 ```
 
-#### 🔮 Evaluation
+#### ⚖️ Evaluation
 
 * [A) GraphQL should contain a polymorphic Input type](#a-graphql-should-contain-a-polymorphic-input-type)
   * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
