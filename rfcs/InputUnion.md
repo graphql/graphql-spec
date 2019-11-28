@@ -302,6 +302,22 @@ Ideally a server does not have to do much computation to determine which concret
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
+### M) Existing SDL parsers are backwards compatible with SDL additions
+
+Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
+### N) Existing code generated tooling is backwards compatible with Introspection additions
+
+For example, GraphiQL should successfully render when pointed at a schema which contains polymorphic input types. It should continue to function even if it can't support the polymorphic input type.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ## 🏗 Possible Solutions
 
 ### 💡 1. Explicit `__typename` Discriminator field
