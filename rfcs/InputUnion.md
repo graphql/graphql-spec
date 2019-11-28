@@ -189,11 +189,19 @@ Each criteria is identified with a Letter so they can be referenced in the rest 
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ✅ | ✅ | ✅ | ✅ | ⚠️ |
+
 ### B) Input polymorphism matches output polymorphism
 
 Any data structure that can be modeled with output type polymorphism should be able to be mirrored with Input polymorphism. Minimal transformation of outputs should be required to send a data structure back as inputs.
 
 * ✂️ Objection: composite input types and composite output types are distinct. Fields on composite output types support aliases and arguments whereas fields on composite input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
 
 ### C) Doesn't inhibit schema evolution
 
@@ -202,9 +210,17 @@ https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evoluti
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### D) Any member type restrictions are validated in schema
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
 
 ### E) A member type may be a Leaf type
 
@@ -214,6 +230,10 @@ In addition to containing Input types, member type may also contain Leaf types l
   * Potential solution: only allow a single built-in leaf type per input union.
 * ✂️ Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### F) Migrating a field to a polymorphic input type is non-breaking
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
@@ -221,15 +241,27 @@ Since the input object type is now a member of the input union, existing input o
 * ✂️ Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * ✂️ Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### G) Input unions may include other input unions
 
 To ease development.
 
 * ✂️ Objection: Adds complexity without enabling any new use cases.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### H) Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
 
 ### I) Input unions should be easy to upgrade from existing solutions
 
@@ -237,9 +269,17 @@ Many people in the wild are solving the need for input unions with validation at
 
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### J) A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
 Preferably without loss of functionality.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
 
 ### K) Input unions should be expressed efficiently in the query and on the wire
 
@@ -248,11 +288,19 @@ The less typing and fewer bytes transmitted, the better.
 * ✂️ Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * ✂️ Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
+
 ### L) Input unions should be performant for servers
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
 * ✂️ Objection: None of the solutions discussed so far do anything that is computationally expensive.
+
+| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ❔ |
 
 -----
 
@@ -426,7 +474,7 @@ input DogInput {
 
 -----
 
-### 💡 3. Order based type matching
+### 💡 3. Order based discrimination
 
 The concrete type is the first type in the input union definition that matches.
 
