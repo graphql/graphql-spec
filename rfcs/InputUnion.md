@@ -327,7 +327,7 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-# 🏗 Possible Solutions
+# 🚧 Possible Solutions
 
 The community has imagined a variety of possible solutions, synthesized here.
 
