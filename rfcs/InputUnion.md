@@ -186,7 +186,7 @@ Each criteria is identified with a `Letter` so they can be referenced in the res
 Solutions are evaluated and scored using a simple 3 part scale. A solution may have multiple evaluations based on variations present in the solution.
 
 * ✅ **Pass.** The solution clearly meets the criteria
-* ⚠️ **Warning.** The solution doesn't clearly meet or fail the criteria
+* ⚠️ **Warning.** The solution doesn't clearly meet or fail the criteria, or there is an important caveat to passing the criteria
 * 🚫 **Fail.** The solution clearly fails the criteria
 * ❔ The criteria hasn't been evaluated yet
 
@@ -250,7 +250,7 @@ Since the input object type is now a member of the input union, existing input o
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| 🚫✅ | 🚫✅ | ✅ | ✅ | ✅ |
+| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
 ## 🎯 G. Input unions may include other input unions
 
@@ -276,11 +276,13 @@ Clients should be able to pass "natural" input data to unions without specially 
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
 
+Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
 ## 🎯 J. A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
@@ -388,10 +390,12 @@ type Mutation {
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Requires a type to provide a discriminator field
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * 🚫 Discriminator field is required.
+  * ⚠️ Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
+* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+  * ✅ Defaulting to the previous input type enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
@@ -514,10 +518,12 @@ input DogInput {
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Requires a type to provide a discriminator field
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * 🚫 Discriminator field is required.
-  * ✅ Defaulting to the previous input type enables migration.
+  * ⚠️ Discriminator field is required.
+  * ✅ Defaulting to the previous input type enables migration
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ⚠️ One additional field is required.
+* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+  * ✅ Defaulting to the previous input type enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
@@ -593,6 +599,8 @@ type Mutation {
   * ✅ Listing the old input type first enables migration
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ✅ No extra fields or structure required
+* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+  * ✅ Listing the old input type first enables enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
@@ -670,9 +678,11 @@ input DogInput {
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * 🚫 Ambiguous types unable to be discriminated. ex: `String` vs `Enum` vs `ID`
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * ✅ All new types added to the union must differ structurally from the previous type
+  * ⚠️ All new types added to the union must differ structurally from the previous type
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * ✅ No extra fields or structure required
+* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+  * ⚠️ All new types added to the union must differ structurally from the previous type
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
@@ -732,9 +742,11 @@ type Mutation {
 * [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
   * ✅ Any GraphQL type may be used
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
-  * ✅ No migration required, as this is already possible
+  * ✅ No migration required, as this pattern is already possible
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
   * 🚫 The shape of a data structure is forced to contain an intermediate type
+* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+  * ✅ No migration required, as this pattern is already possible
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
 
@@ -750,10 +762,10 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [C](#-c-doesnt-inhibit-schema-evolution) | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D](#-d-any-member-type-restrictions-are-validated-in-schema) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | 🚫✅ | 🚫✅ | ✅ | ✅ | ✅ |
+| [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
 | [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
-| [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ❔ |
 | [L](#-l-input-unions-should-be-performant-for-servers) | ❔ | ❔ | ❔ | ❔ | ❔ |
