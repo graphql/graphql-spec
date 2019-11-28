@@ -201,7 +201,7 @@ Any data structure that can be modeled with output type polymorphism should be a
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 
 ### C) Doesn't inhibit schema evolution
 
@@ -212,7 +212,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ❔ | ❔ | 🚫 | ⚠️ | ✅ |
 
 ### D) Any member type restrictions are validated in schema
 
@@ -261,7 +261,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ⚠️ | ⚠️ | ❔ | ❔ | ❔ |
 
 ### I) Input unions should be easy to upgrade from existing solutions
 
