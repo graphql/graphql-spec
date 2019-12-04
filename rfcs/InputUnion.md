@@ -764,7 +764,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
+| [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ❔ |
