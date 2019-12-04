@@ -270,7 +270,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
+| ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 
 ## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
@@ -744,7 +744,7 @@ type Mutation {
 * [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
   * ✅ No migration required, as this pattern is already possible
 * [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
-  * 🚫 The shape of a data structure is forced to contain an intermediate type
+  * ⚠️ The data is wrapped in a (simple) container type
 * [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
   * ✅ No migration required, as this pattern is already possible
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
@@ -764,7 +764,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | 🚫 |
+| [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ❔ |
