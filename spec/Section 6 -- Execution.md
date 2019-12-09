@@ -596,9 +596,9 @@ CoerceArgumentValues(objectType, field, variableValues):
           value {value}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-            rules of {variableType}, throw a field error.
+            rules of {argumentType}, throw a field error.
         * Let {coercedValue} be the result of coercing {value} according to the
-          input coercion rules of {variableType}.
+          input coercion rules of {argumentType}.
         * Add an entry to {coercedValues} named {argumentName} with the
           value {coercedValue}.
   * Return {coercedValues}.
