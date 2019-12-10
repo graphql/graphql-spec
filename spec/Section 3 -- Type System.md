@@ -368,7 +368,7 @@ custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
 When defining an additional scalar, GraphQL systems should use the `@specified`
-directive to provide an RFC3986-compliant URI pointing to a human-readable
+directive to provide a URL pointing to a human-readable
 specification of the data format, serialization, and coercion rules for the
 scalar. For example, a GraphQL system providing a `Date` or `DateTime` scalar
 might link to RFC 3339, or some document defining a reasonable subset of that
@@ -2035,7 +2035,7 @@ directive @specified(
 ```
 
 The `@specified` directive is used within the type system definition language
-to provide an RFC3986-compliant URI for specifying the behaviour of custom
+to provide a URL for specifying the behaviour of custom
 scalar definitions. The URI should point to a human-readable specification of
 the data format, serialization, and coercion rules for the scalar. For example,
 a GraphQL system providing a `Date` or `DateTime` scalar might link to RFC 3339,

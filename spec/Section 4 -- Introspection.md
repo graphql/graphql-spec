@@ -250,7 +250,7 @@ Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `specifiedBy` may return an RFC3986-compliant URI or {null}.
+* `specifiedBy` may return a URL or {null}.
 * `description` may return a String or {null}.
 * All other fields must return {null}.
 
