@@ -151,7 +151,7 @@ type __Type {
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
 
-  # should be non-null for SCALAR only, must be null for the others
+  # may be non-null for SCALAR only, must be null for the others
   specifiedBy: String
 }
 
