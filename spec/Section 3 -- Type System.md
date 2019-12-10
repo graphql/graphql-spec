@@ -368,16 +368,16 @@ custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
 When defining an additional scalar, GraphQL systems should use the `@specified`
-directive to provide a URL pointing to a human-readable
-specification of the data format, serialization, and coercion rules for the
-scalar. For example, a GraphQL system providing a `Date` or `DateTime` scalar
-might link to RFC 3339, or some document defining a reasonable subset of that
-RFC. If a specification URI is present, systems must conform to the described
-rules. Built-in scalar types should not provide a URI.
+directive to provide a URL pointing to a human-readable specification of the
+data format, serialization, and coercion rules for the scalar. For example, a
+GraphQL system providing a `UUID` scalar might link to RFC 4122, or some
+document defining a reasonable subset of that RFC. If a specification URL is
+present, systems must conform to the described rules. Built-in scalar types
+should not provide a URL.
 
 ```graphql example
-scalar DateTime @specified(by: "https://tools.ietf.org/html/rfc3339")
-scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
+scalar UUID @specified(by: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```
 
 **Built-in Scalars**
@@ -2036,24 +2036,24 @@ directive @specified(
 
 The `@specified` directive is used within the type system definition language
 to provide a URL for specifying the behaviour of custom
-scalar definitions. The URI should point to a human-readable specification of
+scalar definitions. The URL should point to a human-readable specification of
 the data format, serialization, and coercion rules for the scalar. For example,
-a GraphQL system providing a `Date` or `DateTime` scalar might link to RFC 3339,
+a GraphQL system providing a `UUID` scalar might link to RFC 4122,
 or some document defining a reasonable subset of that RFC. If a specification
-URI is present, systems must conform to the described rules. Built-in scalar
-types should not provide a URI in this way.
+URL is present, systems must conform to the described rules. Built-in scalar
+types should not provide a URL in this way.
 
 Specifications linked in this way should provide a single, stable scalar format
 to avoid ambiguity. This means that if the specification is in flux, the system
 should link to a fixed version rather than to a resource whose contents might
-change. It is also recommended that the URI associated with a scalar not be
+change. It is also recommended that the URL associated with a scalar not be
 changed once defined; doing so is likely to disrupt tooling, and may come with
 changes to the specification contents which are themselves breaking.
 
-In this example, two custom scalar types are defined with URIs pointing to the
+In this example, two custom scalar types are defined with URLs pointing to the
 relevant IETF specifications.
 
 ```graphql example
-scalar DateTime @specified(by: "https://tools.ietf.org/html/rfc3339")
-scalar Url @specified(by: "https://tools.ietf.org/html/rfc3986")
+scalar UUID @specified(by: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specified(by: "https://tools.ietf.org/html/rfc3986")
 ```
