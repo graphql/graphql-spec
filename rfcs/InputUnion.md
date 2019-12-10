@@ -758,6 +758,15 @@ type Mutation {
 * [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
   * ✅ Existing code generation tools will degrade gracefully to a regular input object
 
+### Summary of spec changes
+
+- **SDL**: enable use of `@oneOf` directive on input object type definitions
+- **Introspection**: add `requiresExactlyOneField: Boolean` field to `__Type` type
+- **Schema validation**: all fields on a `@oneOf` input type must be nullable, and must not have defaults
+- **Operation validation**: when validating a `@oneOf` input object, assert that exactly one field was specified
+
+[The full spec changes can be seen here](https://github.com/graphql/graphql-spec/pull/586/files).
+
 # 🏆 Evaluation Overview
 
 A quick glance at the evaluation results. Remember that passing or failing a specific criteria is NOT the final word.
