@@ -398,6 +398,14 @@ type Mutation {
   * ✅ Defaulting to the previous input type enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
+* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+  * ❔ Not evaluated
+* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+  * ❔ Not evaluated
+* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+  * ❔ Not evaluated
+* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+  * ❔ Not evaluated
 
 ## 💡 2. Explicit configurable Discriminator field
 
@@ -526,6 +534,14 @@ input DogInput {
   * ✅ Defaulting to the previous input type enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
+* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+  * ❔ Not evaluated
+* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+  * ❔ Not evaluated
+* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+  * ❔ Not evaluated
+* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+  * ❔ Not evaluated
 
 ## 💡 3. Order based discrimination
 
@@ -603,6 +619,14 @@ type Mutation {
   * ✅ Listing the old input type first enables enables upgrading
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
+* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+  * ❔ Not evaluated
+* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+  * ❔ Not evaluated
+* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+  * ❔ Not evaluated
+* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+  * ❔ Not evaluated
 
 ## 💡 4. Structural uniqueness
 
@@ -685,6 +709,14 @@ input DogInput {
   * ⚠️ All new types added to the union must differ structurally from the previous type
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
+* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+  * ❔ Not evaluated
+* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+  * ❔ Not evaluated
+* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+  * ❔ Not evaluated
+* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+  * ❔ Not evaluated
 
 ## 💡 5. One Of (Tagged Union)
 
