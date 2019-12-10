@@ -301,7 +301,7 @@ The less typing and fewer bytes transmitted, the better.
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ❔ | ❔ | ❔ | ❔ | ✅ |
 
 ## 🎯 L. Input unions should be performant for servers
 
@@ -311,7 +311,7 @@ Ideally a server does not have to do much computation to determine which concret
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ❔ | ❔ | ❔ | ❔ | ✅ |
 
 ## 🎯 M. Existing SDL parsers are backwards compatible with SDL additions
 
@@ -319,7 +319,7 @@ Common tools that parse GraphQL SDL should not fail when pointed at a schema whi
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ❔ | ❔ | ❔ | ❔ | ✅ |
 
 ## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
@@ -327,7 +327,7 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 
 | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| ❔ | ❔ | ❔ | ❔ | ✅ |
 
 # 🚧 Possible Solutions
 
@@ -749,7 +749,14 @@ type Mutation {
   * ✅ No migration required, as this pattern is already possible
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
   * ✅ Changes are additive only
-
+* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+  * ✅ Indication of the type can be done in 6 additional JSON characters per value (e.g. `{"a":VALUE_HERE}`) and would compress easily.
+* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+  * ✅ Type is easily determined by looking up the specified field name
+* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+  * ✅ Proposal uses a simple directive; directive parsing is widely supported
+* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+  * ✅ Existing code generation tools will degrade gracefully to a regular input object
 
 # 🏆 Evaluation Overview
 
@@ -767,7 +774,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [L](#-l-input-unions-should-be-performant-for-servers) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [M](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [N](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions) | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [L](#-l-input-unions-should-be-performant-for-servers) | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [M](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions) | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [N](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions) | ❔ | ❔ | ❔ | ❔ | ✅ |
