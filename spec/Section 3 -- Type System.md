@@ -367,17 +367,17 @@ client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
-When defining an additional scalar, GraphQL systems should use the `@specified`
-directive to provide a URL pointing to a human-readable specification of the
-data format, serialization, and coercion rules for the scalar. For example, a
-GraphQL system providing a `UUID` scalar might link to RFC 4122, or some
-document defining a reasonable subset of that RFC. If a specification URL is
-present, systems must conform to the described rules. Built-in scalar types
-should not provide a URL.
+When defining an additional scalar, GraphQL systems should use the
+`@specifiedBy` directive to provide a URL pointing to a human-readable
+specification of the data format, serialization, and coercion rules for the
+scalar. For example, a GraphQL system providing a `UUID` scalar might link to
+RFC 4122, or some document defining a reasonable subset of that RFC. If a
+specification URL is present, systems must conform to the described rules.
+Built-in scalar types should not provide a URL.
 
 ```graphql example
-scalar UUID @specified(by: "https://tools.ietf.org/html/rfc4122")
-scalar URL @specified(by: "https://tools.ietf.org/html/rfc3986")
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
 
 **Built-in Scalars**
@@ -1859,7 +1859,7 @@ provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
 GraphQL implementations that support the type system definition language should
-provide the `@specified` directive if representing custom scalar
+provide the `@specifiedBy` directive if representing custom scalar
 definitions.
 
 **Custom Directives**
@@ -2026,15 +2026,15 @@ type ExampleType {
 ```
 
 
-### @specified
+### @specifiedBy
 
 ```graphql
-directive @specified(
-  by: String!
+directive @specifiedBy(
+  url: String!
 ) on SCALAR
 ```
 
-The `@specified` directive is used within the type system definition language
+The `@specifiedBy` directive is used within the type system definition language
 to provide a URL for specifying the behaviour of custom
 scalar definitions. The URL should point to a human-readable specification of
 the data format, serialization, and coercion rules for the scalar. For example,
@@ -2054,6 +2054,6 @@ In this example, two custom scalar types are defined with URLs pointing to the
 relevant IETF specifications.
 
 ```graphql example
-scalar UUID @specified(by: "https://tools.ietf.org/html/rfc4122")
-scalar URL @specified(by: "https://tools.ietf.org/html/rfc3986")
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
