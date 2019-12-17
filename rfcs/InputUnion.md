@@ -196,7 +196,7 @@ Passing or failing a specific criteria is NOT the final word. Both the Criteria 
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
 
@@ -206,7 +206,7 @@ Any data structure that can be modeled with output type polymorphism should be a
 
 * ✂️ Objection: composite input types and composite output types are distinct. Fields on composite output types support aliases and arguments whereas fields on composite input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 
@@ -217,7 +217,7 @@ https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evoluti
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 
@@ -225,7 +225,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
@@ -237,7 +237,7 @@ In addition to containing Input types, member type may also contain Leaf types l
   * Potential solution: only allow a single built-in leaf type per input union.
 * ✂️ Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 
@@ -248,7 +248,7 @@ Since the input object type is now a member of the input union, existing input o
 * ✂️ Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * ✂️ Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
@@ -258,7 +258,7 @@ To ease development.
 
 * ✂️ Objection: Adds complexity without enabling any new use cases.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
@@ -268,7 +268,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 
 * ✂️ Objection: This is a matter of taste - legitimate [Prior Art](#-prior-art) exists that require formatting / extra metadata.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 
@@ -276,11 +276,11 @@ Clients should be able to pass "natural" input data to unions without specially 
 
 Many people in the wild are solving the need for input unions with validation at run-time (e.g. using the "tagged union" pattern). Formalising support for these existing patterns in a non-breaking way would enable existing schemas to become retroactively more type-safe.
 
-Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
 
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
@@ -288,7 +288,7 @@ Note: This criteria is similar to  [F. Migrating a field to a polymorphic input 
 
 Preferably without a loss of or change in functionality.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
@@ -299,7 +299,7 @@ The less typing and fewer bytes transmitted, the better.
 * ✂️ Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * ✂️ Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
@@ -309,7 +309,7 @@ Ideally a server does not have to do much computation to determine which concret
 
 * ✂️ Objection: None of the solutions discussed so far do anything that is computationally expensive.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
@@ -317,7 +317,7 @@ Ideally a server does not have to do much computation to determine which concret
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
@@ -325,7 +325,7 @@ Common tools that parse GraphQL SDL should not fail when pointed at a schema whi
 
 For example, GraphiQL should successfully render when pointed at a schema which contains polymorphic input types. It should continue to function even if it can't support the polymorphic input type.
 
-| [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
@@ -378,33 +378,33 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
-* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism][criteria-b]
   * ✅ Data structures can mirror eachother.
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
-* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
-* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No member type restrictions
-* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+* [E. A member type may be a Leaf type][criteria-e]
   * 🚫 Requires a type to provide a discriminator field
-* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
   * ⚠️ Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration.
-* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data][criteria-h]
   * ⚠️ One additional field is required.
-* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
   * ✅ Defaulting to the previous input type enables upgrading
-* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
-* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
   * ❔ Not evaluated
-* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+* [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
-* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * ❔ Not evaluated
-* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
 ## 💡 2. Explicit configurable Discriminator field
@@ -515,32 +515,32 @@ input DogInput {
 
 ### ⚖️ Evaluation
 
-* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
-* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism][criteria-b]
   * ✅ Data structures can mirror eachother.
-* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
-* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ Schema validation can check that all members of the input union have the discriminator field
-* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+* [E. A member type may be a Leaf type][criteria-e]
   * 🚫 Requires a type to provide a discriminator field
-* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
   * ⚠️ Discriminator field is required.
   * ✅ Defaulting to the previous input type enables migration
-* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data][criteria-h]
   * ⚠️ One additional field is required.
-* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
   * ✅ Defaulting to the previous input type enables upgrading
-* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
-* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
   * ❔ Not evaluated
-* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+* [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
-* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * ❔ Not evaluated
-* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
 ## 💡 3. Order based discrimination
@@ -587,11 +587,11 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
-* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism][criteria-b]
   * ✅ Data structures can mirror eachother
-* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution][criteria-c]
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
     Using the example Schema, we can demonstrate this problem. Assume a mutation like this is being submitted:
@@ -606,26 +606,26 @@ type Mutation {
     ```
 
     Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
-* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No member type restrictions
-* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+* [E. A member type may be a Leaf type][criteria-e]
   * ✅ Scalars could be listed in the inputunion and evaluated in order
   * ⚠️ Subject to subtle dangerous behavior. ie: `String` listed before an Enum could never match the Enum
-* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
   * ✅ Listing the old input type first enables migration
-* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data][criteria-h]
   * ✅ No extra fields or structure required
-* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
   * ✅ Listing the old input type first enables enables upgrading
-* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
-* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
   * ❔ Not evaluated
-* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+* [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
-* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * ❔ Not evaluated
-* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
 ## 💡 4. Structural uniqueness
@@ -690,32 +690,32 @@ input DogInput {
 
 ### ⚖️ Evaluation
 
-* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
-* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism][criteria-b]
   * ✅ Data structures can mirror eachother's fields
   * ⚠️ Restrictions on required fields may prevent matching output types
-* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution][criteria-c]
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
-* [D. Any member type restrictions are validated in schema](#-d-any-member-type-restrictions-are-validated-in-schema)
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ A "uniqueness" algorithm must be applied during schema validation
-* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+* [E. A member type may be a Leaf type][criteria-e]
   * 🚫 Ambiguous types unable to be discriminated. ex: `String` vs `Enum` vs `ID`
-* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
   * ⚠️ All new types added to the union must differ structurally from the previous type
-* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data][criteria-h]
   * ✅ No extra fields or structure required
-* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
   * ⚠️ All new types added to the union must differ structurally from the previous type
-* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
-* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
   * ❔ Not evaluated
-* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+* [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
-* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * ❔ Not evaluated
-* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
 ## 💡 5. One Of (Tagged Union)
@@ -763,31 +763,31 @@ type Mutation {
 
 ### ⚖️ Evaluation
 
-* [A. GraphQL should contain a polymorphic Input type](#-a-graphql-should-contain-a-polymorphic-input-type)
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
-* [B. Input polymorphism matches output polymorphism](#-b-input-polymorphism-matches-output-polymorphism)
+* [B. Input polymorphism matches output polymorphism][criteria-b]
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
-* [C. Doesn't inhibit schema evolution](#-c-doesnt-inhibit-schema-evolution)
+* [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ This technique is already in use in many schemas with the extra validation
-* [D. Any member type restrictions are validated in schema](#-e-a-member-type-may-be-a-leaf-type)
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No schema changes, only an additional client side validation is added
-* [E. A member type may be a Leaf type](#-e-a-member-type-may-be-a-leaf-type)
+* [E. A member type may be a Leaf type][criteria-e]
   * ✅ Any GraphQL type may be used
-* [F. Migrating a field to a polymorphic input type is non-breaking](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking)
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
   * ✅ No migration required, as this pattern is already possible
-* [H. Input unions should accept plain data](#-h-input-unions-should-accept-plain-data)
+* [H. Input unions should accept plain data][criteria-h]
   * ⚠️ The data is wrapped in a (simple) container type
-* [I. Input unions should be easy to upgrade from existing solutions](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions)
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
   * ✅ No migration required, as this pattern is already possible
-* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients)
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
-* [K. Input unions should be expressed efficiently in the query and on the wire](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire)
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
   * ✅ Indication of the type can be done in 6 additional JSON characters per value (e.g. `{"a":VALUE_HERE}`) and would compress easily.
-* [L. Input unions should be performant for servers](#-l-input-unions-should-be-performant-for-servers)
+* [L. Input unions should be performant for servers][criteria-l]
   * ✅ Type is easily determined by looking up the specified field name
-* [M. Existing SDL parsers are backwards compatible with SDL additions](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions)
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * ✅ Proposal uses a simple directive; directive parsing is widely supported
-* [N. Existing code generated tooling is backwards compatible with Introspection additions](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions)
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ✅ Existing code generation tools will degrade gracefully to a regular input object
 
 ### Summary of spec changes
@@ -803,19 +803,40 @@ type Mutation {
 
 A quick glance at the evaluation results. Remember that passing or failing a specific criteria is NOT the final word.
 
-|    | [1](#-1-explicit-__typename-discriminator-field) | [2](#-2-explicit-configurable-discriminator-field) | [3](#-3-order-based-discrimination) | [4](#-4-structural-uniqueness) | [5](#-5-one-of-tagged-union) |
+|    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
-| [A](#-a-graphql-should-contain-a-polymorphic-input-type) | ✅ | ✅ | ✅ | ✅ | ⚠️ |
-| [B](#-b-input-polymorphism-matches-output-polymorphism) | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C](#-c-doesnt-inhibit-schema-evolution) | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
-| [D](#-d-any-member-type-restrictions-are-validated-in-schema) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [E](#-e-a-member-type-may-be-a-leaf-type) | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F](#-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [G](#-g-input-unions-may-include-other-input-unions) | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H](#-h-input-unions-should-accept-plain-data) | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
-| [I](#-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions) | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [J](#-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K](#-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire) | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L](#-l-input-unions-should-be-performant-for-servers) | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [M](#-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions) | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [N](#-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions) | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [A][criteria-a] | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| [B][criteria-b] | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [C][criteria-c] | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [D][criteria-d] | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [E][criteria-e] | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
+| [F][criteria-f] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [G][criteria-g] | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [H][criteria-h] | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [I][criteria-i] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [J][criteria-j] | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [K][criteria-k] | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [L][criteria-l] | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [M][criteria-m] | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [N][criteria-n] | ❔ | ❔ | ❔ | ❔ | ✅ |
+
+[criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
+[criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
+[criteria-c]: #-c-doesnt-inhibit-schema-evolution
+[criteria-d]: #-d-any-member-type-restrictions-are-validated-in-schema
+[criteria-e]: #-e-a-member-type-may-be-a-leaf-type
+[criteria-f]: #-f-migrating-a-field-to-a-polymorphic-input-type-is-non-breaking
+[criteria-g]: #-g-input-unions-may-include-other-input-unions
+[criteria-h]: #-h-input-unions-should-accept-plain-data
+[criteria-i]: #-i-input-unions-should-be-easy-to-upgrade-from-existing-solutions
+[criteria-j]: #-j-a-graphql-schema-that-supports-input-unions-can-be-queried-by-older-graphql-clients
+[criteria-k]: #-k-input-unions-should-be-expressed-efficiently-in-the-query-and-on-the-wire
+[criteria-l]: #-l-input-unions-should-be-performant-for-servers
+[criteria-m]: #-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions
+[criteria-n]: #-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions
+
+[solution-1]: #-1-explicit-__typename-discriminator-field
+[solution-2]: #-2-explicit-configurable-discriminator-field
+[solution-3]: #-3-order-based-discrimination
+[solution-4]: #-4-structural-uniqueness
+[solution-5]: #-5-one-of-tagged-union
