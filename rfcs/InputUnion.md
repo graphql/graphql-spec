@@ -769,7 +769,7 @@ type Mutation {
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ This technique is already in use in many schemas with the extra validation
-* [D. Any member type restrictions are validated in schema][criteria-e]
+* [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No schema changes, only an additional client side validation is added
 * [E. A member type may be a Leaf type][criteria-e]
   * ✅ Any GraphQL type may be used
