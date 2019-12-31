@@ -687,6 +687,7 @@ input DogInput {
 ### 🎲 Variations
 
 * Consider the field _type_ along with the field _name_ when determining uniqueness.
+* Require an explicit determinant (solution 1 or 2) if the inputs are not structurally unique. This addresses weaknesses to criteria B and C of this solution and weaknesses to criteria F, H and I of solutions 1 and 2.
 
 ### ⚖️ Evaluation
 
