@@ -839,20 +839,20 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
-| [A][criteria-a] | ✅ | ✅ | ✅ | ✅ | ⚠️ |
-| [B][criteria-b] | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C][criteria-c] | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
-| [D][criteria-d] | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [E][criteria-e] | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F][criteria-f] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [G][criteria-g] | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
-| [I][criteria-i] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [J][criteria-j] | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K][criteria-k] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L][criteria-l] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [M][criteria-m] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [N][criteria-n] | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
+| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
+| [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
 [criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
