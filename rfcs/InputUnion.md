@@ -349,7 +349,7 @@ Common tools that parse GraphQL SDL should not fail when pointed at a schema whi
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
 
 Criteria score: 🥈
 
@@ -437,7 +437,7 @@ type Mutation {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -573,7 +573,7 @@ input DogInput {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -658,7 +658,7 @@ type Mutation {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -748,7 +748,7 @@ input DogInput {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
