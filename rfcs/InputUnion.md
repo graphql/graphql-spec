@@ -192,6 +192,12 @@ Solutions are evaluated and scored using a simple 3 part scale. A solution may h
 
 Passing or failing a specific criteria is NOT the final word. Both the Criteria _and_ the Solutions are up for debate.
 
+Criteria have been given a "score" according to their relative importance in solving the problem laid out in this RFC while adhering to the GraphQL Spec Guiding Principles. The scores are:
+
+* 🥇 Gold - A must-have
+* 🥈 Silver - A nice-to-have
+* 🥉 Bronze - Not necessary
+
 ## 🎯 A. GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
