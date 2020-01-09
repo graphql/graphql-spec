@@ -796,7 +796,7 @@ type Mutation {
 ### ⚖️ Evaluation
 
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
-  * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
+  * ✅ Tagged union is a valid version of a polymorphic type
 * [B. Input polymorphism matches output polymorphism][criteria-b]
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
 * [C. Doesn't inhibit schema evolution][criteria-c]
