@@ -192,6 +192,12 @@ Solutions are evaluated and scored using a simple 3 part scale. A solution may h
 
 Passing or failing a specific criteria is NOT the final word. Both the Criteria _and_ the Solutions are up for debate.
 
+Criteria have been given a "score" according to their relative importance in solving the problem laid out in this RFC while adhering to the GraphQL Spec Guiding Principles. The scores are:
+
+* 🥇 Gold - A must-have
+* 🥈 Silver - A nice-to-have
+* 🥉 Bronze - Not necessary
+
 ## 🎯 A. GraphQL should contain a polymorphic Input type
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
@@ -199,6 +205,8 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+
+Criteria score: 🥇
 
 ## 🎯 B. Input polymorphism matches output polymorphism
 
@@ -209,6 +217,8 @@ Any data structure that can be modeled with output type polymorphism should be a
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+
+Criteria score: 🥇
 
 ## 🎯 C. Doesn't inhibit schema evolution
 
@@ -221,6 +231,8 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 |----|----|----|----|----|
 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 
+Criteria score: 🥇
+
 ## 🎯 D. Any member type restrictions are validated in schema
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
@@ -228,6 +240,8 @@ If a solution places any restrictions on member types, compliance with these res
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+Criteria score: 🥇
 
 ## 🎯 E. A member type may be a Leaf type
 
@@ -241,6 +255,8 @@ In addition to containing Input types, member type may also contain Leaf types l
 |----|----|----|----|----|
 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 
+Criteria score: 🥉
+
 ## 🎯 F. Migrating a field to a polymorphic input type is non-breaking
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
@@ -252,6 +268,8 @@ Since the input object type is now a member of the input union, existing input o
 |----|----|----|----|----|
 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
+Criteria score: 🥉
+
 ## 🎯 G. Input unions may include other input unions
 
 To ease development.
@@ -262,6 +280,8 @@ To ease development.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
+Criteria score: 🥉
+
 ## 🎯 H. Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
@@ -271,6 +291,8 @@ Clients should be able to pass "natural" input data to unions without specially 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+
+Criteria score: 🥈
 
 ## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
@@ -284,13 +306,17 @@ Note: This criteria is similar to  [F. Migrating a field to a polymorphic input 
 |----|----|----|----|----|
 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 
+Criteria score: 🥉
+
 ## 🎯 J. A GraphQL schema that supports input unions can be queried by older GraphQL clients
 
-Preferably without a loss of or change in functionality.
+Preferably without a loss of or change in previously supported functionality.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+Criteria score: 🥇
 
 ## 🎯 K. Input unions should be expressed efficiently in the query and on the wire
 
@@ -303,6 +329,8 @@ The less typing and fewer bytes transmitted, the better.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
+Criteria score: 🥉
+
 ## 🎯 L. Input unions should be performant for servers
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
@@ -313,13 +341,17 @@ Ideally a server does not have to do much computation to determine which concret
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
+Criteria score: 🥉
+
 ## 🎯 M. Existing SDL parsers are backwards compatible with SDL additions
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
+
+Criteria score: 🥈
 
 ## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
@@ -328,6 +360,8 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ✅ |
+
+Criteria score: 🥈
 
 # 🚧 Possible Solutions
 
@@ -403,7 +437,7 @@ type Mutation {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -511,8 +545,6 @@ input DogInput {
 }
 ```
 
-* A `default` type may be defined, for which specifying the `__typename` is not required. This enables a field to migration from an `Input` to an `Input Union`
-
 ### ⚖️ Evaluation
 
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
@@ -539,7 +571,7 @@ input DogInput {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -624,7 +656,7 @@ type Mutation {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -714,7 +746,7 @@ input DogInput {
 * [L. Input unions should be performant for servers][criteria-l]
   * ❔ Not evaluated
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
-  * ❔ Not evaluated
+  * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
 
@@ -764,7 +796,7 @@ type Mutation {
 ### ⚖️ Evaluation
 
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
-  * ⚠️ This isn't a polymorphic input type, it's extra schema-level validation for an intermediate type
+  * ✅ Tagged union is a valid version of a polymorphic type
 * [B. Input polymorphism matches output polymorphism][criteria-b]
   * 🚫 The shape of the input type is forced to have a different structure than the corresponding output type.
 * [C. Doesn't inhibit schema evolution][criteria-c]
@@ -805,20 +837,20 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
-| [A][criteria-a] | ✅ | ✅ | ✅ | ✅ | ⚠️ |
-| [B][criteria-b] | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C][criteria-c] | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
-| [D][criteria-d] | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [E][criteria-e] | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F][criteria-f] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [G][criteria-g] | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
-| [I][criteria-i] | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [J][criteria-j] | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K][criteria-k] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L][criteria-l] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [M][criteria-m] | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [N][criteria-n] | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
+| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
+| [H][criteria-h] 🥈 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
+| [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
 [criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
@@ -840,3 +872,11 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 [solution-3]: #-3-order-based-discrimination
 [solution-4]: #-4-structural-uniqueness
 [solution-5]: #-5-one-of-tagged-union
+
+# ☑️ Decision Time!
+
+According to a simple [weight ranking](https://docs.google.com/spreadsheets/d/1ymKqI6BSTHGGHkf9IDjo0EJmOqMryS-uQRwDV77OF5g/edit?usp=sharing), here are the solutions in order:
+
+* [2][solution-2]
+* [1][solution-1] / [5][solution-5]
+* [3][solution-3] / [4][solution-4]
