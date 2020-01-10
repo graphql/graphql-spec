@@ -165,7 +165,8 @@ adds additional operation types, or additional directives to an existing schema.
 Schema extensions have the potential to be invalid if incorrectly defined.
 
 1. The Schema must already be defined.
-2. Any directives provided must not already apply to the original Schema.
+2. Any non-repeatable directives provided must not already apply to the
+   original Schema.
 
 
 ## Descriptions
@@ -268,7 +269,7 @@ to define exactly what data is expected.
 All of the types so far are assumed to be both nullable and singular: e.g. a
 scalar string returns either null or a singular string.
 
-A GraphQL schema may describe that a field represents list of another types;
+A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
@@ -328,18 +329,14 @@ represent additional fields a GraphQL client only accesses locally.
 ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
 Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
-responses take the form of a hierarchical tree; the leaves on these trees are
-GraphQL scalars.
+responses take the form of a hierarchical tree; the leaves of this tree are
+typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
-All GraphQL scalars are representable as strings, though depending on the
-response format being used, there may be a more appropriate primitive for the
-given scalar type, and server should use those types when appropriate.
-
-GraphQL provides a number of built-in scalars, but type systems can add
-additional scalars with semantic meaning. For example, a GraphQL system could
-define a scalar called `Time` which, while serialized as a string, promises to
-conform to ISO-8601. When querying a field of type `Time`, you can then rely on
-the ability to parse the result with an ISO-8601 parser and use a
+GraphQL provides a number of built-in scalars (see below), but type systems can
+add additional scalars with semantic meaning. For example, a GraphQL system
+could define a scalar called `Time` which, while serialized as a string,
+promises to conform to ISO-8601. When querying a field of type `Time`, you can
+then rely on the ability to parse the result with an ISO-8601 parser and use a
 client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
 the server to be a valid URL.
@@ -349,33 +346,47 @@ scalar Time
 scalar Url
 ```
 
-A server may omit any of the built-in scalars from its schema, for example if a
-schema does not refer to a floating-point number, then it may omit the
-`Float` type. However, if a schema includes a type with the name of one of the
-types described here, it must adhere to the behavior described. As an example,
-a server must not include a type called `Int` and use it to represent
-128-bit numbers, internationalization information, or anything other than what
-is defined in this document.
+**Built-in Scalars**
+
+GraphQL specifies a basic set of well-defined Scalar types: {Int}, {Float},
+{String}, {Boolean}, and {ID}. A GraphQL framework should support all of these
+types, and a GraphQL service which provides a type by these names must adhere to
+the behavior described for them in this document. As an example, a service must
+not include a type called {Int} and use it to represent 64-bit numbers,
+internationalization information, or anything other than what is defined in
+this document.
+
+When returning the set of types from the `__Schema` introspection type, all
+referenced built-in scalars must be included. If a built-in scalar type is not
+referenced anywhere in a schema (there is no field, argument, or input field of
+that type) then it must not be included.
 
 When representing a GraphQL schema using the type system definition language,
-the built-in scalar types should be omitted for brevity.
+all built-in scalars must be omitted for brevity.
 
-**Result Coercion**
+**Result Coercion and Serialization**
 
 A GraphQL server, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or producing a
 field error if a value cannot be coerced or if coercion may result in data loss.
 
 A GraphQL service may decide to allow coercing different internal types to the
-expected return type. For example when coercing a field of type `Int` a boolean
-`true` value may produce `1` or a string value `"123"` may be parsed as base-10
-`123`. However if internal type coercion cannot be reasonably performed without
+expected return type. For example when coercing a field of type {Int} a boolean
+{true} value may produce {1} or a string value {"123"} may be parsed as base-10
+{123}. However if internal type coercion cannot be reasonably performed without
 losing information, then it must raise a field error.
 
 Since this coercion behavior is not observable to clients of the GraphQL server,
 the precise rules of coercion are left to the implementation. The only
 requirement is that the server must yield values which adhere to the expected
 Scalar type.
+
+GraphQL scalars are serialized according to the serialization format being used.
+There may be a most appropriate serialized primitive for each given scalar type,
+and the server should produce each primitive where appropriate.
+
+See [Serialization Format](#sec-Serialization-Format) for more detailed
+information on the serialization of scalars in common JSON and other formats.
 
 **Input Coercion**
 
@@ -395,12 +406,6 @@ input value.
 For all types below, with the exception of Non-Null, if the explicit value
 {null} is provided, then the result of input coercion is {null}.
 
-**Built-in Scalars**
-
-GraphQL provides a basic set of well-defined Scalar types. A GraphQL server
-should support all of these types, and a GraphQL server which provide a type by
-these names must adhere to the behavior described below.
-
 
 ### Int
 
@@ -410,7 +415,7 @@ that type to represent this scalar.
 
 **Result Coercion**
 
-Fields returning the type `Int` expect to encounter 32-bit integer
+Fields returning the type {Int} expect to encounter 32-bit integer
 internal values.
 
 GraphQL servers may coerce non-integer internal values to integers when
@@ -445,10 +450,10 @@ should use that type to represent this scalar.
 
 **Result Coercion**
 
-Fields returning the type `Float` expect to encounter double-precision
+Fields returning the type {Float} expect to encounter double-precision
 floating-point internal values.
 
-GraphQL servers may coerce non-floating-point internal values to `Float` when
+GraphQL servers may coerce non-floating-point internal values to {Float} when
 reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1.0` for the integer number `1`, or
 `123.0` for the string `"123"`.
@@ -472,9 +477,9 @@ and that representation must be used here.
 
 **Result Coercion**
 
-Fields returning the type `String` expect to encounter UTF-8 string internal values.
+Fields returning the type {String} expect to encounter UTF-8 string internal values.
 
-GraphQL servers may coerce non-string raw values to `String` when reasonable
+GraphQL servers may coerce non-string raw values to {String} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning the string `"true"` for a boolean true value, or the
 string `"1"` for the integer `1`.
@@ -494,9 +499,9 @@ representation of the integers `1` and `0`.
 
 **Result Coercion**
 
-Fields returning the type `Boolean` expect to encounter boolean internal values.
+Fields returning the type {Boolean} expect to encounter boolean internal values.
 
-GraphQL servers may coerce non-boolean raw values to `Boolean` when reasonable
+GraphQL servers may coerce non-boolean raw values to {Boolean} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning `true` for non-zero numbers.
 
@@ -510,8 +515,8 @@ other input values must raise a query error indicating an incorrect type.
 
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as the key for a cache. The ID type is serialized in the same way as
-a `String`; however, it is not intended to be human-readable. While it is
-often numeric, it should always serialize as a `String`.
+a {String}; however, it is not intended to be human-readable. While it is
+often numeric, it should always serialize as a {String}.
 
 **Result Coercion**
 
@@ -546,7 +551,8 @@ GraphQL tool or service which adds directives to an existing scalar.
 Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Scalar type.
-2. Any directives provided must not already apply to the original Scalar type.
+2. Any non-repeatable directives provided must not already apply to the
+   original Scalar type.
 
 
 ## Objects
@@ -554,8 +560,8 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 ImplementsInterfaces :
-  - implements `&`? NamedType
   - ImplementsInterfaces & NamedType
+  - implements `&`? NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -584,8 +590,8 @@ type Person {
 }
 ```
 
-Where `name` is a field that will yield a `String` value, and `age` is a field
-that will yield an `Int` value, and `picture` is a field that will yield a
+Where `name` is a field that will yield a {String} value, and `age` is a field
+that will yield an {Int} value, and `picture` is a field that will yield a
 `Url` value.
 
 A query of an object value must select at least one field. This selection of
@@ -941,7 +947,8 @@ Object type extensions have the potential to be invalid if incorrectly defined.
    may share the same name.
 3. Any fields of an Object type extension must not be already defined on the
    original Object type.
-4. Any directives provided must not already apply to the original Object type.
+4. Any non-repeatable directives provided must not already apply to the
+   original Object type.
 5. Any interfaces provided must not be already implemented by the original
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
@@ -1215,8 +1222,9 @@ Interface type extensions have the potential to be invalid if incorrectly define
 4. Any Object or Interface type which implemented the original Interface type
    must also be a super-set of the fields of the Interface type extension (which
    may be due to Object type extension).
-5. Any directives provided must not already apply to the original Interface type.
-6. The resulting extended interface type must be a super-set of all interfaces
+5. Any non-repeatable directives provided must not already apply to the 
+   original Interface type.
+6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
 
 
@@ -1225,8 +1233,8 @@ Interface type extensions have the potential to be invalid if incorrectly define
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
-  - = `|`? NamedType
   - UnionMemberTypes | NamedType
+  - = `|`? NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL
 Object types, but provides for no guaranteed fields between those types.
@@ -1340,7 +1348,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
    the original Union type.
-5. Any directives provided must not already apply to the original Union type.
+5. Any non-repeatable directives provided must not already apply to the
+   original Union type.
 
 ## Enums
 
@@ -1350,7 +1359,7 @@ EnumValuesDefinition : { EnumValueDefinition+ }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
-GraphQL Enum types, like scalar types, also represent leaf values in a GraphQL
+GraphQL Enum types, like Scalar types, also represent leaf values in a GraphQL
 type system. However Enum types describe the set of possible values.
 
 Enums are not references for a numeric value, but are unique values in their own
@@ -1409,7 +1418,8 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 2. All values of an Enum type extension must be unique.
 3. All values of an Enum type extension must not already be a value of
    the original Enum.
-4. Any directives provided must not already apply to the original Enum type.
+4. Any non-repeatable directives provided must not already apply to the
+   original Enum type.
 
 
 ## Input Objects
@@ -1538,7 +1548,8 @@ Input object type extensions have the potential to be invalid if incorrectly def
 3. All fields of an Input Object type extension must have unique names.
 4. All fields of an Input Object type extension must not already be a field of
    the original Input Object.
-5. Any directives provided must not already apply to the original Input Object type.
+5. Any non-repeatable directives provided must not already apply to the
+   original Input Object type.
 
 
 ## List
@@ -1707,11 +1718,11 @@ Expected Type | Internal Value   | Coerced Result
 
 ## Directives
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
-  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
+  - `|`? DirectiveLocation
 
 DirectiveLocation :
   - ExecutableDirectiveLocation
@@ -1750,6 +1761,21 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
+**Custom Directives**
+
+GraphQL services and client tooling may provide additional directives beyond
+those defined in this document. Directives are the preferred way to extend
+GraphQL with custom or experimental behavior.
+
+Note: When defining a directive, it is recommended to prefix the directive's
+name to make its scope of usage clear and to prevent a collision with directives
+which may be specified by future versions of this document (which will not
+include `_` in their name). For example, a custom directive used by Facebook's
+GraphQL service should be named `@fb_auth` instead of `@auth`. This is
+especially recommended for proposed additions to this specification which can
+change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
+For example an work in progress version of `@live` should be named `@rfc_live`.
+
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
 
@@ -1786,11 +1812,30 @@ type SomeType {
 }
 ```
 
+A directive may be defined as repeatable by including the "repeatable" keyword.
+Repeatable directives are often useful when the same directive should be used
+with different arguments at a single location, especially in cases where
+additional information needs to be provided to a type or schema extension via
+a directive:
+
+```graphql example
+directive @delegateField(name: String!) repeatable on OBJECT | INTERFACE
+
+type Book @delegateField(name: "pageCount") @delegateField(name: "author") {
+  id: ID!
+}
+
+extend type Book @delegateField(name: "index")
+```
+
 While defining a directive, it must not reference itself directly or indirectly:
 
 ```graphql counter-example
 directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 ```
+
+Note: The order in which directives appear may be significant, including
+repeatable directives.
 
 **Validation**
 

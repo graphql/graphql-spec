@@ -7,13 +7,10 @@
     "Daniel Schafer <dschafer@fb.com>"
   ],
   "license": "OWFa-1.0",
-  "homepage": "https://facebook.github.io/graphql",
-  "bugs": {
-    "url": "https://github.com/facebook/graphql/issues"
-  },
+  "homepage": "https://graphql.github.io/graphql-spec",
   "repository": {
     "type": "git",
-    "url": "http://github.com/facebook/graphql.git"
+    "url": "http://github.com/graphql/graphql-spec.git"
   },
   "scripts": {
     "test": "spec-md spec/GraphQL.md > /dev/null",
@@ -22,6 +19,6 @@
   },
   "devDependencies": {
     "nodemon": "1.19.1",
-    "spec-md": "1.0.0"
+    "spec-md": "1.1.1"
   }
 }

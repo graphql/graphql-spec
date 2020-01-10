@@ -16,8 +16,8 @@ through a series of *stages* intended to improve *visibility*, allow for
 becomes ever more important as GraphQL's community broadens.
 
 When proposing or weighing-in on any issue or pull request, consider the
-[Code of Conduct](CODE_OF_CONDUCT.md) to better understand expected and
-unacceptable behavior.
+[Code of Conduct](https://github.com/graphql/foundation/blob/master/CODE-OF-CONDUCT.md)
+to better understand expected and unacceptable behavior.
 
 
 ## Contributing to GraphQL Libraries
@@ -125,7 +125,7 @@ All RFCs start as either a *strawman* or *proposal*.
 A RFC at the *strawman* stage captures a described problem or
 partially-considered solutions. A *strawman* does not need to meet any entrance
 criteria. A *strawman's* goal is to prove or disprove a problem and guide
-discussion towards either rejection or a preferred solution. A *strawman* may 
+discussion towards either rejection or a preferred solution. A *strawman* may
 be an issue or a pull request (though an illustrative pull request is preferrable).
 
 *There is no entrance criteria for a Strawman*
@@ -160,8 +160,8 @@ A *proposal* is subject to the same discussion as a *strawman*: ensuring that it
 is well aligned with the *guiding principles*, is a problem worth solving, and
 is the preferred solution to that problem. A *champion* is not expected to have
 confidence in every detail at this stage and should instead focus on identifying
-and resolving issues and edge-cases. To better understand the technical 
-ramifications of the *proposal*, a *champion* is encouraged to implement it in a 
+and resolving issues and edge-cases. To better understand the technical
+ramifications of the *proposal*, a *champion* is encouraged to implement it in a
 GraphQL library.
 
 Most *proposals* are expected to evolve or change and may be rejected. Therefore,
@@ -201,8 +201,8 @@ feature without explicit opt-in when possible.
 ## Stage 3: *Accepted*
 
 An RFC at the *accepted* stage is a completed solution. According to a spec
-editor it is ready to be merged as-is into the spec document. The RFC is 
-ready to be deployed in GraphQL libraries. An *accepted* RFC must be 
+editor it is ready to be merged as-is into the spec document. The RFC is
+ready to be deployed in GraphQL libraries. An *accepted* RFC must be
 implemented in GraphQL.js.
 
 *Entrance criteria:*

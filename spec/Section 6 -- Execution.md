@@ -330,7 +330,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
       Note: This value is unaffected if an alias is used.
     * Let {fieldType} be the return type defined for the field {fieldName} of {objectType}.
     * If {fieldType} is defined:
-      * Let {responseValue} be {ExecuteField(objectType, objectValue, fields, fieldType, variableValues)}.
+      * Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType, fields, variableValues)}.
       * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
@@ -507,7 +507,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
       * Let {fragmentGroupedFieldSet} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -534,6 +534,9 @@ DoesFragmentTypeApply(objectType, fragmentType):
     * if {objectType} is an implementation of {fragmentType}, return {true} otherwise return {false}.
   * If {fragmentType} is a Union:
     * if {objectType} is a possible type of {fragmentType}, return {true} otherwise return {false}.
+
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
 
 
 ## Executing Fields
@@ -596,9 +599,9 @@ CoerceArgumentValues(objectType, field, variableValues):
           value {value}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-            rules of {variableType}, throw a field error.
+            rules of {argumentType}, throw a field error.
         * Let {coercedValue} be the result of coercing {value} according to the
-          input coercion rules of {variableType}.
+          input coercion rules of {argumentType}.
         * Add an entry to {coercedValues} named {argumentName} with the
           value {coercedValue}.
   * Return {coercedValues}.

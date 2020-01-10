@@ -1,6 +1,12 @@
 # B. Appendix: Grammar Summary
 
-SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
+## Source Text
+
+SourceCharacter ::
+  - "U+0009"
+  - "U+000A"
+  - "U+000D"
+  - "U+0020–U+FFFF"
 
 
 ## Ignored Tokens
@@ -20,10 +26,10 @@ WhiteSpace ::
 
 LineTerminator ::
   - "New Line (U+000A)"
-  - "Carriage Return (U+000D)" [ lookahead ! "New Line (U+000A)" ]
+  - "Carriage Return (U+000D)" [lookahead != "New Line (U+000A)"]
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
-Comment :: `#` CommentChar*
+Comment :: `#` CommentChar* [lookahead != CommentChar]
 
 CommentChar :: SourceCharacter but not LineTerminator
 
@@ -41,9 +47,28 @@ Token ::
 
 Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
-Name :: /[_A-Za-z][_0-9A-Za-z]*/
+Name ::
+  - NameStart NameContinue* [lookahead != NameContinue]
 
-IntValue :: IntegerPart
+NameStart ::
+  - Letter
+  - `_`
+
+NameContinue ::
+  - Letter
+  - Digit
+  - `_`
+
+Letter :: one of
+  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
+  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+  `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+
+Digit :: one of
+  `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+
+IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
   - NegativeSign? 0
@@ -51,14 +76,12 @@ IntegerPart ::
 
 NegativeSign :: -
 
-Digit :: one of 0 1 2 3 4 5 6 7 8 9
-
 NonZeroDigit :: Digit but not `0`
 
 FloatValue ::
-  - IntegerPart FractionalPart
-  - IntegerPart ExponentPart
-  - IntegerPart FractionalPart ExponentPart
+  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart FractionalPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
 
 FractionalPart :: . Digit+
 
@@ -69,7 +92,8 @@ ExponentIndicator :: one of `e` `E`
 Sign :: one of + -
 
 StringValue ::
-  - `"` StringCharacter* `"`
+  - `""` [lookahead != `"`]
+  - `"` StringCharacter+ `"`
   - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
@@ -89,7 +113,7 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 
-## Document
+## Document Syntax
 
 Document : Definition+
 
@@ -233,8 +257,8 @@ ObjectTypeExtension :
   - extend type Name ImplementsInterfaces
 
 ImplementsInterfaces :
-  - implements `&`? NamedType
   - ImplementsInterfaces & NamedType
+  - implements `&`? NamedType
 
 FieldsDefinition : { FieldDefinition+ }
 
@@ -253,8 +277,8 @@ InterfaceTypeExtension :
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
-  - = `|`? NamedType
   - UnionMemberTypes | NamedType
+  - = `|`? NamedType
 
 UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
@@ -278,11 +302,11 @@ InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const]
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
-  - `|`? DirectiveLocation
   - DirectiveLocations | DirectiveLocation
+  - `|`? DirectiveLocation
 
 DirectiveLocation :
   - ExecutableDirectiveLocation

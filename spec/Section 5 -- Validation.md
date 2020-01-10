@@ -66,6 +66,7 @@ type Alien implements Sentient {
 
 type Human implements Sentient {
   name: String!
+  pets: [Pet!]
 }
 
 enum CatCommand { JUMP }
@@ -432,7 +433,7 @@ SameResponseShape(fieldA, fieldB) :
   * If {typeA} or {typeB} is Scalar or Enum.
     * If {typeA} and {typeB} are the same type return true, otherwise return
       false.
-  * If {typeA} or {typeB} is not a composite type, return false.
+  * Assert: {typeA} and {typeB} are both composite types.
   * Let {mergedSet} be the result of adding the selection set of {fieldA} and
     the selection set of {fieldB}.
   * Let {fieldsForName} be the set of selections with a given response name in
@@ -1067,7 +1068,7 @@ fragment dogFragment on Dog {
   }
 }
 
-fragment ownerFragment on Dog {
+fragment ownerFragment on Human {
   name
   pets {
     ...dogFragment
@@ -1273,7 +1274,7 @@ and {Sentient}.
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
 
-The type expected in a position include the type defined by the argument a value
+The type expected in a position includes the type defined by the argument a value
 is provided for, the type defined by an input object field a value is provided
 for, and the type of a variable definition a default value is provided for.
 
@@ -1440,7 +1441,8 @@ query @skip(if: $foo) {
 **Formal Specification**
 
   * For every {location} in the document for which Directives can apply:
-    * Let {directives} be the set of Directives which apply to {location}.
+    * Let {directives} be the set of Directives which apply to {location} and
+      are not repeatable.
     * For each {directive} in {directives}:
       * Let {directiveName} be the name of {directive}.
       * Let {namedDirectives} be the set of all Directives named {directiveName}
