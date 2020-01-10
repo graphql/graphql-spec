@@ -1095,11 +1095,6 @@ and operations.
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives.
 
-Note: When defining a directive, it is recommended to namespace the directive name 
-to prevent name collisions with directives added in future versions of the specification. 
-For example, `@fb_auth` directive would represent an authentication directive 
-with the prefix `fb` as namespace.
-
 **Directive order is significant**
 
 Directives may be provided in a specific syntactic order which may have semantic interpretation.

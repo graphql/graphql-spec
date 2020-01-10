@@ -1661,6 +1661,11 @@ fragment SomeFragment on SomeType {
 }
 ```
 
+Note: When defining a directive, it is recommended to namespace the directive name
+to prevent name collisions with directives added in future versions of the specification.
+For example, `@fb_auth` directive would represent an authentication directive
+with the prefix `fb` as namespace.
+
 Directive locations may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible locations:
 
