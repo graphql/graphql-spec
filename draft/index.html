@@ -2513,19 +2513,24 @@ The set of languages supported by `translate`.
 <div class="spec-production" id="ScalarTypeDefinition">
 <span class="spec-nt"><a href="#ScalarTypeDefinition" data-name="ScalarTypeDefinition">ScalarTypeDefinition</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Description" data-name="Description">Description</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">scalar</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
-<p>Scalar types represent primitive leaf values in a GraphQL type system. GraphQL responses take the form of a hierarchical tree; the leaves on these trees are GraphQL scalars.</p>
-<p>All GraphQL scalars are representable as strings, though depending on the response format being used, there may be a more appropriate primitive for the given scalar type, and server should use those types when appropriate.</p>
-<p>GraphQL provides a number of built&#8208;in scalars, but type systems can add additional scalars with semantic meaning. For example, a GraphQL system could define a scalar called <code>Time</code> which, while serialized as a string, promises to conform to ISO&#8208;8601. When querying a field of type <code>Time</code>, you can then rely on the ability to parse the result with an ISO&#8208;8601 parser and use a client&#8208;specific primitive for time. Another example of a potentially useful custom scalar is <code>Url</code>, which serializes as a string, but is guaranteed by the server to be a valid URL.</p>
+<p>Scalar types represent primitive leaf values in a GraphQL type system. GraphQL responses take the form of a hierarchical tree; the leaves of this tree are typically GraphQL Scalar types (but may also be Enum types or <span class="spec-keyword">null</span> values).</p>
+<p>GraphQL provides a number of built&#8208;in scalars (see below), but type systems can add additional scalars with semantic meaning. For example, a GraphQL system could define a scalar called <code>Time</code> which, while serialized as a string, promises to conform to ISO&#8208;8601. When querying a field of type <code>Time</code>, you can then rely on the ability to parse the result with an ISO&#8208;8601 parser and use a client&#8208;specific primitive for time. Another example of a potentially useful custom scalar is <code>Url</code>, which serializes as a string, but is guaranteed by the server to be a valid URL.</p>
 <pre id="example-cb7e7" class="spec-example"><a href="#example-cb7e7">Example № 42</a><code><span class="token keyword">scalar</span> <span class="token class-name">Time</span>
 <span class="token keyword">scalar</span> <span class="token class-name">Url</span>
 </code></pre>
-<p>A server may omit any of the built&#8208;in scalars from its schema, for example if a schema does not refer to a floating&#8208;point number, then it may omit the <code>Float</code> type. However, if a schema includes a type with the name of one of the types described here, it must adhere to the behavior described. As an example, a server must not include a type called <code>Int</code> and use it to represent 128&#8208;bit numbers, internationalization information, or anything other than what is defined in this document.</p>
-<p>When representing a GraphQL schema using the type system definition language, the built&#8208;in scalar types should be omitted for brevity.</p>
-<section id="sec-Scalars.Result-Coercion" class="subsec">
-<h6><a href="#sec-Scalars.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
+<section id="sec-Scalars.Built-in-Scalars" class="subsec">
+<h6><a href="#sec-Scalars.Built-in-Scalars" title="link to this subsection">Built-in Scalars</a></h6>
+<p>GraphQL specifies a basic set of well&#8208;defined Scalar types: <span class="spec-nt"><span data-name="Int">Int</span></span>, <span class="spec-nt"><span data-name="Float">Float</span></span>, <span class="spec-nt"><span data-name="String">String</span></span>, <span class="spec-nt"><span data-name="Boolean">Boolean</span></span>, and <span class="spec-nt"><span data-name="ID">ID</span></span>. A GraphQL framework should support all of these types, and a GraphQL service which provides a type by these names must adhere to the behavior described for them in this document. As an example, a service must not include a type called <span class="spec-nt"><span data-name="Int">Int</span></span> and use it to represent 64&#8208;bit numbers, internationalization information, or anything other than what is defined in this document.</p>
+<p>When returning the set of types from the <code>__Schema</code> introspection type, all referenced built&#8208;in scalars must be included. If a built&#8208;in scalar type is not referenced anywhere in a schema (there is no field, argument, or input field of that type) then it must not be included.</p>
+<p>When representing a GraphQL schema using the type system definition language, all built&#8208;in scalars must be omitted for brevity.</p>
+</section>
+<section id="sec-Scalars.Result-Coercion-and-Serialization" class="subsec">
+<h6><a href="#sec-Scalars.Result-Coercion-and-Serialization" title="link to this subsection">Result Coercion and Serialization</a></h6>
 <p>A GraphQL server, when preparing a field of a given scalar type, must uphold the contract the scalar type describes, either by coercing the value or producing a field error if a value cannot be coerced or if coercion may result in data loss.</p>
-<p>A GraphQL service may decide to allow coercing different internal types to the expected return type. For example when coercing a field of type <code>Int</code> a boolean <code>true</code> value may produce <code>1</code> or a string value <code>&quot;123&quot;</code> may be parsed as base&#8208;10 <code>123</code>. However if internal type coercion cannot be reasonably performed without losing information, then it must raise a field error.</p>
+<p>A GraphQL service may decide to allow coercing different internal types to the expected return type. For example when coercing a field of type <span class="spec-nt"><span data-name="Int">Int</span></span> a boolean <span class="spec-keyword">true</span> value may produce <span class="spec-t">1</span> or a string value <span class="spec-string">"123"</span> may be parsed as base&#8208;10 <span class="spec-t">123</span>. However if internal type coercion cannot be reasonably performed without losing information, then it must raise a field error.</p>
 <p>Since this coercion behavior is not observable to clients of the GraphQL server, the precise rules of coercion are left to the implementation. The only requirement is that the server must yield values which adhere to the expected Scalar type.</p>
+<p>GraphQL scalars are serialized according to the serialization format being used. There may be a most appropriate serialized primitive for each given scalar type, and the server should produce each primitive where appropriate.</p>
+<p>See <a href="#sec-Serialization-Format">Serialization Format</a> for more detailed information on the serialization of scalars in common JSON and other formats.</p>
 </section>
 <section id="sec-Scalars.Input-Coercion" class="subsec">
 <h6><a href="#sec-Scalars.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2533,16 +2538,12 @@ The set of languages supported by `translate`.
 <p>GraphQL has different constant literals to represent integer and floating&#8208;point input values, and coercion rules may apply differently depending on which type of input value is encountered. GraphQL may be parameterized by query variables, the values of which are often serialized when sent over a transport like HTTP. Since some common serializations (ex. JSON) do not discriminate between integer and floating&#8208;point values, they are interpreted as an integer input value if they have an empty fractional part (ex. <code>1.0</code>) and otherwise as floating&#8208;point input value.</p>
 <p>For all types below, with the exception of Non&#8208;Null, if the explicit value <span class="spec-keyword">null</span> is provided, then the result of input coercion is <span class="spec-keyword">null</span>.</p>
 </section>
-<section id="sec-Scalars.Built-in-Scalars" class="subsec">
-<h6><a href="#sec-Scalars.Built-in-Scalars" title="link to this subsection">Built-in Scalars</a></h6>
-<p>GraphQL provides a basic set of well&#8208;defined Scalar types. A GraphQL server should support all of these types, and a GraphQL server which provide a type by these names must adhere to the behavior described below.</p>
-</section>
 <section id="sec-Int" secid="3.5.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Int">3.5.1</a></span>Int</h4>
 <p>The Int scalar type represents a signed 32&#8208;bit numeric non&#8208;fractional value. Response formats that support a 32&#8208;bit integer or a number type should use that type to represent this scalar.</p>
 <section id="sec-Int.Result-Coercion" class="subsec">
 <h6><a href="#sec-Int.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>Fields returning the type <code>Int</code> expect to encounter 32&#8208;bit integer internal values.</p>
+<p>Fields returning the type <span class="spec-nt"><span data-name="Int">Int</span></span> expect to encounter 32&#8208;bit integer internal values.</p>
 <p>GraphQL servers may coerce non&#8208;integer internal values to integers when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1</code> for the floating&#8208;point number <code>1.0</code>, or returning <code>123</code> for the string <code>&quot;123&quot;</code>. In scenarios where coercion may lose data, raising a field error is more appropriate. For example, a floating&#8208;point number <code>1.2</code> should raise a field error instead of being truncated to <code>1</code>.</p>
 <p>If the integer internal value represents a value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a field error should be raised.</p>
 </section>
@@ -2559,8 +2560,8 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <p>The Float scalar type represents signed double&#8208;precision fractional values as specified by <a href="https://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754</a>. Response formats that support an appropriate double&#8208;precision number type should use that type to represent this scalar.</p>
 <section id="sec-Float.Result-Coercion" class="subsec">
 <h6><a href="#sec-Float.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>Fields returning the type <code>Float</code> expect to encounter double&#8208;precision floating&#8208;point internal values.</p>
-<p>GraphQL servers may coerce non&#8208;floating&#8208;point internal values to <code>Float</code> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1.0</code> for the integer number <code>1</code>, or <code>123.0</code> for the string <code>&quot;123&quot;</code>.</p>
+<p>Fields returning the type <span class="spec-nt"><span data-name="Float">Float</span></span> expect to encounter double&#8208;precision floating&#8208;point internal values.</p>
+<p>GraphQL servers may coerce non&#8208;floating&#8208;point internal values to <span class="spec-nt"><span data-name="Float">Float</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1.0</code> for the integer number <code>1</code>, or <code>123.0</code> for the string <code>&quot;123&quot;</code>.</p>
 </section>
 <section id="sec-Float.Input-Coercion" class="subsec">
 <h6><a href="#sec-Float.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2572,8 +2573,8 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <p>The String scalar type represents textual data, represented as UTF&#8208;8 character sequences. The String type is most often used by GraphQL to represent free&#8208;form human&#8208;readable text. All response formats must support string representations, and that representation must be used here.</p>
 <section id="sec-String.Result-Coercion" class="subsec">
 <h6><a href="#sec-String.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>Fields returning the type <code>String</code> expect to encounter UTF&#8208;8 string internal values.</p>
-<p>GraphQL servers may coerce non&#8208;string raw values to <code>String</code> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning the string <code>&quot;true&quot;</code> for a boolean true value, or the string <code>&quot;1&quot;</code> for the integer <code>1</code>.</p>
+<p>Fields returning the type <span class="spec-nt"><span data-name="String">String</span></span> expect to encounter UTF&#8208;8 string internal values.</p>
+<p>GraphQL servers may coerce non&#8208;string raw values to <span class="spec-nt"><span data-name="String">String</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning the string <code>&quot;true&quot;</code> for a boolean true value, or the string <code>&quot;1&quot;</code> for the integer <code>1</code>.</p>
 </section>
 <section id="sec-String.Input-Coercion" class="subsec">
 <h6><a href="#sec-String.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2585,8 +2586,8 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <p>The Boolean scalar type represents <code>true</code> or <code>false</code>. Response formats should use a built&#8208;in boolean type if supported; otherwise, they should use their representation of the integers <code>1</code> and <code>0</code>.</p>
 <section id="sec-Boolean.Result-Coercion" class="subsec">
 <h6><a href="#sec-Boolean.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>Fields returning the type <code>Boolean</code> expect to encounter boolean internal values.</p>
-<p>GraphQL servers may coerce non&#8208;boolean raw values to <code>Boolean</code> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>true</code> for non&#8208;zero numbers.</p>
+<p>Fields returning the type <span class="spec-nt"><span data-name="Boolean">Boolean</span></span> expect to encounter boolean internal values.</p>
+<p>GraphQL servers may coerce non&#8208;boolean raw values to <span class="spec-nt"><span data-name="Boolean">Boolean</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>true</code> for non&#8208;zero numbers.</p>
 </section>
 <section id="sec-Boolean.Input-Coercion" class="subsec">
 <h6><a href="#sec-Boolean.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2595,7 +2596,7 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 </section>
 <section id="sec-ID" secid="3.5.5">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-ID">3.5.5</a></span>ID</h4>
-<p>The ID scalar type represents a unique identifier, often used to refetch an object or as the key for a cache. The ID type is serialized in the same way as a <code>String</code>; however, it is not intended to be human&#8208;readable. While it is often numeric, it should always serialize as a <code>String</code>.</p>
+<p>The ID scalar type represents a unique identifier, often used to refetch an object or as the key for a cache. The ID type is serialized in the same way as a <span class="spec-nt"><span data-name="String">String</span></span>; however, it is not intended to be human&#8208;readable. While it is often numeric, it should always serialize as a <span class="spec-nt"><span data-name="String">String</span></span>.</p>
 <section id="sec-ID.Result-Coercion" class="subsec">
 <h6><a href="#sec-ID.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>GraphQL is agnostic to ID format, and serializes to string to ensure consistency across many formats ID could represent, from small auto&#8208;increment numbers, to large 128&#8208;bit random numbers, to base64 encoded values, or string values of a format like <a href="https://en.wikipedia.org/wiki/Globally_unique_identifier">GUID</a>.</p>
@@ -2647,7 +2648,7 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
   <span class="token attr-name">picture</span><span class="token punctuation">:</span> Url
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Where <code>name</code> is a field that will yield a <code>String</code> value, and <code>age</code> is a field that will yield an <code>Int</code> value, and <code>picture</code> is a field that will yield a <code>Url</code> value.</p>
+<p>Where <code>name</code> is a field that will yield a <span class="spec-nt"><span data-name="String">String</span></span> value, and <code>age</code> is a field that will yield an <span class="spec-nt"><span data-name="Int">Int</span></span> value, and <code>picture</code> is a field that will yield a <code>Url</code> value.</p>
 <p>A query of an object value must select at least one field. This selection of fields will yield an ordered map containing exactly the subset of the object queried, which should be represented in the order in which they were queried. Only fields that are declared on the object type may validly be queried on that object.</p>
 <p>For example, selecting all the fields of <code>Person</code>:</p>
 <pre id="example-1743a" class="spec-example"><a href="#example-1743a">Example № 44</a><code><span class="token punctuation">{</span>
@@ -3114,7 +3115,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Bu
 <div class="spec-production" id="EnumValueDefinition">
 <span class="spec-nt"><a href="#EnumValueDefinition" data-name="EnumValueDefinition">EnumValueDefinition</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Description" data-name="Description">Description</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#EnumValue" data-name="EnumValue">EnumValue</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
-<p>GraphQL Enum types, like scalar types, also represent leaf values in a GraphQL type system. However Enum types describe the set of possible values.</p>
+<p>GraphQL Enum types, like Scalar types, also represent leaf values in a GraphQL type system. However Enum types describe the set of possible values.</p>
 <p>Enums are not references for a numeric value, but are unique values in their own right. They may serialize as a string: the name of the represented value.</p>
 <p>In this example, an Enum type called <code>Direction</code> is defined:</p>
 <pre id="example-36555" class="spec-example"><a href="#example-36555">Example № 75</a><code><span class="token keyword">enum</span> <span class="token class-name">Direction</span> <span class="token punctuation">{</span>
