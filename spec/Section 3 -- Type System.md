@@ -328,7 +328,7 @@ ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
 Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
-GraphQL scalars.
+typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
 GraphQL provides a number of built-in scalars (see below), but type systems can
 add additional scalars with semantic meaning. For example, a GraphQL system
