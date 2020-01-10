@@ -921,7 +921,7 @@ This is an example of a non&#8208;normative note.</div>
 <li><a href="#sec-Language"><span class="spec-secid">2</span>Language</a>
 <input hidden class="toggle" type="checkbox" checked id="_toggle_2" /><label for="_toggle_2"></label>
 <ol>
-<li><a href="#sec-Source-Text"><span class="spec-secid">2.1</span>Source Text</a>
+<li><a href="#sec-Language.Source-Text"><span class="spec-secid">2.1</span>Source Text</a>
 <input hidden class="toggle" type="checkbox" checked id="_toggle_2.1" /><label for="_toggle_2.1"></label>
 <ol>
 <li><a href="#sec-Unicode"><span class="spec-secid">2.1.1</span>Unicode</a></li>
@@ -929,13 +929,13 @@ This is an example of a non&#8208;normative note.</div>
 <li><a href="#sec-Line-Terminators"><span class="spec-secid">2.1.3</span>Line Terminators</a></li>
 <li><a href="#sec-Comments"><span class="spec-secid">2.1.4</span>Comments</a></li>
 <li><a href="#sec-Insignificant-Commas"><span class="spec-secid">2.1.5</span>Insignificant Commas</a></li>
-<li><a href="#sec-Source-Text.Lexical-Tokens"><span class="spec-secid">2.1.6</span>Lexical Tokens</a></li>
-<li><a href="#sec-Source-Text.Ignored-Tokens"><span class="spec-secid">2.1.7</span>Ignored Tokens</a></li>
+<li><a href="#sec-Language.Source-Text.Lexical-Tokens"><span class="spec-secid">2.1.6</span>Lexical Tokens</a></li>
+<li><a href="#sec-Language.Source-Text.Ignored-Tokens"><span class="spec-secid">2.1.7</span>Ignored Tokens</a></li>
 <li><a href="#sec-Punctuators"><span class="spec-secid">2.1.8</span>Punctuators</a></li>
 <li><a href="#sec-Names"><span class="spec-secid">2.1.9</span>Names</a></li>
 </ol>
 </li>
-<li><a href="#sec-Language.Document"><span class="spec-secid">2.2</span>Document</a></li>
+<li><a href="#sec-Document"><span class="spec-secid">2.2</span>Document</a></li>
 <li><a href="#sec-Language.Operations"><span class="spec-secid">2.3</span>Operations</a></li>
 <li><a href="#sec-Selection-Sets"><span class="spec-secid">2.4</span>Selection Sets</a></li>
 <li><a href="#sec-Language.Fields"><span class="spec-secid">2.5</span>Fields</a></li>
@@ -1264,9 +1264,10 @@ This is an example of a non&#8208;normative note.</div>
 <li><a href="#sec-Appendix-Grammar-Summary"><span class="spec-secid">B</span>Appendix: Grammar Summary</a>
 <input hidden class="toggle" type="checkbox" checked id="_toggle_B" /><label for="_toggle_B"></label>
 <ol>
-<li><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.1</span>Ignored Tokens</a></li>
-<li><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.2</span>Lexical Tokens</a></li>
-<li><a href="#sec-Appendix-Grammar-Summary.Document"><span class="spec-secid">B.3</span>Document</a></li>
+<li><a href="#sec-Appendix-Grammar-Summary.Source-Text"><span class="spec-secid">B.1</span>Source Text</a></li>
+<li><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.2</span>Ignored Tokens</a></li>
+<li><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.3</span>Lexical Tokens</a></li>
+<li><a href="#sec-Document-Syntax"><span class="spec-secid">B.4</span>Document Syntax</a></li>
 </ol>
 </li>
 <li><a href="#index"><span class="spec-secid">§</span>Index</a></li>
@@ -1305,14 +1306,27 @@ This is an example of a non&#8208;normative note.</div>
 <section id="sec-Language" secid="2">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Language">2</a></span>Language</h2>
 <p>Clients use the GraphQL query language to make requests to a GraphQL service. We refer to these request sources as documents. A document may contain operations (queries, mutations, and subscriptions) as well as fragments, a common unit of composition allowing for query reuse.</p>
-<p>A GraphQL document is defined as a syntactic grammar where terminal symbols are tokens (indivisible lexical units). These tokens are defined in a lexical grammar which matches patterns of source characters (defined by a double&#8208;colon <code>::</code>).</p>
-<div id="note-d3e4f" class="spec-note">
-<a href="#note-d3e4f">Note</a>
-See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more details about the definition of lexical and syntactic grammar and other notational conventions used in this document.</div>
-<section id="sec-Source-Text" secid="2.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Source-Text">2.1</a></span>Source Text</h3>
+<p>A GraphQL document is defined as a syntactic grammar where terminal symbols are tokens (indivisible lexical units). These tokens are defined in a lexical grammar which matches patterns of source characters. In this document, syntactic grammar productions are distinguished with a colon <code>:</code> while lexical grammar productions are distinguished with a double&#8208;colon <code>::</code>.</p>
+<p>The source text of a GraphQL document must be a sequence of <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>. The character sequence must be described by a sequence of <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span> and <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> lexical grammars. The lexical token sequence, omitting <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span>, must be described by a single <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span> syntactic grammar.</p>
+<div id="note-e800c" class="spec-note">
+<a href="#note-e800c">Note</a>
+See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more information about the lexical and syntactic grammar and other notational conventions used throughout this document.</div>
+<section id="sec-Language.Lexical-Analysis-Syntactic-Parse" class="subsec">
+<h6><a href="#sec-Language.Lexical-Analysis-Syntactic-Parse" title="link to this subsection">Lexical Analysis &amp; Syntactic Parse</a></h6>
+<p>The source text of a GraphQL document is first converted into a sequence of lexical tokens, <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>, and ignored tokens, <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span>. The source text is scanned from left to right, repeatedly taking the next possible sequence of code&#8208;points allowed by the lexical grammar productions as the next token. This sequence of lexical tokens are then scanned from left to right to produce an abstract syntax tree (AST) according to the <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span> syntactical grammar.</p>
+<p>Lexical grammar productions in this document use <em>lookahead restrictions</em> to remove ambiguity and ensure a single valid lexical analysis. A lexical token is only valid if not followed by a character in its lookahead restriction.</p>
+<p>For example, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> has the restriction <span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span></span>, so cannot be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. Because of this, the sequence <span class="spec-t">123</span> cannot represent as the tokens (<span class="spec-t">12</span>, <span class="spec-t">3</span>) since <span class="spec-t">12</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span> and so must only represent a single token. Use <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> or other <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> between characters to represent multiple tokens.</p>
+<div id="note-ba22f" class="spec-note">
+<a href="#note-ba22f">Note</a>
+This typically has the same behavior as a &ldquo;<a href="https://en.wikipedia.org/wiki/Maximal_munch">maximal munch</a>&rdquo; longest possible match, however some lookahead restrictions include additional constraints.</div>
+</section>
+<section id="sec-Language.Source-Text" secid="2.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Language.Source-Text">2.1</a></span>Source Text</h3>
 <div class="spec-production d2" id="SourceCharacter">
-<span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><div class="spec-rhs"><span class="spec-rx">/[\u0009\u000A\u000D\u0020-\uFFFF]/</span></div>
+<span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><div class="spec-rhs"><span class="spec-prose">U+0009</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+000A</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+000D</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+0020&ndash;U+FFFF</span></div>
 </div>
 <p>GraphQL documents are expressed as a sequence of <a href="https://unicode.org/standard/standard.html">Unicode</a> characters. However, with few exceptions, most of GraphQL is expressed only in the original non&#8208;control ASCII range so as to be as widely compatible with as many existing tools, languages, and serialization formats as possible and avoid display issues in text editors and source control.</p>
 <section id="sec-Unicode" secid="2.1.1">
@@ -1349,14 +1363,14 @@ Any error reporting which provide the line number in the source of the offending
 <section id="sec-Comments" secid="2.1.4">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Comments">2.1.4</a></span>Comments</h4>
 <div class="spec-production d2" id="Comment">
-<span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span><div class="spec-rhs"><span class="spec-t">#</span><span class="spec-quantified"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span></div>
+<span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span><div class="spec-rhs"><span class="spec-t">#</span><span class="spec-quantified"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span></span></div>
 </div>
 <div class="spec-production d2" id="CommentChar">
 <span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span></span></span></div>
 </div>
 <p>GraphQL source documents may contain single&#8208;line comments, starting with the <span class="spec-t">#</span> marker.</p>
-<p>A comment can contain any Unicode code point except <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span> so a comment always consists of all code points starting with the <span class="spec-t">#</span> character up to but not including the line terminator.</p>
-<p>Comments behave like white space and may appear after any token, or before a line terminator, and have no significance to the semantic meaning of a GraphQL Document.</p>
+<p>A comment can contain any Unicode code point in <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> except <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span> so a comment always consists of all code points starting with the <span class="spec-t">#</span> character up to but not including the <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span> (or end of the source).</p>
+<p>Comments are <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> like white space and may appear after any token, or before a <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span>, and have no significance to the semantic meaning of a GraphQL Document.</p>
 </section>
 <section id="sec-Insignificant-Commas" secid="2.1.5">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Insignificant-Commas">2.1.5</a></span>Insignificant Commas</h4>
@@ -1366,8 +1380,8 @@ Any error reporting which provide the line number in the source of the offending
 <p>Similar to white space and line terminators, commas (<span class="spec-t">,</span>) are used to improve the legibility of source text and separate lexical tokens but are otherwise syntactically and semantically insignificant within GraphQL Documents.</p>
 <p>Non&#8208;significant comma characters ensure that the absence or presence of a comma does not meaningfully alter the interpreted syntax of the document, as this can be a common user&#8208;error in other languages. It also allows for the stylistic use of either trailing commas or line&#8208;terminators as list delimiters which are both often desired for legibility and maintainability of source code.</p>
 </section>
-<section id="sec-Source-Text.Lexical-Tokens" secid="2.1.6">
-<h4><span class="spec-secid" title="link to this section"><a href="#sec-Source-Text.Lexical-Tokens">2.1.6</a></span>Lexical Tokens</h4>
+<section id="sec-Language.Source-Text.Lexical-Tokens" secid="2.1.6">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-Language.Source-Text.Lexical-Tokens">2.1.6</a></span>Lexical Tokens</h4>
 <div class="spec-production d2" id="Token">
 <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Punctuator" data-name="Punctuator">Punctuator</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
@@ -1376,10 +1390,10 @@ Any error reporting which provide the line number in the source of the offending
 <div class="spec-rhs"><span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span></div>
 </div>
 <p>A GraphQL document is comprised of several kinds of indivisible lexical tokens defined here in a lexical grammar by patterns of source Unicode characters.</p>
-<p>Tokens are later used as terminal symbols in a GraphQL Document syntactic grammars.</p>
+<p>Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.</p>
 </section>
-<section id="sec-Source-Text.Ignored-Tokens" secid="2.1.7">
-<h4><span class="spec-secid" title="link to this section"><a href="#sec-Source-Text.Ignored-Tokens">2.1.7</a></span>Ignored Tokens</h4>
+<section id="sec-Language.Source-Text.Ignored-Tokens" secid="2.1.7">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-Language.Source-Text.Ignored-Tokens">2.1.7</a></span>Ignored Tokens</h4>
 <div class="spec-production d2" id="Ignored">
 <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#UnicodeBOM" data-name="UnicodeBOM">UnicodeBOM</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span></div>
@@ -1387,8 +1401,8 @@ Any error reporting which provide the line number in the source of the offending
 <div class="spec-rhs"><span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Comma" data-name="Comma">Comma</a></span></div>
 </div>
-<p>Before and after every lexical token may be any amount of ignored tokens including <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> and <span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span>. No ignored regions of a source document are significant, however otherwise ignored source characters may appear within a lexical token in a significant way, for example a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> may contain white space characters and commas.</p>
-<p>No characters are ignored while parsing a given token, as an example no white space characters are permitted between the characters defining a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>.</p>
+<p><span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> tokens are used to improve readability and provide separation between <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>, but are otherwise insignificant and not referenced in syntactical grammar productions.</p>
+<p>Any amount of <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may appear before and after every lexical token. No ignored regions of a source document are significant, however <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> which appear in <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may also appear within a lexical <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span> in a significant way, for example a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> may contain white space characters. No <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may appear <em>within</em> a <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>, for example no white space characters are permitted between the characters defining a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>.</p>
 </section>
 <section id="sec-Punctuators" secid="2.1.8">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Punctuators">2.1.8</a></span>Punctuators</h4>
@@ -1403,15 +1417,45 @@ Any error reporting which provide the line number in the source of the offending
 <section id="sec-Names" secid="2.1.9">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Names">2.1.9</a></span>Names</h4>
 <div class="spec-production d2" id="Name">
-<span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><div class="spec-rhs"><span class="spec-rx">/[_A-Za-z][_0-9A-Za-z]*/</span></div>
+<span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span></span></div>
+</div>
+<div class="spec-production d2" id="NameStart">
+<span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span></div>
+<div class="spec-rhs"><span class="spec-t">_</span></div>
+</div>
+<div class="spec-production d2" id="NameContinue">
+<span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span></div>
+<div class="spec-rhs"><span class="spec-t">_</span></div>
+</div>
+<div class="spec-production d2" id="Letter">
+<span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span><div class="spec-oneof"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">A</span></td><td class="spec-rhs"><span class="spec-t">B</span></td><td class="spec-rhs"><span class="spec-t">C</span></td><td class="spec-rhs"><span class="spec-t">D</span></td><td class="spec-rhs"><span class="spec-t">E</span></td><td class="spec-rhs"><span class="spec-t">F</span></td><td class="spec-rhs"><span class="spec-t">G</span></td><td class="spec-rhs"><span class="spec-t">H</span></td><td class="spec-rhs"><span class="spec-t">I</span></td><td class="spec-rhs"><span class="spec-t">J</span></td><td class="spec-rhs"><span class="spec-t">K</span></td><td class="spec-rhs"><span class="spec-t">L</span></td><td class="spec-rhs"><span class="spec-t">M</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">N</span></td><td class="spec-rhs"><span class="spec-t">O</span></td><td class="spec-rhs"><span class="spec-t">P</span></td><td class="spec-rhs"><span class="spec-t">Q</span></td><td class="spec-rhs"><span class="spec-t">R</span></td><td class="spec-rhs"><span class="spec-t">S</span></td><td class="spec-rhs"><span class="spec-t">T</span></td><td class="spec-rhs"><span class="spec-t">U</span></td><td class="spec-rhs"><span class="spec-t">V</span></td><td class="spec-rhs"><span class="spec-t">W</span></td><td class="spec-rhs"><span class="spec-t">X</span></td><td class="spec-rhs"><span class="spec-t">Y</span></td><td class="spec-rhs"><span class="spec-t">Z</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">a</span></td><td class="spec-rhs"><span class="spec-t">b</span></td><td class="spec-rhs"><span class="spec-t">c</span></td><td class="spec-rhs"><span class="spec-t">d</span></td><td class="spec-rhs"><span class="spec-t">e</span></td><td class="spec-rhs"><span class="spec-t">f</span></td><td class="spec-rhs"><span class="spec-t">g</span></td><td class="spec-rhs"><span class="spec-t">h</span></td><td class="spec-rhs"><span class="spec-t">i</span></td><td class="spec-rhs"><span class="spec-t">j</span></td><td class="spec-rhs"><span class="spec-t">k</span></td><td class="spec-rhs"><span class="spec-t">l</span></td><td class="spec-rhs"><span class="spec-t">m</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">n</span></td><td class="spec-rhs"><span class="spec-t">o</span></td><td class="spec-rhs"><span class="spec-t">p</span></td><td class="spec-rhs"><span class="spec-t">q</span></td><td class="spec-rhs"><span class="spec-t">r</span></td><td class="spec-rhs"><span class="spec-t">s</span></td><td class="spec-rhs"><span class="spec-t">t</span></td><td class="spec-rhs"><span class="spec-t">u</span></td><td class="spec-rhs"><span class="spec-t">v</span></td><td class="spec-rhs"><span class="spec-t">w</span></td><td class="spec-rhs"><span class="spec-t">x</span></td><td class="spec-rhs"><span class="spec-t">y</span></td><td class="spec-rhs"><span class="spec-t">z</span></td></tr>
+</table></div>
+</div>
+<div class="spec-production d2" id="Digit">
+<span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><div class="spec-oneof"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">0</span></td><td class="spec-rhs"><span class="spec-t">1</span></td><td class="spec-rhs"><span class="spec-t">2</span></td><td class="spec-rhs"><span class="spec-t">3</span></td><td class="spec-rhs"><span class="spec-t">4</span></td><td class="spec-rhs"><span class="spec-t">5</span></td><td class="spec-rhs"><span class="spec-t">6</span></td><td class="spec-rhs"><span class="spec-t">7</span></td><td class="spec-rhs"><span class="spec-t">8</span></td><td class="spec-rhs"><span class="spec-t">9</span></td></tr>
+</table></div>
 </div>
 <p>GraphQL Documents are full of named things: operations, fields, arguments, types, directives, fragments, and variables. All names must follow the same grammatical form.</p>
 <p>Names in GraphQL are case&#8208;sensitive. That is to say <code>name</code>, <code>Name</code>, and <code>NAME</code> all refer to different names. Underscores are significant, which means <code>other_name</code> and <code>othername</code> are two different names.</p>
-<p>Names in GraphQL are limited to this <acronym>ASCII</acronym> subset of possible characters to support interoperation with as many other systems as possible.</p>
+<p>A <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> must not be followed by a <span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span>. In other words, a <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">a1</span> cannot be interpreted as two tokens since <span class="spec-t">a</span> is followed by the <span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span> <span class="spec-t">1</span>.</p>
+<div id="note-46408" class="spec-note">
+<a href="#note-46408">Note</a>
+Names in GraphQL are limited to the Latin <acronym>ASCII</acronym> subset of <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> in order to support interoperation with as many other systems as possible.</div>
 </section>
 </section>
-<section id="sec-Language.Document" secid="2.2">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Language.Document">2.2</a></span>Document</h3>
+<section id="sec-Document" secid="2.2">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Document">2.2</a></span>Document</h3>
 <div class="spec-production" id="Document">
 <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Definition" data-name="Definition">Definition</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
@@ -1785,7 +1829,7 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <section id="sec-Int-Value" secid="2.9.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Int-Value">2.9.1</a></span>Int Value</h4>
 <div class="spec-production d2" id="IntValue">
-<span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span></div>
+<span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
 </div>
 <div class="spec-production d2" id="IntegerPart">
 <span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">0</span></div>
@@ -1794,23 +1838,19 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <div class="spec-production d2" id="NegativeSign">
 <span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><div class="spec-rhs"><span class="spec-t">-</span></div>
 </div>
-<div class="spec-production d2" id="Digit">
-<span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><div class="spec-oneof"><table>
-<tr>
-<td class="spec-rhs"><span class="spec-t">0</span></td><td class="spec-rhs"><span class="spec-t">1</span></td><td class="spec-rhs"><span class="spec-t">2</span></td><td class="spec-rhs"><span class="spec-t">3</span></td><td class="spec-rhs"><span class="spec-t">4</span></td><td class="spec-rhs"><span class="spec-t">5</span></td><td class="spec-rhs"><span class="spec-t">6</span></td><td class="spec-rhs"><span class="spec-t">7</span></td><td class="spec-rhs"><span class="spec-t">8</span></td><td class="spec-rhs"><span class="spec-t">9</span></td></tr>
-</table></div>
-</div>
 <div class="spec-production d2" id="NonZeroDigit">
 <span class="spec-nt"><a href="#NonZeroDigit" data-name="NonZeroDigit">NonZeroDigit</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-butnot"><span class="spec-t">0</span></span></span></div>
 </div>
-<p>An Int number is specified without a decimal point or exponent (ex. <code>1</code>).</p>
+<p>An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> is specified without a decimal point or exponent but may be negative (ex. <span class="spec-t">-123</span>). It must not have any leading <span class="spec-t">0</span>.</p>
+<p>An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">12</span> cannot be interpreted as two tokens since <span class="spec-t">1</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">2</span>. This also means the source <span class="spec-t">00</span> is invalid since it can neither be interpreted as a single token nor two <span class="spec-t">0</span> tokens.</p>
+<p>An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-t">.</span> or <span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span>. If either follows then the token must only be interpreted as a possible <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>.</p>
 </section>
 <section id="sec-Float-Value" secid="2.9.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Float-Value">2.9.2</a></span>Float Value</h4>
 <div class="spec-production d2" id="FloatValue">
-<span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span></div>
-<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span></div>
-<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span></div>
+<span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
 </div>
 <div class="spec-production d2" id="FractionalPart">
 <span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><div class="spec-rhs"><span class="spec-t">.</span><span class="spec-quantified"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
@@ -1830,7 +1870,9 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <td class="spec-rhs"><span class="spec-t">+</span></td><td class="spec-rhs"><span class="spec-t">-</span></td></tr>
 </table></div>
 </div>
-<p>A Float number includes either a decimal point (ex. <code>1.0</code>) or an exponent (ex. <code>1e50</code>) or both (ex. <code>6.0221413e23</code>).</p>
+<p>A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> includes either a decimal point (ex. <span class="spec-t">1.0</span>) or an exponent (ex. <span class="spec-t">1e50</span>) or both (ex. <span class="spec-t">6.0221413e23</span>) and may be negative. Like <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span>, it also must not have any leading <span class="spec-t">0</span>.</p>
+<p>A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">1.23</span> cannot be interpreted as two tokens since <span class="spec-t">1.2</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span>.</p>
+<p>A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-t">.</span> or <span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span>. If either follows then a parse error occurs. For example, the sequence <span class="spec-t">1.23.4</span> cannot be interpreted as two tokens (<span class="spec-t">1.2</span>, <span class="spec-t">3.4</span>).</p>
 </section>
 <section id="sec-Boolean-Value" secid="2.9.3">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Boolean-Value">2.9.3</a></span>Boolean Value</h4>
@@ -1845,7 +1887,8 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <section id="sec-String-Value" secid="2.9.4">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-String-Value">2.9.4</a></span>String Value</h4>
 <div class="spec-production d2" id="StringValue">
-<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">&quot;</span></div>
+<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;&quot;</span><span class="spec-lookahead not"><span class="spec-t">&quot;</span></span></div>
+<div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">&quot;</span></div>
 <div class="spec-rhs"><span class="spec-t">&quot;&quot;&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">&quot;&quot;&quot;</span></div>
 </div>
 <div class="spec-production d2" id="StringCharacter">
@@ -1866,7 +1909,8 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-t">&quot;&quot;&quot;</span><span class="spec-t">\&quot;&quot;&quot;</span></span></span></div>
 <div class="spec-rhs"><span class="spec-t">\&quot;&quot;&quot;</span></div>
 </div>
-<p>Strings are sequences of characters wrapped in double&#8208;quotes (<code>&quot;</code>). (ex. <code>&quot;Hello World&quot;</code>). White space and other otherwise&#8208;ignored characters are significant within a string value.</p>
+<p>Strings are sequences of characters wrapped in quotation marks (U+0022). (ex. <span class="spec-t">&quot;Hello World&quot;</span>). White space and other otherwise&#8208;ignored characters are significant within a string value.</p>
+<p>The empty string <span class="spec-t">&quot;&quot;</span> must not be followed by another <span class="spec-t">&quot;</span> otherwise it would be interpreted as the beginning of a block string. As an example, the source <span class="spec-t">&quot;&quot;&quot;&quot;&quot;&quot;</span> can only be interpreted as a single empty block string and not three empty strings.</p>
 <div id="note-1c619" class="spec-note">
 <a href="#note-1c619">Note</a>
 Unicode characters are allowed within String value literals, however <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> must not contain some ASCII control characters so escape sequences must be used to represent these characters.</div>
@@ -1906,9 +1950,15 @@ If non&#8208;printable ASCII characters are needed in a string value, a standard
 <section id="sec-String-Value.Semantics" class="subsec">
 <h6><a href="#sec-String-Value.Semantics" title="link to this subsection">Semantics</a></h6>
 <div class="spec-semantic d2">
-<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">&quot;</span></div>
+<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;&quot;</span></div>
 <ol>
-<li>Return the Unicode character sequence of all <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span> Unicode character values (which may be an empty sequence).</li>
+<li>Return an empty sequence.</li>
+</ol>
+</div>
+<div class="spec-semantic d2">
+<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">&quot;</span></div>
+<ol>
+<li>Return the Unicode character sequence of all <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span> Unicode character values.</li>
 </ol>
 </div>
 <div class="spec-semantic d2">
@@ -6237,7 +6287,7 @@ This does not violate the JSON spec, as clients may still interpret objects in t
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Context-Free-Grammar">A.1</a></span>Context-Free Grammar</h3>
 <p>A context&#8208;free grammar consists of a number of productions. Each production has an abstract symbol called a &ldquo;non&#8208;terminal&rdquo; as its left&#8208;hand side, and zero or more possible sequences of non&#8208;terminal symbols and or terminal characters as its right&#8208;hand side.</p>
 <p>Starting from a single goal non&#8208;terminal symbol, a context&#8208;free grammar describes a language: the set of possible sequences of characters that can be described by repeatedly replacing any non&#8208;terminal in the goal sequence with one of the sequences it is defined by, until all non&#8208;terminal symbols have been replaced by terminal characters.</p>
-<p>Terminals are represented in this document in a monospace font in two forms: a specific Unicode character or sequence of Unicode characters (ex. <span class="spec-t">=</span> or <span class="spec-t">terminal</span>), and a pattern of Unicode characters defined by a regular expression (ex <span class="spec-rx">/[0-9]+/</span>).</p>
+<p>Terminals are represented in this document in a monospace font in two forms: a specific Unicode character or sequence of Unicode characters (ie. <span class="spec-t">=</span> or <span class="spec-t">terminal</span>), and prose typically describing a specific Unicode code&#8208;point <span class="spec-string">"Space (U+0020)"</span>. Sequences of Unicode characters only appear in syntactic grammars and represent a <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> token of that specific sequence.</p>
 <p>Non&#8208;terminal production rules are represented in this document using the following notation for a non&#8208;terminal with a single definition:</p>
 <div class="spec-production" id="NonTerminalWithSingleDefinition">
 <span class="spec-nt"><a href="#NonTerminalWithSingleDefinition" data-name="NonTerminalWithSingleDefinition">NonTerminalWithSingleDefinition</a></span><div class="spec-rhs"><span class="spec-nt"><span data-name="NonTerminal">NonTerminal</span></span><span class="spec-t">terminal</span></div>
@@ -6255,14 +6305,14 @@ This does not violate the JSON spec, as clients may still interpret objects in t
 </section>
 <section id="sec-Lexical-and-Syntactical-Grammar" secid="A.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Lexical-and-Syntactical-Grammar">A.2</a></span>Lexical and Syntactical Grammar</h3>
-<p>The GraphQL language is defined in a syntactic grammar where terminal symbols are tokens. Tokens are defined in a lexical grammar which matches patterns of source characters. The result of parsing a sequence of source Unicode characters produces a GraphQL AST.</p>
-<p>A Lexical grammar production describes non&#8208;terminal &ldquo;tokens&rdquo; by patterns of terminal Unicode characters. No &ldquo;whitespace&rdquo; or other ignored characters may appear between any terminal Unicode characters in the lexical grammar production. A lexical grammar production is distinguished by a two colon <code>::</code> definition.</p>
+<p>The GraphQL language is defined in a syntactic grammar where terminal symbols are tokens. Tokens are defined in a lexical grammar which matches patterns of source characters. The result of parsing a source text sequence of Unicode characters first produces a sequence of lexical tokens according to the lexical grammar which then produces abstract syntax tree (AST) according to the syntactical grammar.</p>
+<p>A lexical grammar production describes non&#8208;terminal &ldquo;tokens&rdquo; by patterns of terminal Unicode characters. No &ldquo;whitespace&rdquo; or other ignored characters may appear between any terminal Unicode characters in the lexical grammar production. A lexical grammar production is distinguished by a two colon <code>::</code> definition.</p>
 <div class="spec-production d2" id="Word">
-<span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><div class="spec-rhs"><span class="spec-rx">/[A-Za-z]+/</span></div>
+<span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
-<p>A Syntactical grammar production describes non&#8208;terminal &ldquo;rules&rdquo; by patterns of terminal Tokens. Whitespace and other ignored characters may appear before or after any terminal Token. A syntactical grammar production is distinguished by a one colon <code>:</code> definition.</p>
+<p>A Syntactical grammar production describes non&#8208;terminal &ldquo;rules&rdquo; by patterns of terminal Tokens. <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> and other <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> sequences may appear before or after any terminal <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>. A syntactical grammar production is distinguished by a one colon <code>:</code> definition.</p>
 <div class="spec-production" id="Sentence">
-<span class="spec-nt"><a href="#Sentence" data-name="Sentence">Sentence</a></span><div class="spec-rhs"><span class="spec-nt"><span data-name="Noun">Noun</span></span><span class="spec-nt"><span data-name="Verb">Verb</span></span></div>
+<span class="spec-nt"><a href="#Sentence" data-name="Sentence">Sentence</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">.</span></div>
 </div>
 </section>
 <section id="sec-Grammar-Notation" secid="A.3">
@@ -6271,15 +6321,22 @@ This does not violate the JSON spec, as clients may still interpret objects in t
 <section id="sec-Grammar-Notation.Constraints" class="subsec">
 <h6><a href="#sec-Grammar-Notation.Constraints" title="link to this subsection">Constraints</a></h6>
 <p>A grammar production may specify that certain expansions are not permitted by using the phrase &ldquo;but not&rdquo; and then indicating the expansions to be excluded.</p>
-<p>For example, the production:</p>
-<div class="spec-production" id="SafeName">
-<span class="spec-nt"><a href="#SafeName" data-name="SafeName">SafeName</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-butnot"><span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span></span></span></div>
+<p>For example, the following production means that the nonterminal <span class="spec-nt"><a href="#SafeWord" data-name="SafeWord">SafeWord</a></span> may be replaced by any sequence of characters that could replace <span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span> provided that the same sequence of characters could not replace <span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span>.</p>
+<div class="spec-production" id="SafeWord">
+<span class="spec-nt"><a href="#SafeWord" data-name="SafeWord">SafeWord</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><span class="spec-butnot"><span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span></span></span></div>
 </div>
-<p>means that the nonterminal <span class="spec-nt"><a href="#SafeName" data-name="SafeName">SafeName</a></span> may be replaced by any sequence of characters that could replace <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> provided that the same sequence of characters could not replace <span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span>.</p>
 <p>A grammar may also list a number of restrictions after &ldquo;but not&rdquo; separated by &ldquo;or&rdquo;.</p>
 <p>For example:</p>
 <div class="spec-production" id="NonBooleanName">
 <span class="spec-nt"><a href="#NonBooleanName" data-name="NonBooleanName">NonBooleanName</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-butnot"><span class="spec-t">true</span><span class="spec-t">false</span></span></span></div>
+</div>
+</section>
+<section id="sec-Grammar-Notation.Lookahead-Restrictions" class="subsec">
+<h6><a href="#sec-Grammar-Notation.Lookahead-Restrictions" title="link to this subsection">Lookahead Restrictions</a></h6>
+<p>A grammar production may specify that certain characters or tokens are not permitted to follow it by using the pattern <span class="spec-lookahead ntset not"><span class="spec-nt"><span data-name="NotAllowed">NotAllowed</span></span></span>. Lookahead restrictions are often used to remove ambiguity from the grammar.</p>
+<p>The following example makes it clear that <span class="spec-quantified"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span> must be greedy, since <span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span> cannot be followed by yet another <span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span>.</p>
+<div class="spec-production d2" id="Word">
+<span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span></span></div>
 </div>
 </section>
 <section id="sec-Grammar-Notation.Optionality-and-Lists" class="subsec">
@@ -6377,11 +6434,17 @@ Algorithms described in this document are written to be easy to understand. Impl
 </section>
 <section id="sec-Appendix-Grammar-Summary" secid="B">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary">B</a></span>Appendix: Grammar Summary</h2>
+<section id="sec-Appendix-Grammar-Summary.Source-Text" secid="B.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Source-Text">B.1</a></span>Source Text</h3>
 <div class="spec-production d2" id="SourceCharacter">
-<span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><div class="spec-rhs"><span class="spec-rx">/[\u0009\u000A\u000D\u0020-\uFFFF]/</span></div>
+<span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><div class="spec-rhs"><span class="spec-prose">U+0009</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+000A</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+000D</span></div>
+<div class="spec-rhs"><span class="spec-prose">U+0020&ndash;U+FFFF</span></div>
 </div>
-<section id="sec-Appendix-Grammar-Summary.Ignored-Tokens" secid="B.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens">B.1</a></span>Ignored Tokens</h3>
+</section>
+<section id="sec-Appendix-Grammar-Summary.Ignored-Tokens" secid="B.2">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens">B.2</a></span>Ignored Tokens</h3>
 <div class="spec-production d2" id="Ignored">
 <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#UnicodeBOM" data-name="UnicodeBOM">UnicodeBOM</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span></div>
@@ -6402,7 +6465,7 @@ Algorithms described in this document are written to be easy to understand. Impl
 <div class="spec-rhs"><span class="spec-prose">Carriage Return (U+000D)</span><span class="spec-prose">New Line (U+000A)</span></div>
 </div>
 <div class="spec-production d2" id="Comment">
-<span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span><div class="spec-rhs"><span class="spec-t">#</span><span class="spec-quantified"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span></div>
+<span class="spec-nt"><a href="#Comment" data-name="Comment">Comment</a></span><div class="spec-rhs"><span class="spec-t">#</span><span class="spec-quantified"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span></span></div>
 </div>
 <div class="spec-production d2" id="CommentChar">
 <span class="spec-nt"><a href="#CommentChar" data-name="CommentChar">CommentChar</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span></span></span></div>
@@ -6411,8 +6474,8 @@ Algorithms described in this document are written to be easy to understand. Impl
 <span class="spec-nt"><a href="#Comma" data-name="Comma">Comma</a></span><div class="spec-rhs"><span class="spec-t">,</span></div>
 </div>
 </section>
-<section id="sec-Appendix-Grammar-Summary.Lexical-Tokens" secid="B.2">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens">B.2</a></span>Lexical Tokens</h3>
+<section id="sec-Appendix-Grammar-Summary.Lexical-Tokens" secid="B.3">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens">B.3</a></span>Lexical Tokens</h3>
 <div class="spec-production d2" id="Token">
 <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Punctuator" data-name="Punctuator">Punctuator</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
@@ -6427,10 +6490,37 @@ Algorithms described in this document are written to be easy to understand. Impl
 </table></div>
 </div>
 <div class="spec-production d2" id="Name">
-<span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><div class="spec-rhs"><span class="spec-rx">/[_A-Za-z][_0-9A-Za-z]*/</span></div>
+<span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span></span></div>
+</div>
+<div class="spec-production d2" id="NameStart">
+<span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span></div>
+<div class="spec-rhs"><span class="spec-t">_</span></div>
+</div>
+<div class="spec-production d2" id="NameContinue">
+<span class="spec-nt"><a href="#NameContinue" data-name="NameContinue">NameContinue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span></div>
+<div class="spec-rhs"><span class="spec-t">_</span></div>
+</div>
+<div class="spec-production d2" id="Letter">
+<span class="spec-nt"><a href="#Letter" data-name="Letter">Letter</a></span><div class="spec-oneof"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">A</span></td><td class="spec-rhs"><span class="spec-t">B</span></td><td class="spec-rhs"><span class="spec-t">C</span></td><td class="spec-rhs"><span class="spec-t">D</span></td><td class="spec-rhs"><span class="spec-t">E</span></td><td class="spec-rhs"><span class="spec-t">F</span></td><td class="spec-rhs"><span class="spec-t">G</span></td><td class="spec-rhs"><span class="spec-t">H</span></td><td class="spec-rhs"><span class="spec-t">I</span></td><td class="spec-rhs"><span class="spec-t">J</span></td><td class="spec-rhs"><span class="spec-t">K</span></td><td class="spec-rhs"><span class="spec-t">L</span></td><td class="spec-rhs"><span class="spec-t">M</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">N</span></td><td class="spec-rhs"><span class="spec-t">O</span></td><td class="spec-rhs"><span class="spec-t">P</span></td><td class="spec-rhs"><span class="spec-t">Q</span></td><td class="spec-rhs"><span class="spec-t">R</span></td><td class="spec-rhs"><span class="spec-t">S</span></td><td class="spec-rhs"><span class="spec-t">T</span></td><td class="spec-rhs"><span class="spec-t">U</span></td><td class="spec-rhs"><span class="spec-t">V</span></td><td class="spec-rhs"><span class="spec-t">W</span></td><td class="spec-rhs"><span class="spec-t">X</span></td><td class="spec-rhs"><span class="spec-t">Y</span></td><td class="spec-rhs"><span class="spec-t">Z</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">a</span></td><td class="spec-rhs"><span class="spec-t">b</span></td><td class="spec-rhs"><span class="spec-t">c</span></td><td class="spec-rhs"><span class="spec-t">d</span></td><td class="spec-rhs"><span class="spec-t">e</span></td><td class="spec-rhs"><span class="spec-t">f</span></td><td class="spec-rhs"><span class="spec-t">g</span></td><td class="spec-rhs"><span class="spec-t">h</span></td><td class="spec-rhs"><span class="spec-t">i</span></td><td class="spec-rhs"><span class="spec-t">j</span></td><td class="spec-rhs"><span class="spec-t">k</span></td><td class="spec-rhs"><span class="spec-t">l</span></td><td class="spec-rhs"><span class="spec-t">m</span></td></tr>
+<tr>
+<td class="spec-rhs"><span class="spec-t">n</span></td><td class="spec-rhs"><span class="spec-t">o</span></td><td class="spec-rhs"><span class="spec-t">p</span></td><td class="spec-rhs"><span class="spec-t">q</span></td><td class="spec-rhs"><span class="spec-t">r</span></td><td class="spec-rhs"><span class="spec-t">s</span></td><td class="spec-rhs"><span class="spec-t">t</span></td><td class="spec-rhs"><span class="spec-t">u</span></td><td class="spec-rhs"><span class="spec-t">v</span></td><td class="spec-rhs"><span class="spec-t">w</span></td><td class="spec-rhs"><span class="spec-t">x</span></td><td class="spec-rhs"><span class="spec-t">y</span></td><td class="spec-rhs"><span class="spec-t">z</span></td></tr>
+</table></div>
+</div>
+<div class="spec-production d2" id="Digit">
+<span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><div class="spec-oneof"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">0</span></td><td class="spec-rhs"><span class="spec-t">1</span></td><td class="spec-rhs"><span class="spec-t">2</span></td><td class="spec-rhs"><span class="spec-t">3</span></td><td class="spec-rhs"><span class="spec-t">4</span></td><td class="spec-rhs"><span class="spec-t">5</span></td><td class="spec-rhs"><span class="spec-t">6</span></td><td class="spec-rhs"><span class="spec-t">7</span></td><td class="spec-rhs"><span class="spec-t">8</span></td><td class="spec-rhs"><span class="spec-t">9</span></td></tr>
+</table></div>
 </div>
 <div class="spec-production d2" id="IntValue">
-<span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span></div>
+<span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span></span></div>
 </div>
 <div class="spec-production d2" id="IntegerPart">
 <span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">0</span></div>
@@ -6439,19 +6529,13 @@ Algorithms described in this document are written to be easy to understand. Impl
 <div class="spec-production d2" id="NegativeSign">
 <span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><div class="spec-rhs"><span class="spec-t">-</span></div>
 </div>
-<div class="spec-production d2" id="Digit">
-<span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><div class="spec-oneof"><table>
-<tr>
-<td class="spec-rhs"><span class="spec-t">0</span></td><td class="spec-rhs"><span class="spec-t">1</span></td><td class="spec-rhs"><span class="spec-t">2</span></td><td class="spec-rhs"><span class="spec-t">3</span></td><td class="spec-rhs"><span class="spec-t">4</span></td><td class="spec-rhs"><span class="spec-t">5</span></td><td class="spec-rhs"><span class="spec-t">6</span></td><td class="spec-rhs"><span class="spec-t">7</span></td><td class="spec-rhs"><span class="spec-t">8</span></td><td class="spec-rhs"><span class="spec-t">9</span></td></tr>
-</table></div>
-</div>
 <div class="spec-production d2" id="NonZeroDigit">
 <span class="spec-nt"><a href="#NonZeroDigit" data-name="NonZeroDigit">NonZeroDigit</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-butnot"><span class="spec-t">0</span></span></span></div>
 </div>
 <div class="spec-production d2" id="FloatValue">
-<span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span></div>
-<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span></div>
-<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span></div>
+<span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span></span></div>
 </div>
 <div class="spec-production d2" id="FractionalPart">
 <span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><div class="spec-rhs"><span class="spec-t">.</span><span class="spec-quantified"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
@@ -6472,7 +6556,8 @@ Algorithms described in this document are written to be easy to understand. Impl
 </table></div>
 </div>
 <div class="spec-production d2" id="StringValue">
-<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">&quot;</span></div>
+<span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">&quot;&quot;</span><span class="spec-lookahead not"><span class="spec-t">&quot;</span></span></div>
+<div class="spec-rhs"><span class="spec-t">&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">&quot;</span></div>
 <div class="spec-rhs"><span class="spec-t">&quot;&quot;&quot;</span><span class="spec-quantified"><span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">&quot;&quot;&quot;</span></div>
 </div>
 <div class="spec-production d2" id="StringCharacter">
@@ -6497,8 +6582,8 @@ Algorithms described in this document are written to be easy to understand. Impl
 <a href="#note-5ad29">Note</a>
 Block string values are interpreted to exclude blank initial and trailing lines and uniform indentation with <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>()</span>.</div>
 </section>
-<section id="sec-Appendix-Grammar-Summary.Document" secid="B.3">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Grammar-Summary.Document">B.3</a></span>Document</h3>
+<section id="sec-Document-Syntax" secid="B.4">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Document-Syntax">B.4</a></span>Document Syntax</h3>
 <div class="spec-production" id="Document">
 <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Definition" data-name="Definition">Definition</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
@@ -6791,7 +6876,7 @@ Block string values are interpreted to exclude blank initial and trailing lines 
 </div>
 </section>
 </section>
-<section id="index" secid="index" class="spec-index"><h1><span class="spec-secid" title="link to the index"><a href="#index">§</a></span>Index</h1><ol><li><a href="#Alias">Alias</a></li><li><a href="#AreTypesCompatible()">AreTypesCompatible</a></li><li><a href="#Argument">Argument</a></li><li><a href="#Arguments">Arguments</a></li><li><a href="#ArgumentsDefinition">ArgumentsDefinition</a></li><li><a href="#BlockStringCharacter">BlockStringCharacter</a></li><li><a href="#BlockStringValue()">BlockStringValue</a></li><li><a href="#BooleanValue">BooleanValue</a></li><li><a href="#CoerceArgumentValues()">CoerceArgumentValues</a></li><li><a href="#CoerceVariableValues()">CoerceVariableValues</a></li><li><a href="#CollectFields()">CollectFields</a></li><li><a href="#Comma">Comma</a></li><li><a href="#Comment">Comment</a></li><li><a href="#CommentChar">CommentChar</a></li><li><a href="#CompleteValue()">CompleteValue</a></li><li><a href="#CreateSourceEventStream()">CreateSourceEventStream</a></li><li><a href="#DefaultValue">DefaultValue</a></li><li><a href="#Definition">Definition</a></li><li><a href="#Description">Description</a></li><li><a href="#Digit">Digit</a></li><li><a href="#Directive">Directive</a></li><li><a href="#DirectiveDefinition">DirectiveDefinition</a></li><li><a href="#DirectiveLocation">DirectiveLocation</a></li><li><a href="#DirectiveLocations">DirectiveLocations</a></li><li><a href="#Directives">Directives</a></li><li><a href="#Document">Document</a></li><li><a href="#DoesFragmentTypeApply()">DoesFragmentTypeApply</a></li><li><a href="#EnumTypeDefinition">EnumTypeDefinition</a></li><li><a href="#EnumTypeExtension">EnumTypeExtension</a></li><li><a href="#EnumValue">EnumValue</a></li><li><a href="#EnumValueDefinition">EnumValueDefinition</a></li><li><a href="#EnumValuesDefinition">EnumValuesDefinition</a></li><li><a href="#EscapedCharacter">EscapedCharacter</a></li><li><a href="#EscapedUnicode">EscapedUnicode</a></li><li><a href="#ExecutableDefinition">ExecutableDefinition</a></li><li><a href="#ExecutableDirectiveLocation">ExecutableDirectiveLocation</a></li><li><a href="#ExecuteField()">ExecuteField</a></li><li><a href="#ExecuteMutation()">ExecuteMutation</a></li><li><a href="#ExecuteQuery()">ExecuteQuery</a></li><li><a href="#ExecuteRequest()">ExecuteRequest</a></li><li><a href="#ExecuteSelectionSet()">ExecuteSelectionSet</a></li><li><a href="#ExecuteSubscriptionEvent()">ExecuteSubscriptionEvent</a></li><li><a href="#ExponentIndicator">ExponentIndicator</a></li><li><a href="#ExponentPart">ExponentPart</a></li><li><a href="#Field">Field</a></li><li><a href="#FieldDefinition">FieldDefinition</a></li><li><a href="#FieldsDefinition">FieldsDefinition</a></li><li><a href="#FieldsInSetCanMerge()">FieldsInSetCanMerge</a></li><li><a href="#FloatValue">FloatValue</a></li><li><a href="#FractionalPart">FractionalPart</a></li><li><a href="#FragmentDefinition">FragmentDefinition</a></li><li><a href="#FragmentName">FragmentName</a></li><li><a href="#FragmentSpread">FragmentSpread</a></li><li><a href="#GetOperation()">GetOperation</a></li><li><a href="#GetPossibleTypes()">GetPossibleTypes</a></li><li><a href="#Ignored">Ignored</a></li><li><a href="#ImplementsInterfaces">ImplementsInterfaces</a></li><li><a href="#InlineFragment">InlineFragment</a></li><li><a href="#InputFieldsDefinition">InputFieldsDefinition</a></li><li><a href="#InputObjectTypeDefinition">InputObjectTypeDefinition</a></li><li><a href="#InputObjectTypeExtension">InputObjectTypeExtension</a></li><li><a href="#InputValueDefinition">InputValueDefinition</a></li><li><a href="#IntValue">IntValue</a></li><li><a href="#IntegerPart">IntegerPart</a></li><li><a href="#InterfaceTypeDefinition">InterfaceTypeDefinition</a></li><li><a href="#InterfaceTypeExtension">InterfaceTypeExtension</a></li><li><a href="#IsInputType()">IsInputType</a></li><li><a href="#IsOutputType()">IsOutputType</a></li><li><a href="#IsVariableUsageAllowed()">IsVariableUsageAllowed</a></li><li><a href="#LineTerminator">LineTerminator</a></li><li><a href="#ListType">ListType</a></li><li><a href="#ListValue">ListValue</a></li><li><a href="#MapSourceToResponseEvent()">MapSourceToResponseEvent</a></li><li><a href="#MergeSelectionSets()">MergeSelectionSets</a></li><li><a href="#Name">Name</a></li><li><a href="#NamedType">NamedType</a></li><li><a href="#NegativeSign">NegativeSign</a></li><li><a href="#NonNullType">NonNullType</a></li><li><a href="#NonZeroDigit">NonZeroDigit</a></li><li><a href="#NullValue">NullValue</a></li><li><a href="#ObjectField">ObjectField</a></li><li><a href="#ObjectTypeDefinition">ObjectTypeDefinition</a></li><li><a href="#ObjectTypeExtension">ObjectTypeExtension</a></li><li><a href="#ObjectValue">ObjectValue</a></li><li><a href="#OperationDefinition">OperationDefinition</a></li><li><a href="#OperationType">OperationType</a></li><li><a href="#Punctuator">Punctuator</a></li><li><a href="#ResolveAbstractType()">ResolveAbstractType</a></li><li><a href="#ResolveFieldEventStream()">ResolveFieldEventStream</a></li><li><a href="#ResolveFieldValue()">ResolveFieldValue</a></li><li><a href="#RootOperationTypeDefinition">RootOperationTypeDefinition</a></li><li><a href="#SameResponseShape()">SameResponseShape</a></li><li><a href="#ScalarTypeDefinition">ScalarTypeDefinition</a></li><li><a href="#ScalarTypeExtension">ScalarTypeExtension</a></li><li><a href="#SchemaDefinition">SchemaDefinition</a></li><li><a href="#SchemaExtension">SchemaExtension</a></li><li><a href="#Selection">Selection</a></li><li><a href="#SelectionSet">SelectionSet</a></li><li><a href="#Sign">Sign</a></li><li><a href="#SourceCharacter">SourceCharacter</a></li><li><a href="#StringCharacter">StringCharacter</a></li><li><a href="#StringValue">StringValue</a></li><li><a href="#Subscribe()">Subscribe</a></li><li><a href="#Token">Token</a></li><li><a href="#Type">Type</a></li><li><a href="#TypeCondition">TypeCondition</a></li><li><a href="#TypeDefinition">TypeDefinition</a></li><li><a href="#TypeExtension">TypeExtension</a></li><li><a href="#TypeSystemDefinition">TypeSystemDefinition</a></li><li><a href="#TypeSystemDirectiveLocation">TypeSystemDirectiveLocation</a></li><li><a href="#TypeSystemExtension">TypeSystemExtension</a></li><li><a href="#UnicodeBOM">UnicodeBOM</a></li><li><a href="#UnionMemberTypes">UnionMemberTypes</a></li><li><a href="#UnionTypeDefinition">UnionTypeDefinition</a></li><li><a href="#UnionTypeExtension">UnionTypeExtension</a></li><li><a href="#Unsubscribe()">Unsubscribe</a></li><li><a href="#Value">Value</a></li><li><a href="#Variable">Variable</a></li><li><a href="#VariableDefinition">VariableDefinition</a></li><li><a href="#VariableDefinitions">VariableDefinitions</a></li><li><a href="#WhiteSpace">WhiteSpace</a></li></ol></section></article>
+<section id="index" secid="index" class="spec-index"><h1><span class="spec-secid" title="link to the index"><a href="#index">§</a></span>Index</h1><ol><li><a href="#Alias">Alias</a></li><li><a href="#AreTypesCompatible()">AreTypesCompatible</a></li><li><a href="#Argument">Argument</a></li><li><a href="#Arguments">Arguments</a></li><li><a href="#ArgumentsDefinition">ArgumentsDefinition</a></li><li><a href="#BlockStringCharacter">BlockStringCharacter</a></li><li><a href="#BlockStringValue()">BlockStringValue</a></li><li><a href="#BooleanValue">BooleanValue</a></li><li><a href="#CoerceArgumentValues()">CoerceArgumentValues</a></li><li><a href="#CoerceVariableValues()">CoerceVariableValues</a></li><li><a href="#CollectFields()">CollectFields</a></li><li><a href="#Comma">Comma</a></li><li><a href="#Comment">Comment</a></li><li><a href="#CommentChar">CommentChar</a></li><li><a href="#CompleteValue()">CompleteValue</a></li><li><a href="#CreateSourceEventStream()">CreateSourceEventStream</a></li><li><a href="#DefaultValue">DefaultValue</a></li><li><a href="#Definition">Definition</a></li><li><a href="#Description">Description</a></li><li><a href="#Digit">Digit</a></li><li><a href="#Directive">Directive</a></li><li><a href="#DirectiveDefinition">DirectiveDefinition</a></li><li><a href="#DirectiveLocation">DirectiveLocation</a></li><li><a href="#DirectiveLocations">DirectiveLocations</a></li><li><a href="#Directives">Directives</a></li><li><a href="#Document">Document</a></li><li><a href="#DoesFragmentTypeApply()">DoesFragmentTypeApply</a></li><li><a href="#EnumTypeDefinition">EnumTypeDefinition</a></li><li><a href="#EnumTypeExtension">EnumTypeExtension</a></li><li><a href="#EnumValue">EnumValue</a></li><li><a href="#EnumValueDefinition">EnumValueDefinition</a></li><li><a href="#EnumValuesDefinition">EnumValuesDefinition</a></li><li><a href="#EscapedCharacter">EscapedCharacter</a></li><li><a href="#EscapedUnicode">EscapedUnicode</a></li><li><a href="#ExecutableDefinition">ExecutableDefinition</a></li><li><a href="#ExecutableDirectiveLocation">ExecutableDirectiveLocation</a></li><li><a href="#ExecuteField()">ExecuteField</a></li><li><a href="#ExecuteMutation()">ExecuteMutation</a></li><li><a href="#ExecuteQuery()">ExecuteQuery</a></li><li><a href="#ExecuteRequest()">ExecuteRequest</a></li><li><a href="#ExecuteSelectionSet()">ExecuteSelectionSet</a></li><li><a href="#ExecuteSubscriptionEvent()">ExecuteSubscriptionEvent</a></li><li><a href="#ExponentIndicator">ExponentIndicator</a></li><li><a href="#ExponentPart">ExponentPart</a></li><li><a href="#Field">Field</a></li><li><a href="#FieldDefinition">FieldDefinition</a></li><li><a href="#FieldsDefinition">FieldsDefinition</a></li><li><a href="#FieldsInSetCanMerge()">FieldsInSetCanMerge</a></li><li><a href="#FloatValue">FloatValue</a></li><li><a href="#FractionalPart">FractionalPart</a></li><li><a href="#FragmentDefinition">FragmentDefinition</a></li><li><a href="#FragmentName">FragmentName</a></li><li><a href="#FragmentSpread">FragmentSpread</a></li><li><a href="#GetOperation()">GetOperation</a></li><li><a href="#GetPossibleTypes()">GetPossibleTypes</a></li><li><a href="#Ignored">Ignored</a></li><li><a href="#ImplementsInterfaces">ImplementsInterfaces</a></li><li><a href="#InlineFragment">InlineFragment</a></li><li><a href="#InputFieldsDefinition">InputFieldsDefinition</a></li><li><a href="#InputObjectTypeDefinition">InputObjectTypeDefinition</a></li><li><a href="#InputObjectTypeExtension">InputObjectTypeExtension</a></li><li><a href="#InputValueDefinition">InputValueDefinition</a></li><li><a href="#IntValue">IntValue</a></li><li><a href="#IntegerPart">IntegerPart</a></li><li><a href="#InterfaceTypeDefinition">InterfaceTypeDefinition</a></li><li><a href="#InterfaceTypeExtension">InterfaceTypeExtension</a></li><li><a href="#IsInputType()">IsInputType</a></li><li><a href="#IsOutputType()">IsOutputType</a></li><li><a href="#IsVariableUsageAllowed()">IsVariableUsageAllowed</a></li><li><a href="#Letter">Letter</a></li><li><a href="#LineTerminator">LineTerminator</a></li><li><a href="#ListType">ListType</a></li><li><a href="#ListValue">ListValue</a></li><li><a href="#MapSourceToResponseEvent()">MapSourceToResponseEvent</a></li><li><a href="#MergeSelectionSets()">MergeSelectionSets</a></li><li><a href="#Name">Name</a></li><li><a href="#NameContinue">NameContinue</a></li><li><a href="#NameStart">NameStart</a></li><li><a href="#NamedType">NamedType</a></li><li><a href="#NegativeSign">NegativeSign</a></li><li><a href="#NonNullType">NonNullType</a></li><li><a href="#NonZeroDigit">NonZeroDigit</a></li><li><a href="#NullValue">NullValue</a></li><li><a href="#ObjectField">ObjectField</a></li><li><a href="#ObjectTypeDefinition">ObjectTypeDefinition</a></li><li><a href="#ObjectTypeExtension">ObjectTypeExtension</a></li><li><a href="#ObjectValue">ObjectValue</a></li><li><a href="#OperationDefinition">OperationDefinition</a></li><li><a href="#OperationType">OperationType</a></li><li><a href="#Punctuator">Punctuator</a></li><li><a href="#ResolveAbstractType()">ResolveAbstractType</a></li><li><a href="#ResolveFieldEventStream()">ResolveFieldEventStream</a></li><li><a href="#ResolveFieldValue()">ResolveFieldValue</a></li><li><a href="#RootOperationTypeDefinition">RootOperationTypeDefinition</a></li><li><a href="#SameResponseShape()">SameResponseShape</a></li><li><a href="#ScalarTypeDefinition">ScalarTypeDefinition</a></li><li><a href="#ScalarTypeExtension">ScalarTypeExtension</a></li><li><a href="#SchemaDefinition">SchemaDefinition</a></li><li><a href="#SchemaExtension">SchemaExtension</a></li><li><a href="#Selection">Selection</a></li><li><a href="#SelectionSet">SelectionSet</a></li><li><a href="#Sign">Sign</a></li><li><a href="#SourceCharacter">SourceCharacter</a></li><li><a href="#StringCharacter">StringCharacter</a></li><li><a href="#StringValue">StringValue</a></li><li><a href="#Subscribe()">Subscribe</a></li><li><a href="#Token">Token</a></li><li><a href="#Type">Type</a></li><li><a href="#TypeCondition">TypeCondition</a></li><li><a href="#TypeDefinition">TypeDefinition</a></li><li><a href="#TypeExtension">TypeExtension</a></li><li><a href="#TypeSystemDefinition">TypeSystemDefinition</a></li><li><a href="#TypeSystemDirectiveLocation">TypeSystemDirectiveLocation</a></li><li><a href="#TypeSystemExtension">TypeSystemExtension</a></li><li><a href="#UnicodeBOM">UnicodeBOM</a></li><li><a href="#UnionMemberTypes">UnionMemberTypes</a></li><li><a href="#UnionTypeDefinition">UnionTypeDefinition</a></li><li><a href="#UnionTypeExtension">UnionTypeExtension</a></li><li><a href="#Unsubscribe()">Unsubscribe</a></li><li><a href="#Value">Value</a></li><li><a href="#Variable">Variable</a></li><li><a href="#VariableDefinition">VariableDefinition</a></li><li><a href="#VariableDefinitions">VariableDefinitions</a></li><li><a href="#WhiteSpace">WhiteSpace</a></li></ol></section></article>
 <footer>
 Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</footer>
 <input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label>
@@ -6802,7 +6887,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_2"><a href="#sec-Language"><span class="spec-secid">2</span>Language</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label>
 <ol>
-<li id="_sidebar_2.1"><a href="#sec-Source-Text"><span class="spec-secid">2.1</span>Source Text</a>
+<li id="_sidebar_2.1"><a href="#sec-Language.Source-Text"><span class="spec-secid">2.1</span>Source Text</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2.1" /><label for="_sidebar_toggle_2.1"></label>
 <ol>
 <li id="_sidebar_2.1.1"><a href="#sec-Unicode"><span class="spec-secid">2.1.1</span>Unicode</a></li>
@@ -6810,13 +6895,13 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_2.1.3"><a href="#sec-Line-Terminators"><span class="spec-secid">2.1.3</span>Line Terminators</a></li>
 <li id="_sidebar_2.1.4"><a href="#sec-Comments"><span class="spec-secid">2.1.4</span>Comments</a></li>
 <li id="_sidebar_2.1.5"><a href="#sec-Insignificant-Commas"><span class="spec-secid">2.1.5</span>Insignificant Commas</a></li>
-<li id="_sidebar_2.1.6"><a href="#sec-Source-Text.Lexical-Tokens"><span class="spec-secid">2.1.6</span>Lexical Tokens</a></li>
-<li id="_sidebar_2.1.7"><a href="#sec-Source-Text.Ignored-Tokens"><span class="spec-secid">2.1.7</span>Ignored Tokens</a></li>
+<li id="_sidebar_2.1.6"><a href="#sec-Language.Source-Text.Lexical-Tokens"><span class="spec-secid">2.1.6</span>Lexical Tokens</a></li>
+<li id="_sidebar_2.1.7"><a href="#sec-Language.Source-Text.Ignored-Tokens"><span class="spec-secid">2.1.7</span>Ignored Tokens</a></li>
 <li id="_sidebar_2.1.8"><a href="#sec-Punctuators"><span class="spec-secid">2.1.8</span>Punctuators</a></li>
 <li id="_sidebar_2.1.9"><a href="#sec-Names"><span class="spec-secid">2.1.9</span>Names</a></li>
 </ol>
 </li>
-<li id="_sidebar_2.2"><a href="#sec-Language.Document"><span class="spec-secid">2.2</span>Document</a></li>
+<li id="_sidebar_2.2"><a href="#sec-Document"><span class="spec-secid">2.2</span>Document</a></li>
 <li id="_sidebar_2.3"><a href="#sec-Language.Operations"><span class="spec-secid">2.3</span>Operations</a></li>
 <li id="_sidebar_2.4"><a href="#sec-Selection-Sets"><span class="spec-secid">2.4</span>Selection Sets</a></li>
 <li id="_sidebar_2.5"><a href="#sec-Language.Fields"><span class="spec-secid">2.5</span>Fields</a></li>
@@ -7145,9 +7230,10 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_B"><a href="#sec-Appendix-Grammar-Summary"><span class="spec-secid">B</span>Appendix: Grammar Summary</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_B" /><label for="_sidebar_toggle_B"></label>
 <ol>
-<li id="_sidebar_B.1"><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.1</span>Ignored Tokens</a></li>
-<li id="_sidebar_B.2"><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.2</span>Lexical Tokens</a></li>
-<li id="_sidebar_B.3"><a href="#sec-Appendix-Grammar-Summary.Document"><span class="spec-secid">B.3</span>Document</a></li>
+<li id="_sidebar_B.1"><a href="#sec-Appendix-Grammar-Summary.Source-Text"><span class="spec-secid">B.1</span>Source Text</a></li>
+<li id="_sidebar_B.2"><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.2</span>Ignored Tokens</a></li>
+<li id="_sidebar_B.3"><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.3</span>Lexical Tokens</a></li>
+<li id="_sidebar_B.4"><a href="#sec-Document-Syntax"><span class="spec-secid">B.4</span>Document Syntax</a></li>
 </ol>
 </li>
 <li id="_sidebar_index"><a href="#index"><span class="spec-secid">§</span>Index</a></li>
