@@ -1650,6 +1650,21 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
+**Custom Directives**
+
+GraphQL services and client tooling may provide additional directives beyond
+those defined in this document. Directives are the preferred way to extend
+GraphQL with custom or experimental behavior.
+
+Note: When defining a directive, it is recommended to prefix the directive's
+name to make its scope of usage clear and to prevent a collision with directives
+which may be specified by future versions of this document (which will not
+include `_` in their name). For example, a custom directive used by Facebook's
+GraphQL service should be named `@fb_auth` instead of `@auth`. This is
+especially recommended for proposed additions to this specification which can
+change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
+For example an work in progress version of `@live` should be named `@rfc_live`.
+
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
 
@@ -1660,11 +1675,6 @@ fragment SomeFragment on SomeType {
   field @example
 }
 ```
-
-Note: When defining a directive, it is recommended to namespace the directive name
-to prevent name collisions with directives added in future versions of the specification.
-For example, `@fb_auth` directive would represent an authentication directive
-with the prefix `fb` as namespace.
 
 Directive locations may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible locations:
