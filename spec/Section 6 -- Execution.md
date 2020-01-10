@@ -535,6 +535,9 @@ DoesFragmentTypeApply(objectType, fragmentType):
   * If {fragmentType} is a Union:
     * if {objectType} is a possible type of {fragmentType}, return {true} otherwise return {false}.
 
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
+
 
 ## Executing Fields
 
