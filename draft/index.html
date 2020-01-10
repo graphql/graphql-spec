@@ -2225,7 +2225,7 @@ The same two methods of representing the lack of a value are possible via variab
 <p>In some cases, you need to provide options to alter GraphQL&rsquo;s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.</p>
 <p>Directives have a name along with a list of arguments which may accept values of any input type.</p>
 <p>Directives can be used to describe additional information for types, fields, fragments and operations.</p>
-<p>As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives.</p>
+<p>As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide additional <a href="#sec-Type-System.Directives.Custom-Directives">custom directives</a> beyond those described here.</p>
 <section id="sec-Language.Directives.Directive-order-is-significant" class="subsec">
 <h6><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
 <p>Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
@@ -3415,6 +3415,12 @@ The Validation section defines providing a nullable variable type to a non&#8208
 <p>A GraphQL schema describes directives which are used to annotate various parts of a GraphQL document as an indicator that they should be evaluated differently by a validator, executor, or client tool such as a code generator.</p>
 <p>GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
 <p>GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
+<section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
+<h6><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
+<p>GraphQL services and client tooling may provide additional directives beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
+<div id="note-29c86" class="spec-note">
+<a href="#note-29c86">Note</a>
+When defining a directive, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with directives which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a custom directive used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md">RFC process</a>. For example an work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
 <p>Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
 <pre id="example-060af" class="spec-example"><a href="#example-060af">Example № 81</a><code>directive <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span>
 
@@ -3439,6 +3445,7 @@ The Validation section defines providing a nullable variable type to a non&#8208
 <p>While defining a directive, it must not reference itself directly or indirectly:</p>
 <pre id="example-79945" class="spec-counter-example"><a href="#example-79945">Counter Example № 84</a><code>directive <span class="token directive function">@invalidExample</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> String <span class="token directive function">@invalidExample</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">ARGUMENT_DEFINITION</span>
 </code></pre>
+</section>
 <section id="sec-Type-System.Directives.Validation" class="subsec">
 <h6><a href="#sec-Type-System.Directives.Validation" title="link to this subsection">Validation</a></h6>
 <ol>
