@@ -251,9 +251,9 @@ type in the system, allowing the definition of arbitrary type hierarchies.
 GraphQL supports two abstract types: interfaces and unions.
 
 An `Interface` defines a list of fields; `Object` types and other Interface
-types that implement the interface are guaranteed to implement those fields.
-Whenever the type system claims it will return an interface, it will return a
-valid implementing `Object` type.
+types which implement this Interface are guaranteed to implement those fields.
+Whenever a field claims it will return an Interface type, it will return a
+valid implementing Object type during execution.
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
@@ -821,7 +821,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
             type as) the interface field type.
          2. An object field type is a valid sub-type if it is an Object type and
             the interface field type is a Union type and the object field type
-            is a possible type of the interface field type.
+            is a possible type of that Union.
          3. An object field type is a valid sub-type if it is an Object or
             Interface type and the interface field type is an Interface type and
             the object field type implements the interface field type.
@@ -1222,7 +1222,7 @@ Interface type extensions have the potential to be invalid if incorrectly define
 4. Any Object or Interface type which implemented the original Interface type
    must also be a super-set of the fields of the Interface type extension (which
    may be due to Object type extension).
-5. Any non-repeatable directives provided must not already apply to the 
+5. Any non-repeatable directives provided must not already apply to the
    original Interface type.
 6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.

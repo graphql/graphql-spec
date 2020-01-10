@@ -292,7 +292,7 @@ Fields
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `interfaces`: The set of interfaces that an interface implements.
+* `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
 * All other fields must return {null}.
