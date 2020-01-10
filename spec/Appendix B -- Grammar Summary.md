@@ -68,7 +68,7 @@ Letter :: one of
 Digit :: one of
   `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
-IntValue :: IntegerPart [lookahead != {Digit, `.`, ExponentPart}]
+IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
   - NegativeSign? 0
@@ -79,9 +79,9 @@ NegativeSign :: -
 NonZeroDigit :: Digit but not `0`
 
 FloatValue ::
-  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, ExponentIndicator}]
-  - IntegerPart FractionalPart [lookahead != {Digit, `.`, ExponentIndicator}]
-  - IntegerPart ExponentPart [lookahead != {Digit, `.`, ExponentIndicator}]
+  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart FractionalPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
 
 FractionalPart :: . Digit+
 
