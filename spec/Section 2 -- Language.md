@@ -1093,7 +1093,9 @@ Directives can be used to describe additional information for types, fields, fra
 and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
-they may be exposed via directives.
+they may be exposed via directives. GraphQL services and tools may also provide
+additional [custom directives](#sec-Type-System.Directives.Custom-Directives)
+beyond those described here.
 
 **Directive order is significant**
 
