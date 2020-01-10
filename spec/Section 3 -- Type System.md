@@ -813,7 +813,10 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
-   1. The object type must include a field of the same name for every field
+   1. If the interface type declares it implements any interfaces, the object
+      type must include those same interfaces in its list of
+      implemented interfaces.
+   2. The object type must include a field of the same name for every field
       defined in an interface.
       1. The object field must be of a type which is equal to or a sub-type of
          the interface field (covariant).
@@ -838,9 +841,6 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       3. The object field may include additional arguments not defined in the
          interface field, but any additional argument must not be required, e.g.
          must not be of a non-nullable type.
-5. If an object type declares that it implements one or more interfaces that
-   implement other interfaces, it must also include each transitively
-   implemented interface in its list of implemented interfaces.
 
 
 ### Field Arguments
@@ -1137,7 +1137,10 @@ Interface types have the potential to be invalid if incorrectly defined.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
-   1. The implementing interface type must include a field of the same name for
+   1. If the implemented type declares it implements any interfaces, the
+      implementing type must include those same interfaces in its list of
+      implemented interfaces.
+   2. The implementing interface type must include a field of the same name for
    every field defined in an implemented interface.
       1. The implementing interface field must be of a type which is equal to or
          a sub-type of the implemented interface field (covariant).
@@ -1166,10 +1169,6 @@ Interface types have the potential to be invalid if incorrectly defined.
       3. The implementing interface field may include additional arguments not
          defined in the implemented interface field, but any additional argument
          must not be required.
-5. If an interface type declares that it implements one or more interfaces that
-   implement other interfaces, it must also include each transitively
-   implemented interface in its list of implemented interfaces.
-6. An interface cannot implement itself.
 
 
 ### Interface Extensions
