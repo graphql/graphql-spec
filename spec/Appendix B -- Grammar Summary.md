@@ -302,7 +302,7 @@ InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const]
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
