@@ -507,7 +507,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
       * Let {fragmentGroupedFieldSet} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, visitedFragments)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
