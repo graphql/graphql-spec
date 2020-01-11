@@ -15,11 +15,12 @@ in 2019.
 GraphQL has evolved and may continue to evolve in future editions of this
 specification. Previous editions of the GraphQL specification can be found at
 permalinks that match their [release tag](https://github.com/graphql/graphql-spec/releases).
-The latest working draft release can be found at [https://graphql.github.io/graphql-spec/draft](https://graphql.github.io/graphql-spec/draft).
+The latest working draft release can be found at [https://spec.graphql.org/draft](https://spec.graphql.org/draft).
 
 **Copyright notice**
 
 Copyright © 2015-2018, Facebook, Inc.
+
 Copyright © 2019-present, GraphQL Foundation
 
 As of September 26, 2017, the following persons or entities have made this
