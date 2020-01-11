@@ -250,9 +250,10 @@ type in the system, allowing the definition of arbitrary type hierarchies.
 
 GraphQL supports two abstract types: interfaces and unions.
 
-An `Interface` defines a list of fields; `Object` types that implement that
-interface are guaranteed to implement those fields. Whenever the type system
-claims it will return an interface, it will return a valid implementing type.
+An `Interface` defines a list of fields; `Object` types and other Interface
+types which implement this Interface are guaranteed to implement those fields.
+Whenever a field claims it will return an Interface type, it will return a
+valid implementing Object type during execution.
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
@@ -810,31 +811,54 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-4. An object type may declare that it implements one or more unique interfaces.
-5. An object type must be a super-set of all interfaces it implements:
-   1. The object type must include a field of the same name for every field
-      defined in an interface.
-      1. The object field must be of a type which is equal to or a sub-type of
-         the interface field (covariant).
-         1. An object field type is a valid sub-type if it is equal to (the same
-            type as) the interface field type.
-         2. An object field type is a valid sub-type if it is an Object type and
-            the interface field type is either an Interface type or a Union type
-            and the object field type is a possible type of the interface field
-            type.
-         3. An object field type is a valid sub-type if it is a List type and
-            the interface field type is also a List type and the list-item type
-            of the object field type is a valid sub-type of the list-item type
-            of the interface field type.
-         4. An object field type is a valid sub-type if it is a Non-Null variant
-            of a valid sub-type of the interface field type.
-      2. The object field must include an argument of the same name for every
-         argument defined in the interface field.
-         1. The object field argument must accept the same type (invariant) as
-            the interface field argument.
-      3. The object field may include additional arguments not defined in the
-         interface field, but any additional argument must not be required, e.g.
-         must not be of a non-nullable type.
+3. An object type may declare that it implements one or more unique interfaces.
+4. An object type must be a super-set of all interfaces it implements:
+   1. Let this object type be {objectType}.
+   2. For each interface declared implemented as {interfaceType},
+      {IsValidImplementation(objectType, interfaceType)} must be {true}.
+
+IsValidImplementation(type, implementedType):
+
+   1. If {implementedType} declares it implements any interfaces,
+      {type} must also declare it implements those interfaces.
+   2. {type} must include a field of the same name for every field
+      defined in {implementedType}.
+      1. Let {field} be that named field on {type}.
+      2. Let {implementedField} be that named field on {implementedType}.
+      1. {field} must include an argument of the same name for every argument
+         defined in {implementedField}.
+         1. That named argument on {field} must accept the same type
+            (invariant) as that named argument on {implementedField}.
+      2. {field} may include additional arguments not defined in
+         {implementedField}, but any additional argument must not be required,
+         e.g. must not be of a non-nullable type.
+      3. {field} must return a type which is equal to or a sub-type of
+         (covariant) the return type of {implementedField} field's return type:
+         1. Let {fieldType} be the return type of {field}.
+         2. Let {implementedFieldType} be the return type of {implementedField}.
+         3. {IsValidImplementationFieldType(fieldType, implementedFieldType)}
+            must be {true}.
+
+IsValidImplementationFieldType(fieldType, implementedFieldType):
+  1. If {fieldType} is a Non-Null type:
+     1. Let {nullableType} be the unwrapped nullable type of {fieldType}.
+     2. Let {implementedNullableType} be the unwrapped nullable type
+        of {implementedFieldType} if it is a Non-Null type, otherwise let it be
+        {implementedFieldType} directly.
+     3. Return {IsValidImplementationFieldType(nullableType, implementedNullableType)}.
+  2. If {fieldType} is a List type and {implementedFieldType} is also a List type:
+     1. Let {itemType} be the unwrapped item type of {fieldType}.
+     2. Let {implementedItemType} be the unwrapped item type
+        of {implementedFieldType}.
+     3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
+  3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
+  4. If {fieldType} is an Object type and {implementedFieldType} is
+     a Union type and {fieldType} is a possible type of {implementedFieldType}
+     then return {true}.
+  5. If {fieldType} is an Object or Interface type and {implementedFieldType}
+     is an Interface type and {fieldType} declares it implements
+     {implementedFieldType} then return {true}.
+  6. Otherwise return {false}.
 
 
 ### Field Arguments
@@ -954,8 +978,8 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects can then implement these interfaces which requires that the object type
-will define all fields defined by those interfaces.
+objects and interfaces can then implement these interfaces which requires that
+the implementing type will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1045,6 +1069,63 @@ interface. Querying for `age` is only valid when the result of `entity` is a
 }
 ```
 
+**Interfaces Implementing Interfaces**
+
+When defining an interface that implements another interface, the implementing
+interface must define each field that is specified by the implemented interface.
+For example, the interface Resource must define the field id to implement the
+Node interface:
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+```
+
+Transitively implemented interfaces (interfaces implemented by the interface
+that is being implemented) must also be defined on an implementing type or
+interface. For example, `Image` cannot implement `Resource` without also
+implementing `Node`:
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+interface Image implements Resource & Node {
+  id: ID!
+  url: String
+  thumbnail: String
+}
+```
+
+Interface definitions must not contain cyclic references nor implement
+themselves. This example is invalid because `Node` and `Named` implement
+themselves and each other:
+
+```graphgl counter-example
+interface Node implements Named & Node {
+  id: ID!
+  name: String
+}
+
+interface Named implements Node & Named {
+  id: ID!
+  name: String
+}
+```
+
+
 **Result Coercion**
 
 The interface type should have some way of determining which object a given
@@ -1072,6 +1153,12 @@ Interface types have the potential to be invalid if incorrectly defined.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+3. An interface type may declare that it implements one or more unique
+   interfaces, but may not implement itself.
+4. An interface type must be a super-set of all interfaces it implements:
+   1. Let this interface type be {implementingType}.
+   2. For each interface declared implemented as {implementedType},
+      {IsValidImplementation(implementingType, implementedType)} must be {true}.
 
 
 ### Interface Extensions
@@ -1121,11 +1208,13 @@ Interface type extensions have the potential to be invalid if incorrectly define
    fields may share the same name.
 3. Any fields of an Interface type extension must not be already defined on the
    original Interface type.
-4. Any Object type which implemented the original Interface type must also be a
-   super-set of the fields of the Interface type extension (which may be due to
-   Object type extension).
+4. Any Object or Interface type which implemented the original Interface type
+   must also be a super-set of the fields of the Interface type extension (which
+   may be due to Object type extension).
 5. Any non-repeatable directives provided must not already apply to the
    original Interface type.
+6. The resulting extended Interface type must be a super-set of all Interfaces
+   it implements.
 
 
 ## Unions

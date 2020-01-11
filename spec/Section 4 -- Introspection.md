@@ -132,7 +132,7 @@ type __Type {
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
 
-  # should be non-null for OBJECT only, must be null for the others
+  # should be non-null for OBJECT and INTERFACE only, must be null for the others
   interfaces: [__Type!]
 
   # should be non-null for INTERFACE and UNION only, always null for the others
@@ -292,6 +292,7 @@ Fields
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
+* `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
 * All other fields must return {null}.

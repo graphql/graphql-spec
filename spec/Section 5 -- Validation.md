@@ -1262,6 +1262,34 @@ is not valid because there exists no type that implements both {Pet}
 and {Sentient}.
 
 
+**Interface Spreads in implemented Interface Scope**
+
+Additionally, an interface type fragment can always be spread into an
+interface scope which it implements.
+
+In the example below, the `...resourceFragment` fragments spreads is valid,
+since `Resource` implements `Node`.
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+fragment interfaceWithInterface on Node {
+  ...resourceFragment
+}
+
+fragment resourceFragment on Resource {
+  url
+}
+```
+
+
 ## Values
 
 
