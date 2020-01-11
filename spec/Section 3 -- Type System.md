@@ -813,34 +813,57 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
-   1. If the interface type declares it implements any interfaces, the object
-      type must include those same interfaces in its list of
-      implemented interfaces.
-   2. The object type must include a field of the same name for every field
-      defined in an interface.
-      1. The object field must be of a type which is equal to or a sub-type of
-         the interface field (covariant).
-         1. An object field type is a valid sub-type if it is equal to (the same
-            type as) the interface field type.
-         2. An object field type is a valid sub-type if it is an Object type and
-            the interface field type is a Union type and the object field type
-            is a possible type of that Union.
-         3. An object field type is a valid sub-type if it is an Object or
-            Interface type and the interface field type is an Interface type and
-            the object field type implements the interface field type.
-         4. An object field type is a valid sub-type if it is a List type and
-            the interface field type is also a List type and the list-item type
-            of the object field type is a valid sub-type of the list-item type
-            of the interface field type.
-         5. An object field type is a valid sub-type if it is a Non-Null variant
-            of a valid sub-type of the interface field type.
-      2. The object field must include an argument of the same name for every
-         argument defined in the interface field.
-         1. The object field argument must accept the same type (invariant) as
-            the interface field argument.
-      3. The object field may include additional arguments not defined in the
-         interface field, but any additional argument must not be required, e.g.
-         must not be of a non-nullable type.
+   1. Let this object type be {objectType}.
+   2. For each interface declared implemented as {interfaceType},
+      {IsValidImplementingTypeOf(objectType, interfaceType)} must be {true}.
+
+IsValidImplementingTypeOf(implementingType, implementedType):
+
+   1. If {implementedType} declares it implements any interfaces,
+      {implementingType} must also declare it implements those interfaces.
+   2. The {implementingType} must include a field of the same name for every field
+      defined in {implementedType}.
+      1. The {implementingType} field must include an argument of the same name
+         for every argument defined in the {implementedType} field.
+         1. The {implementingType} field argument must accept the same type
+            (invariant) as the {implementedType} field argument.
+      2. The {implementingType} field may include additional arguments not
+         defined in the {implementingType} field, but any additional argument
+         must not be required, e.g. must not be of a non-nullable type.
+      3. The {implementingType} field must return a type which is equal to or a
+         sub-type of the {implementedType} field's return type (covariant):
+         1. Let {implementingFieldType} be the return type of the
+            {implementingType} field.
+         2. Let {implementedFieldType} be the return type of the
+            {implementedType} field.
+         3. {IsValidImplementingFieldTypeOf(implementingFieldType, implementedFieldType)}
+            must be {true}.
+
+IsValidImplementingFieldTypeOf(implementingFieldType, implementedFieldType):
+  1. If {implementingFieldType} is a Non-Null type:
+     1. Let {implementingNullableType} be the unwrapped nullable type
+        of {implementingFieldType}.
+     2. Let {implementedNullableType} be the unwrapped nullable type
+        of {implementedFieldType} if it is a Non-Null type, otherwise let it be
+        {implementedFieldType} directly.
+     3. Return {IsValidImplementingFieldTypeOf(implementingNullableType, implementedNullableType)}.
+  2. Otherwise, if {implementedFieldType} is a Non-Null type, return {false}.
+  3. If {implementingFieldType} is a List type and {implementedFieldType} is
+     also a List type:
+     1. Let {implementingItemType} be the unwrapped item type
+        of {implementingFieldType}.
+     2. Let {implementedItemType} be the unwrapped item type
+        of {implementedFieldType}.
+     3. Return {IsValidImplementingFieldTypeOf(implementingItemType, implementedItemType)}.
+  4. If {implementingFieldType} is the same type as {implementedFieldType}
+     then return {true}.
+  5. If {implementingFieldType} is an Object type and {implementedFieldType} is
+     a Union type and {implementingFieldType} is a possible type of
+     {implementedFieldType} then return {true}.
+  6. If {implementingFieldType} is an Object or Interface type and
+     {implementedFieldType} is an Interface type and {implementingFieldType}
+     declares it implements {implementedFieldType} then return {true}.
+  7. Otherwise return {false}.
 
 
 ### Field Arguments
@@ -1137,38 +1160,9 @@ Interface types have the potential to be invalid if incorrectly defined.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
-   1. If the implemented type declares it implements any interfaces, the
-      implementing type must include those same interfaces in its list of
-      implemented interfaces.
-   2. The implementing interface type must include a field of the same name for
-   every field defined in an implemented interface.
-      1. The implementing interface field must be of a type which is equal to or
-         a sub-type of the implemented interface field (covariant).
-         1. An implementing interface field type is a valid sub-type if it is
-            equal to (the same type as) the implemented interface field type.
-         2. An implementing interface field type is a valid sub-type if it is an
-            Object type and the implemented interface field type is a Union type
-            and the implementing interface field type is a possible type of the
-            implemented interface field type.
-         3. An implementing interface field type is a valid sub-type if it is an
-            Object or Interface type and the implemented interface field type is
-            an Interface type and the implementing interface field type
-            implements the implemented interface field type.
-         4. An implementing interface field type is a valid sub-type if it is a
-            List type and the implemented interface field type is also a List
-            type and the list-item type of the implementing interface field type
-            is a valid sub-type of the list-item type of the implemented
-            interface field type.
-         5. An implementing interface field type is a valid sub-type if it is a
-            Non-Null variant of a valid sub-type of the implemented interface
-            field type.
-      2. The implementing interface field must include an argument of the same
-         name for every argument defined in the implemented interface field.
-         1. The implementing interface field argument must accept the same type
-            (invariant) as the implemented interface field argument.
-      3. The implementing interface field may include additional arguments not
-         defined in the implemented interface field, but any additional argument
-         must not be required.
+   1. Let this interface type be {implementingType}.
+   2. For each interface declared implemented as {implementedType},
+      {IsValidImplementingTypeOf(interfaceType, implementedType)} must be {true}.
 
 
 ### Interface Extensions
