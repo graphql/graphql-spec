@@ -845,12 +845,12 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
      2. Let {implementedNullableType} be the unwrapped nullable type
         of {implementedFieldType} if it is a Non-Null type, otherwise let it be
         {implementedFieldType} directly.
-     3. Return {IsValidImplementationField(nullableType, implementedNullableType)}.
+     3. Return {IsValidImplementationFieldType(nullableType, implementedNullableType)}.
   2. If {fieldType} is a List type and {implementedFieldType} is also a List type:
      1. Let {itemType} be the unwrapped item type of {fieldType}.
      2. Let {implementedItemType} be the unwrapped item type
         of {implementedFieldType}.
-     3. Return {IsValidImplementationField(itemType, implementedItemType)}.
+     3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
   3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
   4. If {fieldType} is an Object type and {implementedFieldType} is
      a Union type and {fieldType} is a possible type of {implementedFieldType}
