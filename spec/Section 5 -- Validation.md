@@ -1133,7 +1133,7 @@ fragment catInDogFragmentInvalid on Dog {
 ##### Abstract Spreads in Object Scope
 
 In scope of an object type, unions or interface spreads can be used
-if the type implements the interface or is a member of the union.
+if the object type implements the interface or is a member of the union.
 
 For example
 
@@ -1173,8 +1173,8 @@ declaration, not its body.
 ##### Object Spreads In Abstract Scope
 
 Union or interface spreads can be used within the context of an object type
-fragment or interface type fragment, but only if the type is one of the
-possible types of that interface or union.
+fragment, but only if the object type is one of the possible types of
+that interface or union.
 
 For example, the following fragments are valid:
 
@@ -1256,6 +1256,34 @@ fragment sentientFragment on Sentient {
 
 is not valid because there exists no type that implements both {Pet}
 and {Sentient}.
+
+
+**Interface Spreads in implemented Interface Scope**
+
+Additionally, an interface type fragment can always be spread into an
+interface scope which it implements.
+
+In the example below, the `...resourceFragment` fragments spreads is valid,
+since `Resource` implements `Node`.
+
+```graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+fragment interfaceWithInterface on Node {
+  ...resourceFragment
+}
+
+fragment resourceFragment on Resource {
+  url
+}
+```
 
 
 ## Values
