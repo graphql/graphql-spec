@@ -405,7 +405,8 @@ fragment directFieldSelectionOnUnion on CatOrDog {
   * Let {set} be any selection set defined in the GraphQL document.
   * {FieldsInSetCanMerge(set)} must be true.
 
-FieldsInSetCanMerge(set) :
+FieldsInSetCanMerge(set):
+
   * Let {fieldsForName} be the set of selections with a given response name in
     {set} including visiting fragments and inline fragments.
   * Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
@@ -418,7 +419,8 @@ FieldsInSetCanMerge(set) :
         and the selection set of {fieldB}.
       * {FieldsInSetCanMerge(mergedSet)} must be true.
 
-SameResponseShape(fieldA, fieldB) :
+SameResponseShape(fieldA, fieldB):
+
   * Let {typeA} be the return type of {fieldA}.
   * Let {typeB} be the return type of {fieldB}.
   * If {typeA} or {typeB} is Non-Null.
@@ -998,15 +1000,16 @@ not defined.
 
   * For each {fragmentDefinition} in the document
   * Let {visited} be the empty set.
-  * {DetectCycles(fragmentDefinition, visited)}
+  * {DetectFragmentCycles(fragmentDefinition, visited)}
 
-{DetectCycles(fragmentDefinition, visited)} :
+DetectFragmentCycles(fragmentDefinition, visited):
+
   * Let {spreads} be all fragment spread descendants of {fragmentDefinition}
   * For each {spread} in {spreads}
     * {visited} must not contain {spread}
     * Let {nextVisited} be the set including {spread} and members of {visited}
     * Let {nextFragmentDefinition} be the target of {spread}
-    * {DetectCycles(nextFragmentDefinition, nextVisited)}
+    * {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}
 
 **Explanatory Text**
 
@@ -1089,7 +1092,8 @@ fragment ownerFragment on Human {
     {GetPossibleTypes(fragmentType)} and {GetPossibleTypes(parentType)}
   * {applicableTypes} must not be empty.
 
-GetPossibleTypes(type) :
+GetPossibleTypes(type):
+
   * If {type} is an object type, return a set containing {type}
   * If {type} is an interface type, return the set of types implementing {type}
   * If {type} is a union type, return the set of possible types of {type}
@@ -1835,6 +1839,7 @@ an extraneous variable.
     * {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
+
   * Let {variableType} be the expected type of {variableDefinition}.
   * Let {locationType} be the expected type of the {Argument}, {ObjectField},
     or {ListValue} entry where {variableUsage} is located.
@@ -1850,6 +1855,7 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   * Return {AreTypesCompatible(variableType, locationType)}.
 
 AreTypesCompatible(variableType, locationType):
+
   * If {locationType} is a non-null type:
     * If {variableType} is NOT a non-null type, return {false}.
     * Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
