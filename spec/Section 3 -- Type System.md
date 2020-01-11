@@ -815,55 +815,50 @@ of rules must be adhered to by every Object type in a GraphQL schema.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
-      {IsValidImplementingTypeOf(objectType, interfaceType)} must be {true}.
+      {IsValidImplementation(objectType, interfaceType)} must be {true}.
 
-IsValidImplementingTypeOf(implementingType, implementedType):
+IsValidImplementation(type, implementedType):
 
    1. If {implementedType} declares it implements any interfaces,
-      {implementingType} must also declare it implements those interfaces.
-   2. The {implementingType} must include a field of the same name for every field
+      {type} must also declare it implements those interfaces.
+   2. {type} must include a field of the same name for every field
       defined in {implementedType}.
-      1. The {implementingType} field must include an argument of the same name
-         for every argument defined in the {implementedType} field.
-         1. The {implementingType} field argument must accept the same type
-            (invariant) as the {implementedType} field argument.
-      2. The {implementingType} field may include additional arguments not
-         defined in the {implementingType} field, but any additional argument
-         must not be required, e.g. must not be of a non-nullable type.
-      3. The {implementingType} field must return a type which is equal to or a
-         sub-type of the {implementedType} field's return type (covariant):
-         1. Let {implementingFieldType} be the return type of the
-            {implementingType} field.
-         2. Let {implementedFieldType} be the return type of the
-            {implementedType} field.
-         3. {IsValidImplementingFieldTypeOf(implementingFieldType, implementedFieldType)}
+      1. Let {field} be that named field on {type}.
+      2. Let {implementedField} be that named field on {implementedType}.
+      1. {field} must include an argument of the same name for every argument
+         defined in {implementedField}.
+         1. That named argument on {field} must accept the same type
+            (invariant) as that named argument on {implementedField}.
+      2. {field} may include additional arguments not defined in
+         {implementedField}, but any additional argument must not be required,
+         e.g. must not be of a non-nullable type.
+      3. {field} must return a type which is equal to or a sub-type of
+         (covariant) the return type of {implementedField} field's return type:
+         1. Let {fieldType} be the return type of {field}.
+         2. Let {implementedFieldType} be the return type of {implementedField}.
+         3. {IsValidImplementationFieldType(fieldType, implementedFieldType)}
             must be {true}.
 
-IsValidImplementingFieldTypeOf(implementingFieldType, implementedFieldType):
-  1. If {implementingFieldType} is a Non-Null type:
-     1. Let {implementingNullableType} be the unwrapped nullable type
-        of {implementingFieldType}.
+IsValidImplementationFieldType(fieldType, implementedFieldType):
+  1. If {fieldType} is a Non-Null type:
+     1. Let {nullableType} be the unwrapped nullable type of {fieldType}.
      2. Let {implementedNullableType} be the unwrapped nullable type
         of {implementedFieldType} if it is a Non-Null type, otherwise let it be
         {implementedFieldType} directly.
-     3. Return {IsValidImplementingFieldTypeOf(implementingNullableType, implementedNullableType)}.
-  2. Otherwise, if {implementedFieldType} is a Non-Null type, return {false}.
-  3. If {implementingFieldType} is a List type and {implementedFieldType} is
-     also a List type:
-     1. Let {implementingItemType} be the unwrapped item type
-        of {implementingFieldType}.
+     3. Return {IsValidImplementationField(nullableType, implementedNullableType)}.
+  2. If {fieldType} is a List type and {implementedFieldType} is also a List type:
+     1. Let {itemType} be the unwrapped item type of {fieldType}.
      2. Let {implementedItemType} be the unwrapped item type
         of {implementedFieldType}.
-     3. Return {IsValidImplementingFieldTypeOf(implementingItemType, implementedItemType)}.
-  4. If {implementingFieldType} is the same type as {implementedFieldType}
+     3. Return {IsValidImplementationField(itemType, implementedItemType)}.
+  3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
+  4. If {fieldType} is an Object type and {implementedFieldType} is
+     a Union type and {fieldType} is a possible type of {implementedFieldType}
      then return {true}.
-  5. If {implementingFieldType} is an Object type and {implementedFieldType} is
-     a Union type and {implementingFieldType} is a possible type of
+  5. If {fieldType} is an Object or Interface type and {implementedFieldType}
+     is an Interface type and {fieldType} declares it implements
      {implementedFieldType} then return {true}.
-  6. If {implementingFieldType} is an Object or Interface type and
-     {implementedFieldType} is an Interface type and {implementingFieldType}
-     declares it implements {implementedFieldType} then return {true}.
-  7. Otherwise return {false}.
+  6. Otherwise return {false}.
 
 
 ### Field Arguments
@@ -1162,7 +1157,7 @@ Interface types have the potential to be invalid if incorrectly defined.
 4. An interface type must be a super-set of all interfaces it implements:
    1. Let this interface type be {implementingType}.
    2. For each interface declared implemented as {implementedType},
-      {IsValidImplementingTypeOf(interfaceType, implementedType)} must be {true}.
+      {IsValidImplementation(implementingType, implementedType)} must be {true}.
 
 
 ### Interface Extensions
