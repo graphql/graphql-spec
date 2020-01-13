@@ -116,6 +116,7 @@ type MyType {
 The introspection result must produce an ordered array of fields `[field1, field2]` for `MyType`
 and an ordered array of arguments `[arg1, arg2]` for `MyType.field1.
 
+
 ## Schema Introspection
 
 The schema introspection system is accessible from the meta-fields `__schema`
@@ -412,6 +413,7 @@ Fields
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 
+
 ### The __EnumValue Type
 
 The `__EnumValue` type represents one of possible values of an enum.
@@ -423,6 +425,7 @@ Fields
 * `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
 * `deprecationReason` optionally provides a reason why this enum value is deprecated.
+
 
 ### The __Directive Type
 
