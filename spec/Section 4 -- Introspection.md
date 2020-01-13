@@ -56,6 +56,7 @@ would return
 }
 ```
 
+
 ## Reserved Names
 
 Types and fields required by the GraphQL introspection system that are used in
@@ -98,6 +99,22 @@ identify which actual type of the possible types has been returned.
 
 This field is implicit and does not appear in the fields list in any defined type.
 
+
+## Ordering
+
+Servers must preserve lexical ordering between SDL and introspection.
+
+For the given SDL:
+
+```graphql
+type MyType {
+  field1(arg1: String, arg2: Int): Boolean
+  field2: Boolean
+}
+```
+
+The introspection result must produce an ordered array of fields `[field1, field2]` for `MyType`
+and an ordered array of arguments `[arg1, arg2]` for `MyType.field1.
 
 ## Schema Introspection
 
