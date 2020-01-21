@@ -311,7 +311,7 @@ Note: many examples below will use the query short-hand syntax.
 
 ## Selection Sets
 
-SelectionSet : { Selection+ }
+SelectionSet : { Selection* }
 
 Selection :
   - Field
