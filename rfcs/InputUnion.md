@@ -292,7 +292,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 
-Criteria score: 🥈
+Criteria score: 🥉
 
 ## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
@@ -844,7 +844,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] 🥈 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
