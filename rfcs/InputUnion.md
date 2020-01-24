@@ -218,7 +218,7 @@ Any data structure that can be modeled with output type polymorphism should be a
 |----|----|----|----|----|
 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 
-Criteria score: 🥇
+Criteria score: 🥈
 
 ## 🎯 C. Doesn't inhibit schema evolution
 
@@ -255,7 +255,7 @@ In addition to containing Input types, member type may also contain Leaf types l
 |----|----|----|----|----|
 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 
-Criteria score: 🥉
+Criteria score: 🥈
 
 ## 🎯 F. Migrating a field to a polymorphic input type is non-breaking
 
@@ -292,7 +292,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 
-Criteria score: 🥈
+Criteria score: 🥉
 
 ## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
@@ -838,13 +838,13 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
 | [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
-| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [B][criteria-b] 🥈 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 | [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [F][criteria-f] 🥈 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] 🥈 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
