@@ -204,7 +204,7 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥇
 
@@ -837,7 +837,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
-| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 | [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
