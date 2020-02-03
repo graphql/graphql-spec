@@ -975,7 +975,7 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 ## Interfaces
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition : Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
@@ -1164,8 +1164,9 @@ Interface types have the potential to be invalid if incorrectly defined.
 ### Interface Extensions
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldsDefinition
-  - extend interface Name Directives[Const]
+  - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - extend interface Name ImplementsInterfaces? Directives[Const]
+  - extend interface Name ImplementsInterfaces
 
 Interface type extensions are used to represent an interface which has been
 extended from some original interface. For example, this might be used to
