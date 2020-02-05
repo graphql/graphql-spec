@@ -364,7 +364,7 @@ could define a scalar called `Time` which, while serialized as a string,
 promises to conform to ISO-8601. When querying a field of type `Time`, you can
 then rely on the ability to parse the result with an ISO-8601 parser and use a
 client-specific primitive for time. Another example of a potentially useful
-custom scalar is `Url`, which serializes as a string, but is guaranteed by
+custom scalar is `URL`, which serializes as a string, but is guaranteed by
 the service to be a valid URL.
 
 When defining an additional scalar, GraphQL systems should use the
@@ -372,8 +372,8 @@ When defining an additional scalar, GraphQL systems should use the
 specification of the data format, serialization, and coercion rules for the
 scalar. For example, a GraphQL system providing a `UUID` scalar might link to
 RFC 4122, or some document defining a reasonable subset of that RFC. If a
-specification URL is present, systems must conform to the described rules.
-Built-in scalar types should not provide a URL.
+specification URL is present, systems and tools that are aware of it should
+conform to its described rules. Built-in scalar types should not provide a URL.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
@@ -2029,9 +2029,7 @@ type ExampleType {
 ### @specifiedBy
 
 ```graphql
-directive @specifiedBy(
-  url: String!
-) on SCALAR
+directive @specifiedBy(url: String!) on SCALAR
 ```
 
 The `@specifiedBy` directive is used within the type system definition language
@@ -2040,8 +2038,8 @@ scalar definitions. The URL should point to a human-readable specification of
 the data format, serialization, and coercion rules for the scalar. For example,
 a GraphQL system providing a `UUID` scalar might link to [RFC 4122](https://tools.ietf.org/html/rfc4122),
 or some document defining a reasonable subset of that RFC. If a specification
-URL is present, systems must conform to the described rules. Built-in scalar
-types should not provide a URL in this way.
+URL is present, systems and tools that are aware of it should conform to its
+described rules. Built-in scalar types should not provide a URL in this way.
 
 Specifications linked in this way should provide a single, stable scalar format
 to avoid ambiguity. This means that if the specification is in flux, the system
