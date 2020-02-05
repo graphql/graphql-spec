@@ -241,7 +241,7 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
-A GraphQL type designer should use the `@specifiedBy` directive to provide
+A GraphQL type designer should define `specifiedBy` for custom scalars as
 a specification URL describing the data format, serialization, and coercion
 rules for the scalar. It is recommended to also summarize the format and provide
 an example in the description field.
