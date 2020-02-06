@@ -577,6 +577,8 @@ input DogInput {
 
 ## 💡 3. Order based discrimination
 
+**Champion:** @leebyron
+
 The concrete type is the first type in the input union definition that matches.
 
 ```graphql
