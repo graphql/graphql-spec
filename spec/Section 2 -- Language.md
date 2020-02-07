@@ -823,7 +823,8 @@ empty strings.
 
 Note: Unicode characters are allowed within String value literals, however
 {SourceCharacter} must not contain some ASCII control characters so escape
-sequences must be used to represent these characters.
+sequences must be used to represent these characters. Also {`\`}, {`"`} and {LineTerminator}
+must be escaped. All other escape sequences are optional.
 
 **Block Strings**
 
