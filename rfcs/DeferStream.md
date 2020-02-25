@@ -19,7 +19,7 @@ A `@defer` directive would allow clients to annotate fragments that are non-crit
 - [2] [[Proposal] Introducing @defer in Apollo Server](https://blog.apollographql.com/introducing-defer-in-apollo-server-f6797c4e9d6e)
 - [3] [Active development on @defer and @stream in Relay at Facebook](https://github.com/graphql/graphql-wg/issues/329)
 
-## Potential Concerns
+## Potential concerns, challenges, and drawbacks
 
 ### Client re-renders
 
