@@ -23,7 +23,7 @@ A `@defer` directive would allow clients to annotate fragments that are non-crit
 
 ### Client re-renders
 
-With incremental delivery, where multiple responses are delivered in one request, client code could re-render it's UI multiple times in a short period of time. This could degrade performance of the application, negating the performance gains from using `@defer` or `@stream`. There are a few approaches that could be taken to mitigate this. Each of these approaches are orthogonal to one another, i.e. the working group could decide that more than one of these should be included in the spec or be labeled as best practices.
+With incremental delivery, where multiple responses are delivered in one request, client code could re-render its UI multiple times in a short period of time. This could degrade performance of the application, negating the performance gains from using `@defer` or `@stream`. There are a few approaches that could be taken to mitigate this. Each of these approaches are orthogonal to one another, i.e. the working group could decide that more than one of these should be included in the spec or be labeled as best practices.
 
 These solutions require the GraphQL client to efficiently process multiple responses at the same time. (Relay support added here: https://github.com/facebook/relay/commit/b4c92a23ae061943ea7a2ddb5e2f7686d3af8c0e)
 
