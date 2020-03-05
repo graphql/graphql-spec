@@ -371,6 +371,8 @@ Each solution is identified with a `Number` so they can be referenced in the res
 
 ## 💡 1. Explicit `__typename` Discriminator field
 
+**Champion:** @eapache
+
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
 ```graphql
