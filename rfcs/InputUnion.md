@@ -445,6 +445,8 @@ type Mutation {
 
 ## 💡 2. Explicit configurable Discriminator field
 
+**Champion:** @binaryseed
+
 A configurable discriminator field enables schema authors to model type discrimination into their schema more naturally.
 
 A schema author may choose to add their chosen type discriminator field to output types as well to completely mirror the structure in a way that enables sending data back and forth through input & output with no transformations.
@@ -755,6 +757,8 @@ input DogInput {
   * ❔ Not evaluated
 
 ## 💡 5. One Of (Tagged Union)
+
+**Champion:** @benjie
 
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
