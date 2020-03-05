@@ -756,7 +756,7 @@ input DogInput {
 
 ## 💡 5. One Of (Tagged Union)
 
-**Champion:** @binaryseed
+**Champion:** @benjie
 
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
