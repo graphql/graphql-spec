@@ -1447,6 +1447,57 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
+**Circular References**
+
+Input Objects are allowed to reference other Input Objects. A circular reference 
+occurs when an Input Object references itself either directly or through 
+referenced Input Objects.
+
+Circular references are generally allowed, however they may not be defined as an
+unbroken chain of Non-Null fields. Such Input Objects are invalid, because there
+is no way to provide a legal value for them.
+
+The following examples are allowed:
+
+```graphql example
+input Example {
+  self: Example
+  value: String
+}
+```
+
+This is fine because a value for `self` may simply be omitted from the arguments.
+
+```graphql example
+input Example {
+  self: [Example!]!
+  value: String
+}
+```
+
+This also works as `self` can just contain an empty list.
+
+The following examples are invalid:
+
+```graphql counter-example
+input Example {
+  value: String
+  self: Example!
+}
+```
+
+```graphql counter-example
+input First {
+  second: Second!
+  value: String
+}
+
+input Second {
+  first: First!
+  value: String
+}
+```
+
 **Result Coercion**
 
 An input object is never a valid result. Input Object types cannot be the return
@@ -1525,6 +1576,9 @@ Literal Value            | Variables               | Coerced Value
       characters {"__"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+3. If an Input Object references itself either directly or through referenced
+   Input Objects, at least one of the fields in the chain of references must be
+   either nullable or a List.
 
 
 ### Input Object Extensions
