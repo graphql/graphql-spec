@@ -216,7 +216,7 @@ Any data structure that can be modeled with output type polymorphism should be a
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| ✅⚠️ | ✅⚠️ | ✅ | ✅⚠️ | 🚫 |
 
 Criteria score: 🥇
 
@@ -555,6 +555,7 @@ input DogInput {
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
   * ✅ Data structures can mirror eachother.
+  * ⚠️ `__typename` can not match discriminator since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
 * [D. Any member type restrictions are validated in schema][criteria-d]
@@ -846,7 +847,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
 | [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [B][criteria-b] 🥇 | ✅⚠️ | ✅⚠️ | ✅ | ✅⚠️ | 🚫 |
 | [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
