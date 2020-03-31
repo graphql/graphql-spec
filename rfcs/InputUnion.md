@@ -455,68 +455,35 @@ The mechanism for configuring the discriminator field is open to debate, in this
 
 ### 🎲 Variations
 
-* Value is the input's type name
-
-```graphql
-input CatInput {
-  kind: CatInput
-  name: String!
-  age: Int
-  livesLeft: Int
-}
-input DogInput {
-  kind: DogInput
-  name: String!
-  age: Int
-  breed: DogBreed
-}
-
-inputunion AnimalInput @discriminator(field: "kind") =
-  | CatInput
-  | DogInput
-
-type Mutation {
-  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
-}
-
-# Variables:
-{
-  location: "Portland, OR",
-  animals: [
-    {
-      kind: "CatInput",
-      name: "Buster",
-      livesLeft: 7
-    }
-  ]
-}
-```
-
 * Value is a `Enum` literal
 
 This variation is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
 ```graphql
-enum AnimalKind {
+enum AnimalSpecies {
   CAT
   DOG
 }
 
 input CatInput {
-  kind: AnimalKind::CAT
+  species: AnimalSpecies::CAT
   # ...
 }
 input DogInput {
-  kind: AnimalKind::DOG
+  species: AnimalSpecies::DOG
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "CAT",
+      species: "CAT",
       name: "Buster",
       livesLeft: 7
     }
@@ -528,20 +495,24 @@ input DogInput {
 
 ```graphql
 input CatInput {
-  kind: "cat"
+  species: "Cat"
   # ...
 }
 input DogInput {
-  kind: "dog"
+  species: "Dog"
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "cat",
+      species: "Cat",
       name: "Buster",
       livesLeft: 7
     }
