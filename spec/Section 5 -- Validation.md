@@ -1552,7 +1552,7 @@ query B($atOtherHomes: Boolean) {
   ...HouseTrainedFragment
 }
 
-fragment HouseTrainedFragment {
+fragment HouseTrainedFragment on Query {
   dog {
     isHousetrained(atOtherHomes: $atOtherHomes)
   }
