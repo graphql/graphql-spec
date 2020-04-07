@@ -1712,7 +1712,7 @@ Expected Type | Internal Value   | Coerced Result
 `[Int!]!`     | `[1, 2, null]`   | Error: Item cannot be null
 `[Int!]!`     | `[1, 2, Error]`  | Error: Error occurred in item
 
-
+````
 ## Directives
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
@@ -1734,6 +1734,8 @@ ExecutableDirectiveLocation : one of
   `FRAGMENT_SPREAD`
   `INLINE_FRAGMENT`
   `VARIABLE_DEFINITION`
+  `ARGUMENT`
+  `OBJECT_FIELD`
 
 TypeSystemDirectiveLocation : one of
   `SCHEMA`

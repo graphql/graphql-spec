@@ -145,7 +145,7 @@ Alias : Name :
 
 Arguments[Const] : ( Argument[?Const]+ )
 
-Argument[Const] : Name : Value[?Const]
+Argument[Const] : Name Directives? : Value[?Const]
 
 FragmentSpread : ... FragmentName Directives?
 
@@ -182,7 +182,7 @@ ObjectValue[Const] :
   - { }
   - { ObjectField[?Const]+ }
 
-ObjectField[Const] : Name : Value[?Const]
+ObjectField[Const] : Name Directives? : Value[?Const]
 
 VariableDefinitions : ( VariableDefinition+ )
 
@@ -322,6 +322,8 @@ ExecutableDirectiveLocation : one of
   `FRAGMENT_SPREAD`
   `INLINE_FRAGMENT`
   `VARIABLE_DEFINITION`
+  `ARGUMENT`
+  `OBJECT_FIELD`
 
 TypeSystemDirectiveLocation : one of
   `SCHEMA`
