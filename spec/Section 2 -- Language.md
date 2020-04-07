@@ -395,7 +395,7 @@ unique identifier.
 
 Arguments[Const] : ( Argument[?Const]+ )
 
-Argument[Const] : Name Directives? : Value[?Const]
+Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
@@ -1033,7 +1033,7 @@ ObjectValue[Const] :
   - { }
   - { ObjectField[?Const]+ }
 
-ObjectField[Const] : Name Directives? : Value[?Const]
+ObjectField[Const] : Directives? Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
 curly-braces `{ }`. The values of an object literal may be any input value
