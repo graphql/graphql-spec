@@ -118,6 +118,10 @@ advancements typically occur during
 [Working Group](https://github.com/graphql/graphql-wg) meetings, however may
 occur on GitHub.
 
+In general, it's preferable to start with a pull request so that we can best
+evaluate the RFC in detail. However, starting with an issue is also permitted if
+the full details are not worked out.
+
 All RFCs start as either a *strawman* or *proposal*.
 
 ## Stage 0: *Strawman*
