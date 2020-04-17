@@ -4,7 +4,7 @@ A GraphQL server supports introspection over its schema. This schema is queried
 using GraphQL itself, creating a powerful platform for tool-building.
 
 Take an example query for a trivial app. In this case there is a User type with
-three fields: id, name, and birthday.
+four fields: id, name, birthday, and messages.
 
 For example, given a server with the following type definition:
 
@@ -13,6 +13,7 @@ type User {
   id: String
   name: String
   birthday: Date
+  messages: [Message!]!
 }
 ```
 
@@ -26,6 +27,10 @@ The query
       name
       type {
         name
+        punctuatedName
+        namedType {
+          name
+        }
       }
     }
   }
@@ -41,16 +46,36 @@ would return
     "fields": [
       {
         "name": "id",
-        "type": { "name": "String" }
+        "type": {
+          "name": "String",
+          "punctuatedName": "String",
+          "namedType": { "name": "String" }
+        }
       },
       {
         "name": "name",
-        "type": { "name": "String" }
+        "type": {
+          "name": "String",
+          "punctuatedName": "String",
+          "namedType": { "name": "String" }
+        }
       },
       {
         "name": "birthday",
-        "type": { "name": "Date" }
+        "type": {
+          "name": "Date",
+          "punctuatedName": "Date",
+          "namedType": { "name": "Date" }
+        }
       },
+      {
+        "name": "messages",
+        "type": {
+          "name": null,
+          "punctuatedName": "[Message!]!",
+          "namedType": { "name": "Message" }
+        }
+      }
     ]
   }
 }
@@ -129,6 +154,8 @@ type __Type {
   kind: __TypeKind!
   name: String
   description: String
+  punctuatedName: String!
+  namedType: __Type!
 
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
@@ -242,6 +269,8 @@ Fields
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
 * `description` may return a String or {null}.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -259,6 +288,8 @@ Fields
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
 * `interfaces`: The set of interfaces that an object implements.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -275,6 +306,8 @@ Fields
 * `description` may return a String or {null}.
 * `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -296,6 +329,8 @@ Fields
 * `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -312,6 +347,8 @@ Fields
   must have unique names.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -335,6 +372,8 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
+* `punctuatedName` must return `name`.
+* `namedType` must return a reference to the __Type object {this}.
 * All other fields must return {null}.
 
 
@@ -348,6 +387,8 @@ Fields
 
 * `kind` must return `__TypeKind.LIST`.
 * `ofType`: Any type.
+* `punctuatedName` must return `'[' + ofType.punctuatedName + ']'`.
+* `namedType` must return `ofType.namedType`.
 * All other fields must return {null}.
 
 
@@ -361,6 +402,8 @@ required inputs for arguments and input object fields.
 
 * `kind` must return `__TypeKind.NON_NULL`.
 * `ofType`: Any type except Non-null.
+* `punctuatedName` must return `ofType.punctuatedName + '!'`.
+* `namedType` must return `ofType.namedType`.
 * All other fields must return {null}.
 
 
