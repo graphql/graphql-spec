@@ -609,7 +609,7 @@ object).
 
 Fragments can be specified on object types, interfaces, and unions.
 
-Selections within fragments only return values when concrete type of the object
+Selections within fragments only return values when the concrete type of the object
 it is operating on matches the type of the fragment.
 
 For example in this query on the Facebook data model:
