@@ -269,8 +269,8 @@ Fields
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `punctuatedName` must return `name`.
-* `namedType` must return a reference to the __Type object {this}.
+* `punctuatedName` must return the same value as the `name` field would.
+* `namedType` must return this type.
 * All other fields must return {null}.
 
 
