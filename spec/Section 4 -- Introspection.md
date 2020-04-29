@@ -153,9 +153,9 @@ type __Schema {
 type __Type {
   kind: __TypeKind!
   name: String
-  description: String
   punctuatedName: String!
   namedType: __Type!
+  description: String
 
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
