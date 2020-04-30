@@ -261,6 +261,15 @@ Criteria score: 🥉
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
+Example: Relay Mutation
+
+```graphql
+# From
+input I { x: String }
+# To (pseudocode)
+input union IU = I | { y: Int }
+```
+
 * ✂️ Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * ✂️ Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
@@ -280,11 +289,13 @@ To ease development.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-Criteria score: 🥉
+Criteria score: X (not considered)
 
 ## 🎯 H. Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
+
+In other words: data should require minimal or no transformation and metadata over the wire
 
 * ✂️ Objection: This is a matter of taste - legitimate [Prior Art](#-prior-art) exists that require formatting / extra metadata.
 
@@ -300,7 +311,15 @@ Many people in the wild are solving the need for input unions with validation at
 
 Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
 
+```graphql
+# From
+input I { x: String, y: Int }
+# To (pseudocode)
+input union IU = { x: String } | { y: Int }
+```
+
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
+* ✂️ Objection: May break variable names? Only avoided with care
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
@@ -322,12 +341,14 @@ Criteria score: 🥇
 
 The less typing and fewer bytes transmitted, the better.
 
+(Not Related to B/H)
+
 * ✂️ Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * ✂️ Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥉
 
@@ -339,7 +360,8 @@ Ideally a server does not have to do much computation to determine which concret
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅ | ✅ | ✅⚠️ | ✅⚠️ | ✅ |
+| O(1) | O(1) | O(N of members) | O(N of members) | O(1) |
 
 Criteria score: 🥉
 
@@ -347,11 +369,14 @@ Criteria score: 🥉
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
+* ✂️ Objection: Evolution of the SDL is expected with new features.
+* ✂️ Objection: SDL syntax error can be a positive as a "fail fast" if a system doesn't know about input unions.
+
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
 
-Criteria score: 🥈
+Criteria score: X (rejected)
 
 ## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
@@ -359,7 +384,7 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ |
 
 Criteria score: 🥈
 
