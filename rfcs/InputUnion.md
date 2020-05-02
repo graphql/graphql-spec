@@ -229,7 +229,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| ✅ | ⚠ | 🚫 | ⚠️ | ✅ |
 
 Criteria score: 🥇
 
@@ -388,6 +388,17 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 
 Criteria score: 🥈
 
+## 🎯 O. Unconstrained combination of input types to unions
+
+It should be possible to combine existing or new input types to unions freely and with ease.
+Adding an input to one or more unions should not require extraneous changes, constrain or be constrained by schema design.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
+|----|----|----|----|----|
+| ✅️ | 🚫️ | ❔ | 🚫 | ✅ |
+
+Criteria score: 🥇
+
 # 🚧 Possible Solutions
 
 The community has imagined a variety of possible solutions, synthesized here.
@@ -442,7 +453,7 @@ type Mutation {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror eachother.
+  * ✅ Data structures can mirror each other.
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
@@ -467,6 +478,8 @@ type Mutation {
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * ✅ Adding or removing an input type to a union has no extraneous effects on schema design
 
 ## 💡 2. Explicit configurable Discriminator field
 
@@ -550,9 +563,10 @@ inputunion AnimalInput @discriminator(field: "species") =
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror eachother.
+  * ✅ Data structures can mirror each other.
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
+  * ⚠️ Adding an existing input type to an input union requires it to add the non-null discriminator field
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ Schema validation can check that all members of the input union have the discriminator field
 * [E. A member type may be a Leaf type][criteria-e]
@@ -574,6 +588,10 @@ inputunion AnimalInput @discriminator(field: "species") =
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * 🚫 Adding an input type to a union requires that it has the non-null discriminator field
+     * The input might already have a field with the same name, but a different type
+     * Reusing input types in multiple input unions can become unwieldy
 
 ## 💡 3. Order based discrimination
 
@@ -624,7 +642,7 @@ type Mutation {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror eachother
+  * ✅ Data structures can mirror each other
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
@@ -639,7 +657,7 @@ type Mutation {
     }
     ```
 
-    Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
+    Currently, order based type discrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No member type restrictions
 * [E. A member type may be a Leaf type][criteria-e]
@@ -660,6 +678,8 @@ type Mutation {
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
+  * ❔ Not evaluated
+* [O. Unconstrained combination of input types to unions][criteria-o]
   * ❔ Not evaluated
 
 ## 💡 4. Structural uniqueness
@@ -727,10 +747,11 @@ input DogInput {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror eachother's fields
+  * ✅ Data structures can mirror each other's fields
   * ⚠️ Restrictions on required fields may prevent matching output types
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
+  * ⚠️ Making a field nullable may be impossible without losing uniqueness
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ A "uniqueness" algorithm must be applied during schema validation
 * [E. A member type may be a Leaf type][criteria-e]
@@ -751,6 +772,8 @@ input DogInput {
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ❔ Not evaluated
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * 🚫 Input types with similar fields may not be able to be combined without breaking changes
 
 ## 💡 5. One Of (Tagged Union)
 
@@ -825,6 +848,8 @@ type Mutation {
   * ✅ Proposal uses a simple directive; directive parsing is widely supported
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ✅ Existing code generation tools will degrade gracefully to a regular input object
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * ✅ Adding or removing input types to a tagged union requires no extraneous effort
 
 ### Summary of spec changes
 
@@ -855,6 +880,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
 | [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
 | [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [O][criteria-o] 🥈 | ✅️ | 🚫️ | ❔ | 🚫 | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
 [criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
@@ -870,6 +896,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 [criteria-l]: #-l-input-unions-should-be-performant-for-servers
 [criteria-m]: #-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions
 [criteria-n]: #-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions
+[criteria-o]: #-o-unconstrained-combination-of-input-types-to-unions
 
 [solution-1]: #-1-explicit-__typename-discriminator-field
 [solution-2]: #-2-explicit-configurable-discriminator-field
