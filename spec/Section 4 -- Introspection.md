@@ -114,7 +114,7 @@ type MyType {
 ```
 
 The introspection result must produce an ordered array of fields `[field1, field2]` for `MyType`
-and an ordered array of arguments `[arg1, arg2]` for `MyType.field1.
+and an ordered array of arguments `[arg1, arg2]` for `MyType.field1`.
 
 
 ## Schema Introspection
