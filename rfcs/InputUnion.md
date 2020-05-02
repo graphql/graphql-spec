@@ -453,7 +453,7 @@ type Mutation {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror each other.
+  * ✅ Data structures can mirror eachother.
   * ⚠️ `__typename` can not match since Input & Output types are distinct (ex: `Cat` vs `CatInput`).
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
@@ -563,7 +563,7 @@ inputunion AnimalInput @discriminator(field: "species") =
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror each other.
+  * ✅ Data structures can mirror eachother.
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
   * ⚠️ Adding an existing input type to an input union requires it to add the non-null discriminator field
@@ -642,7 +642,7 @@ type Mutation {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror each other
+  * ✅ Data structures can mirror eachother
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * 🚫 Adding a nullable field to an input object could change the detected type of fields or arguments in pre-existing operations.
 
@@ -657,7 +657,7 @@ type Mutation {
     }
     ```
 
-    Currently, order based type discrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
+    Currently, order based type descrimination resolves to `DogInput`. However, if we modify `CatInput` to contain an `owner` field, type descrimination changes to `CatInput` even though the mutation submitted has not changed.
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ No member type restrictions
 * [E. A member type may be a Leaf type][criteria-e]
@@ -747,7 +747,7 @@ input DogInput {
 * [A. GraphQL should contain a polymorphic Input type][criteria-a]
   * ✅
 * [B. Input polymorphism matches output polymorphism][criteria-b]
-  * ✅ Data structures can mirror each other's fields
+  * ✅ Data structures can mirror eachother's fields
   * ⚠️ Restrictions on required fields may prevent matching output types
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
