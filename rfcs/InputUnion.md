@@ -204,7 +204,7 @@ The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥇
 
@@ -261,6 +261,15 @@ Criteria score: 🥉
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
+Example: Relay Mutation
+
+```graphql
+# From
+input I { x: String }
+# To (pseudocode)
+input union IU = I | { y: Int }
+```
+
 * ✂️ Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * ✂️ Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
@@ -280,11 +289,13 @@ To ease development.
 |----|----|----|----|----|
 | ❔ | ❔ | ❔ | ❔ | ❔ |
 
-Criteria score: 🥉
+Criteria score: X (not considered)
 
 ## 🎯 H. Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
+
+In other words: data should require minimal or no transformation and metadata over the wire
 
 * ✂️ Objection: This is a matter of taste - legitimate [Prior Art](#-prior-art) exists that require formatting / extra metadata.
 
@@ -292,7 +303,7 @@ Clients should be able to pass "natural" input data to unions without specially 
 |----|----|----|----|----|
 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 
-Criteria score: 🥈
+Criteria score: 🥉
 
 ## 🎯 I. Input unions should be easy to upgrade from existing solutions
 
@@ -300,7 +311,15 @@ Many people in the wild are solving the need for input unions with validation at
 
 Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
 
+```graphql
+# From
+input I { x: String, y: Int }
+# To (pseudocode)
+input union IU = { x: String } | { y: Int }
+```
+
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
+* ✂️ Objection: May break variable names? Only avoided with care
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
@@ -322,12 +341,14 @@ Criteria score: 🥇
 
 The less typing and fewer bytes transmitted, the better.
 
+(Not Related to B/H)
+
 * ✂️ Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * ✂️ Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥉
 
@@ -339,7 +360,8 @@ Ideally a server does not have to do much computation to determine which concret
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅ | ✅ | ✅⚠️ | ✅⚠️ | ✅ |
+| O(1) | O(1) | O(N of members) | O(N of members) | O(1) |
 
 Criteria score: 🥉
 
@@ -347,11 +369,14 @@ Criteria score: 🥉
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
+* ✂️ Objection: Evolution of the SDL is expected with new features.
+* ✂️ Objection: SDL syntax error can be a positive as a "fail fast" if a system doesn't know about input unions.
+
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
 
-Criteria score: 🥈
+Criteria score: X (rejected)
 
 ## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
@@ -359,7 +384,7 @@ For example, GraphiQL should successfully render when pointed at a schema which 
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ |
 
 Criteria score: 🥈
 
@@ -370,6 +395,8 @@ The community has imagined a variety of possible solutions, synthesized here.
 Each solution is identified with a `Number` so they can be referenced in the rest of the document. New solutions must be added to the end of the list.
 
 ## 💡 1. Explicit `__typename` Discriminator field
+
+**Champion:** @eapache
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
@@ -443,6 +470,8 @@ type Mutation {
 
 ## 💡 2. Explicit configurable Discriminator field
 
+**Champion:** @binaryseed
+
 A configurable discriminator field enables schema authors to model type discrimination into their schema more naturally.
 
 A schema author may choose to add their chosen type discriminator field to output types as well to completely mirror the structure in a way that enables sending data back and forth through input & output with no transformations.
@@ -451,68 +480,35 @@ The mechanism for configuring the discriminator field is open to debate, in this
 
 ### 🎲 Variations
 
-* Value is the input's type name
-
-```graphql
-input CatInput {
-  kind: CatInput
-  name: String!
-  age: Int
-  livesLeft: Int
-}
-input DogInput {
-  kind: DogInput
-  name: String!
-  age: Int
-  breed: DogBreed
-}
-
-inputunion AnimalInput @discriminator(field: "kind") =
-  | CatInput
-  | DogInput
-
-type Mutation {
-  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
-}
-
-# Variables:
-{
-  location: "Portland, OR",
-  animals: [
-    {
-      kind: "CatInput",
-      name: "Buster",
-      livesLeft: 7
-    }
-  ]
-}
-```
-
 * Value is a `Enum` literal
 
 This variation is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
 ```graphql
-enum AnimalKind {
+enum AnimalSpecies {
   CAT
   DOG
 }
 
 input CatInput {
-  kind: AnimalKind::CAT
+  species: AnimalSpecies::CAT
   # ...
 }
 input DogInput {
-  kind: AnimalKind::DOG
+  species: AnimalSpecies::DOG
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "CAT",
+      species: "CAT",
       name: "Buster",
       livesLeft: 7
     }
@@ -524,20 +520,24 @@ input DogInput {
 
 ```graphql
 input CatInput {
-  kind: "cat"
+  species: "Cat"
   # ...
 }
 input DogInput {
-  kind: "dog"
+  species: "Dog"
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "cat",
+      species: "Cat",
       name: "Buster",
       livesLeft: 7
     }
@@ -576,6 +576,8 @@ input DogInput {
   * ❔ Not evaluated
 
 ## 💡 3. Order based discrimination
+
+**Champion:** @leebyron
 
 The concrete type is the first type in the input union definition that matches.
 
@@ -752,6 +754,8 @@ input DogInput {
 
 ## 💡 5. One Of (Tagged Union)
 
+**Champion:** @benjie
+
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
 * https://github.com/graphql/graphql-spec/pull/586
@@ -837,14 +841,14 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 
 |    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 | -- | -- | -- | -- | -- | -- |
-| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ⚠️ |
+| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
 | [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] 🥈 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |

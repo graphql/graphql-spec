@@ -218,7 +218,7 @@ TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 SchemaExtension :
   - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
@@ -268,11 +268,12 @@ ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition : Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldsDefinition
-  - extend interface Name Directives[Const]
+  - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - extend interface Name ImplementsInterfaces? Directives[Const]
+  - extend interface Name ImplementsInterfaces
 
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 

@@ -38,9 +38,73 @@ local service to represent data a GraphQL client only accesses locally, or by a
 GraphQL service which is itself an extension of another GraphQL service.
 
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL type systems. To ensure
+the documentation of a GraphQL service remains consistent with its capabilities,
+descriptions of GraphQL definitions are provided alongside their definitions and
+made available via introspection.
+
+To allow GraphQL service designers to easily publish documentation alongside the
+capabilities of a GraphQL service, GraphQL descriptions are defined using the
+Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
+type system definition language, these description strings (often {BlockString})
+occur immediately before the definition they describe.
+
+GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
+which can be described should provide a {Description} unless they are considered
+self descriptive.
+
+As an example, this simple GraphQL schema is well described:
+
+```graphql example
+"""
+A simple GraphQL schema which is well described.
+"""
+schema {
+  query: Query
+}
+
+"""
+Root type for all your queries
+"""
+type Query {
+  """
+  Translates a string from a given language into a different language.
+  """
+  translate(
+    "The original language that `text` is provided in."
+    fromLanguage: Language
+
+    "The translated language to be returned."
+    toLanguage: Language
+
+    "The text to be translated."
+    text: String
+  ): String
+}
+
+"""
+The set of languages supported by `translate`.
+"""
+enum Language {
+  "English"
+  EN
+
+  "French"
+  FR
+
+  "Chinese"
+  CH
+}
+```
+
+
 ## Schema
 
-SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 RootOperationTypeDefinition : OperationType : NamedType
 
@@ -167,63 +231,6 @@ Schema extensions have the potential to be invalid if incorrectly defined.
 1. The Schema must already be defined.
 2. Any non-repeatable directives provided must not already apply to the
    original Schema.
-
-
-## Descriptions
-
-Description : StringValue
-
-Documentation is a first-class feature of GraphQL type systems. To ensure
-the documentation of a GraphQL service remains consistent with its capabilities,
-descriptions of GraphQL definitions are provided alongside their definitions and
-made available via introspection.
-
-To allow GraphQL service designers to easily publish documentation alongside the
-capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
-type system definition language, these description strings (often {BlockString})
-occur immediately before the definition they describe.
-
-All GraphQL types, fields, arguments and other definitions which can be
-described should provide a {Description} unless they are considered self
-descriptive.
-
-As an example, this simple GraphQL schema is well described:
-
-```graphql example
-"""
-A simple GraphQL schema which is well described.
-"""
-type Query {
-  """
-  Translates a string from a given language into a different language.
-  """
-  translate(
-    "The original language that `text` is provided in."
-    fromLanguage: Language
-
-    "The translated language to be returned."
-    toLanguage: Language
-
-    "The text to be translated."
-    text: String
-  ): String
-}
-
-"""
-The set of languages supported by `translate`.
-"""
-enum Language {
-  "English"
-  EN
-
-  "French"
-  FR
-
-  "Chinese"
-  CH
-}
-```
 
 
 ## Types
@@ -975,7 +982,7 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 ## Interfaces
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition : Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
@@ -1164,8 +1171,9 @@ Interface types have the potential to be invalid if incorrectly defined.
 ### Interface Extensions
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldsDefinition
-  - extend interface Name Directives[Const]
+  - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - extend interface Name ImplementsInterfaces? Directives[Const]
+  - extend interface Name ImplementsInterfaces
 
 Interface type extensions are used to represent an interface which has been
 extended from some original interface. For example, this might be used to

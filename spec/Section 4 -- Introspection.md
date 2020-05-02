@@ -135,6 +135,7 @@ The schema of the GraphQL schema introspection system:
 
 ```graphql
 type __Schema {
+  description: String
   types: [__Type!]!
   queryType: __Type!
   mutationType: __Type
