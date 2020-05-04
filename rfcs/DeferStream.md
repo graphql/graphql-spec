@@ -29,15 +29,63 @@ This technique involves optimistically fetching data based on a prediction that 
 
 This proposal would introduce @stream and @defer directives which clients could use to communicate the relative priority of requested data to GraphQL implementations. Furthermore this proposal would enable GraphQL APIs to split requested data across multiple response payloads in order of priority. The goal of this proposal is to enable applications to reduce latency without increasing server cost or resource contention.
 
+While both incremental delivery and GraphQL subscriptions send multiple payloads over time, **incremental delivery is _not_ intended to enable applications to respond to real-time changes.** Consequently streams opened for incremental delivery are expected to be short-lived. **Implementations are not required to reflect interleaving mutations which occur during incremental delivery.** Assuming there are no interleaving mutations, combining together the various payloads in an incrementally delivered response should produce the same output as if that response was not delivered incrementally.
+
+Facebook has been using Incremental Delivery at scale since 2017, including on major surfaces such as news feed. This proposal captures the key concepts that we have found to be useful. 
+
+## `@defer`
+The @defer directive may be specified on a fragment spread to imply de-prioritization, that causes the fragment to be omitted in the initial response, and delivered as a subsequent response afterward. A query with @defer directive will cause the request to potentially return multiple responses, where non-deferred data is delivered in the initial response and data deferred delivered in a subsequent response. `@include` and `@skip` take presedence over `@defer`.
+
+### `@defer` arguments
+* `if: Boolean`
+  * When `true` fragment may be deferred, if omitted defaults to `true`.
+* `label: String!`
+  * A unique label across all `@defer` and `@stream` directives in an operation.
+  * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragment.
+
+## `@stream`
+
+The `@stream` directive may be provided for a field of `List` type so that the backend can leverage technology such asynchronous iterators to provide a partial list in the initial response, and additional list items in subsequent responses. `@include` and `@skip` take presedence over `@stream`.
+
+### `@stream `arguments
+* `if: Boolean`
+  * When `true` field may be streamed, if omitted defaults to `true`.
+* `label: String!`
+  * A unique label across all `@defer` and `@stream` directives in an operation.
+  * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragments.
+* `initial_count: Int`
+  * The number of list items the server should return as part of the initial response.
+
+## Payload format
+
+When an operation contains `@defer` or `@stream` directives, the GraphQL execution will return multiple payloads. The first payload is the same shape as a standard GraphQL response. Any fields that were only requested on a fragment that is deferred will not be present in this payload. Any list fields that are streamed will only contain the initial list items.
+
+Each subsequent payload will be an object with the following properties
+* `label`: The string that was passed to the label argument of the `@defer` or `@stream` directive that corresponds to this results.
+* `data`: The data that is being delivered incrementally.
+* `path`: a list of keys (with plural indexes) from the root of the response to the insertion point that informs the client how to patch a subsequent delta payload into the original payload.
+* `is_final`: A boolean that is present and `true` when this payload is the last payload that will be sent for this operation.
+* `errors`: An array that will be present and contain any field errors that are produced while executing the deferred or streamed selection set.
+
+Note: The `label` field is not a unique identifier for payloads. There may be multiple payloads with the same label for either payloads for `@stream`, or payloads from a `@defer` fragment under a list field. The combination of `label` and `path` will be unique among all payloads.
+
+## Server requirements for `@defer` and `@stream`
+
+The ability to defer/stream parts of a response can have a potentially significant impact on application performance. Developers generally need clear, predictable control over their application's performance. It is highly recommended that the GraphQL server honor the @defer and @stream directives on each execution. However, the specification will allow advanced use-cases where the server can determine that it is more performant to not defer/stream. Therefore, GraphQL clients should be able to process a response that ignores the defer/stream directives.
+
+This also applies to the `initial_count` argument on the `@stream` directive. Clients should be able to process a streamed response that contains a different number of initial list items than what was specified in the `initial_count` argument.
+
+## Example Query with @defer and @stream
+
 ```
-// Example Query with @defer and @stream.
 {
   viewer {
-     friends(first: 2) @stream(initial_count: 1) {
-	 id
-     }
+    id
+    friends(first: 2) @stream(initial_count: 1, label: "friendStream") {
+	  id
+    }
   }
-  … GroupAdminFragment @defer
+  ...GroupAdminFragment @defer(label: "groupAdminDefer")
 }
 
 fragment GroupAdminFragment {
@@ -50,27 +98,31 @@ fragment GroupAdminFragment {
 
 // payload 1
 {
-  path: [“viewer”, “friends”, 1],
-  data: {id: 4}
+    data: {id: 1}
 }
 
 // payload 2
 {
-  path: [“viewer”, “friends”, 2],
-  data: {id: 5}
+  label: "friendStream"
+  path: [“viewer”, “friends”, 1],
+  data: {id: 4}
 }
 
 // payload 3
 {
+  label: "friendStream"
+  path: [“viewer”, “friends”, 2],
+  data: {id: 5}
+}
+
+// payload 4
+{
+  label: "groupAdminDefer",
   path: [“viewer”],
-  data: {managed_groups: [{id: 1, id: 2}]}
-  extensions: {is_final: true}
+  data: {managed_groups: [{id: 1, id: 2}]},
+  is_final: true
 }
 ```
-While both incremental delivery and GraphQL subscriptions send multiple payloads over time, **incremental delivery is _not_ intended to enable applications to respond to real-time changes.** Consequently streams opened for incremental delivery are expected to be short-lived. **Implementations are not required to reflect interleaving mutations which occur during incremental delivery.** Assuming there are no interleaving mutations, combining together the various payloads in an incrementally delivered response should produce the same output as if that response was not delivered incrementally.
-
-Facebook has been using Incremental Delivery at scale since 2017, including on major surfaces such as news feed. This proposal captures the key concepts that we have found to be useful. 
-
 
 ## Benefits of incremental delivery
 * Make GraphQL a great choice for applications which demand responsiveness
@@ -78,12 +130,6 @@ Facebook has been using Incremental Delivery at scale since 2017, including on m
 * Enable a strong tooling ecosystem (including GraphiQL).
 * Provide concrete guidance to implementers
 * Provide guidance to developers evaluating whether to adopt incremental delivery
-
-The following is a list of incremental delivery concepts:
-* @defer: a directive specified on a fragment spread to imply de-prioritization, that causes the fragment to be omitted in the initial response, and delivered as a subsequent response afterward.
-* @stream: a directive specified on a List type field that implies prioritization of the minimum data required and de-prioritization of data completeness.
-* Path: a list of keys (with plural indexes) from the root of the response to the insertion point that informs the client how to patch a subsequent delta payload into the original payload.
-* “is_final” : true entry in the last payload under “extensions” of an incremental delivery request.
 
 ## Use case guidance:
 The goal of incremental delivery is to prioritize the delivery of essential data. Even though incremental delivery delivers data over time, the response describes the data at a particular point in time. Therefore, it is not necessary to reflect real time changes to the data model in incremental delivery. Implementers of @defer and @stream are not obligated to address interleaving mutations during the execution of @defer and @stream. 
