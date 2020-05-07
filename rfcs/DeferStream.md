@@ -42,7 +42,7 @@ The @defer directive may be specified on a fragment spread to imply de-prioritiz
 * `label: String`
   * A unique label across all `@defer` and `@stream` directives in an operation.
   * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragment.
-  * If the label is provided, the GraphQL Server must add it to the payload.
+  * If provided, the GraphQL Server must add it to the payload.
 
 ## `@stream`
 
@@ -54,7 +54,7 @@ The `@stream` directive may be provided for a field of `List` type so that the b
 * `label: String`
   * A unique label across all `@defer` and `@stream` directives in an operation.
   * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragments.
-  * If the label is provided, the GraphQL Server must add it to the payload.
+  * If provided, the GraphQL Server must add it to the payload.
 * `initialCount: Int`
   * The number of list items the server should return as part of the initial response.
 
