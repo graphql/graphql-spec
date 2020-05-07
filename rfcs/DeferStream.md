@@ -39,9 +39,10 @@ The @defer directive may be specified on a fragment spread to imply de-prioritiz
 ### `@defer` arguments
 * `if: Boolean`
   * When `true` fragment may be deferred, if omitted defaults to `true`.
-* `label: String!`
+* `label: String`
   * A unique label across all `@defer` and `@stream` directives in an operation.
   * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragment.
+  * If the label is provided, the GraphQL Server must add it to the payload.
 
 ## `@stream`
 
@@ -50,10 +51,11 @@ The `@stream` directive may be provided for a field of `List` type so that the b
 ### `@stream `arguments
 * `if: Boolean`
   * When `true` field may be streamed, if omitted defaults to `true`.
-* `label: String!`
+* `label: String`
   * A unique label across all `@defer` and `@stream` directives in an operation.
   * This `label` should be used by GraphQL clients to identify the data from patch responses and associate it with the correct fragments.
-* `initial_count: Int`
+  * If the label is provided, the GraphQL Server must add it to the payload.
+* `initialCount: Int`
   * The number of list items the server should return as part of the initial response.
 
 ## Payload format
@@ -64,8 +66,9 @@ Each subsequent payload will be an object with the following properties
 * `label`: The string that was passed to the label argument of the `@defer` or `@stream` directive that corresponds to this results.
 * `data`: The data that is being delivered incrementally.
 * `path`: a list of keys (with plural indexes) from the root of the response to the insertion point that informs the client how to patch a subsequent delta payload into the original payload.
-* `is_final`: A boolean that is present and `true` when this payload is the last payload that will be sent for this operation.
+* `isFinal`: A boolean that is present and `false` when there are more payloads that will be sent for this operation.
 * `errors`: An array that will be present and contain any field errors that are produced while executing the deferred or streamed selection set.
+* `extensions`: For implementors to extend the protocol
 
 Note: The `label` field is not a unique identifier for payloads. There may be multiple payloads with the same label for either payloads for `@stream`, or payloads from a `@defer` fragment under a list field. The combination of `label` and `path` will be unique among all payloads.
 
@@ -73,7 +76,7 @@ Note: The `label` field is not a unique identifier for payloads. There may be mu
 
 The ability to defer/stream parts of a response can have a potentially significant impact on application performance. Developers generally need clear, predictable control over their application's performance. It is highly recommended that the GraphQL server honor the @defer and @stream directives on each execution. However, the specification will allow advanced use-cases where the server can determine that it is more performant to not defer/stream. Therefore, GraphQL clients should be able to process a response that ignores the defer/stream directives.
 
-This also applies to the `initial_count` argument on the `@stream` directive. Clients should be able to process a streamed response that contains a different number of initial list items than what was specified in the `initial_count` argument.
+This also applies to the `initialCount` argument on the `@stream` directive. Clients should be able to process a streamed response that contains a different number of initial list items than what was specified in the `initialCount` argument.
 
 ## Example Query with @defer and @stream
 
@@ -81,7 +84,7 @@ This also applies to the `initial_count` argument on the `@stream` directive. Cl
 {
   viewer {
     id
-    friends(first: 2) @stream(initial_count: 1, label: "friendStream") {
+    friends(first: 2) @stream(initialCount: 1, label: "friendStream") {
 	  id
     }
   }
@@ -98,29 +101,31 @@ fragment GroupAdminFragment {
 
 // payload 1
 {
-    data: {id: 1}
+    data: {id: 1},
+    isFinal: false
 }
 
 // payload 2
 {
   label: "friendStream"
   path: [“viewer”, “friends”, 1],
-  data: {id: 4}
+  data: {id: 4},
+  isFinal: false
 }
 
 // payload 3
 {
   label: "friendStream"
   path: [“viewer”, “friends”, 2],
-  data: {id: 5}
+  data: {id: 5},
+  isFinal: false
 }
 
 // payload 4
 {
   label: "groupAdminDefer",
   path: [“viewer”],
-  data: {managed_groups: [{id: 1, id: 2}]},
-  is_final: true
+  data: {managed_groups: [{id: 1, id: 2}]}
 }
 ```
 
