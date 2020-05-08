@@ -40,7 +40,7 @@ Let's imagine an animal shelter for our example. When querying for a list of the
 
 However, when we want to submit data, we can't use an `interface` or `union`, so we must model around that.
 
-One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
+One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into its own field. The field name takes on the convention of representing the type.
 
 ```graphql
 mutation {
