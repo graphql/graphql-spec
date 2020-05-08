@@ -33,6 +33,8 @@ While both incremental delivery and GraphQL subscriptions send multiple payloads
 
 Facebook has been using Incremental Delivery at scale since 2017, including on major surfaces such as news feed. This proposal captures the key concepts that we have found to be useful. 
 
+GraphQL servers will not be required to implement `@defer` and/or `@stream`. If they are implemented, they will be required to follow the proposed specification. Servers that do not implement `@defer` and/or `@stream` should not expose these directives in their schema. Queries containing these directives that are sent to an unsupported server should fail validation.
+
 ## `@defer`
 The @defer directive may be specified on a fragment spread to imply de-prioritization, that causes the fragment to be omitted in the initial response, and delivered as a subsequent response afterward. A query with @defer directive will cause the request to potentially return multiple responses, where non-deferred data is delivered in the initial response and data deferred delivered in a subsequent response. `@include` and `@skip` take presedence over `@defer`.
 
