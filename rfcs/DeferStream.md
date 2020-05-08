@@ -145,6 +145,16 @@ GraphQL Subscription is an event-oriented approach to capture real time data cha
 
 For GraphQL communications built on top of HTTP, a natural and compatible technology to leverage is HTTP chunked encoding to implement a stream of responses for incremental delivery.
 
+## Caveats
+
+### Type Generation
+Supporting @defer can add complexity to type-generating clients. Separate types will need to be generated for the different deferred fragments. These clients will need to use the `label` field to determine which fragments have been fulfilled to ensure the application is using the correct types. 
+
+### Object Consistency
+The GraphQL spec does not currently support object identification or consistency. It is currently possible for the same object to be returned in multiple places in a query. If that object changes while the resolvers are running, the query could return inconsistent results. `@defer`/`@stream` does not increase the likelihood of this, as the server still attempts to resolve everything as fast as it can. The only difference is some results can be returned to the client sooner. This proposal does not attempt to address this issue.
+
+### Can @defer/@stream increase risk of a denial of service attack?
+This is currently a risk in GraphQL servers that do not implement any kind of query limiting as arbitrarily complex queries can be sent. Adding `@defer` may add some overhead as the server will now send parts of the query earlier than it would have without `@defer`, but it does not allow for any additional resolving that was not previously possible.
 
 
 # Additional material
