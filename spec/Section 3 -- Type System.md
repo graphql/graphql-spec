@@ -1901,7 +1901,7 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 ```
 
 The `@deprecated` directive is used within the type system definition language
