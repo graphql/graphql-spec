@@ -7,6 +7,8 @@ This document attempts to bring together all the various solutions and perspecti
 
 From that shared understanding, the GraphQL Working Group aims to reach a consensus on how to address the proposal.
 
+Notes from the 2020/5/28 meeting: https://gist.github.com/leebyron/f7f9d81c7ca5259357fab5d82a4c0621
+
 ### Contributing
 
 To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/master/rfcs/InputUnion.md)
