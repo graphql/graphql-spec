@@ -5244,7 +5244,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <span class="token punctuation">}</span>
 </code></pre>
 <p>It is valid for multiple operations to define a variable with the same name. If two operations reference the same fragment, it might actually be necessary:</p>
-<pre id="example-6f6b9" class="spec-example"><a href="#example-6f6b9">Example № 161</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-03c2a" class="spec-example"><a href="#example-03c2a">Example № 161</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">HouseTrainedFragment</span>
 <span class="token punctuation">}</span>
 
@@ -5252,7 +5252,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token operator">...</span><span class="token fragment function">HouseTrainedFragment</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">HouseTrainedFragment</span> <span class="token punctuation">{</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">HouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
