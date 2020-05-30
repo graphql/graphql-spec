@@ -1738,7 +1738,7 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <p>Fragments must specify the type they apply to. In this example, <code>friendFields</code> can be used in the context of querying a <code>User</code>.</p>
 <p>Fragments cannot be specified on any input value (scalar, enumeration, or input object).</p>
 <p>Fragments can be specified on object types, interfaces, and unions.</p>
-<p>Selections within fragments only return values when concrete type of the object it is operating on matches the type of the fragment.</p>
+<p>Selections within fragments only return values when the concrete type of the object it is operating on matches the type of the fragment.</p>
 <p>For example in this query on the Facebook data model:</p>
 <pre id="example-6ce0d" class="spec-example"><a href="#example-6ce0d">Example № 21</a><code><span class="token keyword">query</span> FragmentTyping <span class="token punctuation">{</span>
   profiles<span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"cocacola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
