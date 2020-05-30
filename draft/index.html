@@ -3616,7 +3616,7 @@ The order in which directives appear may be significant, including repeatable di
 </code></pre>
 <p>The <code>@skip</code> directive may be provided for fields, fragment spreads, and inline fragments, and allows for conditional exclusion during execution as described by the if argument.</p>
 <p>In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>false</code>.</p>
-<pre id="example-291f8" class="spec-example"><a href="#example-291f8">Example № 89</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-cb6b7" class="spec-example"><a href="#example-cb6b7">Example № 89</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   experimentalField <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -3627,7 +3627,7 @@ The order in which directives appear may be significant, including repeatable di
 </code></pre>
 <p>The <code>@include</code> directive may be provided for fields, fragment spreads, and inline fragments, and allows for conditional inclusion during execution as described by the if argument.</p>
 <p>In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>true</code></p>
-<pre id="example-082ba" class="spec-example"><a href="#example-082ba">Example № 90</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-aa3a0" class="spec-example"><a href="#example-aa3a0">Example № 90</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   experimentalField <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
