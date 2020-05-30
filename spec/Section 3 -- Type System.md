@@ -1863,7 +1863,7 @@ In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
 
 ```graphql example
-query myQuery($someTest: Boolean) {
+query myQuery($someTest: Boolean!) {
   experimentalField @skip(if: $someTest)
 }
 ```
@@ -1883,7 +1883,7 @@ In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
 
 ```graphql example
-query myQuery($someTest: Boolean) {
+query myQuery($someTest: Boolean!) {
   experimentalField @include(if: $someTest)
 }
 ```
