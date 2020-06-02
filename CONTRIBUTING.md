@@ -56,7 +56,7 @@ move forward. See editor Lee Byron talk about
 
 * **Performance is a feature**
 
-  GraphQL typically avoids syntax or behaviors that could jepordize runtime
+  GraphQL typically avoids syntax or behaviors that could jeopardize runtime
   efficiency, or that make demands of GraphQL services which cannot efficiently
   be fulfilled.
 
@@ -76,15 +76,15 @@ move forward. See editor Lee Byron talk about
 
 * **Simplicity and consistency over expressiveness and terseness**
 
-  There are plenty of behaviors and patterns found in other languages that are
-  intentionally absent from GraphQL. "Possible but awkward" is often favored
-  over more complex alternatives. Simplicity (e.g. fewer concepts) is
-  more important than expressing more sophisticated ideas or writing less.
+  Plenty of behaviors and patterns found in other languages are intentionally
+  absent from GraphQL. "Possible but awkward" is often favored over more complex
+  alternatives. Simplicity (e.g. fewer concepts) is more important than
+  expressing more sophisticated ideas or writing less.
 
 * **Preserve option value**
 
-  It's hard to know what the future brings, so whenever possible, decisions
-  should be made that allow for more options in the future. Sometimes this is
+  It's hard to know what the future brings; whenever possible, decisions should
+  be made that allow for more options in the future. Sometimes this is
   unintuitive: spec rules often begin more strict than necessary with a future
   option to loosen when motivated by a real use case.
 
@@ -177,9 +177,9 @@ libraries *may* implement *proposals*, though are encouraged to not enable the
 ## Stage 2: *Draft*
 
 An RFC at the *draft* stage is a fully formed solution. There is working group
-consensus that the problem identified should be solved, and that this particular
-solution is preferred. A *draft's* goal is to precisely and completely describe
-the solution and resolve any concerns through library implementations. A *draft*
+consensus the problem identified should be solved, and this particular solution
+is preferred. A *draft's* goal is to precisely and completely describe the
+solution and resolve any concerns through library implementations. A *draft*
 must be a pull request.
 
 *Entrance criteria:*
