@@ -59,13 +59,13 @@ NameContinue ::
   - Digit
   - `_`
 
-Letter :: one of
-  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
-  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
-  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+Letter :: one of  
+  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`  
+  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`  
+  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`  
   `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
 
-Digit :: one of
+Digit :: one of  
   `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
@@ -313,25 +313,25 @@ DirectiveLocation :
   - ExecutableDirectiveLocation
   - TypeSystemDirectiveLocation
 
-ExecutableDirectiveLocation : one of
-  `QUERY`
-  `MUTATION`
-  `SUBSCRIPTION`
-  `FIELD`
-  `FRAGMENT_DEFINITION`
-  `FRAGMENT_SPREAD`
-  `INLINE_FRAGMENT`
+ExecutableDirectiveLocation : one of  
+  `QUERY`  
+  `MUTATION`  
+  `SUBSCRIPTION`  
+  `FIELD`  
+  `FRAGMENT_DEFINITION`  
+  `FRAGMENT_SPREAD`  
+  `INLINE_FRAGMENT`  
   `VARIABLE_DEFINITION`
 
-TypeSystemDirectiveLocation : one of
-  `SCHEMA`
-  `SCALAR`
-  `OBJECT`
-  `FIELD_DEFINITION`
-  `ARGUMENT_DEFINITION`
-  `INTERFACE`
-  `UNION`
-  `ENUM`
-  `ENUM_VALUE`
-  `INPUT_OBJECT`
+TypeSystemDirectiveLocation : one of  
+  `SCHEMA`  
+  `SCALAR`  
+  `OBJECT`  
+  `FIELD_DEFINITION`  
+  `ARGUMENT_DEFINITION`  
+  `INTERFACE`  
+  `UNION`  
+  `ENUM`  
+  `ENUM_VALUE`  
+  `INPUT_OBJECT`  
   `INPUT_FIELD_DEFINITION`
