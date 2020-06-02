@@ -50,7 +50,7 @@ would return
       {
         "name": "birthday",
         "type": { "name": "Date" }
-      },
+      }
     ]
   }
 }
