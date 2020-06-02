@@ -4051,11 +4051,13 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Documents">5.1</a></span>Documents</h3>
 <section id="sec-Executable-Definitions" secid="5.1.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Executable-Definitions">5.1.1</a></span>Executable Definitions</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Executable-Definitions.Formal-Specification" class="subsec">
+<h6><a href="#sec-Executable-Definitions.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each definition <var data-name="definition">definition</var> in the document.</li>
 <li><var data-name="definition">definition</var> must be <span class="spec-nt"><a href="#OperationDefinition" data-name="OperationDefinition">OperationDefinition</a></span> or <span class="spec-nt"><a href="#FragmentDefinition" data-name="FragmentDefinition">FragmentDefinition</a></span> (it must not be <span class="spec-nt"><a href="#TypeSystemDefinition" data-name="TypeSystemDefinition">TypeSystemDefinition</a></span>).</li>
 </ul>
+</section>
 <section id="sec-Executable-Definitions.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Executable-Definitions.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL execution will only consider the executable definitions Operation and Fragment. Type system definitions and extensions are not executable, and are not considered during execution.</p>
@@ -4082,7 +4084,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Named-Operation-Definitions">5.2.1</a></span>Named Operation Definitions</h4>
 <section id="sec-Operation-Name-Uniqueness" secid="5.2.1.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Operation-Name-Uniqueness">5.2.1.1</a></span>Operation Name Uniqueness</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Operation-Name-Uniqueness.Formal-Specification" class="subsec">
+<h6><a href="#sec-Operation-Name-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each operation definition <var data-name="operation">operation</var> in the document.</li>
 <li>Let <var data-name="operationName">operationName</var> be the name of <var data-name="operation">operation</var>.</li>
@@ -4092,6 +4095,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Operation-Name-Uniqueness.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Operation-Name-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Each named operation definition must be unique within a document when referred to by its name.</p>
@@ -4145,7 +4149,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Anonymous-Operation-Definitions">5.2.2</a></span>Anonymous Operation Definitions</h4>
 <section id="sec-Lone-Anonymous-Operation" secid="5.2.2.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Lone-Anonymous-Operation">5.2.2.1</a></span>Lone Anonymous Operation</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Lone-Anonymous-Operation.Formal-Specification" class="subsec">
+<h6><a href="#sec-Lone-Anonymous-Operation.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>Let <var data-name="operations">operations</var> be all operation definitions in the document.</li>
 <li>Let <var data-name="anonymous">anonymous</var> be all anonymous operation definitions in the document.</li>
@@ -4154,6 +4159,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Lone-Anonymous-Operation.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Lone-Anonymous-Operation.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL allows a short&#8208;hand form for defining query operations when only that one operation exists in the document.</p>
@@ -4186,7 +4192,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Subscription-Operation-Definitions">5.2.3</a></span>Subscription Operation Definitions</h4>
 <section id="sec-Single-root-field" secid="5.2.3.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Single-root-field">5.2.3.1</a></span>Single root field</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Single-root-field.Formal-Specification" class="subsec">
+<h6><a href="#sec-Single-root-field.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each subscription operation definition <var data-name="subscription">subscription</var> in the document</li>
 <li>Let <var data-name="subscriptionType">subscriptionType</var> be the root Subscription type in <var data-name="schema">schema</var>.</li>
@@ -4195,6 +4202,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Do
 <li>Let <var data-name="groupedFieldSet">groupedFieldSet</var> be the result of <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>(<var data-name="subscriptionType">subscriptionType</var>, <var data-name="selectionSet">selectionSet</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
 <li><var data-name="groupedFieldSet">groupedFieldSet</var> must have exactly one entry.</li>
 </ul>
+</section>
 <section id="sec-Single-root-field.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Single-root-field.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Subscription operations must have exactly one root field.</p>
@@ -4258,12 +4266,14 @@ While each subscription must have exactly one root field, a document may contain
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Validation.Fields">5.3</a></span>Fields</h3>
 <section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types" secid="5.3.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types">5.3.1</a></span>Field Selections on Objects, Interfaces, and Unions Types</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Formal-Specification" class="subsec">
+<h6><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="selection">selection</var> in the document.</li>
 <li>Let <var data-name="fieldName">fieldName</var> be the target field of <var data-name="selection">selection</var></li>
 <li><var data-name="fieldName">fieldName</var> must be defined on type in scope</li>
 </ul>
+</section>
 <section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>The target field of a field selection must be defined on the scoped type of the selection set. There are no limitations on alias names.</p>
@@ -4309,7 +4319,8 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Field-Selection-Merging" secid="5.3.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Field-Selection-Merging">5.3.2</a></span>Field Selection Merging</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Field-Selection-Merging.Formal-Specification" class="subsec">
+<h6><a href="#sec-Field-Selection-Merging.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>Let <var data-name="set">set</var> be any selection set defined in the GraphQL document.</li>
 <li><span class="spec-call"><a href="#FieldsInSetCanMerge()" data-name="FieldsInSetCanMerge">FieldsInSetCanMerge</a>(<var data-name="set">set</var>)</span> must be true.</li>
@@ -4361,6 +4372,7 @@ While each subscription must have exactly one root field, a document may contain
 <li>Return true.</li>
 </ol>
 </div>
+</section>
 <section id="sec-Field-Selection-Merging.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Field-Selection-Merging.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>If multiple field selections with the same response names are encountered during execution, the field and arguments to execute and the resulting value should be unambiguous. Therefore any two field selections which might both be encountered for the same object are only valid if they are equivalent.</p>
@@ -4449,7 +4461,8 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Leaf-Field-Selections" secid="5.3.3">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Leaf-Field-Selections">5.3.3</a></span>Leaf Field Selections</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Leaf-Field-Selections.Formal-Specification" class="subsec">
+<h6><a href="#sec-Leaf-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="selection">selection</var> in the document</li>
 <li>Let <var data-name="selectionType">selectionType</var> be the result type of <var data-name="selection">selection</var></li>
@@ -4462,6 +4475,7 @@ While each subscription must have exactly one root field, a document may contain
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Leaf-Field-Selections.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Leaf-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Field selections on scalars or enums are never allowed, because they are the leaf nodes of any GraphQL query.</p>
@@ -4506,13 +4520,15 @@ While each subscription must have exactly one root field, a document may contain
 <p>Arguments are provided to both fields and directives. The following validation rules apply in both cases.</p>
 <section id="sec-Argument-Names" secid="5.4.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Argument-Names">5.4.1</a></span>Argument Names</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Argument-Names.Formal-Specification" class="subsec">
+<h6><a href="#sec-Argument-Names.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="argument">argument</var> in the document</li>
 <li>Let <var data-name="argumentName">argumentName</var> be the Name of <var data-name="argument">argument</var>.</li>
 <li>Let <var data-name="argumentDefinition">argumentDefinition</var> be the argument definition provided by the parent field or definition named <var data-name="argumentName">argumentName</var>.</li>
 <li><var data-name="argumentDefinition">argumentDefinition</var> must exist.</li>
 </ul>
+</section>
 <section id="sec-Argument-Names.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Argument-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Every argument provided to a field or directive must be defined in the set of possible arguments of that field or directive.</p>
@@ -4564,13 +4580,15 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <section id="sec-Argument-Uniqueness" secid="5.4.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Argument-Uniqueness">5.4.2</a></span>Argument Uniqueness</h4>
 <p>Fields and directives treat arguments as a mapping of argument name to value. More than one argument with the same name in an argument set is ambiguous and invalid.</p>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Argument-Uniqueness.Formal-Specification" class="subsec">
+<h6><a href="#sec-Argument-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="argument">argument</var> in the Document.</li>
 <li>Let <var data-name="argumentName">argumentName</var> be the Name of <var data-name="argument">argument</var>.</li>
 <li>Let <var data-name="arguments">arguments</var> be all Arguments named <var data-name="argumentName">argumentName</var> in the Argument Set which contains <var data-name="argument">argument</var>.</li>
 <li><var data-name="arguments">arguments</var> must be the set containing only <var data-name="argument">argument</var>.</li>
 </ul>
+</section>
 <section id="sec-Required-Arguments" secid="5.4.2.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Required-Arguments">5.4.2.1</a></span>Required Arguments</h5>
 <ul>
@@ -4629,13 +4647,15 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Declarations">5.5.1</a></span>Fragment Declarations</h4>
 <section id="sec-Fragment-Name-Uniqueness" secid="5.5.1.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Name-Uniqueness">5.5.1.1</a></span>Fragment Name Uniqueness</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragment-Name-Uniqueness.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragment-Name-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each fragment definition <var data-name="fragment">fragment</var> in the document</li>
 <li>Let <var data-name="fragmentName">fragmentName</var> be the name of <var data-name="fragment">fragment</var>.</li>
 <li>Let <var data-name="fragments">fragments</var> be all fragment definitions in the document named <var data-name="fragmentName">fragmentName</var>.</li>
 <li><var data-name="fragments">fragments</var> must be a set of one.</li>
 </ul>
+</section>
 <section id="sec-Fragment-Name-Uniqueness.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-Name-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragment definitions are referenced in fragment spreads by name. To avoid ambiguity, each fragment&rsquo;s name must be unique within a document.</p>
@@ -4679,12 +4699,14 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Fragment-Spread-Type-Existence" secid="5.5.1.2">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spread-Type-Existence">5.5.1.2</a></span>Fragment Spread Type Existence</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragment-Spread-Type-Existence.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragment-Spread-Type-Existence.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each named spread <var data-name="namedSpread">namedSpread</var> in the document</li>
 <li>Let <var data-name="fragment">fragment</var> be the target of <var data-name="namedSpread">namedSpread</var></li>
 <li>The target type of <var data-name="fragment">fragment</var> must be defined in the schema</li>
 </ul>
+</section>
 <section id="sec-Fragment-Spread-Type-Existence.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-Spread-Type-Existence.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragments must be specified on types that exist in the schema. This applies for both named and inline fragments. If they are not defined in the schema, the query does not validate.</p>
@@ -4720,11 +4742,13 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Fragments-On-Composite-Types" secid="5.5.1.3">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragments-On-Composite-Types">5.5.1.3</a></span>Fragments On Composite Types</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragments-On-Composite-Types.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragments-On-Composite-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="fragment">fragment</var> defined in the document.</li>
 <li>The target type of fragment must have kind <span class="spec-nt"><span data-name="UNION">UNION</span></span>, <span class="spec-nt"><span data-name="INTERFACE">INTERFACE</span></span>, or <span class="spec-nt"><span data-name="OBJECT">OBJECT</span></span>.</li>
 </ul>
+</section>
 <section id="sec-Fragments-On-Composite-Types.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragments-On-Composite-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragments can only be declared on unions, interfaces, and objects. They are invalid on scalars. They can only be applied on non&#8208;leaf fields. This rule applies to both inline and named fragments.</p>
@@ -4758,11 +4782,13 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Fragments-Must-Be-Used" secid="5.5.1.4">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragments-Must-Be-Used">5.5.1.4</a></span>Fragments Must Be Used</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragments-Must-Be-Used.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragments-Must-Be-Used.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="fragment">fragment</var> defined in the document.</li>
 <li><var data-name="fragment">fragment</var> must be the target of at least one spread in the document</li>
 </ul>
+</section>
 <section id="sec-Fragments-Must-Be-Used.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragments-Must-Be-Used.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Defined fragments must be used within a document.</p>
@@ -4785,12 +4811,14 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <p>Field selection is also determined by spreading fragments into one another. The selection set of the target fragment is unioned with the selection set at the level at which the target fragment is referenced.</p>
 <section id="sec-Fragment-spread-target-defined" secid="5.5.2.1">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spread-target-defined">5.5.2.1</a></span>Fragment spread target defined</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragment-spread-target-defined.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragment-spread-target-defined.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="namedSpread">namedSpread</var> in the document.</li>
 <li>Let <var data-name="fragment">fragment</var> be the target of <var data-name="namedSpread">namedSpread</var></li>
 <li><var data-name="fragment">fragment</var> must be defined in the document</li>
 </ul>
+</section>
 <section id="sec-Fragment-spread-target-defined.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-spread-target-defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Named fragment spreads must refer to fragments defined within the document. It is a validation error if the target of a spread is not defined.</p>
@@ -4804,7 +4832,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Fragment-spreads-must-not-form-cycles" secid="5.5.2.2">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spreads-must-not-form-cycles">5.5.2.2</a></span>Fragment spreads must not form cycles</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragment-spreads-must-not-form-cycles.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragment-spreads-must-not-form-cycles.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="fragmentDefinition">fragmentDefinition</var> in the document</li>
 <li>Let <var data-name="visited">visited</var> be the empty set.</li>
@@ -4822,6 +4851,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </li>
 </ol>
 </div>
+</section>
 <section id="sec-Fragment-spreads-must-not-form-cycles.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-spreads-must-not-form-cycles.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>The graph of fragment spreads must not form any cycles including spreading itself. Otherwise an operation could infinitely spread or infinitely execute on cycles in the underlying data.</p>
@@ -4881,7 +4911,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Fragment-spread-is-possible" secid="5.5.2.3">
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spread-is-possible">5.5.2.3</a></span>Fragment spread is possible</h5>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Fragment-spread-is-possible.Formal-Specification" class="subsec">
+<h6><a href="#sec-Fragment-spread-is-possible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="spread">spread</var> (named or inline) defined in the document.</li>
 <li>Let <var data-name="fragment">fragment</var> be the target of <var data-name="spread">spread</var></li>
@@ -4897,6 +4928,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <li>If <var data-name="type">type</var> is a union type, return the set of possible types of <var data-name="type">type</var></li>
 </ol>
 </div>
+</section>
 <section id="sec-Fragment-spread-is-possible.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-spread-is-possible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragments are declared on a type and will only apply when the runtime object type matches the type condition. They also are spread within the context of a parent type. A fragment spread is only valid if its type condition could ever apply within the parent type.</p>
@@ -5033,7 +5065,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Values">5.6</a></span>Values</h3>
 <section id="sec-Values-of-Correct-Type" secid="5.6.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Values-of-Correct-Type">5.6.1</a></span>Values of Correct Type</h4>
-<p><strong>Format Specification</strong></p>
+<section id="sec-Values-of-Correct-Type.Formal-Specification" class="subsec">
+<h6><a href="#sec-Values-of-Correct-Type.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each input Value <var data-name="value">value</var> in the document.<ul>
 <li>Let <var data-name="type">type</var> be the type expected in the position <var data-name="value">value</var> is found.</li>
@@ -5041,6 +5074,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Values-of-Correct-Type.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Values-of-Correct-Type.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Literal values must be compatible with the type expected in the position they are found as per the coercion rules defined in the Type System chapter.</p>
@@ -5072,13 +5106,15 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Input-Object-Field-Names" secid="5.6.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Field-Names">5.6.2</a></span>Input Object Field Names</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Input-Object-Field-Names.Formal-Specification" class="subsec">
+<h6><a href="#sec-Input-Object-Field-Names.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each Input Object Field <var data-name="inputField">inputField</var> in the document</li>
 <li>Let <var data-name="inputFieldName">inputFieldName</var> be the Name of <var data-name="inputField">inputField</var>.</li>
 <li>Let <var data-name="inputFieldDefinition">inputFieldDefinition</var> be the input field definition provided by the parent input object type named <var data-name="inputFieldName">inputFieldName</var>.</li>
 <li><var data-name="inputFieldDefinition">inputFieldDefinition</var> must exist.</li>
 </ul>
+</section>
 <section id="sec-Input-Object-Field-Names.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Input-Object-Field-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Every input field provided in an input object value must be defined in the set of possible fields of that input object&rsquo;s expected type.</p>
@@ -5096,7 +5132,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Input-Object-Field-Uniqueness" secid="5.6.3">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Field-Uniqueness">5.6.3</a></span>Input Object Field Uniqueness</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Input-Object-Field-Uniqueness.Formal-Specification" class="subsec">
+<h6><a href="#sec-Input-Object-Field-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each input object value <var data-name="inputObject">inputObject</var> in the document.</li>
 <li>For every <var data-name="inputField">inputField</var> in <var data-name="inputObject">inputObject</var><ul>
@@ -5106,6 +5143,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Input-Object-Field-Uniqueness.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Input-Object-Field-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Input objects must not contain more than one field of the same name, otherwise an ambiguity would exist which includes an ignored portion of syntax.</p>
@@ -5118,7 +5156,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Input-Object-Required-Fields" secid="5.6.4">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Required-Fields">5.6.4</a></span>Input Object Required Fields</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Input-Object-Required-Fields.Formal-Specification" class="subsec">
+<h6><a href="#sec-Input-Object-Required-Fields.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each Input Object in the document.<ul>
 <li>Let <var data-name="fields">fields</var> be the fields provided by that Input Object.</li>
@@ -5139,6 +5178,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Input-Object-Required-Fields.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Input-Object-Required-Fields.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Input object fields may be required. Much like a field may have required arguments, an input object may have required fields. An input field is required if it has a non&#8208;null type and does not have a default value. Otherwise, the input object field is optional.</p>
@@ -5149,13 +5189,15 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Validation.Directives">5.7</a></span>Directives</h3>
 <section id="sec-Directives-Are-Defined" secid="5.7.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-Defined">5.7.1</a></span>Directives Are Defined</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Directives-Are-Defined.Formal-Specification" class="subsec">
+<h6><a href="#sec-Directives-Are-Defined.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="directive">directive</var> in a document.</li>
 <li>Let <var data-name="directiveName">directiveName</var> be the name of <var data-name="directive">directive</var>.</li>
 <li>Let <var data-name="directiveDefinition">directiveDefinition</var> be the directive named <var data-name="directiveName">directiveName</var>.</li>
 <li><var data-name="directiveDefinition">directiveDefinition</var> must exist.</li>
 </ul>
+</section>
 <section id="sec-Directives-Are-Defined.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Directives-Are-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL servers define what directives they support. For each usage of a directive, the directive must be available on that server.</p>
@@ -5163,7 +5205,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Directives-Are-In-Valid-Locations" secid="5.7.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-In-Valid-Locations">5.7.2</a></span>Directives Are In Valid Locations</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Directives-Are-In-Valid-Locations.Formal-Specification" class="subsec">
+<h6><a href="#sec-Directives-Are-In-Valid-Locations.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="directive">directive</var> in a document.</li>
 <li>Let <var data-name="directiveName">directiveName</var> be the name of <var data-name="directive">directive</var>.</li>
@@ -5172,6 +5215,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <li>Let <var data-name="adjacent">adjacent</var> be the AST node the directive affects.</li>
 <li><var data-name="adjacent">adjacent</var> must be represented by an item within <var data-name="locations">locations</var>.</li>
 </ul>
+</section>
 <section id="sec-Directives-Are-In-Valid-Locations.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Directives-Are-In-Valid-Locations.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL servers define what directives they support and where they support them. For each usage of a directive, the directive must be used in a location that the server has declared support for.</p>
@@ -5184,7 +5228,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Directives-Are-Unique-Per-Location" secid="5.7.3">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-Unique-Per-Location">5.7.3</a></span>Directives Are Unique Per Location</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Directives-Are-Unique-Per-Location.Formal-Specification" class="subsec">
+<h6><a href="#sec-Directives-Are-Unique-Per-Location.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="location">location</var> in the document for which Directives can apply:<ul>
 <li>Let <var data-name="directives">directives</var> be the set of Directives which apply to <var data-name="location">location</var> and are not repeatable.</li>
@@ -5197,6 +5242,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Directives-Are-Unique-Per-Location.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Directives-Are-Unique-Per-Location.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Directives are used to describe some metadata or behavioral change on the definition they apply to. When more than one directive of the same name is used, the expected metadata or behavior becomes ambiguous, therefore only one of each directive is allowed per location.</p>
@@ -5222,7 +5268,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Validation.Variables">5.8</a></span>Variables</h3>
 <section id="sec-Variable-Uniqueness" secid="5.8.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Variable-Uniqueness">5.8.1</a></span>Variable Uniqueness</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Variable-Uniqueness.Formal-Specification" class="subsec">
+<h6><a href="#sec-Variable-Uniqueness.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="operation">operation</var> in the document<ul>
 <li>For every <var data-name="variable">variable</var> defined on <var data-name="operation">operation</var><ul>
@@ -5234,6 +5281,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Variable-Uniqueness.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Variable-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>If any operation defines more than one variable with the same name, it is ambiguous and invalid. It is invalid even if the type of the duplicate variable is the same.</p>
@@ -5262,7 +5310,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-Variables-Are-Input-Types" secid="5.8.2">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Variables-Are-Input-Types">5.8.2</a></span>Variables Are Input Types</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-Variables-Are-Input-Types.Formal-Specification" class="subsec">
+<h6><a href="#sec-Variables-Are-Input-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="operation">operation</var> in a <var data-name="document">document</var></li>
 <li>For every <var data-name="variable">variable</var> on each <var data-name="operation">operation</var><ul>
@@ -5271,6 +5320,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-Variables-Are-Input-Types.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Variables-Are-Input-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variables can only be input types. Objects, unions, and interfaces cannot be used as inputs.</p>
@@ -5320,7 +5370,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-All-Variable-Uses-Defined" secid="5.8.3">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-All-Variable-Uses-Defined">5.8.3</a></span>All Variable Uses Defined</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-All-Variable-Uses-Defined.Formal-Specification" class="subsec">
+<h6><a href="#sec-All-Variable-Uses-Defined.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="operation">operation</var> in a document<ul>
 <li>For each <var data-name="variableUsage">variableUsage</var> in scope, variable must be in <var data-name="operation">operation</var>&lsquo;s variable list.</li>
@@ -5332,6 +5383,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </ul>
 </li>
 </ul>
+</section>
 <section id="sec-All-Variable-Uses-Defined.Explanatory-Text" class="subsec">
 <h6><a href="#sec-All-Variable-Uses-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variables are scoped on a per&#8208;operation basis. That means that any variable used within the context of an operation must be defined at the top level of that operation</p>
@@ -5429,12 +5481,14 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-All-Variables-Used" secid="5.8.4">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-All-Variables-Used">5.8.4</a></span>All Variables Used</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-All-Variables-Used.Formal-Specification" class="subsec">
+<h6><a href="#sec-All-Variables-Used.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For every <var data-name="operation">operation</var> in the document.</li>
 <li>Let <var data-name="variables">variables</var> be the variables defined by that <var data-name="operation">operation</var></li>
 <li>Each <var data-name="variable">variable</var> in <var data-name="variables">variables</var> must be used at least once in either the operation scope itself or any fragment transitively referenced by that operation.</li>
 </ul>
+</section>
 <section id="sec-All-Variables-Used.Explanatory-Text" class="subsec">
 <h6><a href="#sec-All-Variables-Used.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>All variables defined by an operation must be used in that operation or a fragment transitively included by that operation. Unused variables cause a validation error.</p>
@@ -5492,7 +5546,8 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 </section>
 <section id="sec-All-Variable-Usages-are-Allowed" secid="5.8.5">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-All-Variable-Usages-are-Allowed">5.8.5</a></span>All Variable Usages are Allowed</h4>
-<p><strong>Formal Specification</strong></p>
+<section id="sec-All-Variable-Usages-are-Allowed.Formal-Specification" class="subsec">
+<h6><a href="#sec-All-Variable-Usages-are-Allowed.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="operation">operation</var> in <var data-name="document">document</var>:</li>
 <li>Let <var data-name="variableUsages">variableUsages</var> be all usages transitively included in the <var data-name="operation">operation</var>.</li>
@@ -5543,6 +5598,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
 <li>Return <span class="spec-keyword">true</span> if <var data-name="variableType">variableType</var> and <var data-name="locationType">locationType</var> are identical, otherwise <span class="spec-keyword">false</span>.</li>
 </ol>
 </div>
+</section>
 <section id="sec-All-Variable-Usages-are-Allowed.Explanatory-Text" class="subsec">
 <h6><a href="#sec-All-Variable-Usages-are-Allowed.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variable usages must be compatible with the arguments they are passed to.</p>
