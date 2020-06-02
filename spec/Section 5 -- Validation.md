@@ -1295,11 +1295,11 @@ fragment resourceFragment on Resource {
 
 ### Values of Correct Type
 
-**Format Specification**
+**Formal Specification**
 
-  * For each input Value {value} in the document.
-    * Let {type} be the type expected in the position {value} is found.
-    * {value} must be coercible to {type}.
+* For each input Value {value} in the document.
+  * Let {type} be the type expected in the position {value} is found.
+  * {value} must be coercible to {type}.
 
 **Explanatory Text**
 
