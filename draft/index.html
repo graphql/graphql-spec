@@ -2199,7 +2199,7 @@ The same two methods of representing the lack of a value are possible via variab
 <div class="spec-production" id="DefaultValue">
 <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span><div class="spec-rhs"><span class="spec-t">=</span><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param">Const</span></span></span></div>
 </div>
-<p>A GraphQL query can be parameterized with variables, maximizing query reuse, and avoiding costly string building in clients at runtime.</p>
+<p>A GraphQL operation can be parameterized with variables, maximizing reuse, and avoiding costly string building in clients at runtime.</p>
 <p>If not defined as constant (for example, in <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span>), a <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span> can be supplied for an input value.</p>
 <p>Variables must be defined at the top of an operation and are in scope throughout the execution of that operation.</p>
 <p>In this example, we want to fetch a profile picture size based on the size of a particular device:</p>
