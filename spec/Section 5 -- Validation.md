@@ -569,7 +569,7 @@ fragment conflictingDifferingResponses on Pet {
   * If {selectionType} is a scalar or enum:
     * The subselection set of that selection must be empty
   * If {selectionType} is an interface, union, or object
-    * The subselection set of that selection must NOT BE empty
+    * The subselection set of that selection must exist, but CAN BE empty
 
 **Explanatory Text**
 
@@ -621,6 +621,14 @@ query directQueryOnInterfaceWithoutSubFields {
 
 query directQueryOnUnionWithoutSubFields {
   catOrDog
+}
+```
+
+However, an empty selection is valid
+
+```graphql example
+query directQueryOnObjectWithEmptySubFields {
+  catOrDog {}
 }
 ```
 
