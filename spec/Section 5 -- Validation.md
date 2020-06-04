@@ -1,7 +1,7 @@
 # Validation
 
 GraphQL does not just verify if a request is syntactically correct, but also
-ensures that it is unambiguous and mistake-free in the context of a given
+ensures that it is unambiguous and mistakes-free in the context of a given
 GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
@@ -21,7 +21,7 @@ point in time.
 
 **Type system evolution**
 
-As GraphQL type system schema evolve over time by adding new types and new
+As GraphQL type system schema evolves over time by adding new types and new
 fields, it is possible that a request which was previously valid could later
 become invalid. Any change that can cause a previously valid request to become
 invalid is considered a *breaking change*. GraphQL services and schema
@@ -692,7 +692,7 @@ extend type Query {
 }
 ```
 
-Order does not matter in arguments. Therefore both the following example are valid.
+Order does not matter in arguments. Therefore both the following examples are valid.
 
 ```graphql example
 fragment multipleArgs on Arguments {
@@ -1243,7 +1243,7 @@ fragment dogOrHumanFragment on DogOrHuman {
 }
 ```
 
-is consider valid because {Dog} implements interface {Pet} and is a
+is considered valid because {Dog} implements interface {Pet} and is a
 member of {DogOrHuman}.
 
 However
@@ -1918,7 +1918,7 @@ query intCannotGoIntoBoolean($intArg: Int) {
 }
 ```
 
-${intArg} typed as {Int} cannot be used as a argument to {booleanArg}, typed as {Boolean}.
+${intArg} typed as {Int} cannot be used as an argument to {booleanArg}, typed as {Boolean}.
 
 List cardinality must also be the same. For example, lists cannot be passed into singular
 values.
@@ -1990,7 +1990,7 @@ In the example below, an optional variable `$booleanArg` is allowed to be used
 in the non-null argument (`nonNullBooleanArg`) because the variable provides
 a default value in the query. This behavior is explicitly supported for
 compatibility with earlier editions of this specification. GraphQL authoring
-tools may wish to report this is a warning with the suggestion to replace
+tools may wish to report this as a warning with the suggestion to replace
 `Boolean` with `Boolean!` to avoid ambiguity.
 
 ```graphql example
@@ -2001,5 +2001,5 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 }
 ```
 
-Note: The value {null} could still be provided to a such a variable at runtime.
+Note: The value {null} could still be provided to such a variable at runtime.
 A non-null argument must produce a field error if provided a {null} value.
