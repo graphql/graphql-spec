@@ -4,12 +4,12 @@ GraphQL is still an evolving language. This repository contains the
 specification text as well as Pull Requests with suggested improvements and
 contributions.
 
-Contributions which do not change the interpretation of the spec but instead
+Contributions that do not change the interpretation of the spec but instead
 improve legibility, fix editorial errors, clear up ambiguity and improve
 examples are encouraged and are often merged by a spec editor with
 little process.
 
-However, contributions which do meaningfully change the interpretation of the
+However, contributions that _do_ meaningfully change the interpretation of the
 spec must follow an RFC (Request For Comments) process led by a *champion*
 through a series of *stages* intended to improve *visibility*, allow for
 *discussion* to reach the best solution, and arrive at *consensus*. This process
@@ -35,9 +35,9 @@ or RFC *draft*. In fact, a spec contribution RFC won't be *accepted* until it
 has experience being implemented in a GraphQL library.
 
 To allow a library to remain spec compliant while also implementing *proposals*
-and *drafts*, it may request that these features are built so they are disabled
-by default with opt-in option flags or it may simply wait to merge a well-tested
-pull request until the spec proposal is *accepted*.
+and *drafts*, the library's maintainers may request that these new features are
+disabled by default with opt-in option flags or they may simply wait to merge a
+well-tested pull request until the spec proposal is *accepted*.
 
 
 ## Guiding Principles
@@ -56,9 +56,9 @@ move forward. See editor Lee Byron talk about
 
 * **Performance is a feature**
 
-  GraphQL typically avoids syntax or behaviors which could place burden on
-  runtime efficiency or make demands of a GraphQL service it cannot
-  efficiently fulfill.
+  GraphQL typically avoids syntax or behaviors that could jeopardize runtime
+  efficiency, or that make demands of GraphQL services which cannot efficiently
+  be fulfilled.
 
 * **Favor no change**
 
@@ -70,21 +70,21 @@ move forward. See editor Lee Byron talk about
 * **Enable new capabilities motivated by real use cases**
 
   Every change should intend on unlocking a real and reasonable use case. Real
-  examples are always more interesting than theoretical ones, and common
-  scenarios are more interesting than rare ones. RFCs should do more than offer
+  examples are always more compelling than theoretical ones, and common
+  scenarios are more compelling than rare ones. RFCs should do more than offer
   a different way to reach an already achievable outcome.
 
 * **Simplicity and consistency over expressiveness and terseness**
 
-  There are plenty of behaviors and patterns found in other languages
-  intentionally absent from GraphQL. "Possible but awkward" is often favored
-  over more complex alternatives. Simplicity (e.g. fewer concepts) is
-  more important than expressing more sophisticated ideas or writing less.
+  Plenty of behaviors and patterns found in other languages are intentionally
+  absent from GraphQL. "Possible but awkward" is often favored over more complex
+  alternatives. Simplicity (e.g. fewer concepts) is more important than
+  expressing more sophisticated ideas or writing less.
 
 * **Preserve option value**
 
-  It's hard to know what the future brings, so whenever possible decisions
-  should be made which allow for more options in the future. Sometimes this is
+  It's hard to know what the future brings; whenever possible, decisions should
+  be made that allow for more options in the future. Sometimes this is
   unintuitive: spec rules often begin more strict than necessary with a future
   option to loosen when motivated by a real use case.
 
@@ -113,9 +113,9 @@ be *rejected*.
 RFCs are guided by a *champion* through a series of stages: *strawman*,
 *proposal*, *draft*, and *accepted* (or *rejected*), each of which has suggested
 entrance criteria and next steps detailed below. RFCs typically advance one
-stage at a time, however may advance multiple stages at a time. Stage
+stage at a time, but may advance multiple stages at a time. Stage
 advancements typically occur during
-[Working Group](https://github.com/graphql/graphql-wg) meetings, however may
+[Working Group](https://github.com/graphql/graphql-wg) meetings, but may also
 occur on GitHub.
 
 In general, it's preferable to start with a pull request so that we can best
@@ -126,7 +126,7 @@ All RFCs start as either a *strawman* or *proposal*.
 
 ## Stage 0: *Strawman*
 
-A RFC at the *strawman* stage captures a described problem or
+An RFC at the *strawman* stage captures a described problem or
 partially-considered solutions. A *strawman* does not need to meet any entrance
 criteria. A *strawman's* goal is to prove or disprove a problem and guide
 discussion towards either rejection or a preferred solution. A *strawman* may
@@ -147,8 +147,8 @@ criteria for *proposal*.
 ## Stage 1: *Proposal*
 
 An RFC at the *proposal* stage is a solution to a problem with enough fidelity
-to be discussed in detail. It must be backed by a willing *champion*.
-A *proposal*'s goal is to make a compelling case for acceptance by describing
+to be discussed in detail. It must be backed by a willing *champion*. A
+*proposal*'s goal is to make a compelling case for acceptance by describing
 both the problem and the solution via examples and spec edits. A *proposal*
 should be a pull request.
 
@@ -177,9 +177,9 @@ libraries *may* implement *proposals*, though are encouraged to not enable the
 ## Stage 2: *Draft*
 
 An RFC at the *draft* stage is a fully formed solution. There is working group
-consensus that the problem identified should be solved, and this particular
-solution is preferred. A *draft's* goal is to precisely and completely describe
-the solution and resolve any concerns through library implementations. A *draft*
+consensus the problem identified should be solved, and this particular solution
+is preferred. A *draft's* goal is to precisely and completely describe the
+solution and resolve any concerns through library implementations. A *draft*
 must be a pull request.
 
 *Entrance criteria:*
@@ -215,12 +215,13 @@ implemented in GraphQL.js.
 * Complete spec edits, including examples and prose
 * Compliant implementation in GraphQL.js (fully tested and merged or ready to merge)
 
-A *draft* is *accepted* when it has learned via implementation and tests that it
-appropriately handles all edge cases, that the spec edits do not only precisely
-describe the new syntax and semantics but include motivating prose, examples,
-and include edits to any other affected areas of the spec. Once *accepted*, a
-*champion* should encourage adoption of the RFC by opening issues or pull
-requests on other popular GraphQL libraries.
+A *draft* is *accepted* when the working group or editor has been convinced via
+implementations and tests that it appropriately handles all edge cases; that the
+spec changes not only precisely describe the new syntax and semantics but
+include sufficient motivating prose and examples; and that the RFC includes
+edits to any other affected areas of the spec. Once *accepted*, its *champion*
+should encourage adoption of the RFC by opening issues or pull requests on other
+popular GraphQL libraries.
 
 An *accepted* RFC is merged into the GraphQL spec's master branch by an editor
 and will be included in the next released revision.
@@ -228,9 +229,9 @@ and will be included in the next released revision.
 
 ## Stage X: *Rejected*
 
-An RFC may be *rejected* at any point and for any reason. Most often because a
-*strawman* was proven to be unnecessary, was not aligned with the *guiding
-principles*, or failed to meet the entrance criteria to become a *proposal*.
+An RFC may be *rejected* at any point and for any reason. Most rejections occur
+when a *strawman* is proven to be unnecessary, is misaligned with the *guiding
+principles*, or fails to meet the entrance criteria to become a *proposal*.
 A *proposal* may become *rejected* for similar reasons as well as if it fails to
 reach consensus or loses the confidence of its *champion*. Likewise a *draft*
 may encounter unforeseen issues during implementations which cause it to lose
