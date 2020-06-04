@@ -1,7 +1,7 @@
 # Validation
 
 GraphQL does not just verify if a request is syntactically correct, but also
-ensures that it is unambiguous and mistakes-free in the context of a given
+ensures that it is unambiguous and mistake-free in the context of a given
 GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
