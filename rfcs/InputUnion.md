@@ -231,7 +231,7 @@ Adding a new member type to an Input Union or doing any non-breaking change to e
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ⚠ | 🚫 | ⚠️ | ✅ |
+| ✅ | ✅⚠️ | 🚫 | ⚠️ | ✅ |
 
 Criteria score: 🥇
 
@@ -325,7 +325,7 @@ input union IU = { x: String } | { y: Int }
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| ✅ | ✅ | ✅ | ⚠️ | ✅ |
 
 Criteria score: 🥉
 
@@ -350,7 +350,7 @@ The less typing and fewer bytes transmitted, the better.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ✅ |
+| ✅ | ⚠️ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥉
 
@@ -358,12 +358,9 @@ Criteria score: 🥉
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
-* ✂️ Objection: None of the solutions discussed so far do anything that is computationally expensive.
-
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅ | ✅ | ✅⚠️ | ✅⚠️ | ✅ |
-| O(1) | O(1) | O(N of members) | O(N of members) | O(1) |
+| ✅ | ✅ | ⚠️ | ⚠️ | ✅ |
 
 Criteria score: 🥉
 
@@ -473,13 +470,14 @@ type Mutation {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ Discriminator field only needed when used in union
+  * ✅ Compresses well, as the field name is always the same
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ✅ O(1)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ✅ Adding or removing an input type to a union has no extraneous effects on schema design
 
@@ -583,13 +581,13 @@ inputunion AnimalInput @discriminator(field: "species") =
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ⚠️ Input types that are part of an input union always have to contain the non-null discriminator
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ✅ O(1)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * 🚫 Adding an input type to a union requires that it has the non-null discriminator field
      * The input might already have a field with the same name, but a different type
@@ -674,13 +672,13 @@ type Mutation {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ No overhead
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ⚠️ O(N of members)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ❔ Not evaluated
 
@@ -767,13 +765,13 @@ input DogInput {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ No overhead
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ⚠️ O(N of members)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * 🚫 Input types with similar fields may not be able to be combined without breaking changes
 
@@ -870,18 +868,18 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | -- | -- | -- | -- | -- | -- |
 | [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [C][criteria-c] 🥇 | ✅ | ✅⚠️ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
 | [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
-| [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [I][criteria-i] 🥉 | ✅ | ✅ | ✅ | ⚠️ | ✅ |
 | [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [K][criteria-k] 🥉 | ✅ | ⚠️ | ✅ | ✅ | ✅ |
+| [L][criteria-l] 🥉 | ✅ | ✅ | ⚠️ | ⚠️ | ✅ |
 | [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
-| [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [N][criteria-n] 🥈 | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ |
 | [O][criteria-o] 🥈 | ✅️ | 🚫️ | ❔ | 🚫 | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
