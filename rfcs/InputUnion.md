@@ -870,7 +870,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | -- | -- | -- | -- | -- | -- |
 | [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [C][criteria-c] 🥇 | ✅ | ⚠️ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
 | [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
@@ -878,10 +878,10 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
 | [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [K][criteria-k] 🥉 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [L][criteria-l] 🥉 | ✅ | ✅ | ✅⚠️ | ✅⚠️ | ✅ |
 | [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
-| [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
+| [N][criteria-n] 🥈 | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ |
 | [O][criteria-o] 🥈 | ✅️ | 🚫️ | ❔ | 🚫 | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
