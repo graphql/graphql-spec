@@ -320,10 +320,21 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a
 response map.
 
+GetSingleTaggedFieldName(objectType, objectValue):
+
+  * If {objectType} is not a Tagged type, return {null}.
+  * Let {keys} be the keys of {objectValue} that are field names of {objectType}.
+  * If the length of {keys} is not 1:
+    * Throw a field error.
+  * Let {key} be the first entry in {keys}
+  * Return {key}.
+
+
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
+  * Let {singleTaggedFieldName} be {GetSingleTaggedFieldName}(objectType, objectValue)}.
   * Let {groupedFieldSet} be the result of
-    {CollectFields(objectType, selectionSet, variableValues)}.
+    {CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName)}.
   * Initialize {resultMap} to an empty ordered map.
   * For each {groupedFieldSet} as {responseKey} and {fields}:
     * Let {fieldName} be the name of the first entry in {fields}.
@@ -477,8 +488,9 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, visitedFragments):
 
+  * If {singleTaggedFieldName} is not provided, initialize it to {null}.
   * If {visitedFragments} if not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
@@ -489,6 +501,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       * If {includeDirective}'s {if} argument is not {true} and is not a variable in {variableValues} with the value {true}, continue with the next
       {selection} in {selectionSet}.
     * If {selection} is a {Field}:
+      * Let {fieldName} be the field name.
+      * If {singleTaggedFieldName} is not null and {singleTaggedFieldName} is not {fieldName}, continue with the next {selection} in {selectionSet}.
       * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
@@ -507,7 +521,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
       * Let {fragmentGroupedFieldSet} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, singleTaggedFieldName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -518,7 +532,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       * If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, visitedFragments)}.
+      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, singleTaggedFieldName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -529,6 +543,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 DoesFragmentTypeApply(objectType, fragmentType):
 
   * If {fragmentType} is an Object Type:
+    * if {objectType} and {fragmentType} are the same type, return {true}, otherwise return {false}.
+  * If {fragmentType} is a Tagged Type:
     * if {objectType} and {fragmentType} are the same type, return {true}, otherwise return {false}.
   * If {fragmentType} is an Interface Type:
     * if {objectType} is an implementation of {fragmentType}, return {true} otherwise return {false}.
@@ -636,8 +652,8 @@ execution flow.
 ### Value Completion
 
 After resolving the value for a field, it is completed by ensuring it adheres
-to the expected return type. If the return type is another Object type, then
-the field execution process continues recursively.
+to the expected return type. If the return type is another Object or Tagged
+type, then the field execution process continues recursively.
 
 CompleteValue(fieldType, fields, result, variableValues):
   * If the {fieldType} is a Non-Null type:
@@ -657,8 +673,8 @@ CompleteValue(fieldType, fields, result, variableValues):
   * If {fieldType} is a Scalar or Enum type:
     * Return the result of "coercing" {result}, ensuring it is a legal value of
       {fieldType}, otherwise {null}.
-  * If {fieldType} is an Object, Interface, or Union type:
-    * If {fieldType} is an Object type.
+  * If {fieldType} is an Object, Interface, Union or Tagged type:
+    * If {fieldType} is an Object type or Tagged type.
       * Let {objectType} be {fieldType}.
     * Otherwise if {fieldType} is an Interface or Union type.
       * Let {objectType} be {ResolveAbstractType(fieldType, result)}.

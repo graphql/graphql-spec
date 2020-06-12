@@ -91,7 +91,8 @@ warnings.
 
 GraphQL supports type name introspection at any point within a query by the
 meta-field `__typename: String!` when querying against any Object, Interface,
-or Union. It returns the name of the object type currently being queried.
+Union or Tagged. It returns the name of the object or tagged type currently
+being queried.
 
 This is most often used when querying against Interface or Union types to
 identify which actual type of the possible types has been returned.
@@ -130,7 +131,7 @@ type __Type {
   name: String
   description: String
 
-  # should be non-null for OBJECT and INTERFACE only, must be null for the others
+  # should be non-null for OBJECT, INTERFACE and TAGGED only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
 
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
@@ -179,6 +180,7 @@ enum __TypeKind {
   UNION
   ENUM
   INPUT_OBJECT
+  TAGGED
   LIST
   NON_NULL
 }
@@ -206,6 +208,7 @@ enum __DirectiveLocation {
   ARGUMENT_DEFINITION
   INTERFACE
   UNION
+  TAGGED
   ENUM
   ENUM_VALUE
   INPUT_OBJECT
@@ -216,8 +219,9 @@ enum __DirectiveLocation {
 
 ### The __Type Type
 
-`__Type` is at the core of the type introspection system.
-It represents scalars, interfaces, object types, unions, enums in the system.
+`__Type` is at the core of the type introspection system.  It represents
+scalars, interfaces, object types, unions, enums and tagged types in the
+system.
 
 `__Type` also represents type modifiers, which are used to modify a type
 that it refers to (`ofType: __Type`). This is how we represent lists,
@@ -296,6 +300,25 @@ Fields
 * `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
+* All other fields must return {null}.
+
+
+#### Tagged
+
+Tagged types are an abstract type where exactly one field out of a list of
+potential fields must be present. The possible fields of a tagged type are
+explicitly listed out in `fields`. No modification of a type is necessary to
+use it as the field type of a tagged type.
+
+Fields
+
+* `kind` must return `__TypeKind.TAGGED`.
+* `name` must return a String.
+* `description` may return a String or {null}.
+* `fields`: The set of fields query-able on this type.
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
+  * All fields present must have zero arguments.
 * All other fields must return {null}.
 
 

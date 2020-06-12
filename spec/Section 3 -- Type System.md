@@ -242,6 +242,7 @@ TypeDefinition :
   - UnionTypeDefinition
   - EnumTypeDefinition
   - InputObjectTypeDefinition
+  - TaggedTypeDefinition
 
 The fundamental unit of any GraphQL Schema is the type. There are six kinds
 of named type definitions in GraphQL, and two wrapping types.
@@ -255,7 +256,7 @@ Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another
 type in the system, allowing the definition of arbitrary type hierarchies.
 
-GraphQL supports two abstract types: interfaces and unions.
+GraphQL supports three abstract types: interfaces, unions and tagged types.
 
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
@@ -265,6 +266,10 @@ valid implementing Object type during execution.
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
+
+A `Tagged Type` defines a list of possible fields; whenever the type system
+references a tagged type, exactly one of the possible fields must be present
+and all others must be omitted.
 
 Finally, oftentimes it is useful to provide complex structs as inputs to
 GraphQL field arguments or variables; the `Input Object` type allows the schema
@@ -297,13 +302,19 @@ like Scalar and Enum types, can be used as both input types and output types;
 other kinds of types can only be used in one or the other. Input Object types can
 only be used as input types. Object, Interface, and Union types can only be used
 as output types. Lists and Non-Null types may be used as input types or output
-types depending on how the wrapped type may be used.
+types depending on how the wrapped type may be used. Tagged types may be used
+as input types or output types depending on how the types of their fields may
+be used.
 
 IsInputType(type) :
   * If {type} is a List type or Non-Null type:
     * Let {unwrappedType} be the unwrapped type of {type}.
     * Return IsInputType({unwrappedType})
   * If {type} is a Scalar, Enum, or Input Object type:
+    * Return {true}
+  * If {type} is a Tagged type:
+    * If there exists a field in {type} where {IsInputType(fieldType)} is {false}
+      * Return {false}
     * Return {true}
   * Return {false}
 
@@ -312,6 +323,10 @@ IsOutputType(type) :
     * Let {unwrappedType} be the unwrapped type of {type}.
     * Return IsOutputType({unwrappedType})
   * If {type} is a Scalar, Object, Interface, Union, or Enum type:
+    * Return {true}
+  * If {type} is a Tagged type:
+    * If there exists a field in {type} where {IsOutputType(fieldType)} is {false}
+      * Return {false}
     * Return {true}
   * Return {false}
 
@@ -325,6 +340,7 @@ TypeExtension :
   - UnionTypeExtension
   - EnumTypeExtension
   - InputObjectTypeExtension
+  - TaggedTypeExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
 from some original type. For example, this might be used by a local service to
@@ -645,9 +661,9 @@ Must only yield exactly that subset:
 }
 ```
 
-A field of an Object type may be a Scalar, Enum, another Object type,
-an Interface, or a Union. Additionally, it may be any wrapping type whose
-underlying base type is one of those five.
+A field of an Object type may be a Scalar, Enum, another Object type, an
+Interface, a Union or a Tagged type. Additionally, it may be any wrapping type
+whose underlying base type is one of those five.
 
 For example, the `Person` type might include a `relationship`:
 
@@ -914,8 +930,8 @@ May yield the result:
 }
 ```
 
-The type of an object field argument must be an input type (any type except an
-Object, Interface, or Union type).
+The type of an object field argument must be an input type (any type for which
+{IsInputType(type)} returns true).
 
 
 ### Field Deprecation
@@ -988,9 +1004,10 @@ GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
 the implementing type will define all fields defined by those interfaces.
 
-Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
-their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
-type whose base type is one of those five.
+Fields on a GraphQL interface have the same rules as fields on a GraphQL
+object; their type can be Scalar, Object, Enum, Interface, Union, Tagged types
+where {IsOutputType(type)} returns {true}, or any wrapping type whose base type
+is one of those six.
 
 For example, an interface `NamedEntity` may describe a required field and types
 such as `Person` or `Business` may then implement this interface to guarantee
@@ -1319,8 +1336,8 @@ Union types have the potential to be invalid if incorrectly defined.
 
 1. A Union type must include one or more unique member types.
 2. The member types of a Union type must all be Object base types;
-   Scalar, Interface and Union types must not be member types of a Union.
-   Similarly, wrapping types must not be member types of a Union.
+   Scalar, Interface, Union and Tagged types must not be member types of a
+   Union.  Similarly, wrapping types must not be member types of a Union.
 
 
 ### Union Extensions
@@ -1340,8 +1357,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Union type.
 2. The member types of a Union type extension must all be Object base types;
-   Scalar, Interface and Union types must not be member types of a Union.
-   Similarly, wrapping types must not be member types of a Union.
+   Scalar, Interface, Union and Tagged types must not be member types of a
+   Union.  Similarly, wrapping types must not be member types of a Union.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
    the original Union type.
@@ -1428,9 +1445,10 @@ InputFieldsDefinition : { InputValueDefinition+ }
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
-A GraphQL Input Object defines a set of input fields; the input fields are either
-scalars, enums, or other input objects. This allows arguments to accept
-arbitrarily complex structs.
+A GraphQL Input Object defines a set of input fields; the input fields are
+either scalars, enums, other input objects, or Tagged types for which
+{IsInputType(type)} returns {true}. This allows arguments to accept arbitrarily
+complex structs.
 
 In this example, an Input Object called `Point2D` describes `x` and `y` inputs:
 
@@ -1747,6 +1765,7 @@ TypeSystemDirectiveLocation : one of
   `ENUM_VALUE`
   `INPUT_OBJECT`
   `INPUT_FIELD_DEFINITION`
+  `TAGGED`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently

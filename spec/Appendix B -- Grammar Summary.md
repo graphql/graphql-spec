@@ -233,6 +233,7 @@ TypeDefinition :
   - ObjectTypeDefinition
   - InterfaceTypeDefinition
   - UnionTypeDefinition
+  - TaggedTypeDefinition
   - EnumTypeDefinition
   - InputObjectTypeDefinition
 
@@ -241,6 +242,7 @@ TypeExtension :
   - ObjectTypeExtension
   - InterfaceTypeExtension
   - UnionTypeExtension
+  - TaggedTypeExtension
   - EnumTypeExtension
   - InputObjectTypeExtension
 
@@ -264,6 +266,8 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
+TaggedFieldDefinition : Description? Name : Type Directives[Const]?
+
 ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
@@ -284,6 +288,14 @@ UnionMemberTypes :
 UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
+
+TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedFieldsDefinition?
+
+TaggedFieldsDefinition : { TaggedFieldDefinition+ }
+
+TaggedTypeExtension :
+  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]
 
 EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
 
@@ -331,6 +343,7 @@ TypeSystemDirectiveLocation : one of
   `ARGUMENT_DEFINITION`
   `INTERFACE`
   `UNION`
+  `TAGGED`
   `ENUM`
   `ENUM_VALUE`
   `INPUT_OBJECT`
