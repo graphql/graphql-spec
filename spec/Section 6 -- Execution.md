@@ -502,7 +502,9 @@ CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, v
       {selection} in {selectionSet}.
     * If {selection} is a {Field}:
       * Let {fieldName} be the field name.
-      * If {singleTaggedFieldName} is not null and {singleTaggedFieldName} is not {fieldName}, continue with the next {selection} in {selectionSet}.
+      * If {singleTaggedFieldName} is not null:
+        * If {fieldName} is not {singleTaggedFieldName} and {fieldName} is not an introspection field (beginning with the characters {"__"} (two underscores)):
+          * Continue with the next {selection} in {selectionSet}.
       * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.

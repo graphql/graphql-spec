@@ -663,7 +663,7 @@ Must only yield exactly that subset:
 
 A field of an Object type may be a Scalar, Enum, another Object type, an
 Interface, a Union or a Tagged type. Additionally, it may be any wrapping type
-whose underlying base type is one of those five.
+whose underlying base type is one of those six.
 
 For example, the `Person` type might include a `relationship`:
 
@@ -810,8 +810,8 @@ Produces the ordered result:
 
 **Result Coercion**
 
-Determining the result of coercing an object is the heart of the GraphQL
-executor, so this is covered in that section of the spec.
+Determining the result of coercing an object or tagged type is the heart of the
+GraphQL executor, so this is covered in that section of the spec.
 
 **Input Coercion**
 
@@ -1364,6 +1364,200 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the original Union type.
 5. Any non-repeatable directives provided must not already apply to the
    original Union type.
+
+
+## Tagged Types
+
+TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedFieldsDefinition?
+
+TaggedTypeExtension :
+  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]
+
+TaggedFieldsDefinition : { TaggedFieldDefinition+ }
+
+TaggedFieldDefinition : Description? Name : Type Directives[Const]?
+
+Tagged types represent a list of possible named fields, exactly one of which
+must be present. This resulting field must yield a value of a specific type.
+In outputs, like for Objects, Tagged types should be serialized as ordered
+maps: the queried field names (or aliases) that are present are the keys and
+the result of evaluating the field is the value, ordered by the order in which
+they appear in the query. Note that Tagged types may be objects with more than
+one key even though they guarantee that exactly one field is present, this is
+because aliases may be used, and `__typename` may also be queried.
+
+All fields defined within a Tagged type must not have a name which begins with
+{"__"} (two underscores), as this is used exclusively by GraphQL's
+introspection system.
+
+For example, a type `StringFilter` could be described as:
+
+```graphql example
+tagged StringFilter {
+  contains: String!
+  lengthAtLeast: Int!
+  lengthAtMost: Int!
+}
+```
+
+In this case we're representing exactly one of the following:
+
+- an object containing a single key `contains` with a {String} value
+- an object containing a single key `lengthAtLeast` with an {Int} value
+- an object containing a single key `lengthAtMost` with an {Int} value
+
+The `StringFilter` Tagged type is valid as both an input and output type, but
+this is not true of all tagged types. If a Tagged type has a field whose type
+is only valid for output, then the Tagged type is only valid for output. If a
+Tagged type has a field whose type is only valid for input, then the Tagged
+type is only valid for input. If a Tagged type has a field that is only valid
+for input, and another field that's only valid for output, then it is not a
+valid Tagged type.
+
+A field of a Tagged type may be a Scalar, Enum, Object type, an Interface, a
+Union or another Tagged type. Additionally, it may be any wrapping type whose
+underlying base type is one of those six.
+
+Selecting all the fields of our `StringFilter` type:
+
+```graphql example
+{
+  contains
+  lengthAtLeast
+  lengthAtMost
+}
+```
+
+Could yield one of the following objects:
+
+- `{ "contains": "Awesome" }`
+- `{ "lengthAtLeast": 3 }`
+- `{ "lengthAtMost": 42 }`
+
+Valid queries must supply a nested field set for a field that returns a Tagged
+type, so for this schema:
+
+```graphql example
+type Query {
+  stringFilter: StringFilter
+}
+```
+
+This query is not valid:
+
+```graphql counter-example
+{
+  stringFilter
+}
+```
+
+However, this query is valid:
+
+```graphql example
+{
+  stringFilter {
+    contains
+  }
+}
+```
+
+And may yield one of the following objects:
+
+- `{ "contains": "Awesome" }`
+- `{}`
+
+**Field Ordering**
+
+Like with Object types, when querying a Tagged type, the resulting mapping of
+fields are conceptually ordered in the same order in which they were
+encountered during query execution, excluding fragments for which the type does
+not apply and fields or fragments that are skipped via `@skip` or `@include`
+directives, and fields which are neither the single matched field nor the
+`__typename` introspection field. This ordering is correctly produced when
+using the {CollectFields()} algorithm.
+
+**Result Coercion**
+
+Determining the result of coercing an object or tagged type is the heart of the
+GraphQL executor, so this is covered in that section of the spec.
+
+**Input Coercion**
+
+TODO
+
+**Type Validation**
+
+Tagged types have the potential to be invalid if incorrectly defined. This set
+of rules must be adhered to by every Tagged type in a GraphQL schema.
+
+1. A Tagged type must define one or more fields.
+2. For each field of a Tagged type:
+   1. The field must have a unique name within that Tagged type;
+      no two fields may share the same name.
+   2. The field must not have a name which begins with the
+      characters {"__"} (two underscores).
+   3. The field must not have any arguments.
+3. {IsOutputType(fieldType)} and {IsInputType(type)} cannot both be {false}.
+
+### Field Deprecation
+
+Fields in a Tagged type may be marked as deprecated as deemed necessary by the
+application. It is still legal to query for these fields (to ensure existing
+clients are not broken by the change), but the fields should be appropriately
+treated in documentation and tooling.
+
+When using the type system definition language, `@deprecated` directives are
+used to indicate that a field is deprecated:
+
+```graphql example
+tagged ExampleType {
+  oldField: String @deprecated
+}
+```
+
+### Tagged Extensions
+
+TaggedTypeExtension :
+  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]
+
+Tagged type extensions are used to represent a Tagged type which has been
+extended from some original Tagged type. For example, this might be used to
+represent a GraphQL service which is itself an extension of another GraphQL
+service.
+
+In this example, an additional option `startsWith` is added to a `StringFilter`
+type:
+
+```graphql example
+extend tagged StringFilter {
+  startsWith: String!
+}
+```
+
+Tagged type extensions may choose not to add additional fields, instead only
+adding directives.
+
+In this example, a directive is added to a `StringFilter` type without adding
+fields:
+
+```graphql example
+extend tagged StringFilter @addedDirective
+```
+
+**Type Validation**
+
+Tagged type extensions have the potential to be invalid if incorrectly defined.
+
+1. The named type must already be defined and must be a Tagged type.
+2. The fields of a Tagged type extension must have unique names; no two fields
+   may share the same name.
+3. Any fields of a Tagged type extension must not be already defined on the
+   original Tagged type.
+4. Any non-repeatable directives provided must not already apply to the
+   original Tagged type.
+
 
 ## Enums
 
