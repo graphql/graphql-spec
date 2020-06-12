@@ -908,6 +908,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 
 According to a simple [weight ranking](https://docs.google.com/spreadsheets/d/1ymKqI6BSTHGGHkf9IDjo0EJmOqMryS-uQRwDV77OF5g/edit?usp=sharing), here are the solutions in order:
 
+* [5][solution-5]
+* [1][solution-1]
 * [2][solution-2]
-* [1][solution-1] / [5][solution-5]
 * [3][solution-3] / [4][solution-4]
