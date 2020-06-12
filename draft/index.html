@@ -6027,7 +6027,7 @@ The <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="Exe
 <p>The depth&#8208;first&#8208;search order of the field groups produced by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> is maintained through execution, ensuring that fields appear in the executed response in a stable and predictable order.</p>
 <div class="spec-algo" id="CollectFields()">
 <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>(<var data-name="objectType">objectType</var>, <var data-name="selectionSet">selectionSet</var>, <var data-name="variableValues">variableValues</var>, <var data-name="visitedFragments">visitedFragments</var>)</span><ol>
-<li>If <var data-name="visitedFragments">visitedFragments</var> if not provided, initialize it to the empty set.</li>
+<li>If <var data-name="visitedFragments">visitedFragments</var> is not provided, initialize it to the empty set.</li>
 <li>Initialize <var data-name="groupedFields">groupedFields</var> to an empty ordered map of lists.</li>
 <li>For each <var data-name="selection">selection</var> in <var data-name="selectionSet">selectionSet</var>:<ol>
 <li>If <var data-name="selection">selection</var> provides the directive <code>@skip</code>, let <var data-name="skipDirective">skipDirective</var> be that directive.<ol>
