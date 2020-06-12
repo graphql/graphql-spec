@@ -1480,11 +1480,76 @@ using the {CollectFields()} algorithm.
 **Result Coercion**
 
 Determining the result of coercing an object or tagged type is the heart of the
-GraphQL executor, so this is covered in that section of the spec.
+GraphQL executor, so this is covered in that section of the spec. Note that
+only Tagged types for which {IsOutputType(type)} returns {true} may be used in
+output.
 
 **Input Coercion**
 
-TODO
+Only Tagged types for which {IsInputType(type)} returns {true} may be used as
+input.
+
+The value for an input Tagged type should be an input object literal or an
+unordered map supplied by a variable, otherwise a query error must be thrown.
+In either case, the input object literal or unordered map must not contain any
+entries with names not defined by a field of this Tagged type, otherwise an
+error must be thrown. Similarly the input object literal or unordered map must
+contain exactly one field, otherwise an error must be thrown.
+
+The result of coercion is an unordered map with an entry for exactly one field
+both defined by the input object type and for which a value exists. The
+resulting map is constructed with the following rules:
+
+* If more than one field is defined in the input, an error should be thrown.
+
+* For the single field defined in the input, if the value is {null} and the
+  field's type is a non-null type, an error should be throw.
+
+* If a literal value is provided for an input object field, an entry in the
+  coerced unordered map is given the result of coercing that value according
+  to the input coercion rules for the type of that field.
+
+* If a variable is provided for an input object field, the runtime value of that
+  variable must be used. If the runtime value is {null} and the field type
+  is non-null, a field error must be thrown. If no runtime value is provided,
+  the variable definition's default value should be used. If the variable
+  definition does not provide a default value, the field should be treated as
+  if it was not specified.
+
+* No entry should be added to the unordered map for any other fields defined on
+  the Tagged type.
+
+Following are examples of input coercion for a Tagged type with a
+`String` field `a` and a required (non-null) `Int!` field `b`:
+
+```graphql example
+tagged ExampleInputTagged {
+  a: String
+  b: Int!
+}
+```
+
+Literal Value            | Variables               | Coerced Value
+------------------------ | ----------------------- | ---------------------------
+`{ a: "abc", b: 123 }`   | `{}`                    | Error: Exactly one key must be specified
+`{ a: null, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified
+`{ b: 123 }`             | `{}`                    | `{ b: 123 }`
+`{ a: $var, b: 123 }`    | `{ var: null }`         | Error: Exactly one key must be specified
+`{ a: $var, b: 123 }`    | `{}`                    | `{ b: 123 }`
+`{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`
+`$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`
+`"abc123"`               | `{}`                    | Error: Incorrect value
+`$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
+`{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified
+`{ b: "123" }`           | `{}`                    | Error: Incorrect value for field {b}
+`{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`
+`{ b: $var }`            | `{}`                    | Error: No keys were specified
+`$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`
+`{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified
+`{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
+`{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}
+
+
 
 **Type Validation**
 
