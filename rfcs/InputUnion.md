@@ -910,5 +910,5 @@ According to a simple [weight ranking](https://docs.google.com/spreadsheets/d/1y
 
 * [5][solution-5]
 * [1][solution-1]
-* [5][solution-2]
+* [2][solution-2]
 * [3][solution-3] / [4][solution-4]
