@@ -217,7 +217,7 @@ enum __DirectiveLocation {
 ### The __Type Type
 
 `__Type` is at the core of the type introspection system.
-It represents scalars, interfaces, object types, unions, enums in the system.
+It represents scalars, interfaces, object types, unions, enums, input objects types in the system.
 
 `__Type` also represents type modifiers, which are used to modify a type
 that it refers to (`ofType: __Type`). This is how we represent lists,
