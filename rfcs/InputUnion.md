@@ -812,9 +812,11 @@ type Mutation {
 {
   location: "Portland, OR",
   animals: [
-    cat: {
-      name: "Buster",
-      livesLeft: 7
+    {
+      cat: {
+        name: "Buster",
+        livesLeft: 7
+      }
     }
   ]
 }
