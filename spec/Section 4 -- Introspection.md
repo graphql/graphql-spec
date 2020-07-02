@@ -143,7 +143,7 @@ type __Type {
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
   # should be non-null for INPUT_OBJECT only, must be null for the others
-  inputFields: [__InputValue!]
+  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
@@ -152,7 +152,7 @@ type __Type {
 type __Field {
   name: String!
   description: String
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -163,6 +163,8 @@ type __InputValue {
   description: String
   type: __Type!
   defaultValue: String
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 type __EnumValue {
@@ -335,6 +337,8 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
 * All other fields must return {null}.
 
 
@@ -374,6 +378,8 @@ Fields
 * `description` may return a String or {null}
 * `args` returns a List of `__InputValue` representing the arguments this
   field accepts.
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated arguments are also returned.
 * `type` must return a `__Type` that represents the type of value returned by
   this field.
 * `isDeprecated` returns {true} if this field should no longer be used,
@@ -395,6 +401,9 @@ Fields
 * `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
+* `isDeprecated` returns {true} if this field or argument should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this input field or argument is deprecated.
 
 ### The __EnumValue Type
 
@@ -420,5 +429,7 @@ Fields
   locations this directive may be placed.
 * `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
+  * Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated arguments are also returned.
 * `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
