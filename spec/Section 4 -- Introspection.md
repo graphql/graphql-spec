@@ -246,6 +246,7 @@ Fields
 * `description` may return a String or {null}.
 * All other fields must return {null}.
 
+
 #### Object
 
 Object types represent concrete instantiations of sets of fields. The
@@ -262,6 +263,7 @@ Fields
 * `interfaces`: The set of interfaces that an object implements.
 * All other fields must return {null}.
 
+
 #### Union
 
 Unions are an abstract type where no common fields are declared. The possible
@@ -276,6 +278,7 @@ Fields
 * `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
 * All other fields must return {null}.
+
 
 #### Interface
 
@@ -297,6 +300,7 @@ Fields
   They must be object types.
 * All other fields must return {null}.
 
+
 #### Enum
 
 Enums are special scalars that can only have a defined set of values.
@@ -311,6 +315,7 @@ Fields
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 * All other fields must return {null}.
+
 
 #### Input Object
 
@@ -349,6 +354,7 @@ Fields
 * `ofType`: Any type.
 * All other fields must return {null}.
 
+
 #### Non-Null
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
@@ -360,6 +366,7 @@ required inputs for arguments and input object fields.
 * `kind` must return `__TypeKind.NON_NULL`.
 * `ofType`: Any type except Non-null.
 * All other fields must return {null}.
+
 
 ### The __Field Type
 
@@ -378,6 +385,7 @@ Fields
 * `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 * `deprecationReason` optionally provides a reason why this field is deprecated.
+
 
 ### The __InputValue Type
 
