@@ -65,7 +65,7 @@ input AnimalDropOffInput {
 }
 ```
 
-This allows non-sensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
+This allows nonsensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
 
 ```graphql
 mutation {
@@ -102,6 +102,31 @@ In addition, relying on this layer of abstraction means that this domain must be
   ]
 }
 ```
+
+Another approach is to use an input type with a discriminator and input fields for all possible member types.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {type: CAT, name: "Buster", age: 3, livesLeft: 7},
+      {type: DOG, name: "Ripple", age: 2, breed: WHIPPET}
+    ]
+  )
+}
+
+input AnimalDropOffInput {
+  type: AnimalType!
+  name: String!
+  age: Int!
+  breed: DogBreed # only applies when type = DOG
+  livesLeft: Int # only applies when type = CAT
+  venom: VenomType # only applies when type = SNAKE
+}
+```
+
+This results in more consistent modeling between input & output but still allows nonsensical inputs to pass GraphQL validation.
 
 Another common approach is to provide a unique mutation for every type. A schema employing this technique might have `logCatDropOff`, `logDogDropOff` and `logSnakeDropOff` mutations. This removes the potential for modeling non-sensical situations, but it explodes the number of mutations in a schema, making the schema less accessible. If the type is nested inside other inputs, this approach simply isn't feasable.
 
@@ -158,6 +183,9 @@ The topic has also been extensively explored in Computer Science more generally.
 * [Wikipedia: Tagged Union](https://en.wikipedia.org/wiki/Tagged_union)
 * [C2 Wiki: Nominative And Structural Typing](http://wiki.c2.com/?NominativeAndStructuralTyping)
 
+There are also libraries that mimic this functionality in GraphQL:
+
+* [graphql-union-input-type](https://github.com/Cardinal90/graphql-union-input-type)
 
 # 🛠 Use Cases
 
@@ -322,6 +350,7 @@ input union IU = { x: String } | { y: Int }
 
 * ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
 * ✂️ Objection: May break variable names? Only avoided with care
+* ✂️ Objection: There are different ways people are working around the lack of input unions so it likely won't be feasible to come up with a non-breaking migration path for all of them.
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
