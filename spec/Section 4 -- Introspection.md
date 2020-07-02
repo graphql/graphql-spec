@@ -326,7 +326,7 @@ Fields
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated enum values are also returned.
+    {true}, deprecated fields are also returned.
 * All other fields must return {null}.
 
 

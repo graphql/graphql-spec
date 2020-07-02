@@ -1913,7 +1913,7 @@ Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of
-using `newField` and `oldArg` is deprecated in favor of using `newArg`
+using `newField` and `oldArg` is deprecated in favor of using `newArg`.
 
 ```graphql example
 type ExampleType {
@@ -1925,16 +1925,3 @@ type ExampleType {
     oldArg: String @deprecated(reason: "Use `newArg`.")
   ): String
 }
-```
-
-In this example type definition, `oldArg` is deprecated in favor of
-using `newArg`.
-
-```graphql example
-type ExampleType {
-  existingField(
-    newArg: String,
-    oldArg: String @deprecated(reason: "Use `newArg`.")
-  ): String
-}
-```
