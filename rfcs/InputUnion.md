@@ -120,8 +120,9 @@ input AnimalDropOffInput {
   type: AnimalType!
   name: String!
   age: Int!
-  breed: DogBreed # only applies to dogs
-  livesLeft: Int # only applies to cats
+  breed: DogBreed # only applies when type = DOG
+  livesLeft: Int # only applies when type = CAT
+  venom: VenomType # only applies when type = SNAKE
 }
 ```
 
