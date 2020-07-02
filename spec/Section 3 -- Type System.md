@@ -1925,3 +1925,4 @@ type ExampleType {
     oldArg: String @deprecated(reason: "Use `newArg`.")
   ): String
 }
+```
