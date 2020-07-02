@@ -1926,3 +1926,15 @@ type ExampleType {
   ): String
 }
 ```
+
+In this example type definition, `oldArg` is deprecated in favor of
+using `newArg`.
+
+```graphql example
+type ExampleType {
+  existingField(
+    newArg: String,
+    oldArg: String @deprecated(reason: "Use `newArg`.")
+  ): String
+}
+```
