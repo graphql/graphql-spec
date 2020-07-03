@@ -131,7 +131,7 @@ type __Type {
   name: String
   description: String
 
-  # should be non-null for OBJECT, INTERFACE and TAGGED only, must be null for the others
+  # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
 
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
@@ -145,6 +145,9 @@ type __Type {
 
   # should be non-null for INPUT_OBJECT only, must be null for the others
   inputFields: [__InputValue!]
+
+  # should be non-null for TAGGED only, must be null for the others
+  members(includeDeprecated: Boolean = false): [__Member!]
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
@@ -164,6 +167,14 @@ type __InputValue {
   description: String
   type: __Type!
   defaultValue: String
+}
+
+type __Member {
+  name: String!
+  description: String
+  type: __Type!
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 type __EnumValue {
@@ -305,20 +316,19 @@ Fields
 
 #### Tagged
 
-Tagged types are an abstract type where exactly one field out of a list of
-potential fields must be present. The possible fields of a tagged type are
-explicitly listed out in `fields`. No modification of a type is necessary to
-use it as the field type of a tagged type.
+Tagged types are an type where exactly one member out of a list of potential
+members must be present. The possible members of a tagged type are explicitly
+listed out in `members`. No modification of a type is necessary to use it as
+the member type of a tagged type.
 
 Fields
 
 * `kind` must return `__TypeKind.TAGGED`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields query-able on this type.
+* `members`: The set of members query-able on this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated fields are also returned.
-  * All fields present must have zero arguments.
+    {true}, deprecated members are also returned.
 * All other fields must return {null}.
 
 
@@ -418,6 +428,20 @@ Fields
 * `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
+
+### The __Member Type
+
+The `__Member` type represents `members` of a tagged type.
+
+Fields
+
+* `name` must return a String
+* `description` may return a String or {null}
+* `type` must return a `__Type` that represents the type this member expects.
+* `isDeprecated` returns {true} if this member should no longer be used,
+  otherwise {false}.
+* `deprecationReason` optionally provides a reason why this member is deprecated.
+
 
 ### The __EnumValue Type
 

@@ -266,7 +266,7 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
-TaggedFieldDefinition : Description? Name : Type Directives[Const]?
+TaggedMemberDefinition : Description? Name : Type Directives[Const]?
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
@@ -289,12 +289,12 @@ UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
-TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedFieldsDefinition?
+TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMembersDefinition?
 
-TaggedFieldsDefinition : { TaggedFieldDefinition+ }
+TaggedMembersDefinition : { TaggedMemberDefinition+ }
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]? TaggedMembersDefinition
   - extend tagged Name Directives[Const]
 
 EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?

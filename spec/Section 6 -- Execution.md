@@ -316,14 +316,17 @@ To execute a selection set, the object value being evaluated and the object type
 need to be known, as well as whether it must be executed serially, or may be
 executed in parallel.
 
+For the purposes of execution, the term "field" may be used to reference a
+"member" of a tagged type; this simplifies the wording of the algorithm.
+
 First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a
 response map.
 
-GetSingleTaggedFieldName(objectType, objectValue):
+GetTaggedMemberName(objectType, objectValue):
 
   * If {objectType} is not a Tagged type, return {null}.
-  * Let {keys} be the keys of {objectValue} that are field names of {objectType}.
+  * Let {keys} be the keys of {objectValue} that are member names of {objectType}.
   * If the length of {keys} is not 1:
     * Throw a field error.
   * Let {key} be the first entry in {keys}
@@ -332,9 +335,9 @@ GetSingleTaggedFieldName(objectType, objectValue):
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
-  * Let {singleTaggedFieldName} be {GetSingleTaggedFieldName}(objectType, objectValue)}.
+  * Let {taggedMemberName} be {GetTaggedMemberName}(objectType, objectValue)}.
   * Let {groupedFieldSet} be the result of
-    {CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName)}.
+    {CollectFields(objectType, selectionSet, variableValues, taggedMemberName)}.
   * Initialize {resultMap} to an empty ordered map.
   * For each {groupedFieldSet} as {responseKey} and {fields}:
     * Let {fieldName} be the name of the first entry in {fields}.
@@ -488,9 +491,9 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visitedFragments):
 
-  * If {singleTaggedFieldName} is not provided, initialize it to {null}.
+  * If {taggedMemberName} is not provided, initialize it to {null}.
   * If {visitedFragments} if not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
@@ -502,8 +505,8 @@ CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, v
       {selection} in {selectionSet}.
     * If {selection} is a {Field}:
       * Let {fieldName} be the field name.
-      * If {singleTaggedFieldName} is not null:
-        * If {fieldName} is not {singleTaggedFieldName} and {fieldName} is not an introspection field (beginning with the characters {"__"} (two underscores)):
+      * If {taggedMemberName} is not null:
+        * If {fieldName} is not {taggedMemberName} and {fieldName} is not an introspection field (beginning with the characters {"__"} (two underscores)):
           * Continue with the next {selection} in {selectionSet}.
       * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -523,7 +526,7 @@ CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, v
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
       * Let {fragmentGroupedFieldSet} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues, singleTaggedFieldName, visitedFragments)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -534,7 +537,7 @@ CollectFields(objectType, selectionSet, variableValues, singleTaggedFieldName, v
       * If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, singleTaggedFieldName, visitedFragments)}.
+      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for

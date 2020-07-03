@@ -256,7 +256,7 @@ Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another
 type in the system, allowing the definition of arbitrary type hierarchies.
 
-GraphQL supports three abstract types: interfaces, unions and tagged types.
+GraphQL supports two abstract types: interfaces, and unions.
 
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
@@ -267,8 +267,8 @@ A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
-A `Tagged Type` defines a list of possible fields; whenever the type system
-references a tagged type, exactly one of the possible fields must be present
+A `Tagged Type` defines a list of possible members; whenever the type system
+references a tagged type, exactly one of the possible members must be present
 and all others must be omitted.
 
 Finally, oftentimes it is useful to provide complex structs as inputs to
@@ -303,7 +303,7 @@ other kinds of types can only be used in one or the other. Input Object types ca
 only be used as input types. Object, Interface, and Union types can only be used
 as output types. Lists and Non-Null types may be used as input types or output
 types depending on how the wrapped type may be used. Tagged types may be used
-as input types or output types depending on how the types of their fields may
+as input types or output types depending on how the types of their members may
 be used.
 
 IsInputType(type) :
@@ -313,7 +313,7 @@ IsInputType(type) :
   * If {type} is a Scalar, Enum, or Input Object type:
     * Return {true}
   * If {type} is a Tagged type:
-    * If there exists a field in {type} where {IsInputType(fieldType)} is {false}
+    * If there exists a member in {type} where {IsInputType(memberType)} is {false}
       * Return {false}
     * Return {true}
   * Return {false}
@@ -325,7 +325,7 @@ IsOutputType(type) :
   * If {type} is a Scalar, Object, Interface, Union, or Enum type:
     * Return {true}
   * If {type} is a Tagged type:
-    * If there exists a field in {type} where {IsOutputType(fieldType)} is {false}
+    * If there exists a member in {type} where {IsOutputType(memberType)} is {false}
       * Return {false}
     * Return {true}
   * Return {false}
@@ -1368,26 +1368,27 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 ## Tagged Types
 
-TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedFieldsDefinition?
+TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMembersDefinition?
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]? TaggedMembersDefinition
   - extend tagged Name Directives[Const]
 
-TaggedFieldsDefinition : { TaggedFieldDefinition+ }
+TaggedMembersDefinition : { TaggedMemberDefinition+ }
 
-TaggedFieldDefinition : Description? Name : Type Directives[Const]?
+TaggedMemberDefinition : Description? Name : Type Directives[Const]?
 
-Tagged types represent a list of possible named fields, exactly one of which
-must be present. This resulting field must yield a value of a specific type.
+Tagged types represent a list of possible named members, exactly one of which
+must be present. This resulting member must yield a value of a specific type.
 In outputs, like for Objects, Tagged types should be serialized as ordered
-maps: the queried field names (or aliases) that are present are the keys and
-the result of evaluating the field is the value, ordered by the order in which
+maps: the queried member names (or aliases) that are present are the keys and
+the result of evaluating the member is the value, ordered by the order in which
 they appear in the query. Note that Tagged types may be objects with more than
-one key even though they guarantee that exactly one field is present, this is
-because aliases may be used, and `__typename` may also be queried.
+one key even though they guarantee that exactly one member is present, this is
+because aliases may be used, and `__typename` may also be queried (and will
+return the name of the tagged type).
 
-All fields defined within a Tagged type must not have a name which begins with
+All members defined within a Tagged type must not have a name which begins with
 {"__"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
@@ -1408,18 +1409,19 @@ In this case we're representing exactly one of the following:
 - an object containing a single key `lengthAtMost` with an {Int} value
 
 The `StringFilter` Tagged type is valid as both an input and output type, but
-this is not true of all tagged types. If a Tagged type has a field whose type
+this is not true of all tagged types. If a Tagged type has a member whose type
 is only valid for output, then the Tagged type is only valid for output. If a
-Tagged type has a field whose type is only valid for input, then the Tagged
-type is only valid for input. If a Tagged type has a field that is only valid
-for input, and another field that's only valid for output, then it is not a
+Tagged type has a member whose type is only valid for input, then the Tagged
+type is only valid for input. If a Tagged type has a member that is only valid
+for input, and another member that's only valid for output, then it is not a
 valid Tagged type.
 
-A field of a Tagged type may be a Scalar, Enum, Object type, an Interface, a
-Union or another Tagged type. Additionally, it may be any wrapping type whose
+A member of a Tagged type may be a Scalar, Enum, Input Object type, Object
+type, an Interface, a Union or another Tagged type. Additionally, it may be
+any wrapping type (e.g. list, non-null, or any combination thereof) whose
 underlying base type is one of those six.
 
-Selecting all the fields of our `StringFilter` type:
+Selecting all the members of our `StringFilter` type:
 
 ```graphql example
 {
@@ -1473,7 +1475,7 @@ Like with Object types, when querying a Tagged type, the resulting mapping of
 fields are conceptually ordered in the same order in which they were
 encountered during query execution, excluding fragments for which the type does
 not apply and fields or fragments that are skipped via `@skip` or `@include`
-directives, and fields which are neither the single matched field nor the
+directives, and fields which are neither the single matched member nor the
 `__typename` introspection field. This ordering is correctly produced when
 using the {CollectFields()} algorithm.
 
@@ -1492,13 +1494,13 @@ input.
 The value for an input Tagged type should be an input object literal or an
 unordered map supplied by a variable, otherwise a query error must be thrown.
 In either case, the input object literal or unordered map must not contain any
-entries with names not defined by a field of this Tagged type, otherwise an
+entries with names not defined by a member of this Tagged type, otherwise an
 error must be thrown. Similarly the input object literal or unordered map must
-contain exactly one field, otherwise an error must be thrown.
+contain exactly one member, otherwise an error must be thrown.
 
-The result of coercion is an unordered map with an entry for exactly one field
-both defined by the input object type and for which a value exists. The
-resulting map is constructed with the following rules:
+The result of coercion is an unordered map with an entry for exactly one
+member both defined by the tagged type and present in the input. The resulting
+map is constructed with the following rules:
 
 * If more than one field is defined in the input, an error should be thrown.
 
@@ -1507,20 +1509,20 @@ resulting map is constructed with the following rules:
 
 * If a literal value is provided for an input object field, an entry in the
   coerced unordered map is given the result of coercing that value according
-  to the input coercion rules for the type of that field.
+  to the input coercion rules for the type of the tagged member for that field.
 
 * If a variable is provided for an input object field, the runtime value of that
-  variable must be used. If the runtime value is {null} and the field type
-  is non-null, a field error must be thrown. If no runtime value is provided,
-  the variable definition's default value should be used. If the variable
-  definition does not provide a default value, the field should be treated as
-  if it was not specified.
+  variable must be used. If the runtime value is {null} and the tagged member
+  type is non-null, a field error must be thrown. If no runtime value is
+  provided, the variable definition's default value should be used. If the
+  variable definition does not provide a default value, the field should be
+  treated as if it was not specified.
 
-* No entry should be added to the unordered map for any other fields defined on
-  the Tagged type.
+* No entry should be added to the unordered map for any other members defined
+  on the Tagged type.
 
 Following are examples of input coercion for a Tagged type with a
-`String` field `a` and a required (non-null) `Int!` field `b`:
+`String` member `a` and a required (non-null) `Int!` member `b`:
 
 ```graphql example
 tagged ExampleInputTagged {
@@ -1541,13 +1543,13 @@ Literal Value            | Variables               | Coerced Value
 `"abc123"`               | `{}`                    | Error: Incorrect value
 `$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified
-`{ b: "123" }`           | `{}`                    | Error: Incorrect value for field {b}
+`{ b: "123" }`           | `{}`                    | Error: Incorrect value for member {b}
 `{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`
 `{ b: $var }`            | `{}`                    | Error: No keys were specified
 `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`
 `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified
 `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
-`{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}
+`{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected member {c}
 
 
 
@@ -1556,21 +1558,21 @@ Literal Value            | Variables               | Coerced Value
 Tagged types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Tagged type in a GraphQL schema.
 
-1. A Tagged type must define one or more fields.
-2. For each field of a Tagged type:
-   1. The field must have a unique name within that Tagged type;
-      no two fields may share the same name.
-   2. The field must not have a name which begins with the
+1. A Tagged type must define one or more members.
+2. For each member of a Tagged type:
+   1. The member must have a unique name within that Tagged type;
+      no two members may share the same name.
+   2. The member must not have a name which begins with the
       characters {"__"} (two underscores).
-   3. The field must not have any arguments.
 3. {IsOutputType(fieldType)} and {IsInputType(type)} cannot both be {false}.
 
-### Field Deprecation
+### Member Deprecation
 
-Fields in a Tagged type may be marked as deprecated as deemed necessary by the
-application. It is still legal to query for these fields (to ensure existing
-clients are not broken by the change), but the fields should be appropriately
-treated in documentation and tooling.
+Members in a Tagged type may be marked as deprecated as deemed necessary by
+the application. It is still legal to query for these members on outputs or
+supply these members in inputs (to ensure existing clients are not broken by
+the change), but the members should be appropriately treated in documentation
+and tooling.
 
 When using the type system definition language, `@deprecated` directives are
 used to indicate that a field is deprecated:
@@ -1581,10 +1583,13 @@ tagged ExampleType {
 }
 ```
 
+Note: a deprecated member of a tagged type may legitimately be marked as
+non-nullable since this member need not be supplied/returned.
+
 ### Tagged Extensions
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedFieldsDefinition
+  - extend tagged Name Directives[Const]? TaggedMembersDefinition
   - extend tagged Name Directives[Const]
 
 Tagged type extensions are used to represent a Tagged type which has been
@@ -1601,11 +1606,11 @@ extend tagged StringFilter {
 }
 ```
 
-Tagged type extensions may choose not to add additional fields, instead only
+Tagged type extensions may choose not to add additional members, instead only
 adding directives.
 
 In this example, a directive is added to a `StringFilter` type without adding
-fields:
+members:
 
 ```graphql example
 extend tagged StringFilter @addedDirective
@@ -1616,11 +1621,13 @@ extend tagged StringFilter @addedDirective
 Tagged type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Tagged type.
-2. The fields of a Tagged type extension must have unique names; no two fields
+2. The members of a Tagged type extension must have unique names; no two members
    may share the same name.
-3. Any fields of a Tagged type extension must not be already defined on the
+3. The members of a Tagged type extension must not have names beginning with
+   {"__"}.
+4. Any members of a Tagged type extension must not be already defined on the
    original Tagged type.
-4. Any non-repeatable directives provided must not already apply to the
+5. Any non-repeatable directives provided must not already apply to the
    original Tagged type.
 
 

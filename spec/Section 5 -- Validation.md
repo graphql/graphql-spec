@@ -339,6 +339,7 @@ must provide the operation name as described in {GetOperation()}.
 
 ### Field Selections on Objects, Interfaces, Unions and Tagged Types
 
+
 **Formal Specification**
 
 * For each {selection} in the document.
@@ -410,6 +411,10 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 }
 ```
 
+Tagged types define "members", but for the purposes of this section the members
+fill the same role as fields of an object type or interface.
+
+Note: how best to phrase this/factor it in?
 
 ### Field Selection Merging
 
@@ -1190,9 +1195,9 @@ fragment beingFragment on Being {
 ```
 
 This counter-example may be surprising since Being is covariant to Terran
-(Being contains all the fields Terran contains), however allowing this spread
+(Being contains all the members Terran contains), however allowing this spread
 to be valid would inhibit schema evolution - we'd have to ensure that Being
-always remained covariant to Terran, preventing us from adding fields to Terran
+always remained covariant to Terran, preventing us from adding members to Terran
 alone without adding them to Being.
 
 
