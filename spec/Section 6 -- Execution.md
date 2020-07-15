@@ -494,7 +494,7 @@ response in a stable and predictable order.
 CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visitedFragments):
 
   * If {taggedMemberName} is not provided, initialize it to {null}.
-  * If {visitedFragments} if not provided, initialize it to the empty set.
+  * If {visitedFragments} is not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
     * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
