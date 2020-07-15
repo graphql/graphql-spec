@@ -2027,6 +2027,7 @@ TypeSystemDirectiveLocation : one of
   `ARGUMENT_DEFINITION`
   `INTERFACE`
   `UNION`
+  `TAGGED`
   `ENUM`
   `ENUM_VALUE`
   `INPUT_OBJECT`
