@@ -986,7 +986,7 @@ field vs not altering a field, respectively. Neither form may be used for an
 input expecting a Non-Null type.
 
 Note: The same two methods of representing the lack of a value are possible via
-variables by either providing the variable value as {null} and not providing
+variables by either providing the variable value as {null} or not providing
 a variable value at all.
 
 
