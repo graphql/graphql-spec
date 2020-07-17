@@ -1,7 +1,7 @@
 RFC: GraphQL Defer and Stream Directives
 -------
 
-*Working Draft - January 2020*
+*Working Draft - July 2020*
 
 # Introduction
 
@@ -68,7 +68,7 @@ Each subsequent payload will be an object with the following properties
 * `label`: The string that was passed to the label argument of the `@defer` or `@stream` directive that corresponds to this results.
 * `data`: The data that is being delivered incrementally.
 * `path`: a list of keys (with plural indexes) from the root of the response to the insertion point that informs the client how to patch a subsequent delta payload into the original payload.
-* `isFinal`: A boolean that is present and `false` when there are more payloads that will be sent for this operation.
+* `hasNext`: A boolean that is present and `true` when there are more payloads that will be sent for this operation. The last payload in a multi payload response should return `hasNext: false`. `hasNext` is not required for single-payload responses to preserve backwards compatibility.
 * `errors`: An array that will be present and contain any field errors that are produced while executing the deferred or streamed selection set.
 * `extensions`: For implementors to extend the protocol
 
@@ -104,7 +104,7 @@ fragment GroupAdminFragment {
 // payload 1
 {
     data: {id: 1},
-    isFinal: false
+    hasNext: true
 }
 
 // payload 2
@@ -112,7 +112,7 @@ fragment GroupAdminFragment {
   label: "friendStream"
   path: [“viewer”, “friends”, 1],
   data: {id: 4},
-  isFinal: false
+  hasNext: true
 }
 
 // payload 3
@@ -120,7 +120,7 @@ fragment GroupAdminFragment {
   label: "friendStream"
   path: [“viewer”, “friends”, 2],
   data: {id: 5},
-  isFinal: false
+  hasNext: true
 }
 
 // payload 4
@@ -128,6 +128,7 @@ fragment GroupAdminFragment {
   label: "groupAdminDefer",
   path: [“viewer”],
   data: {managed_groups: [{id: 1, id: 2}]}
+  hasNext: false
 }
 ```
 
