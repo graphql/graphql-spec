@@ -79,9 +79,7 @@ NegativeSign :: -
 NonZeroDigit :: Digit but not `0`
 
 FloatValue ::
-  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
-  - IntegerPart FractionalPart [lookahead != {Digit, `.`, NameStart}]
-  - IntegerPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart FractionalPart? ExponentPart? [lookahead != {Digit, `.`, NameStart}]
 
 FractionalPart :: . Digit+
 
