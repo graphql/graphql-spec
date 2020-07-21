@@ -661,8 +661,8 @@ Must only yield exactly that subset:
 }
 ```
 
-A field of an Object type may be a Scalar, Enum, another Object type, an
-Interface, a Union or a Tagged type. Additionally, it may be any wrapping type
+A field of an Object type may be a Scalar, Enum, another Object type, Tagged
+type, an Interface, or a Union. Additionally, it may be any wrapping type
 whose underlying base type is one of those six.
 
 For example, the `Person` type might include a `relationship`:
@@ -1396,17 +1396,17 @@ For example, a type `StringFilter` could be described as:
 
 ```graphql example
 tagged StringFilter {
+  startsWith: String!
   contains: String!
   lengthAtLeast: Int!
-  lengthAtMost: Int!
 }
 ```
 
 In this case we're representing exactly one of the following:
 
+- an object containing a single key `startsWith` with an {String} value
 - an object containing a single key `contains` with a {String} value
 - an object containing a single key `lengthAtLeast` with an {Int} value
-- an object containing a single key `lengthAtMost` with an {Int} value
 
 The `StringFilter` Tagged type is valid as both an input and output type, but
 this is not true of all tagged types. If a Tagged type has a member whose type
@@ -1425,17 +1425,17 @@ Selecting all the members of our `StringFilter` type:
 
 ```graphql example
 {
+  startsWith
   contains
   lengthAtLeast
-  lengthAtMost
 }
 ```
 
 Could yield one of the following objects:
 
-- `{ "contains": "Awesome" }`
+- `{ "startsWith": "GraphQL is" }`
+- `{ "contains": "awesome" }`
 - `{ "lengthAtLeast": 3 }`
-- `{ "lengthAtMost": 42 }`
 
 Valid queries must supply a nested field set for a field that returns a Tagged
 type, so for this schema:
@@ -1466,7 +1466,7 @@ However, this query is valid:
 
 And may yield one of the following objects:
 
-- `{ "contains": "Awesome" }`
+- `{ "contains": "awesome" }`
 - `{}`
 
 **Field Ordering**
@@ -1482,9 +1482,10 @@ using the {CollectFields()} algorithm.
 **Result Coercion**
 
 Determining the result of coercing an object or tagged type is the heart of the
-GraphQL executor, so this is covered in that section of the spec. Note that
-only Tagged types for which {IsOutputType(type)} returns {true} may be used in
-output.
+GraphQL executor, so this is covered in that section of the spec.
+
+Note only Tagged types for which {IsOutputType(type)} returns {true} may be
+used in output.
 
 **Input Coercion**
 
@@ -1495,17 +1496,17 @@ The value for an input Tagged type should be an input object literal or an
 unordered map supplied by a variable, otherwise a query error must be thrown.
 In either case, the input object literal or unordered map must not contain any
 entries with names not defined by a member of this Tagged type, otherwise an
-error must be thrown. Similarly the input object literal or unordered map must
+error must be thrown. The input object literal or unordered map must
 contain exactly one member, otherwise an error must be thrown.
 
 The result of coercion is an unordered map with an entry for exactly one
 member both defined by the tagged type and present in the input. The resulting
 map is constructed with the following rules:
 
-* If more than one field is defined in the input, an error should be thrown.
+* If more than one field is defined in the input, an error must be thrown.
 
 * For the single field defined in the input, if the value is {null} and the
-  field's type is a non-null type, an error should be throw.
+  field's type is a non-null type, an error must be thrown.
 
 * If a literal value is provided for an input object field, an entry in the
   coerced unordered map is given the result of coercing that value according
@@ -1564,7 +1565,7 @@ of rules must be adhered to by every Tagged type in a GraphQL schema.
       no two members may share the same name.
    2. The member must not have a name which begins with the
       characters {"__"} (two underscores).
-3. {IsOutputType(fieldType)} and {IsInputType(type)} cannot both be {false}.
+3. {IsOutputType(taggedType)} and {IsInputType(taggedType)} cannot both be {false}.
 
 ### Member Deprecation
 
