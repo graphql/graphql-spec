@@ -79,7 +79,7 @@ is equivalent. Algorithms described in this document are written to be easy to
 understand. Implementers are encouraged to include equivalent but
 optimized implementations.
 
-See [Appendix A](#appendix-notation-conventions) for more details
+See [Appendix A](#appendix-a-notation-conventions) for more details
 about the definition of algorithms and other notational conventions used in this
 document.
 
@@ -125,6 +125,6 @@ Note: This is an example of a non-normative note.
 
 # [Response](Section%207%20--%20Response.md)
 
-# [Appendix: Notation Conventions](Appendix%20A%20--%20Notation%20Conventions.md)
+# [Appendix A: Notation Conventions](Appendix%20A%20--%20Notation%20Conventions.md)
 
-# [Appendix: Grammar Summary](Appendix%20B%20--%20Grammar%20Summary.md)
+# [Appendix B: Grammar Summary](Appendix%20B%20--%20Grammar%20Summary.md)
