@@ -12,7 +12,7 @@ example, https://graphql.github.io/graphql-spec/October2016/. If you are linking
 directly to the GraphQL specification, it's best to link to a tagged permalink
 for the particular referenced version.
 
-## Overview
+### Overview
 
 This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
 
