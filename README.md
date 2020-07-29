@@ -1,6 +1,6 @@
 # GraphQL
 
-<img alt="Graphql Logo" align="right" src="resources/GraphQL%20Logo.svg" width="15%" />
+<img alt="GraphQL Logo" align="right" src="resources/GraphQL%20Logo.svg" width="15%" />
 
 The GraphQL specification is edited in the markdown files found in [`/spec`](./spec)
 the latest release of which is published at https://graphql.github.io/graphql-spec/.
