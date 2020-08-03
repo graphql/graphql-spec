@@ -451,7 +451,7 @@ A correct executor must generate the following result for that selection set:
 Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key included via
+name). This ensures all fields with the same response key including via
 referenced fragments are executed at the same time.
 
 As an example, collecting the fields of this selection set would collect two
