@@ -16,7 +16,7 @@ for the particular referenced version.
 
 This is a Working Draft of the Specification for GraphQL, a query language for APIs created by Facebook.
 
-The target audience for this specification is not the client developer, but those who have,
+The target audience for this specification is not the developer clients, but those who have,
 or are actively interested in, building their own GraphQL implementations and
 tools.
 
@@ -44,7 +44,7 @@ trilogy.
 
 ### Type System
 
-At the heart of any GraphQL implementation is a description of what types
+At the core of any GraphQL implementation ,is a description of what types
 of objects it can return, described in a GraphQL type system and returned
 in the GraphQL Schema.
 
@@ -65,6 +65,7 @@ type Human {
   name: String
 }
 ```
+
 
 This shorthand is convenient for describing the basic shape of a type
 system; the JavaScript implementation is more full-featured, and allows types
