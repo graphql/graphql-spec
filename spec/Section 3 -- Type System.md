@@ -1585,7 +1585,7 @@ If the value passed as an input to a list type is *not* a list and not the
 where the single item value is the result of input coercion for the list's item
 type on the provided value (note this may apply recursively for nested lists).
 
-This allow inputs which accept one or many arguments (sometimes referred to as
+This allows inputs which accept one or many arguments (sometimes referred to as
 "var args") to declare their input type as a list while for the common case of a
 single value, a client can just pass that value directly rather than
 constructing the list.
