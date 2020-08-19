@@ -3371,7 +3371,7 @@ For more information on the error handling process, see &ldquo;Errors and Non&#8
 <h6><a href="#sec-Type-System.List.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
 <p>When expected as an input, list values are accepted only when each item in the list can be accepted by the list&rsquo;s item type.</p>
 <p>If the value passed as an input to a list type is <em>not</em> a list and not the <span class="spec-keyword">null</span> value, then the result of input coercion is a list of size one, where the single item value is the result of input coercion for the list&rsquo;s item type on the provided value (note this may apply recursively for nested lists).</p>
-<p>This allow inputs which accept one or many arguments (sometimes referred to as &ldquo;var args&rdquo;) to declare their input type as a list while for the common case of a single value, a client can just pass that value directly rather than constructing the list.</p>
+<p>This allows inputs which accept one or many arguments (sometimes referred to as &ldquo;var args&rdquo;) to declare their input type as a list while for the common case of a single value, a client can just pass that value directly rather than constructing the list.</p>
 <p>Following are examples of input coercion with various list types and values:</p>
 <table>
 <thead><tr>
