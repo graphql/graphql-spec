@@ -1433,7 +1433,7 @@ Selecting all the members of our `PackQuantity` type:
 }
 ```
 
-Could yield one of the following objects:
+Could yield one of the following results:
 
 - `{ "volumeInMetresCubed": 3.8 }`
 - `{ "numberOfBoxes": 27 }`
@@ -1466,7 +1466,7 @@ However, this query is valid:
 }
 ```
 
-And may yield one of the following objects:
+And may yield one of the following results:
 
 - `{ "numberOfBoxes": 27 }`
 - `{}`
