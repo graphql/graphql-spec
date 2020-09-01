@@ -2189,12 +2189,13 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ENUM_VALUE | TAGGED_MEMBER_DEFINITION
 ```
 
 The `@deprecated` directive is used within the type system definition language
 to indicate deprecated portions of a GraphQL service's schema, such as
-deprecated fields on a type or deprecated enum values.
+deprecated fields on a type, deprecated enum values or deprecated tagged member
+fields.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
