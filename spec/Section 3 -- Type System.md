@@ -1552,7 +1552,7 @@ Literal Value            | Variables               | Coerced Value
 `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`
 `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified
 `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
-`{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected member {c}
+`{ b: 123, c: "xyz" }`   | `{}`                    | Error: Exactly one key must be specified
 
 
 
