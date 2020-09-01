@@ -140,14 +140,14 @@ type __Type {
   # should be non-null for INTERFACE and UNION only, always null for the others
   possibleTypes: [__Type!]
 
+  # should be non-null for TAGGED only, must be null for the others
+  members(includeDeprecated: Boolean = false): [__Member!]
+
   # should be non-null for ENUM only, must be null for the others
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
 
   # should be non-null for INPUT_OBJECT only, must be null for the others
   inputFields: [__InputValue!]
-
-  # should be non-null for TAGGED only, must be null for the others
-  members(includeDeprecated: Boolean = false): [__Member!]
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
@@ -189,9 +189,9 @@ enum __TypeKind {
   OBJECT
   INTERFACE
   UNION
+  TAGGED
   ENUM
   INPUT_OBJECT
-  TAGGED
   LIST
   NON_NULL
 }
