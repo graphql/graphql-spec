@@ -337,8 +337,9 @@ must provide the operation name as described in {GetOperation()}.
 
 ## Fields
 
-### Field Selections on Objects, Interfaces, Unions and Tagged Types
+### Field Selections
 
+Field Selections must exist on Objects, Interfaces, Unions and Tagged Types
 
 **Formal Specification**
 
