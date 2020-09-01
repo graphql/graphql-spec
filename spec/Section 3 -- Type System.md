@@ -1007,9 +1007,9 @@ objects and interfaces can then implement these interfaces which requires that
 the implementing type will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL
-object; their type can be Scalar, Object, Enum, Interface, Union, Tagged types
-where {IsOutputType(type)} returns {true}, or any wrapping type whose base type
-is one of those six.
+object; their type can be any for which {IsOutputType(type)} returns {true}:
+Scalar, Object, Enum, Interface, Union, some Tagged types, or any wrapping
+types of those.
 
 For example, an interface `NamedEntity` may describe a required field and types
 such as `Person` or `Business` may then implement this interface to guarantee
