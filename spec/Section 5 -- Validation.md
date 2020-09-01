@@ -341,6 +341,8 @@ must provide the operation name as described in {GetOperation()}.
 
 Field Selections must exist on Objects, Interfaces, Unions and Tagged Types
 
+Note: Tagged types define members which are queried with field selections.
+
 **Formal Specification**
 
 * For each {selection} in the document.
@@ -411,11 +413,6 @@ fragment directFieldSelectionOnUnion on CatOrDog {
   barkVolume
 }
 ```
-
-Tagged types define "members", but for the purposes of this section the members
-fill the same role as fields of an object type or interface.
-
-Note: how best to phrase this/factor it in?
 
 ### Field Selection Merging
 
