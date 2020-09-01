@@ -91,8 +91,8 @@ warnings.
 
 GraphQL supports type name introspection at any point within a query by the
 meta-field `__typename: String!` when querying against any Object, Interface,
-Union or Tagged. It returns the name of the object or tagged type currently
-being queried.
+Union or Tagged. It returns the name of the concrete object or tagged type
+currently being queried.
 
 This is most often used when querying against Interface or Union types to
 identify which actual type of the possible types has been returned.
