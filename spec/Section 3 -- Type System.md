@@ -1716,7 +1716,7 @@ Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
 A GraphQL Input Object defines a set of input fields; the input fields are
-either scalars, enums, other input objects, or Tagged types for which
+either scalars, enums, other input objects, or tagged types for which
 {IsInputType(type)} returns {true}. This allows arguments to accept arbitrarily
 complex structs.
 
