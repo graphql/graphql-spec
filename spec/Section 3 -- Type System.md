@@ -1554,8 +1554,6 @@ Literal Value            | Variables               | Coerced Value
 `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.
 `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Exactly one key must be specified
 
-
-
 **Type Validation**
 
 Tagged types have the potential to be invalid if incorrectly defined. This set
