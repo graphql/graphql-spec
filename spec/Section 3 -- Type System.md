@@ -1628,7 +1628,10 @@ Tagged type extensions have the potential to be invalid if incorrectly defined.
    {"__"}.
 4. Any members of a Tagged type extension must not be already defined on the
    original Tagged type.
-5. Any non-repeatable directives provided must not already apply to the
+5. Members of a Tagged type extension must not cause
+   {IsOutputType(taggedType)} and {IsInputType(taggedType)} to both become
+   {false}.
+6. Any non-repeatable directives provided must not already apply to the
    original Tagged type.
 
 
