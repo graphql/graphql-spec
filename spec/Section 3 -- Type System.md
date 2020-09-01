@@ -2037,7 +2037,6 @@ TypeSystemDirectiveLocation : one of
   `ENUM_VALUE`
   `INPUT_OBJECT`
   `INPUT_FIELD_DEFINITION`
-  `TAGGED`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
