@@ -1584,8 +1584,8 @@ tagged ExampleType {
 }
 ```
 
-Note: a deprecated member of a tagged type may legitimately be marked as
-non-nullable since this member need not be supplied/returned.
+Note: due to the nature of tagged types, it is valid to mark a member of a
+tagged type deprecated even when that member is non-nullable.
 
 ### Tagged Extensions
 
