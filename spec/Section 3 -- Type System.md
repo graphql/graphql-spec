@@ -1394,23 +1394,23 @@ All members defined within a Tagged type must not have a name which begins with
 {"__"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
-For example, a type `StringFilter` could be described as:
+For example, a type `PackQuantity` could be described as:
 
 ```graphql example
-tagged StringFilter {
-  startsWith: String!
-  contains: String!
-  lengthAtLeast: Int!
+tagged PackQuantity {
+  volumeInMetresCubed: Float!
+  numberOfBoxes: Int!
+  description: String!
 }
 ```
 
 In this case we're representing exactly one of the following:
 
-- an object containing a single key `startsWith` with an {String} value
-- an object containing a single key `contains` with a {String} value
-- an object containing a single key `lengthAtLeast` with an {Int} value
+- an object containing a single key `volumeInMetresCubed` with an {Float} value
+- an object containing a single key `numberOfBoxes` with a {Int} value
+- an object containing a single key `description` with an {String} value
 
-The `StringFilter` Tagged type is valid as both an input and output type, but
+The `PackQuantity` Tagged type is valid as both an input and output type, but
 this is not true of all tagged types. If a Tagged type has a member whose type
 is only valid for output, then the Tagged type is only valid for output. If a
 Tagged type has a member whose type is only valid for input, then the Tagged
@@ -1423,28 +1423,28 @@ type, an Interface, a Union or another Tagged type. Additionally, it may be
 any wrapping type (e.g. list, non-null, or any combination thereof) whose
 underlying base type is one of those six.
 
-Selecting all the members of our `StringFilter` type:
+Selecting all the members of our `PackQuantity` type:
 
 ```graphql example
 {
-  startsWith
-  contains
-  lengthAtLeast
+  volumeInMetresCubed
+  numberOfBoxes
+  description
 }
 ```
 
 Could yield one of the following objects:
 
-- `{ "startsWith": "GraphQL is" }`
-- `{ "contains": "awesome" }`
-- `{ "lengthAtLeast": 3 }`
+- `{ "volumeInMetresCubed": 3.8 }`
+- `{ "numberOfBoxes": 27 }`
+- `{ "description": "4 large boxes, 7 medium boxes, and 16 small boxes" }`
 
 Valid queries must supply a nested field set for a field that returns a Tagged
 type, so for this schema:
 
 ```graphql example
 type Query {
-  stringFilter: StringFilter
+  packQuantity: PackQuantity
 }
 ```
 
@@ -1452,7 +1452,7 @@ This query is not valid:
 
 ```graphql counter-example
 {
-  stringFilter
+  packQuantity
 }
 ```
 
@@ -1460,15 +1460,15 @@ However, this query is valid:
 
 ```graphql example
 {
-  stringFilter {
-    contains
+  packQuantity {
+    numberOfBoxes
   }
 }
 ```
 
 And may yield one of the following objects:
 
-- `{ "contains": "awesome" }`
+- `{ "numberOfBoxes": 27 }`
 - `{}`
 
 **Field Ordering**
