@@ -932,7 +932,8 @@ May yield the result:
 ```
 
 The type of an object field argument must be an input type (any type for which
-{IsInputType(type)} returns true).
+{IsInputType(type)} returns {true}, which includes Object, Interface, Union and
+some Tagged types).
 
 
 ### Field Deprecation
