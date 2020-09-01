@@ -1486,7 +1486,7 @@ using the {CollectFields()} algorithm.
 Determining the result of coercing an object or tagged type is the heart of the
 GraphQL executor, so this is covered in that section of the spec.
 
-Note only Tagged types for which {IsOutputType(type)} returns {true} may be
+Note: only Tagged types for which {IsOutputType(type)} returns {true} may be
 used in output.
 
 **Input Coercion**
