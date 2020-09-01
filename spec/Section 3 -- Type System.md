@@ -1418,10 +1418,10 @@ type is only valid for input. If a Tagged type has a member that is only valid
 for input, and another member that's only valid for output, then it is not a
 valid Tagged type.
 
-A member of a Tagged type may be a Scalar, Enum, Input Object type, Object
-type, an Interface, a Union or another Tagged type. Additionally, it may be
-any wrapping type (e.g. list, non-null, or any combination thereof) whose
-underlying base type is one of those six.
+A member of a Tagged type may be of any valid GraphQL type, including Scalar,
+Enum, Input Object type, Object type, an Interface, a Union, another Tagged
+type, or any wrapping type (e.g. list, non-null, or any combination thereof)
+whose underlying base type is one of those six.
 
 Selecting all the members of our `PackQuantity` type:
 
