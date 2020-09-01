@@ -1791,7 +1791,7 @@ Literal Value            | Variables               | Coerced Value
 `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`
 `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`
 `"abc123"`               | `{}`                    | Error: Incorrect value
-`$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
+`$var`                   | `{ var: "abc123" }`     | Error: Incorrect value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Incorrect value for field {b}
 `{ a: "abc" }`           | `{}`                    | Error: Missing required field {b}
 `{ b: $var }`            | `{}`                    | Error: Missing required field {b}.
@@ -1870,7 +1870,7 @@ If the value passed as an input to a list type is *not* a list and not the
 where the single item value is the result of input coercion for the list's item
 type on the provided value (note this may apply recursively for nested lists).
 
-This allow inputs which accept one or many arguments (sometimes referred to as
+This allows inputs which accept one or many arguments (sometimes referred to as
 "var args") to declare their input type as a list while for the common case of a
 single value, a client can just pass that value directly rather than
 constructing the list.
