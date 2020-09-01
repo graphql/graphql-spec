@@ -266,8 +266,6 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
-TaggedMemberDefinition : Description? Name : Type Directives[Const]?
-
 ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
@@ -292,6 +290,8 @@ UnionTypeExtension :
 TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMembersDefinition?
 
 TaggedMembersDefinition : { TaggedMemberDefinition+ }
+
+TaggedMemberDefinition : Description? Name : Type Directives[Const]?
 
 TaggedTypeExtension :
   - extend tagged Name Directives[Const]? TaggedMembersDefinition
