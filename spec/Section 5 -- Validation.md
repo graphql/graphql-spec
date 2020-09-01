@@ -89,7 +89,7 @@ tagged Being {
   alien: Alien
 }
 
-tagged Terran {
+tagged Earthling {
   cat: Cat
   dog: Dog
   human: Human
@@ -1186,7 +1186,7 @@ and the following is invalid
 
 ```graphql counter-example
 fragment beingFragment on Being {
-  ... on Terran {
+  ... on Earthling {
     dog {
       barkVolume
     }
@@ -1194,11 +1194,11 @@ fragment beingFragment on Being {
 }
 ```
 
-This counter-example may be surprising since Being is covariant to Terran
-(Being contains all the members Terran contains), however allowing this spread
-to be valid would inhibit schema evolution - we'd have to ensure that Being
-always remained covariant to Terran, preventing us from adding members to Terran
-alone without adding them to Being.
+This counter-example may be surprising since Being is covariant to Earthling
+(Being contains all the members Earthling contains), however allowing this
+spread to be valid would inhibit schema evolution - we'd have to ensure that
+Being always remained covariant to Earthling, preventing us from adding members
+to Earthling alone without adding them to Being.
 
 
 ##### Abstract Spreads in Object Scope
