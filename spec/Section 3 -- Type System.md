@@ -256,7 +256,7 @@ Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another
 type in the system, allowing the definition of arbitrary type hierarchies.
 
-GraphQL supports two abstract types: interfaces, and unions.
+GraphQL supports two abstract types: interfaces and unions.
 
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
