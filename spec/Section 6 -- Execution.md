@@ -316,9 +316,6 @@ To execute a selection set, the object value being evaluated and the object type
 need to be known, as well as whether it must be executed serially, or may be
 executed in parallel.
 
-For the purposes of execution, the term "field" may be used to reference a
-"member" of a tagged type; this simplifies the wording of the algorithm.
-
 First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a
 response map.
@@ -326,12 +323,11 @@ response map.
 GetTaggedMemberName(objectType, objectValue):
 
   * If {objectType} is not a Tagged type, return {null}.
-  * Let {keys} be the keys of {objectValue} that are member names of {objectType}.
-  * If the length of {keys} is not 1:
+  * Let {fields} be the fields of {objectValue} that are member names of {objectType}.
+  * If the length of {fields} is not 1:
     * Throw a field error.
-  * Let {key} be the first entry in {keys}
-  * Return {key}.
-
+  * Let {memberName} be the first entry in {fields}
+  * Return {memberName}.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
