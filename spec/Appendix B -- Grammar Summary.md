@@ -344,6 +344,7 @@ TypeSystemDirectiveLocation : one of
   `INTERFACE`
   `UNION`
   `TAGGED`
+  `TAGGED_MEMBER_DEFINITION`
   `ENUM`
   `ENUM_VALUE`
   `INPUT_OBJECT`
