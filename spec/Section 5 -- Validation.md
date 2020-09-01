@@ -324,7 +324,9 @@ must provide the operation name as described in {GetOperation()}.
 
 ## Fields
 
-### Field Selections on Objects, Interfaces, and Unions Types
+### Field Selections
+
+Field selections must exist on Object, Interface, and Union types.
 
 **Formal Specification**
 
