@@ -267,9 +267,10 @@ A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
-A `Tagged Type` defines a list of possible members; whenever the type system
-references a tagged type, exactly one of the possible members must be present
-and all others must be omitted.
+A `Tagged` defines a set of possible member fields, where each member field has
+a name and references another type in the system.  Whenever the type system
+references a tagged type, exactly one of these possible member fields must be
+present and all others must be omitted.
 
 Finally, oftentimes it is useful to provide complex structs as inputs to
 GraphQL field arguments or variables; the `Input Object` type allows the schema
