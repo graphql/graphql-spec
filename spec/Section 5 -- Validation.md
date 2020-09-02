@@ -341,7 +341,8 @@ must provide the operation name as described in {GetOperation()}.
 
 Field Selections must exist on Objects, Interfaces, Unions and Tagged Types
 
-Note: Tagged types define members which are queried with field selections.
+Note: Tagged types define member fields which are queried with field
+selections.
 
 **Formal Specification**
 
@@ -1192,10 +1193,10 @@ fragment beingFragment on Being {
 ```
 
 This counter-example may be surprising since Being is covariant to Earthling
-(Being contains all the members Earthling contains), however allowing this
-spread to be valid would inhibit schema evolution - we'd have to ensure that
-Being always remained covariant to Earthling, preventing us from adding members
-to Earthling alone without adding them to Being.
+(Being contains all the member fields Earthling contains), however allowing
+this spread to be valid would inhibit schema evolution - we'd have to ensure
+that Being always remained covariant to Earthling, preventing us from adding
+member fields to Earthling alone without adding them to Being.
 
 
 ##### Abstract Spreads in Object Scope

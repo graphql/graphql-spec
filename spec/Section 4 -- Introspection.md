@@ -141,7 +141,7 @@ type __Type {
   possibleTypes: [__Type!]
 
   # should be non-null for TAGGED only, must be null for the others
-  members(includeDeprecated: Boolean = false): [__TaggedMemberField!]
+  memberFields(includeDeprecated: Boolean = false): [__TaggedMemberField!]
 
   # should be non-null for ENUM only, must be null for the others
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
@@ -317,18 +317,19 @@ Fields
 #### Tagged
 
 Tagged types are an type where exactly one member out of a list of potential
-members must be present. The possible members of a tagged type are explicitly
-listed out in `members`. No modification of a type is necessary to use it as
-the member type of a tagged type.
+members must be present. The possible members of a tagged type are modeled as
+fields - a name and associated type - and are explicitly listed out in
+`memberFields`.  No modification of a type is necessary to use it as the member
+field type of a tagged type.
 
 Fields
 
 * `kind` must return `__TypeKind.TAGGED`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `members`: The set of members query-able on this type.
+* `memberFields`: The set of member fields query-able on this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated members are also returned.
+    {true}, deprecated member fields are also returned.
 * All other fields must return {null}.
 
 
@@ -431,16 +432,16 @@ Fields
 
 ### The __TaggedMemberField Type
 
-The `__TaggedMemberField` type represents `members` of a tagged type.
+The `__TaggedMemberField` type represents `memberFields` of a tagged type.
 
 Fields
 
 * `name` must return a String
 * `description` may return a String or {null}
-* `type` must return a `__Type` that represents the type this member expects.
-* `isDeprecated` returns {true} if this member should no longer be used,
+* `type` must return a `__Type` that represents the type this member field expects.
+* `isDeprecated` returns {true} if this member field should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this member is deprecated.
+* `deprecationReason` optionally provides a reason why this member field is deprecated.
 
 
 ### The __EnumValue Type
