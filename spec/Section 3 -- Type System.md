@@ -2032,7 +2032,7 @@ TypeSystemDirectiveLocation : one of
   `INTERFACE`
   `UNION`
   `TAGGED`
-  `TAGGED_MEMBER_DEFINITION`
+  `TAGGED_MEMBER_FIELD_DEFINITION`
   `ENUM`
   `ENUM_VALUE`
   `INPUT_OBJECT`
@@ -2191,7 +2191,7 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE | TAGGED_MEMBER_DEFINITION
+) on FIELD_DEFINITION | ENUM_VALUE | TAGGED_MEMBER_FIELD_DEFINITION
 ```
 
 The `@deprecated` directive is used within the type system definition language
