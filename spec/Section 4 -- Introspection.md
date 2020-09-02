@@ -141,7 +141,7 @@ type __Type {
   possibleTypes: [__Type!]
 
   # should be non-null for TAGGED only, must be null for the others
-  members(includeDeprecated: Boolean = false): [__Member!]
+  members(includeDeprecated: Boolean = false): [__TaggedMemberField!]
 
   # should be non-null for ENUM only, must be null for the others
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
@@ -169,7 +169,7 @@ type __InputValue {
   defaultValue: String
 }
 
-type __Member {
+type __TaggedMemberField {
   name: String!
   description: String
   type: __Type!
@@ -429,9 +429,9 @@ Fields
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
 
-### The __Member Type
+### The __TaggedMemberField Type
 
-The `__Member` type represents `members` of a tagged type.
+The `__TaggedMemberField` type represents `members` of a tagged type.
 
 Fields
 
