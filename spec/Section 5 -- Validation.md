@@ -339,7 +339,7 @@ must provide the operation name as described in {GetOperation()}.
 
 ### Field Selections
 
-Field Selections must exist on Object, Interface, Union and Tagged types.
+Field selections must exist on Object, Interface, Union and Tagged types.
 
 Note: Tagged types define member fields which are queried with field
 selections.
