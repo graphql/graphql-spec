@@ -320,7 +320,7 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a
 response map.
 
-GetTaggedMemberName(objectType, objectValue):
+GetTaggedMemberFieldName(objectType, objectValue):
 
   * If {objectType} is not a Tagged type, return {null}.
   * Let {fields} be the fields of {objectValue} that are member names of {objectType}.
@@ -331,7 +331,7 @@ GetTaggedMemberName(objectType, objectValue):
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
-  * Let {taggedMemberName} be {GetTaggedMemberName}(objectType, objectValue)}.
+  * Let {taggedMemberName} be {GetTaggedMemberFieldName}(objectType, objectValue)}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(objectType, selectionSet, variableValues, taggedMemberName)}.
   * Initialize {resultMap} to an empty ordered map.
