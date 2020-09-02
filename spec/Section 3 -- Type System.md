@@ -240,9 +240,9 @@ TypeDefinition :
   - ObjectTypeDefinition
   - InterfaceTypeDefinition
   - UnionTypeDefinition
+  - TaggedTypeDefinition
   - EnumTypeDefinition
   - InputObjectTypeDefinition
-  - TaggedTypeDefinition
 
 The fundamental unit of any GraphQL Schema is the type. There are six kinds
 of named type definitions in GraphQL, and two wrapping types.
@@ -339,9 +339,9 @@ TypeExtension :
   - ObjectTypeExtension
   - InterfaceTypeExtension
   - UnionTypeExtension
+  - TaggedTypeExtension
   - EnumTypeExtension
   - InputObjectTypeExtension
-  - TaggedTypeExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
 from some original type. For example, this might be used by a local service to
