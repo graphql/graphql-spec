@@ -159,6 +159,11 @@ The GraphQL spec does not currently support object identification or consistency
 ### Can @defer/@stream increase risk of a denial of service attack?
 This is currently a risk in GraphQL servers that do not implement any kind of query limiting as arbitrarily complex queries can be sent. Adding `@defer` may add some overhead as the server will now send parts of the query earlier than it would have without `@defer`, but it does not allow for any additional resolving that was not previously possible.
 
+## Frequently Asked Questions
+
+### Why is @defer supported on fragments instead of fields?
+If there is a UI component that renders many fields which are deferred, it would be cumbersome to coordinate the loading state of all of those fields. By deferring all of the fields on a fragment, the component can render its fallback loading state until the fragment is loaded. If only a single field needs to be deferred, it can be wrapped in an inline fragment. Since there is an easy workaround, we do not plan to support `@defer` on an individual field as part of this proposal.
+
 
 # Additional material
 - [1] [Lee Byron on idea of @defer and @stream](https://www.youtube.com/watch?v=ViXL0YQnioU&feature=youtu.be&t=9m4s)
