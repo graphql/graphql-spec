@@ -1370,15 +1370,15 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 ## Tagged Types
 
-TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMembersDefinition?
+TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMemberFieldsDefinition?
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedMembersDefinition
+  - extend tagged Name Directives[Const]? TaggedMemberFieldsDefinition
   - extend tagged Name Directives[Const]
 
-TaggedMembersDefinition : { TaggedMemberDefinition+ }
+TaggedMemberFieldsDefinition : { TaggedMemberFieldDefinition+ }
 
-TaggedMemberDefinition : Description? Name : Type Directives[Const]?
+TaggedMemberFieldDefinition : Description? Name : Type Directives[Const]?
 
 Tagged types represent a list of possible named members, exactly one of which
 must be present. This resulting member must yield a value of a specific type.
@@ -1590,7 +1590,7 @@ tagged type deprecated even when that member is non-nullable.
 ### Tagged Extensions
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedMembersDefinition
+  - extend tagged Name Directives[Const]? TaggedMemberFieldsDefinition
   - extend tagged Name Directives[Const]
 
 Tagged type extensions are used to represent a Tagged type which has been
