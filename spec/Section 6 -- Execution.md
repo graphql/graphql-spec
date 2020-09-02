@@ -331,9 +331,9 @@ GetTaggedMemberFieldName(objectType, objectValue):
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
-  * Let {taggedMemberName} be {GetTaggedMemberFieldName}(objectType, objectValue)}.
+  * Let {taggedMemberFieldName} be {GetTaggedMemberFieldName}(objectType, objectValue)}.
   * Let {groupedFieldSet} be the result of
-    {CollectFields(objectType, selectionSet, variableValues, taggedMemberName)}.
+    {CollectFields(objectType, selectionSet, variableValues, taggedMemberFieldName)}.
   * Initialize {resultMap} to an empty ordered map.
   * For each {groupedFieldSet} as {responseKey} and {fields}:
     * Let {fieldName} be the name of the first entry in {fields}.
@@ -487,9 +487,9 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, taggedMemberFieldName, visitedFragments):
 
-  * If {taggedMemberName} is not provided, initialize it to {null}.
+  * If {taggedMemberFieldName} is not provided, initialize it to {null}.
   * If {visitedFragments} is not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
@@ -501,8 +501,8 @@ CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visite
       {selection} in {selectionSet}.
     * If {selection} is a {Field}:
       * Let {fieldName} be the field name.
-      * If {taggedMemberName} is not null:
-        * If {fieldName} is not {taggedMemberName} and {fieldName} is not an introspection field (beginning with the characters {"__"} (two underscores)):
+      * If {taggedMemberFieldName} is not null:
+        * If {fieldName} is not {taggedMemberFieldName} and {fieldName} is not an introspection field (beginning with the characters {"__"} (two underscores)):
           * Continue with the next {selection} in {selectionSet}.
       * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -522,7 +522,7 @@ CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visite
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
       * Let {fragmentGroupedFieldSet} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberName, visitedFragments)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberFieldName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
@@ -533,7 +533,7 @@ CollectFields(objectType, selectionSet, variableValues, taggedMemberName, visite
       * If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
         with the next {selection} in {selectionSet}.
       * Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberName, visitedFragments)}.
+      * Let {fragmentGroupedFieldSet} be the result of calling {CollectFields(objectType, fragmentSelectionSet, variableValues, taggedMemberFieldName, visitedFragments)}.
       * For each {fragmentGroup} in {fragmentGroupedFieldSet}:
         * Let {responseKey} be the response key shared by all fields in {fragmentGroup}.
         * Let {groupForResponseKey} be the list in {groupedFields} for
