@@ -35,7 +35,7 @@ only valid if not followed by a character in its lookahead restriction.
 
 For example, an {IntValue} has the restriction {[lookahead != Digit]}, so cannot
 be followed by a {Digit}. Because of this, the sequence {`123`} cannot represent
-as the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
+the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
 so must only represent a single token. Use {WhiteSpace} or other {Ignored}
 between characters to represent multiple tokens.
 
@@ -102,7 +102,7 @@ text, any amount may appear before or after any other token and have no
 significance to the semantic meaning of a GraphQL Document. Line
 terminators are not found within any other token.
 
-Note: Any error reporting which provide the line number in the source of the
+Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
 the line number.
 
@@ -986,7 +986,7 @@ field vs not altering a field, respectively. Neither form may be used for an
 input expecting a Non-Null type.
 
 Note: The same two methods of representing the lack of a value are possible via
-variables by either providing the a variable value as {null} and not providing
+variables by either providing the variable value as {null} or not providing
 a variable value at all.
 
 

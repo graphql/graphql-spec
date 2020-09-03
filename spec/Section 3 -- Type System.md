@@ -1773,7 +1773,7 @@ include `_` in their name). For example, a custom directive used by Facebook's
 GraphQL service should be named `@fb_auth` instead of `@auth`. This is
 especially recommended for proposed additions to this specification which can
 change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
-For example an work in progress version of `@live` should be named `@rfc_live`.
+For example a work in progress version of `@live` should be named `@rfc_live`.
 
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
