@@ -3358,7 +3358,8 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 </section>
 <section id="sec-Type-System.List" secid="3.11">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Type-System.List">3.11</a></span>List</h3>
-<p>A GraphQL list is a special collection type which declares the type of each item in the List (referred to as the <em>item type</em> of the list). List values are serialized as ordered lists, where each item in the list is serialized as per the item type. To denote that a field uses a List type the item type is wrapped in square brackets like this: <code>pets: [Pet]</code>.</p>
+<p>A GraphQL list is a special collection type which declares the type of each item in the List (referred to as the <em>item type</em> of the list). List values are serialized as ordered lists, where each item in the list is serialized as per the item type.</p>
+<p>To denote that a field uses a List type the item type is wrapped in square brackets like this: <code>pets: [Pet]</code>. Nesting lists is allowed: <code>matrix: [[Int]]</code>.</p>
 <section id="sec-Type-System.List.Result-Coercion" class="subsec">
 <h6><a href="#sec-Type-System.List.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>GraphQL servers must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise a field error. In particular, if a non&#8208;list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
