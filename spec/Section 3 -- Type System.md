@@ -1242,7 +1242,8 @@ With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments
 must be used. This is the same as for unions, but unions do not define any
 fields, so **no** fields may be queried on this type without the use of
-type refining fragments or inline fragments.
+type refining fragments or inline fragments (with the exception of the
+meta-field {__typename}).
 
 For example, we might define the following types:
 
