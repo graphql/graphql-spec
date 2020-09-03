@@ -161,8 +161,8 @@ This is currently a risk in GraphQL servers that do not implement any kind of qu
 
 ## Frequently Asked Questions
 
-### Why is @defer supported on fragments instead of fields?
-If there is a UI component that renders many fields which are deferred, it would be cumbersome to coordinate the loading state of all of those fields. By deferring all of the fields on a fragment, the component can render its fallback loading state until the fragment is loaded. If only a single field needs to be deferred, it can be wrapped in an inline fragment. Since there is an easy workaround, we do not plan to support `@defer` on an individual field as part of this proposal.
+### Why is `@defer` supported on fragments instead of fields?
+If there is a UI component that renders many fields which are deferred, it could be cumbersome to coordinate the loading state of all of those fields. By deferring all of the fields on a fragment, the component can render its fallback loading state until the fragment is loaded, without having to manage the individual state of many fields. If only a single field needs to be deferred, it can be wrapped in an inline fragment. Since there is an easy workaround, we do not plan to support `@defer` on an individual field as part of this proposal.
 
 
 # Additional material
