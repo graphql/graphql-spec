@@ -1114,7 +1114,7 @@ This is an example of a non&#8208;normative note.</div>
 <li><a href="#sec-Validation.Fields"><span class="spec-secid">5.3</span>Fields</a>
 <input hidden class="toggle" type="checkbox" checked id="_toggle_5.3" /><label for="_toggle_5.3"></label>
 <ol>
-<li><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types"><span class="spec-secid">5.3.1</span>Field Selections on Objects, Interfaces, and Unions Types</a></li>
+<li><a href="#sec-Field-Selections"><span class="spec-secid">5.3.1</span>Field Selections</a></li>
 <li><a href="#sec-Field-Selection-Merging"><span class="spec-secid">5.3.2</span>Field Selection Merging</a></li>
 <li><a href="#sec-Leaf-Field-Selections"><span class="spec-secid">5.3.3</span>Leaf Field Selections</a></li>
 </ol>
@@ -4264,18 +4264,19 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Validation.Fields" secid="5.3">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Validation.Fields">5.3</a></span>Fields</h3>
-<section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types" secid="5.3.1">
-<h4><span class="spec-secid" title="link to this section"><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types">5.3.1</a></span>Field Selections on Objects, Interfaces, and Unions Types</h4>
-<section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Formal-Specification" class="subsec">
-<h6><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Field-Selections" secid="5.3.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-Field-Selections">5.3.1</a></span>Field Selections</h4>
+<p>Field selections must exist on Object, Interface, and Union types.</p>
+<section id="sec-Field-Selections.Formal-Specification" class="subsec">
+<h6><a href="#sec-Field-Selections.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li>For each <var data-name="selection">selection</var> in the document.</li>
 <li>Let <var data-name="fieldName">fieldName</var> be the target field of <var data-name="selection">selection</var></li>
 <li><var data-name="fieldName">fieldName</var> must be defined on type in scope</li>
 </ul>
 </section>
-<section id="sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Explanatory-Text" class="subsec">
-<h6><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Field-Selections.Explanatory-Text" class="subsec">
+<h6><a href="#sec-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>The target field of a field selection must be defined on the scoped type of the selection set. There are no limitations on alias names.</p>
 <p>For example the following fragment would not pass validation:</p>
 <pre id="example-48706" class="spec-counter-example"><a href="#example-48706">Counter Example № 108</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fieldNotDefined</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
@@ -7267,7 +7268,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_5.3"><a href="#sec-Validation.Fields"><span class="spec-secid">5.3</span>Fields</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_5.3" /><label for="_sidebar_toggle_5.3"></label>
 <ol>
-<li id="_sidebar_5.3.1"><a href="#sec-Field-Selections-on-Objects-Interfaces-and-Unions-Types"><span class="spec-secid">5.3.1</span>Field Selections on Objects, Interfaces, and Unions Types</a></li>
+<li id="_sidebar_5.3.1"><a href="#sec-Field-Selections"><span class="spec-secid">5.3.1</span>Field Selections</a></li>
 <li id="_sidebar_5.3.2"><a href="#sec-Field-Selection-Merging"><span class="spec-secid">5.3.2</span>Field Selection Merging</a></li>
 <li id="_sidebar_5.3.3"><a href="#sec-Leaf-Field-Selections"><span class="spec-secid">5.3.3</span>Leaf Field Selections</a></li>
 </ol>
