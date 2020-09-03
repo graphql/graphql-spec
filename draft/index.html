@@ -1316,7 +1316,7 @@ See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more informa
 <h6><a href="#sec-Language.Lexical-Analysis-Syntactic-Parse" title="link to this subsection">Lexical Analysis &amp; Syntactic Parse</a></h6>
 <p>The source text of a GraphQL document is first converted into a sequence of lexical tokens, <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>, and ignored tokens, <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span>. The source text is scanned from left to right, repeatedly taking the next possible sequence of code&#8208;points allowed by the lexical grammar productions as the next token. This sequence of lexical tokens are then scanned from left to right to produce an abstract syntax tree (AST) according to the <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span> syntactical grammar.</p>
 <p>Lexical grammar productions in this document use <em>lookahead restrictions</em> to remove ambiguity and ensure a single valid lexical analysis. A lexical token is only valid if not followed by a character in its lookahead restriction.</p>
-<p>For example, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> has the restriction <span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span></span>, so cannot be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. Because of this, the sequence <span class="spec-t">123</span> cannot represent as the tokens (<span class="spec-t">12</span>, <span class="spec-t">3</span>) since <span class="spec-t">12</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span> and so must only represent a single token. Use <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> or other <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> between characters to represent multiple tokens.</p>
+<p>For example, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> has the restriction <span class="spec-lookahead ntset not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span></span>, so cannot be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. Because of this, the sequence <span class="spec-t">123</span> cannot represent the tokens (<span class="spec-t">12</span>, <span class="spec-t">3</span>) since <span class="spec-t">12</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span> and so must only represent a single token. Use <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> or other <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> between characters to represent multiple tokens.</p>
 <div id="note-ba22f" class="spec-note">
 <a href="#note-ba22f">Note</a>
 This typically has the same behavior as a &ldquo;<a href="https://en.wikipedia.org/wiki/Maximal_munch">maximal munch</a>&rdquo; longest possible match, however some lookahead restrictions include additional constraints.</div>
@@ -1357,9 +1357,9 @@ GraphQL intentionally does not consider Unicode &ldquo;Zs&rdquo; category charac
 <div class="spec-rhs"><span class="spec-prose">Carriage Return (U+000D)</span><span class="spec-prose">New Line (U+000A)</span></div>
 </div>
 <p>Like white space, line terminators are used to improve the legibility of source text, any amount may appear before or after any other token and have no significance to the semantic meaning of a GraphQL Document. Line terminators are not found within any other token.</p>
-<div id="note-a9236" class="spec-note">
-<a href="#note-a9236">Note</a>
-Any error reporting which provide the line number in the source of the offending syntax should use the preceding amount of <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span> to produce the line number.</div>
+<div id="note-2b19e" class="spec-note">
+<a href="#note-2b19e">Note</a>
+Any error reporting which provides the line number in the source of the offending syntax should use the preceding amount of <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span> to produce the line number.</div>
 </section>
 <section id="sec-Comments" secid="2.1.4">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Comments">2.1.4</a></span>Comments</h4>
@@ -2097,9 +2097,9 @@ If non&#8208;printable ASCII characters are needed in a string value, a standard
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The first has explicitly provided <span class="spec-keyword">null</span> to the argument &ldquo;arg&rdquo;, while the second has implicitly not provided a value to the argument &ldquo;arg&rdquo;. These two forms may be interpreted differently. For example, a mutation representing deleting a field vs not altering a field, respectively. Neither form may be used for an input expecting a Non&#8208;Null type.</p>
-<div id="note-f50d9" class="spec-note">
-<a href="#note-f50d9">Note</a>
-The same two methods of representing the lack of a value are possible via variables by either providing the a variable value as <span class="spec-keyword">null</span> and not providing a variable value at all.</div>
+<div id="note-eab9b" class="spec-note">
+<a href="#note-eab9b">Note</a>
+The same two methods of representing the lack of a value are possible via variables by either providing the variable value as <span class="spec-keyword">null</span> or not providing a variable value at all.</div>
 </section>
 <section id="sec-Enum-Value" secid="2.9.6">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Value">2.9.6</a></span>Enum Value</h4>
@@ -3558,9 +3558,9 @@ The Validation section defines providing a nullable variable type to a non&#8208
 <section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
 <h6><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
 <p>GraphQL services and client tooling may provide additional directives beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
-<div id="note-29c86" class="spec-note">
-<a href="#note-29c86">Note</a>
-When defining a directive, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with directives which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a custom directive used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md">RFC process</a>. For example an work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
+<div id="note-ca863" class="spec-note">
+<a href="#note-ca863">Note</a>
+When defining a directive, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with directives which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a custom directive used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md">RFC process</a>. For example a work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
 <p>Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
 <pre id="example-060af" class="spec-example"><a href="#example-060af">Example № 84</a><code>directive <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span>
 
@@ -3996,7 +3996,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <p>Typically validation is performed in the context of a request immediately before execution, however a GraphQL service may execute a request without explicitly validating it if that exact same request is known to have been validated before. For example: the request may be validated during development, provided it does not later change, or a service may validate a request once and memoize the result to avoid validating the same request again in the future. Any client&#8208;side or development&#8208;time tool should report validation errors and not allow the formulation or execution of requests known to be invalid at that given point in time.</p>
 <section id="sec-Validation.Type-system-evolution" class="subsec">
 <h6><a href="#sec-Validation.Type-system-evolution" title="link to this subsection">Type system evolution</a></h6>
-<p>As GraphQL type system schema evolve over time by adding new types and new fields, it is possible that a request which was previously valid could later become invalid. Any change that can cause a previously valid request to become invalid is considered a <em>breaking change</em>. GraphQL services and schema maintainers are encouraged to avoid breaking changes, however in order to be more resilient to these breaking changes, sophisticated GraphQL systems may still allow for the execution of requests which <em>at some point</em> were known to be free of any validation errors, and have not changed since.</p>
+<p>As GraphQL type system schema evolves over time by adding new types and new fields, it is possible that a request which was previously valid could later become invalid. Any change that can cause a previously valid request to become invalid is considered a <em>breaking change</em>. GraphQL services and schema maintainers are encouraged to avoid breaking changes, however in order to be more resilient to these breaking changes, sophisticated GraphQL systems may still allow for the execution of requests which <em>at some point</em> were known to be free of any validation errors, and have not changed since.</p>
 </section>
 <section id="sec-Validation.Examples" class="subsec">
 <h6><a href="#sec-Validation.Examples" title="link to this subsection">Examples</a></h6>
@@ -4568,7 +4568,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token attr-name">arguments</span><span class="token punctuation">:</span> Arguments
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Order does not matter in arguments. Therefore both the following example are valid.</p>
+<p>Order does not matter in arguments. Therefore both the following examples are valid.</p>
 <pre id="example-7fe03" class="spec-example"><a href="#example-7fe03">Example № 127</a><code><span class="token keyword">fragment</span> <span class="token fragment function">multipleArgs</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   multipleReqs<span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -5026,7 +5026,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>is consider valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> implements interface <span class="spec-nt"><span data-name="Pet">Pet</span></span> and is a member of <span class="spec-nt"><span data-name="DogOrHuman">DogOrHuman</span></span>.</p>
+<p>is considered valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> implements interface <span class="spec-nt"><span data-name="Pet">Pet</span></span> and is a member of <span class="spec-nt"><span data-name="DogOrHuman">DogOrHuman</span></span>.</p>
 <p>However</p>
 <pre id="example-c9c63" class="spec-counter-example"><a href="#example-c9c63">Counter Example № 150</a><code><span class="token keyword">fragment</span> <span class="token fragment function">nonIntersectingInterfaces</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">sentientFragment</span>
@@ -5612,7 +5612,7 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>$<var data-name="intArg">intArg</var> typed as <span class="spec-nt"><span data-name="Int">Int</span></span> cannot be used as a argument to <var data-name="booleanArg">booleanArg</var>, typed as <span class="spec-nt"><span data-name="Boolean">Boolean</span></span>.</p>
+<p>$<var data-name="intArg">intArg</var> typed as <span class="spec-nt"><span data-name="Int">Int</span></span> cannot be used as an argument to <var data-name="booleanArg">booleanArg</var>, typed as <span class="spec-nt"><span data-name="Boolean">Boolean</span></span>.</p>
 <p>List cardinality must also be the same. For example, lists cannot be passed into singular values.</p>
 <pre id="example-8d369" class="spec-counter-example"><a href="#example-8d369">Counter Example № 177</a><code><span class="token keyword">query</span> booleanListCannotGoIntoBoolean<span class="token punctuation">(</span><span class="token variable">$booleanListArg</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
@@ -5653,16 +5653,16 @@ extend <span class="token keyword">type</span> <span class="token class-name">Qu
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non&#8208;null argument (<code>nonNullBooleanArg</code>) because the variable provides a default value in the query. This behavior is explicitly supported for compatibility with earlier editions of this specification. GraphQL authoring tools may wish to report this is a warning with the suggestion to replace <code>Boolean</code> with <code>Boolean!</code> to avoid ambiguity.</p>
+<p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non&#8208;null argument (<code>nonNullBooleanArg</code>) because the variable provides a default value in the query. This behavior is explicitly supported for compatibility with earlier editions of this specification. GraphQL authoring tools may wish to report this as a warning with the suggestion to replace <code>Boolean</code> with <code>Boolean!</code> to avoid ambiguity.</p>
 <pre id="example-d24d9" class="spec-example"><a href="#example-d24d9">Example № 182</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     nonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-241c3" class="spec-note">
-<a href="#note-241c3">Note</a>
-The value <span class="spec-keyword">null</span> could still be provided to a such a variable at runtime. A non&#8208;null argument must produce a field error if provided a <span class="spec-keyword">null</span> value. </div>
+<div id="note-1c146" class="spec-note">
+<a href="#note-1c146">Note</a>
+The value <span class="spec-keyword">null</span> could still be provided to such a variable at runtime. A non&#8208;null argument must produce a field error if provided a <span class="spec-keyword">null</span> value. </div>
 </section>
 </section>
 </section>
@@ -6235,7 +6235,7 @@ A common method of determining the Object type for an <var data-name="objectValu
 </section>
 <section id="sec-Value-Completion.Merging-Selection-Sets" class="subsec">
 <h6><a href="#sec-Value-Completion.Merging-Selection-Sets" title="link to this subsection">Merging Selection Sets</a></h6>
-<p>When more than one fields of the same name are executed in parallel, their selection sets are merged together when completing the value in order to continue execution of the sub&#8208;selection sets.</p>
+<p>When more than one field of the same name is executed in parallel, their selection sets are merged together when completing the value in order to continue execution of the sub&#8208;selection sets.</p>
 <p>An example query illustrating parallel fields with the same name with sub&#8208;selections.</p>
 <pre id="example-77852" class="spec-example"><a href="#example-77852">Example № 190</a><code><span class="token punctuation">{</span>
   me <span class="token punctuation">{</span>
