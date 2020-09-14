@@ -51,7 +51,7 @@ move forward. See editor Lee Byron talk about
 
   Once a query is written, it should always mean the same thing and return the
   same shaped result. Future changes should not change the meaning of existing
-  schema or queries or in any other way cause an existing compliant GraphQL
+  schema or operations or in any other way cause an existing compliant GraphQL
   service to become non-compliant for prior versions of the spec.
 
 * **Performance is a feature**

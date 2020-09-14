@@ -1,8 +1,8 @@
 # Type System
 
 The GraphQL Type system describes the capabilities of a GraphQL service and is
-used to determine if a query is valid. The type system also describes the
-input types of query variables to determine if values provided at runtime
+used to determine if a request is valid. The type system also describes the
+input types of operation variables to determine if values provided at runtime
 are valid.
 
 TypeSystemDocument : TypeSystemDefinition+
@@ -79,7 +79,7 @@ schema {
 }
 
 """
-Root type for all your queries
+Root type for all your query operations
 """
 type Query {
   """
@@ -191,7 +191,7 @@ When using the type system definition language, a document must include at most
 one {`schema`} definition.
 
 In this example, a GraphQL schema is defined with both query and mutation
-root types:
+root operation types:
 
 ```graphql example
 schema {
@@ -424,7 +424,7 @@ raised (input values are validated before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
-of input value is encountered. GraphQL may be parameterized by query variables,
+of input value is encountered. GraphQL may be parameterized by operation variables,
 the values of which are often serialized when sent over a transport like HTTP. Since
 some common serializations (ex. JSON) do not discriminate between integer
 and floating-point values, they are interpreted as an integer input value if
@@ -601,14 +601,14 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
-GraphQL queries are hierarchical and composed, describing a tree of information.
-While Scalar types describe the leaf values of these hierarchical queries, Objects
+GraphQL operations are hierarchical and composed, describing a tree of information.
+While Scalar types describe the leaf values of these hierarchical operations, Objects
 describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
-queried field names (or aliases) are the keys and the result of evaluating
-the field is the value, ordered by the order in which they appear in the query.
+requested field names (or aliases) are the keys and the result of evaluating
+the field is the value, ordered by the order in which they appear in the operation.
 
 All fields defined within an Object type must not have a name which begins with
 {"__"} (two underscores), as this is used exclusively by GraphQL's
@@ -687,8 +687,8 @@ type Person {
 }
 ```
 
-Valid queries must supply a nested field set for a field that returns
-an object, so this query is not valid:
+Valid operations must supply a nested field set for a field that returns
+an object, so this operation is not valid:
 
 ```graphql counter-example
 {
@@ -722,7 +722,7 @@ And will yield the subset of each object type queried:
 **Field Ordering**
 
 When querying an Object, the resulting mapping of fields are conceptually
-ordered in the same order in which they were encountered during query execution,
+ordered in the same order in which they were encountered during request execution,
 excluding fragments for which the type does not apply and fields or
 fragments that are skipped via `@skip` or `@include` directives. This ordering
 is correctly produced when using the {CollectFields()} algorithm.
@@ -920,10 +920,10 @@ type Person {
 }
 ```
 
-GraphQL queries can optionally specify arguments to their fields to provide
+GraphQL operations can optionally specify arguments to their fields to provide
 these arguments.
 
-This example query:
+This example operation:
 
 ```graphql example
 {
@@ -948,7 +948,7 @@ Object, Interface, or Union type).
 ### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
-application. It is still legal to query for these fields (to ensure existing
+application. It is still legal to fetch these fields (to ensure existing
 clients are not broken by the change), but the fields should be appropriately
 treated in documentation and tooling.
 
@@ -1062,7 +1062,7 @@ type Contact {
 }
 ```
 
-This allows us to write a query for a `Contact` that can select the
+This allows us to write a selection set for a `Contact` that can select the
 common fields.
 
 ```graphql example
@@ -1074,10 +1074,10 @@ common fields.
 }
 ```
 
-When querying for fields on an interface type, only those fields declared on
+When selecting fields on an interface type, only those fields declared on
 the interface may be queried. In the above example, `entity` returns a
 `NamedEntity`, and `name` is defined on `NamedEntity`, so it is valid. However,
-the following would not be a valid query:
+the following would not be a valid selection set against `Contact`:
 
 ```graphql counter-example
 {
@@ -1091,7 +1091,7 @@ the following would not be a valid query:
 
 because `entity` refers to a `NamedEntity`, and `age` is not defined on that
 interface. Querying for `age` is only valid when the result of `entity` is a
-`Person`; the query can express this using a fragment or an inline fragment:
+`Person`; this can be expressed using a fragment or an inline fragment:
 
 ```graphql example
 {
@@ -1295,9 +1295,9 @@ type SearchQuery {
 ```
 
 When querying the `firstSearchResult` field of type `SearchQuery`, the
-query would ask for all fields inside of a fragment indicating the appropriate
-type. If the query wanted the name if the result was a Person, and the height if
-it was a photo, the following query is invalid, because the union itself
+request would ask for all fields inside of a fragment indicating the appropriate
+type. If the request wanted the name if the result was a Person, and the height if
+it was a photo, the following document is invalid, because the union itself
 defines no fields:
 
 ```graphql counter-example
@@ -1309,7 +1309,7 @@ defines no fields:
 }
 ```
 
-Instead, the query would be:
+Instead, the document would be:
 
 ```graphql example
 {
@@ -1415,7 +1415,7 @@ reasonable coercion is not possible they must raise a field error.
 GraphQL has a constant literal to represent enum input values. GraphQL string
 literals must not be accepted as an enum input and instead raise a request error.
 
-Query variable transport serializations which have a different representation
+Operation variable transport serializations which have a different representation
 for non-string symbolic values (for example, [EDN](https://github.com/edn-format/edn))
 should only allow such values as enum input values. Otherwise, for most
 transport serializations that do not, strings may be interpreted as the enum
@@ -1709,8 +1709,8 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Nullable vs. Optional**
 
-Fields are *always* optional within the context of a query, a field may be
-omitted and the query is still valid. However fields that return Non-Null types
+Fields are *always* optional within the context of a selection set, a field may be
+omitted and the selection set is still valid. However fields that return Non-Null types
 will never return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a

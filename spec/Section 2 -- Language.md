@@ -3,7 +3,7 @@
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
 operations (queries, mutations, and subscriptions) as well as fragments, a
-common unit of composition allowing for query reuse.
+common unit of composition allowing for data requirement reuse.
 
 A GraphQL document is defined as a syntactic grammar where terminal symbols are
 tokens (indivisible lexical units). These tokens are defined in a lexical
@@ -337,7 +337,7 @@ under-fetching data.
 }
 ```
 
-In this query, the `id`, `firstName`, and `lastName` fields form a selection
+In this query operation, the `id`, `firstName`, and `lastName` fields form a selection
 set. Selection sets may also contain fragment references.
 
 
@@ -408,7 +408,7 @@ Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
 function arguments within a GraphQL service's implementation.
 
-In this example, we want to query a specific user (requested via the `id`
+In this example, we want to fetch a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:
 
 ```graphql example
@@ -438,7 +438,7 @@ Many arguments can exist for a given field:
 Arguments may be provided in any syntactic order and maintain identical
 semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -546,7 +546,7 @@ query noFragments {
 ```
 
 The repeated fields could be extracted into a fragment and composed by
-a parent fragment or query.
+a parent fragment or operation.
 
 ```graphql example
 query withFragments {
@@ -567,8 +567,8 @@ fragment friendFields on User {
 }
 ```
 
-Fragments are consumed by using the spread operator (`...`). All fields selected
-by the fragment will be added to the query field selection at the same level
+Fragments are consumed by using the spread operator (`...`). All fields
+selected by the fragment will be added to the field selection at the same level
 as the fragment invocation. This happens through multiple levels of fragment
 spreads.
 
@@ -597,7 +597,7 @@ fragment standardProfilePic on User {
 }
 ```
 
-The queries `noFragments`, `withFragments`, and `withNestedFragments` all
+The operations `noFragments`, `withFragments`, and `withNestedFragments` all
 produce the same response object.
 
 
@@ -616,7 +616,7 @@ Fragments can be specified on object types, interfaces, and unions.
 Selections within fragments only return values when the concrete type of the object
 it is operating on matches the type of the fragment.
 
-For example in this query on the Facebook data model:
+For example in this operation using the Facebook data model:
 
 ```graphql example
 query FragmentTyping {
@@ -1049,7 +1049,7 @@ literal representation of input objects as "object literals."
 Input object fields may be provided in any syntactic order and maintain
 identical semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -1113,7 +1113,7 @@ query getZuckProfile($devicePicSize: Int) {
 
 Values for those variables are provided to a GraphQL service along with a
 request so they may be substituted during execution. If providing JSON for the
-variables' values, we could run this query and request profilePic of
+variables' values, we could run this operation and fetch profilePic of
 size `60` width:
 
 ```json example
@@ -1124,7 +1124,7 @@ size `60` width:
 
 **Variable use within Fragments**
 
-Query variables can be used within fragments. Query variables have global scope
+Operation variables can be used within fragments. Operation variables have global scope
 with a given operation, so a variable used within a fragment must be declared
 in any top-level operation that transitively consumes that fragment. If
 a variable is referenced in a fragment and is included by an operation that does
@@ -1146,7 +1146,7 @@ NonNullType :
   - NamedType !
   - ListType !
 
-GraphQL describes the types of data expected by query variables. Input types
+GraphQL describes the types of data expected by operation variables. Input types
 may be lists of another input type, or a non-null variant of any other
 input type.
 

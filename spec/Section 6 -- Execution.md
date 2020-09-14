@@ -112,15 +112,15 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the "Type System" section of the spec, must
-provide a query root object type. If mutations or subscriptions are supported,
-it must also provide a mutation or subscription root object type, respectively.
+provide a query root operation type. If mutations or subscriptions are supported,
+it must also provide a mutation or subscription root operation type, respectively.
 
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the query’s top level selection set with the query root object type.
+executing the operation’s top level selection set with the query root operation type.
 
-An initial value may be provided when executing a query.
+An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
@@ -137,7 +137,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 ### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
-executing the mutation’s top level selection set on the mutation root
+executing the operation’s top level selection set on the mutation root
 object type. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
@@ -162,8 +162,8 @@ If the operation is a subscription, the result is an event stream called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
-Executing a subscription creates a persistent function on the service that
-maps an underlying Source Stream to a returned Response Stream.
+Executing a subscription operation creates a persistent function on the service
+that maps an underlying Source Stream to a returned Response Stream.
 
 Subscribe(subscription, schema, variableValues, initialValue):
 
@@ -335,7 +335,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
       * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
-Note: {resultMap} is ordered by which fields appear first in the query. This
+Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
@@ -562,7 +562,7 @@ Fields may include arguments which are provided to the underlying runtime in
 order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type.
 
-At each argument position in a query may be a literal {Value}, or a {Variable}
+At each argument position in an operation may be a literal {Value}, or a {Variable}
 to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
@@ -608,7 +608,7 @@ CoerceArgumentValues(objectType, field, variableValues):
   * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid queries
+before executing the operation in {CoerceVariableValues()}, and valid operations
 must only allow usage of variables of appropriate types.
 
 
@@ -709,7 +709,7 @@ When more than one field of the same name is executed in parallel, their
 selection sets are merged together when completing the value in order to
 continue execution of the sub-selection sets.
 
-An example query illustrating parallel fields with the same name with
+An example operation illustrating parallel fields with the same name with
 sub-selections.
 
 ```graphql example

@@ -582,7 +582,7 @@ fragment conflictingDifferingResponses on Pet {
 **Explanatory Text**
 
 Field selections on scalars or enums are never allowed, because they
-are the leaf nodes of any GraphQL query.
+are the leaf nodes of any GraphQL operation.
 
 The following is valid.
 
@@ -602,11 +602,11 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the leaf field selections of GraphQL queries
+Conversely the leaf field selections of GraphQL operations
 must be of type scalar or enum. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following additions to the query root type of the schema:
+Let's assume the following additions to the query root operation type of the schema:
 
 ```graphql example
 extend type Query {
@@ -761,7 +761,7 @@ fragment goodNonNullArg on Arguments {
 
 The argument can be omitted from a field with a nullable argument.
 
-Therefore the following query is valid:
+Therefore the following fragment is valid:
 
 ```graphql example
 fragment goodBooleanArgDefault on Arguments {
@@ -861,7 +861,7 @@ fragment fragmentOne on Dog {
 
 Fragments must be specified on types that exist in the schema. This
 applies for both named and inline fragments. If they are
-not defined in the schema, the query does not validate.
+not defined in the schema, the request does not validate.
 
 For example the following fragments are valid:
 
@@ -1397,7 +1397,7 @@ which is not defined on the expected type:
 Input objects must not contain more than one field of the same name, otherwise
 an ambiguity would exist which includes an ignored portion of syntax.
 
-For example the following query will not pass validation.
+For example the following document will not pass validation.
 
 ```graphql counter-example
 {
@@ -1466,7 +1466,7 @@ GraphQL services define what directives they support and where they support them
 For each usage of a directive, the directive must be used in a location that the
 service has declared support for.
 
-For example the following query will not pass validation because `@skip` does
+For example the following document will not pass validation because `@skip` does
 not provide `QUERY` as a valid location.
 
 ```graphql counter-example
@@ -1496,7 +1496,7 @@ definition they apply to. When more than one directive of the same name is used,
 the expected metadata or behavior becomes ambiguous, therefore only one of each
 directive is allowed per location.
 
-For example, the following query will not pass validation because `@skip` has
+For example, the following document will not pass validation because `@skip` has
 been used twice for the same field:
 
 ```raw graphql counter-example
@@ -1506,7 +1506,7 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 ```
 
 However the following example is valid because `@skip` has been used only once
-per location, despite being used twice in the query and on the same named field:
+per location, despite being used twice in the document and on the same named field:
 
 ```raw graphql example
 query ($foo: Boolean = true, $bar: Boolean = false) {
@@ -1596,7 +1596,7 @@ extend type Query {
 }
 ```
 
-The following queries are valid:
+The following operations are valid:
 
 ```graphql example
 query takesBoolean($atOtherHomes: Boolean) {
@@ -1616,7 +1616,7 @@ query TakesListOfBooleanBang($booleans: [Boolean!]) {
 }
 ```
 
-The following queries are invalid:
+The following operations are invalid:
 
 ```graphql counter-example
 query takesCat($cat: Cat) {
@@ -1666,7 +1666,7 @@ query variableIsDefined($atOtherHomes: Boolean) {
 
 is valid. ${atOtherHomes} is defined by the operation.
 
-By contrast the following query is invalid:
+By contrast the following document is invalid:
 
 ```graphql counter-example
 query variableIsNotDefined {
@@ -1702,7 +1702,7 @@ since {isHousetrainedFragment} is used within the context of the operation
 operation.
 
 On the other hand, if a fragment is included within an operation that does
-not define a referenced variable, the query is invalid.
+not define a referenced variable, the document is invalid.
 
 ```graphql counter-example
 query variableIsNotDefinedUsedInSingleFragment {
@@ -1999,7 +1999,7 @@ query booleanArgQueryWithDefault($booleanArg: Boolean) {
 
 In the example below, an optional variable `$booleanArg` is allowed to be used
 in the non-null argument (`nonNullBooleanArg`) because the variable provides
-a default value in the query. This behavior is explicitly supported for
+a default value in the operation. This behavior is explicitly supported for
 compatibility with earlier editions of this specification. GraphQL authoring
 tools may wish to report this as a warning with the suggestion to replace
 `Boolean` with `Boolean!` to avoid ambiguity.
