@@ -902,7 +902,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [C][criteria-c] 🥇 | ✅ | ✅⚠️ | 🚫 | ⚠️ | ✅ |
 | [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
 | [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | 🚫 |
 | [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
 | [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
 | [I][criteria-i] 🥉 | ✅ | ✅ | ✅ | ⚠️ | ✅ |
