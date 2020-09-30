@@ -305,7 +305,7 @@ input union IU = I | { y: Int }
 
 | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
 |----|----|----|----|----|
-| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | 🚫 |
 
 Criteria score: 🥉
 
@@ -864,7 +864,7 @@ type Mutation {
 * [E. A member type may be a Leaf type][criteria-e]
   * ✅ Any GraphQL type may be used
 * [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
-  * ✅ No migration required, as this pattern is already possible
+  * 🚫 Previously-valid inputs now need to be wrapped in a container object
 * [H. Input unions should accept plain data][criteria-h]
   * ⚠️ The data is wrapped in a (simple) container type
 * [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
