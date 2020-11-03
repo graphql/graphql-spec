@@ -7,8 +7,8 @@ are valid.
 
 TypeSystemDefinition :
   - SchemaDefinition
-  - TypeDefinition
-  - DirectiveDefinition
+  - TypeDefinition+
+  - DirectiveDefinition+
 
 The GraphQL language includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
