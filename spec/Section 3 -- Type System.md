@@ -818,6 +818,9 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If the argument has a default value, {defaultValue} must be compatible
+         with {argumentType} as per the coercion rules for that type, and
+         coercion of {defaultValue} must not cause an infinite loop.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1520,10 +1523,11 @@ defined by the input object type and for which a value exists. The resulting map
 is constructed with the following rules:
 
 * If no value is provided for a defined input object field and that field
-  definition provides a default value, the default value should be used. If no
-  default value is provided and the input object field's type is non-null, an
-  error should be thrown. Otherwise, if the field is not required, then no entry
-  is added to the coerced unordered map.
+  definition provides a default value, the result of coercing the default value
+  according to the coercion rules of the input field type should be used.
+  If no default value is provided and the input object field's type is
+  non-null, an error should be thrown. Otherwise, if the field is not required,
+  then no entry is added to the coerced unordered map.
 
 * If the value {null} was provided for an input object field, and the field's
   type is not a non-null type, an entry in the coerced unordered map is given
@@ -1580,6 +1584,9 @@ Literal Value            | Variables               | Coerced Value
       characters {"__"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+   4. If the input field has a default value, {defaultValue} must be compatible
+      with {inputFieldType} as per the coercion rules for that type, and
+      coercion of {defaultValue} must not cause an infinite loop.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
