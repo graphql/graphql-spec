@@ -103,7 +103,7 @@ We can write the following list of Schema Coordinates:
 - `Business.owner` uniquely identifies the "owner" field on the "Business" type
 - `Query.searchBusinesses` uniquely identifies the "searchBusinesses" field on
   the "Query" type
-- `Query.searchBusinesses(name)` uniquely identifies the "name" argument on the
+- `Query.searchBusinesses(name:)` uniquely identifies the "name" argument on the
   "searchBusinesses" field on the "Query" type
 
 This RFC standardizes how we write coordinates GraphQL Schema members as above.
