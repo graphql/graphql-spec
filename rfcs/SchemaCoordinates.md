@@ -48,7 +48,7 @@ specification or name for this convention.
    [apq]: https://www.apollographql.com/docs/apollo-server/performance/apq/
 
 1. A **GitHub bot** may want to warn developers in a Pull Request comment
-   whenever the schema diff contains a breaking change. Schema selectors can be
+   whenever the schema diff contains a breaking change. Schema coordinates can be
    used to provide a list of which fields were broken.
 
    _Existing implementations: GraphQL Inspector (see "Prior Art")_
