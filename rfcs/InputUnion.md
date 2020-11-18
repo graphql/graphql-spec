@@ -427,6 +427,17 @@ Adding an input to one or more unions should not require extraneous changes, con
 
 Criteria score: 🥇
 
+## 🎯 P. Error states and messages should be clear and helpful
+
+Complex algorithms can make it difficult to write error messages that are helpful and clear.
+When an invalid schema or invalid query are used, it should be obvious what went wrong and how to fix it.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅️ | ✅️ | ⚠️ | 🚫 | ✅ | ❔ | ✅ |
+
+Criteria score: 🥉
+
 # 🚧 Possible Solutions
 
 The community has imagined a variety of possible solutions, synthesized here.
@@ -509,6 +520,8 @@ type Mutation {
   * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ✅ Adding or removing an input type to a union has no extraneous effects on schema design
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ## 💡 2. Explicit configurable Discriminator field
 
@@ -621,6 +634,8 @@ inputunion AnimalInput @discriminator(field: "species") =
   * 🚫 Adding an input type to a union requires that it has the non-null discriminator field
      * The input might already have a field with the same name, but a different type
      * Reusing input types in multiple input unions can become unwieldy
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ## 💡 3. Order based discrimination
 
@@ -710,6 +725,8 @@ type Mutation {
   * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ❔ Not evaluated
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ⚠️ Order-based discrimination can lead to some subtle issues based on when one type is chosen over another.
 
 ## 💡 4. Structural uniqueness
 
@@ -803,6 +820,8 @@ input DogInput {
   * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * 🚫 Input types with similar fields may not be able to be combined without breaking changes
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * 🚫 Structural uniqueness checks are very complex and have many hard-to-describe failure states.
 
 ## 💡 5. One Of (Tagged Union)
 
@@ -883,6 +902,8 @@ type Mutation {
   * ✅ Existing code generation tools will degrade gracefully to a regular input object
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ✅ Adding or removing input types to a tagged union requires no extraneous effort
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ### Summary of spec changes
 
@@ -1003,6 +1024,8 @@ https://github.com/graphql/graphql-spec/pull/733
   * ✅⚠️
 * [O. Unconstrained combination of input types to unions][criteria-o]
   * ✅ Adding or removing member fields to a tagged type requires no extraneous effort and has no non-local consequences
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ### Summary of spec changes
 
@@ -1039,6 +1062,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 | [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ | ? | 🚫 |
 | [N][criteria-n] 🥈 | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ | ? | ✅⚠️ |
 | [O][criteria-o] 🥈 | ✅️ | 🚫️ | ❔ | 🚫 | ✅ | ? | ✅ |
+| [P][criteria-p] 🥉 | ✅️ | ✅️ | ⚠️ | 🚫 | ✅ | ❔ | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
 [criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
@@ -1055,6 +1079,7 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 [criteria-m]: #-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions
 [criteria-n]: #-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions
 [criteria-o]: #-o-unconstrained-combination-of-input-types-to-unions
+[criteria-p]: #-p-error-states-and-messages-should-be-clear-and-helpful
 
 [solution-1]: #-1-explicit-__typename-discriminator-field
 [solution-2]: #-2-explicit-configurable-discriminator-field
