@@ -73,6 +73,28 @@ _Existing implementations: Apollo Studio (see "Prior Art")_
 - There are **no proposed GraphQL runtime changes**
 - [Schema coordinate non-goals](#-syntax-non-goals)
 
+## Proposed syntax
+
+### `Type`
+
+Refers to a named type (e.g. something represented by `__Type` in GraphQL introspection).
+
+### `Type.attribute`
+
+Refers to a named attribute on the named type. Not all types support this. For object types and interface types this is a field, for input objects this would be an input field, for enums this would be an enum value, for future GraphQL types this will relate to a related concept if they have one (e.g. for the [proposed "tagged" type](https://github.com/graphql/graphql-spec/pull/733) it would refer to the "member field").
+
+### `Type.field(argName:)`
+
+Refers to a named argument on the named field of the named type.
+
+### `@directive`
+
+References the given named directive
+
+### `@directive(argName:)`
+
+References the named argument of the named directive.
+
 ## ✨ Worked Examples
 
 For example, consider the following schema:
