@@ -3,22 +3,21 @@
 **Proposed by:** [Mark Larah](https://twitter.com/mark_larah) - Yelp
 
 This RFC proposes formalizing "Schema Coordinates" - a human readable syntax to
-uniquely identify a type, field, or field argument defined in a GraphQL Schema.
+uniquely identify a type, field, field argument, enum value, directive or directive argument defined in a GraphQL Schema.
 
 This should be listed as a non-normative note in the GraphQL specification to
 serve as an official reference for use by third party tooling.
 
 ## 📜 Problem Statement
 
-Third party GraphQL tooling and libraries may wish to refer to a field, or set of
-fields in a schema. Use cases include documentation, metrics and logging
+GraphQL tooling and libraries may wish to refer to the various components of a GraphQL schema. Use cases include documentation, metrics and logging
 libraries.
 
 ![](https://i.fluffy.cc/5Cz9cpwLVsH1FsSF9VPVLwXvwrGpNh7q.png)
 
 _(Example shown from GraphiQL's documentation search tab)_
 
-There already exists a convention used by some third party libraries for writing
+There already exists a convention used by some libraries and tools for writing
 out fields in a unique way for such purposes. However, there is no formal
 specification or name for this convention.
 
@@ -173,7 +172,7 @@ From the query above, we may calculate the following list of schema coordinates:
 - `Business.owner`
 - `Person.name`
 
-_`Query.searchBusinesses(name)` is also a valid member of the output set. The
+_`Query.searchBusinesses(name:)` is also a valid member of the output set. The
 serialization algorithm may optionally choose to output all permutations of field
 arguments used, should this be specified._
 
@@ -301,7 +300,7 @@ This syntax consciously does not cover the following use cases:
   ```
 
   You _can_ select the definition of the `private` directive and its arguments
-  (with `@private` and `@private(scope)` respectively), but you cannot select the
+  (with `@private` and `@private(scope:)` respectively), but you cannot select the
   application of the `@private` on `User.email`.
 
   For the stated use cases of this RFC, it is more likely that consumers want to
