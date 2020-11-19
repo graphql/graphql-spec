@@ -1130,3 +1130,9 @@ in both [GraphQL.js](https://github.com/graphql/graphql-js/) and specification,
 including a description and implementation for executing queries, how to format
 a response, explaining how a type system maps to an underlying implementation,
 and how to format a GraphQL response, as well as the grammar for GraphQL.
+
+### Contributing to this repo
+
+Please note that you must be a member of the [GraphQL Specification project](https://foundation.graphql.org/join) in order to make a contribution to the GraphQL Specification. There is no cost to join the specification project. If you open a PR, the EasyCLA tool will check whether you are covered as a contributor, either as an individual or under a company. If you are not covered, you will be prompted to sign the membership document at that time.
+
+If your company benefits from GraphQL and you would like to provide essential financial support for the systems and people that power our community, please also consider membership in the [GraphQL Foundation](https://foundation.graphql.org/join). 
