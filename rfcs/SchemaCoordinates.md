@@ -124,8 +124,11 @@ References the named argument of the named directive.
 For example, consider the following schema:
 
 ```graphql
+directive @private(scope: String!) on FIELD
+
 type Person {
   name: String
+  email: String @private(scope: "loggedIn")
 }
 
 type Business {
@@ -138,7 +141,7 @@ type Query {
 }
 ```
 
-We can write the following list of Schema Coordinates:
+We can write the following schema coordinates:
 
 - `Person` uniquely identifies the the "Person" type
 - `Business` uniquely identifies the the "Business" type
@@ -150,8 +153,9 @@ We can write the following list of Schema Coordinates:
   the "Query" type
 - `Query.searchBusinesses(name:)` uniquely identifies the "name" argument on the
   "searchBusinesses" field on the "Query" type
-
-This RFC standardizes how we write coordinates GraphQL Schema members as above.
+- `@private` uniquely identifies the "private" directive
+- `@private(scope:)` uniquely identifies the "scope" argument on the "private"
+  directive
 
 ## 🎨 Prior art
 
