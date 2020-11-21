@@ -102,7 +102,7 @@ Refers to a named attribute on the named type.
 Not all types support this. For object types and interface types this is a field,
 for input objects this would be an input field, for enums this would be an enum
 value, for future GraphQL types this will relate to a related concept if they
-have one (e.g. for the [proposed "tagged" type][tagged-typed] it would refer to
+have one (e.g. for the [proposed "tagged" type][tagged-type] it would refer to
 the "member field").
 
 [tagged-type]: https://github.com/graphql/graphql-spec/pull/733
