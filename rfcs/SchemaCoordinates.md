@@ -3,15 +3,16 @@
 **Proposed by:** [Mark Larah](https://twitter.com/mark_larah) - Yelp
 
 This RFC proposes formalizing "Schema Coordinates" - a human readable syntax to
-uniquely identify a type, field, field argument, enum value, directive or directive argument defined in a GraphQL Schema.
+uniquely identify a type, field, field argument, enum value, directive or
+directive argument defined in a GraphQL Schema.
 
 This should be listed as a non-normative note in the GraphQL specification to
 serve as an official reference for use by third party tooling.
 
 ## 📜 Problem Statement
 
-GraphQL tooling and libraries may wish to refer to the various components of a GraphQL schema. Use cases include documentation, metrics and logging
-libraries.
+GraphQL tooling and libraries may wish to refer to various components of a
+GraphQL schema. Use cases include documentation, metrics and logging libraries.
 
 ![](https://i.fluffy.cc/5Cz9cpwLVsH1FsSF9VPVLwXvwrGpNh7q.png)
 
@@ -27,7 +28,10 @@ specification or name for this convention.
    requested**. This may be implemented by incrementing a counter by the name of
    the schema coordinate for each field executed in a request.
 
-   _Existing implementations: Yelp (internal), Facebook (internal)_
+   _Existing implementations: Yelp (internal), Facebook (internal),
+   [Shopify (API health report)][shopify-api-health]_
+
+   [shopify-api-health]: https://shopify.dev/concepts/about-apis/versioning/api-health
 
 1. GraphiQL and other playgrounds / documentation sites want to show a list of
    **search results** when a user searches for a type or field name. We can
@@ -65,7 +69,18 @@ specification or name for this convention.
 
 _Existing implementations: Apollo Studio (see "Prior Art")_
 
-## 🚫 What this RFC does _not_ propose
+## 🥅 RFC Goals
+
+- There be one, unambiguous way to write a "schema coordinate" that refers to a
+  particular element in a GraphQL schema. (This is to avoid users having to
+  "simplify" more complex coordinates to produce a canonical representation.)
+- Schema coordinate syntax should build off of existing de-facto standards
+  already adopted for this purpose (i.e. `Foo.bar`)
+- Schema coordinate syntax is open for extension in the future. We should make
+  design choices that give us flexibility and anticipate future syntax needs
+  (based off of discussions around this RFC).
+
+## 🚫 RFC Non-goals
 
 - This does not cover "selectors" or "wildcard" syntax - e.g. `User.*`. _(See
   alternatives considered.)_
@@ -73,15 +88,24 @@ _Existing implementations: Apollo Studio (see "Prior Art")_
 - There are **no proposed GraphQL runtime changes**
 - [Schema coordinate non-goals](#-syntax-non-goals)
 
-## Proposed syntax
+## 🧑‍💻 Proposed syntax
 
 ### `Type`
 
-Refers to a named type (e.g. something represented by `__Type` in GraphQL introspection).
+Refers to a named type (e.g. something represented by `__typename` in a GraphQL
+introspection call).
 
 ### `Type.attribute`
 
-Refers to a named attribute on the named type. Not all types support this. For object types and interface types this is a field, for input objects this would be an input field, for enums this would be an enum value, for future GraphQL types this will relate to a related concept if they have one (e.g. for the [proposed "tagged" type](https://github.com/graphql/graphql-spec/pull/733) it would refer to the "member field").
+Refers to a named attribute on the named type.
+
+Not all types support this. For object types and interface types this is a field,
+for input objects this would be an input field, for enums this would be an enum
+value, for future GraphQL types this will relate to a related concept if they
+have one (e.g. for the [proposed "tagged" type][tagged-typed] it would refer to
+the "member field").
+
+[tagged-type]: https://github.com/graphql/graphql-spec/pull/733
 
 ### `Type.field(argName:)`
 
@@ -95,7 +119,7 @@ References the given named directive
 
 References the named argument of the named directive.
 
-## ✨ Worked Examples
+### ✨ Examples
 
 For example, consider the following schema:
 
@@ -194,11 +218,12 @@ From the query above, we may calculate the following list of schema coordinates:
 - `Business.owner`
 - `Person.name`
 
-_`Query.searchBusinesses(name:)` is also a valid member of the output set. The
+`Query.searchBusinesses(name:)` is also a valid member of the output set. The
 serialization algorithm may optionally choose to output all permutations of field
-arguments used, should this be specified._
+arguments used, should this be specified.
 
-A library has been written to demonstrate this mapping: https://github.com/sharkcore/extract-schema-coordinates.
+A library has been written to demonstrate this mapping:
+<https://github.com/sharkcore/extract-schema-coordinates>.
 
 ## 🗳️ Alternatives considered
 
@@ -290,7 +315,7 @@ This syntax consciously does not cover the following use cases:
   Those familiar with `document.querySelector` may be expecting the ability to
   pass "wildcards" or "star syntax" to be able to select multiple schema
   elements. This implies multiple ways of _selecting_ a schema node.
-  
+
   For example, `User.address` and `User.a*` might both resolve to `User.address`.
   But `User.a*` could also ambiguously refer to `User.age`.
 
@@ -304,10 +329,40 @@ This syntax consciously does not cover the following use cases:
   A more general purpose schema selector language could be built on top of this
   spec - however, we'll consider this **out of scope** for now.
 
+- **Nested field paths**
+
+  This spec does _not_ support selecting schema members with a path from a root
+  type (e.g. `Query`).
+
+  For example, given this schema
+
+  ```graphql
+  type User {
+    name: String
+    bestFriend: User
+  }
+
+  type Query {
+    userById(id: String): User
+  }
+  ```
+
+  The following are invalid schema coordinates:
+
+  - `Query.userById.name`
+  - `User.bestFriend.bestFriend.bestFriend.name`
+
+  This violates a non-goal that there be one, unambiguous way to write a
+  schema coordinate to refer to a schema member. Both examples can be
+  "simplified" to `User.name`, which _is_ a valid schema coordinate.
+
+  Should a use case for this arise in the future, a follow up RFC may investigate
+  how schema coordinates could work with "field paths" (e.g. `["query", "searchBusinesses", 1, "owner", "name"]`) to cover this.
+
 - **Directive applications**
 
-  This spec does not support selecting applications of directive.
- 
+  This spec does _not_ support selecting applications of directive.
+
   For example:
 
   ```graphql
@@ -355,15 +410,17 @@ This syntax consciously does not cover the following use cases:
 
   You may select the `Meal` definition (as "`Meal`"), but you may **not** select
   members on `Meal` (e.g. `Meal.Breakfast` or `Meal.Lunch`).
-  
+
   It is unclear what the use case for this would be, so we won't (yet?) support
   this. In such cases, consumers may select type members directly (e.g. `Lunch`).
 
 ## 🤔 Drawbacks / Open questions
 
-- https://github.com/graphql/graphql-spec/issues/735 discusses potential
-  conflicts with the upcoming namespaces proposal - would like to seek clarity on
-  this
+- Should arguments look like `Foo.bar.baz` instead of `Foo.bar(baz:)`?
+
+  - See https://github.com/graphql/graphql-spec/pull/746#discussion_r526365127
+    for discussion about this.
+  - TODO: Discuss next WG meeting and remove this note.
 
 - Should we specify an algorithm for doing the query -> set of schema
   coordinates? Or just hint/imply that this mapping theoretically exists? Is this
