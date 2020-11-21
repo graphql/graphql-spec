@@ -69,7 +69,7 @@ specification or name for this convention.
 
 _Existing implementations: Apollo Studio (see "Prior Art")_
 
-## 🥅 RFC Goals
+## ✅ RFC Goals
 
 - There be one, unambiguous way to write a "schema coordinate" that refers to a
   particular element in a GraphQL schema. (This is to avoid users having to
