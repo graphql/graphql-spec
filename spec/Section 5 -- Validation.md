@@ -308,8 +308,8 @@ fragment multipleSubscriptions on Subscription {
 }
 ```
 
-The root field of an introspection operation must not be an introspection
-field. The following example is also invalid:
+The root field of a subscription operation must not be an introspection field.
+The following example is also invalid:
 
 ```graphql counter-example
 subscription sub {
