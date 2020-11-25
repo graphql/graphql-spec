@@ -98,7 +98,8 @@ identify which actual type of the possible types has been returned.
 
 This field is implicit and does not appear in the fields list in any defined type.
 
-Note: `__typename` may not be used as a root field in a subscription operation.
+Note: `__typename` may not be included as a root field in a subscription
+operation.
 
 ## Schema Introspection
 
