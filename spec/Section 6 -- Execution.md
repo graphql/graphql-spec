@@ -41,10 +41,10 @@ GetOperation(document, operationName):
   * If {operationName} is {null}:
     * If {document} contains exactly one operation.
       * Return the Operation contained in the {document}.
-    * Otherwise produce a query error requiring {operationName}.
+    * Otherwise produce a request error requiring {operationName}.
   * Otherwise:
     * Let {operation} be the Operation named {operationName} in {document}.
-    * If {operation} was not found, produce a query error.
+    * If {operation} was not found, produce a request error.
     * Return {operation}.
 
 
@@ -71,7 +71,7 @@ result to avoid validating the same request again in the future.
 
 If the operation has defined any variables, then the values for
 those variables need to be coerced using the input coercion rules
-of variable's declared type. If a query error is encountered during
+of variable's declared type. If a request error is encountered during
 input coercion of variable values, then the operation fails without
 execution.
 
@@ -92,14 +92,14 @@ CoerceVariableValues(schema, operation, variableValues):
       * Add an entry to {coercedValues} named {variableName} with the
         value {defaultValue}.
     * Otherwise if {variableType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a query error.
+      is not {true} or {value} is {null}, throw a request error.
     * Otherwise if {hasValue} is true:
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {variableName} with the
           value {null}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-          rules of {variableType}, throw a query error.
+          rules of {variableType}, throw a request error.
         * Let {coercedValue} be the result of coercing {value} according to the
           input coercion rules of {variableType}.
         * Add an entry to {coercedValues} named {variableName} with the
@@ -253,7 +253,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(subscriptionType, selectionSet, variableValues)}.
-  * If {groupedFieldSet} does not have exactly one entry, throw a query error.
+  * If {groupedFieldSet} does not have exactly one entry, throw a request error.
   * Let {fields} be the value of the first entry in {groupedFieldSet}.
   * Let {fieldName} be the name of the first entry in {fields}.
     Note: This value is unaffected if an alias is used.
