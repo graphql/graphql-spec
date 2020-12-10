@@ -1242,7 +1242,8 @@ With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments
 must be used. This is the same as for unions, but unions do not define any
 fields, so **no** fields may be queried on this type without the use of
-type refining fragments or inline fragments.
+type refining fragments or inline fragments (with the exception of the
+meta-field {__typename}).
 
 For example, we might define the following types:
 
@@ -1506,7 +1507,7 @@ Literal Value            | Variables               | Coerced Value
 `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`
 `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`
 `"abc123"`               | `{}`                    | Error: Incorrect value
-`$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
+`$var`                   | `{ var: "abc123" }`     | Error: Incorrect value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Incorrect value for field {b}
 `{ a: "abc" }`           | `{}`                    | Error: Missing required field {b}
 `{ b: $var }`            | `{}`                    | Error: Missing required field {b}.
@@ -1554,8 +1555,10 @@ Input object type extensions have the potential to be invalid if incorrectly def
 A GraphQL list is a special collection type which declares the type of each
 item in the List (referred to as the *item type* of the list). List values are
 serialized as ordered lists, where each item in the list is serialized as per
-the item type. To denote that a field uses a List type the item type is wrapped
-in square brackets like this: `pets: [Pet]`.
+the item type.
+
+To denote that a field uses a List type the item type is wrapped in square brackets
+like this: `pets: [Pet]`. Nesting lists is allowed: `matrix: [[Int]]`.
 
 **Result Coercion**
 
@@ -1585,7 +1588,7 @@ If the value passed as an input to a list type is *not* a list and not the
 where the single item value is the result of input coercion for the list's item
 type on the provided value (note this may apply recursively for nested lists).
 
-This allow inputs which accept one or many arguments (sometimes referred to as
+This allows inputs which accept one or many arguments (sometimes referred to as
 "var args") to declare their input type as a list while for the common case of a
 single value, a client can just pass that value directly rather than
 constructing the list.
@@ -1771,7 +1774,7 @@ include `_` in their name). For example, a custom directive used by Facebook's
 GraphQL service should be named `@fb_auth` instead of `@auth`. This is
 especially recommended for proposed additions to this specification which can
 change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
-For example an work in progress version of `@live` should be named `@rfc_live`.
+For example a work in progress version of `@live` should be named `@rfc_live`.
 
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
