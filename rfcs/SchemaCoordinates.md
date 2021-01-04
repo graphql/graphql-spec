@@ -493,12 +493,6 @@ This syntax consciously does not cover the following use cases:
 
 ## 🤔 Drawbacks / Open questions
 
-- Should arguments look like `Foo.bar.baz` instead of `Foo.bar(baz:)`?
-
-  - See https://github.com/graphql/graphql-spec/pull/746#discussion_r526365127
-    for discussion about this.
-  - TODO: Discuss next WG meeting and remove this note.
-
 - Should we specify an algorithm for doing the query -> set of schema
   coordinates? Or just hint/imply that this mapping theoretically exists? Is this
   out of scope?
