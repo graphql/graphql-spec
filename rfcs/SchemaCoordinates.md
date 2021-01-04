@@ -335,6 +335,9 @@ for this syntax are:
 
 - Less bytes/characters to type
 - May allow for extension to include nested "field paths" (e.g. Foo.bar.Baz.qux...)
+- [Prior usage][graphiql-usage] of this syntax to represent state internally
+
+[graphiql-usage]: https://github.com/graphql/graphql-spec/pull/746#issuecomment-752941039
 
 #### Pros for `Query.rollDice(numDice:)`
 
