@@ -310,6 +310,79 @@ the suggested usage in this RFC. However, we may wish to consider one of the
 alternatives above, should this conflict with existing or planned language
 features.
 
+### Field Arguments
+
+We have discussed multiple options for selecting arguments on fields. ([PR][pr],
+and [December WG Meeting][wg-meeting]). For example, consider the following
+schema:
+
+[pr]: https://github.com/graphql/graphql-spec/pull/746#discussion_r526243627
+[wg-meeting]: https://youtu.be/Duh4MRXQRQA?t=2506
+
+```graphql
+type Query {
+  rollDice(numDice: Int, numSides: Int): Int
+}
+```
+
+We may want to refer to the `numDice` argument in a schema selector. Two options
+for this syntax are:
+
+1. `Query.rollDice.numDice`
+1. `Query.rollDice(numDice:)`
+
+#### Pros for `Query.rollDice.numDice`
+
+- Less bytes/characters to type
+- May allow for extension to include nested "field paths" (e.g. Foo.bar.Baz.qux...)
+
+#### Pros for `Query.rollDice(numDice:)`
+
+- Indicating arguments with colons disambiguates against other types of schema
+  nodes. For those unfamiliar with schema selectors, it may be unclear if the
+  third dot separated item refers to a directive or a child object etc.
+- Using trailing colons for arguments is borrowed from other languages (e.g.
+  [Swift][swift]). This may indicate to users who are unfamiliar with schema
+  coordinates, but recognize this from other languages, that `numDice:` refers
+  to an argument. The function parentheses and colons more strongly communicate
+  "this is an argument!" than a second dot separator.
+
+#### Decision
+
+We are choosing `Query.rollDice(numDice:)` to optimize for **readability** and
+**extensibility**.
+
+Given our expected use cases, we assume Schema Coordinates will be _read_ more
+often than they are _written_ (e.g. error messages in a stack trace from a
+schema linting tool). Readers may be unfamiliar with its syntax. We want to
+"hint" as much as possible the meaning of the coordinates in its syntax. We
+think `(numDice:)` more clearly communicates that "numDice" is an argument, over
+`.numDice`.
+
+In addition, we want to be mindful of extensions to this syntax in the future.
+Using dots only as a separator may overload the meaning of elements in schema
+coordinates in the future. (If we capture new schema node types, or nested
+paths.)
+
+> We should make sure that the spec enables future innovation including using it
+> for things other than schema coordinates. To my mind the (foo:) syntax is more
+> flexible in this regard. For example, I can imagine referring to:
+>
+> 1. `Foo.bar(baz:.qux)`: the qux field of the input object referred to from the
+>    baz argument of the bar field on the Foo type.
+> 2. `Foo.bar(baz:).qux`: the qux field on the return type of the bar field
+>    (with baz: argument) of the Foo type.
+> 3. `Foo.bar.baz.qux`: the qux field of the return type of the baz field on the
+>    return type of the bar field on type Foo.
+>
+> If we were to only use periods then all of these would come out the same as
+> `Foo.bar.baz.qux`, and this ambiguity precludes this kind of reusal of the
+> schema-coordinates syntax for this use case (which is outside the scope of the
+> schema coordinates spec, for sure, but is still a potential use-case for the
+> syntax).
+>
+> ~ [benjie](https://github.com/graphql/graphql-spec/pull/746#discussion_r527639917)
+
 ## 🙅 Syntax Non-goals
 
 This syntax consciously does not cover the following use cases:
@@ -373,10 +446,10 @@ This syntax consciously does not cover the following use cases:
   directive @private(scope: String!) on FIELD
 
   type User {
-      name: String
-      reviewCount: Int
-      friends: [User]
-      email: String @private(scope: 'loggedIn')
+    name: String
+    reviewCount: Int
+    friends: [User]
+    email: String @private(scope: "loggedIn")
   }
   ```
 
