@@ -494,23 +494,7 @@ This syntax consciously does not cover the following use cases:
   It is unclear what the use case for this would be, so we won't (yet?) support
   this. In such cases, consumers may select type members directly (e.g. `Lunch`).
 
-## 🤔 Drawbacks / Open questions
-
-- Should we specify an algorithm for doing the query -> set of schema
-  coordinates? Or just hint/imply that this mapping theoretically exists? Is this
-  out of scope?
-
-### Answered questions
-
-- **Is this extensible enough?** The above issue discusses adding arguments as
-  part of this specification - we haven't touched on this here in order to keep
-  this RFC small, but we may wish to consider this in the future (e.g.
-  `Query.searchBusiness:name`).
-
-  _Update:_ As discussed in the [August Working Group Meeting][notes], this RFC
-  now includes the ability to select field arguments
-
-  [notes]: https://github.com/graphql/graphql-wg/blob/master/notes/2020-08-06.md#field-coordinates-rfc-15m-mark
+## Answered questions
 
 - **Would we want to add a method to graphql-js?** A `fieldCoordinateToFieldNode`
   method (for example) may take in a field coordinate string and return a field
