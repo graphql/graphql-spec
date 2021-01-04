@@ -371,7 +371,7 @@ paths.)
 > for things other than schema coordinates. To my mind the (foo:) syntax is more
 > flexible in this regard. For example, I can imagine referring to:
 >
-> 1. `Foo.bar(baz:.qux)`: the qux field of the input object referred to from the
+> 1. `Foo.bar(baz.qux:)`: the qux field of the input object referred to from the
 >    baz argument of the bar field on the Foo type.
 > 2. `Foo.bar(baz:).qux`: the qux field on the return type of the bar field
 >    (with baz: argument) of the Foo type.
