@@ -1,7 +1,7 @@
 # Response
 
-When a GraphQL server receives a request, it must return a well-formed
-response. The server's response describes the result of executing the requested
+When a GraphQL service receives a request, it must return a well-formed
+response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors encountered during the
 request.
 
@@ -28,7 +28,7 @@ if set, must have a map as its value. This entry is reserved for implementors
 to extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
-To ensure future changes to the protocol do not break existing servers and
+To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
 three described above.
 

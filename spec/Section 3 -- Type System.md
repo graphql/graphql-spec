@@ -1,6 +1,6 @@
 # Type System
 
-The GraphQL Type system describes the capabilities of a GraphQL server and is
+The GraphQL Type system describes the capabilities of a GraphQL service and is
 used to determine if a query is valid. The type system also describes the
 input types of query variables to determine if values provided at runtime
 are valid.
@@ -346,7 +346,7 @@ promises to conform to ISO-8601. When querying a field of type `Time`, you can
 then rely on the ability to parse the result with an ISO-8601 parser and use a
 client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
-the server to be a valid URL.
+the service to be a valid URL.
 
 ```graphql example
 scalar Time
@@ -373,7 +373,7 @@ all built-in scalars must be omitted for brevity.
 
 **Result Coercion and Serialization**
 
-A GraphQL server, when preparing a field of a given scalar type, must uphold the
+A GraphQL service, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or producing a
 field error if a value cannot be coerced or if coercion may result in data loss.
 
@@ -383,21 +383,21 @@ expected return type. For example when coercing a field of type {Int} a boolean
 {123}. However if internal type coercion cannot be reasonably performed without
 losing information, then it must raise a field error.
 
-Since this coercion behavior is not observable to clients of the GraphQL server,
+Since this coercion behavior is not observable to clients of the GraphQL service,
 the precise rules of coercion are left to the implementation. The only
-requirement is that the server must yield values which adhere to the expected
+requirement is that the service must yield values which adhere to the expected
 Scalar type.
 
 GraphQL scalars are serialized according to the serialization format being used.
 There may be a most appropriate serialized primitive for each given scalar type,
-and the server should produce each primitive where appropriate.
+and the service should produce each primitive where appropriate.
 
 See [Serialization Format](#sec-Serialization-Format) for more detailed
 information on the serialization of scalars in common JSON and other formats.
 
 **Input Coercion**
 
-If a GraphQL server expects a scalar type as input to an argument, coercion
+If a GraphQL service expects a scalar type as input to an argument, coercion
 is observable and the rules must be well defined. If an input value does not
 match a coercion rule, a query error must be raised.
 
@@ -425,7 +425,7 @@ that type to represent this scalar.
 Fields returning the type {Int} expect to encounter 32-bit integer
 internal values.
 
-GraphQL servers may coerce non-integer internal values to integers when
+GraphQL services may coerce non-integer internal values to integers when
 reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1` for the floating-point number `1.0`,
 or returning `123` for the string `"123"`. In scenarios where coercion may lose
@@ -460,7 +460,7 @@ should use that type to represent this scalar.
 Fields returning the type {Float} expect to encounter double-precision
 floating-point internal values.
 
-GraphQL servers may coerce non-floating-point internal values to {Float} when
+GraphQL services may coerce non-floating-point internal values to {Float} when
 reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1.0` for the integer number `1`, or
 `123.0` for the string `"123"`.
@@ -486,7 +486,7 @@ and that representation must be used here.
 
 Fields returning the type {String} expect to encounter UTF-8 string internal values.
 
-GraphQL servers may coerce non-string raw values to {String} when reasonable
+GraphQL services may coerce non-string raw values to {String} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning the string `"true"` for a boolean true value, or the
 string `"1"` for the integer `1`.
@@ -508,7 +508,7 @@ representation of the integers `1` and `0`.
 
 Fields returning the type {Boolean} expect to encounter boolean internal values.
 
-GraphQL servers may coerce non-boolean raw values to {Boolean} when reasonable
+GraphQL services may coerce non-boolean raw values to {Boolean} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning `true` for non-zero numbers.
 
@@ -532,14 +532,14 @@ across many formats ID could represent, from small auto-increment numbers, to
 large 128-bit random numbers, to base64 encoded values, or string values of a
 format like [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier).
 
-GraphQL servers should coerce as appropriate given the ID formats they expect.
+GraphQL services should coerce as appropriate given the ID formats they expect.
 When coercion is not possible they must raise a field error.
 
 **Input Coercion**
 
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
-formats a given GraphQL server expects. Any other input value, including float
+formats a given GraphQL service expects. Any other input value, including float
 input values (such as `4.0`), must raise a query error indicating an incorrect
 type.
 
@@ -1376,7 +1376,7 @@ enum Direction {
 
 **Result Coercion**
 
-GraphQL servers must return one of the defined set of possible values. If a
+GraphQL services must return one of the defined set of possible values. If a
 reasonable coercion is not possible they must raise a field error.
 
 **Input Coercion**
@@ -1562,7 +1562,7 @@ like this: `pets: [Pet]`. Nesting lists is allowed: `matrix: [[Int]]`.
 
 **Result Coercion**
 
-GraphQL servers must return an ordered list as the result of a list type. Each
+GraphQL services must return an ordered list as the result of a list type. Each
 item in the list must be the result of a result coercion of the item type. If a
 reasonable coercion is not possible it must raise a field error. In
 particular, if a non-list is returned, the coercion should fail, as this
