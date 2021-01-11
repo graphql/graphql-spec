@@ -1450,15 +1450,15 @@ objects have a separate type in the system.
 
 **Circular References**
 
-Input Objects are allowed to reference other Input Objects as field types. A 
-circular reference occurs when an Input Object references itself either directly 
+Input Objects are allowed to reference other Input Objects as field types. A
+circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
 Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid 
+unbroken chain of Non-Null singular fields. Such Input Objects are invalid
 because there is no way to provide a legal value for them.
 
-This example of a circularly-referenced input type is valid as the field `self` 
+This example of a circularly-referenced input type is valid as the field `self`
 may be omitted or the value {null}.
 
 ```graphql example
@@ -1477,7 +1477,7 @@ input Example {
 }
 ```
 
-This example of a circularly-referenced input type is invalid as the field 
+This example of a circularly-referenced input type is invalid as the field
 `self` cannot be provided a finite value.
 
 ```graphql counter-example
@@ -1487,7 +1487,7 @@ input Example {
 }
 ```
 
-This example is also invalid, as there is a non-null singular circular reference 
+This example is also invalid, as there is a non-null singular circular reference
 via the `First.second` and `Second.first` fields.
 
 ```graphql counter-example
