@@ -358,8 +358,32 @@ Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
 typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
-GraphQL provides a number of built-in scalars (see below), but type systems can
-add additional scalars with semantic meaning. For example, a GraphQL system
+GraphQL provides a number of built-in scalars which are fully defined in the
+sections below, however type systems may also add additional custom scalars to
+introduce additional semantic meaning (see below).
+
+**Built-in Scalars**
+
+GraphQL specifies a basic set of well-defined Scalar types: {Int}, {Float},
+{String}, {Boolean}, and {ID}. A GraphQL framework should support all of these
+types, and a GraphQL service which provides a type by these names must adhere to
+the behavior described for them in this document. As an example, a service must
+not include a type called {Int} and use it to represent 64-bit numbers,
+internationalization information, or anything other than what is defined in
+this document.
+
+When returning the set of types from the `__Schema` introspection type, all
+referenced built-in scalars must be included. If a built-in scalar type is not
+referenced anywhere in a schema (there is no field, argument, or input field of
+that type) then it must not be included.
+
+When representing a GraphQL schema using the type system definition language,
+all built-in scalars must be omitted for brevity.
+
+**Custom Scalars**
+
+GraphQL services may use custom scalar types in addition to the built-in
+scalars. For example, a GraphQL system
 could define a scalar called `Time` which, while serialized as a string,
 promises to conform to ISO-8601. When querying a field of type `Time`, you can
 then rely on the ability to parse the result with an ISO-8601 parser and use a
@@ -380,23 +404,8 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
 
-**Built-in Scalars**
-
-GraphQL specifies a basic set of well-defined Scalar types: {Int}, {Float},
-{String}, {Boolean}, and {ID}. A GraphQL framework should support all of these
-types, and a GraphQL service which provides a type by these names must adhere to
-the behavior described for them in this document. As an example, a service must
-not include a type called {Int} and use it to represent 64-bit numbers,
-internationalization information, or anything other than what is defined in
-this document.
-
-When returning the set of types from the `__Schema` introspection type, all
-referenced built-in scalars must be included. If a built-in scalar type is not
-referenced anywhere in a schema (there is no field, argument, or input field of
-that type) then it must not be included.
-
-When representing a GraphQL schema using the type system definition language,
-all built-in scalars must be omitted for brevity.
+Built-in scalar types must not provide a specification URL as they are specified
+by this document.
 
 **Result Coercion and Serialization**
 
