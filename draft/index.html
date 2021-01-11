@@ -1357,17 +1357,17 @@ This is an example of a non&#8208;normative note.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>GraphQL is not a programming language capable of arbitrary computation, but is instead a language used to query application servers that have capabilities defined in this specification. GraphQL does not mandate a particular programming language or storage system for application servers that implement it. Instead, application servers take their capabilities and map them to a uniform language, type system, and philosophy that GraphQL encodes. This provides a unified interface friendly to product development and a powerful platform for tool&#8208;building.</p>
+<p>GraphQL is not a programming language capable of arbitrary computation, but is instead a language used to query application services that have capabilities defined in this specification. GraphQL does not mandate a particular programming language or storage system for application services that implement it. Instead, application services take their capabilities and map them to a uniform language, type system, and philosophy that GraphQL encodes. This provides a unified interface friendly to product development and a powerful platform for tool&#8208;building.</p>
 <p>GraphQL has a number of design principles:</p>
 <ul>
 <li><strong>Hierarchical</strong>: Most product development today involves the creation and manipulation of view hierarchies. To achieve congruence with the structure of these applications, a GraphQL query itself is structured hierarchically. The query is shaped just like the data it returns. It is a natural way for clients to describe data requirements.</li>
 <li><strong>Product&#8208;centric</strong>: GraphQL is unapologetically driven by the requirements of views and the front&#8208;end engineers that write them. GraphQL starts with their way of thinking and requirements and builds the language and runtime necessary to enable that.</li>
-<li><strong>Strong&#8208;typing</strong>: Every GraphQL server defines an application&#8208;specific type system. Queries are executed within the context of that type system. Given a query, tools can ensure that the query is both syntactically correct and valid within the GraphQL type system before execution, i.e. at development time, and the server can make certain guarantees about the shape and nature of the response.</li>
-<li><strong>Client&#8208;specified queries</strong>: Through its type system, a GraphQL server publishes the capabilities that its clients are allowed to consume. It is the client that is responsible for specifying exactly how it will consume those published capabilities. These queries are specified at field&#8208;level granularity. In the majority of client&#8208;server applications written without GraphQL, the server determines the data returned in its various scripted endpoints. A GraphQL query, on the other hand, returns exactly what a client asks for and no more.</li>
-<li><strong>Introspective</strong>: GraphQL is introspective. A GraphQL server&rsquo;s type system must be queryable by the GraphQL language itself, as will be described in this specification. GraphQL introspection serves as a powerful platform for building common tools and client software libraries.</li>
+<li><strong>Strong&#8208;typing</strong>: Every GraphQL service defines an application&#8208;specific type system. Queries are executed within the context of that type system. Given a query, tools can ensure that the query is both syntactically correct and valid within the GraphQL type system before execution, i.e. at development time, and the service can make certain guarantees about the shape and nature of the response.</li>
+<li><strong>Client&#8208;specified queries</strong>: Through its type system, a GraphQL service publishes the capabilities that its clients are allowed to consume. It is the client that is responsible for specifying exactly how it will consume those published capabilities. These queries are specified at field&#8208;level granularity. In the majority of client&#8208;server applications written without GraphQL, the service determines the data returned in its various scripted endpoints. A GraphQL query, on the other hand, returns exactly what a client asks for and no more.</li>
+<li><strong>Introspective</strong>: GraphQL is introspective. A GraphQL service&rsquo;s type system must be queryable by the GraphQL language itself, as will be described in this specification. GraphQL introspection serves as a powerful platform for building common tools and client software libraries.</li>
 </ul>
-<p>Because of these principles, GraphQL is a powerful and productive environment for building client applications. Product developers and designers building applications against working GraphQL servers -- supported with quality tools -- can quickly become productive without reading extensive documentation and with little or no formal training. To enable that experience, there must be those that build those servers and tools.</p>
-<p>The following formal specification serves as a reference for those builders. It describes the language and its grammar, the type system and the introspection system used to query it, and the execution and validation engines with the algorithms to power them. The goal of this specification is to provide a foundation and framework for an ecosystem of GraphQL tools, client libraries, and server implementations -- spanning both organizations and platforms -- that has yet to be built. We look forward to working with the community in order to do that. </p>
+<p>Because of these principles, GraphQL is a powerful and productive environment for building client applications. Product developers and designers building applications against working GraphQL services&mdash;supported with quality tools&mdash;can quickly become productive without reading extensive documentation and with little or no formal training. To enable that experience, there must be those that build those services and tools.</p>
+<p>The following formal specification serves as a reference for those builders. It describes the language and its grammar, the type system and the introspection system used to query it, and the execution and validation engines with the algorithms to power them. The goal of this specification is to provide a foundation and framework for an ecosystem of GraphQL tools, client libraries, and service implementations&mdash;spanning both organizations and platforms&mdash;that has yet to be built. We look forward to working with the community in order to do that. </p>
 </section>
 <section id="sec-Language" secid="2">
 <h1><span class="spec-secid" title="link to this section"><a href="#sec-Language">2</a></span>Language</h1>
@@ -1647,7 +1647,7 @@ many examples below will use the query short&#8208;hand syntax.</div>
 <div class="spec-production" id="Argument">
 <span class="spec-nt"><a href="#Argument" data-name="Argument">Argument</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span></div>
 </div>
-<p>Fields are conceptually functions which return values, and occasionally accept arguments which alter their behavior. These arguments often map directly to function arguments within a GraphQL server&rsquo;s implementation.</p>
+<p>Fields are conceptually functions which return values, and occasionally accept arguments which alter their behavior. These arguments often map directly to function arguments within a GraphQL service&rsquo;s implementation.</p>
 <p>In this example, we want to query a specific user (requested via the <code>id</code> argument) and their profile picture of a specific <code>size</code>:</p>
 <pre id="example-1a865" class="spec-example" data-language="graphql"><a href="#example-1a865">Example № 10</a><code><span class="token punctuation">{</span>
   user<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -2363,7 +2363,7 @@ The same two methods of representing the lack of a value are possible via variab
 </section>
 <section id="sec-Type-System" secid="3">
 <h1><span class="spec-secid" title="link to this section"><a href="#sec-Type-System">3</a></span>Type System</h1>
-<p>The GraphQL Type system describes the capabilities of a GraphQL server and is used to determine if a query is valid. The type system also describes the input types of query variables to determine if values provided at runtime are valid.</p>
+<p>The GraphQL Type system describes the capabilities of a GraphQL service and is used to determine if a query is valid. The type system also describes the input types of query variables to determine if values provided at runtime are valid.</p>
 <div class="spec-production" id="TypeSystemDefinition">
 <span class="spec-nt"><a href="#TypeSystemDefinition" data-name="TypeSystemDefinition">TypeSystemDefinition</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#SchemaDefinition" data-name="SchemaDefinition">SchemaDefinition</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#TypeDefinition" data-name="TypeDefinition">TypeDefinition</a></span></div>
@@ -2587,7 +2587,7 @@ The set of languages supported by `translate`.
 <span class="spec-nt"><a href="#ScalarTypeDefinition" data-name="ScalarTypeDefinition">ScalarTypeDefinition</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Description" data-name="Description">Description</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">scalar</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
 <p>Scalar types represent primitive leaf values in a GraphQL type system. GraphQL responses take the form of a hierarchical tree; the leaves of this tree are typically GraphQL Scalar types (but may also be Enum types or <span class="spec-keyword">null</span> values).</p>
-<p>GraphQL provides a number of built&#8208;in scalars (see below), but type systems can add additional scalars with semantic meaning. For example, a GraphQL system could define a scalar called <code>Time</code> which, while serialized as a string, promises to conform to ISO&#8208;8601. When querying a field of type <code>Time</code>, you can then rely on the ability to parse the result with an ISO&#8208;8601 parser and use a client&#8208;specific primitive for time. Another example of a potentially useful custom scalar is <code>Url</code>, which serializes as a string, but is guaranteed by the server to be a valid URL.</p>
+<p>GraphQL provides a number of built&#8208;in scalars (see below), but type systems can add additional scalars with semantic meaning. For example, a GraphQL system could define a scalar called <code>Time</code> which, while serialized as a string, promises to conform to ISO&#8208;8601. When querying a field of type <code>Time</code>, you can then rely on the ability to parse the result with an ISO&#8208;8601 parser and use a client&#8208;specific primitive for time. Another example of a potentially useful custom scalar is <code>Url</code>, which serializes as a string, but is guaranteed by the service to be a valid URL.</p>
 <pre id="example-cb7e7" class="spec-example" data-language="graphql"><a href="#example-cb7e7">Example № 42</a><code><span class="token keyword">scalar</span> <span class="token class-name">Time</span>
 <span class="token keyword">scalar</span> <span class="token class-name">Url</span>
 </code></pre>
@@ -2599,15 +2599,15 @@ The set of languages supported by `translate`.
 </section>
 <section id="sec-Scalars.Result-Coercion-and-Serialization" class="subsec">
 <h6><a href="#sec-Scalars.Result-Coercion-and-Serialization" title="link to this subsection">Result Coercion and Serialization</a></h6>
-<p>A GraphQL server, when preparing a field of a given scalar type, must uphold the contract the scalar type describes, either by coercing the value or producing a field error if a value cannot be coerced or if coercion may result in data loss.</p>
+<p>A GraphQL service, when preparing a field of a given scalar type, must uphold the contract the scalar type describes, either by coercing the value or producing a field error if a value cannot be coerced or if coercion may result in data loss.</p>
 <p>A GraphQL service may decide to allow coercing different internal types to the expected return type. For example when coercing a field of type <span class="spec-nt"><span data-name="Int">Int</span></span> a boolean <span class="spec-keyword">true</span> value may produce <span class="spec-t">1</span> or a string value <span class="spec-string">"123"</span> may be parsed as base&#8208;10 <span class="spec-t">123</span>. However if internal type coercion cannot be reasonably performed without losing information, then it must raise a field error.</p>
-<p>Since this coercion behavior is not observable to clients of the GraphQL server, the precise rules of coercion are left to the implementation. The only requirement is that the server must yield values which adhere to the expected Scalar type.</p>
-<p>GraphQL scalars are serialized according to the serialization format being used. There may be a most appropriate serialized primitive for each given scalar type, and the server should produce each primitive where appropriate.</p>
+<p>Since this coercion behavior is not observable to clients of the GraphQL service, the precise rules of coercion are left to the implementation. The only requirement is that the service must yield values which adhere to the expected Scalar type.</p>
+<p>GraphQL scalars are serialized according to the serialization format being used. There may be a most appropriate serialized primitive for each given scalar type, and the service should produce each primitive where appropriate.</p>
 <p>See <a href="#sec-Serialization-Format">Serialization Format</a> for more detailed information on the serialization of scalars in common JSON and other formats.</p>
 </section>
 <section id="sec-Scalars.Input-Coercion" class="subsec">
 <h6><a href="#sec-Scalars.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>If a GraphQL server expects a scalar type as input to an argument, coercion is observable and the rules must be well defined. If an input value does not match a coercion rule, a query error must be raised.</p>
+<p>If a GraphQL service expects a scalar type as input to an argument, coercion is observable and the rules must be well defined. If an input value does not match a coercion rule, a query error must be raised.</p>
 <p>GraphQL has different constant literals to represent integer and floating&#8208;point input values, and coercion rules may apply differently depending on which type of input value is encountered. GraphQL may be parameterized by query variables, the values of which are often serialized when sent over a transport like HTTP. Since some common serializations (ex. JSON) do not discriminate between integer and floating&#8208;point values, they are interpreted as an integer input value if they have an empty fractional part (ex. <code>1.0</code>) and otherwise as floating&#8208;point input value.</p>
 <p>For all types below, with the exception of Non&#8208;Null, if the explicit value <span class="spec-keyword">null</span> is provided, then the result of input coercion is <span class="spec-keyword">null</span>.</p>
 </section>
@@ -2617,7 +2617,7 @@ The set of languages supported by `translate`.
 <section id="sec-Int.Result-Coercion" class="subsec">
 <h6><a href="#sec-Int.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>Fields returning the type <span class="spec-nt"><span data-name="Int">Int</span></span> expect to encounter 32&#8208;bit integer internal values.</p>
-<p>GraphQL servers may coerce non&#8208;integer internal values to integers when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1</code> for the floating&#8208;point number <code>1.0</code>, or returning <code>123</code> for the string <code>&quot;123&quot;</code>. In scenarios where coercion may lose data, raising a field error is more appropriate. For example, a floating&#8208;point number <code>1.2</code> should raise a field error instead of being truncated to <code>1</code>.</p>
+<p>GraphQL services may coerce non&#8208;integer internal values to integers when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1</code> for the floating&#8208;point number <code>1.0</code>, or returning <code>123</code> for the string <code>&quot;123&quot;</code>. In scenarios where coercion may lose data, raising a field error is more appropriate. For example, a floating&#8208;point number <code>1.2</code> should raise a field error instead of being truncated to <code>1</code>.</p>
 <p>If the integer internal value represents a value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a field error should be raised.</p>
 </section>
 <section id="sec-Int.Input-Coercion" class="subsec">
@@ -2634,7 +2634,7 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <section id="sec-Float.Result-Coercion" class="subsec">
 <h6><a href="#sec-Float.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>Fields returning the type <span class="spec-nt"><span data-name="Float">Float</span></span> expect to encounter double&#8208;precision floating&#8208;point internal values.</p>
-<p>GraphQL servers may coerce non&#8208;floating&#8208;point internal values to <span class="spec-nt"><span data-name="Float">Float</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1.0</code> for the integer number <code>1</code>, or <code>123.0</code> for the string <code>&quot;123&quot;</code>.</p>
+<p>GraphQL services may coerce non&#8208;floating&#8208;point internal values to <span class="spec-nt"><span data-name="Float">Float</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1.0</code> for the integer number <code>1</code>, or <code>123.0</code> for the string <code>&quot;123&quot;</code>.</p>
 </section>
 <section id="sec-Float.Input-Coercion" class="subsec">
 <h6><a href="#sec-Float.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2647,7 +2647,7 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <section id="sec-String.Result-Coercion" class="subsec">
 <h6><a href="#sec-String.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>Fields returning the type <span class="spec-nt"><span data-name="String">String</span></span> expect to encounter UTF&#8208;8 string internal values.</p>
-<p>GraphQL servers may coerce non&#8208;string raw values to <span class="spec-nt"><span data-name="String">String</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning the string <code>&quot;true&quot;</code> for a boolean true value, or the string <code>&quot;1&quot;</code> for the integer <code>1</code>.</p>
+<p>GraphQL services may coerce non&#8208;string raw values to <span class="spec-nt"><span data-name="String">String</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning the string <code>&quot;true&quot;</code> for a boolean true value, or the string <code>&quot;1&quot;</code> for the integer <code>1</code>.</p>
 </section>
 <section id="sec-String.Input-Coercion" class="subsec">
 <h6><a href="#sec-String.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2660,7 +2660,7 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <section id="sec-Boolean.Result-Coercion" class="subsec">
 <h6><a href="#sec-Boolean.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>Fields returning the type <span class="spec-nt"><span data-name="Boolean">Boolean</span></span> expect to encounter boolean internal values.</p>
-<p>GraphQL servers may coerce non&#8208;boolean raw values to <span class="spec-nt"><span data-name="Boolean">Boolean</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>true</code> for non&#8208;zero numbers.</p>
+<p>GraphQL services may coerce non&#8208;boolean raw values to <span class="spec-nt"><span data-name="Boolean">Boolean</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>true</code> for non&#8208;zero numbers.</p>
 </section>
 <section id="sec-Boolean.Input-Coercion" class="subsec">
 <h6><a href="#sec-Boolean.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -2673,11 +2673,11 @@ Numeric integer values larger than 32&#8208;bit should either use String or a cu
 <section id="sec-ID.Result-Coercion" class="subsec">
 <h6><a href="#sec-ID.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>GraphQL is agnostic to ID format, and serializes to string to ensure consistency across many formats ID could represent, from small auto&#8208;increment numbers, to large 128&#8208;bit random numbers, to base64 encoded values, or string values of a format like <a href="https://en.wikipedia.org/wiki/Globally_unique_identifier">GUID</a>.</p>
-<p>GraphQL servers should coerce as appropriate given the ID formats they expect. When coercion is not possible they must raise a field error.</p>
+<p>GraphQL services should coerce as appropriate given the ID formats they expect. When coercion is not possible they must raise a field error.</p>
 </section>
 <section id="sec-ID.Input-Coercion" class="subsec">
 <h6><a href="#sec-ID.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, any string (such as <code>&quot;4&quot;</code>) or integer (such as <code>4</code> or <code>-4</code>) input value should be coerced to ID as appropriate for the ID formats a given GraphQL server expects. Any other input value, including float input values (such as <code>4.0</code>), must raise a query error indicating an incorrect type.</p>
+<p>When expected as an input type, any string (such as <code>&quot;4&quot;</code>) or integer (such as <code>4</code> or <code>-4</code>) input value should be coerced to ID as appropriate for the ID formats a given GraphQL service expects. Any other input value, including float input values (such as <code>4.0</code>), must raise a query error indicating an incorrect type.</p>
 </section>
 </section>
 <section id="sec-Scalar-Extensions" secid="3.5.6">
@@ -3276,7 +3276,7 @@ interface Named implements Node &amp; Named {
 </code></pre>
 <section id="sec-Enums.Result-Coercion" class="subsec">
 <h6><a href="#sec-Enums.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>GraphQL servers must return one of the defined set of possible values. If a reasonable coercion is not possible they must raise a field error.</p>
+<p>GraphQL services must return one of the defined set of possible values. If a reasonable coercion is not possible they must raise a field error.</p>
 </section>
 <section id="sec-Enums.Input-Coercion" class="subsec">
 <h6><a href="#sec-Enums.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -3427,7 +3427,7 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <p>To denote that a field uses a List type the item type is wrapped in square brackets like this: <code>pets: [Pet]</code>. Nesting lists is allowed: <code>matrix: [[Int]]</code>.</p>
 <section id="sec-Type-System.List.Result-Coercion" class="subsec">
 <h6><a href="#sec-Type-System.List.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p>GraphQL servers must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise a field error. In particular, if a non&#8208;list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
+<p>GraphQL services must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise a field error. In particular, if a non&#8208;list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
 <p>If a list&rsquo;s item type is nullable, then errors occurring during preparation or coercion of an individual item in the list must result in a the value <span class="spec-keyword">null</span> at that position in the list along with an error added to the response. If a list&rsquo;s item type is non&#8208;null, an error occurring at an individual item in the list must result in a field error for the entire list.</p>
 <div id="note-a51a1" class="spec-note">
 <a href="#note-a51a1">Note</a>
@@ -3720,9 +3720,9 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-Introspection" secid="4">
 <h1><span class="spec-secid" title="link to this section"><a href="#sec-Introspection">4</a></span>Introspection</h1>
-<p>A GraphQL server supports introspection over its schema. This schema is queried using GraphQL itself, creating a powerful platform for tool&#8208;building.</p>
+<p>A GraphQL service supports introspection over its schema. This schema is queried using GraphQL itself, creating a powerful platform for tool&#8208;building.</p>
 <p>Take an example query for a trivial app. In this case there is a User type with three fields: id, name, and birthday.</p>
-<p>For example, given a server with the following type definition:</p>
+<p>For example, given a service with the following type definition:</p>
 <pre id="example-3005e" class="spec-example" data-language="graphql"><a href="#example-3005e">Example № 92</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> String
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
@@ -3769,7 +3769,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-Documentation" secid="4.2">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Documentation">4.2</a></span>Documentation</h2>
-<p>All types in the introspection system provide a <code>description</code> field of type <code>String</code> to allow type designers to publish documentation in addition to capabilities. A GraphQL server may return the <code>description</code> field using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>). Therefore it is recommended that any tool that displays <code>description</code> use a CommonMark&#8208;compliant Markdown renderer.</p>
+<p>All types in the introspection system provide a <code>description</code> field of type <code>String</code> to allow type designers to publish documentation in addition to capabilities. A GraphQL service may return the <code>description</code> field using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>). Therefore it is recommended that any tool that displays <code>description</code> use a CommonMark&#8208;compliant Markdown renderer.</p>
 </section>
 <section id="sec-Deprecation" secid="4.3">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Deprecation">4.3</a></span>Deprecation</h2>
@@ -4043,7 +4043,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-The-__Directive-Type" secid="4.5.6">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-The-__Directive-Type">4.5.6</a></span>The __Directive Type</h3>
-<p>The <code>__Directive</code> type represents a Directive that a server supports.</p>
+<p>The <code>__Directive</code> type represents a Directive that a service supports.</p>
 <p>Fields</p>
 <ul>
 <li><code>name</code> must return a String</li>
@@ -5268,7 +5268,7 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Directives-Are-Defined.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Directives-Are-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p>GraphQL servers define what directives they support. For each usage of a directive, the directive must be available on that server.</p>
+<p>GraphQL services define what directives they support. For each usage of a directive, the directive must be available on that service.</p>
 </section>
 </section>
 <section id="sec-Directives-Are-In-Valid-Locations" secid="5.7.2">
@@ -5286,7 +5286,7 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Directives-Are-In-Valid-Locations.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Directives-Are-In-Valid-Locations.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
-<p>GraphQL servers define what directives they support and where they support them. For each usage of a directive, the directive must be used in a location that the server has declared support for.</p>
+<p>GraphQL services define what directives they support and where they support them. For each usage of a directive, the directive must be used in a location that the service has declared support for.</p>
 <p>For example the following query will not pass validation because <code>@skip</code> does not provide <code>QUERY</code> as a valid location.</p>
 <pre id="example-55f3f" class="spec-counter-example" data-language="graphql"><a href="#example-55f3f">Counter Example № 157</a><code><span class="token keyword">query</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   field
@@ -5868,7 +5868,7 @@ This algorithm is very similar to <span class="spec-call"><a href="#CoerceArgume
 <section id="sec-Subscription" secid="6.2.3">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Subscription">6.2.3</a></span>Subscription</h3>
 <p>If the operation is a subscription, the result is an event stream called the &ldquo;Response Stream&rdquo; where each event in the event stream is the result of executing the operation for each new event on an underlying &ldquo;Source Stream&rdquo;.</p>
-<p>Executing a subscription creates a persistent function on the server that maps an underlying Source Stream to a returned Response Stream.</p>
+<p>Executing a subscription creates a persistent function on the service that maps an underlying Source Stream to a returned Response Stream.</p>
 <div class="spec-algo" id="Subscribe()">
 <span class="spec-call"><a href="#Subscribe()" data-name="Subscribe">Subscribe</a>(<var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>, <var data-name="initialValue">initialValue</var>)</span><ol>
 <li>Let <var data-name="sourceStream">sourceStream</var> be the result of running <span class="spec-call"><a href="#CreateSourceEventStream()" data-name="CreateSourceEventStream">CreateSourceEventStream</a>(<var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>, <var data-name="initialValue">initialValue</var>)</span>.</li>
@@ -5904,7 +5904,7 @@ In large scale subscription systems, the <span class="spec-call"><a href="#Subsc
 </section>
 <section id="sec-Subscription.Supporting-Subscriptions-at-Scale" class="subsec">
 <h6><a href="#sec-Subscription.Supporting-Subscriptions-at-Scale" title="link to this subsection">Supporting Subscriptions at Scale</a></h6>
-<p>Supporting subscriptions is a significant change for any GraphQL service. Query and mutation operations are stateless, allowing scaling via cloning of GraphQL server instances. Subscriptions, by contrast, are stateful and require maintaining the GraphQL document, variables, and other context over the lifetime of the subscription.</p>
+<p>Supporting subscriptions is a significant change for any GraphQL service. Query and mutation operations are stateless, allowing scaling via cloning of GraphQL service instances. Subscriptions, by contrast, are stateful and require maintaining the GraphQL document, variables, and other context over the lifetime of the subscription.</p>
 <p>Consider the behavior of your system when state is lost due to the failure of a single machine in a service. Durability and availability may be improved by having separate dedicated services for managing subscription state and client connectivity.</p>
 </section>
 <section id="sec-Subscription.Delivery-Agnostic" class="subsec">
@@ -6009,7 +6009,7 @@ The <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="Exe
 </section>
 <section id="sec-Normal-and-Serial-Execution" secid="6.3.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Normal-and-Serial-Execution">6.3.1</a></span>Normal and Serial Execution</h3>
-<p>Normally the executor can execute the entries in a grouped field set in whatever order it chooses (normally in parallel). Because the resolution of fields other than top&#8208;level mutation fields must always be side effect&#8208;free and idempotent, the execution order must not affect the result, and hence the server has the freedom to execute the field entries in whatever order it deems optimal.</p>
+<p>Normally the executor can execute the entries in a grouped field set in whatever order it chooses (normally in parallel). Because the resolution of fields other than top&#8208;level mutation fields must always be side effect&#8208;free and idempotent, the execution order must not affect the result, and hence the service has the freedom to execute the field entries in whatever order it deems optimal.</p>
 <p>For example, given the following grouped field set to be executed normally:</p>
 <pre id="example-65e7d" class="spec-example" data-language="graphql"><a href="#example-65e7d">Example № 185</a><code><span class="token punctuation">{</span>
   birthday <span class="token punctuation">{</span>
@@ -6340,7 +6340,7 @@ A common method of determining the Object type for an <var data-name="objectValu
 </section>
 <section id="sec-Response" secid="7">
 <h1><span class="spec-secid" title="link to this section"><a href="#sec-Response">7</a></span>Response</h1>
-<p>When a GraphQL server receives a request, it must return a well&#8208;formed response. The server&rsquo;s response describes the result of executing the requested operation if successful, and describes any errors encountered during the request.</p>
+<p>When a GraphQL service receives a request, it must return a well&#8208;formed response. The service&rsquo;s response describes the result of executing the requested operation if successful, and describes any errors encountered during the request.</p>
 <p>A response may contain both a partial response as well as encountered errors in the case that a field error occurred on a field which was replaced with <span class="spec-keyword">null</span>.</p>
 <section id="sec-Response-Format" secid="7.1">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format">7.1</a></span>Response Format</h2>
@@ -6348,7 +6348,7 @@ A common method of determining the Object type for an <var data-name="objectValu
 <p>If the operation encountered any errors, the response map must contain an entry with key <code>errors</code>. The value of this entry is described in the &ldquo;Errors&rdquo; section. If the operation completed without encountering any errors, this entry must not be present.</p>
 <p>If the operation included execution, the response map must contain an entry with key <code>data</code>. The value of this entry is described in the &ldquo;Data&rdquo; section. If the operation failed before execution, due to a syntax error, missing information, or validation error, this entry must not be present.</p>
 <p>The response map may also contain an entry with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
-<p>To ensure future changes to the protocol do not break existing servers and clients, the top level response map must not contain any entries other than the three described above.</p>
+<p>To ensure future changes to the protocol do not break existing services and clients, the top level response map must not contain any entries other than the three described above.</p>
 <div id="note-6f005" class="spec-note">
 <a href="#note-6f005">Note</a>
 When <code>errors</code> is present in the response, it may be helpful for it to appear first when serialized to make it more clear when errors are present in a response during debugging.</div>
