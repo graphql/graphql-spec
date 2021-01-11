@@ -399,7 +399,7 @@ Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
-function arguments within a GraphQL server's implementation.
+function arguments within a GraphQL service's implementation.
 
 In this example, we want to query a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:

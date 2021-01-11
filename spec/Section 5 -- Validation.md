@@ -1439,8 +1439,8 @@ input object field is optional.
 
 **Explanatory Text**
 
-GraphQL servers define what directives they support. For each
-usage of a directive, the directive must be available on that server.
+GraphQL services define what directives they support. For each
+usage of a directive, the directive must be available on that service.
 
 
 ### Directives Are In Valid Locations
@@ -1456,9 +1456,9 @@ usage of a directive, the directive must be available on that server.
 
 **Explanatory Text**
 
-GraphQL servers define what directives they support and where they support them.
+GraphQL services define what directives they support and where they support them.
 For each usage of a directive, the directive must be used in a location that the
-server has declared support for.
+service has declared support for.
 
 For example the following query will not pass validation because `@skip` does
 not provide `QUERY` as a valid location.

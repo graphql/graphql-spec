@@ -162,7 +162,7 @@ If the operation is a subscription, the result is an event stream called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
-Executing a subscription creates a persistent function on the server that
+Executing a subscription creates a persistent function on the service that
 maps an underlying Source Stream to a returned Response Stream.
 
 Subscribe(subscription, schema, variableValues, initialValue):
@@ -221,7 +221,7 @@ must receive no more events from that event stream.
 
 Supporting subscriptions is a significant change for any GraphQL service. Query
 and mutation operations are stateless, allowing scaling via cloning of GraphQL
-server instances. Subscriptions, by contrast, are stateful and require
+service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
 
@@ -354,7 +354,7 @@ of Field Execution for more about this behavior.
 Normally the executor can execute the entries in a grouped field set in whatever
 order it chooses (normally in parallel). Because the resolution of fields other
 than top-level mutation fields must always be side effect-free and idempotent,
-the execution order must not affect the result, and hence the server has the
+the execution order must not affect the result, and hence the service has the
 freedom to execute the field entries in whatever order it deems optimal.
 
 For example, given the following grouped field set to be executed normally:
