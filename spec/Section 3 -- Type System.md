@@ -1449,15 +1449,16 @@ objects have a separate type in the system.
 
 **Circular References**
 
-Input Objects are allowed to reference other Input Objects. A circular reference 
-occurs when an Input Object references itself either directly or through 
-referenced Input Objects.
+Input Objects are allowed to reference other Input Objects as field types. A 
+circular reference occurs when an Input Object references itself either directly 
+or through referenced Input Objects.
 
 Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null fields. Such Input Objects are invalid, because there
-is no way to provide a legal value for them.
+unbroken chain of Non-Null singular fields. Such Input Objects are invalid, 
+because there is no way to provide a legal value for them.
 
-The following examples are allowed:
+This example of a circularly-referenced input type is valid as the field `self` 
+may be omitted or the value {null}.
 
 ```graphql example
 input Example {
@@ -1466,7 +1467,7 @@ input Example {
 }
 ```
 
-This is fine because a value for `self` may simply be omitted from the arguments.
+This example is also valid as the field `self` may be an empty List.
 
 ```graphql example
 input Example {
@@ -1475,9 +1476,8 @@ input Example {
 }
 ```
 
-This also works as `self` can just contain an empty list.
-
-The following examples are invalid:
+This example of a circularly-referenced input type is invalid as the field 
+`self` cannot be provided a finite value.
 
 ```graphql counter-example
 input Example {
@@ -1485,6 +1485,9 @@ input Example {
   self: Example!
 }
 ```
+
+This example is also invalid, as there is a non-null singular circular reference 
+via the `First.second` and `Second.first` fields.
 
 ```graphql counter-example
 input First {
@@ -1578,7 +1581,7 @@ Literal Value            | Variables               | Coerced Value
       returns {true}.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
-   either nullable or a List.
+   either a nullable or a List type.
 
 
 ### Input Object Extensions
