@@ -407,7 +407,7 @@ Custom scalar specifications should provide a single, stable format to avoid
 ambiguity. If the linked specification is in flux, the service should link to a
 fixed version rather than to a resource which might change.
 
-Custom scalar specifications URLs should not be changed once defined; doing so
+Custom scalar specification URLs should not be changed once defined; as doing so
 is likely to disrupt tooling or may come with breaking changes within the
 linked specification's contents.
 
