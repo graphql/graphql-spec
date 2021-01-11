@@ -241,16 +241,15 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
-A GraphQL type designer should define `specifiedBy` for custom scalars as
-a specification URL describing the data format, serialization, and coercion
-rules for the scalar. It is recommended to also summarize the format and provide
-an example in the description field.
+Also represents [Custom scalars](#sec-Scalars.Custom-Scalars) which may provide 
+`specifiedBy` as a scalar specification URL.
 
 Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `specifiedBy` may return a String (in the form of a URL), otherwise must be {null}.
+* `specifiedBy` may return a String (in the form of a URL) for custom scalars, 
+   otherwise must be {null}.
 * `description` may return a String or {null}.
 * All other fields must return {null}.
 
