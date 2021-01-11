@@ -2052,9 +2052,16 @@ directive @specifiedBy(url: String!) on SCALAR
 ```
 
 The `@specifiedBy` directive is used within the type system definition language
+<<<<<<< HEAD
 to provide a specification URL for specifying the behavior of [custom scalar
 types](#sec-Scalars.Custom-Scalars). The URL should point to a human-readable
 specification of the data format, serialization, and coercion rules.
+=======
+to provide a URL for specifying the behavior of 
+[custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a 
+human-readable specification of the data format, serialization, and 
+coercion rules. It must not not appear on built-in scalar types.
+>>>>>>> 2a3ae75... Editorial - directive description
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.
