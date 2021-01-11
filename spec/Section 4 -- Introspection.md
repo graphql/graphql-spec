@@ -151,7 +151,7 @@ type __Type {
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
 
-  # may be non-null for SCALAR only, must be null for the others
+  # should be non-null for SCALAR only, must be null for the others
   specifiedBy: String
 }
 
@@ -250,7 +250,7 @@ Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `specifiedBy` may return a String (in the form of a URL) or {null}.
+* `specifiedBy` may return a String (in the form of a URL), otherwise must be {null}.
 * `description` may return a String or {null}.
 * All other fields must return {null}.
 
