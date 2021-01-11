@@ -1454,7 +1454,7 @@ circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
 Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid, 
+unbroken chain of Non-Null singular fields. Such Input Objects are invalid 
 because there is no way to provide a legal value for them.
 
 This example of a circularly-referenced input type is valid as the field `self` 
