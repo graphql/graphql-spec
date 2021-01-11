@@ -383,26 +383,33 @@ all built-in scalars must be omitted for brevity.
 **Custom Scalars**
 
 GraphQL services may use custom scalar types in addition to the built-in
-scalars. For example, a GraphQL system
-could define a scalar called `Time` which, while serialized as a string,
-promises to conform to ISO-8601. When querying a field of type `Time`, you can
-then rely on the ability to parse the result with an ISO-8601 parser and use a
-client-specific primitive for time. Another example of a potentially useful
-custom scalar is `URL`, which serializes as a string, but is guaranteed by
-the service to be a valid URL.
+scalars. For example, a GraphQL service could define a scalar called `Time`
+which, while serialized as a string, conforms to ISO-8601. When querying a field
+of type `Time`, you can then rely on the ability to parse the result with an
+ISO-8601 parser and use a client-specific primitive for time. Another example of
+a potentially useful custom scalar is `URL`, which serializes as a string, but
+is guaranteed by the server to be a valid URL.
 
-When defining an additional scalar, GraphQL systems should use the
-`@specifiedBy` directive to provide a URL pointing to a human-readable
-specification of the data format, serialization, and coercion rules for the
-scalar. For example, a GraphQL system providing a `UUID` scalar might link to
-RFC 4122, or some document defining a reasonable subset of that RFC. If a
-specification URL is present, systems and tools that are aware of it should
-conform to its described rules. Built-in scalar types should not provide a URL.
+When defining a custom scalar, GraphQL services should provide a specification
+URL via `specifiedBy` introspection field or the `@specifiedBy` directive. This
+URL must link to a human-readable specification of the data format,
+serialization, and coercion rules for the scalar. For example, a GraphQL service
+providing a `UUID` scalar may link to RFC 4122, or some custom document defining
+a reasonable subset of that RFC. If a scalar specification URL is present,
+systems and tools that are aware of it should conform to its described rules.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
+
+Custom scalar specifications should provide a single, stable format to avoid
+ambiguity. If the linked specification is in flux, the service should link to a
+fixed version rather than to a resource which might change.
+
+Custom scalar specifications URLs should not be changed once defined; doing so
+is likely to disrupt tooling or may come with breaking changes within the
+linked specification's contents.
 
 Built-in scalar types must not provide a specification URL as they are specified
 by this document.
@@ -2042,25 +2049,13 @@ directive @specifiedBy(url: String!) on SCALAR
 ```
 
 The `@specifiedBy` directive is used within the type system definition language
-to provide a URL for specifying the behavior of custom
-scalar definitions. The URL should point to a human-readable specification of
-the data format, serialization, and coercion rules for the scalar. For example,
-a GraphQL system providing a `UUID` scalar might link to [RFC 4122](https://tools.ietf.org/html/rfc4122),
-or some document defining a reasonable subset of that RFC. If a specification
-URL is present, systems and tools that are aware of it should conform to its
-described rules. Built-in scalar types should not provide a URL in this way.
+to provide a specification URL for specifying the behavior of [custom scalar
+types](#sec-Scalars.Custom-Scalars). The URL should point to a human-readable
+specification of the data format, serialization, and coercion rules.
 
-Specifications linked in this way should provide a single, stable scalar format
-to avoid ambiguity. This means that if the specification is in flux, the system
-should link to a fixed version rather than to a resource whose contents might
-change. It is also recommended that the URL associated with a scalar not be
-changed once defined; doing so is likely to disrupt tooling, and may come with
-changes to the specification contents which are themselves breaking.
-
-In this example, two custom scalar types are defined with URLs pointing to the
-relevant IETF specifications.
+In this example, a custom scalar type for `UUID` is defined with a URL pointing
+to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
-scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
