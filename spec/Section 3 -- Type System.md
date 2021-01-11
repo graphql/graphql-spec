@@ -414,7 +414,7 @@ linked specification's contents.
 Built-in scalar types must not provide a specification URL as they are specified
 by this document.
 
-Note: Custom scalars should also summarize the specified format and provide 
+Note: Custom scalars should also summarize the specified format and provide
 examples in their description.
 
 **Result Coercion and Serialization**
@@ -2052,16 +2052,10 @@ directive @specifiedBy(url: String!) on SCALAR
 ```
 
 The `@specifiedBy` directive is used within the type system definition language
-<<<<<<< HEAD
-to provide a specification URL for specifying the behavior of [custom scalar
-types](#sec-Scalars.Custom-Scalars). The URL should point to a human-readable
-specification of the data format, serialization, and coercion rules.
-=======
-to provide a URL for specifying the behavior of 
-[custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a 
-human-readable specification of the data format, serialization, and 
-coercion rules. It must not not appear on built-in scalar types.
->>>>>>> 2a3ae75... Editorial - directive description
+to provide a URL for specifying the behavior of
+[custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a
+human-readable specification of the data format, serialization, and
+coercion rules. It must not appear on built-in scalar types.
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.
