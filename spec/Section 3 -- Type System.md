@@ -414,6 +414,9 @@ linked specification's contents.
 Built-in scalar types must not provide a specification URL as they are specified
 by this document.
 
+Note: Custom scalars should also summarize the specified format and provide 
+examples in their description.
+
 **Result Coercion and Serialization**
 
 A GraphQL service, when preparing a field of a given scalar type, must uphold the
