@@ -1818,6 +1818,10 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
 
+When representing a GraphQL schema using the type system definition language,
+built in mandatory directives should be omitted for brevity, but optional
+and custom directives must be specified.
+
 **Custom Directives**
 
 GraphQL services and client tooling may provide additional directives beyond
