@@ -82,14 +82,14 @@ union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
 
-tagged Being {
+tagged output Being {
   cat: Cat
   dog: Dog
   human: Human
   alien: Alien
 }
 
-tagged Earthling {
+tagged output Earthling {
   cat: Cat
   dog: Dog
   human: Human
@@ -585,7 +585,7 @@ fragment conflictingDifferingResponses on Pet {
 * Let {selectionType} be the result type of {selection}
 * If {selectionType} is a scalar or enum:
   * The subselection set of that selection must be empty
-* If {selectionType} is an interface, union, object or tagged type
+* If {selectionType} is an interface, union, object or output tagged type
   * The subselection set of that selection must NOT BE empty
 
 **Explanatory Text**

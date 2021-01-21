@@ -90,9 +90,9 @@ warnings.
 ## Type Name Introspection
 
 GraphQL supports type name introspection at any point within a query by the
-meta-field __typename: String! when querying against any Object, Interface,
+meta-field `__typename: String!` when querying against any Object, Interface,
 Union or Tagged types. It returns the name of the concrete type currently being
-queried, which will be an Object or Tagged type.
+queried, which will be an Object or output Tagged type.
 
 This is most often used when querying against Interface or Union types to
 identify which actual type of the possible types has been returned.
@@ -151,6 +151,12 @@ type __Type {
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
+
+  # should return true for any type for which {IsInputType(type)} returns true.
+  isInputType: Boolean
+
+  # should return true for any type for which {IsOutputType(type)} returns true.
+  isOutputType: Boolean
 }
 
 type __Field {
@@ -257,6 +263,8 @@ Fields
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
 * `description` may return a String or {null}.
+* `isInputType` should return {true}.
+* `isOutputType` should return {true}.
 * All other fields must return {null}.
 
 
@@ -274,6 +282,8 @@ Fields
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
 * `interfaces`: The set of interfaces that an object implements.
+* `isInputType` should return {false}.
+* `isOutputType` should return {true}.
 * All other fields must return {null}.
 
 
@@ -290,6 +300,8 @@ Fields
 * `description` may return a String or {null}.
 * `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
+* `isInputType` should return {false}.
+* `isOutputType` should return {true}.
 * All other fields must return {null}.
 
 
@@ -311,6 +323,8 @@ Fields
 * `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
+* `isInputType` should return {false}.
+* `isOutputType` should return {true}.
 * All other fields must return {null}.
 
 
@@ -330,6 +344,8 @@ Fields
 * `memberFields`: The set of member fields query-able on this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated member fields are also returned.
+* `isInputType` should return {IsInputType(type)}.
+* `isOutputType` should return {IsOutputType(type)}.
 * All other fields must return {null}.
 
 
@@ -346,6 +362,8 @@ Fields
   must have unique names.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
+* `isInputType` should return {true}.
+* `isOutputType` should return {true}.
 * All other fields must return {null}.
 
 
@@ -369,6 +387,8 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
+* `isInputType` should return {true}.
+* `isOutputType` should return {false}.
 * All other fields must return {null}.
 
 
@@ -382,6 +402,8 @@ Fields
 
 * `kind` must return `__TypeKind.LIST`.
 * `ofType`: Any type.
+* `isInputType` should return {IsInputType(type)}.
+* `isOutputType` should return {IsOutputType(type)}.
 * All other fields must return {null}.
 
 
@@ -395,6 +417,8 @@ required inputs for arguments and input object fields.
 
 * `kind` must return `__TypeKind.NON_NULL`.
 * `ofType`: Any type except Non-null.
+* `isInputType` should return {IsInputType(type)}.
+* `isOutputType` should return {IsOutputType(type)}.
 * All other fields must return {null}.
 
 

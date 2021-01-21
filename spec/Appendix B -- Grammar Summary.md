@@ -287,15 +287,19 @@ UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
-TaggedTypeDefinition : Description? tagged Name Directives[Const]? TaggedMemberFieldsDefinition?
+TaggedTypeDefinition : Description? tagged TaggedTypeVariant Name Directives[Const]? TaggedMemberFieldsDefinition?
+
+TaggedTypeVariant :
+  - input
+  - output
 
 TaggedMemberFieldsDefinition : { TaggedMemberFieldDefinition+ }
 
 TaggedMemberFieldDefinition : Description? Name : Type Directives[Const]?
 
 TaggedTypeExtension :
-  - extend tagged Name Directives[Const]? TaggedMemberFieldsDefinition
-  - extend tagged Name Directives[Const]
+  - extend tagged TaggedTypeVariant Name Directives[Const]? TaggedMemberFieldsDefinition
+  - extend tagged TaggedTypeVariant Name Directives[Const]
 
 EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
 
