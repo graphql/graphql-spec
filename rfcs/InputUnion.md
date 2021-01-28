@@ -1100,3 +1100,5 @@ proposed as an evolution of Solution 5, and is currently the leading solution.
 * ~~[1][solution-1]~~
 * ~~[2][solution-2]~~
 * ~~[3][solution-3] / [4][solution-4]~~
+
+(touching this document in order to submit a PR, but not sure what is the good practice, so providing comments rather than changes)
