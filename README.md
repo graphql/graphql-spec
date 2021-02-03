@@ -1133,6 +1133,12 @@ and how to format a GraphQL response, as well as the grammar for GraphQL.
 
 ### Contributing to this repo
 
-Please note that you must be a member of the [GraphQL Specification project](https://foundation.graphql.org/join) in order to make a contribution to the GraphQL Specification. There is no cost to join the specification project. If you open a PR, the EasyCLA tool will check whether you are covered as a contributor, either as an individual or under a company. If you are not covered, you will be prompted to sign the membership document at that time.
+Please note that you must be a member of the [GraphQL Specification project](https://foundation.graphql.org/join) in order to make a contribution to the GraphQL Specification. There is no cost to join the specification project and you only need to do this one time.
+
+You can either sign the document as an individual on your own behalf, or your company can do it. If your company has already signed the agreement, you will need to ask your CLA manager to add you to the [list of approved contributors](https://corporate.v1.easycla.lfx.linuxfoundation.org/). If you do not know your CLA manager, please email [operations@graphql.org](mailto:operations@graphql.org) for help.
+
+To initiate the signature process please open a PR. The EasyCLA bot will block merging if we still need a membership agreement from you.
+
+If you have issues, please email [operations@graphql.org](mailto:operations@graphql.org).
 
 If your company benefits from GraphQL and you would like to provide essential financial support for the systems and people that power our community, please also consider membership in the [GraphQL Foundation](https://foundation.graphql.org/join). 
