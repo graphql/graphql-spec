@@ -8,19 +8,26 @@ request.
 A response may contain both a partial response as well as encountered errors in
 the case that a field error occurred on a field which was replaced with {null}.
 
+## Request Errors
+
+Any errors that occur during a GraphQL request are termed "request errors."
+Request errors are not limited to errors that occur during execution of the
+operation, they could be raised during parsing and validation of the request
+too. For example, a request error will be raised if the request does not
+contain sufficient information to indicate uniquely which operation to execute.
 
 ## Response Format
 
-A response to a GraphQL operation must be a map.
+A response to a GraphQL request must be a map.
 
-If the operation encountered any errors, the response map must contain an
+If the request encountered any errors, the response map must contain an
 entry with key `errors`. The value of this entry is described in the "Errors"
 section. If the operation completed without encountering any errors, this entry
 must not be present.
 
-If the operation included execution, the response map must contain an entry
+If the request included execution, the response map must contain an entry
 with key `data`. The value of this entry is described in the "Data" section. If
-the operation failed before execution, due to a syntax error, missing
+the request failed before execution, due to a syntax error, missing
 information, or validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry,
@@ -55,8 +62,8 @@ response, the `data` entry in the response should be `null`.
 The `errors` entry in the response is a non-empty list of errors, where each
 error is a map.
 
-If no errors were encountered during the requested operation, the `errors`
-entry should not be present in the result.
+If no errors were encountered during the request, the `errors` entry should
+not be present in the result.
 
 If the `data` entry in the response is not present, the `errors`
 entry in the response must not be empty. It must contain at least one error.
