@@ -1944,9 +1944,9 @@ by a validator, executor, or client tool such as a code generator.
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
 GraphQL implementations are not required to implement the `@defer` and `@stream`
-directives. If they are implemented, they must be implemented according to this
-specification. GraphQL implementations that do not support these directives must
-not make them available via introspection.
+directives. If either or both of these directives are implemented, they must be
+implemented according to this specification. GraphQL implementations that do not
+support these directives must not make them available via introspection.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
