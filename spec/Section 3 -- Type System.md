@@ -2201,6 +2201,15 @@ fragment someFragment on User {
 }
 ```
 
+#### @defer Arguments
+
+- `if: Boolean` - When true, fragment may be deferred. If omitted, defaults to
+  `true`.
+- `label: String` - A unique label across all `@defer` and `@stream` directives
+  in an operation. This label should be used by GraphQL clients to identify the
+  data from patch responses and associate it with the correct fragments. If
+  provided, the GraphQL Server must add it to the payload.
+
 ### @stream
 
 ```graphql
@@ -2221,3 +2230,14 @@ query myQuery($shouldStream: Boolean) {
   }
 }
 ```
+
+#### @stream Arguments
+
+- `if: Boolean` - When true, field may be streamed. If omitted, defaults to
+  `true`.
+- `label: String` - A unique label across all `@defer` and `@stream` directives
+  in an operation. This label should be used by GraphQL clients to identify the
+  data from patch responses and associate it with the correct fragments. If
+  provided, the GraphQL Server must add it to the payload.
+- `initialCount: Int` - The number of list items the server should return as
+  part of the initial response. If omitted, defaults to `0`.
