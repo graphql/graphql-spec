@@ -159,6 +159,7 @@ type __Field {
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
+  oneArgument: Boolean!
 }
 
 type __InputValue {
@@ -385,6 +386,8 @@ Fields
 * `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 * `deprecationReason` optionally provides a reason why this field is deprecated.
+* `oneArgument` must return {true} for Oneof Fields, {false} for all other
+  Fields.
 
 
 ### The __InputValue Type

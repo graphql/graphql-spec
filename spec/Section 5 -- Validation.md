@@ -780,6 +780,20 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
+#### Oneof Fields Have Exactly One Argument
+
+* For each Oneof Field in the document:
+  * Let {arguments} be the arguments provided by the Field.
+  * {arguments} must contain exactly one entry.
+  * For the sole {argument} in {arguments}:
+    * Let {value} be the value of {argument}.
+    * {value} must not be the {null} literal.
+
+**Explanatory Text**
+
+Oneof Fields require that exactly one argument must be supplied and that
+argument must not be null.
+
 ## Fragments
 
 ### Fragment Declarations

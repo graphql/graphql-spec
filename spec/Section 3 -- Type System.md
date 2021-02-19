@@ -818,6 +818,9 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If the field is a Oneof Field:
+         1. The field must be nullable.
+         2. The field must not have a default value.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -845,6 +848,8 @@ IsValidImplementation(type, implementedType):
          2. Let {implementedFieldType} be the return type of {implementedField}.
          3. {IsValidImplementationFieldType(fieldType, implementedFieldType)}
             must be {true}.
+      6. {field} must be a Oneof Field if and only if {implementedField} is a
+         Oneof Field.
 
 IsValidImplementationFieldType(fieldType, implementedFieldType):
   1. If {fieldType} is a Non-Null type:
@@ -917,6 +922,30 @@ May yield the result:
 The type of an object field argument must be an input type (any type except an
 Object, Interface, or Union type).
 
+**Oneof Fields**
+
+Oneof Fields are a special variant of Object Type fields where the type system
+asserts that exactly one of the field's arguments must be set and non-null, all
+others being omitted. This is useful for representing situations where an input
+may be one of many different options.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that a Field is a Oneof Field (and thus requires exactly one of its
+arguments be provided):
+
+```graphql
+type Query {
+  findUser(
+    byID: ID
+    byUsername: String
+    byEmail: String
+    byRegistrationNumber: Int
+  ): User @oneOf
+}
+```
+
+In schema introspection, the `__Field.oneArgument` field will return {true} for
+Oneof Fields, and {false} for all other Fields.
 
 ### Field Deprecation
 
@@ -1160,6 +1189,9 @@ Interface types have the potential to be invalid if incorrectly defined.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If the field is a Oneof Field:
+         1. The field must be nullable.
+         2. The field must not have a default value.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
@@ -1880,7 +1912,8 @@ provide:
 - the `@deprecated` directive if representing deprecated portions of the
   schema;
 - the `@oneOf` directive if representing types that require exactly one field
-  (i.e. Oneof Input Objects).
+  (i.e. Oneof Input Objects) or fields that require exactly one argument (i.e.
+  Oneof Fields).
 
 **Custom Directives**
 
@@ -2048,16 +2081,30 @@ type ExampleType {
 ### @oneOf
 
 ```graphql
-directive @oneOf on INPUT_OBJECT
+directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION
 ```
 
 The `@oneOf` directive is used within the type system definition language
-to indicate an Input Object is a Oneof Input Object.
+to indicate:
+
+- an Input Object is a Oneof Input Object, or
+- an Object Type's Field is a Oneof Field.
 
 ```graphql example
 input UserUniqueCondition @oneOf {
   id: ID
   username: String
   organizationAndEmail: OrganizationAndEmailInput
+}
+```
+
+```graphql example
+type Query {
+  findUser(
+    byID: ID
+    byUsername: String
+    byEmail: String
+    byRegistrationNumber: Int
+  ): User @oneOf
 }
 ```
