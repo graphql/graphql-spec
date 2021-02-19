@@ -832,14 +832,14 @@ IsValidImplementation(type, implementedType):
       defined in {implementedType}.
       1. Let {field} be that named field on {type}.
       2. Let {implementedField} be that named field on {implementedType}.
-      1. {field} must include an argument of the same name for every argument
+      3. {field} must include an argument of the same name for every argument
          defined in {implementedField}.
          1. That named argument on {field} must accept the same type
             (invariant) as that named argument on {implementedField}.
-      2. {field} may include additional arguments not defined in
+      4. {field} may include additional arguments not defined in
          {implementedField}, but any additional argument must not be required,
          e.g. must not be of a non-nullable type.
-      3. {field} must return a type which is equal to or a sub-type of
+      5. {field} must return a type which is equal to or a sub-type of
          (covariant) the return type of {implementedField} field's return type:
          1. Let {fieldType} be the return type of {field}.
          2. Let {implementedFieldType} be the return type of {implementedField}.
@@ -1600,10 +1600,10 @@ be used by a GraphQL service which is itself an extension of another GraphQL ser
 Input object type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Input Object type.
-3. All fields of an Input Object type extension must have unique names.
-4. All fields of an Input Object type extension must not already be a field of
+2. All fields of an Input Object type extension must have unique names.
+3. All fields of an Input Object type extension must not already be a field of
    the original Input Object.
-5. Any non-repeatable directives provided must not already apply to the
+4. Any non-repeatable directives provided must not already apply to the
    original Input Object type.
 
 
