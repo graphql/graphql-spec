@@ -228,6 +228,7 @@ query ($whereSizeGreaterThan: Int) {
 }
 ```
 
+
 Further we allow for multiple arguments to be specified, joined with commas:
 
 `>searchBusinesses(where.size.greaterThan:,where.size.lessThan:,where.city.equalTo:)>name`
@@ -251,13 +252,29 @@ query(
 }
 ```
 
-#### Grammar
+> NOTE: the following number syntax probably needs more thought. Added only for completeness.
+
+We also allow `[number]` syntax to refer to a numbered entry in a list, or `[]` to refer to the next entry; e.g.:
+
+`>findUsers(byIds[]:,byIds[],byIds[],byIds[5])>name`
+
+expands to something like:
+
+```graphql
+query ($byIds0: ID, $byIds1: ID, $byIds2: ID, $byIds5: ID) {
+  findUsers(byIds: [$byIds0, $byIds1, $byIds2, null, null, $byIds5]) {
+    name
+  }
+}
+```
+
+## Grammar
 
 Note all the Lexical Tokens, `OperationType` and `Alias` are defined as in the
 GraphQL spec; however **whitespace is not ignored** - in fact there are no
 ignored characters.
 
-## Lexical Tokens
+### Lexical Tokens
 
 Name ::
   - NameStart NameContinue* [lookahead != NameContinue]
@@ -280,9 +297,19 @@ Letter :: one of
 Digit :: one of
   `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
+IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
+
+IntegerPart ::
+  - NegativeSign? 0
+  - NegativeSign? NonZeroDigit Digit*
+
+NegativeSign :: -
+
+NonZeroDigit :: Digit but not `0`
+
 Comma :: ,
 
-## Expression Syntax
+### Expression Syntax
 
 Expression :
   - FragmentExpression
@@ -313,5 +340,13 @@ Arguments :
 Argument : NamePath :
 
 NamePath :
-  - Name . NamePath
-  - Name
+  - Name Indexes? . NamePath
+  - Name Indexes?
+
+Indexes :
+  - Index Indexes
+  - Index
+
+Index :
+  - [ IntValue ]
+  - [ ]
