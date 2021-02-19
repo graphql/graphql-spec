@@ -818,9 +818,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          characters {"__"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-      3. If the argument has a default value, {defaultValue} must be compatible
-         with {argumentType} as per the coercion rules for that type, and
-         coercion of {defaultValue} must not cause an infinite loop.
+      3. If the argument has a default value it must be compatible with
+         {argumentType} as per the coercion rules for that type.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1584,9 +1583,17 @@ Literal Value            | Variables               | Coerced Value
       characters {"__"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
-   4. If the input field has a default value, {defaultValue} must be compatible
-      with {inputFieldType} as per the coercion rules for that type, and
-      coercion of {defaultValue} must not cause an infinite loop.
+   4. If the input field has a non-null default value:
+      1. {defaultValue} must be compatible with {inputFieldType} as per the
+         coercion rules for that type.
+      2. If the input field references this Input Object either directly or
+         through referenced Input Objects, all input fields in the chain of
+         references which reference this Input Object must either:
+         1. have no default value; or
+         2. have a {null} default value; or
+         3. have a default value, {nestedDefaultValue}, such that the value for
+            this field within {nestedDefaultValue} is either {null} or an empty
+            list.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
