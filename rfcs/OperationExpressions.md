@@ -309,9 +309,9 @@ query($byIds0: ID, $byIds1: ID, $byIds2: ID, $byIds5: ID) {
 
 ## Grammar
 
-Note all the Lexical Tokens, `OperationType` and `Alias` are defined as in the
-GraphQL spec; however **whitespace is not ignored** - in fact there are no
-ignored characters.
+The Lexical Tokens below plus `OperationType` and `Alias` are defined as in the
+GraphQL spec. Note there are no ignored characters: **whitespace is not
+ignored**.
 
 ### Lexical Tokens
 
