@@ -190,14 +190,24 @@ operation documents, the query keyword is optional):
 - `query>me>name` expands to `query { me { name } }`
 
 You may name operations by prefixing with an operation name followed by a
-colon; for example `MyName:>me>name` expands to `query MyName { me { name } }`.
+colon; for example:
+
+- `MyQuery:>me>name` and `MyQuery:query>me>name` expand to `query MyQuery { me { name } }`.
+- `MyMutation:mutation>createUser>name` expands to `mutation MyMutation { createUser { name } }`.
+- `MySubscription:subscription>userCreated>name` expands to `subscription MySubscription { userCreated { name } }`.
 
 #### Fragments
 
 Fragments start with a type name followed by a period: `User.friends>name`
-expands to `... on User { friends { name } }`. You can name fragments by
-prefixing with a fragment name and a colon: `FriendNames:User.friends>name`
-expands to `fragment FriendNames on User { friends { name } }`.
+expands to `... on User { friends { name } }`.
+
+You can name fragments by prefixing with a fragment name and a colon:
+`FriendNames:User.friends>name` expands to `fragment FriendNames on User {
+friends { name } }`.
+
+Other examples:
+
+- `MyFragment:Node.User.fullName:name` expands to `fragment MyFragment on Node { ... on User { fullName: name } }`
 
 #### Arguments
 
@@ -217,3 +227,91 @@ query ($whereSizeGreaterThan: Int) {
   }
 }
 ```
+
+Further we allow for multiple arguments to be specified, joined with commas:
+
+`>searchBusinesses(where.size.greaterThan:,where.size.lessThan:,where.city.equalTo:)>name`
+
+expands to something like:
+
+```graphql
+query(
+  $whereSizeGreaterThan: Int
+  $whereSizeLessThan: Int
+  $whereCityEqualTo: String
+) {
+  searchBusinesses(
+    where: {
+      size: { greaterThan: $whereSizeGreaterThan, lessThan: $whereSizeLessThan }
+      city: { equalTo: $whereCityEqualTo }
+    }
+  ) {
+    name
+  }
+}
+```
+
+#### Grammar
+
+Note all the Lexical Tokens, `OperationType` and `Alias` are defined as in the
+GraphQL spec; however **whitespace is not ignored** - in fact there are no
+ignored characters.
+
+## Lexical Tokens
+
+Name ::
+  - NameStart NameContinue* [lookahead != NameContinue]
+
+NameStart ::
+  - Letter
+  - `_`
+
+NameContinue ::
+  - Letter
+  - Digit
+  - `_`
+
+Letter :: one of
+  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
+  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+  `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+
+Digit :: one of
+  `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+
+Comma :: ,
+
+## Expression Syntax
+
+Expression :
+  - FragmentExpression
+  - OperationExpression
+
+OperationExpression : Alias? OperationType? > SelectionPath
+
+FragmentExpression : Alias? Name . SelectionPath
+
+Alias : Name :
+
+OperationType : one of `query` `mutation` `subscription`
+
+SelectionPath :
+ - Name . Alias? Name ( Arguments ) > SelectionPath
+ - Name . Alias? Name ( Arguments )
+ - Name . Alias? Name > SelectionPath
+ - Name . Alias? Name
+ - Alias? Name ( Arguments ) > SelectionPath
+ - Alias? Name ( Arguments )
+ - Alias? Name > SelectionPath
+ - Alias? Name
+
+Arguments :
+ - Argument Comma Arguments
+ - Argument
+
+Argument : NamePath :
+
+NamePath :
+  - Name . NamePath
+  - Name
