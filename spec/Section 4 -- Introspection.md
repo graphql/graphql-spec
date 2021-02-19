@@ -147,6 +147,9 @@ type __Type {
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
+
+  # should be non-null for INPUT_OBJECT only
+  oneField: Boolean
 }
 
 type __Field {
@@ -336,6 +339,8 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
+* `oneField` must return {true} for Oneof Input Objects, {false} for all other
+  Input Objects.
 * All other fields must return {null}.
 
 
