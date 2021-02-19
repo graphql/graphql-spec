@@ -224,6 +224,29 @@ Other examples:
 - `MyFragment:Node.User.fullName:name` expands to
   `fragment MyFragment on Node { ... on User { fullName: name } }`
 
+- `MyQuery:>allEntities>edges>node>MyNodeFragment:Node.MyUserFragment:User.fullName:name`
+  expands to
+
+  ```graphql
+  query MyQuery {
+    allEntities {
+      edges {
+        node {
+          ...MyNodeFragment
+        }
+      }
+    }
+  }
+
+  fragment MyNodeFragment on Node {
+    ...MyUserFragment
+  }
+
+  fragment MyUserFragment on User {
+    fullName: name
+  }
+  ```
+
 #### Arguments
 
 Arguments use the same syntax as Schema Coordinates; namely parenthesis and a
@@ -340,10 +363,10 @@ Alias : Name :
 OperationType : one of `query` `mutation` `subscription`
 
 SelectionPath :
- - Name . Alias? Name ( Arguments ) > SelectionPath
- - Name . Alias? Name ( Arguments )
- - Name . Alias? Name > SelectionPath
- - Name . Alias? Name
+ - Alias? Name . Alias? Name ( Arguments ) > SelectionPath
+ - Alias? Name . Alias? Name ( Arguments )
+ - Alias? Name . Alias? Name > SelectionPath
+ - Alias? Name . Alias? Name
  - Alias? Name ( Arguments ) > SelectionPath
  - Alias? Name ( Arguments )
  - Alias? Name > SelectionPath
