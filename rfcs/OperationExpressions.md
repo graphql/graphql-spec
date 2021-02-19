@@ -6,11 +6,11 @@
 
 In the [Schema Coordinates RFC](./SchemaCoordinates.md) Mark introduced the
 concept of "schema coordinates" which give a standard human- and
-machine-readable way to unambiguously refer to entities within a GraphQL
-schema: types, fields, field arguments, enum values, directives and directive
-arguments. The scope of that RFC is deliberately very tight, and it serves that
-goal well, providing a one-to-one mapping between the schema coordinates and
-the schema entities.
+machine-readable way to unambiguously refer to entities within a GraphQL schema:
+types, fields, field arguments, enum values, directives and directive arguments.
+The scope of that RFC is deliberately very tight, and it serves that goal well,
+providing a one-to-one mapping between the schema coordinates and the schema
+entities.
 
 This RFC is to gather feedback on expansions of the Schema Coordinate syntax
 that could be used for different purposes whilst maintaining familiarity.
@@ -48,15 +48,15 @@ Imagine you have the following GraphQL query:
 
 You might reference the marked (`<<< HERE`) field with an expression such as:
 
-- `Person.email` - this is the "schema coordinate" which uniquely identifies
-  the field, but lacks context on how we retrieved it
+- `Person.email` - this is the "schema coordinate" which uniquely identifies the
+  field, but lacks context on how we retrieved it
 - `>businesses>owner>email` - given the GraphQL query document, this is
   sufficient to uniquely identify this specific reference (caveat: duplicate
   fields would all be referenced with the same expression)
-- `>businesses:searchBusinesses>owner:personByOwnerId>email` - this
-  contains more context than the above, indicating not just the aliases but the
-  actual field names too; with this access to the operation document is not
-  required to determine what was requested
+- `>businesses:searchBusinesses>owner:personByOwnerId>email` - this contains
+  more context than the above, indicating not just the aliases but the actual
+  field names too; with this access to the operation document is not required to
+  determine what was requested
 - `>businesses:searchBusinesses(name:)>owner:personByOwnerId>email` - this
   contains even more context (the argument names that were used)
 
@@ -70,15 +70,15 @@ of context.
 
 Emmet is a popular syntax for quickly generating HTML/CSS. It's easy to imagine
 how a operation expression syntax could be combined with a GraphQL schema
-definition to quickly generate GraphQL queries, mutations and subscriptions
-with a concise syntax. For example the expression:
+definition to quickly generate GraphQL queries, mutations and subscriptions with
+a concise syntax. For example the expression:
 
 `>businesses:searchBusinesses(name:)>owner:personByOwnerId>email`
 
 might expand to:
 
 ```graphql
-query ($name: String!) {
+query($name: String!) {
   businesses: searchBusinesses(name: $name) {
     owner: personByOwnerId {
       email
@@ -94,7 +94,9 @@ might expand to:
 ```graphql
 fragment MyFragment on User {
   businesses {
-    owner { email }
+    owner {
+      email
+    }
   }
 }
 ```
@@ -102,10 +104,10 @@ fragment MyFragment on User {
 ### Documentation Permalinks
 
 When navigating the GraphiQL documentation, GraphiQL maintains a stack of the
-path you arrived to the current documentation page through. It could be
-valuable to store this into the query string such that you could share a
-"documentation stack" with someone else (or bookmark it). For example if you
-browsed through the documentation via:
+path you arrived to the current documentation page through. It could be valuable
+to store this into the query string such that you could share a "documentation
+stack" with someone else (or bookmark it). For example if you browsed through
+the documentation via:
 
 - `User` type
 - `User.friends` field (returns a `User`)
@@ -132,10 +134,9 @@ reason:
 ### Indicating how to access a particular field
 
 When reading the documentation of a type in GraphiQL it currently does not
-indicate how to reach a particular field. Though there are often infinitely
-many paths to reach a field, often the shortest are the most valuable, so
-GraphiQL could indicate a few of the shorter paths using operation expression
-syntax:
+indicate how to reach a particular field. Though there are often infinitely many
+paths to reach a field, often the shortest are the most valuable, so GraphiQL
+could indicate a few of the shorter paths using operation expression syntax:
 
 > `User.firstName` can be accessed through paths such as:
 >
@@ -161,8 +162,8 @@ Syntax is in flux; but here's some thoughts:
 
 #### Pathing
 
-Following a path from one field to the next could use the `>` character; this
-is already used in Apollo's GraphQL documentation browser and is intuitive for
+Following a path from one field to the next could use the `>` character; this is
+already used in Apollo's GraphQL documentation browser and is intuitive for
 navigation. This leaves `.` available and non-ambiguous for referring to fields
 on a type, which is useful when disambiguating references on a union type, for
 instance:
@@ -174,7 +175,15 @@ instance:
 might model:
 
 ```graphql
-{ me { media { ... on Film { duration } } } }
+{
+  me {
+    media {
+      ... on Film {
+        duration
+      }
+    }
+  }
+}
 ```
 
 #### Operations
@@ -185,16 +194,21 @@ If you want to create a mutation or subscription operation, you can prefix the
 path with the operation type (you can do this for queries too, but just like in
 operation documents, the query keyword is optional):
 
-- `mutation>createUser>user>name` expands to `mutation ($input: CreateUserInput!) { createUser(input: $input) { user { name } } }`
-- `subscription>currentUserUpdated>name` expands to `subscription { currentUserUpdated { name } }`
+- `mutation>createUser>user>name` expands to
+  `mutation ($input: CreateUserInput!) { createUser(input: $input) { user { name } } }`
+- `subscription>currentUserUpdated>name` expands to
+  `subscription { currentUserUpdated { name } }`
 - `query>me>name` expands to `query { me { name } }`
 
-You may name operations by prefixing with an operation name followed by a
-colon; for example:
+You may name operations by prefixing with an operation name followed by a colon;
+for example:
 
-- `MyQuery:>me>name` and `MyQuery:query>me>name` expand to `query MyQuery { me { name } }`.
-- `MyMutation:mutation>createUser>name` expands to `mutation MyMutation { createUser { name } }`.
-- `MySubscription:subscription>userCreated>name` expands to `subscription MySubscription { userCreated { name } }`.
+- `MyQuery:>me>name` and `MyQuery:query>me>name` expand to
+  `query MyQuery { me { name } }`.
+- `MyMutation:mutation>createUser>name` expands to
+  `mutation MyMutation { createUser { name } }`.
+- `MySubscription:subscription>userCreated>name` expands to
+  `subscription MySubscription { userCreated { name } }`.
 
 #### Fragments
 
@@ -202,12 +216,13 @@ Fragments start with a type name followed by a period: `User.friends>name`
 expands to `... on User { friends { name } }`.
 
 You can name fragments by prefixing with a fragment name and a colon:
-`FriendNames:User.friends>name` expands to `fragment FriendNames on User {
-friends { name } }`.
+`FriendNames:User.friends>name` expands to
+`fragment FriendNames on User { friends { name } }`.
 
 Other examples:
 
-- `MyFragment:Node.User.fullName:name` expands to `fragment MyFragment on Node { ... on User { fullName: name } }`
+- `MyFragment:Node.User.fullName:name` expands to
+  `fragment MyFragment on Node { ... on User { fullName: name } }`
 
 #### Arguments
 
@@ -221,13 +236,12 @@ We also allow you to reference input objects used in arguments, for example:
 expands to something like:
 
 ```graphql
-query ($whereSizeGreaterThan: Int) {
+query($whereSizeGreaterThan: Int) {
   searchBusinesses(where: { size: { greaterThan: $whereSizeGreaterThan } }) {
     city
   }
 }
 ```
-
 
 Further we allow for multiple arguments to be specified, joined with commas:
 
@@ -252,16 +266,18 @@ query(
 }
 ```
 
-> NOTE: the following number syntax probably needs more thought. Added only for completeness.
+> NOTE: the following number syntax probably needs more thought. Added only for
+> completeness.
 
-We also allow `[number]` syntax to refer to a numbered entry in a list, or `[]` to refer to the next entry; e.g.:
+We also allow `[number]` syntax to refer to a numbered entry in a list, or `[]`
+to refer to the next entry; e.g.:
 
 `>findUsers(byIds[]:,byIds[],byIds[],byIds[5])>name`
 
 expands to something like:
 
 ```graphql
-query ($byIds0: ID, $byIds1: ID, $byIds2: ID, $byIds5: ID) {
+query($byIds0: ID, $byIds1: ID, $byIds2: ID, $byIds5: ID) {
   findUsers(byIds: [$byIds0, $byIds1, $byIds2, null, null, $byIds5]) {
     name
   }
