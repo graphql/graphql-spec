@@ -1584,9 +1584,7 @@ Literal Value            | Variables               | Coerced Value
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. If the input field has a non-null default value:
-      1. {defaultValue} must be compatible with {inputFieldType} as per the
-         coercion rules for that type.
-      2. If the input field references this Input Object either directly or
+      1. If the input field references this Input Object either directly or
          through referenced Input Objects, all input fields in the chain of
          references which reference this Input Object must either:
          1. have no default value; or
@@ -1594,6 +1592,8 @@ Literal Value            | Variables               | Coerced Value
          3. have a default value, {nestedDefaultValue}, such that the value for
             this field within {nestedDefaultValue} is either {null} or an empty
             list.
+      2. {defaultValue} must be compatible with {inputFieldType} as per the
+         coercion rules for that type.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
