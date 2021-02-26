@@ -819,8 +819,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
       3. If the field is a Oneof Field:
-         1. The field must be nullable.
-         2. The field must not have a default value.
+         1. The argument must be nullable.
+         2. The argument must not have a default value.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1190,8 +1190,8 @@ Interface types have the potential to be invalid if incorrectly defined.
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
       3. If the field is a Oneof Field:
-         1. The field must be nullable.
-         2. The field must not have a default value.
+         1. The argument must be nullable.
+         2. The argument must not have a default value.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
