@@ -1523,10 +1523,10 @@ is constructed with the following rules:
 
 * If no value is provided for a defined input object field and that field
   definition provides a default value, the result of coercing the default value
-  according to the coercion rules of the input field type should be used.
-  If no default value is provided and the input object field's type is
-  non-null, an error should be thrown. Otherwise, if the field is not required,
-  then no entry is added to the coerced unordered map.
+  according to the coercion rules of the input field type should be used. If no
+  default value is provided and the input object field's type is non-null, an
+  error should be thrown. Otherwise, if the field is not required, then no entry
+  is added to the coerced unordered map.
 
 * If the value {null} was provided for an input object field, and the field's
   type is not a non-null type, an entry in the coerced unordered map is given
