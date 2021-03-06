@@ -40,6 +40,10 @@ type Query {
   dog: Dog
 }
 
+type Mutation {
+  addPet(pet: PetInput): Pet
+}
+
 enum DogCommand { SIT, DOWN, HEEL }
 
 type Dog implements Pet {
@@ -81,6 +85,23 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+input CatInput {
+  name: String!
+  nickname: String
+  meowVolume: Int
+}
+
+input DogInput {
+  name: String!
+  nickname: String
+  barkVolume: Int
+}
+
+input PetInput @oneOf {
+  cat: CatInput
+  dog: DogInput
+}
 ```
 
 
@@ -1442,17 +1463,103 @@ input object field is optional.
 
 **Formal Specification**
 
-* For each Oneof Input Object in the document:
-  * Let {fields} be the fields provided by that Oneof Input Object.
-  * {fields} must contain exactly one entry.
-  * For the sole {field} in {fields}:
-    * Let {value} be the value of {field}.
-    * {value} must not be the {null} literal.
+* For each {operation} in {document}:
+  * Let {oneofInputObjects} be all Oneof Input Objects transitively included in the {operation}.
+  * For each {oneofInputObject} in {oneofInputObjects}:
+    * Let {fields} be the fields provided by {oneofInputObject}.
+    * {fields} must not be empty.
+    * Let {literalFields} be the entries in {fields} that have literal values.
+    * If {literalFields} is not empty:
+      * {literalFields} must contain exactly one entry.
+      * {fields} must contain exactly one entry.
+      * For the sole {field} in {literalFields}:
+        * Let {value} be the value of {field}.
+        * {value} must not be the {null} literal.
+    * Otherwise:
+      * Let {variableUsages} be all variable usages within {oneofInputObject} directly.
+      * Assert: {variableUsages} is not empty.
+      * For each {variableUsage} in {variableUsages}:
+        * Let {variableName} be the name of {variableUsage}.
+        * Let {variableDefinition} be the {VariableDefinition} named {variableName} defined within {operation}.
+        * Let {variableType} be the expected type of {variableDefinition}.
+        * If {variableType} is a non-null type:
+          * {fields} must contain exactly one entry.
 
 **Explanatory Text**
 
 Oneof Input Objects require that exactly one field must be supplied and that
-field must not be null.
+field must not be {null}.
+
+An empty Oneof Input Object is invalid.
+
+```graphgl counter-example
+query addPet {
+  addPet(pet: {}) {
+    name
+  }
+}
+```
+
+Multiple fields of a Oneof Input Object may be specified via variables (at most
+one of which may be provided at run time), thus we allow multiple variable
+fields.
+
+```graphgl example
+query addPet($cat: CatInput, $dog: DogInput) {
+  addPet(pet: {cat: $cat, dog: $dog}) {
+    name
+  }
+}
+```
+
+If a field of a Oneof Input Object is specified via a non-nullable variable, no
+other fields may be specified:
+
+```graphgl example
+query addPet($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+```graphgl counter-example
+query addPet($cat: CatInput!, $dog: DogInput) {
+  addPet(pet: { cat: $cat, dog: $dog }) {
+    name
+  }
+}
+```
+
+If a field with a literal value is present then the value must
+not be {null} and no fields with variable values are allowed.
+
+```graphgl example
+query addPet {
+  addPet(pet: { cat: { name: "Brontie" } }) {
+    name
+  }
+}
+```
+
+```graphgl counter-example
+query addPet {
+  addPet(pet: { cat: null }) {
+    name
+  }
+}
+```
+
+```graphgl counter-example
+query addPet($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+```
+
+Note: When the fields of a Oneof Input Object are supplied via variables, we
+assert that the input object has exactly one field during coercion.
 
 
 ## Directives
