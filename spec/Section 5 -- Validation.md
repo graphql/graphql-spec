@@ -1564,7 +1564,6 @@ query addPet {
 }
 ```
 
-
 ## Directives
 
 
