@@ -149,7 +149,7 @@ type __Type {
   ofType: __Type
 
   # should be non-null for INPUT_OBJECT only
-  oneField: Boolean
+  oneOf: Boolean
 }
 
 type __Field {
@@ -159,7 +159,7 @@ type __Field {
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
-  oneArgument: Boolean!
+  oneOf: Boolean!
 }
 
 type __InputValue {
@@ -340,7 +340,7 @@ Fields
 * `name` must return a String.
 * `description` may return a String or {null}.
 * `inputFields`: a list of `InputValue`.
-* `oneField` must return {true} for Oneof Input Objects, {false} for all other
+* `oneOf` must return {true} for Oneof Input Objects, {false} for all other
   Input Objects.
 * All other fields must return {null}.
 
@@ -386,8 +386,7 @@ Fields
 * `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 * `deprecationReason` optionally provides a reason why this field is deprecated.
-* `oneArgument` must return {true} for Oneof Fields, {false} for all other
-  Fields.
+* `oneOf` must return {true} for Oneof Fields, {false} for all other Fields.
 
 
 ### The __InputValue Type

@@ -944,8 +944,8 @@ type Query {
 }
 ```
 
-In schema introspection, the `__Field.oneArgument` field will return {true} for
-Oneof Fields, and {false} for all other Fields.
+In schema introspection, the `__Field.oneOf` field will return {true} for Oneof
+Fields, and {false} for all other Fields.
 
 ### Field Deprecation
 
@@ -1499,7 +1499,7 @@ input UserUniqueCondition @oneOf {
 }
 ```
 
-In schema introspection, the `__Type.oneField` field will return {true} for
+In schema introspection, the `__Type.oneOf` field will return {true} for
 Oneof Input Objects, and {false} for all other Input Objects.
 
 **Circular References**
