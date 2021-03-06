@@ -803,12 +803,19 @@ fragment missingRequiredArg on Arguments {
 
 #### Oneof Fields Have Exactly One Argument
 
-* For each Oneof Field in the document:
-  * Let {arguments} be the arguments provided by the Field.
-  * {arguments} must contain exactly one entry.
-  * For the sole {argument} in {arguments}:
+* For each {operation} in {document}:
+  * Let {oneofFields} be all Oneof Fields transitively included in the {operation}.
+  * For each {oneofField} in {oneofFields}:
+    * Let {arguments} be the arguments provided by {oneofField}.
+    * {arguments} must contain exactly one entry.
+    * Let {argument} be the sole entry in {arguments}.
     * Let {value} be the value of {argument}.
     * {value} must not be the {null} literal.
+    * If {value} is a variable:
+      * Let {variableName} be the name of {variable}.
+      * Let {variableDefinition} be the {VariableDefinition} named {variableName} defined within {operation}.
+      * Let {variableType} be the expected type of {variableDefinition}.
+      * {variableType} must be a non-null type.
 
 **Explanatory Text**
 
@@ -1467,23 +1474,15 @@ input object field is optional.
   * Let {oneofInputObjects} be all Oneof Input Objects transitively included in the {operation}.
   * For each {oneofInputObject} in {oneofInputObjects}:
     * Let {fields} be the fields provided by {oneofInputObject}.
-    * {fields} must not be empty.
-    * Let {literalFields} be the entries in {fields} that have literal values.
-    * If {literalFields} is not empty:
-      * {literalFields} must contain exactly one entry.
-      * {fields} must contain exactly one entry.
-      * For the sole {field} in {literalFields}:
-        * Let {value} be the value of {field}.
-        * {value} must not be the {null} literal.
-    * Otherwise:
-      * Let {variableUsages} be all variable usages within {oneofInputObject} directly.
-      * Assert: {variableUsages} is not empty.
-      * For each {variableUsage} in {variableUsages}:
-        * Let {variableName} be the name of {variableUsage}.
-        * Let {variableDefinition} be the {VariableDefinition} named {variableName} defined within {operation}.
-        * Let {variableType} be the expected type of {variableDefinition}.
-        * If {variableType} is a non-null type:
-          * {fields} must contain exactly one entry.
+    * {fields} must contain exactly one entry.
+    * Let {field} be the sole entry in {fields}.
+    * Let {value} be the value of {field}.
+    * {value} must not be the {null} literal.
+    * If {value} is a variable:
+      * Let {variableName} be the name of {variable}.
+      * Let {variableDefinition} be the {VariableDefinition} named {variableName} defined within {operation}.
+      * Let {variableType} be the expected type of {variableDefinition}.
+      * {variableType} must be a non-null type.
 
 **Explanatory Text**
 
@@ -1500,11 +1499,9 @@ query addPet {
 }
 ```
 
-Multiple fields of a Oneof Input Object may be specified via variables (at most
-one of which may be provided at run time), thus we allow multiple variable
-fields.
+Multiple fields are not allowed.
 
-```graphgl example
+```graphgl counter-example
 query addPet($cat: CatInput, $dog: DogInput) {
   addPet(pet: {cat: $cat, dog: $dog}) {
     name
@@ -1512,8 +1509,24 @@ query addPet($cat: CatInput, $dog: DogInput) {
 }
 ```
 
-If a field of a Oneof Input Object is specified via a non-nullable variable, no
-other fields may be specified:
+```graphgl counter-example
+query addPet($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+```
+
+```graphgl counter-example
+query addPet {
+  addPet(pet: { cat: { name: "Brontie" }, dog: null }) {
+    name
+  }
+}
+```
+
+
+Variables used for Oneof Input Object fields must be non-nullable.
 
 ```graphgl example
 query addPet($cat: CatInput!) {
@@ -1524,15 +1537,16 @@ query addPet($cat: CatInput!) {
 ```
 
 ```graphgl counter-example
-query addPet($cat: CatInput!, $dog: DogInput) {
-  addPet(pet: { cat: $cat, dog: $dog }) {
+query addPet($cat: CatInput) {
+  addPet(pet: { cat: $cat }) {
     name
   }
 }
 ```
 
+
 If a field with a literal value is present then the value must
-not be {null} and no fields with variable values are allowed.
+not be {null}.
 
 ```graphgl example
 query addPet {
@@ -1549,17 +1563,6 @@ query addPet {
   }
 }
 ```
-
-```graphgl counter-example
-query addPet($dog: DogInput) {
-  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
-    name
-  }
-}
-```
-
-Note: When the fields of a Oneof Input Object are supplied via variables, we
-assert that the input object has exactly one field during coercion.
 
 
 ## Directives

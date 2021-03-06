@@ -1595,13 +1595,20 @@ is constructed with the following rules:
   definition does not provide a default value, the input object field
   definition's default value should be used.
 
-* If the input object is a Oneof Input Object:
+Further, if the input object is a Oneof Input Object, the following additional
+rules apply:
 
-  * If the coerced unordered map does not contain exactly one entry, an error
-    must be thrown.
+* If the input object literal or unordered map does not contain exactly one
+  entry, an error must be thrown.
 
-  * If the value of the single entry in the coerced unordered map is {null}, an
-    error must be thrown.
+* If the single entry in the input object literal or unordered map is {null},
+  an error must be thrown.
+
+* If the coerced unordered map does not contain exactly one entry, an error
+  must be thrown.
+
+* If the value of the single entry in the coerced unordered map is {null}, an
+  error must be thrown.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
@@ -1649,7 +1656,7 @@ Literal Value            | Variables               | Coerced Value
 `{ a: null, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified
 `{ b: 123 }`             | `{}`                    | `{ b: 123 }`
 `{ a: $var, b: 123 }`    | `{ var: null }`         | Error: Exactly one key must be specified
-`{ a: $var, b: 123 }`    | `{}`                    | `{ b: 123 }`
+`{ a: $var, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified
 `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`
 `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`
 `"abc123"`               | `{}`                    | Error: Incorrect value
@@ -1657,16 +1664,12 @@ Literal Value            | Variables               | Coerced Value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified
 `{ b: "123" }`           | `{}`                    | Error: Incorrect value for member field {b}
 `{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`
-`{ b: $var }`            | `{}`                    | Error: No keys were specified
+`{ b: $var }`            | `{}`                    | Error: Exactly one key must be specified
 `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`
 `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified
 `{ b: $var }`            | `{ var: null }`         | Error: Value for member field {b} must be non-null
 `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Exactly one key must be specified
-`{ a: $a, b: $b }`       | `{}`                    | Error: Exactly one key must be specified
-`{ a: $a, b: $b }`       | `{ a: "abc" }`          | `{ a: "abc" }`
-`{ a: $a, b: $b }`       | `{ b: 123 }`            | `{ b: 123 }`
-`{ a: $a, b: $b }`       | `{ a: "abc", b: 123 }`  | Error: Exactly one key must be specified
-`{ a: $a, b: $b }`       | `{ a: null, b: 123 }`   | Error: Exactly one key must be specified
+`{ a: $a, b: $b }`       | `{ a: "abc" }`          | Error: Exactly one key must be specified
 
 **Type Validation**
 
