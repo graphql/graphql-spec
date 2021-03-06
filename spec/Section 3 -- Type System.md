@@ -1595,8 +1595,13 @@ is constructed with the following rules:
   definition does not provide a default value, the input object field
   definition's default value should be used.
 
-* If the input object is a oneof input object, the map must contain exactly one
-  entry, and the value of that entry must not be {null}.
+* If the input object is a Oneof Input Object:
+
+  * If the coerced unordered map does not contain exactly one entry, an error
+    must be thrown.
+
+  * If the value of the single entry in the coerced unordered map is {null}, an
+    error must be thrown.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
