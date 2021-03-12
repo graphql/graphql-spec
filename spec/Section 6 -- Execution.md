@@ -250,6 +250,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(subscriptionType, selectionSet, variableValues)}.
   * If {groupedFieldSet} does not have exactly one entry, throw a query error.
