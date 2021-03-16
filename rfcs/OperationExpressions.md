@@ -254,7 +254,7 @@ colon: `>searchBusinesses(name:)>city`.
 
 We also allow you to reference input objects used in arguments, for example:
 
-`>searchBusinesses(where.size.greaterThan:)>city`
+`>searchBusinesses(where>size>greaterThan:)>city`
 
 expands to something like:
 
@@ -268,7 +268,7 @@ query($whereSizeGreaterThan: Int) {
 
 Further we allow for multiple arguments to be specified, joined with commas:
 
-`>searchBusinesses(where.size.greaterThan:,where.size.lessThan:,where.city.equalTo:)>name`
+`>searchBusinesses(where>size>greaterThan:,where>size>lessThan:,where>city>equalTo:)>name`
 
 expands to something like:
 
@@ -379,7 +379,7 @@ Arguments :
 Argument : NamePath :
 
 NamePath :
-  - Name Indexes? . NamePath
+  - Name Indexes? > NamePath
   - Name Indexes?
 
 Indexes :
