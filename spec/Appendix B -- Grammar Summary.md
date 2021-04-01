@@ -182,7 +182,7 @@ ObjectValue[Const] :
   - { }
   - { ObjectField[?Const]+ }
 
-ObjectField[Const] : Name : Value[?Const]
+ObjectField[Const] : Directives? Name : Value[?Const]
 
 VariableDefinitions : ( VariableDefinition+ )
 
@@ -322,6 +322,7 @@ ExecutableDirectiveLocation : one of
   `FRAGMENT_SPREAD`
   `INLINE_FRAGMENT`
   `VARIABLE_DEFINITION`
+  `OBJECT_FIELD`
 
 TypeSystemDirectiveLocation : one of
   `SCHEMA`

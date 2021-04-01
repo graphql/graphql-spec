@@ -1794,6 +1794,7 @@ ExecutableDirectiveLocation : one of
   `FRAGMENT_SPREAD`
   `INLINE_FRAGMENT`
   `VARIABLE_DEFINITION`
+  `OBJECT_FIELD`
 
 TypeSystemDirectiveLocation : one of
   `SCHEMA`

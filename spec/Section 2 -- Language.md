@@ -1033,7 +1033,7 @@ ObjectValue[Const] :
   - { }
   - { ObjectField[?Const]+ }
 
-ObjectField[Const] : Name : Value[?Const]
+ObjectField[Const] : Directives? Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
 curly-braces `{ }`. The values of an object literal may be any input value
