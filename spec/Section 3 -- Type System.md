@@ -1786,27 +1786,27 @@ DirectiveLocation :
   - TypeSystemDirectiveLocation
 
 ExecutableDirectiveLocation : one of
-  `QUERY`
-  `MUTATION`
-  `SUBSCRIPTION`
-  `FIELD`
-  `FRAGMENT_DEFINITION`
-  `FRAGMENT_SPREAD`
-  `INLINE_FRAGMENT`
-  `VARIABLE_DEFINITION`
+  - `QUERY`
+  - `MUTATION`
+  - `SUBSCRIPTION`
+  - `FIELD`
+  - `FRAGMENT_DEFINITION`
+  - `FRAGMENT_SPREAD`
+  - `INLINE_FRAGMENT`
+  - `VARIABLE_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
-  `SCHEMA`
-  `SCALAR`
-  `OBJECT`
-  `FIELD_DEFINITION`
-  `ARGUMENT_DEFINITION`
-  `INTERFACE`
-  `UNION`
-  `ENUM`
-  `ENUM_VALUE`
-  `INPUT_OBJECT`
-  `INPUT_FIELD_DEFINITION`
+  - `SCHEMA`
+  - `SCALAR`
+  - `OBJECT`
+  - `FIELD_DEFINITION`
+  - `ARGUMENT_DEFINITION`
+  - `INTERFACE`
+  - `UNION`
+  - `ENUM`
+  - `ENUM_VALUE`
+  - `INPUT_OBJECT`
+  - `INPUT_FIELD_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
