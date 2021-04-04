@@ -159,6 +159,16 @@ The GraphQL spec does not currently support object identification or consistency
 ### Can `@defer`/`@stream` increase risk of a denial of service attack?
 This is currently a risk in GraphQL servers that do not implement any kind of query limiting as arbitrarily complex queries can be sent. Adding `@defer` may add some overhead as the server will now send parts of the query earlier than it would have without `@defer`, but it does not allow for any additional resolving that was not previously possible.
 
+## Frequently Asked Questions
+
+### Why is `@defer` supported on fragments instead of fields?
+The first experimental implementation of `@defer` was in Apollo Server and only supported `@defer` on fields. When applying this to production code, we quickly found that most use-cases were to defer a group of multiple fields, and block the corresponding UI from rendering until all fields in the group have been resolved. This requires the client to track the loading state of each individual field, showing the loading indicator until it receives the asynchronous payloads for each field. Alternatively, a client could render the UI for each individual field as soon as it's ready. However, this could lead to a bad user experience, with the UI repainting and reflowing many times as the data is loaded.
+
+By supporting `@defer` on fragments, the client is signaling to the server to return the results of the fields in the fragment, when the entire fragment has finished resolving. The client only needs to wait for this payload before rendering the corresponding UI.
+
+For these reasons, this proposal only supports `@defer` on fragment spreads and inline fragments. If only a single field needs to be deferred, an inline fragment with `@defer` can easily wrap the field. By not allowing `@defer` on fields, we hope to discourage bad user experiences caused by many fields loading independently, and provide an easy upgrade path from deferring a single field to deferring many fields. 
+
+The GraphQL WG is not ruling out supporting `@defer` on fields in the future if additional use-cases are discovered, but it is no longer being considered for this proposal.
 
 # Additional material
 - [1] [Lee Byron on idea of @defer and @stream](https://www.youtube.com/watch?v=ViXL0YQnioU&feature=youtu.be&t=9m4s)
