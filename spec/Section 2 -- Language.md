@@ -167,7 +167,7 @@ Ignored ::
   - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-Lexical tokens, but are otherwise insignificant and not referenced in
+lexical tokens, but are otherwise insignificant and not referenced in
 syntactical grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
