@@ -1826,15 +1826,15 @@ many examples below will use the query short-hand syntax.</div>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The <code>profiles</code> root field returns a list where each element could be a <code>Page</code> or a <code>User</code>. When the object in the <code>profiles</code> result is a <code>User</code>, <code>friends</code> will be present and <code>likers</code> will not. Conversely when the result is a <code>Page</code>, <code>likers</code> will be present and <code>friends</code> will not.</p>
-<pre id="example-71e35" class="spec-example" data-language="json"><a href="#example-71e35">Example № 22</a><code><span class="token punctuation">{</span>
+<pre id="example-9b2f4" class="spec-example" data-language="json"><a href="#example-9b2f4">Example № 22</a><code><span class="token punctuation">{</span>
   <span class="token property">"profiles"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"handle"</span><span class="token operator">:</span> <span class="token string">"zuck"</span><span class="token punctuation">,</span>
-      <span class="token property">"friends"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span> <span class="token operator">:</span> <span class="token number">1234</span> <span class="token punctuation">}</span>
+      <span class="token property">"friends"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span><span class="token operator">:</span> <span class="token number">1234</span> <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token punctuation">{</span>
       <span class="token property">"handle"</span><span class="token operator">:</span> <span class="token string">"cocacola"</span><span class="token punctuation">,</span>
-      <span class="token property">"likers"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span> <span class="token operator">:</span> <span class="token number">90234512</span> <span class="token punctuation">}</span>
+      <span class="token property">"likers"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span><span class="token operator">:</span> <span class="token number">90234512</span> <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
@@ -2350,11 +2350,15 @@ The same two methods of representing the lack of a value are possible via variab
 <h6><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
 <p>Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
 <p>These two type definitions may have different semantic meaning:</p>
-<pre id="example-4e485" class="spec-example" data-language="graphql"><a href="#example-4e485">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span> <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-2a4f9" class="spec-example" data-language="graphql"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+  <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span>
+  <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-e8a5f" class="spec-example" data-language="graphql"><a href="#example-e8a5f">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span> <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span> <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-c1f24" class="spec-example" data-language="graphql"><a href="#example-c1f24">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+  <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span>
+  <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 </code></pre>
@@ -3043,13 +3047,13 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <span class="token punctuation">}</span>
 </code></pre>
 <p>because <code>entity</code> refers to a <code>NamedEntity</code>, and <code>age</code> is not defined on that interface. Querying for <code>age</code> is only valid when the result of <code>entity</code> is a <code>Person</code>; the query can express this using a fragment or an inline fragment:</p>
-<pre id="example-5cc55" class="spec-example" data-language="graphql"><a href="#example-5cc55">Example № 68</a><code><span class="token punctuation">{</span>
+<pre id="example-47576" class="spec-example" data-language="graphql"><a href="#example-47576">Example № 68</a><code><span class="token punctuation">{</span>
   entity <span class="token punctuation">{</span>
     name
     <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Person</span> <span class="token punctuation">{</span>
       age
     <span class="token punctuation">}</span>
-  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
   phoneNumber
 <span class="token punctuation">}</span>
 </code></pre>
@@ -3778,7 +3782,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>would return</p>
-<pre id="example-00283" class="spec-example" data-language="json"><a href="#example-00283">Example № 98</a><code><span class="token punctuation">{</span>
+<pre id="example-47d72" class="spec-example" data-language="json"><a href="#example-47d72">Example № 98</a><code><span class="token punctuation">{</span>
   <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"User"</span><span class="token punctuation">,</span>
     <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
@@ -3793,7 +3797,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
       <span class="token punctuation">{</span>
         <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"birthday"</span><span class="token punctuation">,</span>
         <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Date"</span> <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">}</span>
     <span class="token punctuation">]</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
@@ -4102,11 +4106,15 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Validation.Examples" class="subsec">
 <h6><a href="#sec-Validation.Examples" title="link to this subsection">Examples</a></h6>
 <p>For this section of this schema, we will assume the following type system in order to demonstrate examples:</p>
-<pre id="example-87e77" class="spec-example" data-language="graphql"><a href="#example-87e77">Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-d4675" class="spec-example" data-language="graphql"><a href="#example-d4675">Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dog</span><span class="token punctuation">:</span> Dog
 <span class="token punctuation">}</span>
 
-<span class="token keyword">enum</span> <span class="token class-name">DogCommand</span> <span class="token punctuation">{</span> <span class="token constant">SIT</span><span class="token punctuation">,</span> <span class="token constant">DOWN</span><span class="token punctuation">,</span> <span class="token constant">HEEL</span> <span class="token punctuation">}</span>
+<span class="token keyword">enum</span> <span class="token class-name">DogCommand</span> <span class="token punctuation">{</span>
+  <span class="token constant">SIT</span>
+  <span class="token constant">DOWN</span>
+  <span class="token constant">HEEL</span>
+<span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Dog</span> <span class="token keyword">implements</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token operator">!</span>
@@ -4135,7 +4143,9 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   <span class="token attr-name">pets</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Pet<span class="token operator">!</span><span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">enum</span> <span class="token class-name">CatCommand</span> <span class="token punctuation">{</span> <span class="token constant">JUMP</span> <span class="token punctuation">}</span>
+<span class="token keyword">enum</span> <span class="token class-name">CatCommand</span> <span class="token punctuation">{</span>
+  <span class="token constant">JUMP</span>
+<span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Cat</span> <span class="token keyword">implements</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token operator">!</span>
@@ -5428,7 +5438,10 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Variables-Are-Input-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variables can only be input types. Objects, unions, and interfaces cannot be used as inputs.</p>
 <p>For these examples, consider the following typesystem additions:</p>
-<pre id="example-f3185" class="spec-example" data-language="graphql"><a href="#example-f3185">Example № 166</a><code><span class="token keyword">input</span> ComplexInput <span class="token punctuation">{</span> <span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token punctuation">,</span> <span class="token attr-name">owner</span><span class="token punctuation">:</span> String <span class="token punctuation">}</span>
+<pre id="example-ce150" class="spec-example" data-language="graphql"><a href="#example-ce150">Example № 166</a><code><span class="token keyword">input</span> ComplexInput <span class="token punctuation">{</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> String
+  <span class="token attr-name">owner</span><span class="token punctuation">:</span> String
+<span class="token punctuation">}</span>
 
 <span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">findDog</span><span class="token punctuation">(</span><span class="token attr-name">complex</span><span class="token punctuation">:</span> ComplexInput<span class="token punctuation">)</span><span class="token punctuation">:</span> Dog
@@ -6418,12 +6431,12 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The response might look like:</p>
-<pre id="example-90475" class="spec-example" data-language="json"><a href="#example-90475">Example № 196</a><code><span class="token punctuation">{</span>
+<pre id="example-072c4" class="spec-example" data-language="json"><a href="#example-072c4">Example № 196</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
-      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span> <span class="token punctuation">]</span>
+      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">]</span><span class="token punctuation">,</span>
   <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
@@ -6449,12 +6462,12 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 </code></pre>
 <p>If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error occurred, even if that field is not present in the response.</p>
 <p>For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
-<pre id="example-08b62" class="spec-example" data-language="json"><a href="#example-08b62">Example № 197</a><code><span class="token punctuation">{</span>
+<pre id="example-c18ef" class="spec-example" data-language="json"><a href="#example-c18ef">Example № 197</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
-      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span> <span class="token punctuation">]</span>
+      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span><span class="token punctuation">]</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">]</span><span class="token punctuation">,</span>
   <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
@@ -6476,12 +6489,12 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <span class="token punctuation">}</span>
 </code></pre>
 <p>GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
-<pre id="example-fce18" class="spec-example" data-language="json"><a href="#example-fce18">Example № 198</a><code><span class="token punctuation">{</span>
+<pre id="example-8b658" class="spec-example" data-language="json"><a href="#example-8b658">Example № 198</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
-      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
       <span class="token property">"extensions"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
         <span class="token property">"code"</span><span class="token operator">:</span> <span class="token string">"CAN_NOT_FETCH_BY_ID"</span><span class="token punctuation">,</span>
         <span class="token property">"timestamp"</span><span class="token operator">:</span> <span class="token string">"Fri Feb 9 14:33:09 UTC 2018"</span>
@@ -6494,12 +6507,12 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <div id="note-5c13b" class="spec-note">
 <a href="#note-5c13b">Note</a>
 Previous versions of this spec did not describe the <code>extensions</code> entry for error formatting. While non-specified entries are not violations, they are still discouraged.</div>
-<pre id="example-9008d" class="spec-counter-example" data-language="json"><a href="#example-9008d">Counter Example № 199</a><code><span class="token punctuation">{</span>
+<pre id="example-78af4" class="spec-counter-example" data-language="json"><a href="#example-78af4">Counter Example № 199</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
-      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
-      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span> <span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span> <span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"locations"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span> <span class="token property">"line"</span><span class="token operator">:</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token property">"column"</span><span class="token operator">:</span> <span class="token number">7</span> <span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+      <span class="token property">"path"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"hero"</span><span class="token punctuation">,</span> <span class="token string">"heroFriends"</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"name"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
       <span class="token property">"code"</span><span class="token operator">:</span> <span class="token string">"CAN_NOT_FETCH_BY_ID"</span><span class="token punctuation">,</span>
       <span class="token property">"timestamp"</span><span class="token operator">:</span> <span class="token string">"Fri Feb 9 14:33:09 UTC 2018"</span>
     <span class="token punctuation">}</span>
