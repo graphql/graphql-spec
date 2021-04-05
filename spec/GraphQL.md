@@ -30,7 +30,7 @@ Agreement (OWFa 1.0), which is available at [openwebfoundation.org](http://www.o
 * Facebook, Inc.
 
 You can review the signed copies of the Open Web Foundation Final Specification
-Agreement Version 1.0 for this specification at [github.com/graphql/graphql-spec](https://github.com/graphql/graphql-spec/tree/master/signed-agreements),
+Agreement Version 1.0 for this specification at [github.com/graphql/graphql-spec](https://github.com/graphql/graphql-spec/tree/main/signed-agreements),
 which may also include additional parties to those listed above.
 
 Your use of this Specification may be subject to other third party rights.

@@ -9,7 +9,7 @@ deploy:
   skip_cleanup: true
   script: ./publish.sh
   on:
-    branch: master
+    branch: main
 
 notifications:
   irc:

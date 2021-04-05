@@ -1830,7 +1830,7 @@ which may be specified by future versions of this document (which will not
 include `_` in their name). For example, a custom directive used by Facebook's
 GraphQL service should be named `@fb_auth` instead of `@auth`. This is
 especially recommended for proposed additions to this specification which can
-change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
+change during the [RFC process](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md).
 For example a work in progress version of `@live` should be named `@rfc_live`.
 
 Directives must only be used in the locations they are declared to belong in.

@@ -11,7 +11,7 @@ Notes from the 2020/5/28 meeting: https://gist.github.com/leebyron/f7f9d81c7ca52
 
 ### Contributing
 
-To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/master/rfcs/InputUnion.md)
+To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/main/rfcs/InputUnion.md)
 
 # 📜 Problem Statement
 
@@ -201,7 +201,7 @@ There have been a variety of use cases described by users asking for an abstract
 
 # 📋 Solution Criteria
 
-This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
+This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md#guiding-principles) in mind:
 
 * Backwards compatibility
 * Performance is a feature
