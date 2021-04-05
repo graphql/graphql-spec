@@ -98,9 +98,9 @@ LineTerminator ::
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
 Like white space, line terminators are used to improve the legibility of source
-text and separate lexical tokens, any amount may appear before or after any other token and have no
-significance to the semantic meaning of a GraphQL Document. Line
-terminators are not found within any other token.
+text and separate lexical tokens, any amount may appear before or after any 
+other token and have no significance to the semantic meaning of a GraphQL 
+Document. Line terminators are not found within any other token.
 
 Note: Any error reporting which provide the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
@@ -137,7 +137,7 @@ syntactically and semantically insignificant within GraphQL Documents.
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
 be a common user-error in other languages. It also allows for the stylistic use
-of either trailing commas or line-terminators as list delimiters which are both
+of either trailing commas or line terminators as list delimiters which are both
 often desired for legibility and maintainability of source code.
 
 
@@ -152,7 +152,7 @@ Token ::
 
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters. 
-Lexical tokens must be separated by either white space, line terminators, or commas.
+Lexical tokens may be separated by {Ignored} tokens.
 
 Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
 
@@ -167,8 +167,8 @@ Ignored ::
   - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-{Token}s, but are otherwise insignificant and not referenced in syntactical
-grammar productions.
+Lexical tokens, but are otherwise insignificant and not referenced in
+syntactical grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
 ignored regions of a source document are significant, however {SourceCharacter}
