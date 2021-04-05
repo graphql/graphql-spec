@@ -451,8 +451,8 @@ encoding integer numbers larger than 32-bit.
 ### Float
 
 The Float scalar type represents signed double-precision finite (i.e., not {NaN}
-or infinity) fractional values as specified by
-[IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).  Response formats
+or {Infinity}) fractional values as specified by 
+[IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point). Response formats
 that support an appropriate double-precision number type should use that type to
 represent this scalar.
 
