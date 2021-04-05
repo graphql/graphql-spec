@@ -59,7 +59,7 @@ self descriptive.
 
 As an example, this simple GraphQL schema is well described:
 
-```graphql example
+```raw graphql example
 """
 A simple GraphQL schema which is well described.
 """
@@ -1071,7 +1071,7 @@ interface. Querying for `age` is only valid when the result of `entity` is a
     ... on Person {
       age
     }
-  },
+  }
   phoneNumber
 }
 ```
@@ -1083,7 +1083,7 @@ interface must define each field that is specified by the implemented interface.
 For example, the interface Resource must define the field id to implement the
 Node interface:
 
-```graphql example
+```raw graphql example
 interface Node {
   id: ID!
 }
@@ -1099,7 +1099,7 @@ that is being implemented) must also be defined on an implementing type or
 interface. For example, `Image` cannot implement `Resource` without also
 implementing `Node`:
 
-```graphql example
+```raw graphql example
 interface Node {
   id: ID!
 }
@@ -1298,7 +1298,7 @@ Instead, the query would be:
 Union members may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible types:
 
-```graphql example
+```raw graphql example
 union SearchResult =
   | Photo
   | Person
@@ -1847,7 +1847,7 @@ fragment SomeFragment on SomeType {
 Directive locations may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible locations:
 
-```graphql example
+```raw graphql example
 directive @example on
   | FIELD
   | FRAGMENT_SPREAD

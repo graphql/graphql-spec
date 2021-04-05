@@ -647,11 +647,11 @@ will be present and `friends` will not.
   "profiles": [
     {
       "handle": "zuck",
-      "friends": { "count" : 1234 }
+      "friends": { "count": 1234 }
     },
     {
       "handle": "cocacola",
-      "likers": { "count" : 90234512 }
+      "likers": { "count": 90234512 }
     }
   ]
 }
@@ -839,7 +839,7 @@ indentation and blank initial and trailing lines via {BlockStringValue()}.
 
 For example, the following operation containing a block string:
 
-```graphql example
+```raw graphql example
 mutation {
   sendEmail(message: """
     Hello,
@@ -1200,13 +1200,17 @@ Directives may be provided in a specific syntactic order which may have semantic
 These two type definitions may have different semantic meaning:
 
 ```graphql example
-type Person @addExternalFields(source: "profiles") @excludeField(name: "photo") {
+type Person
+  @addExternalFields(source: "profiles")
+  @excludeField(name: "photo") {
   name: String
 }
 ```
 
 ```graphql example
-type Person @excludeField(name: "photo") @addExternalFields(source: "profiles") {
+type Person
+  @excludeField(name: "photo")
+  @addExternalFields(source: "profiles") {
   name: String
 }
 ```

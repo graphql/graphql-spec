@@ -1,5 +1,4 @@
-GraphQL
--------
+# GraphQL
 
 *Current Working Draft*
 

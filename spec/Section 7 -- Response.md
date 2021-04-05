@@ -113,8 +113,8 @@ The response might look like:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -153,8 +153,8 @@ be the same:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -186,8 +186,8 @@ there are no additional restrictions on its contents.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -210,8 +210,8 @@ still discouraged.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
