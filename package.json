@@ -19,6 +19,6 @@
   },
   "devDependencies": {
     "nodemon": "2.0.7",
-    "spec-md": "2.0.2"
+    "spec-md": "2.2.0"
   }
 }
