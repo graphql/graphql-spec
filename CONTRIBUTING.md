@@ -16,7 +16,7 @@ through a series of *stages* intended to improve *visibility*, allow for
 becomes ever more important as GraphQL's community broadens.
 
 When proposing or weighing-in on any issue or pull request, consider the
-[Code of Conduct](https://github.com/graphql/foundation/blob/master/CODE-OF-CONDUCT.md)
+[Code of Conduct](https://github.com/graphql/foundation/blob/main/CODE-OF-CONDUCT.md)
 to better understand expected and unacceptable behavior.
 
 
@@ -223,7 +223,7 @@ edits to any other affected areas of the spec. Once *accepted*, its *champion*
 should encourage adoption of the RFC by opening issues or pull requests on other
 popular GraphQL libraries.
 
-An *accepted* RFC is merged into the GraphQL spec's master branch by an editor
+An *accepted* RFC is merged into the GraphQL spec's main branch by an editor
 and will be included in the next released revision.
 
 

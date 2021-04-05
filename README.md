@@ -6,7 +6,7 @@ The GraphQL specification is edited in the markdown files found in [`/spec`](./s
 the latest release of which is published at https://graphql.github.io/graphql-spec/.
 
 The latest draft specification can be found at https://graphql.github.io/graphql-spec/draft/
-which tracks the latest commit to the master branch in this repository.
+which tracks the latest commit to the main branch in this repository.
 
 Previous releases of the GraphQL specification can be found at permalinks that
 match their [release tag](https://github.com/graphql/graphql-spec/releases). For
@@ -51,7 +51,7 @@ of objects it can return, described in a GraphQL type system and returned
 in the GraphQL Schema.
 
 For our Star Wars example, the
-[starWarsSchema.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsSchema.js)
+[starWarsSchema.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsSchema.js)
 file in GraphQL.js defines this type system.
 
 The most basic type in the system will be `Human`, representing characters
@@ -72,7 +72,7 @@ This shorthand is convenient for describing the basic shape of a type
 system; the JavaScript implementation is more full-featured, and allows types
 and fields to be documented. It also sets up the mapping between the
 type system and the underlying data; for a test case in GraphQL.js, the
-underlying data is a [set of JavaScript objects](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsData.js),
+underlying data is a [set of JavaScript objects](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsData.js),
 but in most cases the backing data will be accessed through some service, and
 this type system layer will be responsible for mapping from types and fields to
 that service.
@@ -237,7 +237,7 @@ When we package the whole type system together, defining the `Query` type
 above as our entry point for queries, this creates a GraphQL Schema.
 
 This example just scratched the surface of the type system. The specification
-goes into more detail about this topic in the "Type System" section, and the [type](https://github.com/graphql/graphql-js/blob/master/src/type)
+goes into more detail about this topic in the "Type System" section, and the [type](https://github.com/graphql/graphql-js/blob/main/src/type)
 directory in GraphQL.js contains code implementing
 a specification-compliant GraphQL type system.
 
@@ -247,11 +247,11 @@ GraphQL queries declaratively describe what data the issuer wishes
 to fetch from whoever is fulfilling the GraphQL query.
 
 For our Star Wars example, the
-[starWarsQueryTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsQuery-test.js)
+[starWarsQueryTests.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsQuery-test.js)
 file in the GraphQL.js repository contains a number of queries and responses.
 That file is a test file that uses the schema discussed above and a set of
 sample data, located in
-[starWarsData.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsData.js).
+[starWarsData.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsData.js).
 This test file can be run to exercise the reference implementation.
 
 An example query on the above schema would be:
@@ -595,7 +595,7 @@ We would find that it was Luke, who is a Human:
 As with the type system, this example just scratched the surface of the query
 language. The specification goes into more detail about this topic in the
 "Language" section, and the
-[language](https://github.com/graphql/graphql-js/blob/master/src/language)
+[language](https://github.com/graphql/graphql-js/blob/main/src/language)
 directory in GraphQL.js contains code implementing a
 specification-compliant GraphQL query language parser and lexer.
 
@@ -607,7 +607,7 @@ developers when an invalid query has been created, without having to rely
 on runtime checks.
 
 For our Star Wars example, the file
-[starWarsValidationTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsValidation-test.js)
+[starWarsValidationTests.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsValidation-test.js)
 contains a number of queries demonstrating various invalidities, and is a test
 file that can be run to exercise the reference implementation's validator.
 
@@ -734,7 +734,7 @@ This has just scratched the surface of the validation system; there
 are a number of validation rules in place to ensure that a GraphQL query
 is semantically meaningful. The specification goes into more detail about this
 topic in the "Validation" section, and the
-[validation](https://github.com/graphql/graphql-js/blob/master/src/validation)
+[validation](https://github.com/graphql/graphql-js/blob/main/src/validation)
 directory in GraphQL.js contains code implementing a
 specification-compliant GraphQL validator.
 
@@ -745,7 +745,7 @@ queries it supports. GraphQL allows us to do so using the introspection
 system!
 
 For our Star Wars example, the file
-[starWarsIntrospectionTests.js](https://github.com/graphql/graphql-js/blob/master/src/__tests__/starWarsIntrospection-test.js)
+[starWarsIntrospectionTests.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsIntrospection-test.js)
 contains a number of queries demonstrating the introspection system, and is a
 test file that can be run to exercise the reference implementation's
 introspection system.
@@ -1117,7 +1117,7 @@ and create documentation browsers, or rich IDE experiences.
 This has just scratched the surface of the introspection system; we can
 query for enum values, what interfaces a type implements, and more. We
 can even introspect on the introspection system itself. The specification goes
-into more detail about this topic in the "Introspection" section, and the [introspection](https://github.com/graphql/graphql-js/blob/master/src/type/introspection.js)
+into more detail about this topic in the "Introspection" section, and the [introspection](https://github.com/graphql/graphql-js/blob/main/src/type/introspection.js)
 file in GraphQL.js
 contains code implementing a specification-compliant GraphQL query
 introspection system.
@@ -1139,4 +1139,4 @@ To initiate the signature process please open a PR against this repo. The EasyCL
 
 You can find [detailed information here](https://github.com/graphql/graphql-wg/tree/main/membership). If you have issues, please email [operations@graphql.org](mailto:operations@graphql.org).
 
-If your company benefits from GraphQL and you would like to provide essential financial support for the systems and people that power our community, please also consider membership in the [GraphQL Foundation](https://foundation.graphql.org/join). 
+If your company benefits from GraphQL and you would like to provide essential financial support for the systems and people that power our community, please also consider membership in the [GraphQL Foundation](https://foundation.graphql.org/join).
