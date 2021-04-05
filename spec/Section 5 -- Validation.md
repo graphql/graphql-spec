@@ -1499,8 +1499,8 @@ directive is allowed per location.
 For example, the following query will not pass validation because `@skip` has
 been used twice for the same field:
 
-```graphql counter-example
-query($foo: Boolean = true, $bar: Boolean = false) {
+```raw graphql counter-example
+query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $foo) @skip(if: $bar)
 }
 ```
@@ -1508,8 +1508,8 @@ query($foo: Boolean = true, $bar: Boolean = false) {
 However the following example is valid because `@skip` has been used only once
 per location, despite being used twice in the query and on the same named field:
 
-```graphql example
-query($foo: Boolean = true, $bar: Boolean = false) {
+```raw graphql example
+query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $foo) {
     subfieldA
   }
