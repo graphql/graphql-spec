@@ -133,7 +133,11 @@ A schema defines the initial root operation type for each kind of operation it
 supports: query, mutation, and subscription; this determines the place in the
 type system where those operations begin.
 
-The `query` root operation type must be provided and must be an Object type.
+A schema must define at least one root operation type.
+
+The `query` root operation type must be an Object type; if it is not
+explicitly provided then a default Query object type only supporting
+introspection will be used.
 
 The `mutation` root operation type is optional; if it is not provided, the
 service does not support mutations. If it is provided, it must be an
