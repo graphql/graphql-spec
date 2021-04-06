@@ -162,7 +162,7 @@ If the operation is a subscription, the result is an event stream called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
-Executing a subscription creates a persistent function on the server that
+Executing a subscription creates a persistent function on the service that
 maps an underlying Source Stream to a returned Response Stream.
 
 Subscribe(subscription, schema, variableValues, initialValue):
@@ -221,7 +221,7 @@ must receive no more events from that event stream.
 
 Supporting subscriptions is a significant change for any GraphQL service. Query
 and mutation operations are stateless, allowing scaling via cloning of GraphQL
-server instances. Subscriptions, by contrast, are stateful and require
+service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
 
@@ -250,6 +250,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(subscriptionType, selectionSet, variableValues)}.
   * If {groupedFieldSet} does not have exactly one entry, throw a query error.
@@ -354,7 +355,7 @@ of Field Execution for more about this behavior.
 Normally the executor can execute the entries in a grouped field set in whatever
 order it chooses (normally in parallel). Because the resolution of fields other
 than top-level mutation fields must always be side effect-free and idempotent,
-the execution order must not affect the result, and hence the server has the
+the execution order must not affect the result, and hence the service has the
 freedom to execute the field entries in whatever order it deems optimal.
 
 For example, given the following grouped field set to be executed normally:
@@ -479,7 +480,7 @@ response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
-  * If {visitedFragments} if not provided, initialize it to the empty set.
+  * If {visitedFragments} is not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
     * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
@@ -683,7 +684,7 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one fields of the same name are executed in parallel, their
+When more than one field of the same name is executed in parallel, their
 selection sets are merged together when completing the value in order to
 continue execution of the sub-selection sets.
 

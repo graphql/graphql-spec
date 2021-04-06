@@ -35,7 +35,7 @@ only valid if not followed by a character in its lookahead restriction.
 
 For example, an {IntValue} has the restriction {[lookahead != Digit]}, so cannot
 be followed by a {Digit}. Because of this, the sequence {`123`} cannot represent
-as the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
+the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
 so must only represent a single token. Use {WhiteSpace} or other {Ignored}
 between characters to represent multiple tokens.
 
@@ -98,11 +98,11 @@ LineTerminator ::
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
 Like white space, line terminators are used to improve the legibility of source
-text, any amount may appear before or after any other token and have no
-significance to the semantic meaning of a GraphQL Document. Line
-terminators are not found within any other token.
+text and separate lexical tokens, any amount may appear before or after any 
+other token and have no significance to the semantic meaning of a GraphQL 
+Document. Line terminators are not found within any other token.
 
-Note: Any error reporting which provide the line number in the source of the
+Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
 the line number.
 
@@ -137,7 +137,7 @@ syntactically and semantically insignificant within GraphQL Documents.
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
 be a common user-error in other languages. It also allows for the stylistic use
-of either trailing commas or line-terminators as list delimiters which are both
+of either trailing commas or line terminators as list delimiters which are both
 often desired for legibility and maintainability of source code.
 
 
@@ -151,7 +151,8 @@ Token ::
   - StringValue
 
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
-defined here in a lexical grammar by patterns of source Unicode characters.
+defined here in a lexical grammar by patterns of source Unicode characters. 
+Lexical tokens may be separated by {Ignored} tokens.
 
 Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
 
@@ -166,8 +167,8 @@ Ignored ::
   - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-{Token}, but are otherwise insignificant and not referenced in syntactical
-grammar productions.
+lexical tokens, but are otherwise insignificant and not referenced in
+syntactical grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
 ignored regions of a source document are significant, however {SourceCharacter}
@@ -201,13 +202,13 @@ NameContinue ::
   - `_`
 
 Letter :: one of
-  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
-  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
-  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
-  `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+  - `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
+  - `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+  - `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+  - `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
 
 Digit :: one of
-  `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+  - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 GraphQL Documents are full of named things: operations, fields, arguments,
 types, directives, fragments, and variables. All names must follow the same
@@ -399,7 +400,7 @@ Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
-function arguments within a GraphQL server's implementation.
+function arguments within a GraphQL service's implementation.
 
 In this example, we want to query a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:
@@ -609,7 +610,7 @@ object).
 
 Fragments can be specified on object types, interfaces, and unions.
 
-Selections within fragments only return values when concrete type of the object
+Selections within fragments only return values when the concrete type of the object
 it is operating on matches the type of the fragment.
 
 For example in this query on the Facebook data model:
@@ -646,11 +647,11 @@ will be present and `friends` will not.
   "profiles": [
     {
       "handle": "zuck",
-      "friends": { "count" : 1234 }
+      "friends": { "count": 1234 }
     },
     {
       "handle": "cocacola",
-      "likers": { "count" : 90234512 }
+      "likers": { "count": 90234512 }
     }
   ]
 }
@@ -838,7 +839,7 @@ indentation and blank initial and trailing lines via {BlockStringValue()}.
 
 For example, the following operation containing a block string:
 
-```graphql example
+```raw graphql example
 mutation {
   sendEmail(message: """
     Hello,
@@ -986,7 +987,7 @@ field vs not altering a field, respectively. Neither form may be used for an
 input expecting a Non-Null type.
 
 Note: The same two methods of representing the lack of a value are possible via
-variables by either providing the a variable value as {null} and not providing
+variables by either providing the variable value as {null} or not providing
 a variable value at all.
 
 
@@ -1085,7 +1086,7 @@ VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 DefaultValue : = Value[Const]
 
-A GraphQL query can be parameterized with variables, maximizing query reuse,
+A GraphQL operation can be parameterized with variables, maximizing reuse,
 and avoiding costly string building in clients at runtime.
 
 If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
@@ -1199,13 +1200,17 @@ Directives may be provided in a specific syntactic order which may have semantic
 These two type definitions may have different semantic meaning:
 
 ```graphql example
-type Person @addExternalFields(source: "profiles") @excludeField(name: "photo") {
+type Person
+  @addExternalFields(source: "profiles")
+  @excludeField(name: "photo") {
   name: String
 }
 ```
 
 ```graphql example
-type Person @excludeField(name: "photo") @addExternalFields(source: "profiles") {
+type Person
+  @excludeField(name: "photo")
+  @addExternalFields(source: "profiles") {
   name: String
 }
 ```

@@ -1,6 +1,6 @@
 # Type System
 
-The GraphQL Type system describes the capabilities of a GraphQL server and is
+The GraphQL Type system describes the capabilities of a GraphQL service and is
 used to determine if a query is valid. The type system also describes the
 input types of query variables to determine if values provided at runtime
 are valid.
@@ -59,7 +59,7 @@ self descriptive.
 
 As an example, this simple GraphQL schema is well described:
 
-```graphql example
+```raw graphql example
 """
 A simple GraphQL schema which is well described.
 """
@@ -346,7 +346,7 @@ promises to conform to ISO-8601. When querying a field of type `Time`, you can
 then rely on the ability to parse the result with an ISO-8601 parser and use a
 client-specific primitive for time. Another example of a potentially useful
 custom scalar is `Url`, which serializes as a string, but is guaranteed by
-the server to be a valid URL.
+the service to be a valid URL.
 
 ```graphql example
 scalar Time
@@ -373,7 +373,7 @@ all built-in scalars must be omitted for brevity.
 
 **Result Coercion and Serialization**
 
-A GraphQL server, when preparing a field of a given scalar type, must uphold the
+A GraphQL service, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or producing a
 field error if a value cannot be coerced or if coercion may result in data loss.
 
@@ -383,21 +383,21 @@ expected return type. For example when coercing a field of type {Int} a boolean
 {123}. However if internal type coercion cannot be reasonably performed without
 losing information, then it must raise a field error.
 
-Since this coercion behavior is not observable to clients of the GraphQL server,
+Since this coercion behavior is not observable to clients of the GraphQL service,
 the precise rules of coercion are left to the implementation. The only
-requirement is that the server must yield values which adhere to the expected
+requirement is that the service must yield values which adhere to the expected
 Scalar type.
 
 GraphQL scalars are serialized according to the serialization format being used.
 There may be a most appropriate serialized primitive for each given scalar type,
-and the server should produce each primitive where appropriate.
+and the service should produce each primitive where appropriate.
 
 See [Serialization Format](#sec-Serialization-Format) for more detailed
 information on the serialization of scalars in common JSON and other formats.
 
 **Input Coercion**
 
-If a GraphQL server expects a scalar type as input to an argument, coercion
+If a GraphQL service expects a scalar type as input to an argument, coercion
 is observable and the rules must be well defined. If an input value does not
 match a coercion rule, a query error must be raised.
 
@@ -425,7 +425,7 @@ that type to represent this scalar.
 Fields returning the type {Int} expect to encounter 32-bit integer
 internal values.
 
-GraphQL servers may coerce non-integer internal values to integers when
+GraphQL services may coerce non-integer internal values to integers when
 reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1` for the floating-point number `1.0`,
 or returning `123` for the string `"123"`. In scenarios where coercion may lose
@@ -460,7 +460,7 @@ should use that type to represent this scalar.
 Fields returning the type {Float} expect to encounter double-precision
 floating-point internal values.
 
-GraphQL servers may coerce non-floating-point internal values to {Float} when
+GraphQL services may coerce non-floating-point internal values to {Float} when
 reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1.0` for the integer number `1`, or
 `123.0` for the string `"123"`.
@@ -486,7 +486,7 @@ and that representation must be used here.
 
 Fields returning the type {String} expect to encounter UTF-8 string internal values.
 
-GraphQL servers may coerce non-string raw values to {String} when reasonable
+GraphQL services may coerce non-string raw values to {String} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning the string `"true"` for a boolean true value, or the
 string `"1"` for the integer `1`.
@@ -508,7 +508,7 @@ representation of the integers `1` and `0`.
 
 Fields returning the type {Boolean} expect to encounter boolean internal values.
 
-GraphQL servers may coerce non-boolean raw values to {Boolean} when reasonable
+GraphQL services may coerce non-boolean raw values to {Boolean} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
 this may include returning `true` for non-zero numbers.
 
@@ -532,14 +532,14 @@ across many formats ID could represent, from small auto-increment numbers, to
 large 128-bit random numbers, to base64 encoded values, or string values of a
 format like [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier).
 
-GraphQL servers should coerce as appropriate given the ID formats they expect.
+GraphQL services should coerce as appropriate given the ID formats they expect.
 When coercion is not possible they must raise a field error.
 
 **Input Coercion**
 
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
-formats a given GraphQL server expects. Any other input value, including float
+formats a given GraphQL service expects. Any other input value, including float
 input values (such as `4.0`), must raise a query error indicating an incorrect
 type.
 
@@ -832,14 +832,14 @@ IsValidImplementation(type, implementedType):
       defined in {implementedType}.
       1. Let {field} be that named field on {type}.
       2. Let {implementedField} be that named field on {implementedType}.
-      1. {field} must include an argument of the same name for every argument
+      3. {field} must include an argument of the same name for every argument
          defined in {implementedField}.
          1. That named argument on {field} must accept the same type
             (invariant) as that named argument on {implementedField}.
-      2. {field} may include additional arguments not defined in
+      4. {field} may include additional arguments not defined in
          {implementedField}, but any additional argument must not be required,
          e.g. must not be of a non-nullable type.
-      3. {field} must return a type which is equal to or a sub-type of
+      5. {field} must return a type which is equal to or a sub-type of
          (covariant) the return type of {implementedField} field's return type:
          1. Let {fieldType} be the return type of {field}.
          2. Let {implementedFieldType} be the return type of {implementedField}.
@@ -1071,7 +1071,7 @@ interface. Querying for `age` is only valid when the result of `entity` is a
     ... on Person {
       age
     }
-  },
+  }
   phoneNumber
 }
 ```
@@ -1083,7 +1083,7 @@ interface must define each field that is specified by the implemented interface.
 For example, the interface Resource must define the field id to implement the
 Node interface:
 
-```graphql example
+```raw graphql example
 interface Node {
   id: ID!
 }
@@ -1099,7 +1099,7 @@ that is being implemented) must also be defined on an implementing type or
 interface. For example, `Image` cannot implement `Resource` without also
 implementing `Node`:
 
-```graphql example
+```raw graphql example
 interface Node {
   id: ID!
 }
@@ -1242,7 +1242,8 @@ With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments
 must be used. This is the same as for unions, but unions do not define any
 fields, so **no** fields may be queried on this type without the use of
-type refining fragments or inline fragments.
+type refining fragments or inline fragments (with the exception of the
+meta-field {__typename}).
 
 For example, we might define the following types:
 
@@ -1297,7 +1298,7 @@ Instead, the query would be:
 Union members may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible types:
 
-```graphql example
+```raw graphql example
 union SearchResult =
   | Photo
   | Person
@@ -1375,7 +1376,7 @@ enum Direction {
 
 **Result Coercion**
 
-GraphQL servers must return one of the defined set of possible values. If a
+GraphQL services must return one of the defined set of possible values. If a
 reasonable coercion is not possible they must raise a field error.
 
 **Input Coercion**
@@ -1447,6 +1448,60 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
+**Circular References**
+
+Input Objects are allowed to reference other Input Objects as field types. A
+circular reference occurs when an Input Object references itself either directly
+or through referenced Input Objects.
+
+Circular references are generally allowed, however they may not be defined as an
+unbroken chain of Non-Null singular fields. Such Input Objects are invalid
+because there is no way to provide a legal value for them.
+
+This example of a circularly-referenced input type is valid as the field `self`
+may be omitted or the value {null}.
+
+```graphql example
+input Example {
+  self: Example
+  value: String
+}
+```
+
+This example is also valid as the field `self` may be an empty List.
+
+```graphql example
+input Example {
+  self: [Example!]!
+  value: String
+}
+```
+
+This example of a circularly-referenced input type is invalid as the field
+`self` cannot be provided a finite value.
+
+```graphql counter-example
+input Example {
+  value: String
+  self: Example!
+}
+```
+
+This example is also invalid, as there is a non-null singular circular reference
+via the `First.second` and `Second.first` fields.
+
+```graphql counter-example
+input First {
+  second: Second!
+  value: String
+}
+
+input Second {
+  first: First!
+  value: String
+}
+```
+
 **Result Coercion**
 
 An input object is never a valid result. Input Object types cannot be the return
@@ -1506,7 +1561,7 @@ Literal Value            | Variables               | Coerced Value
 `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`
 `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`
 `"abc123"`               | `{}`                    | Error: Incorrect value
-`$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value
+`$var`                   | `{ var: "abc123" }`     | Error: Incorrect value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Incorrect value for field {b}
 `{ a: "abc" }`           | `{}`                    | Error: Missing required field {b}
 `{ b: $var }`            | `{}`                    | Error: Missing required field {b}.
@@ -1525,6 +1580,9 @@ Literal Value            | Variables               | Coerced Value
       characters {"__"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+3. If an Input Object references itself either directly or through referenced
+   Input Objects, at least one of the fields in the chain of references must be
+   either a nullable or a List type.
 
 
 ### Input Object Extensions
@@ -1542,10 +1600,10 @@ be used by a GraphQL service which is itself an extension of another GraphQL ser
 Input object type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Input Object type.
-3. All fields of an Input Object type extension must have unique names.
-4. All fields of an Input Object type extension must not already be a field of
+2. All fields of an Input Object type extension must have unique names.
+3. All fields of an Input Object type extension must not already be a field of
    the original Input Object.
-5. Any non-repeatable directives provided must not already apply to the
+4. Any non-repeatable directives provided must not already apply to the
    original Input Object type.
 
 
@@ -1554,12 +1612,14 @@ Input object type extensions have the potential to be invalid if incorrectly def
 A GraphQL list is a special collection type which declares the type of each
 item in the List (referred to as the *item type* of the list). List values are
 serialized as ordered lists, where each item in the list is serialized as per
-the item type. To denote that a field uses a List type the item type is wrapped
-in square brackets like this: `pets: [Pet]`.
+the item type.
+
+To denote that a field uses a List type the item type is wrapped in square brackets
+like this: `pets: [Pet]`. Nesting lists is allowed: `matrix: [[Int]]`.
 
 **Result Coercion**
 
-GraphQL servers must return an ordered list as the result of a list type. Each
+GraphQL services must return an ordered list as the result of a list type. Each
 item in the list must be the result of a result coercion of the item type. If a
 reasonable coercion is not possible it must raise a field error. In
 particular, if a non-list is returned, the coercion should fail, as this
@@ -1585,7 +1645,7 @@ If the value passed as an input to a list type is *not* a list and not the
 where the single item value is the result of input coercion for the list's item
 type on the provided value (note this may apply recursively for nested lists).
 
-This allow inputs which accept one or many arguments (sometimes referred to as
+This allows inputs which accept one or many arguments (sometimes referred to as
 "var args") to declare their input type as a list while for the common case of a
 single value, a client can just pass that value directly rather than
 constructing the list.
@@ -1726,27 +1786,27 @@ DirectiveLocation :
   - TypeSystemDirectiveLocation
 
 ExecutableDirectiveLocation : one of
-  `QUERY`
-  `MUTATION`
-  `SUBSCRIPTION`
-  `FIELD`
-  `FRAGMENT_DEFINITION`
-  `FRAGMENT_SPREAD`
-  `INLINE_FRAGMENT`
-  `VARIABLE_DEFINITION`
+  - `QUERY`
+  - `MUTATION`
+  - `SUBSCRIPTION`
+  - `FIELD`
+  - `FRAGMENT_DEFINITION`
+  - `FRAGMENT_SPREAD`
+  - `INLINE_FRAGMENT`
+  - `VARIABLE_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
-  `SCHEMA`
-  `SCALAR`
-  `OBJECT`
-  `FIELD_DEFINITION`
-  `ARGUMENT_DEFINITION`
-  `INTERFACE`
-  `UNION`
-  `ENUM`
-  `ENUM_VALUE`
-  `INPUT_OBJECT`
-  `INPUT_FIELD_DEFINITION`
+  - `SCHEMA`
+  - `SCALAR`
+  - `OBJECT`
+  - `FIELD_DEFINITION`
+  - `ARGUMENT_DEFINITION`
+  - `INTERFACE`
+  - `UNION`
+  - `ENUM`
+  - `ENUM_VALUE`
+  - `INPUT_OBJECT`
+  - `INPUT_FIELD_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
@@ -1770,8 +1830,8 @@ which may be specified by future versions of this document (which will not
 include `_` in their name). For example, a custom directive used by Facebook's
 GraphQL service should be named `@fb_auth` instead of `@auth`. This is
 especially recommended for proposed additions to this specification which can
-change during the [RFC process](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md).
-For example an work in progress version of `@live` should be named `@rfc_live`.
+change during the [RFC process](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md).
+For example a work in progress version of `@live` should be named `@rfc_live`.
 
 Directives must only be used in the locations they are declared to belong in.
 In this example, a directive is defined which can be used to annotate a field:
@@ -1787,7 +1847,7 @@ fragment SomeFragment on SomeType {
 Directive locations may be defined with an optional leading `|` character to aid
 formatting when representing a longer list of possible locations:
 
-```graphql example
+```raw graphql example
 directive @example on
   | FIELD
   | FRAGMENT_SPREAD
@@ -1863,7 +1923,7 @@ In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
 
 ```graphql example
-query myQuery($someTest: Boolean) {
+query myQuery($someTest: Boolean!) {
   experimentalField @skip(if: $someTest)
 }
 ```
@@ -1883,7 +1943,7 @@ In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
 
 ```graphql example
-query myQuery($someTest: Boolean) {
+query myQuery($someTest: Boolean!) {
   experimentalField @include(if: $someTest)
 }
 ```

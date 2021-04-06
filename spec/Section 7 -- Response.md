@@ -1,7 +1,7 @@
 # Response
 
-When a GraphQL server receives a request, it must return a well-formed
-response. The server's response describes the result of executing the requested
+When a GraphQL service receives a request, it must return a well-formed
+response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors encountered during the
 request.
 
@@ -28,7 +28,7 @@ if set, must have a map as its value. This entry is reserved for implementors
 to extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
-To ensure future changes to the protocol do not break existing servers and
+To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
 three described above.
 
@@ -113,8 +113,8 @@ The response might look like:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -153,8 +153,8 @@ be the same:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -186,8 +186,8 @@ there are no additional restrictions on its contents.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -210,8 +210,8 @@ still discouraged.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }

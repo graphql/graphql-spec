@@ -7,9 +7,11 @@ This document attempts to bring together all the various solutions and perspecti
 
 From that shared understanding, the GraphQL Working Group aims to reach a consensus on how to address the proposal.
 
+Notes from the 2020/5/28 meeting: https://gist.github.com/leebyron/f7f9d81c7ca5259357fab5d82a4c0621
+
 ### Contributing
 
-To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/master/rfcs/InputUnion.md)
+To help bring this idea to reality, you can contribute [PRs to this RFC document.](https://github.com/graphql/graphql-spec/edit/main/rfcs/InputUnion.md)
 
 # 📜 Problem Statement
 
@@ -40,7 +42,7 @@ Let's imagine an animal shelter for our example. When querying for a list of the
 
 However, when we want to submit data, we can't use an `interface` or `union`, so we must model around that.
 
-One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into it's own field. The field name takes on the convention of representing the type.
+One technique commonly used to is a **tagged union** pattern. This essentially boils down to a "wrapper" input that isolates each type into its own field. The field name takes on the convention of representing the type.
 
 ```graphql
 mutation {
@@ -63,7 +65,7 @@ input AnimalDropOffInput {
 }
 ```
 
-This allows non-sensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
+This allows nonsensical mutations to pass GraphQL validation, for example representing an animal that is both a `Cat` and a `Dog`.
 
 ```graphql
 mutation {
@@ -100,6 +102,31 @@ In addition, relying on this layer of abstraction means that this domain must be
   ]
 }
 ```
+
+Another approach is to use an input type with a discriminator and input fields for all possible member types.
+
+```graphql
+mutation {
+  logAnimalDropOff(
+    location: "Portland, OR"
+    animals: [
+      {type: CAT, name: "Buster", age: 3, livesLeft: 7},
+      {type: DOG, name: "Ripple", age: 2, breed: WHIPPET}
+    ]
+  )
+}
+
+input AnimalDropOffInput {
+  type: AnimalType!
+  name: String!
+  age: Int!
+  breed: DogBreed # only applies when type = DOG
+  livesLeft: Int # only applies when type = CAT
+  venom: VenomType # only applies when type = SNAKE
+}
+```
+
+This results in more consistent modeling between input & output but still allows nonsensical inputs to pass GraphQL validation.
 
 Another common approach is to provide a unique mutation for every type. A schema employing this technique might have `logCatDropOff`, `logDogDropOff` and `logSnakeDropOff` mutations. This removes the potential for modeling non-sensical situations, but it explodes the number of mutations in a schema, making the schema less accessible. If the type is nested inside other inputs, this approach simply isn't feasable.
 
@@ -156,6 +183,9 @@ The topic has also been extensively explored in Computer Science more generally.
 * [Wikipedia: Tagged Union](https://en.wikipedia.org/wiki/Tagged_union)
 * [C2 Wiki: Nominative And Structural Typing](http://wiki.c2.com/?NominativeAndStructuralTyping)
 
+There are also libraries that mimic this functionality in GraphQL:
+
+* [graphql-union-input-type](https://github.com/Cardinal90/graphql-union-input-type)
 
 # 🛠 Use Cases
 
@@ -171,7 +201,7 @@ There have been a variety of use cases described by users asking for an abstract
 
 # 📋 Solution Criteria
 
-This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/master/CONTRIBUTING.md#guiding-principles) in mind:
+This section sketches out the potential goals that a solution might attempt to fulfill. These goals will be evaluated with the [GraphQL Spec Guiding Principles](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md#guiding-principles) in mind:
 
 * Backwards compatibility
 * Performance is a feature
@@ -202,9 +232,9 @@ Criteria have been given a "score" according to their relative importance in sol
 
 The premise of this RFC - GraphQL should contain a polymorphic Input type.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅ | ✅ | ✅ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥇
 
@@ -214,9 +244,9 @@ Any data structure that can be modeled with output type polymorphism should be a
 
 * ✂️ Objection: composite input types and composite output types are distinct. Fields on composite output types support aliases and arguments whereas fields on composite input types do not. Marking an output field as non-nullable is a non-breaking change, but marking an input field as non-nullable is a breaking change.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 | ❔ | ✅⚠️ |
 
 Criteria score: 🥇
 
@@ -227,9 +257,9 @@ https://graphql.github.io/graphql-spec/draft/#sec-Validation.Type-system-evoluti
 
 Adding a new member type to an Input Union or doing any non-breaking change to existing member types does not result in breaking change. For example, adding a new optional field to member type or changing a field from non-nullable to nullable does not break previously valid client operations.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅ | ✅ | 🚫 | ⚠️ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅⚠️ | 🚫 | ⚠️ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥇
 
@@ -237,9 +267,9 @@ Criteria score: 🥇
 
 If a solution places any restrictions on member types, compliance with these restrictions should be fully validated during schema building (analagous to how interfaces enforce restrictions on member types).
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅ | ✅ | ✅ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥇
 
@@ -251,9 +281,9 @@ In addition to containing Input types, member type may also contain Leaf types l
   * Potential solution: only allow a single built-in leaf type per input union.
 * ✂️ Objection: Output polymorphism is restricted to Object types only. Supporting Leaf types in Input polymorphism would create a new inconsistency.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ | ❔ | ✅ |
 
 Criteria score: 🥉
 
@@ -261,12 +291,21 @@ Criteria score: 🥉
 
 Since the input object type is now a member of the input union, existing input objects being sent through should remain valid.
 
+Example: Relay Mutation
+
+```graphql
+# From
+input I { x: String }
+# To (pseudocode)
+input union IU = I | { y: Int }
+```
+
 * ✂️ Objection: achieving this by indicating the default in the union (either explicitly or implicitly via the order) is undesirable as it may require multiple equivalent unions being created where only the default differs.
 * ✂️ Objection: Numerous changes to a schema currently introduce breaking changes. The possibility of a breaking change isn't a breaking change and shouldn't prevent a polymorphic input type from existing.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | 🚫 | ❔ | 🚫 |
 
 Criteria score: 🥉
 
@@ -276,21 +315,23 @@ To ease development.
 
 * ✂️ Objection: Adds complexity without enabling any new use cases.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ❔ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ❔ | ❔ | ❔ | ❔ | ✅ | ❔ | ✅ |
 
-Criteria score: 🥉
+Criteria score: X (not considered)
 
 ## 🎯 H. Input unions should accept plain data
 
 Clients should be able to pass "natural" input data to unions without specially formatting it or adding extra metadata.
 
+In other words: data should require minimal or no transformation and metadata over the wire
+
 * ✂️ Objection: This is a matter of taste - legitimate [Prior Art](#-prior-art) exists that require formatting / extra metadata.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ | ❔ | ⚠️ |
 
 Criteria score: 🥉
 
@@ -300,11 +341,20 @@ Many people in the wild are solving the need for input unions with validation at
 
 Note: This criteria is similar to  [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
 
-* ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
+```graphql
+# From
+input I { x: String, y: Int }
+# To (pseudocode)
+input union IU = { x: String } | { y: Int }
+```
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
+* ✂️ Objection: The addition of a polymorphic input type shouldn't depend on the ability to change the type of an existing field or an existing usage pattern. One can always add new fields that leverage new features.
+* ✂️ Objection: May break variable names? Only avoided with care
+* ✂️ Objection: There are different ways people are working around the lack of input unions so it likely won't be feasible to come up with a non-breaking migration path for all of them.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅ | ✅ | ⚠️ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥉
 
@@ -312,9 +362,9 @@ Criteria score: 🥉
 
 Preferably without a loss of or change in previously supported functionality.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ✅ | ✅ | ✅ | ✅ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅ | ✅ | ✅ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥇
 
@@ -322,12 +372,14 @@ Criteria score: 🥇
 
 The less typing and fewer bytes transmitted, the better.
 
+(Not Related to B/H)
+
 * ✂️ Objection: The quantity of "typing" isn't a worthwhile metric, most interactions with an API are programmatic.
 * ✂️ Objection: Simply compressing an HTTP request will reduce the bytes transmitted more than anything having to do with the structure of a Schema.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Criteria score: 🥉
 
@@ -335,11 +387,9 @@ Criteria score: 🥉
 
 Ideally a server does not have to do much computation to determine which concrete type is represented by an input.
 
-* ✂️ Objection: None of the solutions discussed so far do anything that is computationally expensive.
-
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ❔ | ✅ |
 
 Criteria score: 🥉
 
@@ -347,21 +397,46 @@ Criteria score: 🥉
 
 Common tools that parse GraphQL SDL should not fail when pointed at a schema which supports polymorphic input types.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
+* ✂️ Objection: Evolution of the SDL is expected with new features.
+* ✂️ Objection: SDL syntax error can be a positive as a "fail fast" if a system doesn't know about input unions.
 
-Criteria score: 🥈
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| 🚫 | 🚫 | 🚫 | 🚫 | ✅ | ❔ | 🚫 |
+
+Criteria score: X (rejected)
 
 ## 🎯 N. Existing code generated tooling is backwards compatible with Introspection additions
 
 For example, GraphiQL should successfully render when pointed at a schema which contains polymorphic input types. It should continue to function even if it can't support the polymorphic input type.
 
-| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-|----|----|----|----|----|
-| ❔ | ❔ | ❔ | ❔ | ✅ |
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ | ❔ | ✅⚠️ |
 
 Criteria score: 🥈
+
+## 🎯 O. Unconstrained combination of input types to unions
+
+It should be possible to combine existing or new input types to unions freely and with ease.
+Adding an input to one or more unions should not require extraneous changes, constrain or be constrained by schema design.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅️ | 🚫️ | ❔ | 🚫 | ✅ | ❔ | ✅ |
+
+Criteria score: 🥇
+
+## 🎯 P. Error states and messages should be clear and helpful
+
+Complex algorithms can make it difficult to write error messages that are helpful and clear.
+When an invalid schema or invalid query are used, it should be obvious what went wrong and how to fix it.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7]
+|----|----|----|----|----|----|----|
+| ✅️ | ✅️ | ⚠️ | 🚫 | ✅ | ❔ | ✅ |
+
+Criteria score: 🥉
 
 # 🚧 Possible Solutions
 
@@ -370,6 +445,8 @@ The community has imagined a variety of possible solutions, synthesized here.
 Each solution is identified with a `Number` so they can be referenced in the rest of the document. New solutions must be added to the end of the list.
 
 ## 💡 1. Explicit `__typename` Discriminator field
+
+**Champion:** @eapache
 
 This solution was discussed in https://github.com/graphql/graphql-spec/pull/395
 
@@ -433,15 +510,22 @@ type Mutation {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ Discriminator field only needed when used in union
+  * ✅ Compresses well, as the field name is always the same
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ✅ O(1)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * ✅ Adding or removing an input type to a union has no extraneous effects on schema design
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ## 💡 2. Explicit configurable Discriminator field
+
+**Champion:** @binaryseed
 
 A configurable discriminator field enables schema authors to model type discrimination into their schema more naturally.
 
@@ -451,68 +535,35 @@ The mechanism for configuring the discriminator field is open to debate, in this
 
 ### 🎲 Variations
 
-* Value is the input's type name
-
-```graphql
-input CatInput {
-  kind: CatInput
-  name: String!
-  age: Int
-  livesLeft: Int
-}
-input DogInput {
-  kind: DogInput
-  name: String!
-  age: Int
-  breed: DogBreed
-}
-
-inputunion AnimalInput @discriminator(field: "kind") =
-  | CatInput
-  | DogInput
-
-type Mutation {
-  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
-}
-
-# Variables:
-{
-  location: "Portland, OR",
-  animals: [
-    {
-      kind: "CatInput",
-      name: "Buster",
-      livesLeft: 7
-    }
-  ]
-}
-```
-
 * Value is a `Enum` literal
 
 This variation is derived from discussions in https://github.com/graphql/graphql-spec/issues/488
 
 ```graphql
-enum AnimalKind {
+enum AnimalSpecies {
   CAT
   DOG
 }
 
 input CatInput {
-  kind: AnimalKind::CAT
+  species: AnimalSpecies::CAT
   # ...
 }
 input DogInput {
-  kind: AnimalKind::DOG
+  species: AnimalSpecies::DOG
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "CAT",
+      species: "CAT",
       name: "Buster",
       livesLeft: 7
     }
@@ -524,20 +575,24 @@ input DogInput {
 
 ```graphql
 input CatInput {
-  kind: "cat"
+  species: "Cat"
   # ...
 }
 input DogInput {
-  kind: "dog"
+  species: "Dog"
   # ...
 }
+
+inputunion AnimalInput @discriminator(field: "species") =
+  | CatInput
+  | DogInput
 
 # Variables:
 {
   location: "Portland, OR",
   animals: [
     {
-      kind: "cat",
+      species: "Cat",
       name: "Buster",
       livesLeft: 7
     }
@@ -553,6 +608,7 @@ input DogInput {
   * ✅ Data structures can mirror eachother.
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ✅ Discriminator is explicit.
+  * ⚠️ Adding an existing input type to an input union requires it to add the non-null discriminator field
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ Schema validation can check that all members of the input union have the discriminator field
 * [E. A member type may be a Leaf type][criteria-e]
@@ -567,13 +623,19 @@ input DogInput {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ⚠️ Input types that are part of an input union always have to contain the non-null discriminator
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ✅ O(1)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * 🚫 Adding an input type to a union requires that it has the non-null discriminator field
+     * The input might already have a field with the same name, but a different type
+     * Reusing input types in multiple input unions can become unwieldy
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ## 💡 3. Order based discrimination
 
@@ -654,13 +716,17 @@ type Mutation {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ No overhead
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ⚠️ O(N of members)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
+  * ✅⚠️
+* [O. Unconstrained combination of input types to unions][criteria-o]
   * ❔ Not evaluated
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ⚠️ Order-based discrimination can lead to some subtle issues based on when one type is chosen over another.
 
 ## 💡 4. Structural uniqueness
 
@@ -731,6 +797,7 @@ input DogInput {
   * ⚠️ Restrictions on required fields may prevent matching output types
 * [C. Doesn't inhibit schema evolution][criteria-c]
   * ⚠️ Inputs may be forced to include extraneous fields to ensure uniqueness.
+  * ⚠️ Making a field nullable may be impossible without losing uniqueness
 * [D. Any member type restrictions are validated in schema][criteria-d]
   * ✅ A "uniqueness" algorithm must be applied during schema validation
 * [E. A member type may be a Leaf type][criteria-e]
@@ -744,15 +811,21 @@ input DogInput {
 * [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
   * ✅ Changes are additive only
 * [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
-  * ❔ Not evaluated
+  * ✅ No overhead
 * [L. Input unions should be performant for servers][criteria-l]
-  * ❔ Not evaluated
+  * ⚠️ O(N of members)
 * [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
   * 🚫 Parsers will not recognize the `inputunion` keyword
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
-  * ❔ Not evaluated
+  * ✅⚠️
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * 🚫 Input types with similar fields may not be able to be combined without breaking changes
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * 🚫 Structural uniqueness checks are very complex and have many hard-to-describe failure states.
 
 ## 💡 5. One Of (Tagged Union)
+
+**Champion:** @benjie
 
 This solution was presented in:
 * https://github.com/graphql/graphql-spec/pull/395#issuecomment-361373097
@@ -787,9 +860,11 @@ type Mutation {
 {
   location: "Portland, OR",
   animals: [
-    cat: {
-      name: "Buster",
-      livesLeft: 7
+    {
+      cat: {
+        name: "Buster",
+        livesLeft: 7
+      }
     }
   ]
 }
@@ -808,7 +883,9 @@ type Mutation {
 * [E. A member type may be a Leaf type][criteria-e]
   * ✅ Any GraphQL type may be used
 * [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
-  * ✅ No migration required, as this pattern is already possible
+  * 🚫 Previously-valid inputs now need to be wrapped in a container object
+* [G. Input unions may include other input unions][criteria-g]
+  * ✅ Any GraphQL type may be used, including other tagged types and wrapper types such as list
 * [H. Input unions should accept plain data][criteria-h]
   * ⚠️ The data is wrapped in a (simple) container type
 * [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
@@ -823,6 +900,10 @@ type Mutation {
   * ✅ Proposal uses a simple directive; directive parsing is widely supported
 * [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
   * ✅ Existing code generation tools will degrade gracefully to a regular input object
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * ✅ Adding or removing input types to a tagged union requires no extraneous effort
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
 
 ### Summary of spec changes
 
@@ -833,26 +914,155 @@ type Mutation {
 
 [The full spec changes can be seen here](https://github.com/graphql/graphql-spec/pull/586/files).
 
+## 💡 6. Pending
+
+Calls within the Input Union working group proposed a new solution, solution 6,
+which is a combination of features from solutions 1-4. It has not been fully
+formalized yet as the working group felt that the Tagged Type was more
+promising at this stage. This section is left as a placeholder for solution 6
+to be formally evaluated at a later time.
+
+For some of the notes we took during the calls, see:
+https://github.com/graphql/graphql-wg/issues/426#issuecomment-685636596
+
+For the calls themselves, see:
+https://www.youtube.com/watch?v=u2dnnpKEHZM&list=PLP1igyLx8foH4M0YAbVqpSo2fS1ElvNVD
+
+## 💡 7. Tagged Type
+
+**Champion:** @benjie
+
+This solution was presented in:
+
+* https://github.com/graphql/graphql-spec/pull/733
+
+It's the spiritual successor of [Solution 5 - the @oneOf
+directive](#solution-5) after extensive feedback from the Input Unions working
+group.
+
+In this solution, a new type is introduced to the GraphQL type system: the
+tagged type. The tagged type has two forms: a `tagged input` (valid only in
+inputs) and a `tagged output` (valid only in outputs), but the definitions look
+identical otherwise.
+
+These tagged types define a list of member fields, exactly one of which must be
+present.
+
+```graphql
+input CatInput {
+  name: String!
+  age: Int!
+  livesLeft: Int
+}
+input DogInput {
+  name: String!
+  age: Int!
+  breed: DogBreed
+}
+
+tagged input AnimalInput {
+  cat: CatInput!
+  dog: DogInput!
+}
+
+type Mutation {
+  logAnimalDropOff(location: String, animals: [AnimalInput!]!): Int
+}
+
+# Variables:
+{
+  location: "Portland, OR",
+  animals: [
+    {
+      cat: {
+        name: "Buster",
+        livesLeft: 7
+      }
+    }
+  ]
+}
+```
+
+There's controversy over whether the `tagged output` should be introduced or
+not, more details on this can be read in
+https://github.com/graphql/graphql-spec/pull/733
+
+### ⚖️ Evaluation
+
+* [A. GraphQL should contain a polymorphic Input type][criteria-a]
+  * ✅ Tagged is a valid version of a polymorphic type
+* [B. Input polymorphism matches output polymorphism][criteria-b]
+  * ✅ When `tagged input` and `tagged output` are both included into the
+    spec, a `tagged output` can have a mirrored `tagged input` in a similar way
+    that a `type` can have a mirrored `input`
+  * ⚠️ There's controversy over whether `tagged output` should be included in
+    the spec as it causes confusion as to when to use union, interface, or
+    tagged
+* [C. Doesn't inhibit schema evolution][criteria-c]
+  * ✅ This technique is an evolution of a technique already in use in many schemas
+* [D. Any member type restrictions are validated in schema][criteria-d]
+  * ✅ Tagged member fields are well defined
+* [E. A member type may be a Leaf type][criteria-e]
+  * ✅ Any GraphQL type may be used, including other tagged types and wrapper types such as list
+* [F. Migrating a field to a polymorphic input type is non-breaking][criteria-f]
+  * 🚫 Previously-valid inputs now need to be wrapped in a container object
+* [G. Input unions may include other input unions][criteria-g]
+  * ✅ Any GraphQL type may be used, including other tagged types and wrapper types such as list
+* [H. Input unions should accept plain data][criteria-h]
+  * ⚠️ The data is wrapped in a (simple) container type
+* [I. Input unions should be easy to upgrade from existing solutions][criteria-i]
+  * ✅ This pattern is already possible, existing tagged inputs can be converted to Tagged type
+* [J. A GraphQL schema that supports input unions can be queried by older GraphQL clients][criteria-j]
+  * ✅ Changes are additive only
+* [K. Input unions should be expressed efficiently in the query and on the wire][criteria-k]
+  * ✅ Indication of the type can be done in 6 additional JSON characters per value (e.g. `{"a":VALUE_HERE}`) and would compress easily.
+* [L. Input unions should be performant for servers][criteria-l]
+  * ✅ Type is easily determined by looking up the specified field name
+* [M. Existing SDL parsers are backwards compatible with SDL additions][criteria-m]
+  * 🚫 New keywords are introduced
+* [N. Existing code generated tooling is backwards compatible with Introspection additions][criteria-n]
+  * ✅⚠️
+* [O. Unconstrained combination of input types to unions][criteria-o]
+  * ✅ Adding or removing member fields to a tagged type requires no extraneous effort and has no non-local consequences
+* [P. Error states and messages should be clear and helpful][criteria-p]
+  * ✅
+
+### Summary of spec changes
+
+- **SDL**: introduce new `tagged input` and `tagged output` definitions,
+  including member fields
+- **Introspection**: add new type and `__Type.memberFields` field to relate to
+  these fields, and `__Type.isInputType`/`__Type.isOutputType` fields to
+  differentiate input versus output tagged types
+- **Schema validation**: tagged types must contain only types that are
+  compatible (matching input or output) and must contain at least one field
+- **Operation validation**: when validating a tagged input type, assert that
+  exactly one field was specified
+
+[The full spec changes can be seen here](https://github.com/graphql/graphql-spec/pull/733/files).
+
 # 🏆 Evaluation Overview
 
 A quick glance at the evaluation results. Remember that passing or failing a specific criteria is NOT the final word.
 
-|    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
-| -- | -- | -- | -- | -- | -- |
-| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 |
-| [C][criteria-c] 🥇 | ✅ | ✅ | 🚫 | ⚠️ | ✅ |
-| [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ |
-| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ |
-| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ |
-| [I][criteria-i] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | ✅ |
-| [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [K][criteria-k] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [L][criteria-l] 🥉 | ❔ | ❔ | ❔ | ❔ | ✅ |
-| [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ |
-| [N][criteria-n] 🥈 | ❔ | ❔ | ❔ | ❔ | ✅ |
+|    | [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] | [6][solution-6] | [7][solution-7] |
+| -- | -- | -- | -- | -- | -- | -- | -- |
+| [A][criteria-a] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ | ? | ✅ |
+| [B][criteria-b] 🥇 | ✅⚠️ | ✅ | ✅ | ✅⚠️ | 🚫 | ? | ✅⚠️ |
+| [C][criteria-c] 🥇 | ✅ | ✅⚠️ | 🚫 | ⚠️ | ✅ | ? | ✅ |
+| [D][criteria-d] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ | ? | ✅ |
+| [E][criteria-e] 🥉 | 🚫 | 🚫 | ✅⚠️ | 🚫 | ✅ | ? | ✅ |
+| [F][criteria-f] 🥉 | ✅⚠️ | ✅⚠️ | ✅ | ⚠️ | 🚫 | ? | 🚫 |
+| [G][criteria-g] 🥉 | ❔ | ❔ | ❔ | ❔ | ❔ | ? | ✅ |
+| [H][criteria-h] 🥉 | ⚠️ | ⚠️ | ✅ | ✅ | ⚠️ | ? | ⚠️ |
+| [I][criteria-i] 🥉 | ✅ | ✅ | ✅ | ⚠️ | ✅ | ? | ✅ |
+| [J][criteria-j] 🥇 | ✅ | ✅ | ✅ | ✅ | ✅ | ? | ✅ |
+| [K][criteria-k] 🥉 | ✅ | ⚠️ | ✅ | ✅ | ✅ | ? | ✅ |
+| [L][criteria-l] 🥉 | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ? | ✅ |
+| [M][criteria-m] 🥈 | 🚫 | 🚫 | 🚫 | 🚫 | ✅ | ? | 🚫 |
+| [N][criteria-n] 🥈 | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅⚠️ | ✅ | ? | ✅⚠️ |
+| [O][criteria-o] 🥈 | ✅️ | 🚫️ | ❔ | 🚫 | ✅ | ? | ✅ |
+| [P][criteria-p] 🥉 | ✅️ | ✅️ | ⚠️ | 🚫 | ✅ | ❔ | ✅ |
 
 [criteria-a]: #-a-graphql-should-contain-a-polymorphic-input-type
 [criteria-b]: #-b-input-polymorphism-matches-output-polymorphism
@@ -868,17 +1078,25 @@ A quick glance at the evaluation results. Remember that passing or failing a spe
 [criteria-l]: #-l-input-unions-should-be-performant-for-servers
 [criteria-m]: #-m-existing-sdl-parsers-are-backwards-compatible-with-sdl-additions
 [criteria-n]: #-n-existing-code-generated-tooling-is-backwards-compatible-with-introspection-additions
+[criteria-o]: #-o-unconstrained-combination-of-input-types-to-unions
+[criteria-p]: #-p-error-states-and-messages-should-be-clear-and-helpful
 
 [solution-1]: #-1-explicit-__typename-discriminator-field
 [solution-2]: #-2-explicit-configurable-discriminator-field
 [solution-3]: #-3-order-based-discrimination
 [solution-4]: #-4-structural-uniqueness
 [solution-5]: #-5-one-of-tagged-union
+[solution-6]: #-6-pending
+[solution-7]: #-7-tagged-type
 
 # ☑️ Decision Time!
 
-According to a simple [weight ranking](https://docs.google.com/spreadsheets/d/1ymKqI6BSTHGGHkf9IDjo0EJmOqMryS-uQRwDV77OF5g/edit?usp=sharing), here are the solutions in order:
+Following meetings of the GraphQL Input Unions working group, [Solution 7][solution-7] was
+proposed as an evolution of Solution 5, and is currently the leading solution.
 
-* [2][solution-2]
-* [1][solution-1] / [5][solution-5]
-* [3][solution-3] / [4][solution-4]
+~~According to a simple [weight ranking](https://docs.google.com/spreadsheets/d/1ymKqI6BSTHGGHkf9IDjo0EJmOqMryS-uQRwDV77OF5g/edit?usp=sharing), here are the solutions in order:~~
+
+* ~~[5][solution-5]~~
+* ~~[1][solution-1]~~
+* ~~[2][solution-2]~~
+* ~~[3][solution-3] / [4][solution-4]~~

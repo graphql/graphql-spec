@@ -1,12 +1,12 @@
 # Introspection
 
-A GraphQL server supports introspection over its schema. This schema is queried
+A GraphQL service supports introspection over its schema. This schema is queried
 using GraphQL itself, creating a powerful platform for tool-building.
 
 Take an example query for a trivial app. In this case there is a User type with
 three fields: id, name, and birthday.
 
-For example, given a server with the following type definition:
+For example, given a service with the following type definition:
 
 ```graphql example
 type User {
@@ -50,7 +50,7 @@ would return
       {
         "name": "birthday",
         "type": { "name": "Date" }
-      },
+      }
     ]
   }
 }
@@ -70,7 +70,7 @@ underscores.
 
 All types in the introspection system provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
-capabilities. A GraphQL server may return the `description` field using Markdown
+capabilities. A GraphQL service may return the `description` field using Markdown
 syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
 recommended that any tool that displays `description` use a CommonMark-compliant
 Markdown renderer.
@@ -199,6 +199,7 @@ enum __DirectiveLocation {
   FRAGMENT_DEFINITION
   FRAGMENT_SPREAD
   INLINE_FRAGMENT
+  VARIABLE_DEFINITION
   SCHEMA
   SCALAR
   OBJECT
@@ -217,7 +218,7 @@ enum __DirectiveLocation {
 ### The __Type Type
 
 `__Type` is at the core of the type introspection system.
-It represents scalars, interfaces, object types, unions, enums in the system.
+It represents scalars, interfaces, object types, unions, enums, input objects types in the system.
 
 `__Type` also represents type modifiers, which are used to modify a type
 that it refers to (`ofType: __Type`). This is how we represent lists,
@@ -410,7 +411,7 @@ Fields
 
 ### The __Directive Type
 
-The `__Directive` type represents a Directive that a server supports.
+The `__Directive` type represents a Directive that a service supports.
 
 Fields
 
