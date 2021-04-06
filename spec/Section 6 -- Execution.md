@@ -648,7 +648,7 @@ CompleteValue(fieldType, fields, result, variableValues):
     * If {completedResult} is {null}, throw a field error.
     * Return {completedResult}.
   * If {result} is {null} (or another internal value similar to {null} such as
-    {undefined} or {NaN}), return {null}.
+    {undefined}), return {null}.
   * If {fieldType} is a List type:
     * If {result} is not a collection of values, throw a field error.
     * Let {innerType} be the inner type of {fieldType}.
