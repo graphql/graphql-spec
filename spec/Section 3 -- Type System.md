@@ -280,7 +280,7 @@ A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be {null} (and that an error cannot result in a
+resulting value will never be {null} (and that a field error cannot result in a
 {null} value).
 
 These two types are referred to as "wrapping types"; non-wrapping types are
@@ -375,7 +375,8 @@ all built-in scalars must be omitted for brevity.
 
 A GraphQL service, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or producing a
-field error if a value cannot be coerced or if coercion may result in data loss.
+[field error](#sec-Errors.Field-errors) if a value cannot be coerced or if
+coercion may result in data loss.
 
 A GraphQL service may decide to allow coercing different internal types to the
 expected return type. For example when coercing a field of type {Int} a boolean
@@ -399,7 +400,8 @@ information on the serialization of scalars in common JSON and other formats.
 
 If a GraphQL service expects a scalar type as input to an argument, coercion
 is observable and the rules must be well defined. If an input value does not
-match a coercion rule, a [request error](#sec-Request-Errors) must be raised.
+match a coercion rule, a [request error](#sec-Errors.Request-errors) must be
+raised (input values are validated before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -1516,8 +1518,8 @@ type of an Object or Interface field.
 The value for an input object should be an input object literal or an unordered
 map supplied by a variable, otherwise a request error must be raised. In either
 case, the input object literal or unordered map must not contain any entries
-with names not defined by a field of this input object type, otherwise an error
-must be raised.
+with names not defined by a field of this input object type, otherwise a
+response error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1632,12 +1634,12 @@ implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
 coercion of an individual item in the list must result in a the value {null} at
-that position in the list along with an error added to the response. If a list's
-item type is non-null, an error occurring at an individual item in the list must
-result in a field error for the entire list.
+that position in the list along with a field error added to the response.
+If a list's item type is non-null, a field error occurring at an individual item
+in the list must result in a field error for the entire list.
 
-Note: For more information on the error handling process, see "Errors and
-Non-Nullability" within the Execution section.
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
 
 **Input Coercion**
 

@@ -347,8 +347,8 @@ resolving to {null} if allowed or further propagated to a parent field.
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
-See the [Errors and Non-Nullability](#sec-Errors-and-Non-Nullability) section
-of Field Execution for more about this behavior.
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
 
 ### Normal and Serial Execution
 
@@ -714,19 +714,27 @@ MergeSelectionSets(fields):
   * Return {selectionSet}.
 
 
-### Errors and Non-Nullability
+### Handling Field Errors
 
-If an error is raised while resolving a field, it should be treated as though
-the field returned {null}, and an error must be added to the {"errors"} list
-in the response.
+["Field errors"](#sec-Errors.Field-errors) are raised from a particular field
+during value resolution or coercion. While these errors should be reported in
+the response, they are "handled" by producing a partial response.
+
+Note: This is distinct from ["request errors"](#sec-Errors.Request-errors) which
+are raised before execution begins. If a request error is encountered, execution
+does not begin and no data is returned in the response.
+
+If a field error is raised while resolving a field, it is handled as though the
+field returned {null}, and the error must be added to the {"errors"} list in
+the response.
 
 If the result of resolving a field is {null} (either because the function to
-resolve the field returned {null} or because an error occurred), and that
+resolve the field returned {null} or because a field error was raised), and that
 field is of a `Non-Null` type, then a field error is raised. The
 error must be added to the {"errors"} list in the response.
 
-If the field returns {null} because of an error which has already been added to
-the {"errors"} list in the response, the {"errors"} list must not be
+If the field returns {null} because of a field error which has already been
+added to the {"errors"} list in the response, the {"errors"} list must not be
 further affected. That is, only one error should be added to the errors list per
 field.
 

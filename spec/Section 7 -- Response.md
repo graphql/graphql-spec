@@ -7,21 +7,13 @@ operation if successful, and describes any errors raised during the request.
 A response may contain both a partial response as well as any field errors in
 the case that a field error was raised on a field and was replaced with {null}.
 
-## Request Errors
-
-Any errors raised during a GraphQL request are termed "request errors."
-Request errors are not limited to errors that were raised during execution of the
-operation, they could be raised during parsing and validation of the request
-too. For example, a request error will be raised if the request does not
-contain sufficient information to indicate uniquely which operation to execute.
-
 ## Response Format
 
 A response to a GraphQL request must be a map.
 
 If the request raised any errors, the response map must contain an
 entry with key `errors`. The value of this entry is described in the "Errors"
-section. If the operation completed without raising any errors, this entry
+section. If the request completed without raising any errors, this entry
 must not be present.
 
 If the request included execution, the response map must contain an entry
@@ -72,6 +64,30 @@ If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry in the response may contain any field errors that
 were raised during execution. If field errors were raised during execution, it
 should contain those errors.
+
+**Request errors**
+
+Request errors are raised before execution begins. This may occur due to a parse
+grammar or validation error in the requested document, an inability to determine
+which operation to execute, or invalid input values for variables.
+
+Request errors are typically the fault of the requesting client.
+
+If a request error is raised, execution does not begin and the `data` entry in
+the response must not be present. The `errors` entry must include the error.
+
+**Field errors**
+
+Field errors are raised during execution from a particular field. This may occur
+due to an internal error during value resolution or failure to coerce the
+resulting value.
+
+Field errors are typically the fault of GraphQL service.
+
+If a field error is raised, execution attempts to continue and a partial result
+is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)).
+The `data` entry in the response must be present. The `errors` entry should
+include all raised field errors.
 
 **Error result format**
 
