@@ -2013,4 +2013,4 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 ```
 
 Note: The value {null} could still be provided to such a variable at runtime.
-A non-null argument must produce a field error if provided a {null} value.
+A non-null argument must raise a field error if provided a {null} value.

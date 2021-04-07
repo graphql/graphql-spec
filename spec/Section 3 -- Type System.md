@@ -1514,10 +1514,10 @@ type of an Object or Interface field.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise a request error must be thrown. In either
+map supplied by a variable, otherwise a request error must be raised. In either
 case, the input object literal or unordered map must not contain any entries
 with names not defined by a field of this input object type, otherwise an error
-must be thrown.
+must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1526,7 +1526,7 @@ is constructed with the following rules:
 * If no value is provided for a defined input object field and that field
   definition provides a default value, the default value should be used. If no
   default value is provided and the input object field's type is non-null, an
-  error should be thrown. Otherwise, if the field is not required, then no entry
+  error should be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
 
 * If the value {null} was provided for an input object field, and the field's
@@ -1540,7 +1540,7 @@ is constructed with the following rules:
 
 * If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type
-  is non-null, a field error must be thrown. If no runtime value is provided,
+  is non-null, a field error must be raised. If no runtime value is provided,
   the variable definition's default value should be used. If the variable
   definition does not provide a default value, the input object field
   definition's default value should be used.

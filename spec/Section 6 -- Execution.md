@@ -41,10 +41,10 @@ GetOperation(document, operationName):
   * If {operationName} is {null}:
     * If {document} contains exactly one operation.
       * Return the Operation contained in the {document}.
-    * Otherwise produce a request error requiring {operationName}.
+    * Otherwise raise a request error requiring {operationName}.
   * Otherwise:
     * Let {operation} be the Operation named {operationName} in {document}.
-    * If {operation} was not found, produce a request error.
+    * If {operation} was not found, raise a request error.
     * Return {operation}.
 
 
@@ -92,14 +92,14 @@ CoerceVariableValues(schema, operation, variableValues):
       * Add an entry to {coercedValues} named {variableName} with the
         value {defaultValue}.
     * Otherwise if {variableType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a request error.
+      is not {true} or {value} is {null}, raise a request error.
     * Otherwise if {hasValue} is true:
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {variableName} with the
           value {null}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-          rules of {variableType}, throw a request error.
+          rules of {variableType}, raise a request error.
         * Let {coercedValue} be the result of coercing {value} according to the
           input coercion rules of {variableType}.
         * Add an entry to {coercedValues} named {variableName} with the
@@ -253,7 +253,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(subscriptionType, selectionSet, variableValues)}.
-  * If {groupedFieldSet} does not have exactly one entry, throw a request error.
+  * If {groupedFieldSet} does not have exactly one entry, raise a request error.
   * Let {fields} be the value of the first entry in {groupedFieldSet}.
   * Let {fieldName} be the name of the first entry in {fields}.
     Note: This value is unaffected if an alias is used.
@@ -340,7 +340,7 @@ is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} throws a
+If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
 field error then that error must propagate to this entire selection set, either
 resolving to {null} if allowed or further propagated to a parent field.
 
@@ -590,7 +590,7 @@ CoerceArgumentValues(objectType, field, variableValues):
       * Add an entry to {coercedValues} named {argumentName} with the
         value {defaultValue}.
     * Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a field error.
+      is not {true} or {value} is {null}, raise a field error.
     * Otherwise if {hasValue} is true:
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {argumentName} with the
@@ -600,7 +600,7 @@ CoerceArgumentValues(objectType, field, variableValues):
           value {value}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-            rules of {argumentType}, throw a field error.
+            rules of {argumentType}, raise a field error.
         * Let {coercedValue} be the result of coercing {value} according to the
           input coercion rules of {argumentType}.
         * Add an entry to {coercedValues} named {argumentName} with the
@@ -645,12 +645,12 @@ CompleteValue(fieldType, fields, result, variableValues):
     * Let {innerType} be the inner type of {fieldType}.
     * Let {completedResult} be the result of calling
       {CompleteValue(innerType, fields, result, variableValues)}.
-    * If {completedResult} is {null}, throw a field error.
+    * If {completedResult} is {null}, raise a field error.
     * Return {completedResult}.
   * If {result} is {null} (or another internal value similar to {null} such as
     {undefined}), return {null}.
   * If {fieldType} is a List type:
-    * If {result} is not a collection of values, throw a field error.
+    * If {result} is not a collection of values, raise a field error.
     * Let {innerType} be the inner type of {fieldType}.
     * Return a list where each list item is the result of calling
       {CompleteValue(innerType, fields, resultItem, variableValues)}, where
@@ -716,13 +716,13 @@ MergeSelectionSets(fields):
 
 ### Errors and Non-Nullability
 
-If an error is thrown while resolving a field, it should be treated as though
+If an error is raised while resolving a field, it should be treated as though
 the field returned {null}, and an error must be added to the {"errors"} list
 in the response.
 
 If the result of resolving a field is {null} (either because the function to
 resolve the field returned {null} or because an error occurred), and that
-field is of a `Non-Null` type, then a field error is thrown. The
+field is of a `Non-Null` type, then a field error is raised. The
 error must be added to the {"errors"} list in the response.
 
 If the field returns {null} because of an error which has already been added to

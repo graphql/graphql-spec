@@ -2,16 +2,15 @@
 
 When a GraphQL service receives a request, it must return a well-formed
 response. The service's response describes the result of executing the requested
-operation if successful, and describes any errors encountered during the
-request.
+operation if successful, and describes any errors raised during the request.
 
-A response may contain both a partial response as well as encountered errors in
-the case that a field error occurred on a field which was replaced with {null}.
+A response may contain both a partial response as well as any field errors in
+the case that a field error was raised on a field and was replaced with {null}.
 
 ## Request Errors
 
-Any errors that occur during a GraphQL request are termed "request errors."
-Request errors are not limited to errors that occur during execution of the
+Any errors raised during a GraphQL request are termed "request errors."
+Request errors are not limited to errors that were raised during execution of the
 operation, they could be raised during parsing and validation of the request
 too. For example, a request error will be raised if the request does not
 contain sufficient information to indicate uniquely which operation to execute.
@@ -20,9 +19,9 @@ contain sufficient information to indicate uniquely which operation to execute.
 
 A response to a GraphQL request must be a map.
 
-If the request encountered any errors, the response map must contain an
+If the request raised any errors, the response map must contain an
 entry with key `errors`. The value of this entry is described in the "Errors"
-section. If the operation completed without encountering any errors, this entry
+section. If the operation completed without raising any errors, this entry
 must not be present.
 
 If the request included execution, the response map must contain an entry
@@ -50,10 +49,10 @@ requested operation. If the operation was a query, this output will be an
 object of the schema's query root type; if the operation was a mutation, this
 output will be an object of the schema's mutation root type.
 
-If an error was encountered before execution begins, the `data` entry should
+If an error was raised before execution begins, the `data` entry should
 not be present in the result.
 
-If an error was encountered during the execution that prevented a valid
+If an error was raised during the execution that prevented a valid
 response, the `data` entry in the response should be `null`.
 
 
@@ -62,7 +61,7 @@ response, the `data` entry in the response should be `null`.
 The `errors` entry in the response is a non-empty list of errors, where each
 error is a map.
 
-If no errors were encountered during the request, the `errors` entry should
+If no errors were raised during the request, the `errors` entry should
 not be present in the result.
 
 If the `data` entry in the response is not present, the `errors`
@@ -70,9 +69,9 @@ entry in the response must not be empty. It must contain at least one error.
 The errors it contains should indicate why no data was able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry in the response may contain any errors that
-occurred during execution. If errors occurred during execution, it should
-contain those errors.
+{null}), the `errors` entry in the response may contain any field errors that
+were raised during execution. If field errors were raised during execution, it
+should contain those errors.
 
 **Error result format**
 
@@ -149,7 +148,7 @@ The response might look like:
 If the field which experienced an error was declared as `Non-Null`, the `null`
 result will bubble up to the next nullable field. In that case, the `path`
 for the error should include the full path to the result field where the error
-occurred, even if that field is not present in the response.
+was raised, even if that field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
