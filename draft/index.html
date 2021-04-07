@@ -4009,7 +4009,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-Input-Object" secid="4.5.2.6">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object">4.5.2.6</a></span>Input Object</h4>
-<p>Input objects are composite types used as inputs into queries defined as a list of named input values.</p>
+<p>Input objects are composite types defined as a list of named input values. They are only used as inputs to arguments and variables and cannot be a field return type.</p>
 <p>For example the input object <code>Point</code> could be defined as:</p>
 <pre id="example-a0e6d" class="spec-example" data-language="graphql"><a href="#example-a0e6d">Example № 99</a><code><span class="token keyword">input</span> Point <span class="token punctuation">{</span>
   <span class="token attr-name">x</span><span class="token punctuation">:</span> Int
