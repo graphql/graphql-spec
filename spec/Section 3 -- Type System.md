@@ -280,7 +280,7 @@ A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be {null} (and that an error cannot result in a
+resulting value will never be {null} (and that a field error cannot result in a
 {null} value).
 
 These two types are referred to as "wrapping types"; non-wrapping types are
@@ -375,7 +375,8 @@ all built-in scalars must be omitted for brevity.
 
 A GraphQL service, when preparing a field of a given scalar type, must uphold the
 contract the scalar type describes, either by coercing the value or producing a
-field error if a value cannot be coerced or if coercion may result in data loss.
+[field error](#sec-Errors.Field-errors) if a value cannot be coerced or if
+coercion may result in data loss.
 
 A GraphQL service may decide to allow coercing different internal types to the
 expected return type. For example when coercing a field of type {Int} a boolean
@@ -399,7 +400,8 @@ information on the serialization of scalars in common JSON and other formats.
 
 If a GraphQL service expects a scalar type as input to an argument, coercion
 is observable and the rules must be well defined. If an input value does not
-match a coercion rule, a query error must be raised.
+match a coercion rule, a [request error](#sec-Errors.Request-errors) must be
+raised (input values are validated before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -438,10 +440,10 @@ greater than or equal to 2<sup>31</sup>, a field error should be raised.
 **Input Coercion**
 
 When expected as an input type, only integer input values are accepted. All
-other input values, including strings with numeric content, must raise a query
+other input values, including strings with numeric content, must raise a request
 error indicating an incorrect type. If the integer input value represents a
 value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a
-query error should be raised.
+request error should be raised.
 
 Note: Numeric integer values larger than 32-bit should either use String or a
 custom-defined Scalar type, as not all platforms and transports support
@@ -473,10 +475,10 @@ coerced to {Float} and must raise a field error.
 When expected as an input type, both integer and float input values are
 accepted. Integer input values are coerced to Float by adding an empty
 fractional part, for example `1.0` for the integer input value `1`. All
-other input values, including strings with numeric content, must raise a query
+other input values, including strings with numeric content, must raise a request
 error indicating an incorrect type. If the input value otherwise represents a
 value not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value
-outside the available precision), a query error must be raised.
+outside the available precision), a request error must be raised.
 
 
 ### String
@@ -498,7 +500,7 @@ string `"1"` for the integer `1`.
 **Input Coercion**
 
 When expected as an input type, only valid UTF-8 string input values are
-accepted. All other input values must raise a query error indicating an
+accepted. All other input values must raise a request error indicating an
 incorrect type.
 
 
@@ -519,7 +521,7 @@ this may include returning `true` for non-zero numbers.
 **Input Coercion**
 
 When expected as an input type, only boolean input values are accepted. All
-other input values must raise a query error indicating an incorrect type.
+other input values must raise a request error indicating an incorrect type.
 
 
 ### ID
@@ -544,7 +546,7 @@ When coercion is not possible they must raise a field error.
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
 formats a given GraphQL service expects. Any other input value, including float
-input values (such as `4.0`), must raise a query error indicating an incorrect
+input values (such as `4.0`), must raise a request error indicating an incorrect
 type.
 
 
@@ -1386,7 +1388,7 @@ reasonable coercion is not possible they must raise a field error.
 **Input Coercion**
 
 GraphQL has a constant literal to represent enum input values. GraphQL string
-literals must not be accepted as an enum input and instead raise a query error.
+literals must not be accepted as an enum input and instead raise a request error.
 
 Query variable transport serializations which have a different representation
 for non-string symbolic values (for example, [EDN](https://github.com/edn-format/edn))
@@ -1514,10 +1516,10 @@ type of an Object or Interface field.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise a query error must be thrown. In either
+map supplied by a variable, otherwise a request error must be raised. In either
 case, the input object literal or unordered map must not contain any entries
-with names not defined by a field of this input object type, otherwise an error
-must be thrown.
+with names not defined by a field of this input object type, otherwise a
+response error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1526,7 +1528,7 @@ is constructed with the following rules:
 * If no value is provided for a defined input object field and that field
   definition provides a default value, the default value should be used. If no
   default value is provided and the input object field's type is non-null, an
-  error should be thrown. Otherwise, if the field is not required, then no entry
+  error should be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
 
 * If the value {null} was provided for an input object field, and the field's
@@ -1540,7 +1542,7 @@ is constructed with the following rules:
 
 * If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type
-  is non-null, a field error must be thrown. If no runtime value is provided,
+  is non-null, a field error must be raised. If no runtime value is provided,
   the variable definition's default value should be used. If the variable
   definition does not provide a default value, the input object field
   definition's default value should be used.
@@ -1632,12 +1634,12 @@ implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
 coercion of an individual item in the list must result in a the value {null} at
-that position in the list along with an error added to the response. If a list's
-item type is non-null, an error occurring at an individual item in the list must
-result in a field error for the entire list.
+that position in the list along with a field error added to the response.
+If a list's item type is non-null, a field error occurring at an individual item
+in the list must result in a field error for the entire list.
 
-Note: For more information on the error handling process, see "Errors and
-Non-Nullability" within the Execution section.
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
 
 **Input Coercion**
 
@@ -1706,7 +1708,7 @@ the parent field. For more information on this process, see
 If an argument or input-object field of a Non-Null type is not provided, is
 provided with the literal value {null}, or is provided with a variable that was
 either not provided a value at runtime, or was provided the value {null}, then
-a query error must be raised.
+a request error must be raised.
 
 If the value provided to the Non-Null type is provided with a literal value
 other than {null}, or a Non-Null variable value, it is coerced using the input
