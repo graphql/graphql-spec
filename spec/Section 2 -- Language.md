@@ -453,11 +453,11 @@ These two queries are semantically identical:
 
 Alias : Name :
 
-By default, the key in the response object will use the field name
-queried. However, you can define a different name by specifying an alias.
+By default a field's response key in the response object will use that field's
+name. However, you can define a different response key by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
-the resulting object will not have duplicate keys:
+the resulting response object will not have duplicate keys:
 
 ```graphql example
 {
@@ -470,7 +470,7 @@ the resulting object will not have duplicate keys:
 }
 ```
 
-Which returns the result:
+which returns the result:
 
 ```json example
 {
@@ -483,7 +483,7 @@ Which returns the result:
 }
 ```
 
-Since the top level of a query is a field, it also can be given an alias:
+The fields at the top level of an operation can also be given an alias:
 
 ```graphql example
 {
@@ -494,7 +494,7 @@ Since the top level of a query is a field, it also can be given an alias:
 }
 ```
 
-Returns the result:
+which returns the result:
 
 ```json example
 {
@@ -504,9 +504,6 @@ Returns the result:
   }
 }
 ```
-
-A field's response key is its alias if an alias is provided, and it is
-otherwise the field's name.
 
 
 ## Fragments
