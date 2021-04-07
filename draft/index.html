@@ -1685,8 +1685,8 @@ many examples below will use the query short-hand syntax.</div>
 <div class="spec-production" id="Alias">
 <span class="spec-nt"><a href="#Alias" data-name="Alias">Alias</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span></div>
 </div>
-<p>By default, the key in the response object will use the field name queried. However, you can define a different name by specifying an alias.</p>
-<p>In this example, we can fetch two profile pictures of different sizes and ensure the resulting object will not have duplicate keys:</p>
+<p>By default a field&rsquo;s response key in the response object will use that field&rsquo;s name. However, you can define a different response key by specifying an alias.</p>
+<p>In this example, we can fetch two profile pictures of different sizes and ensure the resulting response object will not have duplicate keys:</p>
 <pre id="example-34435" class="spec-example" data-language="graphql"><a href="#example-34435">Example № 14</a><code><span class="token punctuation">{</span>
   user<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
@@ -1696,7 +1696,7 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Which returns the result:</p>
+<p>which returns the result:</p>
 <pre id="example-6e98a" class="spec-example" data-language="json"><a href="#example-6e98a">Example № 15</a><code><span class="token punctuation">{</span>
   <span class="token property">"user"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"id"</span><span class="token operator">:</span> <span class="token number">4</span><span class="token punctuation">,</span>
@@ -1706,7 +1706,7 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Since the top level of a query is a field, it also can be given an alias:</p>
+<p>The fields at the top level of an operation can also be given an alias:</p>
 <pre id="example-27d2f" class="spec-example" data-language="graphql"><a href="#example-27d2f">Example № 16</a><code><span class="token punctuation">{</span>
   <span class="token attr-name">zuck</span><span class="token punctuation">:</span> user<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
@@ -1714,7 +1714,7 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Returns the result:</p>
+<p>which returns the result:</p>
 <pre id="example-768a2" class="spec-example" data-language="json"><a href="#example-768a2">Example № 17</a><code><span class="token punctuation">{</span>
   <span class="token property">"zuck"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"id"</span><span class="token operator">:</span> <span class="token number">4</span><span class="token punctuation">,</span>
@@ -1722,7 +1722,6 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>A field&rsquo;s response key is its alias if an alias is provided, and it is otherwise the field&rsquo;s name.</p>
 </section>
 <section id="sec-Language.Fragments" secid="2.8">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Language.Fragments">2.8</a></span>Fragments</h2>
