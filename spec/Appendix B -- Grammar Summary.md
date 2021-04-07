@@ -119,8 +119,9 @@ Document : Definition+
 
 Definition :
   - ExecutableDefinition
-  - TypeSystemDefinition
-  - TypeSystemExtension
+  - TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
   - OperationDefinition
@@ -209,10 +210,18 @@ Directives[Const] : Directive[?Const]+
 
 Directive[Const] : @ Name Arguments[?Const]?
 
+TypeSystemDocument : TypeSystemDefinition+
+
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
   - DirectiveDefinition
+
+TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+  - TypeSystemDefinition
+  - TypeSystemExtension
 
 TypeSystemExtension :
   - SchemaExtension

@@ -97,8 +97,8 @@ union HumanOrAlien = Human | Alien
 **Formal Specification**
 
 * For each definition {definition} in the document.
-* {definition} must be {OperationDefinition} or {FragmentDefinition} (it must
-  not be {TypeSystemDefinition}).
+* {definition} must be {ExecutableDefinition} (it must not be
+  {TypeSystemDefinitionOrExtension}).
 
 **Explanatory Text**
 
@@ -106,11 +106,11 @@ GraphQL execution will only consider the executable definitions Operation and
 Fragment. Type system definitions and extensions are not executable, and are not
 considered during execution.
 
-To avoid ambiguity, a document containing {TypeSystemDefinition} is invalid
-for execution.
+To avoid ambiguity, a document containing {TypeSystemDefinitionOrExtension} is
+invalid for execution.
 
 GraphQL documents not intended to be directly executed may include
-{TypeSystemDefinition}.
+{TypeSystemDefinitionOrExtension}.
 
 For example, the following document is invalid for execution since the original
 executing schema may not know about the provided type extension:

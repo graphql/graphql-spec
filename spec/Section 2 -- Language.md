@@ -233,8 +233,9 @@ Document : Definition+
 
 Definition :
   - ExecutableDefinition
-  - TypeSystemDefinition
-  - TypeSystemExtension
+  - TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
   - OperationDefinition
@@ -244,12 +245,19 @@ A GraphQL Document describes a complete file or request string operated on
 by a GraphQL service or client. A document contains multiple definitions, either
 executable or representative of a GraphQL type system.
 
-Documents are only executable by a GraphQL service if they contain an
-{OperationDefinition} and otherwise only contain {ExecutableDefinition}.
-However documents which do not contain {OperationDefinition} or do contain
-{TypeSystemDefinition} or {TypeSystemExtension} may still be parsed
-and validated to allow client tools to represent many GraphQL uses which may
-appear across many individual files.
+Documents are only executable by a GraphQL service if they are
+{ExecutableDocument} and contain at least one {OperationDefinition}. A
+Document which contains {TypeSystemDefinitionOrExtension} must not be executed;
+GraphQL execution services which receive a Document containing these should
+return a descriptive error.
+
+GraphQL services which only seek to execute GraphQL requests and not construct
+a new GraphQL schema may choose to only permit {ExecutableDocument}.
+
+Documents which do not contain {OperationDefinition} or do contain
+{TypeSystemDefinitionOrExtension} may still be parsed and validated to allow
+client tools to represent many GraphQL uses which may appear across many
+individual files.
 
 If a Document contains only one operation, that operation may be unnamed. If
 that operation is a query without variables or directives then it may also be
@@ -258,10 +266,6 @@ as the operation name. Otherwise, if a GraphQL Document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
-
-GraphQL services which only seek to provide GraphQL query execution may choose
-to only include {ExecutableDefinition} and omit the {TypeSystemDefinition} and
-{TypeSystemExtension} rules from {Definition}.
 
 
 ## Operations

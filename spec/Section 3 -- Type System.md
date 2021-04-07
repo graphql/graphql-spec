@@ -5,6 +5,8 @@ used to determine if a query is valid. The type system also describes the
 input types of query variables to determine if values provided at runtime
 are valid.
 
+TypeSystemDocument : TypeSystemDefinition+
+
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
@@ -15,12 +17,11 @@ The GraphQL language includes an
 describe a GraphQL service's type system. Tools may use this definition language
 to provide utilities such as client code generation or service boot-strapping.
 
-GraphQL tools which only seek to provide GraphQL query execution may choose not
-to parse {TypeSystemDefinition}.
-
-A GraphQL Document which contains {TypeSystemDefinition} must not be executed;
-GraphQL execution services which receive a GraphQL Document containing type
-system definitions should return a descriptive error.
+GraphQL tools or services which only seek to execute GraphQL requests and not
+construct a new GraphQL schema may choose not to allow {TypeSystemDefinition}.
+Tools which only seek to produce schema and not execute requests may choose to
+only allow {TypeSystemDocument} and not allow {ExecutableDefinition} or
+{TypeSystemExtension} but should provide a descriptive error if present.
 
 Note: The type system definition language is used throughout the remainder of
 this specification document when illustrating example type systems.
@@ -28,14 +29,24 @@ this specification document when illustrating example type systems.
 
 ## Type System Extensions
 
+TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+  - TypeSystemDefinition
+  - TypeSystemExtension
+
 TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-Type system extensions are used to represent a GraphQL type system which has been
-extended from some original type system. For example, this might be used by a
-local service to represent data a GraphQL client only accesses locally, or by a
-GraphQL service which is itself an extension of another GraphQL service.
+Type system extensions are used to represent a GraphQL type system which has
+been extended from some original type system. For example, this might be used by
+a local service to represent data a GraphQL client only accesses locally, or by
+a GraphQL service which is itself an extension of another GraphQL service.
+
+Tools which only seek to produce and extend schema and not execute requests may
+choose to only allow {TypeSystemExtensionDocument} and not allow
+{ExecutableDefinition} but should provide a descriptive error if present.
 
 
 ## Descriptions
