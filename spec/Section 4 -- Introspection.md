@@ -318,8 +318,9 @@ Fields
 
 #### Input Object
 
-Input objects are composite types used as inputs into queries defined as a list
-of named input values.
+Input objects are composite types defined as a list of named input values. They
+are only used as inputs to arguments and variables and cannot be a field
+return type.
 
 For example the input object `Point` could be defined as:
 
