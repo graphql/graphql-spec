@@ -450,10 +450,10 @@ encoding integer numbers larger than 32-bit.
 
 ### Float
 
-The Float scalar type represents signed double-precision fractional values
-as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).
-Response formats that support an appropriate double-precision number type
-should use that type to represent this scalar.
+The Float scalar type represents signed double-precision finite values as
+specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).
+Response formats that support an appropriate double-precision number type should
+use that type to represent this scalar.
 
 **Result Coercion**
 
@@ -465,14 +465,18 @@ reasonable without losing information, otherwise they must raise a field error.
 Examples of this may include returning `1.0` for the integer number `1`, or
 `123.0` for the string `"123"`.
 
+Non-finite floating-point internal values ({NaN} and {Infinity}) cannot be
+coerced to {Float} and must raise a field error.
+
 **Input Coercion**
 
 When expected as an input type, both integer and float input values are
 accepted. Integer input values are coerced to Float by adding an empty
 fractional part, for example `1.0` for the integer input value `1`. All
 other input values, including strings with numeric content, must raise a query
-error indicating an incorrect type. If the integer input value represents a
-value not representable by IEEE 754, a query error should be raised.
+error indicating an incorrect type. If the input value otherwise represents a
+value not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value
+outside the available precision), a query error must be raised.
 
 
 ### String
