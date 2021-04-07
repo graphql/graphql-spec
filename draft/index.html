@@ -2453,27 +2453,29 @@ The set of languages supported by `translate`.
 <section id="sec-Root-Operation-Types" secid="3.3.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Root-Operation-Types">3.3.1</a></span>Root Operation Types</h3>
 <p>A schema defines the initial root operation type for each kind of operation it supports: query, mutation, and subscription; this determines the place in the type system where those operations begin.</p>
-<p>The <code>query</code> root operation type must be provided and must be an Object type.</p>
-<p>The <code>mutation</code> root operation type is optional; if it is not provided, the service does not support mutations. If it is provided, it must be an Object type.</p>
-<p>Similarly, the <code>subscription</code> root operation type is also optional; if it is not provided, the service does not support subscriptions. If it is provided, it must be an Object type.</p>
-<p>The fields on the <code>query</code> root operation type indicate what fields are available at the top level of a GraphQL query. For example, a basic GraphQL query like:</p>
+<p>The <span class="spec-t">query</span> root operation type must be provided and must be an Object type.</p>
+<p>The <span class="spec-t">mutation</span> root operation type is optional; if it is not provided, the service does not support mutations. If it is provided, it must be an Object type.</p>
+<p>Similarly, the <span class="spec-t">subscription</span> root operation type is also optional; if it is not provided, the service does not support subscriptions. If it is provided, it must be an Object type.</p>
+<p>The <span class="spec-t">query</span>, <span class="spec-t">mutation</span>, and <span class="spec-t">subscription</span> root types must all be different types if provided.</p>
+<p>The fields on the <span class="spec-t">query</span> root operation type indicate what fields are available at the top level of a GraphQL query operation.</p>
+<p>For example, this example operation:</p>
 <pre id="example-081b4" class="spec-example" data-language="graphql"><a href="#example-081b4">Example № 37</a><code><span class="token keyword">query</span> <span class="token punctuation">{</span>
   myName
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Is valid when the <code>query</code> root operation type has a field named &ldquo;myName&rdquo;.</p>
+<p>is only valid when the <span class="spec-t">query</span> root operation type has a field named &ldquo;myName&rdquo;:</p>
 <pre id="example-50137" class="spec-example" data-language="graphql"><a href="#example-50137">Example № 38</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">myName</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 </code></pre>
-<p>Similarly, the following mutation is valid if a <code>mutation</code> root operation type has a field named &ldquo;setName&rdquo;. Note that the <code>query</code> and <code>mutation</code> root types must be different types.</p>
+<p>Similarly, the following mutation is only valid if the <span class="spec-t">mutation</span> root operation type has a field named &ldquo;setName&rdquo;.</p>
 <pre id="example-d1ed8" class="spec-example" data-language="graphql"><a href="#example-d1ed8">Example № 39</a><code><span class="token keyword">mutation</span> <span class="token punctuation">{</span>
   setName<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"Zuck"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     newName
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>When using the type system definition language, a document must include at most one <code>schema</code> definition.</p>
+<p>When using the type system definition language, a document must include at most one <span class="spec-t">schema</span> definition.</p>
 <p>In this example, a GraphQL schema is defined with both query and mutation root types:</p>
 <pre id="example-e2969" class="spec-example" data-language="graphql"><a href="#example-e2969">Example № 40</a><code><span class="token keyword">schema</span> <span class="token punctuation">{</span>
   <span class="token attr-name">query</span><span class="token punctuation">:</span> MyQueryRootType
@@ -2490,9 +2492,9 @@ The set of languages supported by `translate`.
 </code></pre>
 <section id="sec-Root-Operation-Types.Default-Root-Operation-Type-Names" class="subsec">
 <h6><a href="#sec-Root-Operation-Types.Default-Root-Operation-Type-Names" title="link to this subsection">Default Root Operation Type Names</a></h6>
-<p>While any type can be the root operation type for a GraphQL operation, the type system definition language can omit the schema definition when the <code>query</code>, <code>mutation</code>, and <code>subscription</code> root types are named <code>Query</code>, <code>Mutation</code>, and <code>Subscription</code> respectively.</p>
+<p>While any type can be the root operation type for a GraphQL operation, the type system definition language can omit the schema definition when the <span class="spec-t">query</span>, <span class="spec-t">mutation</span>, and <span class="spec-t">subscription</span> root types are named <span class="spec-string">"Query"</span>, <span class="spec-string">"Mutation"</span>, and <span class="spec-string">"Subscription"</span> respectively.</p>
 <p>Likewise, when representing a GraphQL schema using the type system definition language, a schema definition should be omitted if it only uses the default root operation type names.</p>
-<p>This example describes a valid complete GraphQL schema, despite not explicitly including a <code>schema</code> definition. The <code>Query</code> type is presumed to be the <code>query</code> root operation type of the schema.</p>
+<p>This example describes a valid complete GraphQL schema, despite not explicitly including a <span class="spec-t">schema</span> definition. The <span class="spec-string">"Query"</span> type is presumed to be the <span class="spec-t">query</span> root operation type of the schema.</p>
 <pre id="example-9d70f" class="spec-example" data-language="graphql"><a href="#example-9d70f">Example № 41</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">someField</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
