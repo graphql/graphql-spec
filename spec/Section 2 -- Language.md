@@ -98,8 +98,8 @@ LineTerminator ::
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
 Like white space, line terminators are used to improve the legibility of source
-text and separate lexical tokens, any amount may appear before or after any 
-other token and have no significance to the semantic meaning of a GraphQL 
+text and separate lexical tokens, any amount may appear before or after any
+other token and have no significance to the semantic meaning of a GraphQL
 Document. Line terminators are not found within any other token.
 
 Note: Any error reporting which provides the line number in the source of the
@@ -151,7 +151,7 @@ Token ::
   - StringValue
 
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
-defined here in a lexical grammar by patterns of source Unicode characters. 
+defined here in a lexical grammar by patterns of source Unicode characters.
 Lexical tokens may be separated by {Ignored} tokens.
 
 Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
@@ -251,9 +251,10 @@ However documents which do not contain {OperationDefinition} or do contain
 and validated to allow client tools to represent many GraphQL uses which may
 appear across many individual files.
 
-If a Document contains only one operation, that operation may be unnamed or
-represented in the shorthand form, which omits both the query keyword and
-operation name. Otherwise, if a GraphQL Document contains multiple
+If a Document contains only one operation, that operation may be unnamed. If
+that operation is a query without variables or directives then it may also be
+represented in the shorthand form, omitting both the {`query`} keyword as well
+as the operation name. Otherwise, if a GraphQL Document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
@@ -295,9 +296,10 @@ mutation {
 
 **Query shorthand**
 
-If a document contains only one query operation, and that query defines no
-variables and contains no directives, that operation may be represented in a
-short-hand form which omits the query keyword and query name.
+If a document contains only one operation and that operation is a query which
+defines no variables and contains no directives then that operation may be
+represented in a short-hand form which omits the {`query`} keyword and operation
+name.
 
 For example, this unnamed query operation is written via query shorthand.
 
