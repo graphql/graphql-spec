@@ -2634,15 +2634,16 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 </section>
 <section id="sec-Float" secid="3.5.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Float">3.5.2</a></span>Float</h3>
-<p>The Float scalar type represents signed double-precision fractional values as specified by <a href="https://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754</a>. Response formats that support an appropriate double-precision number type should use that type to represent this scalar.</p>
+<p>The Float scalar type represents signed double-precision finite values as specified by <a href="https://en.wikipedia.org/wiki/IEEE_floating_point">IEEE 754</a>. Response formats that support an appropriate double-precision number type should use that type to represent this scalar.</p>
 <section id="sec-Float.Result-Coercion" class="subsec">
 <h6><a href="#sec-Float.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>Fields returning the type <span class="spec-nt"><span data-name="Float">Float</span></span> expect to encounter double-precision floating-point internal values.</p>
 <p>GraphQL services may coerce non-floating-point internal values to <span class="spec-nt"><span data-name="Float">Float</span></span> when reasonable without losing information, otherwise they must raise a field error. Examples of this may include returning <code>1.0</code> for the integer number <code>1</code>, or <code>123.0</code> for the string <code>"123"</code>.</p>
+<p>Non-finite floating-point internal values (<span class="spec-nt"><span data-name="NaN">NaN</span></span> and <span class="spec-nt"><span data-name="Infinity">Infinity</span></span>) cannot be coerced to <span class="spec-nt"><span data-name="Float">Float</span></span> and must raise a field error.</p>
 </section>
 <section id="sec-Float.Input-Coercion" class="subsec">
 <h6><a href="#sec-Float.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, both integer and float input values are accepted. Integer input values are coerced to Float by adding an empty fractional part, for example <code>1.0</code> for the integer input value <code>1</code>. All other input values, including strings with numeric content, must raise a query error indicating an incorrect type. If the integer input value represents a value not representable by IEEE 754, a query error should be raised.</p>
+<p>When expected as an input type, both integer and float input values are accepted. Integer input values are coerced to Float by adding an empty fractional part, for example <code>1.0</code> for the integer input value <code>1</code>. All other input values, including strings with numeric content, must raise a query error indicating an incorrect type. If the input value otherwise represents a value not representable by finite IEEE 754 (e.g. <span class="spec-nt"><span data-name="NaN">NaN</span></span>, <span class="spec-nt"><span data-name="Infinity">Infinity</span></span>, or a value outside the available precision), a query error must be raised.</p>
 </section>
 </section>
 <section id="sec-String" secid="3.5.3">
@@ -6310,7 +6311,7 @@ It is common for <var data-name="resolver">resolver</var> to be asynchronous due
 <li>Return <var data-name="completedResult">completedResult</var>.</li>
 </ol>
 </li>
-<li>If <var data-name="result">result</var> is <span class="spec-keyword">null</span> (or another internal value similar to <span class="spec-keyword">null</span> such as <span class="spec-keyword">undefined</span> or <span class="spec-nt"><span data-name="NaN">NaN</span></span>), return <span class="spec-keyword">null</span>.</li>
+<li>If <var data-name="result">result</var> is <span class="spec-keyword">null</span> (or another internal value similar to <span class="spec-keyword">null</span> such as <span class="spec-keyword">undefined</span>), return <span class="spec-keyword">null</span>.</li>
 <li>If <var data-name="fieldType">fieldType</var> is a List type:<ol>
 <li>If <var data-name="result">result</var> is not a collection of values, throw a field error.</li>
 <li>Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
