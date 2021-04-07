@@ -28,13 +28,12 @@ request is determined by the result of executing this operation according to the
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
   * Let {operation} be the result of {GetOperation(document, operationName)}.
-  * Let {coercedVariableValues} be the result of {CoerceVariableValues(schema, operation, variableValues)}.
   * If {operation} is a query operation:
-    * Return {ExecuteQuery(operation, schema, coercedVariableValues, initialValue)}.
+    * Return {ExecuteQuery(operation, schema, variableValues, initialValue)}.
   * Otherwise if {operation} is a mutation operation:
-    * Return {ExecuteMutation(operation, schema, coercedVariableValues, initialValue)}.
+    * Return {ExecuteMutation(operation, schema, variableValues, initialValue)}.
   * Otherwise if {operation} is a subscription operation:
-    * Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
+    * Return {Subscribe(operation, schema, variableValues, initialValue)}.
 
 GetOperation(document, operationName):
 
@@ -65,48 +64,6 @@ not changed.
 For example: the request may be validated during development, provided it does
 not later change, or a service may validate a request once and memoize the
 result to avoid validating the same request again in the future.
-
-
-### Coercing Variable Values
-
-If the operation has defined any variables, then the values for
-those variables need to be coerced using the input coercion rules
-of variable's declared type. If a query error is encountered during
-input coercion of variable values, then the operation fails without
-execution.
-
-CoerceVariableValues(schema, operation, variableValues):
-
-  * Let {coercedValues} be an empty unordered Map.
-  * Let {variableDefinitions} be the variables defined by {operation}.
-  * For each {variableDefinition} in {variableDefinitions}:
-    * Let {variableName} be the name of {variableDefinition}.
-    * Let {variableType} be the expected type of {variableDefinition}.
-    * Assert: {IsInputType(variableType)} must be {true}.
-    * Let {defaultValue} be the default value for {variableDefinition}.
-    * Let {hasValue} be {true} if {variableValues} provides a value for the
-      name {variableName}.
-    * Let {value} be the value provided in {variableValues} for the
-      name {variableName}.
-    * If {hasValue} is not {true} and {defaultValue} exists (including {null}):
-      * Add an entry to {coercedValues} named {variableName} with the
-        value {defaultValue}.
-    * Otherwise if {variableType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a query error.
-    * Otherwise if {hasValue} is true:
-      * If {value} is {null}:
-        * Add an entry to {coercedValues} named {variableName} with the
-          value {null}.
-      * Otherwise:
-        * If {value} cannot be coerced according to the input coercion
-          rules of {variableType}, throw a query error.
-        * Let {coercedValue} be the result of coercing {value} according to the
-          input coercion rules of {variableType}.
-        * Add an entry to {coercedValues} named {variableName} with the
-          value {coercedValue}.
-  * Return {coercedValues}.
-
-Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
 
 ## Executing Operations
@@ -595,9 +552,6 @@ CoerceArgumentValues(objectType, field, variableValues):
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {argumentName} with the
           value {null}.
-      * Otherwise, if {argumentValue} is a {Variable}:
-        * Add an entry to {coercedValues} named {argumentName} with the
-          value {value}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
             rules of {argumentType}, throw a field error.
@@ -606,10 +560,6 @@ CoerceArgumentValues(objectType, field, variableValues):
         * Add an entry to {coercedValues} named {argumentName} with the
           value {coercedValue}.
   * Return {coercedValues}.
-
-Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid queries
-must only allow usage of variables of appropriate types.
 
 
 ### Value Resolution
