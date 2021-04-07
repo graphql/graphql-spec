@@ -606,7 +606,8 @@ Conversely the leaf field selections of GraphQL operations
 must be of type scalar or enum. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following additions to the query root operation type of the schema:
+Let's assume the following additions to the query root operation type of
+the schema:
 
 ```graphql example
 extend type Query {
@@ -861,7 +862,7 @@ fragment fragmentOne on Dog {
 
 Fragments must be specified on types that exist in the schema. This
 applies for both named and inline fragments. If they are
-not defined in the schema, the request does not validate.
+not defined in the schema, the fragment is invalid.
 
 For example the following fragments are valid:
 
@@ -1506,7 +1507,8 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 ```
 
 However the following example is valid because `@skip` has been used only once
-per location, despite being used twice in the document and on the same named field:
+per location, despite being used twice in the operation and on the same
+named field:
 
 ```raw graphql example
 query ($foo: Boolean = true, $bar: Boolean = false) {

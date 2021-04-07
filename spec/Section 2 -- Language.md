@@ -337,8 +337,8 @@ under-fetching data.
 }
 ```
 
-In this query operation, the `id`, `firstName`, and `lastName` fields form a selection
-set. Selection sets may also contain fragment references.
+In this query operation, the `id`, `firstName`, and `lastName` fields form a
+selection set. Selection sets may also contain fragment references.
 
 
 ## Fields
@@ -408,7 +408,7 @@ Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
 function arguments within a GraphQL service's implementation.
 
-In this example, we want to fetch a specific user (requested via the `id`
+In this example, we want to query a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:
 
 ```graphql example
@@ -1096,7 +1096,9 @@ If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
 
 Variables must be defined at the top of an operation and are in scope
-throughout the execution of that operation.
+throughout the execution of that operation. Values for those variables are
+provided to a GraphQL service as part of a request so they may be substituted
+in during execution.
 
 In this example, we want to fetch a profile picture size based on the size
 of a particular device:
@@ -1111,10 +1113,8 @@ query getZuckProfile($devicePicSize: Int) {
 }
 ```
 
-Values for those variables are provided to a GraphQL service along with a
-request so they may be substituted during execution. If providing JSON for the
-variables' values, we could run this operation and fetch profilePic of
-size `60` width:
+If providing JSON for the variables' values, we could request a `profilePic` of
+size `60`:
 
 ```json example
 {
@@ -1124,11 +1124,10 @@ size `60` width:
 
 **Variable use within Fragments**
 
-Operation variables can be used within fragments. Operation variables have global scope
-with a given operation, so a variable used within a fragment must be declared
-in any top-level operation that transitively consumes that fragment. If
-a variable is referenced in a fragment and is included by an operation that does
-not define that variable, the operation cannot be executed.
+Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any
+top-level operation that transitively consumes that fragment. If a variable is
+referenced in a fragment and is included by an operation that does not define
+that variable, that operation is invalid (see [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
 
 
 ## Type References
@@ -1146,9 +1145,9 @@ NonNullType :
   - NamedType !
   - ListType !
 
-GraphQL describes the types of data expected by operation variables. Input types
-may be lists of another input type, or a non-null variant of any other
-input type.
+GraphQL describes the types of data expected by arguments and variables.
+Input types may be lists of another input type, or a non-null variant of any
+other input type.
 
 **Semantics**
 
@@ -1188,8 +1187,8 @@ including or skipping a field. Directives provide this by describing additional 
 Directives have a name along with a list of arguments which may accept values
 of any input type.
 
-Directives can be used to describe additional information for types, fields, fragments
-and operations.
+Directives can be used to describe additional information for types, fields,
+fragments and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide

@@ -1,9 +1,9 @@
 # Type System
 
 The GraphQL Type system describes the capabilities of a GraphQL service and is
-used to determine if a request is valid. The type system also describes the
-input types of operation variables to determine if values provided at runtime
-are valid.
+used to determine if a requested operation is valid, to guarantee the type of
+response results, and describes the input types of variables to determine if
+values provided at request time are valid.
 
 TypeSystemDocument : TypeSystemDefinition+
 
@@ -424,8 +424,8 @@ raised (input values are validated before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
-of input value is encountered. GraphQL may be parameterized by operation variables,
-the values of which are often serialized when sent over a transport like HTTP. Since
+of input value is encountered. GraphQL may be parameterized by variables, the
+values of which are often serialized when sent over a transport like HTTP. Since
 some common serializations (ex. JSON) do not discriminate between integer
 and floating-point values, they are interpreted as an integer input value if
 they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
@@ -601,14 +601,15 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
-GraphQL operations are hierarchical and composed, describing a tree of information.
-While Scalar types describe the leaf values of these hierarchical operations, Objects
-describe the intermediate levels.
+GraphQL operations are hierarchical and composed, describing a tree of
+information. While Scalar types describe the leaf values of these hierarchical
+operations, Objects describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
-requested field names (or aliases) are the keys and the result of evaluating
-the field is the value, ordered by the order in which they appear in the operation.
+selected field names (or aliases) are the keys and the result of evaluating
+the field is the value, ordered by the order in which they appear in
+the selection set.
 
 All fields defined within an Object type must not have a name which begins with
 {"__"} (two underscores), as this is used exclusively by GraphQL's
@@ -687,8 +688,8 @@ type Person {
 }
 ```
 
-Valid operations must supply a nested field set for a field that returns
-an object, so this operation is not valid:
+Valid operations must supply a nested field set for any field that returns an
+object, so this operation is not valid:
 
 ```graphql counter-example
 {
@@ -722,7 +723,7 @@ And will yield the subset of each object type queried:
 **Field Ordering**
 
 When querying an Object, the resulting mapping of fields are conceptually
-ordered in the same order in which they were encountered during request execution,
+ordered in the same order in which they were encountered during execution,
 excluding fragments for which the type does not apply and fields or
 fragments that are skipped via `@skip` or `@include` directives. This ordering
 is correctly produced when using the {CollectFields()} algorithm.
@@ -920,7 +921,7 @@ type Person {
 }
 ```
 
-GraphQL operations can optionally specify arguments to their fields to provide
+Operations can optionally specify arguments to their fields to provide
 these arguments.
 
 This example operation:
@@ -932,7 +933,7 @@ This example operation:
 }
 ```
 
-May yield the result:
+May return the result:
 
 ```json example
 {
@@ -948,9 +949,9 @@ Object, Interface, or Union type).
 ### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
-application. It is still legal to fetch these fields (to ensure existing
-clients are not broken by the change), but the fields should be appropriately
-treated in documentation and tooling.
+application. It is still legal to include these fields in a selection set
+(to ensure existing clients are not broken by the change), but the fields should
+be appropriately treated in documentation and tooling.
 
 When using the type system definition language, `@deprecated` directives are
 used to indicate that a field is deprecated:
@@ -1294,11 +1295,9 @@ type SearchQuery {
 }
 ```
 
-When querying the `firstSearchResult` field of type `SearchQuery`, the
-request would ask for all fields inside of a fragment indicating the appropriate
-type. If the request wanted the name if the result was a Person, and the height if
-it was a photo, the following document is invalid, because the union itself
-defines no fields:
+In this example, a query operation wants the name if the result was a Person,
+and the height if it was a photo. However because a union itself defines no
+fields, this could be ambiguous and is invalid.
 
 ```graphql counter-example
 {
@@ -1309,7 +1308,7 @@ defines no fields:
 }
 ```
 
-Instead, the document would be:
+A valid operation includes typed fragments (in this example, inline fragments):
 
 ```graphql example
 {
@@ -1415,7 +1414,7 @@ reasonable coercion is not possible they must raise a field error.
 GraphQL has a constant literal to represent enum input values. GraphQL string
 literals must not be accepted as an enum input and instead raise a request error.
 
-Operation variable transport serializations which have a different representation
+Variable transport serializations which have a different representation
 for non-string symbolic values (for example, [EDN](https://github.com/edn-format/edn))
 should only allow such values as enum input values. Otherwise, for most
 transport serializations that do not, strings may be interpreted as the enum
@@ -1709,9 +1708,9 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Nullable vs. Optional**
 
-Fields are *always* optional within the context of a selection set, a field may be
-omitted and the selection set is still valid. However fields that return Non-Null types
-will never return the value {null} if queried.
+Fields are *always* optional within the context of a selection set, a field may
+be omitted and the selection set is still valid. However fields that return
+Non-Null types will never return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},

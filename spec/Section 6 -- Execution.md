@@ -118,7 +118,8 @@ it must also provide a mutation or subscription root operation type, respectivel
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the operation’s top level selection set with the query root operation type.
+executing the operation’s top level selection set with the query root
+operation type.
 
 An initial value may be provided when executing a query operation.
 
@@ -562,8 +563,8 @@ Fields may include arguments which are provided to the underlying runtime in
 order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type.
 
-At each argument position in an operation may be a literal {Value}, or a {Variable}
-to be provided at runtime.
+At each argument position in an operation may be a literal {Value}, or a
+{Variable} to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
   * Let {coercedValues} be an empty unordered Map.

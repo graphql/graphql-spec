@@ -16,7 +16,7 @@ type User {
 }
 ```
 
-The operation
+A request containing the operation:
 
 ```graphql example
 {
@@ -32,7 +32,7 @@ The operation
 }
 ```
 
-would return
+would produce the result:
 
 ```json example
 {
@@ -259,7 +259,7 @@ Fields
 * `kind` must return `__TypeKind.OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields request-able on this type.
+* `fields`: The set of fields that can be selected for this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
 * `interfaces`: The set of interfaces that an object implements.
