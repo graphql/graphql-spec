@@ -1303,7 +1303,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Coercing-Field-Arguments"><span class="spec-secid">6.4.1</span>Coercing Field Arguments</a></li>
 <li><a href="#sec-Value-Resolution"><span class="spec-secid">6.4.2</span>Value Resolution</a></li>
 <li><a href="#sec-Value-Completion"><span class="spec-secid">6.4.3</span>Value Completion</a></li>
-<li><a href="#sec-Errors-and-Non-Nullability"><span class="spec-secid">6.4.4</span>Errors and Non-Nullability</a></li>
+<li><a href="#sec-Handling-Field-Errors"><span class="spec-secid">6.4.4</span>Handling Field Errors</a></li>
 </ol>
 </li>
 </ol>
@@ -2537,7 +2537,7 @@ The set of languages supported by `translate`.
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Wrapping-Types">3.4.1</a></span>Wrapping Types</h3>
 <p>All of the types so far are assumed to be both nullable and singular: e.g. a scalar string returns either null or a singular string.</p>
 <p>A GraphQL schema may describe that a field represents a list of another type; the <code>List</code> type is provided for this reason, and wraps another type.</p>
-<p>Similarly, the <code>Non-Null</code> type wraps another type, and denotes that the resulting value will never be <span class="spec-keyword">null</span> (and that an error cannot result in a <span class="spec-keyword">null</span> value).</p>
+<p>Similarly, the <code>Non-Null</code> type wraps another type, and denotes that the resulting value will never be <span class="spec-keyword">null</span> (and that a field error cannot result in a <span class="spec-keyword">null</span> value).</p>
 <p>These two types are referred to as &ldquo;wrapping types&rdquo;; non-wrapping types are referred to as &ldquo;named types&rdquo;. A wrapping type has an underlying named type, found by continually unwrapping the type until a named type is found.</p>
 </section>
 <section id="sec-Input-and-Output-Types" secid="3.4.2">
@@ -2603,7 +2603,7 @@ The set of languages supported by `translate`.
 </section>
 <section id="sec-Scalars.Result-Coercion-and-Serialization" class="subsec">
 <h6><a href="#sec-Scalars.Result-Coercion-and-Serialization" title="link to this subsection">Result Coercion and Serialization</a></h6>
-<p>A GraphQL service, when preparing a field of a given scalar type, must uphold the contract the scalar type describes, either by coercing the value or producing a field error if a value cannot be coerced or if coercion may result in data loss.</p>
+<p>A GraphQL service, when preparing a field of a given scalar type, must uphold the contract the scalar type describes, either by coercing the value or producing a <a href="#sec-Errors.Field-errors">field error</a> if a value cannot be coerced or if coercion may result in data loss.</p>
 <p>A GraphQL service may decide to allow coercing different internal types to the expected return type. For example when coercing a field of type <span class="spec-nt"><span data-name="Int">Int</span></span> a boolean <span class="spec-keyword">true</span> value may produce <span class="spec-t">1</span> or a string value <span class="spec-string">"123"</span> may be parsed as base-10 <span class="spec-t">123</span>. However if internal type coercion cannot be reasonably performed without losing information, then it must raise a field error.</p>
 <p>Since this coercion behavior is not observable to clients of the GraphQL service, the precise rules of coercion are left to the implementation. The only requirement is that the service must yield values which adhere to the expected Scalar type.</p>
 <p>GraphQL scalars are serialized according to the serialization format being used. There may be a most appropriate serialized primitive for each given scalar type, and the service should produce each primitive where appropriate.</p>
@@ -2611,7 +2611,7 @@ The set of languages supported by `translate`.
 </section>
 <section id="sec-Scalars.Input-Coercion" class="subsec">
 <h6><a href="#sec-Scalars.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>If a GraphQL service expects a scalar type as input to an argument, coercion is observable and the rules must be well defined. If an input value does not match a coercion rule, a query error must be raised.</p>
+<p>If a GraphQL service expects a scalar type as input to an argument, coercion is observable and the rules must be well defined. If an input value does not match a coercion rule, a <a href="#sec-Errors.Request-errors">request error</a> must be raised (input values are validated before execution begins).</p>
 <p>GraphQL has different constant literals to represent integer and floating-point input values, and coercion rules may apply differently depending on which type of input value is encountered. GraphQL may be parameterized by query variables, the values of which are often serialized when sent over a transport like HTTP. Since some common serializations (ex. JSON) do not discriminate between integer and floating-point values, they are interpreted as an integer input value if they have an empty fractional part (ex. <code>1.0</code>) and otherwise as floating-point input value.</p>
 <p>For all types below, with the exception of Non-Null, if the explicit value <span class="spec-keyword">null</span> is provided, then the result of input coercion is <span class="spec-keyword">null</span>.</p>
 </section>
@@ -2626,7 +2626,7 @@ The set of languages supported by `translate`.
 </section>
 <section id="sec-Int.Input-Coercion" class="subsec">
 <h6><a href="#sec-Int.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, only integer input values are accepted. All other input values, including strings with numeric content, must raise a query error indicating an incorrect type. If the integer input value represents a value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a query error should be raised.</p>
+<p>When expected as an input type, only integer input values are accepted. All other input values, including strings with numeric content, must raise a request error indicating an incorrect type. If the integer input value represents a value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a request error should be raised.</p>
 <div id="note-0770a" class="spec-note">
 <a href="#note-0770a">Note</a>
 Numeric integer values larger than 32-bit should either use String or a custom-defined Scalar type, as not all platforms and transports support encoding integer numbers larger than 32-bit.</div>
@@ -2643,7 +2643,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 </section>
 <section id="sec-Float.Input-Coercion" class="subsec">
 <h6><a href="#sec-Float.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, both integer and float input values are accepted. Integer input values are coerced to Float by adding an empty fractional part, for example <code>1.0</code> for the integer input value <code>1</code>. All other input values, including strings with numeric content, must raise a query error indicating an incorrect type. If the input value otherwise represents a value not representable by finite IEEE 754 (e.g. <span class="spec-nt"><span data-name="NaN">NaN</span></span>, <span class="spec-nt"><span data-name="Infinity">Infinity</span></span>, or a value outside the available precision), a query error must be raised.</p>
+<p>When expected as an input type, both integer and float input values are accepted. Integer input values are coerced to Float by adding an empty fractional part, for example <code>1.0</code> for the integer input value <code>1</code>. All other input values, including strings with numeric content, must raise a request error indicating an incorrect type. If the input value otherwise represents a value not representable by finite IEEE 754 (e.g. <span class="spec-nt"><span data-name="NaN">NaN</span></span>, <span class="spec-nt"><span data-name="Infinity">Infinity</span></span>, or a value outside the available precision), a request error must be raised.</p>
 </section>
 </section>
 <section id="sec-String" secid="3.5.3">
@@ -2656,7 +2656,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 </section>
 <section id="sec-String.Input-Coercion" class="subsec">
 <h6><a href="#sec-String.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, only valid UTF-8 string input values are accepted. All other input values must raise a query error indicating an incorrect type.</p>
+<p>When expected as an input type, only valid UTF-8 string input values are accepted. All other input values must raise a request error indicating an incorrect type.</p>
 </section>
 </section>
 <section id="sec-Boolean" secid="3.5.4">
@@ -2669,7 +2669,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 </section>
 <section id="sec-Boolean.Input-Coercion" class="subsec">
 <h6><a href="#sec-Boolean.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, only boolean input values are accepted. All other input values must raise a query error indicating an incorrect type.</p>
+<p>When expected as an input type, only boolean input values are accepted. All other input values must raise a request error indicating an incorrect type.</p>
 </section>
 </section>
 <section id="sec-ID" secid="3.5.5">
@@ -2682,7 +2682,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 </section>
 <section id="sec-ID.Input-Coercion" class="subsec">
 <h6><a href="#sec-ID.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>When expected as an input type, any string (such as <code>"4"</code>) or integer (such as <code>4</code> or <code>-4</code>) input value should be coerced to ID as appropriate for the ID formats a given GraphQL service expects. Any other input value, including float input values (such as <code>4.0</code>), must raise a query error indicating an incorrect type.</p>
+<p>When expected as an input type, any string (such as <code>"4"</code>) or integer (such as <code>4</code> or <code>-4</code>) input value should be coerced to ID as appropriate for the ID formats a given GraphQL service expects. Any other input value, including float input values (such as <code>4.0</code>), must raise a request error indicating an incorrect type.</p>
 </section>
 </section>
 <section id="sec-Scalar-Extensions" secid="3.5.6">
@@ -3285,7 +3285,7 @@ interface Named implements Node &amp; Named {
 </section>
 <section id="sec-Enums.Input-Coercion" class="subsec">
 <h6><a href="#sec-Enums.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>GraphQL has a constant literal to represent enum input values. GraphQL string literals must not be accepted as an enum input and instead raise a query error.</p>
+<p>GraphQL has a constant literal to represent enum input values. GraphQL string literals must not be accepted as an enum input and instead raise a request error.</p>
 <p>Query variable transport serializations which have a different representation for non-string symbolic values (for example, <a href="https://github.com/edn-format/edn">EDN</a>) should only allow such values as enum input values. Otherwise, for most transport serializations that do not, strings may be interpreted as the enum input value with the same name.</p>
 </section>
 <section id="sec-Enums.Type-Validation" class="subsec">
@@ -3373,13 +3373,13 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 </section>
 <section id="sec-Input-Objects.Input-Coercion" class="subsec">
 <h6><a href="#sec-Input-Objects.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>The value for an input object should be an input object literal or an unordered map supplied by a variable, otherwise a query error must be thrown. In either case, the input object literal or unordered map must not contain any entries with names not defined by a field of this input object type, otherwise an error must be thrown.</p>
+<p>The value for an input object should be an input object literal or an unordered map supplied by a variable, otherwise a request error must be raised. In either case, the input object literal or unordered map must not contain any entries with names not defined by a field of this input object type, otherwise a response error must be raised.</p>
 <p>The result of coercion is an unordered map with an entry for each field both defined by the input object type and for which a value exists. The resulting map is constructed with the following rules:</p>
 <ul>
-<li>If no value is provided for a defined input object field and that field definition provides a default value, the default value should be used. If no default value is provided and the input object field&rsquo;s type is non-null, an error should be thrown. Otherwise, if the field is not required, then no entry is added to the coerced unordered map.</li>
+<li>If no value is provided for a defined input object field and that field definition provides a default value, the default value should be used. If no default value is provided and the input object field&rsquo;s type is non-null, an error should be raised. Otherwise, if the field is not required, then no entry is added to the coerced unordered map.</li>
 <li>If the value <span class="spec-keyword">null</span> was provided for an input object field, and the field&rsquo;s type is not a non-null type, an entry in the coerced unordered map is given the value <span class="spec-keyword">null</span>. In other words, there is a semantic difference between the explicitly provided value <span class="spec-keyword">null</span> versus having not provided a value.</li>
 <li>If a literal value is provided for an input object field, an entry in the coerced unordered map is given the result of coercing that value according to the input coercion rules for the type of that field.</li>
-<li>If a variable is provided for an input object field, the runtime value of that variable must be used. If the runtime value is <span class="spec-keyword">null</span> and the field type is non-null, a field error must be thrown. If no runtime value is provided, the variable definition&rsquo;s default value should be used. If the variable definition does not provide a default value, the input object field definition&rsquo;s default value should be used.</li>
+<li>If a variable is provided for an input object field, the runtime value of that variable must be used. If the runtime value is <span class="spec-keyword">null</span> and the field type is non-null, a field error must be raised. If no runtime value is provided, the variable definition&rsquo;s default value should be used. If the variable definition does not provide a default value, the input object field definition&rsquo;s default value should be used.</li>
 </ul>
 <p>Following are examples of input coercion for an input object type with a <code>String</code> field <code>a</code> and a required (non-null) <code>Int!</code> field <code>b</code>:</p>
 <pre id="example-704b8" class="spec-example" data-language="graphql"><a href="#example-704b8">Example № 84</a><code><span class="token keyword">input</span> ExampleInputObject <span class="token punctuation">{</span>
@@ -3468,10 +3468,10 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <section id="sec-Type-System.List.Result-Coercion" class="subsec">
 <h6><a href="#sec-Type-System.List.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p>GraphQL services must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise a field error. In particular, if a non-list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
-<p>If a list&rsquo;s item type is nullable, then errors occurring during preparation or coercion of an individual item in the list must result in a the value <span class="spec-keyword">null</span> at that position in the list along with an error added to the response. If a list&rsquo;s item type is non-null, an error occurring at an individual item in the list must result in a field error for the entire list.</p>
-<div id="note-b21b6" class="spec-note">
-<a href="#note-b21b6">Note</a>
-For more information on the error handling process, see &ldquo;Errors and Non-Nullability&rdquo; within the Execution section.</div>
+<p>If a list&rsquo;s item type is nullable, then errors occurring during preparation or coercion of an individual item in the list must result in a the value <span class="spec-keyword">null</span> at that position in the list along with a field error added to the response. If a list&rsquo;s item type is non-null, a field error occurring at an individual item in the list must result in a field error for the entire list.</p>
+<div id="note-6f554" class="spec-note">
+<a href="#note-6f554">Note</a>
+See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more about this behavior.</div>
 </section>
 <section id="sec-Type-System.List.Input-Coercion" class="subsec">
 <h6><a href="#sec-Type-System.List.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
@@ -3523,7 +3523,7 @@ When a field error is raised on a non-null value, the error propagates to the pa
 </section>
 <section id="sec-Type-System.Non-Null.Input-Coercion" class="subsec">
 <h6><a href="#sec-Type-System.Non-Null.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p>If an argument or input-object field of a Non-Null type is not provided, is provided with the literal value <span class="spec-keyword">null</span>, or is provided with a variable that was either not provided a value at runtime, or was provided the value <span class="spec-keyword">null</span>, then a query error must be raised.</p>
+<p>If an argument or input-object field of a Non-Null type is not provided, is provided with the literal value <span class="spec-keyword">null</span>, or is provided with a variable that was either not provided a value at runtime, or was provided the value <span class="spec-keyword">null</span>, then a request error must be raised.</p>
 <p>If the value provided to the Non-Null type is provided with a literal value other than <span class="spec-keyword">null</span>, or a Non-Null variable value, it is coerced using the input coercion for the wrapped type.</p>
 <p>A non-null argument cannot be omitted:</p>
 <pre id="example-32bbf" class="spec-counter-example" data-language="graphql"><a href="#example-32bbf">Counter Example № 85</a><code><span class="token punctuation">{</span>
@@ -5775,9 +5775,9 @@ While each subscription must have exactly one root field, a document may contain
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-e4471" class="spec-note">
-<a href="#note-e4471">Note</a>
-The value <span class="spec-keyword">null</span> could still be provided to such a variable at runtime. A non-null argument must produce a field error if provided a <span class="spec-keyword">null</span> value. </div>
+<div id="note-f0f28" class="spec-note">
+<a href="#note-f0f28">Note</a>
+The value <span class="spec-keyword">null</span> could still be provided to such a variable at runtime. A non-null argument must raise a field error if provided a <span class="spec-keyword">null</span> value. </div>
 </section>
 </section>
 </section>
@@ -5822,12 +5822,12 @@ The value <span class="spec-keyword">null</span> could still be provided to such
 <li>Return the Operation contained in the <var data-name="document">document</var>.</li>
 </ol>
 </li>
-<li>Otherwise produce a query error requiring <var data-name="operationName">operationName</var>.</li>
+<li>Otherwise raise a request error requiring <var data-name="operationName">operationName</var>.</li>
 </ol>
 </li>
 <li>Otherwise:<ol>
 <li>Let <var data-name="operation">operation</var> be the Operation named <var data-name="operationName">operationName</var> in <var data-name="document">document</var>.</li>
-<li>If <var data-name="operation">operation</var> was not found, produce a query error.</li>
+<li>If <var data-name="operation">operation</var> was not found, raise a request error.</li>
 <li>Return <var data-name="operation">operation</var>.</li>
 </ol>
 </li>
@@ -5841,7 +5841,7 @@ The value <span class="spec-keyword">null</span> could still be provided to such
 </section>
 <section id="sec-Coercing-Variable-Values" secid="6.1.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Coercing-Variable-Values">6.1.2</a></span>Coercing Variable Values</h3>
-<p>If the operation has defined any variables, then the values for those variables need to be coerced using the input coercion rules of variable&rsquo;s declared type. If a query error is encountered during input coercion of variable values, then the operation fails without execution.</p>
+<p>If the operation has defined any variables, then the values for those variables need to be coerced using the input coercion rules of variable&rsquo;s declared type. If a request error is encountered during input coercion of variable values, then the operation fails without execution.</p>
 <div class="spec-algo" id="CoerceVariableValues()">
 <span class="spec-call"><a href="#CoerceVariableValues()" data-name="CoerceVariableValues">CoerceVariableValues</a>(<var data-name="schema">schema</var>, <var data-name="operation">operation</var>, <var data-name="variableValues">variableValues</var>)</span><ol>
 <li>Let <var data-name="coercedValues">coercedValues</var> be an empty unordered Map.</li>
@@ -5857,14 +5857,14 @@ The value <span class="spec-keyword">null</span> could still be provided to such
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="variableName">variableName</var> with the value <var data-name="defaultValue">defaultValue</var>.</li>
 </ol>
 </li>
-<li>Otherwise if <var data-name="variableType">variableType</var> is a Non-Nullable type, and either <var data-name="hasValue">hasValue</var> is not <span class="spec-keyword">true</span> or <var data-name="value">value</var> is <span class="spec-keyword">null</span>, throw a query error.</li>
+<li>Otherwise if <var data-name="variableType">variableType</var> is a Non-Nullable type, and either <var data-name="hasValue">hasValue</var> is not <span class="spec-keyword">true</span> or <var data-name="value">value</var> is <span class="spec-keyword">null</span>, raise a request error.</li>
 <li>Otherwise if <var data-name="hasValue">hasValue</var> is true:<ol>
 <li>If <var data-name="value">value</var> is <span class="spec-keyword">null</span>:<ol>
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="variableName">variableName</var> with the value <span class="spec-keyword">null</span>.</li>
 </ol>
 </li>
 <li>Otherwise:<ol>
-<li>If <var data-name="value">value</var> cannot be coerced according to the input coercion rules of <var data-name="variableType">variableType</var>, throw a query error.</li>
+<li>If <var data-name="value">value</var> cannot be coerced according to the input coercion rules of <var data-name="variableType">variableType</var>, raise a request error.</li>
 <li>Let <var data-name="coercedValue">coercedValue</var> be the result of coercing <var data-name="value">value</var> according to the input coercion rules of <var data-name="variableType">variableType</var>.</li>
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="variableName">variableName</var> with the value <var data-name="coercedValue">coercedValue</var>.</li>
 </ol>
@@ -5969,7 +5969,7 @@ In large scale subscription systems, the <span class="spec-call"><a href="#Subsc
 <li>Assert: <var data-name="subscriptionType">subscriptionType</var> is an Object type.</li>
 <li>Let <var data-name="selectionSet">selectionSet</var> be the top level Selection Set in <var data-name="subscription">subscription</var>.</li>
 <li>Let <var data-name="groupedFieldSet">groupedFieldSet</var> be the result of <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>(<var data-name="subscriptionType">subscriptionType</var>, <var data-name="selectionSet">selectionSet</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
-<li>If <var data-name="groupedFieldSet">groupedFieldSet</var> does not have exactly one entry, throw a query error.</li>
+<li>If <var data-name="groupedFieldSet">groupedFieldSet</var> does not have exactly one entry, raise a request error.</li>
 <li>Let <var data-name="fields">fields</var> be the value of the first entry in <var data-name="groupedFieldSet">groupedFieldSet</var>.</li>
 <li>Let <var data-name="fieldName">fieldName</var> be the name of the first entry in <var data-name="fields">fields</var>. Note: This value is unaffected if an alias is used.</li>
 <li>Let <var data-name="field">field</var> be the first entry in <var data-name="fields">fields</var>.</li>
@@ -6053,9 +6053,11 @@ The <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="Exe
 <var data-name="resultMap">resultMap</var> is ordered by which fields appear first in the query. This is explained in greater detail in the Field Collection section below.</div>
 <section id="sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields" class="subsec">
 <h6><a href="#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields" title="link to this subsection">Errors and Non-Null Fields</a></h6>
-<p>If during <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>()</span> a field with a non-null <var data-name="fieldType">fieldType</var> throws a field error then that error must propagate to this entire selection set, either resolving to <span class="spec-keyword">null</span> if allowed or further propagated to a parent field.</p>
+<p>If during <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>()</span> a field with a non-null <var data-name="fieldType">fieldType</var> raises a field error then that error must propagate to this entire selection set, either resolving to <span class="spec-keyword">null</span> if allowed or further propagated to a parent field.</p>
 <p>If this occurs, any sibling fields which have not yet executed or have not yet yielded a value may be cancelled to avoid unnecessary work.</p>
-<p>See the <a href="#sec-Errors-and-Non-Nullability">Errors and Non-Nullability</a> section of Field Execution for more about this behavior.</p>
+<div id="note-4dd38" class="spec-note">
+<a href="#note-4dd38">Note</a>
+See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more about this behavior.</div>
 </section>
 <section id="sec-Normal-and-Serial-Execution" secid="6.3.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Normal-and-Serial-Execution">6.3.1</a></span>Normal and Serial Execution</h3>
@@ -6258,7 +6260,7 @@ The steps in <span class="spec-call"><a href="#CollectFields()" data-name="Colle
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="argumentName">argumentName</var> with the value <var data-name="defaultValue">defaultValue</var>.</li>
 </ol>
 </li>
-<li>Otherwise if <var data-name="argumentType">argumentType</var> is a Non-Nullable type, and either <var data-name="hasValue">hasValue</var> is not <span class="spec-keyword">true</span> or <var data-name="value">value</var> is <span class="spec-keyword">null</span>, throw a field error.</li>
+<li>Otherwise if <var data-name="argumentType">argumentType</var> is a Non-Nullable type, and either <var data-name="hasValue">hasValue</var> is not <span class="spec-keyword">true</span> or <var data-name="value">value</var> is <span class="spec-keyword">null</span>, raise a field error.</li>
 <li>Otherwise if <var data-name="hasValue">hasValue</var> is true:<ol>
 <li>If <var data-name="value">value</var> is <span class="spec-keyword">null</span>:<ol>
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="argumentName">argumentName</var> with the value <span class="spec-keyword">null</span>.</li>
@@ -6269,7 +6271,7 @@ The steps in <span class="spec-call"><a href="#CollectFields()" data-name="Colle
 </ol>
 </li>
 <li>Otherwise:<ol>
-<li>If <var data-name="value">value</var> cannot be coerced according to the input coercion rules of <var data-name="argumentType">argumentType</var>, throw a field error.</li>
+<li>If <var data-name="value">value</var> cannot be coerced according to the input coercion rules of <var data-name="argumentType">argumentType</var>, raise a field error.</li>
 <li>Let <var data-name="coercedValue">coercedValue</var> be the result of coercing <var data-name="value">value</var> according to the input coercion rules of <var data-name="argumentType">argumentType</var>.</li>
 <li>Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="argumentName">argumentName</var> with the value <var data-name="coercedValue">coercedValue</var>.</li>
 </ol>
@@ -6307,13 +6309,13 @@ It is common for <var data-name="resolver">resolver</var> to be asynchronous due
 <li>If the <var data-name="fieldType">fieldType</var> is a Non-Null type:<ol>
 <li>Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
 <li>Let <var data-name="completedResult">completedResult</var> be the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
-<li>If <var data-name="completedResult">completedResult</var> is <span class="spec-keyword">null</span>, throw a field error.</li>
+<li>If <var data-name="completedResult">completedResult</var> is <span class="spec-keyword">null</span>, raise a field error.</li>
 <li>Return <var data-name="completedResult">completedResult</var>.</li>
 </ol>
 </li>
 <li>If <var data-name="result">result</var> is <span class="spec-keyword">null</span> (or another internal value similar to <span class="spec-keyword">null</span> such as <span class="spec-keyword">undefined</span>), return <span class="spec-keyword">null</span>.</li>
 <li>If <var data-name="fieldType">fieldType</var> is a List type:<ol>
-<li>If <var data-name="result">result</var> is not a collection of values, throw a field error.</li>
+<li>If <var data-name="result">result</var> is not a collection of values, raise a field error.</li>
 <li>Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
 <li>Return a list where each list item is the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="resultItem">resultItem</var>, <var data-name="variableValues">variableValues</var>)</span>, where <var data-name="resultItem">resultItem</var> is each item in <var data-name="result">result</var>.</li>
 </ol>
@@ -6377,11 +6379,15 @@ A common method of determining the Object type for an <var data-name="objectValu
 </div>
 </section>
 </section>
-<section id="sec-Errors-and-Non-Nullability" secid="6.4.4">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Errors-and-Non-Nullability">6.4.4</a></span>Errors and Non-Nullability</h3>
-<p>If an error is thrown while resolving a field, it should be treated as though the field returned <span class="spec-keyword">null</span>, and an error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p>If the result of resolving a field is <span class="spec-keyword">null</span> (either because the function to resolve the field returned <span class="spec-keyword">null</span> or because an error occurred), and that field is of a <code>Non-Null</code> type, then a field error is thrown. The error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p>If the field returns <span class="spec-keyword">null</span> because of an error which has already been added to the <span class="spec-string">"errors"</span> list in the response, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per field.</p>
+<section id="sec-Handling-Field-Errors" secid="6.4.4">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Handling-Field-Errors">6.4.4</a></span>Handling Field Errors</h3>
+<p><a href="#sec-Errors.Field-errors">&ldquo;Field errors&rdquo;</a> are raised from a particular field during value resolution or coercion. While these errors should be reported in the response, they are &ldquo;handled&rdquo; by producing a partial response.</p>
+<div id="note-c78be" class="spec-note">
+<a href="#note-c78be">Note</a>
+This is distinct from <a href="#sec-Errors.Request-errors">&ldquo;request errors&rdquo;</a> which are raised before execution begins. If a request error is encountered, execution does not begin and no data is returned in the response.</div>
+<p>If a field error is raised while resolving a field, it is handled as though the field returned <span class="spec-keyword">null</span>, and the error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
+<p>If the result of resolving a field is <span class="spec-keyword">null</span> (either because the function to resolve the field returned <span class="spec-keyword">null</span> or because a field error was raised), and that field is of a <code>Non-Null</code> type, then a field error is raised. The error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
+<p>If the field returns <span class="spec-keyword">null</span> because of a field error which has already been added to the <span class="spec-string">"errors"</span> list in the response, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per field.</p>
 <p>Since <code>Non-Null</code> type fields cannot be <span class="spec-keyword">null</span>, field errors are propagated to be handled by the parent field. If the parent field may be <span class="spec-keyword">null</span> then it resolves to <span class="spec-keyword">null</span>, otherwise if it is a <code>Non-Null</code> type, the field error is further propagated to it&rsquo;s parent field.</p>
 <p>If a <code>List</code> type wraps a <code>Non-Null</code> type, and one of the elements of that list resolves to <span class="spec-keyword">null</span>, then the entire list must resolve to <span class="spec-keyword">null</span>. If the <code>List</code> type is also wrapped in a <code>Non-Null</code>, the field error continues to propagate upwards.</p>
 <p>If all fields from the root of the request to the source of the field error return <code>Non-Null</code> types, then the <span class="spec-string">"data"</span> entry in the response should be <span class="spec-keyword">null</span>. </p>
@@ -6390,13 +6396,13 @@ A common method of determining the Object type for an <var data-name="objectValu
 </section>
 <section id="sec-Response" secid="7">
 <h1><span class="spec-secid" title="link to this section"><a href="#sec-Response">7</a></span>Response</h1>
-<p>When a GraphQL service receives a request, it must return a well-formed response. The service&rsquo;s response describes the result of executing the requested operation if successful, and describes any errors encountered during the request.</p>
-<p>A response may contain both a partial response as well as encountered errors in the case that a field error occurred on a field which was replaced with <span class="spec-keyword">null</span>.</p>
+<p>When a GraphQL service receives a request, it must return a well-formed response. The service&rsquo;s response describes the result of executing the requested operation if successful, and describes any errors raised during the request.</p>
+<p>A response may contain both a partial response as well as any field errors in the case that a field error was raised on a field and was replaced with <span class="spec-keyword">null</span>.</p>
 <section id="sec-Response-Format" secid="7.1">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format">7.1</a></span>Response Format</h2>
-<p>A response to a GraphQL operation must be a map.</p>
-<p>If the operation encountered any errors, the response map must contain an entry with key <code>errors</code>. The value of this entry is described in the &ldquo;Errors&rdquo; section. If the operation completed without encountering any errors, this entry must not be present.</p>
-<p>If the operation included execution, the response map must contain an entry with key <code>data</code>. The value of this entry is described in the &ldquo;Data&rdquo; section. If the operation failed before execution, due to a syntax error, missing information, or validation error, this entry must not be present.</p>
+<p>A response to a GraphQL request must be a map.</p>
+<p>If the request raised any errors, the response map must contain an entry with key <code>errors</code>. The value of this entry is described in the &ldquo;Errors&rdquo; section. If the request completed without raising any errors, this entry must not be present.</p>
+<p>If the request included execution, the response map must contain an entry with key <code>data</code>. The value of this entry is described in the &ldquo;Data&rdquo; section. If the request failed before execution, due to a syntax error, missing information, or validation error, this entry must not be present.</p>
 <p>The response map may also contain an entry with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
 <p>To ensure future changes to the protocol do not break existing services and clients, the top level response map must not contain any entries other than the three described above.</p>
 <div id="note-6f005" class="spec-note">
@@ -6405,15 +6411,27 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <section id="sec-Data" secid="7.1.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Data">7.1.1</a></span>Data</h3>
 <p>The <code>data</code> entry in the response will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the schema&rsquo;s query root type; if the operation was a mutation, this output will be an object of the schema&rsquo;s mutation root type.</p>
-<p>If an error was encountered before execution begins, the <code>data</code> entry should not be present in the result.</p>
-<p>If an error was encountered during the execution that prevented a valid response, the <code>data</code> entry in the response should be <code>null</code>.</p>
+<p>If an error was raised before execution begins, the <code>data</code> entry should not be present in the result.</p>
+<p>If an error was raised during the execution that prevented a valid response, the <code>data</code> entry in the response should be <code>null</code>.</p>
 </section>
 <section id="sec-Errors" secid="7.1.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.2</a></span>Errors</h3>
 <p>The <code>errors</code> entry in the response is a non-empty list of errors, where each error is a map.</p>
-<p>If no errors were encountered during the requested operation, the <code>errors</code> entry should not be present in the result.</p>
+<p>If no errors were raised during the request, the <code>errors</code> entry should not be present in the result.</p>
 <p>If the <code>data</code> entry in the response is not present, the <code>errors</code> entry in the response must not be empty. It must contain at least one error. The errors it contains should indicate why no data was able to be returned.</p>
-<p>If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry in the response may contain any errors that occurred during execution. If errors occurred during execution, it should contain those errors.</p>
+<p>If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry in the response may contain any field errors that were raised during execution. If field errors were raised during execution, it should contain those errors.</p>
+<section id="sec-Errors.Request-errors" class="subsec">
+<h6><a href="#sec-Errors.Request-errors" title="link to this subsection">Request errors</a></h6>
+<p>Request errors are raised before execution begins. This may occur due to a parse grammar or validation error in the requested document, an inability to determine which operation to execute, or invalid input values for variables.</p>
+<p>Request errors are typically the fault of the requesting client.</p>
+<p>If a request error is raised, execution does not begin and the <code>data</code> entry in the response must not be present. The <code>errors</code> entry must include the error.</p>
+</section>
+<section id="sec-Errors.Field-errors" class="subsec">
+<h6><a href="#sec-Errors.Field-errors" title="link to this subsection">Field errors</a></h6>
+<p>Field errors are raised during execution from a particular field. This may occur due to an internal error during value resolution or failure to coerce the resulting value.</p>
+<p>Field errors are typically the fault of GraphQL service.</p>
+<p>If a field error is raised, execution attempts to continue and a partial result is produced (see <a href="#sec-Handling-Field-Errors">Handling Field Errors</a>). The <code>data</code> entry in the response must be present. The <code>errors</code> entry should include all raised field errors.</p>
+</section>
 <section id="sec-Errors.Error-result-format" class="subsec">
 <h6><a href="#sec-Errors.Error-result-format" title="link to this subsection">Error result format</a></h6>
 <p>Every error must contain an entry with the key <code>message</code> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
@@ -6461,7 +6479,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p>If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error occurred, even if that field is not present in the response.</p>
+<p>If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
 <p>For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
 <pre id="example-c18ef" class="spec-example" data-language="json"><a href="#example-c18ef">Example № 197</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
@@ -7499,7 +7517,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_6.4.1"><a href="#sec-Coercing-Field-Arguments"><span class="spec-secid">6.4.1</span>Coercing Field Arguments</a></li>
 <li id="_sidebar_6.4.2"><a href="#sec-Value-Resolution"><span class="spec-secid">6.4.2</span>Value Resolution</a></li>
 <li id="_sidebar_6.4.3"><a href="#sec-Value-Completion"><span class="spec-secid">6.4.3</span>Value Completion</a></li>
-<li id="_sidebar_6.4.4"><a href="#sec-Errors-and-Non-Nullability"><span class="spec-secid">6.4.4</span>Errors and Non-Nullability</a></li>
+<li id="_sidebar_6.4.4"><a href="#sec-Handling-Field-Errors"><span class="spec-secid">6.4.4</span>Handling Field Errors</a></li>
 </ol>
 </li>
 </ol>
