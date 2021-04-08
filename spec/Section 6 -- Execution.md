@@ -656,8 +656,7 @@ CompleteValue(fieldType, fields, result, variableValues):
       {CompleteValue(innerType, fields, resultItem, variableValues)}, where
       {resultItem} is each item in {result}.
   * If {fieldType} is a Scalar or Enum type:
-    * Return the result of "coercing" {result}, ensuring it is a legal value of
-      {fieldType}, otherwise {null}.
+    * Return the result of {CoerceResult(fieldType, result)}.
   * If {fieldType} is an Object, Interface, or Union type:
     * If {fieldType} is an Object type.
       * Let {objectType} be {fieldType}.
@@ -665,6 +664,28 @@ CompleteValue(fieldType, fields, result, variableValues):
       * Let {objectType} be {ResolveAbstractType(fieldType, result)}.
     * Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
     * Return the result of evaluating {ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues)} *normally* (allowing for parallelization).
+
+**Coercing Results**
+
+The primary purpose of value completion is to ensure that the values returned by
+field resolvers are valid according to the GraphQL type system and a service's
+schema. This "dynamic type checking" allows GraphQL to provide consistent
+guarantees about returned types atop any service's internal runtime.
+
+See the Scalars [Result Coercion and Serialization](#sec-Scalars.Result-Coercion-and-Serialization)
+sub-section for more detailed information about how GraphQL's built-in scalars
+coerce result values.
+
+CoerceResult(leafType, value):
+  * Assert {value} is not {null}.
+  * Return the result of calling the internal method provided by the type
+    system for determining the "result coercion" of {leafType} given the value
+    {value}. This internal method must return a valid value for the
+    type and not {null}. Otherwise throw a field error.
+
+Note: If a field resolver returns {null} then it is handled within
+{CompleteValue()} before {CoerceResult()} is called. Therefore both the input
+and output of {CoerceResult()} must not be {null}.
 
 **Resolving Abstract Types**
 
