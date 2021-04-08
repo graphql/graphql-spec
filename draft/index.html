@@ -6129,7 +6129,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 </section>
 <section id="sec-Field-Collection" secid="6.3.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Field-Collection">6.3.2</a></span>Field Collection</h3>
-<p>Before execution, the selection set is converted to a grouped field set by calling <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span>. Each entry in the grouped field set is a list of fields that share a response key (the alias if defined, otherwise the field name). This ensures all fields with the same response key included via referenced fragments are executed at the same time.</p>
+<p>Before execution, the selection set is converted to a grouped field set by calling <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span>. Each entry in the grouped field set is a list of fields that share a response key (the alias if defined, otherwise the field name). This ensures all fields with the same response key (including those in referenced fragments) are executed at the same time.</p>
 <p>As an example, collecting the fields of this selection set would collect two instances of the field <code>a</code> and one of field <code>b</code>:</p>
 <pre id="example-fdbb7" class="spec-example" data-language="graphql"><a href="#example-fdbb7">Example № 193</a><code><span class="token punctuation">{</span>
   a <span class="token punctuation">{</span>
