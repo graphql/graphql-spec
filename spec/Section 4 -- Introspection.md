@@ -217,13 +217,13 @@ enum __DirectiveLocation {
 
 ### The __Type Type
 
-`__Type` is at the core of the type introspection system.
-It represents scalars, interfaces, object types, unions, enums, input objects types in the system.
+`__Type` is at the core of the type introspection system, it represents all
+types in the system: both named types (e.g. Scalars and Object types) and 
+type modifiers (e.g. List and Non-Null types). 
 
-`__Type` also represents type modifiers, which are used to modify a type
-that it refers to (`ofType: __Type`). This is how we represent lists,
-non-nullable types, and the combinations thereof.
-
+Type modifiers are used to modify the type presented in the field `ofType`. 
+This modified type may recursively be a modified type, representing lists, 
+non-nullables, and combinations thereof, ultimately modifying a named type.
 
 ### Type Kinds
 
@@ -346,6 +346,9 @@ Lists represent sequences of values in GraphQL. A List type is a type modifier:
 it wraps another type instance in the `ofType` field, which defines the type of
 each item in the list.
 
+The modified type in the `ofType` field may itself be a modified type, allowing
+the representation of Lists of Lists, or Lists of Non-Nulls.
+
 Fields
 
 * `kind` must return `__TypeKind.LIST`.
@@ -357,12 +360,16 @@ Fields
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
-A Non-null type is a type modifier: it wraps another type instance in the
+A Non-Null type is a type modifier: it wraps another type instance in the
 `ofType` field. Non-null types do not allow {null} as a response, and indicate
 required inputs for arguments and input object fields.
 
+The modified type in the `ofType` field may itself be a modified List type, 
+allowing the representation of Non-Null of Lists. However it must not be a 
+modified Non-Null type to avoid a redundant Non-Null of Non-Null.
+
 * `kind` must return `__TypeKind.NON_NULL`.
-* `ofType`: Any type except Non-null.
+* `ofType`: Any type except Non-Null.
 * All other fields must return {null}.
 
 
