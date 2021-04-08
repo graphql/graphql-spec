@@ -345,6 +345,9 @@ Lists represent sequences of values in GraphQL. A List type is a type modifier:
 it wraps another type instance in the `ofType` field, which defines the type of
 each item in the list.
 
+The modified type in the `ofType` field may itself be a modified type, allowing
+the representation of Lists of Lists, or Lists of Non-Nulls.
+
 Fields
 
 * `kind` must return `__TypeKind.LIST`.
@@ -356,12 +359,16 @@ Fields
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
-A Non-null type is a type modifier: it wraps another type instance in the
+A Non-Null type is a type modifier: it wraps another type instance in the
 `ofType` field. Non-null types do not allow {null} as a response, and indicate
 required inputs for arguments and input object fields.
 
+The modified type in the `ofType` field may itself be a modified List type, 
+allowing the representation of Non-Null of Lists. However it must not be a 
+modified Non-Null type to avoid a redundant Non-Null of Non-Null.
+
 * `kind` must return `__TypeKind.NON_NULL`.
-* `ofType`: Any type except Non-null.
+* `ofType`: Any type except Non-Null.
 * All other fields must return {null}.
 
 
