@@ -222,11 +222,15 @@ type Query {
 
 SchemaExtension :
   - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
-  - extend schema Directives[Const]
+  - extend schema Directives[Const] [lookahead != `{`]
 
 Schema extensions are used to represent a schema which has been extended from
 an original schema. For example, this might be used by a GraphQL service which
 adds additional operation types, or additional directives to an existing schema.
+
+Note: Schema extensions without additional operation type definitions must not
+be followed by a {`{`} (such as a query shorthand) to avoid parsing ambiguity.
+This same limitation applies to the type definitions and extensions below.
 
 **Schema Validation**
 
@@ -574,7 +578,9 @@ Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 ## Objects
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+ObjectTypeDefinition :
+  - Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? type Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 ImplementsInterfaces :
   - ImplementsInterfaces & NamedType
@@ -949,8 +955,8 @@ type ExampleType {
 
 ObjectTypeExtension :
   - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
-  - extend type Name ImplementsInterfaces? Directives[Const]
-  - extend type Name ImplementsInterfaces
+  - extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend type Name ImplementsInterfaces [lookahead != `{`]
 
 Object type extensions are used to represent a type which has been extended from
 some original type. For example, this might be used to represent local data, or
@@ -992,7 +998,9 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 ## Interfaces
 
-InterfaceTypeDefinition : Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition :
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
@@ -1182,8 +1190,8 @@ Interface types have the potential to be invalid if incorrectly defined.
 
 InterfaceTypeExtension :
   - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
-  - extend interface Name ImplementsInterfaces? Directives[Const]
-  - extend interface Name ImplementsInterfaces
+  - extend interface Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend interface Name ImplementsInterfaces [lookahead != `{`]
 
 Interface type extensions are used to represent an interface which has been
 extended from some original interface. For example, this might be used to
@@ -1361,7 +1369,9 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 
 ## Enums
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
+EnumTypeDefinition :
+  - Description? enum Name Directives[Const]? EnumValuesDefinition
+  - Description? enum Name Directives[Const]? [lookahead != `{`]
 
 EnumValuesDefinition : { EnumValueDefinition+ }
 
@@ -1411,7 +1421,7 @@ Enum types have the potential to be invalid if incorrectly defined.
 
 EnumTypeExtension :
   - extend enum Name Directives[Const]? EnumValuesDefinition
-  - extend enum Name Directives[Const]
+  - extend enum Name Directives[Const] [lookahead != `{`]
 
 Enum type extensions are used to represent an enum type which has been
 extended from some original enum type. For example, this might be used to
@@ -1432,7 +1442,9 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 
 ## Input Objects
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
+InputObjectTypeDefinition :
+  - Description? input Name Directives[Const]? InputFieldsDefinition
+  - Description? input Name Directives[Const]? [lookahead != `{`]
 
 InputFieldsDefinition : { InputValueDefinition+ }
 
@@ -1599,7 +1611,7 @@ Literal Value            | Variables               | Coerced Value
 
 InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
-  - extend input Name Directives[Const]
+  - extend input Name Directives[Const] [lookahead != `{`]
 
 Input object type extensions are used to represent an input object type which
 has been extended from some original input object type. For example, this might

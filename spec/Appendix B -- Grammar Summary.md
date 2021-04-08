@@ -222,7 +222,7 @@ SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDef
 
 SchemaExtension :
   - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
-  - extend schema Directives[Const]
+  - extend schema Directives[Const] [lookahead != `{`]
 
 RootOperationTypeDefinition : OperationType : NamedType
 
@@ -249,12 +249,14 @@ ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 ScalarTypeExtension :
   - extend scalar Name Directives[Const]
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+ObjectTypeDefinition :
+  - Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? type Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 ObjectTypeExtension :
   - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
-  - extend type Name ImplementsInterfaces? Directives[Const]
-  - extend type Name ImplementsInterfaces
+  - extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend type Name ImplementsInterfaces [lookahead != `{`]
 
 ImplementsInterfaces :
   - ImplementsInterfaces & NamedType
@@ -268,12 +270,14 @@ ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition :
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 InterfaceTypeExtension :
   - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
-  - extend interface Name ImplementsInterfaces? Directives[Const]
-  - extend interface Name ImplementsInterfaces
+  - extend interface Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend interface Name ImplementsInterfaces [lookahead != `{`]
 
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
@@ -285,7 +289,9 @@ UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
+EnumTypeDefinition :
+  - Description? enum Name Directives[Const]? EnumValuesDefinition
+  - Description? enum Name Directives[Const]? [lookahead != `{`]
 
 EnumValuesDefinition : { EnumValueDefinition+ }
 
@@ -293,15 +299,17 @@ EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 EnumTypeExtension :
   - extend enum Name Directives[Const]? EnumValuesDefinition
-  - extend enum Name Directives[Const]
+  - extend enum Name Directives[Const] [lookahead != `{`]
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
+InputObjectTypeDefinition :
+  - Description? input Name Directives[Const]? InputFieldsDefinition
+  - Description? input Name Directives[Const]? [lookahead != `{`]
 
 InputFieldsDefinition : { InputValueDefinition+ }
 
 InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
-  - extend input Name Directives[Const]
+  - extend input Name Directives[Const] [lookahead != `{`]
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
