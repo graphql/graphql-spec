@@ -3937,8 +3937,8 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </code></pre>
 <section id="sec-The-__Type-Type" secid="4.5.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-The-__Type-Type">4.5.1</a></span>The __Type Type</h3>
-<p><code>__Type</code> is at the core of the type introspection system. It represents scalars, interfaces, object types, unions, enums, input objects types in the system.</p>
-<p><code>__Type</code> also represents type modifiers, which are used to modify a type that it refers to (<code>ofType: __Type</code>). This is how we represent lists, non-nullable types, and the combinations thereof.</p>
+<p><code>__Type</code> is at the core of the type introspection system, it represents all types in the system: both named types (e.g. Scalars and Object types) and type modifiers (e.g. List and Non-Null types). </p>
+<p>Type modifiers are used to modify the type presented in the field <code>ofType</code>. This modified type may recursively be a modified type, representing lists, non-nullables, and combinations thereof, ultimately modifying a named type.</p>
 </section>
 <section id="sec-Type-Kinds" secid="4.5.2">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Type-Kinds">4.5.2</a></span>Type Kinds</h3>
@@ -4036,6 +4036,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Type-Kinds.List" secid="4.5.2.7">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Type-Kinds.List">4.5.2.7</a></span>List</h4>
 <p>Lists represent sequences of values in GraphQL. A List type is a type modifier: it wraps another type instance in the <code>ofType</code> field, which defines the type of each item in the list.</p>
+<p>The modified type in the <code>ofType</code> field may itself be a modified type, allowing the representation of Lists of Lists, or Lists of Non-Nulls.</p>
 <p>Fields</p>
 <ul>
 <li><code>kind</code> must return <code>__TypeKind.LIST</code>.</li>
@@ -4046,10 +4047,11 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Type-Kinds.Non-Null" secid="4.5.2.8">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Type-Kinds.Non-Null">4.5.2.8</a></span>Non-Null</h4>
 <p>GraphQL types are nullable. The value <span class="spec-keyword">null</span> is a valid response for field type.</p>
-<p>A Non-null type is a type modifier: it wraps another type instance in the <code>ofType</code> field. Non-null types do not allow <span class="spec-keyword">null</span> as a response, and indicate required inputs for arguments and input object fields.</p>
+<p>A Non-Null type is a type modifier: it wraps another type instance in the <code>ofType</code> field. Non-null types do not allow <span class="spec-keyword">null</span> as a response, and indicate required inputs for arguments and input object fields.</p>
+<p>The modified type in the <code>ofType</code> field may itself be a modified List type, allowing the representation of Non-Null of Lists. However it must not be a modified Non-Null type to avoid a redundant Non-Null of Non-Null.</p>
 <ul>
 <li><code>kind</code> must return <code>__TypeKind.NON_NULL</code>.</li>
-<li><code>ofType</code>: Any type except Non-null.</li>
+<li><code>ofType</code>: Any type except Non-Null.</li>
 <li>All other fields must return <span class="spec-keyword">null</span>.</li>
 </ul>
 </section>
