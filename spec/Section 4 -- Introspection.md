@@ -89,14 +89,17 @@ warnings.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection at any point within a query by the
-meta-field `__typename: String!` when querying against any Object, Interface,
-or Union. It returns the name of the object type currently being queried.
+GraphQL supports type name introspection at any selection set within an
+operation with the meta-field `__typename: String!` on any Object,
+Interface, or Union; with the single exception of the subscription root
+operation type. It returns the name of the concrete Object type at that point
+during execution.
 
 This is most often used when querying against Interface or Union types to
-identify which actual type of the possible types has been returned.
+identify which actual Object type of the possible types has been returned.
 
-This field is implicit and does not appear in the fields list in any defined type.
+This meta-field is implicit and does not appear in the fields list in any
+defined type.
 
 
 ## Schema Introspection
@@ -110,8 +113,8 @@ __schema: __Schema!
 __type(name: String!): __Type
 ```
 
-These fields are implicit and do not appear in the fields list in the root type
-of the query operation.
+These meta-fields are implicit and do not appear in the fields list in the root
+type of the query operation.
 
 The schema of the GraphQL schema introspection system:
 
