@@ -1491,7 +1491,7 @@ field must not be {null}.
 
 An empty Oneof Input Object is invalid.
 
-```graphgl counter-example
+```graphql counter-example
 query addPet {
   addPet(pet: {}) {
     name
@@ -1501,7 +1501,7 @@ query addPet {
 
 Multiple fields are not allowed.
 
-```graphgl counter-example
+```graphql counter-example
 query addPet($cat: CatInput, $dog: DogInput) {
   addPet(pet: {cat: $cat, dog: $dog}) {
     name
@@ -1509,7 +1509,7 @@ query addPet($cat: CatInput, $dog: DogInput) {
 }
 ```
 
-```graphgl counter-example
+```graphql counter-example
 query addPet($dog: DogInput) {
   addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
     name
@@ -1517,7 +1517,7 @@ query addPet($dog: DogInput) {
 }
 ```
 
-```graphgl counter-example
+```graphql counter-example
 query addPet {
   addPet(pet: { cat: { name: "Brontie" }, dog: null }) {
     name
@@ -1528,7 +1528,7 @@ query addPet {
 
 Variables used for Oneof Input Object fields must be non-nullable.
 
-```graphgl example
+```graphql example
 query addPet($cat: CatInput!) {
   addPet(pet: { cat: $cat }) {
     name
@@ -1536,7 +1536,7 @@ query addPet($cat: CatInput!) {
 }
 ```
 
-```graphgl counter-example
+```graphql counter-example
 query addPet($cat: CatInput) {
   addPet(pet: { cat: $cat }) {
     name
@@ -1548,7 +1548,7 @@ query addPet($cat: CatInput) {
 If a field with a literal value is present then the value must
 not be {null}.
 
-```graphgl example
+```graphql example
 query addPet {
   addPet(pet: { cat: { name: "Brontie" } }) {
     name
@@ -1556,7 +1556,7 @@ query addPet {
 }
 ```
 
-```graphgl counter-example
+```graphql counter-example
 query addPet {
   addPet(pet: { cat: null }) {
     name
