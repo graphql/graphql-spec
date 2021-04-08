@@ -219,10 +219,11 @@ enum __DirectiveLocation {
 
 `__Type` is at the core of the type introspection system, it represents all
 types in the system: both named types (e.g. Scalars and Object types) and 
-type modifiers. Type modifiers are used to modify a referenced type 
-(`ofType: __Type`) to represent lists, non-nullable types, and the 
-combinations thereof.
+type modifiers (e.g. List and Non-Null types). 
 
+Type modifiers are used to modify the type presented in the field `ofType`. 
+This modified type may recursively be a modified type, representing lists, 
+non-nullables, and combinations thereof, ultimately modifying a named type.
 
 ### Type Kinds
 
