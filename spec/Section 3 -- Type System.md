@@ -926,8 +926,8 @@ Object, Interface, or Union type).
 
 Oneof Fields are a special variant of Object Type fields where the type system
 asserts that exactly one of the field's arguments must be set and non-null, all
-others being omitted. This is useful for representing situations where an input
-may be one of many different options.
+others being omitted. This is useful for representing situations where a field
+provides more than one input option to accomplish the same (or similar) goal.
 
 When using the type system definition language, the `@oneOf` directive is used
 to indicate that a Field is a Oneof Field (and thus requires exactly one of its
@@ -1664,7 +1664,7 @@ Literal Value            | Variables               | Coerced Value
 `{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified
 `{ b: "123" }`           | `{}`                    | Error: Incorrect value for member field {b}
 `{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`
-`{ b: $var }`            | `{}`                    | Error: Exactly one key must be specified
+`{ b: $var }`            | `{}`                    | Error: Value for member field {b} must be specified
 `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`
 `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified
 `{ b: $var }`            | `{ var: null }`         | Error: Value for member field {b} must be non-null
@@ -1927,9 +1927,7 @@ provide:
 
 - the `@deprecated` directive if representing deprecated portions of the
   schema;
-- the `@oneOf` directive if representing types that require exactly one field
-  (i.e. Oneof Input Objects) or fields that require exactly one argument (i.e.
-  Oneof Fields).
+- the `@oneOf` directive if the schema contains Oneof Input Objects or Oneof Fields.
 
 **Custom Directives**
 
