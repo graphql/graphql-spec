@@ -98,8 +98,8 @@ the concrete Object type at that point during execution.
 This is most often used when querying against Interface or Union types to
 identify which actual Object type of the possible types has been returned.
 
-As a meta-field, `__typename` is implicit and does not appear in the fields list in any
-defined type.
+As a meta-field, `__typename` is implicit and does not appear in the fields list
+in any defined type.
 
 
 ## Schema Introspection
@@ -113,8 +113,8 @@ __schema: __Schema!
 __type(name: String!): __Type
 ```
 
-Like all meta-fields, these are implicit and do not appear in the fields list in the root
-type of the query operation.
+Like all meta-fields, these are implicit and do not appear in the fields list in
+the root type of the query operation.
 
 The schema of the GraphQL schema introspection system:
 
