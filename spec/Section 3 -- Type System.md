@@ -241,7 +241,7 @@ adds additional operation types, or additional directives to an existing schema.
 
 Note: Schema extensions without additional operation type definitions must not
 be followed by a {`{`} (such as a query shorthand) to avoid parsing ambiguity.
-This same limitation applies to the type definitions and extensions below.
+The same limitation applies to the type definitions and extensions below.
 
 **Schema Validation**
 
