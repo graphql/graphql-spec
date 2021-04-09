@@ -89,11 +89,11 @@ warnings.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection at any selection set within an
-operation with the meta-field `__typename: String!` on any Object,
-Interface, or Union; with the single exception of the subscription root
-operation type. It returns the name of the concrete Object type at that point
-during execution.
+GraphQL supports type name introspection within any selection set in an
+operation, with the single exception of selections at the root of a subscription
+operation. Type name introspection is accomplished via the meta-field
+`__typename: String!` on any Object, Interface, or Union. It returns the name of
+the concrete Object type at that point during execution.
 
 This is most often used when querying against Interface or Union types to
 identify which actual Object type of the possible types has been returned.
