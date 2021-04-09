@@ -383,19 +383,19 @@ all built-in scalars must be omitted for brevity.
 **Custom Scalars**
 
 GraphQL services may use custom scalar types in addition to the built-in
-scalars. For example, a GraphQL service could define a scalar called `Time`
-which, while serialized as a string, conforms to ISO-8601. When querying a field
-of type `Time`, you can then rely on the ability to parse the result with an
-ISO-8601 parser and use a client-specific primitive for time. Another example of
-a potentially useful custom scalar is `URL`, which serializes as a string, but
-is guaranteed by the server to be a valid URL.
+scalars. For example, a GraphQL service could define a scalar called `UUID`
+which, while serialized as a string, conforms to [RFC 4122](https://tools.ietf.org/html/rfc4122).
+When querying a field of type `UUID`, you can then rely on the ability to parse
+the result with a RFC 4122 compliant parser. Another example of a potentially
+useful custom scalar is `URL`, which serializes as a string, but is guaranteed
+by the server to be a valid URL.
 
 When defining a custom scalar, GraphQL services should provide a specification
-URL via the `specifiedBy` introspection field or the `@specifiedBy` directive.
+URL via the `@specifiedBy` directive or the `specifiedBy` introspection field.
 This URL must link to a human-readable specification of the data format,
 serialization, and coercion rules for the scalar. For example, a GraphQL service
 providing a `UUID` scalar may link to RFC 4122, or some custom document defining
-a reasonable subset of that RFC. If a scalar specification URL is present,
+a reasonable subset of that RFC. If a scalar `specifiedBy` URL is present,
 systems and tools that are aware of it should conform to its described rules.
 
 ```graphql example
@@ -411,7 +411,7 @@ Custom scalar specification URLs should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
 linked specification's contents.
 
-Built-in scalar types must not provide a specification URL as they are specified
+Built-in scalar types must not provide a `specifiedBy` URL as they are specified
 by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
