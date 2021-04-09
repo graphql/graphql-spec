@@ -98,7 +98,7 @@ during execution.
 This is most often used when querying against Interface or Union types to
 identify which actual Object type of the possible types has been returned.
 
-This meta-field is implicit and does not appear in the fields list in any
+As a meta-field, `__typename` is implicit and does not appear in the fields list in any
 defined type.
 
 
