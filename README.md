@@ -208,7 +208,7 @@ type Droid implements Character {
 We're missing one last piece: an entry point into the type system.
 
 When we define a schema, we define an object type that is the basis for all
-queries. The name of this type is `Query` by convention, and it describes
+query operations. The name of this type is `Query` by convention, and it describes
 our public, top-level API. Our `Query` type for this example will look like
 this:
 

@@ -3,7 +3,7 @@
 A GraphQL service supports introspection over its schema. This schema is queried
 using GraphQL itself, creating a powerful platform for tool-building.
 
-Take an example query for a trivial app. In this case there is a User type with
+Take an example request for a trivial app. In this case there is a User type with
 three fields: id, name, and birthday.
 
 For example, given a service with the following type definition:
@@ -16,7 +16,7 @@ type User {
 }
 ```
 
-The query
+A request containing the operation:
 
 ```graphql example
 {
@@ -32,7 +32,7 @@ The query
 }
 ```
 
-would return
+would produce the result:
 
 ```json example
 {
@@ -221,11 +221,11 @@ enum __DirectiveLocation {
 ### The __Type Type
 
 `__Type` is at the core of the type introspection system, it represents all
-types in the system: both named types (e.g. Scalars and Object types) and 
-type modifiers (e.g. List and Non-Null types). 
+types in the system: both named types (e.g. Scalars and Object types) and
+type modifiers (e.g. List and Non-Null types).
 
-Type modifiers are used to modify the type presented in the field `ofType`. 
-This modified type may recursively be a modified type, representing lists, 
+Type modifiers are used to modify the type presented in the field `ofType`.
+This modified type may recursively be a modified type, representing lists,
 non-nullables, and combinations thereof, ultimately modifying a named type.
 
 ### Type Kinds
@@ -259,7 +259,7 @@ Fields
 * `kind` must return `__TypeKind.OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields query-able on this type.
+* `fields`: The set of fields that can be selected for this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
 * `interfaces`: The set of interfaces that an object implements.
@@ -367,8 +367,8 @@ A Non-Null type is a type modifier: it wraps another type instance in the
 `ofType` field. Non-null types do not allow {null} as a response, and indicate
 required inputs for arguments and input object fields.
 
-The modified type in the `ofType` field may itself be a modified List type, 
-allowing the representation of Non-Null of Lists. However it must not be a 
+The modified type in the `ofType` field may itself be a modified List type,
+allowing the representation of Non-Null of Lists. However it must not be a
 modified Non-Null type to avoid a redundant Non-Null of Non-Null.
 
 * `kind` must return `__TypeKind.NON_NULL`.
