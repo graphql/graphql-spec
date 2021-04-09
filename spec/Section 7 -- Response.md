@@ -2,25 +2,23 @@
 
 When a GraphQL service receives a request, it must return a well-formed
 response. The service's response describes the result of executing the requested
-operation if successful, and describes any errors encountered during the
-request.
+operation if successful, and describes any errors raised during the request.
 
-A response may contain both a partial response as well as encountered errors in
-the case that a field error occurred on a field which was replaced with {null}.
-
+A response may contain both a partial response as well as any field errors in
+the case that a field error was raised on a field and was replaced with {null}.
 
 ## Response Format
 
-A response to a GraphQL operation must be a map.
+A response to a GraphQL request must be a map.
 
-If the operation encountered any errors, the response map must contain an
+If the request raised any errors, the response map must contain an
 entry with key `errors`. The value of this entry is described in the "Errors"
-section. If the operation completed without encountering any errors, this entry
+section. If the request completed without raising any errors, this entry
 must not be present.
 
-If the operation included execution, the response map must contain an entry
+If the request included execution, the response map must contain an entry
 with key `data`. The value of this entry is described in the "Data" section. If
-the operation failed before execution, due to a syntax error, missing
+the request failed before execution, due to a syntax error, missing
 information, or validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry,
@@ -40,13 +38,14 @@ in a response during debugging.
 
 The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an
-object of the schema's query root type; if the operation was a mutation, this
-output will be an object of the schema's mutation root type.
+object of the schema's query root operation type; if the operation was a
+mutation, this output will be an object of the schema's mutation root
+operation type.
 
-If an error was encountered before execution begins, the `data` entry should
+If an error was raised before execution begins, the `data` entry should
 not be present in the result.
 
-If an error was encountered during the execution that prevented a valid
+If an error was raised during the execution that prevented a valid
 response, the `data` entry in the response should be `null`.
 
 
@@ -55,17 +54,41 @@ response, the `data` entry in the response should be `null`.
 The `errors` entry in the response is a non-empty list of errors, where each
 error is a map.
 
-If no errors were encountered during the requested operation, the `errors`
-entry should not be present in the result.
+If no errors were raised during the request, the `errors` entry should
+not be present in the result.
 
 If the `data` entry in the response is not present, the `errors`
 entry in the response must not be empty. It must contain at least one error.
 The errors it contains should indicate why no data was able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry in the response may contain any errors that
-occurred during execution. If errors occurred during execution, it should
-contain those errors.
+{null}), the `errors` entry in the response may contain any field errors that
+were raised during execution. If field errors were raised during execution, it
+should contain those errors.
+
+**Request errors**
+
+Request errors are raised before execution begins. This may occur due to a parse
+grammar or validation error in the requested document, an inability to determine
+which operation to execute, or invalid input values for variables.
+
+Request errors are typically the fault of the requesting client.
+
+If a request error is raised, execution does not begin and the `data` entry in
+the response must not be present. The `errors` entry must include the error.
+
+**Field errors**
+
+Field errors are raised during execution from a particular field. This may occur
+due to an internal error during value resolution or failure to coerce the
+resulting value.
+
+Field errors are typically the fault of GraphQL service.
+
+If a field error is raised, execution attempts to continue and a partial result
+is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)).
+The `data` entry in the response must be present. The `errors` entry should
+include all raised field errors.
 
 **Error result format**
 
@@ -89,10 +112,10 @@ response and ending with the field associated with the error. Path segments
 that represent fields should be strings, and path segments that
 represent list indices should be 0-indexed integers. If the error happens
 in an aliased field, the path to the error should use the aliased name, since
-it represents a path in the response, not in the query.
+it represents a path in the response, not in the request.
 
 For example, if fetching one of the friends' names fails in the following
-query:
+operation:
 
 ```graphql example
 {
@@ -113,8 +136,8 @@ The response might look like:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -142,7 +165,7 @@ The response might look like:
 If the field which experienced an error was declared as `Non-Null`, the `null`
 result will bubble up to the next nullable field. In that case, the `path`
 for the error should include the full path to the result field where the error
-occurred, even if that field is not present in the response.
+was raised, even if that field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
@@ -153,8 +176,8 @@ be the same:
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ]
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"]
     }
   ],
   "data": {
@@ -186,8 +209,8 @@ there are no additional restrictions on its contents.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -210,8 +233,8 @@ still discouraged.
   "errors": [
     {
       "message": "Name for character with ID 1002 could not be fetched.",
-      "locations": [ { "line": 6, "column": 7 } ],
-      "path": [ "hero", "heroFriends", 1, "name" ],
+      "locations": [{ "line": 6, "column": 7 }],
+      "path": ["hero", "heroFriends", 1, "name"],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
@@ -274,8 +297,8 @@ JSON format throughout this document.
 
 Since the result of evaluating a selection set is ordered, the serialized Map of
 results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by query execution. Producing a
-serialized response where fields are represented in the same order in which
+as those fields were requested as defined by selection set execution. Producing
+a serialized response where fields are represented in the same order in which
 they appear in the request improves human readability during debugging and
 enables more efficient parsing of responses if the order of properties can
 be anticipated.
