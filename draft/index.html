@@ -3694,6 +3694,7 @@ The Validation section defines providing a nullable variable type to a non-null 
 <p>GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
 <p>GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
 <p>GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
+<p>When representing a GraphQL schema using the type system definition language, built in directives (any defined in this specification) should be omitted for brevity. Custom directives in use must be specified.</p>
 <section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
 <h6><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
 <p>GraphQL services and client tooling may provide additional directives beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
