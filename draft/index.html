@@ -1168,6 +1168,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec--skip"><span class="spec-secid">3.13.1</span>@skip</a></li>
 <li><a href="#sec--include"><span class="spec-secid">3.13.2</span>@include</a></li>
 <li><a href="#sec--deprecated"><span class="spec-secid">3.13.3</span>@deprecated</a></li>
+<li><a href="#sec--specifiedBy"><span class="spec-secid">3.13.4</span>@specifiedBy</a></li>
 </ol>
 </li>
 </ol>
@@ -2608,15 +2609,26 @@ Schema extensions without additional operation type definitions must not be foll
 <span class="spec-nt"><a href="#ScalarTypeDefinition" data-name="ScalarTypeDefinition">ScalarTypeDefinition</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Description" data-name="Description">Description</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">scalar</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
 <p>Scalar types represent primitive leaf values in a GraphQL type system. GraphQL responses take the form of a hierarchical tree; the leaves of this tree are typically GraphQL Scalar types (but may also be Enum types or <span class="spec-keyword">null</span> values).</p>
-<p>GraphQL provides a number of built-in scalars (see below), but type systems can add additional scalars with semantic meaning. For example, a GraphQL system could define a scalar called <code>Time</code> which, while serialized as a string, promises to conform to ISO-8601. When querying a field of type <code>Time</code>, you can then rely on the ability to parse the result with an ISO-8601 parser and use a client-specific primitive for time. Another example of a potentially useful custom scalar is <code>Url</code>, which serializes as a string, but is guaranteed by the service to be a valid URL.</p>
-<pre id="example-cb7e7" class="spec-example" data-language="graphql"><a href="#example-cb7e7">Example № 42</a><code><span class="token keyword">scalar</span> <span class="token class-name">Time</span>
-<span class="token keyword">scalar</span> <span class="token class-name">Url</span>
-</code></pre>
+<p>GraphQL provides a number of built-in scalars which are fully defined in the sections below, however type systems may also add additional custom scalars to introduce additional semantic meaning.</p>
 <section id="sec-Scalars.Built-in-Scalars" class="subsec">
 <h6><a href="#sec-Scalars.Built-in-Scalars" title="link to this subsection">Built-in Scalars</a></h6>
 <p>GraphQL specifies a basic set of well-defined Scalar types: <span class="spec-nt"><span data-name="Int">Int</span></span>, <span class="spec-nt"><span data-name="Float">Float</span></span>, <span class="spec-nt"><span data-name="String">String</span></span>, <span class="spec-nt"><span data-name="Boolean">Boolean</span></span>, and <span class="spec-nt"><span data-name="ID">ID</span></span>. A GraphQL framework should support all of these types, and a GraphQL service which provides a type by these names must adhere to the behavior described for them in this document. As an example, a service must not include a type called <span class="spec-nt"><span data-name="Int">Int</span></span> and use it to represent 64-bit numbers, internationalization information, or anything other than what is defined in this document.</p>
 <p>When returning the set of types from the <code>__Schema</code> introspection type, all referenced built-in scalars must be included. If a built-in scalar type is not referenced anywhere in a schema (there is no field, argument, or input field of that type) then it must not be included.</p>
 <p>When representing a GraphQL schema using the type system definition language, all built-in scalars must be omitted for brevity.</p>
+</section>
+<section id="sec-Scalars.Custom-Scalars" class="subsec">
+<h6><a href="#sec-Scalars.Custom-Scalars" title="link to this subsection">Custom Scalars</a></h6>
+<p>GraphQL services may use custom scalar types in addition to the built-in scalars. For example, a GraphQL service could define a scalar called <code>UUID</code> which, while serialized as a string, conforms to <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>. When querying a field of type <code>UUID</code>, you can then rely on the ability to parse the result with a RFC 4122 compliant parser. Another example of a potentially useful custom scalar is <code>URL</code>, which serializes as a string, but is guaranteed by the server to be a valid URL.</p>
+<p>When defining a custom scalar, GraphQL services should provide a specification URL via the <code>@specifiedBy</code> directive or the <code>specifiedBy</code> introspection field. This URL must link to a human-readable specification of the data format, serialization, and coercion rules for the scalar. For example, a GraphQL service providing a <code>UUID</code> scalar may link to RFC 4122, or some custom document defining a reasonable subset of that RFC. If a scalar <code>specifiedBy</code> URL is present, systems and tools that are aware of it should conform to its described rules.</p>
+<pre id="example-9e6a3" class="spec-example" data-language="graphql"><a href="#example-9e6a3">Example № 42</a><code><span class="token keyword">scalar</span> <span class="token class-name">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
+<span class="token keyword">scalar</span> <span class="token class-name">URL</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc3986"</span><span class="token punctuation">)</span>
+</code></pre>
+<p>Custom scalar specifications should provide a single, stable format to avoid ambiguity. If the linked specification is in flux, the service should link to a fixed version rather than to a resource which might change.</p>
+<p>Custom scalar specification URLs should not be changed once defined. Doing so would likely disrupt tooling or could introduce breaking changes within the linked specification&rsquo;s contents.</p>
+<p>Built-in scalar types must not provide a <code>specifiedBy</code> URL as they are specified by this document.</p>
+<div id="note-b68f7" class="spec-note">
+<a href="#note-b68f7">Note</a>
+Custom scalars should also summarize the specified format and provide examples in their description.</div>
 </section>
 <section id="sec-Scalars.Result-Coercion-and-Serialization" class="subsec">
 <h6><a href="#sec-Scalars.Result-Coercion-and-Serialization" title="link to this subsection">Result Coercion and Serialization</a></h6>
@@ -3681,6 +3693,7 @@ The Validation section defines providing a nullable variable type to a non-null 
 <p>A GraphQL schema describes directives which are used to annotate various parts of a GraphQL document as an indicator that they should be evaluated differently by a validator, executor, or client tool such as a code generator.</p>
 <p>GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
 <p>GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
+<p>GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
 <section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
 <h6><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
 <p>GraphQL services and client tooling may provide additional directives beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
@@ -3777,6 +3790,15 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
+<section id="sec--specifiedBy" secid="3.13.4">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec--specifiedBy">3.13.4</a></span>@specifiedBy</h3>
+<pre data-language="graphql"><code><span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> String<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">SCALAR</span>
+</code></pre>
+<p>The <code>@specifiedBy</code> directive is used within the type system definition language to provide a URL for specifying the behavior of <a href="#sec-Scalars.Custom-Scalars">custom scalar types</a>. The URL should point to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.</p>
+<p>In this example, a custom scalar type for <code>UUID</code> is defined with a URL pointing to the relevant IETF specification.</p>
+<pre id="example-e5b0d" class="spec-example" data-language="graphql"><a href="#example-e5b0d">Example № 96</a><code><span class="token keyword">scalar</span> <span class="token class-name">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
+</code></pre>
+</section>
 </section>
 </section>
 <section id="sec-Introspection" secid="4">
@@ -3784,14 +3806,14 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <p>A GraphQL service supports introspection over its schema. This schema is queried using GraphQL itself, creating a powerful platform for tool-building.</p>
 <p>Take an example request for a trivial app. In this case there is a User type with three fields: id, name, and birthday.</p>
 <p>For example, given a service with the following type definition:</p>
-<pre id="example-3005e" class="spec-example" data-language="graphql"><a href="#example-3005e">Example № 96</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
+<pre id="example-3005e" class="spec-example" data-language="graphql"><a href="#example-3005e">Example № 97</a><code><span class="token keyword">type</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> String
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
   <span class="token attr-name">birthday</span><span class="token punctuation">:</span> Date
 <span class="token punctuation">}</span>
 </code></pre>
 <p>A request containing the operation:</p>
-<pre id="example-2efd3" class="spec-example" data-language="graphql"><a href="#example-2efd3">Example № 97</a><code><span class="token punctuation">{</span>
+<pre id="example-2efd3" class="spec-example" data-language="graphql"><a href="#example-2efd3">Example № 98</a><code><span class="token punctuation">{</span>
   __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"User"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     name
     fields <span class="token punctuation">{</span>
@@ -3804,7 +3826,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>would produce the result:</p>
-<pre id="example-47d72" class="spec-example" data-language="json"><a href="#example-47d72">Example № 98</a><code><span class="token punctuation">{</span>
+<pre id="example-47d72" class="spec-example" data-language="json"><a href="#example-47d72">Example № 99</a><code><span class="token punctuation">{</span>
   <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"User"</span><span class="token punctuation">,</span>
     <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
@@ -3882,6 +3904,9 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 
   <span class="token comment"># should be non-null for NON_NULL and LIST only, must be null for the others</span>
   <span class="token attr-name">ofType</span><span class="token punctuation">:</span> __Type
+
+  <span class="token comment"># should be non-null for custom SCALAR only, must be null for the others</span>
+  <span class="token attr-name">specifiedBy</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">__Field</span> <span class="token punctuation">{</span>
@@ -3959,11 +3984,12 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Scalar" secid="4.5.2.1">
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Scalar">4.5.2.1</a></span>Scalar</h4>
 <p>Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.</p>
-<p>A GraphQL type designer should describe the data format and scalar coercion rules in the description field of any scalar.</p>
+<p>Also represents <a href="#sec-Scalars.Custom-Scalars">Custom scalars</a> which may provide <code>specifiedBy</code> as a scalar specification URL.</p>
 <p>Fields</p>
 <ul>
 <li><code>kind</code> must return <code>__TypeKind.SCALAR</code>.</li>
 <li><code>name</code> must return a String.</li>
+<li><code>specifiedBy</code> may return a String (in the form of a URL) for custom scalars, otherwise must be <span class="spec-keyword">null</span>.</li>
 <li><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
 <li>All other fields must return <span class="spec-keyword">null</span>.</li>
 </ul>
@@ -4032,7 +4058,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <h4><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object">4.5.2.6</a></span>Input Object</h4>
 <p>Input objects are composite types defined as a list of named input values. They are only used as inputs to arguments and variables and cannot be a field return type.</p>
 <p>For example the input object <code>Point</code> could be defined as:</p>
-<pre id="example-a0e6d" class="spec-example" data-language="graphql"><a href="#example-a0e6d">Example № 99</a><code><span class="token keyword">input</span> Point <span class="token punctuation">{</span>
+<pre id="example-a0e6d" class="spec-example" data-language="graphql"><a href="#example-a0e6d">Example № 100</a><code><span class="token keyword">input</span> Point <span class="token punctuation">{</span>
   <span class="token attr-name">x</span><span class="token punctuation">:</span> Int
   <span class="token attr-name">y</span><span class="token punctuation">:</span> Int
 <span class="token punctuation">}</span>
@@ -4130,7 +4156,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Validation.Examples" class="subsec">
 <h6><a href="#sec-Validation.Examples" title="link to this subsection">Examples</a></h6>
 <p>For this section of this schema, we will assume the following type system in order to demonstrate examples:</p>
-<pre id="example-d4675" class="spec-example" data-language="graphql"><a href="#example-d4675">Example № 100</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-d4675" class="spec-example" data-language="graphql"><a href="#example-d4675">Example № 101</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dog</span><span class="token punctuation">:</span> Dog
 <span class="token punctuation">}</span>
 
@@ -4200,7 +4226,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <p>To avoid ambiguity, a document containing <span class="spec-nt"><a href="#TypeSystemDefinitionOrExtension" data-name="TypeSystemDefinitionOrExtension">TypeSystemDefinitionOrExtension</a></span> is invalid for execution.</p>
 <p>GraphQL documents not intended to be directly executed may include <span class="spec-nt"><a href="#TypeSystemDefinitionOrExtension" data-name="TypeSystemDefinitionOrExtension">TypeSystemDefinitionOrExtension</a></span>.</p>
 <p>For example, the following document is invalid for execution since the original executing schema may not know about the provided type extension:</p>
-<pre id="example-12752" class="spec-counter-example" data-language="graphql"><a href="#example-12752">Counter Example № 101</a><code><span class="token keyword">query</span> getDogName <span class="token punctuation">{</span>
+<pre id="example-12752" class="spec-counter-example" data-language="graphql"><a href="#example-12752">Counter Example № 102</a><code><span class="token keyword">query</span> getDogName <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
     color
@@ -4236,7 +4262,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <h6><a href="#sec-Operation-Name-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Each named operation definition must be unique within a document when referred to by its name.</p>
 <p>For example the following document is valid:</p>
-<pre id="example-069e1" class="spec-example" data-language="graphql"><a href="#example-069e1">Example № 102</a><code><span class="token keyword">query</span> getDogName <span class="token punctuation">{</span>
+<pre id="example-069e1" class="spec-example" data-language="graphql"><a href="#example-069e1">Example № 103</a><code><span class="token keyword">query</span> getDogName <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
   <span class="token punctuation">}</span>
@@ -4251,7 +4277,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>While this document is invalid:</p>
-<pre id="example-5e409" class="spec-counter-example" data-language="graphql"><a href="#example-5e409">Counter Example № 103</a><code><span class="token keyword">query</span> getName <span class="token punctuation">{</span>
+<pre id="example-5e409" class="spec-counter-example" data-language="graphql"><a href="#example-5e409">Counter Example № 104</a><code><span class="token keyword">query</span> getName <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
   <span class="token punctuation">}</span>
@@ -4266,7 +4292,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>It is invalid even if the type of each operation is different:</p>
-<pre id="example-77c2e" class="spec-counter-example" data-language="graphql"><a href="#example-77c2e">Counter Example № 104</a><code><span class="token keyword">query</span> dogOperation <span class="token punctuation">{</span>
+<pre id="example-77c2e" class="spec-counter-example" data-language="graphql"><a href="#example-77c2e">Counter Example № 105</a><code><span class="token keyword">query</span> dogOperation <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
   <span class="token punctuation">}</span>
@@ -4300,14 +4326,14 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <h6><a href="#sec-Lone-Anonymous-Operation.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL allows a short-hand form for defining query operations when only that one operation exists in the document.</p>
 <p>For example the following document is valid:</p>
-<pre id="example-be853" class="spec-example" data-language="graphql"><a href="#example-be853">Example № 105</a><code><span class="token punctuation">{</span>
+<pre id="example-be853" class="spec-example" data-language="graphql"><a href="#example-be853">Example № 106</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>While this document is invalid:</p>
-<pre id="example-44b85" class="spec-counter-example" data-language="graphql"><a href="#example-44b85">Counter Example № 106</a><code><span class="token punctuation">{</span>
+<pre id="example-44b85" class="spec-counter-example" data-language="graphql"><a href="#example-44b85">Counter Example № 107</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
   <span class="token punctuation">}</span>
@@ -4343,14 +4369,14 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <h6><a href="#sec-Single-root-field.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Subscription operations must have exactly one root field.</p>
 <p>Valid examples:</p>
-<pre id="example-5bbc3" class="spec-example" data-language="graphql"><a href="#example-5bbc3">Example № 107</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
+<pre id="example-5bbc3" class="spec-example" data-language="graphql"><a href="#example-5bbc3">Example № 108</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
   newMessage <span class="token punctuation">{</span>
     body
     sender
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-13061" class="spec-example" data-language="graphql"><a href="#example-13061">Example № 108</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
+<pre id="example-13061" class="spec-example" data-language="graphql"><a href="#example-13061">Example № 109</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">newMessageFields</span>
 <span class="token punctuation">}</span>
 
@@ -4362,7 +4388,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Invalid:</p>
-<pre id="example-3997d" class="spec-counter-example" data-language="graphql"><a href="#example-3997d">Counter Example № 109</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
+<pre id="example-3997d" class="spec-counter-example" data-language="graphql"><a href="#example-3997d">Counter Example № 110</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
   newMessage <span class="token punctuation">{</span>
     body
     sender
@@ -4370,7 +4396,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   disallowedSecondRootField
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-18466" class="spec-counter-example" data-language="graphql"><a href="#example-18466">Counter Example № 110</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
+<pre id="example-18466" class="spec-counter-example" data-language="graphql"><a href="#example-18466">Counter Example № 111</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">multipleSubscriptions</span>
 <span class="token punctuation">}</span>
 
@@ -4383,7 +4409,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Introspection fields are counted. The following example is also invalid:</p>
-<pre id="example-2353b" class="spec-counter-example" data-language="graphql"><a href="#example-2353b">Counter Example № 111</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
+<pre id="example-2353b" class="spec-counter-example" data-language="graphql"><a href="#example-2353b">Counter Example № 112</a><code><span class="token keyword">subscription</span> sub <span class="token punctuation">{</span>
   newMessage <span class="token punctuation">{</span>
     body
     sender
@@ -4415,7 +4441,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>The target field of a field selection must be defined on the scoped type of the selection set. There are no limitations on alias names.</p>
 <p>For example the following fragment would not pass validation:</p>
-<pre id="example-48706" class="spec-counter-example" data-language="graphql"><a href="#example-48706">Counter Example № 112</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fieldNotDefined</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-48706" class="spec-counter-example" data-language="graphql"><a href="#example-48706">Counter Example № 113</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fieldNotDefined</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   meowVolume
 <span class="token punctuation">}</span>
 
@@ -4425,18 +4451,18 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>For interfaces, direct field selection can only be done on fields. Fields of concrete implementors are not relevant to the validity of the given interface-typed selection set.</p>
 <p>For example, the following is valid:</p>
-<pre id="example-d34e0" class="spec-example" data-language="graphql"><a href="#example-d34e0">Example № 113</a><code><span class="token keyword">fragment</span> <span class="token fragment function">interfaceFieldSelection</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-d34e0" class="spec-example" data-language="graphql"><a href="#example-d34e0">Example № 114</a><code><span class="token keyword">fragment</span> <span class="token fragment function">interfaceFieldSelection</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   name
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and the following is invalid:</p>
-<pre id="example-db33b" class="spec-counter-example" data-language="graphql"><a href="#example-db33b">Counter Example № 114</a><code><span class="token keyword">fragment</span> <span class="token fragment function">definedOnImplementorsButNotInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-db33b" class="spec-counter-example" data-language="graphql"><a href="#example-db33b">Counter Example № 115</a><code><span class="token keyword">fragment</span> <span class="token fragment function">definedOnImplementorsButNotInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   nickname
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Because unions do not define fields, fields may not be directly selected from a union-typed selection set, with the exception of the meta-field <var data-name="__typename">__typename</var>. Fields from a union-typed selection set must only be queried indirectly via a fragment.</p>
 <p>For example the following is valid:</p>
-<pre id="example-245fa" class="spec-example" data-language="graphql"><a href="#example-245fa">Example № 115</a><code><span class="token keyword">fragment</span> <span class="token fragment function">inDirectFieldSelectionOnUnion</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
+<pre id="example-245fa" class="spec-example" data-language="graphql"><a href="#example-245fa">Example № 116</a><code><span class="token keyword">fragment</span> <span class="token fragment function">inDirectFieldSelectionOnUnion</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
   __typename
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
     name
@@ -4447,7 +4473,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>But the following is invalid:</p>
-<pre id="example-252ad" class="spec-counter-example" data-language="graphql"><a href="#example-252ad">Counter Example № 116</a><code><span class="token keyword">fragment</span> <span class="token fragment function">directFieldSelectionOnUnion</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
+<pre id="example-252ad" class="spec-counter-example" data-language="graphql"><a href="#example-252ad">Counter Example № 117</a><code><span class="token keyword">fragment</span> <span class="token fragment function">directFieldSelectionOnUnion</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
   name
   barkVolume
 <span class="token punctuation">}</span>
@@ -4516,7 +4542,7 @@ While each subscription must have exactly one root field, a document may contain
 <p>During execution, the simultaneous execution of fields with the same response name is accomplished by <span class="spec-call"><a href="#MergeSelectionSets()" data-name="MergeSelectionSets">MergeSelectionSets</a>()</span> and <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span>.</p>
 <p>For simple hand-written GraphQL, this rule is obviously a clear developer error, however nested fragments can make this difficult to detect manually.</p>
 <p>The following selections correctly merge:</p>
-<pre id="example-4e10c" class="spec-example" data-language="graphql"><a href="#example-4e10c">Example № 117</a><code><span class="token keyword">fragment</span> <span class="token fragment function">mergeIdenticalFields</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-4e10c" class="spec-example" data-language="graphql"><a href="#example-4e10c">Example № 118</a><code><span class="token keyword">fragment</span> <span class="token fragment function">mergeIdenticalFields</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   name
   name
 <span class="token punctuation">}</span>
@@ -4527,14 +4553,14 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following is not able to merge:</p>
-<pre id="example-a2230" class="spec-counter-example" data-language="graphql"><a href="#example-a2230">Counter Example № 118</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingBecauseAlias</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-a2230" class="spec-counter-example" data-language="graphql"><a href="#example-a2230">Counter Example № 119</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingBecauseAlias</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> nickname
   name
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Identical arguments are also merged if they have identical arguments. Both values and variables can be correctly merged.</p>
 <p>For example the following correctly merge:</p>
-<pre id="example-b6369" class="spec-example" data-language="graphql"><a href="#example-b6369">Example № 119</a><code><span class="token keyword">fragment</span> <span class="token fragment function">mergeIdenticalFieldsWithIdenticalArgs</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-b6369" class="spec-example" data-language="graphql"><a href="#example-b6369">Example № 120</a><code><span class="token keyword">fragment</span> <span class="token fragment function">mergeIdenticalFieldsWithIdenticalArgs</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -4545,7 +4571,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following do not correctly merge:</p>
-<pre id="example-00fbf" class="spec-counter-example" data-language="graphql"><a href="#example-00fbf">Counter Example № 120</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingArgsOnValues</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-00fbf" class="spec-counter-example" data-language="graphql"><a href="#example-00fbf">Counter Example № 121</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingArgsOnValues</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">HEEL</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
@@ -4566,7 +4592,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following fields would not merge together, however both cannot be encountered against the same object, so they are safe:</p>
-<pre id="example-a8406" class="spec-example" data-language="graphql"><a href="#example-a8406">Example № 121</a><code><span class="token keyword">fragment</span> <span class="token fragment function">safeDifferingFields</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-a8406" class="spec-example" data-language="graphql"><a href="#example-a8406">Example № 122</a><code><span class="token keyword">fragment</span> <span class="token fragment function">safeDifferingFields</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     <span class="token attr-name">volume</span><span class="token punctuation">:</span> barkVolume
   <span class="token punctuation">}</span>
@@ -4585,7 +4611,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>However, the field responses must be shapes which can be merged. For example, scalar values must not differ. In this example, <code>someValue</code> might be a <code>String</code> or an <code>Int</code>:</p>
-<pre id="example-54e3d" class="spec-counter-example" data-language="graphql"><a href="#example-54e3d">Counter Example № 122</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingDifferingResponses</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-54e3d" class="spec-counter-example" data-language="graphql"><a href="#example-54e3d">Counter Example № 123</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingDifferingResponses</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     <span class="token attr-name">someValue</span><span class="token punctuation">:</span> nickname
   <span class="token punctuation">}</span>
@@ -4617,12 +4643,12 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Leaf-Field-Selections.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Field selections on scalars or enums are never allowed, because they are the leaf nodes of any GraphQL operation.</p>
 <p>The following is valid.</p>
-<pre id="example-e23c5" class="spec-example" data-language="graphql"><a href="#example-e23c5">Example № 123</a><code><span class="token keyword">fragment</span> <span class="token fragment function">scalarSelection</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-e23c5" class="spec-example" data-language="graphql"><a href="#example-e23c5">Example № 124</a><code><span class="token keyword">fragment</span> <span class="token fragment function">scalarSelection</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   barkVolume
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following is invalid.</p>
-<pre id="example-13b69" class="spec-counter-example" data-language="graphql"><a href="#example-13b69">Counter Example № 124</a><code><span class="token keyword">fragment</span> <span class="token fragment function">scalarSelectionsNotAllowedOnInt</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-13b69" class="spec-counter-example" data-language="graphql"><a href="#example-13b69">Counter Example № 125</a><code><span class="token keyword">fragment</span> <span class="token fragment function">scalarSelectionsNotAllowedOnInt</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   barkVolume <span class="token punctuation">{</span>
     sinceWhen
   <span class="token punctuation">}</span>
@@ -4630,14 +4656,14 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>Conversely the leaf field selections of GraphQL operations must be of type scalar or enum. Leaf selections on objects, interfaces, and unions without subfields are disallowed.</p>
 <p>Let&rsquo;s assume the following additions to the query root operation type of the schema:</p>
-<pre id="example-9bada" class="spec-example" data-language="graphql"><a href="#example-9bada">Example № 125</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-9bada" class="spec-example" data-language="graphql"><a href="#example-9bada">Example № 126</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">human</span><span class="token punctuation">:</span> Human
   <span class="token attr-name">pet</span><span class="token punctuation">:</span> Pet
   <span class="token attr-name">catOrDog</span><span class="token punctuation">:</span> CatOrDog
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following examples are invalid</p>
-<pre id="example-d68ee" class="spec-counter-example" data-language="graphql"><a href="#example-d68ee">Counter Example № 126</a><code><span class="token keyword">query</span> directQueryOnObjectWithoutSubFields <span class="token punctuation">{</span>
+<pre id="example-d68ee" class="spec-counter-example" data-language="graphql"><a href="#example-d68ee">Counter Example № 127</a><code><span class="token keyword">query</span> directQueryOnObjectWithoutSubFields <span class="token punctuation">{</span>
   human
 <span class="token punctuation">}</span>
 
@@ -4670,7 +4696,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Argument-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Every argument provided to a field or directive must be defined in the set of possible arguments of that field or directive.</p>
 <p>For example the following are valid:</p>
-<pre id="example-760cb" class="spec-example" data-language="graphql"><a href="#example-760cb">Example № 127</a><code><span class="token keyword">fragment</span> <span class="token fragment function">argOnRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-760cb" class="spec-example" data-language="graphql"><a href="#example-760cb">Example № 128</a><code><span class="token keyword">fragment</span> <span class="token fragment function">argOnRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
@@ -4679,17 +4705,17 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>the following is invalid since <code>command</code> is not defined on <code>DogCommand</code>.</p>
-<pre id="example-d5639" class="spec-counter-example" data-language="graphql"><a href="#example-d5639">Counter Example № 128</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-d5639" class="spec-counter-example" data-language="graphql"><a href="#example-d5639">Counter Example № 129</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">command</span><span class="token punctuation">:</span> <span class="token constant">CLEAN_UP_HOUSE</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and this is also invalid as <code>unless</code> is not defined on <code>@include</code>.</p>
-<pre id="example-4feee" class="spec-counter-example" data-language="graphql"><a href="#example-4feee">Counter Example № 129</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-4feee" class="spec-counter-example" data-language="graphql"><a href="#example-4feee">Counter Example № 130</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">unless</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>In order to explore more complicated argument examples, let&rsquo;s add the following to our type system:</p>
-<pre id="example-1891c" class="spec-example" data-language="graphql"><a href="#example-1891c">Example № 130</a><code><span class="token keyword">type</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-1891c" class="spec-example" data-language="graphql"><a href="#example-1891c">Example № 131</a><code><span class="token keyword">type</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   <span class="token attr-name">multipleReqs</span><span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Int<span class="token operator">!</span>
   <span class="token attr-name">booleanArgField</span><span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span><span class="token punctuation">:</span> Boolean
   <span class="token attr-name">floatArgField</span><span class="token punctuation">(</span><span class="token attr-name">floatArg</span><span class="token punctuation">:</span> Float<span class="token punctuation">)</span><span class="token punctuation">:</span> Float
@@ -4704,7 +4730,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Order does not matter in arguments. Therefore both the following examples are valid.</p>
-<pre id="example-7fe03" class="spec-example" data-language="graphql"><a href="#example-7fe03">Example № 131</a><code><span class="token keyword">fragment</span> <span class="token fragment function">multipleArgs</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-7fe03" class="spec-example" data-language="graphql"><a href="#example-7fe03">Example № 132</a><code><span class="token keyword">fragment</span> <span class="token fragment function">multipleArgs</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   multipleReqs<span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
@@ -4750,7 +4776,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Required-Arguments.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Arguments can be required. An argument is required if the argument type is non-null and does not have a default value. Otherwise, the argument is optional.</p>
 <p>For example the following are valid:</p>
-<pre id="example-503bd" class="spec-example" data-language="graphql"><a href="#example-503bd">Example № 132</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-503bd" class="spec-example" data-language="graphql"><a href="#example-503bd">Example № 133</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   booleanArgField<span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
@@ -4760,17 +4786,17 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>The argument can be omitted from a field with a nullable argument.</p>
 <p>Therefore the following fragment is valid:</p>
-<pre id="example-1f1d2" class="spec-example" data-language="graphql"><a href="#example-1f1d2">Example № 133</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArgDefault</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-1f1d2" class="spec-example" data-language="graphql"><a href="#example-1f1d2">Example № 134</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArgDefault</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   booleanArgField
 <span class="token punctuation">}</span>
 </code></pre>
 <p>but this is not valid on a required argument.</p>
-<pre id="example-f12a1" class="spec-counter-example" data-language="graphql"><a href="#example-f12a1">Counter Example № 134</a><code><span class="token keyword">fragment</span> <span class="token fragment function">missingRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-f12a1" class="spec-counter-example" data-language="graphql"><a href="#example-f12a1">Counter Example № 135</a><code><span class="token keyword">fragment</span> <span class="token fragment function">missingRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   nonNullBooleanArgField
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Providing the explicit value <span class="spec-keyword">null</span> is also not valid since required arguments always have a non-null type.</p>
-<pre id="example-0bc81" class="spec-counter-example" data-language="graphql"><a href="#example-0bc81">Counter Example № 135</a><code><span class="token keyword">fragment</span> <span class="token fragment function">missingRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-0bc81" class="spec-counter-example" data-language="graphql"><a href="#example-0bc81">Counter Example № 136</a><code><span class="token keyword">fragment</span> <span class="token fragment function">missingRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   nonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanArg</span><span class="token punctuation">:</span> null<span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -4798,7 +4824,7 @@ While each subscription must have exactly one root field, a document may contain
 <p>Fragment definitions are referenced in fragment spreads by name. To avoid ambiguity, each fragment&rsquo;s name must be unique within a document.</p>
 <p>Inline fragments are not considered fragment definitions, and are unaffected by this validation rule.</p>
 <p>For example the following document is valid:</p>
-<pre id="example-3703b" class="spec-example" data-language="graphql"><a href="#example-3703b">Example № 136</a><code><span class="token punctuation">{</span>
+<pre id="example-3703b" class="spec-example" data-language="graphql"><a href="#example-3703b">Example № 137</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">fragmentOne</span>
     <span class="token operator">...</span><span class="token fragment function">fragmentTwo</span>
@@ -4816,7 +4842,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>While this document is invalid:</p>
-<pre id="example-2c3e3" class="spec-counter-example" data-language="graphql"><a href="#example-2c3e3">Counter Example № 137</a><code><span class="token punctuation">{</span>
+<pre id="example-2c3e3" class="spec-counter-example" data-language="graphql"><a href="#example-2c3e3">Counter Example № 138</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">fragmentOne</span>
   <span class="token punctuation">}</span>
@@ -4848,7 +4874,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Fragment-Spread-Type-Existence.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragments must be specified on types that exist in the schema. This applies for both named and inline fragments. If they are not defined in the schema, the fragment is invalid.</p>
 <p>For example the following fragments are valid:</p>
-<pre id="example-1b2da" class="spec-example" data-language="graphql"><a href="#example-1b2da">Example № 138</a><code><span class="token keyword">fragment</span> <span class="token fragment function">correctType</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-1b2da" class="spec-example" data-language="graphql"><a href="#example-1b2da">Example № 139</a><code><span class="token keyword">fragment</span> <span class="token fragment function">correctType</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   name
 <span class="token punctuation">}</span>
 
@@ -4865,7 +4891,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and the following do not validate:</p>
-<pre id="example-463f6" class="spec-counter-example" data-language="graphql"><a href="#example-463f6">Counter Example № 139</a><code><span class="token keyword">fragment</span> <span class="token fragment function">notOnExistingType</span> <span class="token keyword">on</span> <span class="token class-name">NotInSchema</span> <span class="token punctuation">{</span>
+<pre id="example-463f6" class="spec-counter-example" data-language="graphql"><a href="#example-463f6">Counter Example № 140</a><code><span class="token keyword">fragment</span> <span class="token fragment function">notOnExistingType</span> <span class="token keyword">on</span> <span class="token class-name">NotInSchema</span> <span class="token punctuation">{</span>
   name
 <span class="token punctuation">}</span>
 
@@ -4890,7 +4916,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Fragments-On-Composite-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Fragments can only be declared on unions, interfaces, and objects. They are invalid on scalars. They can only be applied on non-leaf fields. This rule applies to both inline and named fragments.</p>
 <p>The following fragment declarations are valid:</p>
-<pre id="example-3c8d4" class="spec-example" data-language="graphql"><a href="#example-3c8d4">Example № 140</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fragOnObject</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-3c8d4" class="spec-example" data-language="graphql"><a href="#example-3c8d4">Example № 141</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fragOnObject</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   name
 <span class="token punctuation">}</span>
 
@@ -4905,7 +4931,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and the following are invalid:</p>
-<pre id="example-4d5e5" class="spec-counter-example" data-language="graphql"><a href="#example-4d5e5">Counter Example № 141</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fragOnScalar</span> <span class="token keyword">on</span> <span class="token class-name">Int</span> <span class="token punctuation">{</span>
+<pre id="example-4d5e5" class="spec-counter-example" data-language="graphql"><a href="#example-4d5e5">Counter Example № 142</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fragOnScalar</span> <span class="token keyword">on</span> <span class="token class-name">Int</span> <span class="token punctuation">{</span>
   something
 <span class="token punctuation">}</span>
 
@@ -4930,7 +4956,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Fragments-Must-Be-Used.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Defined fragments must be used within a document.</p>
 <p>For example the following is an invalid document:</p>
-<pre id="example-9e1e3" class="spec-counter-example" data-language="graphql"><a href="#example-9e1e3">Counter Example № 142</a><code><span class="token keyword">fragment</span> <span class="token fragment function">nameFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span> <span class="token comment"># unused</span>
+<pre id="example-9e1e3" class="spec-counter-example" data-language="graphql"><a href="#example-9e1e3">Counter Example № 143</a><code><span class="token keyword">fragment</span> <span class="token fragment function">nameFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span> <span class="token comment"># unused</span>
   name
 <span class="token punctuation">}</span>
 
@@ -4959,7 +4985,7 @@ While each subscription must have exactly one root field, a document may contain
 <section id="sec-Fragment-spread-target-defined.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Fragment-spread-target-defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Named fragment spreads must refer to fragments defined within the document. It is a validation error if the target of a spread is not defined.</p>
-<pre id="example-28421" class="spec-counter-example" data-language="graphql"><a href="#example-28421">Counter Example № 143</a><code><span class="token punctuation">{</span>
+<pre id="example-28421" class="spec-counter-example" data-language="graphql"><a href="#example-28421">Counter Example № 144</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">undefinedFragment</span>
   <span class="token punctuation">}</span>
@@ -4993,7 +5019,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Fragment-spreads-must-not-form-cycles.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>The graph of fragment spreads must not form any cycles including spreading itself. Otherwise an operation could infinitely spread or infinitely execute on cycles in the underlying data.</p>
 <p>This invalidates fragments that would result in an infinite spread:</p>
-<pre id="example-9ceb4" class="spec-counter-example" data-language="graphql"><a href="#example-9ceb4">Counter Example № 144</a><code><span class="token punctuation">{</span>
+<pre id="example-9ceb4" class="spec-counter-example" data-language="graphql"><a href="#example-9ceb4">Counter Example № 145</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">nameFragment</span>
   <span class="token punctuation">}</span>
@@ -5010,7 +5036,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>If the above fragments were inlined, this would result in the infinitely large:</p>
-<pre id="example-08734" class="spec-example" data-language="graphql"><a href="#example-08734">Example № 145</a><code><span class="token punctuation">{</span>
+<pre id="example-08734" class="spec-example" data-language="graphql"><a href="#example-08734">Example № 146</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     name
     barkVolume
@@ -5024,7 +5050,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>This also invalidates fragments that would result in an infinite recursion when executed against cyclic data:</p>
-<pre id="example-cd11c" class="spec-counter-example" data-language="graphql"><a href="#example-cd11c">Counter Example № 146</a><code><span class="token punctuation">{</span>
+<pre id="example-cd11c" class="spec-counter-example" data-language="graphql"><a href="#example-cd11c">Counter Example № 147</a><code><span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">dogFragment</span>
   <span class="token punctuation">}</span>
@@ -5074,14 +5100,14 @@ While each subscription must have exactly one root field, a document may contain
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-In-Object-Scope">5.5.2.3.1</a></span>Object Spreads In Object Scope</h5>
 <p>In the scope of an object type, the only valid object type fragment spread is one that applies to the same type that is in scope.</p>
 <p>For example</p>
-<pre id="example-0fc38" class="spec-example" data-language="graphql"><a href="#example-0fc38">Example № 147</a><code><span class="token keyword">fragment</span> <span class="token fragment function">dogFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-0fc38" class="spec-example" data-language="graphql"><a href="#example-0fc38">Example № 148</a><code><span class="token keyword">fragment</span> <span class="token fragment function">dogFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     barkVolume
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>and the following is invalid</p>
-<pre id="example-4d411" class="spec-counter-example" data-language="graphql"><a href="#example-4d411">Counter Example № 148</a><code><span class="token keyword">fragment</span> <span class="token fragment function">catInDogFragmentInvalid</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-4d411" class="spec-counter-example" data-language="graphql"><a href="#example-4d411">Counter Example № 149</a><code><span class="token keyword">fragment</span> <span class="token fragment function">catInDogFragmentInvalid</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Cat</span> <span class="token punctuation">{</span>
     meowVolume
   <span class="token punctuation">}</span>
@@ -5092,7 +5118,7 @@ While each subscription must have exactly one root field, a document may contain
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Abstract-Spreads-in-Object-Scope">5.5.2.3.2</a></span>Abstract Spreads in Object Scope</h5>
 <p>In scope of an object type, unions or interface spreads can be used if the object type implements the interface or is a member of the union.</p>
 <p>For example</p>
-<pre id="example-2c8d0" class="spec-example" data-language="graphql"><a href="#example-2c8d0">Example № 149</a><code><span class="token keyword">fragment</span> <span class="token fragment function">petNameFragment</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-2c8d0" class="spec-example" data-language="graphql"><a href="#example-2c8d0">Example № 150</a><code><span class="token keyword">fragment</span> <span class="token fragment function">petNameFragment</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   name
 <span class="token punctuation">}</span>
 
@@ -5102,7 +5128,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>is valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> implements Pet.</p>
 <p>Likewise</p>
-<pre id="example-41843" class="spec-example" data-language="graphql"><a href="#example-41843">Example № 150</a><code><span class="token keyword">fragment</span> <span class="token fragment function">catOrDogNameFragment</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
+<pre id="example-41843" class="spec-example" data-language="graphql"><a href="#example-41843">Example № 151</a><code><span class="token keyword">fragment</span> <span class="token fragment function">catOrDogNameFragment</span> <span class="token keyword">on</span> <span class="token class-name">CatOrDog</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Cat</span> <span class="token punctuation">{</span>
     meowVolume
   <span class="token punctuation">}</span>
@@ -5118,7 +5144,7 @@ While each subscription must have exactly one root field, a document may contain
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-In-Abstract-Scope">5.5.2.3.3</a></span>Object Spreads In Abstract Scope</h5>
 <p>Union or interface spreads can be used within the context of an object type fragment, but only if the object type is one of the possible types of that interface or union.</p>
 <p>For example, the following fragments are valid:</p>
-<pre id="example-85110" class="spec-example" data-language="graphql"><a href="#example-85110">Example № 151</a><code><span class="token keyword">fragment</span> <span class="token fragment function">petFragment</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-85110" class="spec-example" data-language="graphql"><a href="#example-85110">Example № 152</a><code><span class="token keyword">fragment</span> <span class="token fragment function">petFragment</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   name
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     barkVolume
@@ -5133,7 +5159,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p><var data-name="petFragment">petFragment</var> is valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> implements the interface <span class="spec-nt"><span data-name="Pet">Pet</span></span>. <var data-name="catOrDogFragment">catOrDogFragment</var> is valid because <span class="spec-nt"><span data-name="Cat">Cat</span></span> is a member of the <span class="spec-nt"><span data-name="CatOrDog">CatOrDog</span></span> union.</p>
 <p>By contrast the following fragments are invalid:</p>
-<pre id="example-a8dcc" class="spec-counter-example" data-language="graphql"><a href="#example-a8dcc">Counter Example № 152</a><code><span class="token keyword">fragment</span> <span class="token fragment function">sentientFragment</span> <span class="token keyword">on</span> <span class="token class-name">Sentient</span> <span class="token punctuation">{</span>
+<pre id="example-a8dcc" class="spec-counter-example" data-language="graphql"><a href="#example-a8dcc">Counter Example № 153</a><code><span class="token keyword">fragment</span> <span class="token fragment function">sentientFragment</span> <span class="token keyword">on</span> <span class="token class-name">Sentient</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     barkVolume
   <span class="token punctuation">}</span>
@@ -5151,7 +5177,7 @@ While each subscription must have exactly one root field, a document may contain
 <h5><span class="spec-secid" title="link to this section"><a href="#sec-Abstract-Spreads-in-Abstract-Scope">5.5.2.3.4</a></span>Abstract Spreads in Abstract Scope</h5>
 <p>Union or interfaces fragments can be used within each other. As long as there exists at least <em>one</em> object type that exists in the intersection of the possible types of the scope and the spread, the spread is considered valid.</p>
 <p>So for example</p>
-<pre id="example-dc875" class="spec-example" data-language="graphql"><a href="#example-dc875">Example № 153</a><code><span class="token keyword">fragment</span> <span class="token fragment function">unionWithInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-dc875" class="spec-example" data-language="graphql"><a href="#example-dc875">Example № 154</a><code><span class="token keyword">fragment</span> <span class="token fragment function">unionWithInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">dogOrHumanFragment</span>
 <span class="token punctuation">}</span>
 
@@ -5163,7 +5189,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>is considered valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> implements interface <span class="spec-nt"><span data-name="Pet">Pet</span></span> and is a member of <span class="spec-nt"><span data-name="DogOrHuman">DogOrHuman</span></span>.</p>
 <p>However</p>
-<pre id="example-c9c63" class="spec-counter-example" data-language="graphql"><a href="#example-c9c63">Counter Example № 154</a><code><span class="token keyword">fragment</span> <span class="token fragment function">nonIntersectingInterfaces</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-c9c63" class="spec-counter-example" data-language="graphql"><a href="#example-c9c63">Counter Example № 155</a><code><span class="token keyword">fragment</span> <span class="token fragment function">nonIntersectingInterfaces</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">sentientFragment</span>
 <span class="token punctuation">}</span>
 
@@ -5176,7 +5202,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Abstract-Spreads-in-Abstract-Scope.Interface-Spreads-in-implemented-Interface-Scope" title="link to this subsection">Interface Spreads in implemented Interface Scope</a></h6>
 <p>Additionally, an interface type fragment can always be spread into an interface scope which it implements.</p>
 <p>In the example below, the <code>...resourceFragment</code> fragments spreads is valid, since <code>Resource</code> implements <code>Node</code>.</p>
-<pre id="example-bc12a" class="spec-example" data-language="graphql"><a href="#example-bc12a">Example № 155</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+<pre id="example-bc12a" class="spec-example" data-language="graphql"><a href="#example-bc12a">Example № 156</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> ID<span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
@@ -5217,7 +5243,7 @@ While each subscription must have exactly one root field, a document may contain
 <p>Literal values must be compatible with the type expected in the position they are found as per the coercion rules defined in the Type System chapter.</p>
 <p>The type expected in a position includes the type defined by the argument a value is provided for, the type defined by an input object field a value is provided for, and the type of a variable definition a default value is provided for.</p>
 <p>The following examples are valid use of value literals:</p>
-<pre id="example-7ee0e" class="spec-example" data-language="graphql"><a href="#example-7ee0e">Example № 156</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-7ee0e" class="spec-example" data-language="graphql"><a href="#example-7ee0e">Example № 157</a><code><span class="token keyword">fragment</span> <span class="token fragment function">goodBooleanArg</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   booleanArgField<span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
@@ -5231,7 +5257,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Non-coercible values (such as a String into an Int) are invalid. The following examples are invalid:</p>
-<pre id="example-3a7c1" class="spec-counter-example" data-language="graphql"><a href="#example-3a7c1">Counter Example № 157</a><code><span class="token keyword">fragment</span> <span class="token fragment function">stringIntoInt</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+<pre id="example-3a7c1" class="spec-counter-example" data-language="graphql"><a href="#example-3a7c1">Counter Example № 158</a><code><span class="token keyword">fragment</span> <span class="token fragment function">stringIntoInt</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
   intArgField<span class="token punctuation">(</span><span class="token attr-name">intArg</span><span class="token punctuation">:</span> <span class="token string">"123"</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
@@ -5256,12 +5282,12 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Input-Object-Field-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Every input field provided in an input object value must be defined in the set of possible fields of that input object&rsquo;s expected type.</p>
 <p>For example the following example input object is valid:</p>
-<pre id="example-a940b" class="spec-example" data-language="graphql"><a href="#example-a940b">Example № 158</a><code><span class="token punctuation">{</span>
+<pre id="example-a940b" class="spec-example" data-language="graphql"><a href="#example-a940b">Example № 159</a><code><span class="token punctuation">{</span>
   findDog<span class="token punctuation">(</span><span class="token attr-name">complex</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"Fido"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>While the following example input-object uses a field &ldquo;favoriteCookieFlavor&rdquo; which is not defined on the expected type:</p>
-<pre id="example-1a5f6" class="spec-counter-example" data-language="graphql"><a href="#example-1a5f6">Counter Example № 159</a><code><span class="token punctuation">{</span>
+<pre id="example-1a5f6" class="spec-counter-example" data-language="graphql"><a href="#example-1a5f6">Counter Example № 160</a><code><span class="token punctuation">{</span>
   findDog<span class="token punctuation">(</span><span class="token attr-name">complex</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">favoriteCookieFlavor</span><span class="token punctuation">:</span> <span class="token string">"Bacon"</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -5285,7 +5311,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Input-Object-Field-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Input objects must not contain more than one field of the same name, otherwise an ambiguity would exist which includes an ignored portion of syntax.</p>
 <p>For example the following document will not pass validation.</p>
-<pre id="example-5d541" class="spec-counter-example" data-language="graphql"><a href="#example-5d541">Counter Example № 160</a><code><span class="token punctuation">{</span>
+<pre id="example-5d541" class="spec-counter-example" data-language="graphql"><a href="#example-5d541">Counter Example № 161</a><code><span class="token punctuation">{</span>
   field<span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token attr-name">field</span><span class="token punctuation">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -5357,7 +5383,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Directives-Are-In-Valid-Locations.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>GraphQL services define what directives they support and where they support them. For each usage of a directive, the directive must be used in a location that the service has declared support for.</p>
 <p>For example the following document will not pass validation because <code>@skip</code> does not provide <code>QUERY</code> as a valid location.</p>
-<pre id="example-55f3f" class="spec-counter-example" data-language="graphql"><a href="#example-55f3f">Counter Example № 161</a><code><span class="token keyword">query</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-55f3f" class="spec-counter-example" data-language="graphql"><a href="#example-55f3f">Counter Example № 162</a><code><span class="token keyword">query</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   field
 <span class="token punctuation">}</span>
 </code></pre>
@@ -5384,12 +5410,12 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Directives-Are-Unique-Per-Location.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Directives are used to describe some metadata or behavioral change on the definition they apply to. When more than one directive of the same name is used, the expected metadata or behavior becomes ambiguous, therefore only one of each directive is allowed per location.</p>
 <p>For example, the following document will not pass validation because <code>@skip</code> has been used twice for the same field:</p>
-<pre id="example-b2e6c" class="spec-counter-example" data-language="graphql"><a href="#example-b2e6c">Counter Example № 162</a><code><span class="token keyword">query</span> <span class="token punctuation">(</span><span class="token variable">$foo</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token variable">$bar</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-b2e6c" class="spec-counter-example" data-language="graphql"><a href="#example-b2e6c">Counter Example № 163</a><code><span class="token keyword">query</span> <span class="token punctuation">(</span><span class="token variable">$foo</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token variable">$bar</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   field <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$bar</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>However the following example is valid because <code>@skip</code> has been used only once per location, despite being used twice in the operation and on the same named field:</p>
-<pre id="example-c5ee9" class="spec-example" data-language="graphql"><a href="#example-c5ee9">Example № 163</a><code><span class="token keyword">query</span> <span class="token punctuation">(</span><span class="token variable">$foo</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token variable">$bar</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-c5ee9" class="spec-example" data-language="graphql"><a href="#example-c5ee9">Example № 164</a><code><span class="token keyword">query</span> <span class="token punctuation">(</span><span class="token variable">$foo</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token variable">$bar</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   field <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     subfieldA
   <span class="token punctuation">}</span>
@@ -5422,14 +5448,14 @@ While each subscription must have exactly one root field, a document may contain
 <section id="sec-Variable-Uniqueness.Explanatory-Text" class="subsec">
 <h6><a href="#sec-Variable-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>If any operation defines more than one variable with the same name, it is ambiguous and invalid. It is invalid even if the type of the duplicate variable is the same.</p>
-<pre id="example-b767a" class="spec-counter-example" data-language="graphql"><a href="#example-b767a">Counter Example № 164</a><code><span class="token keyword">query</span> houseTrainedQuery<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">,</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-b767a" class="spec-counter-example" data-language="graphql"><a href="#example-b767a">Counter Example № 165</a><code><span class="token keyword">query</span> houseTrainedQuery<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">,</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>It is valid for multiple operations to define a variable with the same name. If two operations reference the same fragment, it might actually be necessary:</p>
-<pre id="example-03c2a" class="spec-example" data-language="graphql"><a href="#example-03c2a">Example № 165</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-03c2a" class="spec-example" data-language="graphql"><a href="#example-03c2a">Example № 166</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">HouseTrainedFragment</span>
 <span class="token punctuation">}</span>
 
@@ -5462,7 +5488,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-Variables-Are-Input-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variables can only be input types. Objects, unions, and interfaces cannot be used as inputs.</p>
 <p>For these examples, consider the following typesystem additions:</p>
-<pre id="example-ce150" class="spec-example" data-language="graphql"><a href="#example-ce150">Example № 166</a><code><span class="token keyword">input</span> ComplexInput <span class="token punctuation">{</span>
+<pre id="example-ce150" class="spec-example" data-language="graphql"><a href="#example-ce150">Example № 167</a><code><span class="token keyword">input</span> ComplexInput <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
   <span class="token attr-name">owner</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
@@ -5473,7 +5499,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following operations are valid:</p>
-<pre id="example-77f18" class="spec-example" data-language="graphql"><a href="#example-77f18">Example № 167</a><code><span class="token keyword">query</span> takesBoolean<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-77f18" class="spec-example" data-language="graphql"><a href="#example-77f18">Example № 168</a><code><span class="token keyword">query</span> takesBoolean<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5490,7 +5516,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The following operations are invalid:</p>
-<pre id="example-aeba9" class="spec-counter-example" data-language="graphql"><a href="#example-aeba9">Counter Example № 168</a><code><span class="token keyword">query</span> takesCat<span class="token punctuation">(</span><span class="token variable">$cat</span><span class="token punctuation">:</span> Cat<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-aeba9" class="spec-counter-example" data-language="graphql"><a href="#example-aeba9">Counter Example № 169</a><code><span class="token keyword">query</span> takesCat<span class="token punctuation">(</span><span class="token variable">$cat</span><span class="token punctuation">:</span> Cat<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token comment"># ...</span>
 <span class="token punctuation">}</span>
 
@@ -5528,7 +5554,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-All-Variable-Uses-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>Variables are scoped on a per-operation basis. That means that any variable used within the context of an operation must be defined at the top level of that operation</p>
 <p>For example:</p>
-<pre id="example-a5099" class="spec-example" data-language="graphql"><a href="#example-a5099">Example № 169</a><code><span class="token keyword">query</span> variableIsDefined<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-a5099" class="spec-example" data-language="graphql"><a href="#example-a5099">Example № 170</a><code><span class="token keyword">query</span> variableIsDefined<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5536,7 +5562,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>is valid. $<var data-name="atOtherHomes">atOtherHomes</var> is defined by the operation.</p>
 <p>By contrast the following document is invalid:</p>
-<pre id="example-c8425" class="spec-counter-example" data-language="graphql"><a href="#example-c8425">Counter Example № 170</a><code><span class="token keyword">query</span> variableIsNotDefined <span class="token punctuation">{</span>
+<pre id="example-c8425" class="spec-counter-example" data-language="graphql"><a href="#example-c8425">Counter Example № 171</a><code><span class="token keyword">query</span> variableIsNotDefined <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5545,7 +5571,7 @@ While each subscription must have exactly one root field, a document may contain
 <p>$<var data-name="atOtherHomes">atOtherHomes</var> is not defined by the operation.</p>
 <p>Fragments complicate this rule. Any fragment transitively included by an operation has access to the variables defined by that operation. Fragments can appear within multiple operations and therefore variable usages must correspond to variable definitions in all of those operations.</p>
 <p>For example the following is valid:</p>
-<pre id="example-f4a77" class="spec-example" data-language="graphql"><a href="#example-f4a77">Example № 171</a><code><span class="token keyword">query</span> variableIsDefinedUsedInSingleFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-f4a77" class="spec-example" data-language="graphql"><a href="#example-f4a77">Example № 172</a><code><span class="token keyword">query</span> variableIsDefinedUsedInSingleFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5557,7 +5583,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>since <var data-name="isHousetrainedFragment">isHousetrainedFragment</var> is used within the context of the operation <var data-name="variableIsDefinedUsedInSingleFragment">variableIsDefinedUsedInSingleFragment</var> and the variable is defined by that operation.</p>
 <p>On the other hand, if a fragment is included within an operation that does not define a referenced variable, the document is invalid.</p>
-<pre id="example-8c8db" class="spec-counter-example" data-language="graphql"><a href="#example-8c8db">Counter Example № 172</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInSingleFragment <span class="token punctuation">{</span>
+<pre id="example-8c8db" class="spec-counter-example" data-language="graphql"><a href="#example-8c8db">Counter Example № 173</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInSingleFragment <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5568,7 +5594,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>This applies transitively as well, so the following also fails:</p>
-<pre id="example-7b65c" class="spec-counter-example" data-language="graphql"><a href="#example-7b65c">Counter Example № 173</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInNestedFragment <span class="token punctuation">{</span>
+<pre id="example-7b65c" class="spec-counter-example" data-language="graphql"><a href="#example-7b65c">Counter Example № 174</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInNestedFragment <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">outerHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5583,7 +5609,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Variables must be defined in all operations in which a fragment is used.</p>
-<pre id="example-84129" class="spec-example" data-language="graphql"><a href="#example-84129">Example № 174</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-84129" class="spec-example" data-language="graphql"><a href="#example-84129">Example № 175</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5600,7 +5626,7 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p>However the following does not validate:</p>
-<pre id="example-ef68a" class="spec-counter-example" data-language="graphql"><a href="#example-ef68a">Counter Example № 175</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-ef68a" class="spec-counter-example" data-language="graphql"><a href="#example-ef68a">Counter Example № 176</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5633,7 +5659,7 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-All-Variables-Used.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p>All variables defined by an operation must be used in that operation or a fragment transitively included by that operation. Unused variables cause a validation error.</p>
 <p>For example the following is invalid:</p>
-<pre id="example-516af" class="spec-counter-example" data-language="graphql"><a href="#example-516af">Counter Example № 176</a><code><span class="token keyword">query</span> variableUnused<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-516af" class="spec-counter-example" data-language="graphql"><a href="#example-516af">Counter Example № 177</a><code><span class="token keyword">query</span> variableUnused<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     isHousetrained
   <span class="token punctuation">}</span>
@@ -5641,7 +5667,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>because $<var data-name="atOtherHomes">atOtherHomes</var> is not referenced.</p>
 <p>These rules apply to transitive fragment spreads as well:</p>
-<pre id="example-ed1fa" class="spec-example" data-language="graphql"><a href="#example-ed1fa">Example № 177</a><code><span class="token keyword">query</span> variableUsedInFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-ed1fa" class="spec-example" data-language="graphql"><a href="#example-ed1fa">Example № 178</a><code><span class="token keyword">query</span> variableUsedInFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5653,7 +5679,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>The above is valid since $<var data-name="atOtherHomes">atOtherHomes</var> is used in <var data-name="isHousetrainedFragment">isHousetrainedFragment</var> which is included by <var data-name="variableUsedInFragment">variableUsedInFragment</var>.</p>
 <p>If that fragment did not have a reference to $<var data-name="atOtherHomes">atOtherHomes</var> it would be not valid:</p>
-<pre id="example-f6c72" class="spec-counter-example" data-language="graphql"><a href="#example-f6c72">Counter Example № 178</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-f6c72" class="spec-counter-example" data-language="graphql"><a href="#example-f6c72">Counter Example № 179</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedWithoutVariableFragment</span>
   <span class="token punctuation">}</span>
@@ -5665,7 +5691,7 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>All operations in a document must use all of their variables.</p>
 <p>As a result, the following document does not validate.</p>
-<pre id="example-5593f" class="spec-counter-example" data-language="graphql"><a href="#example-5593f">Counter Example № 179</a><code><span class="token keyword">query</span> queryWithUsedVar<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-5593f" class="spec-counter-example" data-language="graphql"><a href="#example-5593f">Counter Example № 180</a><code><span class="token keyword">query</span> queryWithUsedVar<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
     <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
   <span class="token punctuation">}</span>
@@ -5744,7 +5770,7 @@ While each subscription must have exactly one root field, a document may contain
 <p>Variable usages must be compatible with the arguments they are passed to.</p>
 <p>Validation failures occur when variables are used in the context of types that are complete mismatches, or if a nullable type in a variable is passed to a non-null argument type.</p>
 <p>Types must match:</p>
-<pre id="example-2028e" class="spec-counter-example" data-language="graphql"><a href="#example-2028e">Counter Example № 180</a><code><span class="token keyword">query</span> intCannotGoIntoBoolean<span class="token punctuation">(</span><span class="token variable">$intArg</span><span class="token punctuation">:</span> Int<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-2028e" class="spec-counter-example" data-language="graphql"><a href="#example-2028e">Counter Example № 181</a><code><span class="token keyword">query</span> intCannotGoIntoBoolean<span class="token punctuation">(</span><span class="token variable">$intArg</span><span class="token punctuation">:</span> Int<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     booleanArgField<span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> <span class="token variable">$intArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5752,28 +5778,28 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p>$<var data-name="intArg">intArg</var> typed as <span class="spec-nt"><span data-name="Int">Int</span></span> cannot be used as an argument to <var data-name="booleanArg">booleanArg</var>, typed as <span class="spec-nt"><span data-name="Boolean">Boolean</span></span>.</p>
 <p>List cardinality must also be the same. For example, lists cannot be passed into singular values.</p>
-<pre id="example-8d369" class="spec-counter-example" data-language="graphql"><a href="#example-8d369">Counter Example № 181</a><code><span class="token keyword">query</span> booleanListCannotGoIntoBoolean<span class="token punctuation">(</span><span class="token variable">$booleanListArg</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-8d369" class="spec-counter-example" data-language="graphql"><a href="#example-8d369">Counter Example № 182</a><code><span class="token keyword">query</span> booleanListCannotGoIntoBoolean<span class="token punctuation">(</span><span class="token variable">$booleanListArg</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     booleanArgField<span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanListArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Nullability must also be respected. In general a nullable variable cannot be passed to a non-null argument.</p>
-<pre id="example-ed727" class="spec-counter-example" data-language="graphql"><a href="#example-ed727">Counter Example № 182</a><code><span class="token keyword">query</span> booleanArgQuery<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-ed727" class="spec-counter-example" data-language="graphql"><a href="#example-ed727">Counter Example № 183</a><code><span class="token keyword">query</span> booleanArgQuery<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     nonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>For list types, the same rules around nullability apply to both outer types and inner types. A nullable list cannot be passed to a non-null list, and a list of nullable values cannot be passed to a list of non-null values. The following is valid:</p>
-<pre id="example-c5959" class="spec-example" data-language="graphql"><a href="#example-c5959">Example № 183</a><code><span class="token keyword">query</span> nonNullListToList<span class="token punctuation">(</span><span class="token variable">$nonNullBooleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-c5959" class="spec-example" data-language="graphql"><a href="#example-c5959">Example № 184</a><code><span class="token keyword">query</span> nonNullListToList<span class="token punctuation">(</span><span class="token variable">$nonNullBooleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     booleanListArgField<span class="token punctuation">(</span><span class="token attr-name">booleanListArg</span><span class="token punctuation">:</span> <span class="token variable">$nonNullBooleanList</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>However, a nullable list cannot be passed to a non-null list:</p>
-<pre id="example-64255" class="spec-counter-example" data-language="graphql"><a href="#example-64255">Counter Example № 184</a><code><span class="token keyword">query</span> listToNonNullList<span class="token punctuation">(</span><span class="token variable">$booleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-64255" class="spec-counter-example" data-language="graphql"><a href="#example-64255">Counter Example № 185</a><code><span class="token keyword">query</span> listToNonNullList<span class="token punctuation">(</span><span class="token variable">$booleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>Boolean<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     nonNullBooleanListField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanListArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanList</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5785,14 +5811,14 @@ While each subscription must have exactly one root field, a document may contain
 <h6><a href="#sec-All-Variable-Usages-are-Allowed.Allowing-optional-variables-when-default-values-exist" title="link to this subsection">Allowing optional variables when default values exist</a></h6>
 <p>A notable exception to typical variable type compatibility is allowing a variable definition with a nullable type to be provided to a non-null location as long as either that variable or that location provides a default value.</p>
 <p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non-null argument <code>optionalBooleanArg</code> because the field argument is optional since it provides a default value in the schema.</p>
-<pre id="example-0877c" class="spec-example" data-language="graphql"><a href="#example-0877c">Example № 185</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-0877c" class="spec-example" data-language="graphql"><a href="#example-0877c">Example № 186</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     optionalNonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">optionalBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non-null argument (<code>nonNullBooleanArg</code>) because the variable provides a default value in the operation. This behavior is explicitly supported for compatibility with earlier editions of this specification. GraphQL authoring tools may wish to report this as a warning with the suggestion to replace <code>Boolean</code> with <code>Boolean!</code> to avoid ambiguity.</p>
-<pre id="example-d24d9" class="spec-example" data-language="graphql"><a href="#example-d24d9">Example № 186</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-d24d9" class="spec-example" data-language="graphql"><a href="#example-d24d9">Example № 187</a><code><span class="token keyword">query</span> booleanArgQueryWithDefault<span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> Boolean <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   arguments <span class="token punctuation">{</span>
     nonNullBooleanArgField<span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanArg</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
@@ -5952,7 +5978,7 @@ This algorithm is very similar to <span class="spec-call"><a href="#CoerceArgume
 <a href="#note-79d56">Note</a>
 In large scale subscription systems, the <span class="spec-call"><a href="#Subscribe()" data-name="Subscribe">Subscribe</a>()</span> and <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>()</span> algorithms may be run on separate services to maintain predictable scaling properties. See the section below on Supporting Subscriptions at Scale.</div>
 <p>As an example, consider a chat application. To subscribe to new messages posted to the chat room, the client sends a request like so:</p>
-<pre id="example-2a5f0" class="spec-example" data-language="graphql"><a href="#example-2a5f0">Example № 187</a><code><span class="token keyword">subscription</span> NewMessages <span class="token punctuation">{</span>
+<pre id="example-2a5f0" class="spec-example" data-language="graphql"><a href="#example-2a5f0">Example № 188</a><code><span class="token keyword">subscription</span> NewMessages <span class="token punctuation">{</span>
   newMessage<span class="token punctuation">(</span><span class="token attr-name">roomId</span><span class="token punctuation">:</span> <span class="token number">123</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     sender
     text
@@ -5960,7 +5986,7 @@ In large scale subscription systems, the <span class="spec-call"><a href="#Subsc
 <span class="token punctuation">}</span>
 </code></pre>
 <p>While the client is subscribed, whenever new messages are posted to chat room with ID &ldquo;123&rdquo;, the selection for &ldquo;sender&rdquo; and &ldquo;text&rdquo; will be evaluated and published to the client, for example:</p>
-<pre id="example-a4629" class="spec-example" data-language="json"><a href="#example-a4629">Example № 188</a><code><span class="token punctuation">{</span>
+<pre id="example-a4629" class="spec-example" data-language="json"><a href="#example-a4629">Example № 189</a><code><span class="token punctuation">{</span>
   <span class="token property">"data"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"newMessage"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token property">"sender"</span><span class="token operator">:</span> <span class="token string">"Hagrid"</span><span class="token punctuation">,</span>
@@ -6086,7 +6112,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Normal-and-Serial-Execution">6.3.1</a></span>Normal and Serial Execution</h3>
 <p>Normally the executor can execute the entries in a grouped field set in whatever order it chooses (normally in parallel). Because the resolution of fields other than top-level mutation fields must always be side effect-free and idempotent, the execution order must not affect the result, and hence the service has the freedom to execute the field entries in whatever order it deems optimal.</p>
 <p>For example, given the following grouped field set to be executed normally:</p>
-<pre id="example-65e7d" class="spec-example" data-language="graphql"><a href="#example-65e7d">Example № 189</a><code><span class="token punctuation">{</span>
+<pre id="example-65e7d" class="spec-example" data-language="graphql"><a href="#example-65e7d">Example № 190</a><code><span class="token punctuation">{</span>
   birthday <span class="token punctuation">{</span>
     month
   <span class="token punctuation">}</span>
@@ -6099,7 +6125,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 <p>When executing a mutation, the selections in the top most selection set will be executed in serial order, starting with the first appearing field textually.</p>
 <p>When executing a grouped field set serially, the executor must consider each entry from the grouped field set in the order provided in the grouped field set. It must determine the corresponding entry in the result map for each item to completion before it continues on to the next item in the grouped field set:</p>
 <p>For example, given the following selection set to be executed serially:</p>
-<pre id="example-33b6a" class="spec-example" data-language="graphql"><a href="#example-33b6a">Example № 190</a><code><span class="token punctuation">{</span>
+<pre id="example-33b6a" class="spec-example" data-language="graphql"><a href="#example-33b6a">Example № 191</a><code><span class="token punctuation">{</span>
   changeBirthday<span class="token punctuation">(</span><span class="token attr-name">birthday</span><span class="token punctuation">:</span> <span class="token variable">$newBirthday</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     month
   <span class="token punctuation">}</span>
@@ -6114,7 +6140,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 <li>Run <span class="spec-call"><a href="#ExecuteField()" data-name="ExecuteField">ExecuteField</a>()</span> for <code>changeAddress</code>, which during <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>()</span> will execute the <code>{ street }</code> sub-selection set normally.</li>
 </ul>
 <p>As an illustrative example, let&rsquo;s assume we have a mutation field <code>changeTheNumber</code> that returns an object containing one field, <code>theNumber</code>. If we execute the following selection set serially:</p>
-<pre id="example-c91a3" class="spec-example" data-language="graphql"><a href="#example-c91a3">Example № 191</a><code><span class="token punctuation">{</span>
+<pre id="example-c91a3" class="spec-example" data-language="graphql"><a href="#example-c91a3">Example № 192</a><code><span class="token punctuation">{</span>
   <span class="token attr-name">first</span><span class="token punctuation">:</span> changeTheNumber<span class="token punctuation">(</span><span class="token attr-name">newNumber</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     theNumber
   <span class="token punctuation">}</span>
@@ -6136,7 +6162,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 <li>Execute the <code>{ theNumber }</code> sub-selection set of <code>third</code> normally</li>
 </ul>
 <p>A correct executor must generate the following result for that selection set:</p>
-<pre id="example-1d82c" class="spec-example" data-language="json"><a href="#example-1d82c">Example № 192</a><code><span class="token punctuation">{</span>
+<pre id="example-1d82c" class="spec-example" data-language="json"><a href="#example-1d82c">Example № 193</a><code><span class="token punctuation">{</span>
   <span class="token property">"first"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"theNumber"</span><span class="token operator">:</span> <span class="token number">1</span>
   <span class="token punctuation">}</span><span class="token punctuation">,</span>
@@ -6153,7 +6179,7 @@ See <a href="#sec-Handling-Field-Errors">Handling Field Errors</a> for more abou
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Field-Collection">6.3.2</a></span>Field Collection</h3>
 <p>Before execution, the selection set is converted to a grouped field set by calling <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span>. Each entry in the grouped field set is a list of fields that share a response key (the alias if defined, otherwise the field name). This ensures all fields with the same response key (including those in referenced fragments) are executed at the same time.</p>
 <p>As an example, collecting the fields of this selection set would collect two instances of the field <code>a</code> and one of field <code>b</code>:</p>
-<pre id="example-fdbb7" class="spec-example" data-language="graphql"><a href="#example-fdbb7">Example № 193</a><code><span class="token punctuation">{</span>
+<pre id="example-fdbb7" class="spec-example" data-language="graphql"><a href="#example-fdbb7">Example № 194</a><code><span class="token punctuation">{</span>
   a <span class="token punctuation">{</span>
     subfield1
   <span class="token punctuation">}</span>
@@ -6392,7 +6418,7 @@ A common method of determining the Object type for an <var data-name="objectValu
 <h6><a href="#sec-Value-Completion.Merging-Selection-Sets" title="link to this subsection">Merging Selection Sets</a></h6>
 <p>When more than one field of the same name is executed in parallel, their selection sets are merged together when completing the value in order to continue execution of the sub-selection sets.</p>
 <p>An example operation illustrating parallel fields with the same name with sub-selections.</p>
-<pre id="example-77852" class="spec-example" data-language="graphql"><a href="#example-77852">Example № 194</a><code><span class="token punctuation">{</span>
+<pre id="example-77852" class="spec-example" data-language="graphql"><a href="#example-77852">Example № 195</a><code><span class="token punctuation">{</span>
   me <span class="token punctuation">{</span>
     firstName
   <span class="token punctuation">}</span>
@@ -6476,7 +6502,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <p>If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error.</p>
 <p>This field should be a list of path segments starting at the root of the response and ending with the field associated with the error. Path segments that represent fields should be strings, and path segments that represent list indices should be 0-indexed integers. If the error happens in an aliased field, the path to the error should use the aliased name, since it represents a path in the response, not in the request.</p>
 <p>For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
-<pre id="example-bc485" class="spec-example" data-language="graphql"><a href="#example-bc485">Example № 195</a><code><span class="token punctuation">{</span>
+<pre id="example-bc485" class="spec-example" data-language="graphql"><a href="#example-bc485">Example № 196</a><code><span class="token punctuation">{</span>
   hero<span class="token punctuation">(</span><span class="token attr-name">episode</span><span class="token punctuation">:</span> <span class="token variable">$episode</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     name
     <span class="token attr-name">heroFriends</span><span class="token punctuation">:</span> friends <span class="token punctuation">{</span>
@@ -6487,7 +6513,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <span class="token punctuation">}</span>
 </code></pre>
 <p>The response might look like:</p>
-<pre id="example-072c4" class="spec-example" data-language="json"><a href="#example-072c4">Example № 196</a><code><span class="token punctuation">{</span>
+<pre id="example-072c4" class="spec-example" data-language="json"><a href="#example-072c4">Example № 197</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6518,7 +6544,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 </code></pre>
 <p>If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
 <p>For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
-<pre id="example-c18ef" class="spec-example" data-language="json"><a href="#example-c18ef">Example № 197</a><code><span class="token punctuation">{</span>
+<pre id="example-c18ef" class="spec-example" data-language="json"><a href="#example-c18ef">Example № 198</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6545,7 +6571,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <span class="token punctuation">}</span>
 </code></pre>
 <p>GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
-<pre id="example-8b658" class="spec-example" data-language="json"><a href="#example-8b658">Example № 198</a><code><span class="token punctuation">{</span>
+<pre id="example-8b658" class="spec-example" data-language="json"><a href="#example-8b658">Example № 199</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6563,7 +6589,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <div id="note-5c13b" class="spec-note">
 <a href="#note-5c13b">Note</a>
 Previous versions of this spec did not describe the <code>extensions</code> entry for error formatting. While non-specified entries are not violations, they are still discouraged.</div>
-<pre id="example-78af4" class="spec-counter-example" data-language="json"><a href="#example-78af4">Counter Example № 199</a><code><span class="token punctuation">{</span>
+<pre id="example-78af4" class="spec-counter-example" data-language="json"><a href="#example-78af4">Counter Example № 200</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -7385,6 +7411,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_3.13.1"><a href="#sec--skip"><span class="spec-secid">3.13.1</span>@skip</a></li>
 <li id="_sidebar_3.13.2"><a href="#sec--include"><span class="spec-secid">3.13.2</span>@include</a></li>
 <li id="_sidebar_3.13.3"><a href="#sec--deprecated"><span class="spec-secid">3.13.3</span>@deprecated</a></li>
+<li id="_sidebar_3.13.4"><a href="#sec--specifiedBy"><span class="spec-secid">3.13.4</span>@specifiedBy</a></li>
 </ol>
 </li>
 </ol>
