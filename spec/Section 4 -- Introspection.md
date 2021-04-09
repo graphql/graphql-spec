@@ -113,7 +113,7 @@ __schema: __Schema!
 __type(name: String!): __Type
 ```
 
-These meta-fields are implicit and do not appear in the fields list in the root
+Like all meta-fields, these are implicit and do not appear in the fields list in the root
 type of the query operation.
 
 The schema of the GraphQL schema introspection system:
