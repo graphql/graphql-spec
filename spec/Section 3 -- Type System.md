@@ -360,7 +360,7 @@ typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
 GraphQL provides a number of built-in scalars which are fully defined in the
 sections below, however type systems may also add additional custom scalars to
-introduce additional semantic meaning (see below).
+introduce additional semantic meaning.
 
 **Built-in Scalars**
 
@@ -391,8 +391,8 @@ a potentially useful custom scalar is `URL`, which serializes as a string, but
 is guaranteed by the server to be a valid URL.
 
 When defining a custom scalar, GraphQL services should provide a specification
-URL via `specifiedBy` introspection field or the `@specifiedBy` directive. This
-URL must link to a human-readable specification of the data format,
+URL via the `specifiedBy` introspection field or the `@specifiedBy` directive.
+This URL must link to a human-readable specification of the data format,
 serialization, and coercion rules for the scalar. For example, a GraphQL service
 providing a `UUID` scalar may link to RFC 4122, or some custom document defining
 a reasonable subset of that RFC. If a scalar specification URL is present,
@@ -407,8 +407,8 @@ Custom scalar specifications should provide a single, stable format to avoid
 ambiguity. If the linked specification is in flux, the service should link to a
 fixed version rather than to a resource which might change.
 
-Custom scalar specification URLs should not be changed once defined; as doing so
-is likely to disrupt tooling or may come with breaking changes within the
+Custom scalar specification URLs should not be changed once defined. Doing so
+would likely disrupt tooling or could introduce breaking changes within the
 linked specification's contents.
 
 Built-in scalar types must not provide a specification URL as they are specified
