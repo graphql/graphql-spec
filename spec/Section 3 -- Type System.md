@@ -1881,6 +1881,10 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar
 definitions.
 
+When representing a GraphQL schema using the type system definition language,
+built in directives (any defined in this specification) should be omitted for
+brevity. Custom directives in use must be specified.
+
 **Custom Directives**
 
 GraphQL services and client tooling may provide additional directives beyond
