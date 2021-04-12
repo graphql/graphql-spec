@@ -41,10 +41,10 @@ GetOperation(document, operationName):
   * If {operationName} is {null}:
     * If {document} contains exactly one operation.
       * Return the Operation contained in the {document}.
-    * Otherwise produce a query error requiring {operationName}.
+    * Otherwise raise a request error requiring {operationName}.
   * Otherwise:
     * Let {operation} be the Operation named {operationName} in {document}.
-    * If {operation} was not found, produce a query error.
+    * If {operation} was not found, raise a request error.
     * Return {operation}.
 
 
@@ -71,7 +71,7 @@ result to avoid validating the same request again in the future.
 
 If the operation has defined any variables, then the values for
 those variables need to be coerced using the input coercion rules
-of variable's declared type. If a query error is encountered during
+of variable's declared type. If a request error is encountered during
 input coercion of variable values, then the operation fails without
 execution.
 
@@ -92,14 +92,14 @@ CoerceVariableValues(schema, operation, variableValues):
       * Add an entry to {coercedValues} named {variableName} with the
         value {defaultValue}.
     * Otherwise if {variableType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a query error.
+      is not {true} or {value} is {null}, raise a request error.
     * Otherwise if {hasValue} is true:
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {variableName} with the
           value {null}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-          rules of {variableType}, throw a query error.
+          rules of {variableType}, raise a request error.
         * Let {coercedValue} be the result of coercing {value} according to the
           input coercion rules of {variableType}.
         * Add an entry to {coercedValues} named {variableName} with the
@@ -112,15 +112,16 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 ## Executing Operations
 
 The type system, as described in the "Type System" section of the spec, must
-provide a query root object type. If mutations or subscriptions are supported,
-it must also provide a mutation or subscription root object type, respectively.
+provide a query root operation type. If mutations or subscriptions are supported,
+it must also provide a mutation or subscription root operation type, respectively.
 
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the query’s top level selection set with the query root object type.
+executing the operation’s top level selection set with the query root
+operation type.
 
-An initial value may be provided when executing a query.
+An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
@@ -137,7 +138,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 ### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
-executing the mutation’s top level selection set on the mutation root
+executing the operation’s top level selection set on the mutation root
 object type. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
@@ -162,8 +163,8 @@ If the operation is a subscription, the result is an event stream called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
-Executing a subscription creates a persistent function on the server that
-maps an underlying Source Stream to a returned Response Stream.
+Executing a subscription operation creates a persistent function on the service
+that maps an underlying Source Stream to a returned Response Stream.
 
 Subscribe(subscription, schema, variableValues, initialValue):
 
@@ -221,7 +222,7 @@ must receive no more events from that event stream.
 
 Supporting subscriptions is a significant change for any GraphQL service. Query
 and mutation operations are stateless, allowing scaling via cloning of GraphQL
-server instances. Subscriptions, by contrast, are stateful and require
+service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
 
@@ -250,9 +251,10 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
   * Let {subscriptionType} be the root Subscription type in {schema}.
   * Assert: {subscriptionType} is an Object type.
+  * Let {selectionSet} be the top level Selection Set in {subscription}.
   * Let {groupedFieldSet} be the result of
     {CollectFields(subscriptionType, selectionSet, variableValues)}.
-  * If {groupedFieldSet} does not have exactly one entry, throw a query error.
+  * If {groupedFieldSet} does not have exactly one entry, raise a request error.
   * Let {fields} be the value of the first entry in {groupedFieldSet}.
   * Let {fieldName} be the name of the first entry in {fields}.
     Note: This value is unaffected if an alias is used.
@@ -334,27 +336,27 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
       * Set {responseValue} as the value for {responseKey} in {resultMap}.
   * Return {resultMap}.
 
-Note: {resultMap} is ordered by which fields appear first in the query. This
+Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} throws a
+If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
 field error then that error must propagate to this entire selection set, either
 resolving to {null} if allowed or further propagated to a parent field.
 
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
-See the [Errors and Non-Nullability](#sec-Errors-and-Non-Nullability) section
-of Field Execution for more about this behavior.
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
 
 ### Normal and Serial Execution
 
 Normally the executor can execute the entries in a grouped field set in whatever
 order it chooses (normally in parallel). Because the resolution of fields other
 than top-level mutation fields must always be side effect-free and idempotent,
-the execution order must not affect the result, and hence the server has the
+the execution order must not affect the result, and hence the service has the
 freedom to execute the field entries in whatever order it deems optimal.
 
 For example, given the following grouped field set to be executed normally:
@@ -451,8 +453,8 @@ A correct executor must generate the following result for that selection set:
 Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key included via
-referenced fragments are executed at the same time.
+name). This ensures all fields with the same response key (including those
+in referenced fragments) are executed at the same time.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -479,7 +481,7 @@ response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
-  * If {visitedFragments} if not provided, initialize it to the empty set.
+  * If {visitedFragments} is not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
     * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
@@ -561,8 +563,8 @@ Fields may include arguments which are provided to the underlying runtime in
 order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type.
 
-At each argument position in a query may be a literal {Value}, or a {Variable}
-to be provided at runtime.
+At each argument position in an operation may be a literal {Value}, or a
+{Variable} to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
   * Let {coercedValues} be an empty unordered Map.
@@ -589,7 +591,7 @@ CoerceArgumentValues(objectType, field, variableValues):
       * Add an entry to {coercedValues} named {argumentName} with the
         value {defaultValue}.
     * Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue}
-      is not {true} or {value} is {null}, throw a field error.
+      is not {true} or {value} is {null}, raise a field error.
     * Otherwise if {hasValue} is true:
       * If {value} is {null}:
         * Add an entry to {coercedValues} named {argumentName} with the
@@ -599,7 +601,7 @@ CoerceArgumentValues(objectType, field, variableValues):
           value {value}.
       * Otherwise:
         * If {value} cannot be coerced according to the input coercion
-            rules of {argumentType}, throw a field error.
+            rules of {argumentType}, raise a field error.
         * Let {coercedValue} be the result of coercing {value} according to the
           input coercion rules of {argumentType}.
         * Add an entry to {coercedValues} named {argumentName} with the
@@ -607,7 +609,7 @@ CoerceArgumentValues(objectType, field, variableValues):
   * Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid queries
+before executing the operation in {CoerceVariableValues()}, and valid operations
 must only allow usage of variables of appropriate types.
 
 
@@ -644,19 +646,18 @@ CompleteValue(fieldType, fields, result, variableValues):
     * Let {innerType} be the inner type of {fieldType}.
     * Let {completedResult} be the result of calling
       {CompleteValue(innerType, fields, result, variableValues)}.
-    * If {completedResult} is {null}, throw a field error.
+    * If {completedResult} is {null}, raise a field error.
     * Return {completedResult}.
   * If {result} is {null} (or another internal value similar to {null} such as
-    {undefined} or {NaN}), return {null}.
+    {undefined}), return {null}.
   * If {fieldType} is a List type:
-    * If {result} is not a collection of values, throw a field error.
+    * If {result} is not a collection of values, raise a field error.
     * Let {innerType} be the inner type of {fieldType}.
     * Return a list where each list item is the result of calling
       {CompleteValue(innerType, fields, resultItem, variableValues)}, where
       {resultItem} is each item in {result}.
   * If {fieldType} is a Scalar or Enum type:
-    * Return the result of "coercing" {result}, ensuring it is a legal value of
-      {fieldType}, otherwise {null}.
+    * Return the result of {CoerceResult(fieldType, result)}.
   * If {fieldType} is an Object, Interface, or Union type:
     * If {fieldType} is an Object type.
       * Let {objectType} be {fieldType}.
@@ -664,6 +665,28 @@ CompleteValue(fieldType, fields, result, variableValues):
       * Let {objectType} be {ResolveAbstractType(fieldType, result)}.
     * Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
     * Return the result of evaluating {ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues)} *normally* (allowing for parallelization).
+
+**Coercing Results**
+
+The primary purpose of value completion is to ensure that the values returned by
+field resolvers are valid according to the GraphQL type system and a service's
+schema. This "dynamic type checking" allows GraphQL to provide consistent
+guarantees about returned types atop any service's internal runtime.
+
+See the Scalars [Result Coercion and Serialization](#sec-Scalars.Result-Coercion-and-Serialization)
+sub-section for more detailed information about how GraphQL's built-in scalars
+coerce result values.
+
+CoerceResult(leafType, value):
+  * Assert {value} is not {null}.
+  * Return the result of calling the internal method provided by the type
+    system for determining the "result coercion" of {leafType} given the value
+    {value}. This internal method must return a valid value for the
+    type and not {null}. Otherwise throw a field error.
+
+Note: If a field resolver returns {null} then it is handled within
+{CompleteValue()} before {CoerceResult()} is called. Therefore both the input
+and output of {CoerceResult()} must not be {null}.
 
 **Resolving Abstract Types**
 
@@ -683,11 +706,11 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one fields of the same name are executed in parallel, their
+When more than one field of the same name is executed in parallel, their
 selection sets are merged together when completing the value in order to
 continue execution of the sub-selection sets.
 
-An example query illustrating parallel fields with the same name with
+An example operation illustrating parallel fields with the same name with
 sub-selections.
 
 ```graphql example
@@ -713,19 +736,27 @@ MergeSelectionSets(fields):
   * Return {selectionSet}.
 
 
-### Errors and Non-Nullability
+### Handling Field Errors
 
-If an error is thrown while resolving a field, it should be treated as though
-the field returned {null}, and an error must be added to the {"errors"} list
-in the response.
+["Field errors"](#sec-Errors.Field-errors) are raised from a particular field
+during value resolution or coercion. While these errors should be reported in
+the response, they are "handled" by producing a partial response.
+
+Note: This is distinct from ["request errors"](#sec-Errors.Request-errors) which
+are raised before execution begins. If a request error is encountered, execution
+does not begin and no data is returned in the response.
+
+If a field error is raised while resolving a field, it is handled as though the
+field returned {null}, and the error must be added to the {"errors"} list in
+the response.
 
 If the result of resolving a field is {null} (either because the function to
-resolve the field returned {null} or because an error occurred), and that
-field is of a `Non-Null` type, then a field error is thrown. The
+resolve the field returned {null} or because a field error was raised), and that
+field is of a `Non-Null` type, then a field error is raised. The
 error must be added to the {"errors"} list in the response.
 
-If the field returns {null} because of an error which has already been added to
-the {"errors"} list in the response, the {"errors"} list must not be
+If the field returns {null} because of a field error which has already been
+added to the {"errors"} list in the response, the {"errors"} list must not be
 further affected. That is, only one error should be added to the errors list per
 field.
 

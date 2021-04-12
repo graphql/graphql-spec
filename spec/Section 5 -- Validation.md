@@ -21,7 +21,7 @@ point in time.
 
 **Type system evolution**
 
-As GraphQL type system schema evolve over time by adding new types and new
+As GraphQL type system schema evolves over time by adding new types and new
 fields, it is possible that a request which was previously valid could later
 become invalid. Any change that can cause a previously valid request to become
 invalid is considered a *breaking change*. GraphQL services and schema
@@ -40,7 +40,11 @@ type Query {
   dog: Dog
 }
 
-enum DogCommand { SIT, DOWN, HEEL }
+enum DogCommand {
+  SIT
+  DOWN
+  HEEL
+}
 
 type Dog implements Pet {
   name: String!
@@ -69,7 +73,9 @@ type Human implements Sentient {
   pets: [Pet!]
 }
 
-enum CatCommand { JUMP }
+enum CatCommand {
+  JUMP
+}
 
 type Cat implements Pet {
   name: String!
@@ -90,9 +96,9 @@ union HumanOrAlien = Human | Alien
 
 **Formal Specification**
 
-  * For each definition {definition} in the document.
-  * {definition} must be {OperationDefinition} or {FragmentDefinition} (it must
-    not be {TypeSystemDefinition}).
+* For each definition {definition} in the document.
+* {definition} must be {ExecutableDefinition} (it must not be
+  {TypeSystemDefinitionOrExtension}).
 
 **Explanatory Text**
 
@@ -100,11 +106,11 @@ GraphQL execution will only consider the executable definitions Operation and
 Fragment. Type system definitions and extensions are not executable, and are not
 considered during execution.
 
-To avoid ambiguity, a document containing {TypeSystemDefinition} is invalid
-for execution.
+To avoid ambiguity, a document containing {TypeSystemDefinitionOrExtension} is
+invalid for execution.
 
 GraphQL documents not intended to be directly executed may include
-{TypeSystemDefinition}.
+{TypeSystemDefinitionOrExtension}.
 
 For example, the following document is invalid for execution since the original
 executing schema may not know about the provided type extension:
@@ -130,11 +136,11 @@ extend type Dog {
 
 **Formal Specification**
 
-  * For each operation definition {operation} in the document.
-  * Let {operationName} be the name of {operation}.
-  * If {operationName} exists
-    * Let {operations} be all operation definitions in the document named {operationName}.
-    * {operations} must be a set of one.
+* For each operation definition {operation} in the document.
+* Let {operationName} be the name of {operation}.
+* If {operationName} exists
+  * Let {operations} be all operation definitions in the document named {operationName}.
+  * {operations} must be a set of one.
 
 **Explanatory Text**
 
@@ -199,10 +205,10 @@ mutation dogOperation {
 
 **Formal Specification**
 
-  * Let {operations} be all operation definitions in the document.
-  * Let {anonymous} be all anonymous operation definitions in the document.
-  * If {operations} is a set of more than 1:
-    * {anonymous} must be empty.
+* Let {operations} be all operation definitions in the document.
+* Let {anonymous} be all anonymous operation definitions in the document.
+* If {operations} is a set of more than 1:
+  * {anonymous} must be empty.
 
 **Explanatory Text**
 
@@ -243,13 +249,13 @@ query getName {
 
 **Formal Specification**
 
-  * For each subscription operation definition {subscription} in the document
-  * Let {subscriptionType} be the root Subscription type in {schema}.
-  * Let {selectionSet} be the top level selection set on {subscription}.
-  * Let {variableValues} be the empty set.
-  * Let {groupedFieldSet} be the result of
-    {CollectFields(subscriptionType, selectionSet, variableValues)}.
-  * {groupedFieldSet} must have exactly one entry.
+* For each subscription operation definition {subscription} in the document
+* Let {subscriptionType} be the root Subscription type in {schema}.
+* Let {selectionSet} be the top level selection set on {subscription}.
+* Let {variableValues} be the empty set.
+* Let {groupedFieldSet} be the result of
+  {CollectFields(subscriptionType, selectionSet, variableValues)}.
+* {groupedFieldSet} must have exactly one entry.
 
 **Explanatory Text**
 
@@ -324,13 +330,15 @@ must provide the operation name as described in {GetOperation()}.
 
 ## Fields
 
-### Field Selections on Objects, Interfaces, and Unions Types
+### Field Selections
+
+Field selections must exist on Object, Interface, and Union types.
 
 **Formal Specification**
 
-  * For each {selection} in the document.
-  * Let {fieldName} be the target field of {selection}
-  * {fieldName} must be defined on type in scope
+* For each {selection} in the document.
+* Let {fieldName} be the target field of {selection}
+* {fieldName} must be defined on type in scope
 
 **Explanatory Text**
 
@@ -402,8 +410,8 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 **Formal Specification**
 
-  * Let {set} be any selection set defined in the GraphQL document.
-  * {FieldsInSetCanMerge(set)} must be true.
+* Let {set} be any selection set defined in the GraphQL document.
+* {FieldsInSetCanMerge(set)} must be true.
 
 FieldsInSetCanMerge(set):
 
@@ -564,17 +572,17 @@ fragment conflictingDifferingResponses on Pet {
 
 **Formal Specification**
 
-  * For each {selection} in the document
-  * Let {selectionType} be the result type of {selection}
-  * If {selectionType} is a scalar or enum:
-    * The subselection set of that selection must be empty
-  * If {selectionType} is an interface, union, or object
-    * The subselection set of that selection must NOT BE empty
+* For each {selection} in the document
+* Let {selectionType} be the result type of {selection}
+* If {selectionType} is a scalar or enum:
+  * The subselection set of that selection must be empty
+* If {selectionType} is an interface, union, or object
+  * The subselection set of that selection must NOT BE empty
 
 **Explanatory Text**
 
 Field selections on scalars or enums are never allowed, because they
-are the leaf nodes of any GraphQL query.
+are the leaf nodes of any GraphQL operation.
 
 The following is valid.
 
@@ -594,11 +602,12 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the leaf field selections of GraphQL queries
+Conversely the leaf field selections of GraphQL operations
 must be of type scalar or enum. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following additions to the query root type of the schema:
+Let's assume the following additions to the query root operation type of
+the schema:
 
 ```graphql example
 extend type Query {
@@ -635,10 +644,10 @@ rules apply in both cases.
 
 **Formal Specification**
 
-  * For each {argument} in the document
-  * Let {argumentName} be the Name of {argument}.
-  * Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
-  * {argumentDefinition} must exist.
+* For each {argument} in the document
+* Let {argumentName} be the Name of {argument}.
+* Let {argumentDefinition} be the argument definition provided by the parent field or definition named {argumentName}.
+* {argumentDefinition} must exist.
 
 **Explanatory Text**
 
@@ -692,7 +701,7 @@ extend type Query {
 }
 ```
 
-Order does not matter in arguments. Therefore both the following example are valid.
+Order does not matter in arguments. Therefore both the following examples are valid.
 
 ```graphql example
 fragment multipleArgs on Arguments {
@@ -713,10 +722,10 @@ and invalid.
 
 **Formal Specification**
 
-  * For each {argument} in the Document.
-  * Let {argumentName} be the Name of {argument}.
-  * Let {arguments} be all Arguments named {argumentName} in the Argument Set which contains {argument}.
-  * {arguments} must be the set containing only {argument}.
+* For each {argument} in the Document.
+* Let {argumentName} be the Name of {argument}.
+* Let {arguments} be all Arguments named {argumentName} in the Argument Set which contains {argument}.
+* {arguments} must be the set containing only {argument}.
 
 
 #### Required Arguments
@@ -753,7 +762,7 @@ fragment goodNonNullArg on Arguments {
 
 The argument can be omitted from a field with a nullable argument.
 
-Therefore the following query is valid:
+Therefore the following fragment is valid:
 
 ```graphql example
 fragment goodBooleanArgDefault on Arguments {
@@ -786,10 +795,10 @@ fragment missingRequiredArg on Arguments {
 
 **Formal Specification**
 
-  * For each fragment definition {fragment} in the document
-  * Let {fragmentName} be the name of {fragment}.
-  * Let {fragments} be all fragment definitions in the document named {fragmentName}.
-  * {fragments} must be a set of one.
+* For each fragment definition {fragment} in the document
+* Let {fragmentName} be the name of {fragment}.
+* Let {fragments} be all fragment definitions in the document named {fragmentName}.
+* {fragments} must be a set of one.
 
 **Explanatory Text**
 
@@ -845,15 +854,15 @@ fragment fragmentOne on Dog {
 
 **Formal Specification**
 
-  * For each named spread {namedSpread} in the document
-  * Let {fragment} be the target of {namedSpread}
-  * The target type of {fragment} must be defined in the schema
+* For each named spread {namedSpread} in the document
+* Let {fragment} be the target of {namedSpread}
+* The target type of {fragment} must be defined in the schema
 
 **Explanatory Text**
 
 Fragments must be specified on types that exist in the schema. This
 applies for both named and inline fragments. If they are
-not defined in the schema, the query does not validate.
+not defined in the schema, the fragment is invalid.
 
 For example the following fragments are valid:
 
@@ -894,9 +903,9 @@ fragment inlineNotExistingType on Dog {
 
 **Formal Specification**
 
-  * For each {fragment} defined in the document.
-  * The target type of fragment must have kind {UNION}, {INTERFACE}, or
-    {OBJECT}.
+* For each {fragment} defined in the document.
+* The target type of fragment must have kind {UNION}, {INTERFACE}, or
+  {OBJECT}.
 
 **Explanatory Text**
 
@@ -941,8 +950,8 @@ fragment inlineFragOnScalar on Dog {
 
 **Formal Specification**
 
-  * For each {fragment} defined in the document.
-  * {fragment} must be the target of at least one spread in the document
+* For each {fragment} defined in the document.
+* {fragment} must be the target of at least one spread in the document
 
 **Explanatory Text**
 
@@ -950,7 +959,7 @@ Defined fragments must be used within a document.
 
 For example the following is an invalid document:
 
-```graphql counter-example
+```raw graphql counter-example
 fragment nameFragment on Dog { # unused
   name
 }
@@ -975,9 +984,9 @@ referenced.
 
 **Formal Specification**
 
-  * For every {namedSpread} in the document.
-  * Let {fragment} be the target of {namedSpread}
-  * {fragment} must be defined in the document
+* For every {namedSpread} in the document.
+* Let {fragment} be the target of {namedSpread}
+* {fragment} must be defined in the document
 
 **Explanatory Text**
 
@@ -998,9 +1007,9 @@ not defined.
 
 **Formal Specification**
 
-  * For each {fragmentDefinition} in the document
-  * Let {visited} be the empty set.
-  * {DetectFragmentCycles(fragmentDefinition, visited)}
+* For each {fragmentDefinition} in the document
+* Let {visited} be the empty set.
+* {DetectFragmentCycles(fragmentDefinition, visited)}
 
 DetectFragmentCycles(fragmentDefinition, visited):
 
@@ -1084,13 +1093,13 @@ fragment ownerFragment on Human {
 
 **Formal Specification**
 
-  * For each {spread} (named or inline) defined in the document.
-  * Let {fragment} be the target of {spread}
-  * Let {fragmentType} be the type condition of {fragment}
-  * Let {parentType} be the type of the selection set containing {spread}
-  * Let {applicableTypes} be the intersection of
-    {GetPossibleTypes(fragmentType)} and {GetPossibleTypes(parentType)}
-  * {applicableTypes} must not be empty.
+* For each {spread} (named or inline) defined in the document.
+* Let {fragment} be the target of {spread}
+* Let {fragmentType} be the type condition of {fragment}
+* Let {parentType} be the type of the selection set containing {spread}
+* Let {applicableTypes} be the intersection of
+  {GetPossibleTypes(fragmentType)} and {GetPossibleTypes(parentType)}
+* {applicableTypes} must not be empty.
 
 GetPossibleTypes(type):
 
@@ -1243,7 +1252,7 @@ fragment dogOrHumanFragment on DogOrHuman {
 }
 ```
 
-is consider valid because {Dog} implements interface {Pet} and is a
+is considered valid because {Dog} implements interface {Pet} and is a
 member of {DogOrHuman}.
 
 However
@@ -1270,7 +1279,7 @@ interface scope which it implements.
 In the example below, the `...resourceFragment` fragments spreads is valid,
 since `Resource` implements `Node`.
 
-```graphql example
+```raw graphql example
 interface Node {
   id: ID!
 }
@@ -1295,11 +1304,11 @@ fragment resourceFragment on Resource {
 
 ### Values of Correct Type
 
-**Format Specification**
+**Formal Specification**
 
-  * For each input Value {value} in the document.
-    * Let {type} be the type expected in the position {value} is found.
-    * {value} must be coercible to {type}.
+* For each input Value {value} in the document.
+  * Let {type} be the type expected in the position {value} is found.
+  * {value} must be coercible to {type}.
 
 **Explanatory Text**
 
@@ -1345,11 +1354,11 @@ query badComplexValue {
 
 **Formal Specification**
 
-  * For each Input Object Field {inputField} in the document
-  * Let {inputFieldName} be the Name of {inputField}.
-  * Let {inputFieldDefinition} be the input field definition provided by the
-    parent input object type named {inputFieldName}.
-  * {inputFieldDefinition} must exist.
+* For each Input Object Field {inputField} in the document
+* Let {inputFieldName} be the Name of {inputField}.
+* Let {inputFieldDefinition} be the input field definition provided by the
+  parent input object type named {inputFieldName}.
+* {inputFieldDefinition} must exist.
 
 **Explanatory Text**
 
@@ -1378,18 +1387,18 @@ which is not defined on the expected type:
 
 **Formal Specification**
 
-  * For each input object value {inputObject} in the document.
-  * For every {inputField} in {inputObject}
-    * Let {name} be the Name of {inputField}.
-    * Let {fields} be all Input Object Fields named {name} in {inputObject}.
-    * {fields} must be the set containing only {inputField}.
+* For each input object value {inputObject} in the document.
+* For every {inputField} in {inputObject}
+  * Let {name} be the Name of {inputField}.
+  * Let {fields} be all Input Object Fields named {name} in {inputObject}.
+  * {fields} must be the set containing only {inputField}.
 
 **Explanatory Text**
 
 Input objects must not contain more than one field of the same name, otherwise
 an ambiguity would exist which includes an ignored portion of syntax.
 
-For example the following query will not pass validation.
+For example the following document will not pass validation.
 
 ```graphql counter-example
 {
@@ -1402,18 +1411,18 @@ For example the following query will not pass validation.
 
 **Formal Specification**
 
-  * For each Input Object in the document.
-    * Let {fields} be the fields provided by that Input Object.
-    * Let {fieldDefinitions} be the set of input field definitions of that Input Object.
-  * For each {fieldDefinition} in {fieldDefinitions}:
-    * Let {type} be the expected type of {fieldDefinition}.
-    * Let {defaultValue} be the default value of {fieldDefinition}.
-    * If {type} is Non-Null and {defaultValue} does not exist:
-      * Let {fieldName} be the name of {fieldDefinition}.
-      * Let {field} be the input field in {fields} named {fieldName}
-      * {field} must exist.
-      * Let {value} be the value of {field}.
-      * {value} must not be the {null} literal.
+* For each Input Object in the document.
+  * Let {fields} be the fields provided by that Input Object.
+  * Let {fieldDefinitions} be the set of input field definitions of that Input Object.
+* For each {fieldDefinition} in {fieldDefinitions}:
+  * Let {type} be the expected type of {fieldDefinition}.
+  * Let {defaultValue} be the default value of {fieldDefinition}.
+  * If {type} is Non-Null and {defaultValue} does not exist:
+    * Let {fieldName} be the name of {fieldDefinition}.
+    * Let {field} be the input field in {fields} named {fieldName}
+    * {field} must exist.
+    * Let {value} be the value of {field}.
+    * {value} must not be the {null} literal.
 
 **Explanatory Text**
 
@@ -1430,35 +1439,35 @@ input object field is optional.
 
 **Formal Specification**
 
-  * For every {directive} in a document.
-  * Let {directiveName} be the name of {directive}.
-  * Let {directiveDefinition} be the directive named {directiveName}.
-  * {directiveDefinition} must exist.
+* For every {directive} in a document.
+* Let {directiveName} be the name of {directive}.
+* Let {directiveDefinition} be the directive named {directiveName}.
+* {directiveDefinition} must exist.
 
 **Explanatory Text**
 
-GraphQL servers define what directives they support. For each
-usage of a directive, the directive must be available on that server.
+GraphQL services define what directives they support. For each
+usage of a directive, the directive must be available on that service.
 
 
 ### Directives Are In Valid Locations
 
 **Formal Specification**
 
-  * For every {directive} in a document.
-  * Let {directiveName} be the name of {directive}.
-  * Let {directiveDefinition} be the directive named {directiveName}.
-  * Let {locations} be the valid locations for {directiveDefinition}.
-  * Let {adjacent} be the AST node the directive affects.
-  * {adjacent} must be represented by an item within {locations}.
+* For every {directive} in a document.
+* Let {directiveName} be the name of {directive}.
+* Let {directiveDefinition} be the directive named {directiveName}.
+* Let {locations} be the valid locations for {directiveDefinition}.
+* Let {adjacent} be the AST node the directive affects.
+* {adjacent} must be represented by an item within {locations}.
 
 **Explanatory Text**
 
-GraphQL servers define what directives they support and where they support them.
+GraphQL services define what directives they support and where they support them.
 For each usage of a directive, the directive must be used in a location that the
-server has declared support for.
+service has declared support for.
 
-For example the following query will not pass validation because `@skip` does
+For example the following document will not pass validation because `@skip` does
 not provide `QUERY` as a valid location.
 
 ```graphql counter-example
@@ -1472,14 +1481,14 @@ query @skip(if: $foo) {
 
 **Formal Specification**
 
-  * For every {location} in the document for which Directives can apply:
-    * Let {directives} be the set of Directives which apply to {location} and
-      are not repeatable.
-    * For each {directive} in {directives}:
-      * Let {directiveName} be the name of {directive}.
-      * Let {namedDirectives} be the set of all Directives named {directiveName}
-        in {directives}.
-      * {namedDirectives} must be a set of one.
+* For every {location} in the document for which Directives can apply:
+  * Let {directives} be the set of Directives which apply to {location} and
+    are not repeatable.
+  * For each {directive} in {directives}:
+    * Let {directiveName} be the name of {directive}.
+    * Let {namedDirectives} be the set of all Directives named {directiveName}
+      in {directives}.
+    * {namedDirectives} must be a set of one.
 
 **Explanatory Text**
 
@@ -1488,19 +1497,20 @@ definition they apply to. When more than one directive of the same name is used,
 the expected metadata or behavior becomes ambiguous, therefore only one of each
 directive is allowed per location.
 
-For example, the following query will not pass validation because `@skip` has
+For example, the following document will not pass validation because `@skip` has
 been used twice for the same field:
 
-```graphql counter-example
+```raw graphql counter-example
 query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $foo) @skip(if: $bar)
 }
 ```
 
 However the following example is valid because `@skip` has been used only once
-per location, despite being used twice in the query and on the same named field:
+per location, despite being used twice in the operation and on the same
+named field:
 
-```graphql example
+```raw graphql example
 query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $foo) {
     subfieldA
@@ -1518,12 +1528,12 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 **Formal Specification**
 
-  * For every {operation} in the document
-    * For every {variable} defined on {operation}
-      * Let {variableName} be the name of {variable}
-      * Let {variables} be the set of all variables named {variableName} on
-        {operation}
-      * {variables} must be a set of one
+* For every {operation} in the document
+  * For every {variable} defined on {operation}
+    * Let {variableName} be the name of {variable}
+    * Let {variables} be the set of all variables named {variableName} on
+      {operation}
+    * {variables} must be a set of one
 
 **Explanatory Text**
 
@@ -1552,7 +1562,7 @@ query B($atOtherHomes: Boolean) {
   ...HouseTrainedFragment
 }
 
-fragment HouseTrainedFragment {
+fragment HouseTrainedFragment on Query {
   dog {
     isHousetrained(atOtherHomes: $atOtherHomes)
   }
@@ -1564,10 +1574,10 @@ fragment HouseTrainedFragment {
 
 **Formal Specification**
 
-  * For every {operation} in a {document}
-  * For every {variable} on each {operation}
-    * Let {variableType} be the type of {variable}
-    * {IsInputType(variableType)} must be {true}
+* For every {operation} in a {document}
+* For every {variable} on each {operation}
+  * Let {variableType} be the type of {variable}
+  * {IsInputType(variableType)} must be {true}
 
 **Explanatory Text**
 
@@ -1577,7 +1587,10 @@ used as inputs.
 For these examples, consider the following typesystem additions:
 
 ```graphql example
-input ComplexInput { name: String, owner: String }
+input ComplexInput {
+  name: String
+  owner: String
+}
 
 extend type Query {
   findDog(complex: ComplexInput): Dog
@@ -1585,7 +1598,7 @@ extend type Query {
 }
 ```
 
-The following queries are valid:
+The following operations are valid:
 
 ```graphql example
 query takesBoolean($atOtherHomes: Boolean) {
@@ -1605,7 +1618,7 @@ query TakesListOfBooleanBang($booleans: [Boolean!]) {
 }
 ```
 
-The following queries are invalid:
+The following operations are invalid:
 
 ```graphql counter-example
 query takesCat($cat: Cat) {
@@ -1630,12 +1643,12 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 
 **Formal Specification**
 
-  * For each {operation} in a document
-    * For each {variableUsage} in scope, variable must be in {operation}'s variable list.
-    * Let {fragments} be every fragment referenced by that {operation} transitively
-    * For each {fragment} in {fragments}
-      * For each {variableUsage} in scope of {fragment}, variable must be in
-        {operation}'s variable list.
+* For each {operation} in a document
+  * For each {variableUsage} in scope, variable must be in {operation}'s variable list.
+  * Let {fragments} be every fragment referenced by that {operation} transitively
+  * For each {fragment} in {fragments}
+    * For each {variableUsage} in scope of {fragment}, variable must be in
+      {operation}'s variable list.
 
 **Explanatory Text**
 
@@ -1655,7 +1668,7 @@ query variableIsDefined($atOtherHomes: Boolean) {
 
 is valid. ${atOtherHomes} is defined by the operation.
 
-By contrast the following query is invalid:
+By contrast the following document is invalid:
 
 ```graphql counter-example
 query variableIsNotDefined {
@@ -1691,7 +1704,7 @@ since {isHousetrainedFragment} is used within the context of the operation
 operation.
 
 On the other hand, if a fragment is included within an operation that does
-not define a referenced variable, the query is invalid.
+not define a referenced variable, the document is invalid.
 
 ```graphql counter-example
 query variableIsNotDefinedUsedInSingleFragment {
@@ -1773,11 +1786,11 @@ which is included in that operation.
 
 **Formal Specification**
 
-  * For every {operation} in the document.
-  * Let {variables} be the variables defined by that {operation}
-  * Each {variable} in {variables} must be used at least once in either
-    the operation scope itself or any fragment transitively referenced by that
-    operation.
+* For every {operation} in the document.
+* Let {variables} be the variables defined by that {operation}
+* Each {variable} in {variables} must be used at least once in either
+  the operation scope itself or any fragment transitively referenced by that
+  operation.
 
 **Explanatory Text**
 
@@ -1858,13 +1871,13 @@ an extraneous variable.
 
 **Formal Specification**
 
-  * For each {operation} in {document}:
-  * Let {variableUsages} be all usages transitively included in the {operation}.
-  * For each {variableUsage} in {variableUsages}:
-    * Let {variableName} be the name of {variableUsage}.
-    * Let {variableDefinition} be the {VariableDefinition} named {variableName}
-      defined within {operation}.
-    * {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
+* For each {operation} in {document}:
+* Let {variableUsages} be all usages transitively included in the {operation}.
+* For each {variableUsage} in {variableUsages}:
+  * Let {variableName} be the name of {variableUsage}.
+  * Let {variableDefinition} be the {VariableDefinition} named {variableName}
+    defined within {operation}.
+  * {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
@@ -1918,7 +1931,7 @@ query intCannotGoIntoBoolean($intArg: Int) {
 }
 ```
 
-${intArg} typed as {Int} cannot be used as a argument to {booleanArg}, typed as {Boolean}.
+${intArg} typed as {Int} cannot be used as an argument to {booleanArg}, typed as {Boolean}.
 
 List cardinality must also be the same. For example, lists cannot be passed into singular
 values.
@@ -1988,9 +2001,9 @@ query booleanArgQueryWithDefault($booleanArg: Boolean) {
 
 In the example below, an optional variable `$booleanArg` is allowed to be used
 in the non-null argument (`nonNullBooleanArg`) because the variable provides
-a default value in the query. This behavior is explicitly supported for
+a default value in the operation. This behavior is explicitly supported for
 compatibility with earlier editions of this specification. GraphQL authoring
-tools may wish to report this is a warning with the suggestion to replace
+tools may wish to report this as a warning with the suggestion to replace
 `Boolean` with `Boolean!` to avoid ambiguity.
 
 ```graphql example
@@ -2001,5 +2014,5 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 }
 ```
 
-Note: The value {null} could still be provided to a such a variable at runtime.
-A non-null argument must produce a field error if provided a {null} value.
+Note: The value {null} could still be provided to such a variable at runtime.
+A non-null argument must raise a field error if provided a {null} value.

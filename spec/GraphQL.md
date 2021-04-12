@@ -1,5 +1,4 @@
-GraphQL
--------
+# GraphQL
 
 *Current Working Draft*
 
@@ -9,7 +8,7 @@ This is the specification for GraphQL, a query language and execution engine
 originally created at Facebook in 2012 for describing the capabilities and
 requirements of data models for client-server applications. The development of
 this open standard started in 2015. This specification was licensed under OWFa
-1.0 in 2017. Copyright and trademark was transfered to the GraphQL Foundation
+1.0 in 2017. Copyright and trademark was transferred to the GraphQL Foundation
 in 2019.
 
 GraphQL has evolved and may continue to evolve in future editions of this
@@ -30,7 +29,7 @@ Agreement (OWFa 1.0), which is available at [openwebfoundation.org](http://www.o
 * Facebook, Inc.
 
 You can review the signed copies of the Open Web Foundation Final Specification
-Agreement Version 1.0 for this specification at [github.com/graphql/graphql-spec](https://github.com/graphql/graphql-spec/tree/master/signed-agreements),
+Agreement Version 1.0 for this specification at [github.com/graphql/graphql-spec](https://github.com/graphql/graphql-spec/tree/main/signed-agreements),
 which may also include additional parties to those listed above.
 
 Your use of this Specification may be subject to other third party rights.

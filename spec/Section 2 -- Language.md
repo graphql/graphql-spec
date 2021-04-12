@@ -3,7 +3,7 @@
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
 operations (queries, mutations, and subscriptions) as well as fragments, a
-common unit of composition allowing for query reuse.
+common unit of composition allowing for data requirement reuse.
 
 A GraphQL document is defined as a syntactic grammar where terminal symbols are
 tokens (indivisible lexical units). These tokens are defined in a lexical
@@ -35,7 +35,7 @@ only valid if not followed by a character in its lookahead restriction.
 
 For example, an {IntValue} has the restriction {[lookahead != Digit]}, so cannot
 be followed by a {Digit}. Because of this, the sequence {`123`} cannot represent
-as the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
+the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and
 so must only represent a single token. Use {WhiteSpace} or other {Ignored}
 between characters to represent multiple tokens.
 
@@ -98,11 +98,11 @@ LineTerminator ::
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
 Like white space, line terminators are used to improve the legibility of source
-text, any amount may appear before or after any other token and have no
-significance to the semantic meaning of a GraphQL Document. Line
-terminators are not found within any other token.
+text and separate lexical tokens, any amount may appear before or after any
+other token and have no significance to the semantic meaning of a GraphQL
+Document. Line terminators are not found within any other token.
 
-Note: Any error reporting which provide the line number in the source of the
+Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
 the line number.
 
@@ -137,7 +137,7 @@ syntactically and semantically insignificant within GraphQL Documents.
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
 be a common user-error in other languages. It also allows for the stylistic use
-of either trailing commas or line-terminators as list delimiters which are both
+of either trailing commas or line terminators as list delimiters which are both
 often desired for legibility and maintainability of source code.
 
 
@@ -152,6 +152,7 @@ Token ::
 
 A GraphQL document is comprised of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters.
+Lexical tokens may be separated by {Ignored} tokens.
 
 Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
 
@@ -166,8 +167,8 @@ Ignored ::
   - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-{Token}, but are otherwise insignificant and not referenced in syntactical
-grammar productions.
+lexical tokens, but are otherwise insignificant and not referenced in
+syntactical grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
 ignored regions of a source document are significant, however {SourceCharacter}
@@ -201,13 +202,13 @@ NameContinue ::
   - `_`
 
 Letter :: one of
-  `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
-  `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
-  `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
-  `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+  - `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
+  - `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+  - `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+  - `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
 
 Digit :: one of
-  `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+  - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
 GraphQL Documents are full of named things: operations, fields, arguments,
 types, directives, fragments, and variables. All names must follow the same
@@ -232,8 +233,9 @@ Document : Definition+
 
 Definition :
   - ExecutableDefinition
-  - TypeSystemDefinition
-  - TypeSystemExtension
+  - TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
   - OperationDefinition
@@ -243,23 +245,27 @@ A GraphQL Document describes a complete file or request string operated on
 by a GraphQL service or client. A document contains multiple definitions, either
 executable or representative of a GraphQL type system.
 
-Documents are only executable by a GraphQL service if they contain an
-{OperationDefinition} and otherwise only contain {ExecutableDefinition}.
-However documents which do not contain {OperationDefinition} or do contain
-{TypeSystemDefinition} or {TypeSystemExtension} may still be parsed
-and validated to allow client tools to represent many GraphQL uses which may
-appear across many individual files.
+Documents are only executable by a GraphQL service if they are
+{ExecutableDocument} and contain at least one {OperationDefinition}. A
+Document which contains {TypeSystemDefinitionOrExtension} must not be executed;
+GraphQL execution services which receive a Document containing these should
+return a descriptive error.
 
-If a Document contains only one operation, that operation may be unnamed or
-represented in the shorthand form, which omits both the query keyword and
-operation name. Otherwise, if a GraphQL Document contains multiple
+GraphQL services which only seek to execute GraphQL requests and not construct
+a new GraphQL schema may choose to only permit {ExecutableDocument}.
+
+Documents which do not contain {OperationDefinition} or do contain
+{TypeSystemDefinitionOrExtension} may still be parsed and validated to allow
+client tools to represent many GraphQL uses which may appear across many
+individual files.
+
+If a Document contains only one operation, that operation may be unnamed. If
+that operation is a query without variables or directives then it may also be
+represented in the shorthand form, omitting both the {`query`} keyword as well
+as the operation name. Otherwise, if a GraphQL Document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
-
-GraphQL services which only seek to provide GraphQL query execution may choose
-to only include {ExecutableDefinition} and omit the {TypeSystemDefinition} and
-{TypeSystemExtension} rules from {Definition}.
 
 
 ## Operations
@@ -294,9 +300,10 @@ mutation {
 
 **Query shorthand**
 
-If a document contains only one query operation, and that query defines no
-variables and contains no directives, that operation may be represented in a
-short-hand form which omits the query keyword and query name.
+If a document contains only one operation and that operation is a query which
+defines no variables and contains no directives then that operation may be
+represented in a short-hand form which omits the {`query`} keyword and operation
+name.
 
 For example, this unnamed query operation is written via query shorthand.
 
@@ -330,8 +337,8 @@ under-fetching data.
 }
 ```
 
-In this query, the `id`, `firstName`, and `lastName` fields form a selection
-set. Selection sets may also contain fragment references.
+In this query operation, the `id`, `firstName`, and `lastName` fields form a
+selection set. Selection sets may also contain fragment references.
 
 
 ## Fields
@@ -399,7 +406,7 @@ Argument[Const] : Name : Value[?Const]
 
 Fields are conceptually functions which return values, and occasionally accept
 arguments which alter their behavior. These arguments often map directly to
-function arguments within a GraphQL server's implementation.
+function arguments within a GraphQL service's implementation.
 
 In this example, we want to query a specific user (requested via the `id`
 argument) and their profile picture of a specific `size`:
@@ -431,7 +438,7 @@ Many arguments can exist for a given field:
 Arguments may be provided in any syntactic order and maintain identical
 semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -450,11 +457,11 @@ These two queries are semantically identical:
 
 Alias : Name :
 
-By default, the key in the response object will use the field name
-queried. However, you can define a different name by specifying an alias.
+By default a field's response key in the response object will use that field's
+name. However, you can define a different response key by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
-the resulting object will not have duplicate keys:
+the resulting response object will not have duplicate keys:
 
 ```graphql example
 {
@@ -467,7 +474,7 @@ the resulting object will not have duplicate keys:
 }
 ```
 
-Which returns the result:
+which returns the result:
 
 ```json example
 {
@@ -480,7 +487,7 @@ Which returns the result:
 }
 ```
 
-Since the top level of a query is a field, it also can be given an alias:
+The fields at the top level of an operation can also be given an alias:
 
 ```graphql example
 {
@@ -491,7 +498,7 @@ Since the top level of a query is a field, it also can be given an alias:
 }
 ```
 
-Returns the result:
+which returns the result:
 
 ```json example
 {
@@ -501,9 +508,6 @@ Returns the result:
   }
 }
 ```
-
-A field's response key is its alias if an alias is provided, and it is
-otherwise the field's name.
 
 
 ## Fragments
@@ -542,7 +546,7 @@ query noFragments {
 ```
 
 The repeated fields could be extracted into a fragment and composed by
-a parent fragment or query.
+a parent fragment or operation.
 
 ```graphql example
 query withFragments {
@@ -563,8 +567,8 @@ fragment friendFields on User {
 }
 ```
 
-Fragments are consumed by using the spread operator (`...`). All fields selected
-by the fragment will be added to the query field selection at the same level
+Fragments are consumed by using the spread operator (`...`). All fields
+selected by the fragment will be added to the field selection at the same level
 as the fragment invocation. This happens through multiple levels of fragment
 spreads.
 
@@ -593,7 +597,7 @@ fragment standardProfilePic on User {
 }
 ```
 
-The queries `noFragments`, `withFragments`, and `withNestedFragments` all
+The operations `noFragments`, `withFragments`, and `withNestedFragments` all
 produce the same response object.
 
 
@@ -609,10 +613,10 @@ object).
 
 Fragments can be specified on object types, interfaces, and unions.
 
-Selections within fragments only return values when concrete type of the object
+Selections within fragments only return values when the concrete type of the object
 it is operating on matches the type of the fragment.
 
-For example in this query on the Facebook data model:
+For example in this operation using the Facebook data model:
 
 ```graphql example
 query FragmentTyping {
@@ -646,11 +650,11 @@ will be present and `friends` will not.
   "profiles": [
     {
       "handle": "zuck",
-      "friends": { "count" : 1234 }
+      "friends": { "count": 1234 }
     },
     {
       "handle": "cocacola",
-      "likers": { "count" : 90234512 }
+      "likers": { "count": 90234512 }
     }
   ]
 }
@@ -821,9 +825,10 @@ be interpreted as the beginning of a block string. As an example, the source
 {`""""""`} can only be interpreted as a single empty block string and not three
 empty strings.
 
-Note: Unicode characters are allowed within String value literals, however
-{SourceCharacter} must not contain some ASCII control characters so escape
-sequences must be used to represent these characters.
+Non-ASCII Unicode characters are allowed within single-quoted strings. 
+Since {SourceCharacter} must not contain some ASCII control characters, escape 
+sequences must be used to represent these characters. The {`\`}, {`"`} 
+characters also must be escaped. All other escape sequences are optional.
 
 **Block Strings**
 
@@ -838,7 +843,7 @@ indentation and blank initial and trailing lines via {BlockStringValue()}.
 
 For example, the following operation containing a block string:
 
-```graphql example
+```raw graphql example
 mutation {
   sendEmail(message: """
     Hello,
@@ -986,7 +991,7 @@ field vs not altering a field, respectively. Neither form may be used for an
 input expecting a Non-Null type.
 
 Note: The same two methods of representing the lack of a value are possible via
-variables by either providing the a variable value as {null} and not providing
+variables by either providing the variable value as {null} or not providing
 a variable value at all.
 
 
@@ -1045,7 +1050,7 @@ literal representation of input objects as "object literals."
 Input object fields may be provided in any syntactic order and maintain
 identical semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -1085,14 +1090,16 @@ VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 DefaultValue : = Value[Const]
 
-A GraphQL query can be parameterized with variables, maximizing query reuse,
+A GraphQL operation can be parameterized with variables, maximizing reuse,
 and avoiding costly string building in clients at runtime.
 
 If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
 
 Variables must be defined at the top of an operation and are in scope
-throughout the execution of that operation.
+throughout the execution of that operation. Values for those variables are
+provided to a GraphQL service as part of a request so they may be substituted
+in during execution.
 
 In this example, we want to fetch a profile picture size based on the size
 of a particular device:
@@ -1107,10 +1114,8 @@ query getZuckProfile($devicePicSize: Int) {
 }
 ```
 
-Values for those variables are provided to a GraphQL service along with a
-request so they may be substituted during execution. If providing JSON for the
-variables' values, we could run this query and request profilePic of
-size `60` width:
+If providing JSON for the variables' values, we could request a `profilePic` of
+size `60`:
 
 ```json example
 {
@@ -1120,11 +1125,10 @@ size `60` width:
 
 **Variable use within Fragments**
 
-Query variables can be used within fragments. Query variables have global scope
-with a given operation, so a variable used within a fragment must be declared
-in any top-level operation that transitively consumes that fragment. If
-a variable is referenced in a fragment and is included by an operation that does
-not define that variable, the operation cannot be executed.
+Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any
+top-level operation that transitively consumes that fragment. If a variable is
+referenced in a fragment and is included by an operation that does not define
+that variable, that operation is invalid (see [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
 
 
 ## Type References
@@ -1142,9 +1146,9 @@ NonNullType :
   - NamedType !
   - ListType !
 
-GraphQL describes the types of data expected by query variables. Input types
-may be lists of another input type, or a non-null variant of any other
-input type.
+GraphQL describes the types of data expected by arguments and variables.
+Input types may be lists of another input type, or a non-null variant of any
+other input type.
 
 **Semantics**
 
@@ -1184,8 +1188,8 @@ including or skipping a field. Directives provide this by describing additional 
 Directives have a name along with a list of arguments which may accept values
 of any input type.
 
-Directives can be used to describe additional information for types, fields, fragments
-and operations.
+Directives can be used to describe additional information for types, fields,
+fragments and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide
@@ -1199,13 +1203,17 @@ Directives may be provided in a specific syntactic order which may have semantic
 These two type definitions may have different semantic meaning:
 
 ```graphql example
-type Person @addExternalFields(source: "profiles") @excludeField(name: "photo") {
+type Person
+  @addExternalFields(source: "profiles")
+  @excludeField(name: "photo") {
   name: String
 }
 ```
 
 ```graphql example
-type Person @excludeField(name: "photo") @addExternalFields(source: "profiles") {
+type Person
+  @excludeField(name: "photo")
+  @addExternalFields(source: "profiles") {
   name: String
 }
 ```

@@ -201,9 +201,9 @@ steps to take in the order listed. Each step may establish references to other
 values, check various conditions, call other algorithms, and eventually return
 a value representing the outcome of the algorithm for the provided arguments.
 
-For example, the following example describes an algorithm named {Fibonacci} which
-accepts a single argument {number}. The algoritm's steps produce the next number
-in the Fibonacci sequence:
+For example, the following example describes an algorithm named {Fibonacci}
+which accepts a single argument {number}. The algorithm's steps produce the next
+number in the Fibonacci sequence:
 
 Fibonacci(number):
   * If {number} is {0}:
