@@ -825,9 +825,10 @@ be interpreted as the beginning of a block string. As an example, the source
 {`""""""`} can only be interpreted as a single empty block string and not three
 empty strings.
 
-Note: Unicode characters are allowed within String value literals, however
-{SourceCharacter} must not contain some ASCII control characters so escape
-sequences must be used to represent these characters.
+Non-ASCII Unicode characters are allowed within single-quoted strings. 
+Since {SourceCharacter} must not contain some ASCII control characters, escape 
+sequences must be used to represent these characters. The {`\`}, {`"`} 
+characters also must be escaped. All other escape sequences are optional.
 
 **Block Strings**
 
