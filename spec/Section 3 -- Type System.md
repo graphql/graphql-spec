@@ -529,11 +529,12 @@ outside the available precision), a request error must be raised.
 
 ### String
 
-The String scalar type represents textual data, represented as a sequence of 
-Unicode code points. How the String is encoded internally (e.g. UTF-8) is left 
-to the implementation. The String type is most often used by GraphQL to 
-represent free-form human-readable text. All response formats must support 
-a string representation, and that representation must be used for this type.
+The String scalar type represents textual data, represented as a sequence of
+Unicode code points. The String type is most often used by GraphQL to
+represent free-form human-readable text. How the String is encoded internally
+(for example UTF-8) is left to the service implementation. All response
+serialization formats must support a string representation (for example, JSON
+Unicode strings), and that representation must be used to serialize this type.
 
 **Result Coercion**
 
