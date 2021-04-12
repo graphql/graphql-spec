@@ -1984,9 +1984,7 @@ The numeric literals <span class="spec-nt"><a href="#IntValue" data-name="IntVal
 </div>
 <p>Strings are sequences of characters wrapped in quotation marks (U+0022). (ex. <span class="spec-t">"Hello World"</span>). White space and other otherwise-ignored characters are significant within a string value.</p>
 <p>The empty string <span class="spec-t">""</span> must not be followed by another <span class="spec-t">"</span> otherwise it would be interpreted as the beginning of a block string. As an example, the source <span class="spec-t">""""""</span> can only be interpreted as a single empty block string and not three empty strings.</p>
-<div id="note-1c619" class="spec-note">
-<a href="#note-1c619">Note</a>
-Unicode characters are allowed within String value literals, however <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> must not contain some ASCII control characters so escape sequences must be used to represent these characters.</div>
+<p>Non-ASCII Unicode characters are allowed within single-quoted strings. Since <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> must not contain some ASCII control characters, escape sequences must be used to represent these characters. The <span class="spec-t">\</span>, <span class="spec-t">"</span> characters also must be escaped. All other escape sequences are optional.</p>
 <section id="sec-String-Value.Block-Strings" class="subsec">
 <h6><a href="#sec-String-Value.Block-Strings" title="link to this subsection">Block Strings</a></h6>
 <p>Block strings are sequences of characters wrapped in triple-quotes (<code>"""</code>). White space, line terminators, quote, and backslash characters may all be used unescaped to enable verbatim text. Characters must all be valid <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</p>
