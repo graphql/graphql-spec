@@ -50,7 +50,7 @@ SourceCharacter ::
 - "U+0009"
 - "U+000A"
 - "U+000D"
-- "U+0020–U+FFFF"
+- "U+0020–U+10FFFF"
 
 GraphQL documents are expressed as a sequence of
 [Unicode](https://unicode.org/standard/standard.html) code points (informally
@@ -812,7 +812,16 @@ StringCharacter ::
 - `\u` EscapedUnicode
 - `\` EscapedCharacter
 
-EscapedUnicode :: /[0-9A-Fa-f]{4}/
+EscapedUnicode ::
+
+- HexDigit HexDigit HexDigit HexDigit
+- `{` HexDigit+ `}` "but only if <= 0x10FFFF"
+
+HexDigit :: one of
+
+- `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+- `A` `B` `C` `D` `E` `F`
+- `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
@@ -897,7 +906,24 @@ StringValue :: `""`
 
 StringValue :: `"` StringCharacter+ `"`
 
-- Return the sequence of all {StringCharacter} code points.
+- Let {string} be the sequence of all {StringCharacter} code points.
+- For each {codePoint} at {index} in {string}:
+  - If {codePoint} is >= 0xD800 and <= 0xDBFF (a
+    [_High Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)):
+    - Let {lowPoint} be the code point at {index} + {1} in {string}.
+    - Assert {lowPoint} is >= 0xDC00 and <= 0xDFFF (a
+      [_Low Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)).
+    - Let {decodedPoint} = ({codePoint} - 0xD800) × 0x400 + ({lowPoint} -
+      0xDC00) + 0x10000.
+    - Within {string}, replace {codePoint} and {lowPoint} with {decodedPoint}.
+  - Otherwise, assert {codePoint} is not >= 0xDC00 and <= 0xDFFF (a
+    [_Low Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)).
+- Return {string}.
+
+Note: {StringValue} should avoid encoding code points as surrogate pairs. While
+services must interpret them accordingly, a braced escape (for example
+`"\u{1F4A9}"`) is a clearer way to encode code points outside of the
+[Basic Multilingual Plane](https://unicodebook.readthedocs.io/unicode.html#bmp).
 
 StringCharacter :: SourceCharacter but not `"` or `\` or LineTerminator
 
@@ -905,8 +931,9 @@ StringCharacter :: SourceCharacter but not `"` or `\` or LineTerminator
 
 StringCharacter :: `\u` EscapedUnicode
 
-- Let {value} be the 16-bit hexadecimal value represented by the sequence of
-  hexadecimal digits within {EscapedUnicode}.
+- Let {value} be the 21-bit hexadecimal value represented by the sequence of
+  {HexDigit} within {EscapedUnicode}.
+- Assert {value} <= 0x10FFFF.
 - Return the code point {value}.
 
 StringCharacter :: `\` EscapedCharacter
