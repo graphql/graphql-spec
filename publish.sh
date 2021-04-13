@@ -1,12 +1,18 @@
 #!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
 
-# Build the specification document into publishable form
-echo "Building spec"
-npm run build > /dev/null 2>&1
-
 # Determine if this is a tagged release
 GITTAG=$(git tag --points-at HEAD)
+
+# Build the specification document into publishable form
+echo "Building spec"
+mkdir -p out
+if [ -n "$GITTAG" ]; then
+  spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/$GITTAG/" spec/GraphQL.md > out/index.html
+else
+  spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/main/" spec/GraphQL.md > out/index.html
+fi
+npm run build > /dev/null 2>&1
 
 # Check out gh-pages locally.
 echo "Cloning gh-pages"
