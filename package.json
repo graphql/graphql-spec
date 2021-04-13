@@ -14,11 +14,11 @@
   },
   "scripts": {
     "test": "spec-md spec/GraphQL.md > /dev/null",
-    "build": "mkdir -p out; spec-md spec/GraphQL.md > out/index.html",
+    "build": "mkdir -p out; spec-md --githubSource 'https://github.com/graphql/graphql-spec/blame/main/' spec/GraphQL.md > out/index.html",
     "watch": "nodemon -e json,md --exec 'npm run build'"
   },
   "devDependencies": {
     "nodemon": "2.0.7",
-    "spec-md": "2.2.0"
+    "spec-md": "3.0.1"
   }
 }
