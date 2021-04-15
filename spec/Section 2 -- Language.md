@@ -53,19 +53,20 @@ SourceCharacter ::
   - "U+0020–U+FFFF"
 
 GraphQL documents are expressed as a sequence of
-[Unicode](https://unicode.org/standard/standard.html) characters. However, with
+[Unicode](https://unicode.org/standard/standard.html) code points (informally
+referred to as *"characters"* through most of this specification). However, with
 few exceptions, most of GraphQL is expressed only in the original non-control
 ASCII range so as to be as widely compatible with as many existing tools,
 languages, and serialization formats as possible and avoid display issues in
 text editors and source control.
 
+Note: Non-ASCII Unicode characters may appear freely within {StringValue} and
+{Comment} portions of GraphQL.
+
 
 ### Unicode
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
-
-Non-ASCII Unicode characters may freely appear within {StringValue} and
-{Comment} portions of GraphQL.
 
 The "Byte Order Mark" is a special Unicode character which
 may appear at the beginning of a file containing Unicode which programs may use
@@ -804,13 +805,13 @@ StringValue ::
   - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
-  - SourceCharacter but not `"` or \ or LineTerminator
-  - \u EscapedUnicode
-  - \ EscapedCharacter
+  - SourceCharacter but not `"` or `\` or LineTerminator
+  - `\u` EscapedUnicode
+  - `\` EscapedCharacter
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
-EscapedCharacter :: one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
 BlockStringCharacter ::
   - SourceCharacter but not `"""` or `\"""`
@@ -825,9 +826,9 @@ be interpreted as the beginning of a block string. As an example, the source
 {`""""""`} can only be interpreted as a single empty block string and not three
 empty strings.
 
-Non-ASCII Unicode characters are allowed within single-quoted strings. 
-Since {SourceCharacter} must not contain some ASCII control characters, escape 
-sequences must be used to represent these characters. The {`\`}, {`"`} 
+Non-ASCII Unicode characters are allowed within single-quoted strings.
+Since {SourceCharacter} must not contain some ASCII control characters, escape
+sequences must be used to represent these characters. The {`\`}, {`"`}
 characters also must be escaped. All other escape sequences are optional.
 
 **Block Strings**
@@ -892,32 +893,33 @@ StringValue :: `""`
 
 StringValue :: `"` StringCharacter+ `"`
 
-  * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values.
+  * Return the sequence of all {StringCharacter} code points.
 
-StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
+StringCharacter :: SourceCharacter but not `"` or `\` or LineTerminator
 
-  * Return the character value of {SourceCharacter}.
+  * Return the code point {SourceCharacter}.
 
-StringCharacter :: \u EscapedUnicode
+StringCharacter :: `\u` EscapedUnicode
 
-  * Return the character whose code unit value in the Unicode Basic Multilingual
-    Plane is the 16-bit hexadecimal value {EscapedUnicode}.
+  * Let {value} be the 16-bit hexadecimal value represented by the sequence of
+    {HexDigit} within {EscapedUnicode}.
+  * Return the code point {value}.
 
-StringCharacter :: \ EscapedCharacter
+StringCharacter :: `\` EscapedCharacter
 
-  * Return the character value of {EscapedCharacter} according to the table below.
+  * Return the code point represented by {EscapedCharacter} according to the
+    table below.
 
-| Escaped Character | Code Unit Value | Character Name               |
-| ----------------- | --------------- | ---------------------------- |
-| `"`               | U+0022          | double quote                 |
-| `\`               | U+005C          | reverse solidus (back slash) |
-| `/`               | U+002F          | solidus (forward slash)      |
-| `b`               | U+0008          | backspace                    |
-| `f`               | U+000C          | form feed                    |
-| `n`               | U+000A          | line feed (new line)         |
-| `r`               | U+000D          | carriage return              |
-| `t`               | U+0009          | horizontal tab               |
+| Escaped Character | Code Point | Character Name               |
+| ----------------- | ---------- | ---------------------------- |
+| {`"`}             | U+0022     | double quote                 |
+| {`\`}             | U+005C     | reverse solidus (back slash) |
+| {`/`}             | U+002F     | solidus (forward slash)      |
+| {`b`}             | U+0008     | backspace                    |
+| {`f`}             | U+000C     | form feed                    |
+| {`n`}             | U+000A     | line feed (new line)         |
+| {`r`}             | U+000D     | carriage return              |
+| {`t`}             | U+0009     | horizontal tab               |
 
 StringValue :: `"""` BlockStringCharacter* `"""`
 
