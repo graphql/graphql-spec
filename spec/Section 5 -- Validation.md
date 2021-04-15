@@ -255,7 +255,8 @@ query getName {
 * Let {variableValues} be the empty set.
 * Let {groupedFieldSet} be the result of
   {CollectFields(subscriptionType, selectionSet, variableValues)}.
-* {groupedFieldSet} must have exactly one entry.
+* {groupedFieldSet} must have exactly one entry, which must not be an 
+  introspection field.
 
 **Explanatory Text**
 
@@ -311,14 +312,11 @@ fragment multipleSubscriptions on Subscription {
 }
 ```
 
-Introspection fields are counted. The following example is also invalid:
+The root field of a subscription operation must not be an introspection field.
+The following example is also invalid:
 
 ```graphql counter-example
 subscription sub {
-  newMessage {
-    body
-    sender
-  }
   __typename
 }
 ```
