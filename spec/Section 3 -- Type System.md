@@ -1177,7 +1177,7 @@ Interface definitions must not contain cyclic references nor implement
 themselves. This example is invalid because `Node` and `Named` implement
 themselves and each other:
 
-```graphgl counter-example
+```graphql counter-example
 interface Node implements Named & Node {
   id: ID!
   name: String
