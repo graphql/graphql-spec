@@ -176,7 +176,7 @@ and is {Ignored}.
 
 ### Punctuators
 
-Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | } . [lookahead != .]
 
 GraphQL documents include punctuation in order to describe structure. GraphQL is
 a data description language and not a programming language, therefore GraphQL

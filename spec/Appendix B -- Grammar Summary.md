@@ -43,7 +43,7 @@ Token ::
 - FloatValue
 - StringValue
 
-Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | } . [lookahead != .]
 
 Name ::
 
