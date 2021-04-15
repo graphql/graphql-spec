@@ -249,10 +249,8 @@ query getName {
 * Let {variableValues} be the empty set.
 * Let {groupedFieldSet} be the result of
   {CollectFields(subscriptionType, selectionSet, variableValues)}.
-* {groupedFieldSet} must have exactly one entry.
-* Let {fields} be the value of the first entry in {groupedFieldSet}.
-* Let {field} be the first entry in {fields}.
-* {field} must not be an introspection field.
+* {groupedFieldSet} must have exactly one entry, which must not be an 
+  introspection field.
 
 **Explanatory Text**
 
