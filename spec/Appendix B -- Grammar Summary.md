@@ -97,13 +97,13 @@ StringValue ::
   - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
-  - SourceCharacter but not `"` or \ or LineTerminator
-  - \u EscapedUnicode
-  - \ EscapedCharacter
+  - SourceCharacter but not `"` or `\` or LineTerminator
+  - `\u` EscapedUnicode
+  - `\` EscapedCharacter
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
-EscapedCharacter :: one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
 BlockStringCharacter ::
   - SourceCharacter but not `"""` or `\"""`
