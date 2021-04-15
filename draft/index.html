@@ -2129,15 +2129,15 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1176-L1178">Interface definitions must not contain cyclic references nor implement themselves. This example is invalid because <code>Node</code> and <code>Named</code> implement themselves and each other:</p>
-<pre id="example-9b199" class="spec-counter-example" data-language="graphgl" data-source="spec/Section%203%20--%20Type%20System.md#L1180-L1190"><a href="#example-9b199">Counter Example № 71</a><code>interface Node implements Named &amp; Node {
-  id: ID!
-  name: String
-}
+<pre id="example-9b199" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1180-L1190"><a href="#example-9b199">Counter Example № 71</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token keyword">implements</span> <span class="token class-name">Named</span> <span class="token operator">&amp;</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> ID<span class="token operator">!</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> String
+<span class="token punctuation">}</span>
 
-interface Named implements Node &amp; Named {
-  id: ID!
-  name: String
-}
+<span class="token keyword">interface</span> <span class="token class-name">Named</span> <span class="token keyword">implements</span> <span class="token class-name">Node</span> <span class="token operator">&amp;</span> <span class="token class-name">Named</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> ID<span class="token operator">!</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> String
+<span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec-Interfaces.Result-Coercion" class="subsec">
