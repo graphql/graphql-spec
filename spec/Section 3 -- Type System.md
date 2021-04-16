@@ -391,11 +391,11 @@ useful custom scalar is `URL`, which serializes as a string, but is guaranteed
 by the server to be a valid URL.
 
 When defining a custom scalar, GraphQL services should provide a specification
-URL via the `@specifiedBy` directive or the `specifiedBy` introspection field.
+URL via the `@specifiedBy` directive or the `specifiedByURL` introspection field.
 This URL must link to a human-readable specification of the data format,
 serialization, and coercion rules for the scalar. For example, a GraphQL service
 providing a `UUID` scalar may link to RFC 4122, or some custom document defining
-a reasonable subset of that RFC. If a scalar `specifiedBy` URL is present,
+a reasonable subset of that RFC. If a scalar specification URL is present,
 systems and tools that are aware of it should conform to its described rules.
 
 ```graphql example
@@ -411,7 +411,7 @@ Custom scalar specification URLs should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
 linked specification's contents.
 
-Built-in scalar types must not provide a `specifiedBy` URL as they are specified
+Built-in scalar types must not provide a specification URL as they are specified
 by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
