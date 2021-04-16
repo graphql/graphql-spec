@@ -243,16 +243,16 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
-Also represents [Custom scalars](#sec-Scalars.Custom-Scalars) which may provide 
-`specifiedByURL` as a scalar specification URL.
+Also represents [Custom scalars](#sec-Scalars.Custom-Scalars) which may provide
+`specifiedByURL` as a *scalar specification URL*.
 
 Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
-* `specifiedByURL` may return a String (in the form of a URL) for custom scalars, 
-   otherwise must be {null}.
 * `description` may return a String or {null}.
+* `specifiedByURL` may return a String (in the form of a URL) for custom
+  scalars, otherwise must be {null}.
 * All other fields must return {null}.
 
 
