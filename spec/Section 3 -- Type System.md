@@ -390,29 +390,31 @@ the result with a RFC 4122 compliant parser. Another example of a potentially
 useful custom scalar is `URL`, which serializes as a string, but is guaranteed
 by the server to be a valid URL.
 
-When defining a custom scalar, GraphQL services should provide a specification
-URL via the `@specifiedBy` directive or the `specifiedByURL` introspection field.
-This URL must link to a human-readable specification of the data format,
-serialization, and coercion rules for the scalar. For example, a GraphQL service
-providing a `UUID` scalar may link to RFC 4122, or some custom document defining
-a reasonable subset of that RFC. If a scalar specification URL is present,
-systems and tools that are aware of it should conform to its described rules.
+:: When defining a custom scalar, GraphQL services should provide a *scalar
+specification URL* via the `@specifiedBy` directive or the `specifiedByURL`
+introspection field. This URL must link to a human-readable specification of the
+data format, serialization, and coercion rules for the scalar.
+
+For example, a GraphQL service providing a `UUID` scalar may link to RFC 4122,
+or some custom document defining a reasonable subset of that RFC. If a *scalar
+specification URL* is present, systems and tools that are aware of it should
+conform to its described rules.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
 ```
 
-Custom scalar specifications should provide a single, stable format to avoid
-ambiguity. If the linked specification is in flux, the service should link to a
-fixed version rather than to a resource which might change.
+Custom *scalar specification URL*s should provide a single, stable format to
+avoid ambiguity. If the linked specification is in flux, the service should link
+to a fixed version rather than to a resource which might change.
 
-Custom scalar specification URLs should not be changed once defined. Doing so
+Custom *scalar specification URL*s should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
 linked specification's contents.
 
-Built-in scalar types must not provide a specification URL as they are specified
-by this document.
+Built-in scalar types must not provide a *scalar specification URL* as they are
+specified by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
 examples in their description.
@@ -2058,7 +2060,7 @@ directive @specifiedBy(url: String!) on SCALAR
 ```
 
 The `@specifiedBy` directive is used within the type system definition language
-to provide a URL for specifying the behavior of
+to provide a *scalar specification URL* for specifying the behavior of
 [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a
 human-readable specification of the data format, serialization, and
 coercion rules. It must not appear on built-in scalar types.
