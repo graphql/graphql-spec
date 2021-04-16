@@ -1633,13 +1633,13 @@ Schema extensions without additional operation type definitions must not be foll
 <section id="sec-Scalars.Custom-Scalars" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L383"><a href="#sec-Scalars.Custom-Scalars" title="link to this subsection">Custom Scalars</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L385-L391">GraphQL services may use custom scalar types in addition to the built-in scalars. For example, a GraphQL service could define a scalar called <code>UUID</code> which, while serialized as a string, conforms to <a href="https://tools.ietf.org/html/rfc4122">RFC 4122</a>. When querying a field of type <code>UUID</code>, you can then rely on the ability to parse the result with a RFC 4122 compliant parser. Another example of a potentially useful custom scalar is <code>URL</code>, which serializes as a string, but is guaranteed by the server to be a valid URL.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L393-L399">When defining a custom scalar, GraphQL services should provide a specification URL via the <code>@specifiedBy</code> directive or the <code>specifiedBy</code> introspection field. This URL must link to a human-readable specification of the data format, serialization, and coercion rules for the scalar. For example, a GraphQL service providing a <code>UUID</code> scalar may link to RFC 4122, or some custom document defining a reasonable subset of that RFC. If a scalar <code>specifiedBy</code> URL is present, systems and tools that are aware of it should conform to its described rules.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L393-L399">When defining a custom scalar, GraphQL services should provide a specification URL via the <code>@specifiedBy</code> directive or the <code>specifiedByURL</code> introspection field. This URL must link to a human-readable specification of the data format, serialization, and coercion rules for the scalar. For example, a GraphQL service providing a <code>UUID</code> scalar may link to RFC 4122, or some custom document defining a reasonable subset of that RFC. If a scalar specification URL is present, systems and tools that are aware of it should conform to its described rules.</p>
 <pre id="example-9e6a3" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L401-L404"><a href="#example-9e6a3">Example № 42</a><code><span class="token keyword">scalar</span> <span class="token class-name">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
 <span class="token keyword">scalar</span> <span class="token class-name">URL</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc3986"</span><span class="token punctuation">)</span>
 </code></pre>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L406-L408">Custom scalar specifications should provide a single, stable format to avoid ambiguity. If the linked specification is in flux, the service should link to a fixed version rather than to a resource which might change.</p>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L410-L412">Custom scalar specification URLs should not be changed once defined. Doing so would likely disrupt tooling or could introduce breaking changes within the linked specification&rsquo;s contents.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L414-L415">Built-in scalar types must not provide a <code>specifiedBy</code> URL as they are specified by this document.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L414-L415">Built-in scalar types must not provide a specification URL as they are specified by this document.</p>
 <div id="note-b68f7" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L417-L418">
 <a href="#note-b68f7">Note</a>
 Custom scalars should also summarize the specified format and provide examples in their description.</div>
@@ -3050,7 +3050,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   <span class="token attr-name">ofType</span><span class="token punctuation">:</span> __Type
 
   <span class="token comment"># should be non-null for custom SCALAR only, must be null for the others</span>
-  <span class="token attr-name">specifiedBy</span><span class="token punctuation">:</span> String
+  <span class="token attr-name">specifiedByURL</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 
 <span class="token keyword">type</span> <span class="token class-name">__Field</span> <span class="token punctuation">{</span>
@@ -3128,12 +3128,12 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Scalar" secid="4.5.2.1">
 <h4 data-source="spec/Section%204%20--%20Introspection.md#L242"><span class="spec-secid" title="link to this section"><a href="#sec-Scalar">4.5.2.1</a></span>Scalar</h4>
 <p data-source="spec/Section%204%20--%20Introspection.md#L244">Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L246-L247">Also represents <a href="#sec-Scalars.Custom-Scalars">Custom scalars</a> which may provide <code>specifiedBy</code> as a scalar specification URL.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L246-L247">Also represents <a href="#sec-Scalars.Custom-Scalars">Custom scalars</a> which may provide <code>specifiedByURL</code> as a scalar specification URL.</p>
 <p data-source="spec/Section%204%20--%20Introspection.md#L249">Fields</p>
 <ul>
 <li data-source="spec/Section%204%20--%20Introspection.md#L251"><code>kind</code> must return <code>__TypeKind.SCALAR</code>.</li>
 <li data-source="spec/Section%204%20--%20Introspection.md#L252"><code>name</code> must return a String.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L253-L254"><code>specifiedBy</code> may return a String (in the form of a URL) for custom scalars, otherwise must be <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L253-L254"><code>specifiedByURL</code> may return a String (in the form of a URL) for custom scalars, otherwise must be <span class="spec-keyword">null</span>.</li>
 <li data-source="spec/Section%204%20--%20Introspection.md#L255"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
 <li data-source="spec/Section%204%20--%20Introspection.md#L256">All other fields must return <span class="spec-keyword">null</span>.</li>
 </ul>
