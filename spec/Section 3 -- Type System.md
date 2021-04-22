@@ -1875,6 +1875,25 @@ A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
 
+**Built-in Directives**
+
+GraphQL implementations should provide the `@skip` and `@include` directives.
+When returning the set of directives from the `__Schema` introspection type, both
+`@skip` and `@include` directives must be included.
+
+GraphQL implementations that support the type system definition language must
+provide the `@deprecated` directive if representing deprecated portions of
+the schema, in this case `@deprecated` directive may be included when returning
+the set of directives from the `__Schema` introspection type.
+
+GraphQL implementations that support the type system definition language should
+provide the `@specifiedBy` directive if representing custom scalar
+definitions.
+
+When representing a GraphQL schema using the type system definition language,
+built in directives (any defined in this specification) should be omitted for
+brevity. Custom directives in use must be specified.
+
 **Custom Directives**
 
 GraphQL services and client tooling may provide additional directives beyond
@@ -1950,25 +1969,6 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 
 Note: The order in which directives appear may be significant, including
 repeatable directives.
-
-**Built-in Directives**
-
-GraphQL implementations should provide the `@skip` and `@include` directives.
-When returning the set of directives from the `__Schema` introspection type, both
-`@skip` and `@include` directives must be included.
-
-GraphQL implementations that support the type system definition language must
-provide the `@deprecated` directive if representing deprecated portions of
-the schema, in this case `@deprecated` directive may be included when returning
-the set of directives from the `__Schema` introspection type.
-
-GraphQL implementations that support the type system definition language should
-provide the `@specifiedBy` directive if representing custom scalar
-definitions.
-
-When representing a GraphQL schema using the type system definition language,
-built in directives (any defined in this specification) should be omitted for
-brevity. Custom directives in use must be specified.
 
 **Validation**
 
