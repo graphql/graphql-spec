@@ -78,9 +78,10 @@ Markdown renderer.
 
 ## Deprecation
 
-To support the management of backwards compatibility, GraphQL fields and enum
-values can indicate whether or not they are deprecated (`isDeprecated: Boolean`)
-and a description of why it is deprecated (`deprecationReason: String`).
+To support the management of backwards compatibility, GraphQL fields, arguments,
+input fields, and enum values can indicate whether or not they are deprecated
+(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
