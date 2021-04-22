@@ -431,8 +431,7 @@ Fields
 
 The `__Directive` type represents any Directive that a service supports.
 
-This includes both [built-in directives](#sec-Type-System.Directives.Built-in-Directives)
-and [custom directives](#sec-Type-System.Directives.Custom-Directives).
+This includes both any *built-in directive* and any *custom directive*.
 
 Fields
 
