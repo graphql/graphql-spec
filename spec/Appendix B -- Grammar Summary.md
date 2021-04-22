@@ -1,6 +1,12 @@
 # B. Appendix: Grammar Summary
 
-SourceCharacter :: /[\u0009\u000A\u000D\u0020-\uFFFF]/
+## Source Text
+
+SourceCharacter ::
+  - "U+0009"
+  - "U+000A"
+  - "U+000D"
+  - "U+0020–U+FFFF"
 
 
 ## Ignored Tokens
@@ -20,10 +26,10 @@ WhiteSpace ::
 
 LineTerminator ::
   - "New Line (U+000A)"
-  - "Carriage Return (U+000D)" [ lookahead ! "New Line (U+000A)" ]
+  - "Carriage Return (U+000D)" [lookahead != "New Line (U+000A)"]
   - "Carriage Return (U+000D)" "New Line (U+000A)"
 
-Comment :: `#` CommentChar*
+Comment :: `#` CommentChar* [lookahead != CommentChar]
 
 CommentChar :: SourceCharacter but not LineTerminator
 
@@ -41,9 +47,28 @@ Token ::
 
 Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
-Name :: /[_A-Za-z][_0-9A-Za-z]*/
+Name ::
+  - NameStart NameContinue* [lookahead != NameContinue]
 
-IntValue :: IntegerPart
+NameStart ::
+  - Letter
+  - `_`
+
+NameContinue ::
+  - Letter
+  - Digit
+  - `_`
+
+Letter :: one of
+  - `A` `B` `C` `D` `E` `F` `G` `H` `I` `J` `K` `L` `M`
+  - `N` `O` `P` `Q` `R` `S` `T` `U` `V` `W` `X` `Y` `Z`
+  - `a` `b` `c` `d` `e` `f` `g` `h` `i` `j` `k` `l` `m`
+  - `n` `o` `p` `q` `r` `s` `t` `u` `v` `w` `x` `y` `z`
+
+Digit :: one of
+  - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+
+IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
   - NegativeSign? 0
@@ -51,14 +76,12 @@ IntegerPart ::
 
 NegativeSign :: -
 
-Digit :: one of 0 1 2 3 4 5 6 7 8 9
-
 NonZeroDigit :: Digit but not `0`
 
 FloatValue ::
-  - IntegerPart FractionalPart
-  - IntegerPart ExponentPart
-  - IntegerPart FractionalPart ExponentPart
+  - IntegerPart FractionalPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart FractionalPart [lookahead != {Digit, `.`, NameStart}]
+  - IntegerPart ExponentPart [lookahead != {Digit, `.`, NameStart}]
 
 FractionalPart :: . Digit+
 
@@ -69,17 +92,18 @@ ExponentIndicator :: one of `e` `E`
 Sign :: one of + -
 
 StringValue ::
-  - `"` StringCharacter* `"`
+  - `""` [lookahead != `"`]
+  - `"` StringCharacter+ `"`
   - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
-  - SourceCharacter but not `"` or \ or LineTerminator
-  - \u EscapedUnicode
-  - \ EscapedCharacter
+  - SourceCharacter but not `"` or `\` or LineTerminator
+  - `\u` EscapedUnicode
+  - `\` EscapedCharacter
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
-EscapedCharacter :: one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
 BlockStringCharacter ::
   - SourceCharacter but not `"""` or `\"""`
@@ -89,14 +113,15 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 
-## Document
+## Document Syntax
 
 Document : Definition+
 
 Definition :
   - ExecutableDefinition
-  - TypeSystemDefinition
-  - TypeSystemExtension
+  - TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
   - OperationDefinition
@@ -185,20 +210,28 @@ Directives[Const] : Directive[?Const]+
 
 Directive[Const] : @ Name Arguments[?Const]?
 
+TypeSystemDocument : TypeSystemDefinition+
+
 TypeSystemDefinition :
   - SchemaDefinition
   - TypeDefinition
   - DirectiveDefinition
 
+TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+  - TypeSystemDefinition
+  - TypeSystemExtension
+
 TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-SchemaDefinition : schema Directives[Const]? { RootOperationTypeDefinition+ }
+SchemaDefinition : Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
 
 SchemaExtension :
   - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
-  - extend schema Directives[Const]
+  - extend schema Directives[Const] [lookahead != `{`]
 
 RootOperationTypeDefinition : OperationType : NamedType
 
@@ -225,12 +258,14 @@ ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 ScalarTypeExtension :
   - extend scalar Name Directives[Const]
 
-ObjectTypeDefinition : Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition?
+ObjectTypeDefinition :
+  - Description? type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? type Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 ObjectTypeExtension :
   - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
-  - extend type Name ImplementsInterfaces? Directives[Const]
-  - extend type Name ImplementsInterfaces
+  - extend type Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend type Name ImplementsInterfaces [lookahead != `{`]
 
 ImplementsInterfaces :
   - ImplementsInterfaces & NamedType
@@ -244,11 +279,14 @@ ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
-InterfaceTypeDefinition : Description? interface Name Directives[Const]? FieldsDefinition?
+InterfaceTypeDefinition :
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - Description? interface Name ImplementsInterfaces? Directives[Const]? [lookahead != `{`]
 
 InterfaceTypeExtension :
-  - extend interface Name Directives[Const]? FieldsDefinition
-  - extend interface Name Directives[Const]
+  - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
+  - extend interface Name ImplementsInterfaces? Directives[Const] [lookahead != `{`]
+  - extend interface Name ImplementsInterfaces [lookahead != `{`]
 
 UnionTypeDefinition : Description? union Name Directives[Const]? UnionMemberTypes?
 
@@ -260,7 +298,9 @@ UnionTypeExtension :
   - extend union Name Directives[Const]? UnionMemberTypes
   - extend union Name Directives[Const]
 
-EnumTypeDefinition : Description? enum Name Directives[Const]? EnumValuesDefinition?
+EnumTypeDefinition :
+  - Description? enum Name Directives[Const]? EnumValuesDefinition
+  - Description? enum Name Directives[Const]? [lookahead != `{`]
 
 EnumValuesDefinition : { EnumValueDefinition+ }
 
@@ -268,17 +308,19 @@ EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 EnumTypeExtension :
   - extend enum Name Directives[Const]? EnumValuesDefinition
-  - extend enum Name Directives[Const]
+  - extend enum Name Directives[Const] [lookahead != `{`]
 
-InputObjectTypeDefinition : Description? input Name Directives[Const]? InputFieldsDefinition?
+InputObjectTypeDefinition :
+  - Description? input Name Directives[Const]? InputFieldsDefinition
+  - Description? input Name Directives[Const]? [lookahead != `{`]
 
 InputFieldsDefinition : { InputValueDefinition+ }
 
 InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
-  - extend input Name Directives[Const]
+  - extend input Name Directives[Const] [lookahead != `{`]
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
@@ -289,24 +331,24 @@ DirectiveLocation :
   - TypeSystemDirectiveLocation
 
 ExecutableDirectiveLocation : one of
-  `QUERY`
-  `MUTATION`
-  `SUBSCRIPTION`
-  `FIELD`
-  `FRAGMENT_DEFINITION`
-  `FRAGMENT_SPREAD`
-  `INLINE_FRAGMENT`
-  `VARIABLE_DEFINITION`
+  - `QUERY`
+  - `MUTATION`
+  - `SUBSCRIPTION`
+  - `FIELD`
+  - `FRAGMENT_DEFINITION`
+  - `FRAGMENT_SPREAD`
+  - `INLINE_FRAGMENT`
+  - `VARIABLE_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
-  `SCHEMA`
-  `SCALAR`
-  `OBJECT`
-  `FIELD_DEFINITION`
-  `ARGUMENT_DEFINITION`
-  `INTERFACE`
-  `UNION`
-  `ENUM`
-  `ENUM_VALUE`
-  `INPUT_OBJECT`
-  `INPUT_FIELD_DEFINITION`
+  - `SCHEMA`
+  - `SCALAR`
+  - `OBJECT`
+  - `FIELD_DEFINITION`
+  - `ARGUMENT_DEFINITION`
+  - `INTERFACE`
+  - `UNION`
+  - `ENUM`
+  - `ENUM_VALUE`
+  - `INPUT_OBJECT`
+  - `INPUT_FIELD_DEFINITION`

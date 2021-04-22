@@ -7,21 +7,18 @@
     "Daniel Schafer <dschafer@fb.com>"
   ],
   "license": "OWFa-1.0",
-  "homepage": "https://facebook.github.io/graphql",
-  "bugs": {
-    "url": "https://github.com/facebook/graphql/issues"
-  },
+  "homepage": "https://graphql.github.io/graphql-spec",
   "repository": {
     "type": "git",
-    "url": "http://github.com/facebook/graphql.git"
+    "url": "http://github.com/graphql/graphql-spec.git"
   },
   "scripts": {
     "test": "spec-md spec/GraphQL.md > /dev/null",
-    "build": "mkdir -p out; spec-md spec/GraphQL.md > out/index.html",
-    "watch": "mkdir -p out; nodemon --exec 'spec-md > out/index.html' spec/GraphQL.md"
+    "build": "mkdir -p out; spec-md --githubSource 'https://github.com/graphql/graphql-spec/blame/main/' spec/GraphQL.md > out/index.html",
+    "watch": "nodemon -e json,md --exec 'npm run build'"
   },
   "devDependencies": {
-    "nodemon": "1.19.1",
-    "spec-md": "1.1.1"
+    "nodemon": "2.0.7",
+    "spec-md": "3.0.2"
   }
 }

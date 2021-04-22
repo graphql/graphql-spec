@@ -22,8 +22,10 @@ of the sequences it is defined by, until all non-terminal symbols have been
 replaced by terminal characters.
 
 Terminals are represented in this document in a monospace font in two forms: a
-specific Unicode character or sequence of Unicode characters (ex. {`=`} or {`terminal`}), and a pattern of Unicode characters defined by a regular expression
-(ex {/[0-9]+/}).
+specific Unicode character or sequence of Unicode characters (ie. {`=`} or
+{`terminal`}), and prose typically describing a specific Unicode code-point
+{"Space (U+0020)"}. Sequences of Unicode characters only appear in syntactic
+grammars and represent a {Name} token of that specific sequence.
 
 Non-terminal production rules are represented in this document using the
 following notation for a non-terminal with a single definition:
@@ -48,23 +50,25 @@ ListOfLetterA :
 
 The GraphQL language is defined in a syntactic grammar where terminal symbols
 are tokens. Tokens are defined in a lexical grammar which matches patterns of
-source characters. The result of parsing a sequence of source Unicode characters
-produces a GraphQL AST.
+source characters. The result of parsing a source text sequence of Unicode
+characters first produces a sequence of lexical tokens according to the lexical
+grammar which then produces abstract syntax tree (AST) according to the
+syntactical grammar.
 
-A Lexical grammar production describes non-terminal "tokens" by
+A lexical grammar production describes non-terminal "tokens" by
 patterns of terminal Unicode characters. No "whitespace" or other ignored
 characters may appear between any terminal Unicode characters in the lexical
 grammar production. A lexical grammar production is distinguished by a two colon
 `::` definition.
 
-Word :: /[A-Za-z]+/
+Word :: Letter+
 
 A Syntactical grammar production describes non-terminal "rules" by patterns of
-terminal Tokens. Whitespace and other ignored characters may appear before or
-after any terminal Token. A syntactical grammar production is distinguished by a
-one colon `:` definition.
+terminal Tokens. {WhiteSpace} and other {Ignored} sequences may appear before or
+after any terminal {Token}. A syntactical grammar production is distinguished by
+a one colon `:` definition.
 
-Sentence : Noun Verb
+Sentence : Word+ `.`
 
 
 ## Grammar Notation
@@ -80,13 +84,11 @@ and their expanded definitions in the context-free grammar.
 A grammar production may specify that certain expansions are not permitted by
 using the phrase "but not" and then indicating the expansions to be excluded.
 
-For example, the production:
+For example, the following production means that the nonterminal {SafeWord} may
+be replaced by any sequence of characters that could replace {Word} provided
+that the same sequence of characters could not replace {SevenCarlinWords}.
 
-SafeName : Name but not SevenCarlinWords
-
-means that the nonterminal {SafeName} may be replaced by any sequence of
-characters that could replace {Name} provided that the same sequence of
-characters could not replace {SevenCarlinWords}.
+SafeWord : Word but not SevenCarlinWords
 
 A grammar may also list a number of restrictions after "but not" separated
 by "or".
@@ -94,6 +96,18 @@ by "or".
 For example:
 
 NonBooleanName : Name but not `true` or `false`
+
+
+**Lookahead Restrictions**
+
+A grammar production may specify that certain characters or tokens are not
+permitted to follow it by using the pattern {[lookahead != NotAllowed]}.
+Lookahead restrictions are often used to remove ambiguity from the grammar.
+
+The following example makes it clear that {Letter+} must be greedy, since {Word}
+cannot be followed by yet another {Letter}.
+
+Word :: Letter+ [lookahead != Letter]
 
 
 **Optionality and Lists**
@@ -187,9 +201,9 @@ steps to take in the order listed. Each step may establish references to other
 values, check various conditions, call other algorithms, and eventually return
 a value representing the outcome of the algorithm for the provided arguments.
 
-For example, the following example describes an algorithm named {Fibonacci} which
-accepts a single argument {number}. The algoritm's steps produce the next number
-in the Fibonacci sequence:
+For example, the following example describes an algorithm named {Fibonacci}
+which accepts a single argument {number}. The algorithm's steps produce the next
+number in the Fibonacci sequence:
 
 Fibonacci(number):
   * If {number} is {0}:

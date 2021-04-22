@@ -2,14 +2,14 @@ git:
   depth: false
 
 language: node_js
-node_js: 9
+node_js: 15
 
 deploy:
   provider: script
   skip_cleanup: true
   script: ./publish.sh
   on:
-    branch: master
+    branch: main
 
 notifications:
   irc:

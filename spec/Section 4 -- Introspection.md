@@ -1,12 +1,12 @@
 # Introspection
 
-A GraphQL server supports introspection over its schema. This schema is queried
+A GraphQL service supports introspection over its schema. This schema is queried
 using GraphQL itself, creating a powerful platform for tool-building.
 
-Take an example query for a trivial app. In this case there is a User type with
+Take an example request for a trivial app. In this case there is a User type with
 three fields: id, name, and birthday.
 
-For example, given a server with the following type definition:
+For example, given a service with the following type definition:
 
 ```graphql example
 type User {
@@ -16,7 +16,7 @@ type User {
 }
 ```
 
-The query
+A request containing the operation:
 
 ```graphql example
 {
@@ -32,7 +32,7 @@ The query
 }
 ```
 
-would return
+would produce the result:
 
 ```json example
 {
@@ -50,7 +50,7 @@ would return
       {
         "name": "birthday",
         "type": { "name": "Date" }
-      },
+      }
     ]
   }
 }
@@ -70,7 +70,7 @@ underscores.
 
 All types in the introspection system provide a `description` field of type
 `String` to allow type designers to publish documentation in addition to
-capabilities. A GraphQL server may return the `description` field using Markdown
+capabilities. A GraphQL service may return the `description` field using Markdown
 syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
 recommended that any tool that displays `description` use a CommonMark-compliant
 Markdown renderer.
@@ -89,15 +89,20 @@ warnings.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection at any point within a query by the
-meta-field `__typename: String!` when querying against any Object, Interface,
-or Union. It returns the name of the object type currently being queried.
+GraphQL supports type name introspection within any selection set in an
+operation, with the single exception of selections at the root of a subscription
+operation. Type name introspection is accomplished via the meta-field
+`__typename: String!` on any Object, Interface, or Union. It returns the name of
+the concrete Object type at that point during execution.
 
 This is most often used when querying against Interface or Union types to
-identify which actual type of the possible types has been returned.
+identify which actual Object type of the possible types has been returned.
 
-This field is implicit and does not appear in the fields list in any defined type.
+As a meta-field, `__typename` is implicit and does not appear in the fields list
+in any defined type.
 
+Note: `__typename` may not be included as a root field in a subscription
+operation.
 
 ## Schema Introspection
 
@@ -110,13 +115,14 @@ __schema: __Schema!
 __type(name: String!): __Type
 ```
 
-These fields are implicit and do not appear in the fields list in the root type
-of the query operation.
+Like all meta-fields, these are implicit and do not appear in the fields list in
+the root type of the query operation.
 
 The schema of the GraphQL schema introspection system:
 
 ```graphql
 type __Schema {
+  description: String
   types: [__Type!]!
   queryType: __Type!
   mutationType: __Type
@@ -132,7 +138,7 @@ type __Type {
   # should be non-null for OBJECT and INTERFACE only, must be null for the others
   fields(includeDeprecated: Boolean = false): [__Field!]
 
-  # should be non-null for OBJECT only, must be null for the others
+  # should be non-null for OBJECT and INTERFACE only, must be null for the others
   interfaces: [__Type!]
 
   # should be non-null for INTERFACE and UNION only, always null for the others
@@ -146,6 +152,9 @@ type __Type {
 
   # should be non-null for NON_NULL and LIST only, must be null for the others
   ofType: __Type
+
+  # should be non-null for custom SCALAR only, must be null for the others
+  specifiedByURL: String
 }
 
 type __Field {
@@ -187,6 +196,7 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
 }
 
 enum __DirectiveLocation {
@@ -197,6 +207,7 @@ enum __DirectiveLocation {
   FRAGMENT_DEFINITION
   FRAGMENT_SPREAD
   INLINE_FRAGMENT
+  VARIABLE_DEFINITION
   SCHEMA
   SCALAR
   OBJECT
@@ -214,13 +225,13 @@ enum __DirectiveLocation {
 
 ### The __Type Type
 
-`__Type` is at the core of the type introspection system.
-It represents scalars, interfaces, object types, unions, enums in the system.
+`__Type` is at the core of the type introspection system, it represents all
+types in the system: both named types (e.g. Scalars and Object types) and
+type modifiers (e.g. List and Non-Null types).
 
-`__Type` also represents type modifiers, which are used to modify a type
-that it refers to (`ofType: __Type`). This is how we represent lists,
-non-nullable types, and the combinations thereof.
-
+Type modifiers are used to modify the type presented in the field `ofType`.
+This modified type may recursively be a modified type, representing lists,
+non-nullables, and combinations thereof, ultimately modifying a named type.
 
 ### Type Kinds
 
@@ -232,14 +243,16 @@ actually valid. These kinds are listed in the `__TypeKind` enumeration.
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
-A GraphQL type designer should describe the data format and scalar coercion
-rules in the description field of any scalar.
+Also represents [Custom scalars](#sec-Scalars.Custom-Scalars) which may provide
+`specifiedByURL` as a *scalar specification URL*.
 
 Fields
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
 * `description` may return a String or {null}.
+* `specifiedByURL` may return a String (in the form of a URL) for custom
+  scalars, otherwise must be {null}.
 * All other fields must return {null}.
 
 
@@ -253,7 +266,7 @@ Fields
 * `kind` must return `__TypeKind.OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields query-able on this type.
+* `fields`: The set of fields that can be selected for this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
 * `interfaces`: The set of interfaces that an object implements.
@@ -291,6 +304,7 @@ Fields
 * `fields`: The set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
+* `interfaces`: The set of interfaces that this interface implements.
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
 * All other fields must return {null}.
@@ -314,8 +328,9 @@ Fields
 
 #### Input Object
 
-Input objects are composite types used as inputs into queries defined as a list
-of named input values.
+Input objects are composite types defined as a list of named input values. They
+are only used as inputs to arguments and variables and cannot be a field
+return type.
 
 For example the input object `Point` could be defined as:
 
@@ -341,6 +356,9 @@ Lists represent sequences of values in GraphQL. A List type is a type modifier:
 it wraps another type instance in the `ofType` field, which defines the type of
 each item in the list.
 
+The modified type in the `ofType` field may itself be a modified type, allowing
+the representation of Lists of Lists, or Lists of Non-Nulls.
+
 Fields
 
 * `kind` must return `__TypeKind.LIST`.
@@ -352,12 +370,16 @@ Fields
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
-A Non-null type is a type modifier: it wraps another type instance in the
+A Non-Null type is a type modifier: it wraps another type instance in the
 `ofType` field. Non-null types do not allow {null} as a response, and indicate
 required inputs for arguments and input object fields.
 
+The modified type in the `ofType` field may itself be a modified List type,
+allowing the representation of Non-Null of Lists. However it must not be a
+modified Non-Null type to avoid a redundant Non-Null of Non-Null.
+
 * `kind` must return `__TypeKind.NON_NULL`.
-* `ofType`: Any type except Non-null.
+* `ofType`: Any type except Non-Null.
 * All other fields must return {null}.
 
 
@@ -407,7 +429,7 @@ Fields
 
 ### The __Directive Type
 
-The `__Directive` type represents a Directive that a server supports.
+The `__Directive` type represents a Directive that a service supports.
 
 Fields
 
@@ -417,3 +439,5 @@ Fields
   locations this directive may be placed.
 * `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
+* `isRepeatable` must return a Boolean that indicates if the directive may be
+  used repeatedly at a single location.

@@ -1,17 +1,23 @@
 #!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
 
-# Build the specification document into publishable form
-echo "Building spec"
-npm run build > /dev/null 2>&1
-
 # Determine if this is a tagged release
 GITTAG=$(git tag --points-at HEAD)
+
+# Build the specification document into publishable form
+echo "Building spec"
+mkdir -p out
+if [ -n "$GITTAG" ]; then
+  spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/$GITTAG/" spec/GraphQL.md > out/index.html
+else
+  spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/main/" spec/GraphQL.md > out/index.html
+fi
+npm run build > /dev/null 2>&1
 
 # Check out gh-pages locally.
 echo "Cloning gh-pages"
 rm -rf gh-pages
-git clone -b gh-pages "https://${GH_TOKEN}@github.com/facebook/graphql.git" gh-pages > /dev/null 2>&1
+git clone -b gh-pages "https://${GH_TOKEN}@github.com/graphql/graphql-spec.git" gh-pages > /dev/null 2>&1
 
 # Replace /draft with this build.
 echo "Publishing to: /draft"
@@ -74,7 +80,7 @@ HTML="$HTML
       <td></td>
     </tr>"
 
-GITHUB_RELEASES="https://github.com/facebook/graphql/releases/tag"
+GITHUB_RELEASES="https://github.com/graphql/graphql-spec/releases/tag"
 for GITTAG in $(git tag -l --sort='-*committerdate') ; do
   VERSIONYEAR=${GITTAG: -4}
   TAGTITLE="${GITTAG%$VERSIONYEAR} $VERSIONYEAR"
