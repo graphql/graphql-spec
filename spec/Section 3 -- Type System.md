@@ -2030,14 +2030,17 @@ must *not* be queried if either the `@skip` condition is true *or* the
 ### @deprecated
 
 ```graphql
-directive @deprecated(
-  reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION
+directive @deprecated(reason: String = "No longer supported") on
+  | FIELD_DEFINITION
+  | ARGUMENT_DEFINITION
+  | INPUT_FIELD_DEFINITION
+  | ENUM_VALUE
 ```
 
 The `@deprecated` directive is used within the type system definition language
 to indicate deprecated portions of a GraphQL service's schema, such as
-deprecated fields on a type or deprecated enum values.
+deprecated fields on a type, arguments on a field, input fields on an input
+type, or values of an enum type.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
@@ -2050,8 +2053,8 @@ type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
 
-  existingField(
-    newArg: String,
+  anotherField(
+    newArg: String
     oldArg: String @deprecated(reason: "Use `newArg`.")
   ): String
 }
