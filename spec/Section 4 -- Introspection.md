@@ -193,7 +193,7 @@ type __Directive {
   name: String!
   description: String
   locations: [__DirectiveLocation!]!
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
   isRepeatable: Boolean!
 }
 
