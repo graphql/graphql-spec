@@ -421,7 +421,7 @@ Fields
 * `defaultValue` may return a String encoding (using the GraphQL language) of the
   default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
-* `isDeprecated` returns {true} if this field or argument should no longer be used,
+* `isDeprecated` returns {true} if this input field or argument should no longer be used,
   otherwise {false}.
 * `deprecationReason` optionally provides a reason why this input field or argument is deprecated.
 
