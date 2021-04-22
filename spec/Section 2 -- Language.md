@@ -227,6 +227,12 @@ Note: Names in GraphQL are limited to the Latin <acronym>ASCII</acronym> subset
 of {SourceCharacter} in order to support interoperation with as many other
 systems as possible.
 
+**Reserved Names**
+
+Any {Name} within a GraphQL type system must not start with two underscores
+{"__"} unless it is part of the [introspection system](#sec-Introspection) as
+defined by this specification.
+
 
 ## Document
 
