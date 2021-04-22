@@ -1878,21 +1878,21 @@ by a validator, executor, or client tool such as a code generator.
 **Built-in Directives**
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
-When returning the set of directives from the `__Schema` introspection type, both
-`@skip` and `@include` directives must be included.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
-the schema, in this case `@deprecated` directive may be included when returning
-the set of directives from the `__Schema` introspection type.
+the schema.
 
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar
 definitions.
 
 When representing a GraphQL schema using the type system definition language,
-built in directives (any defined in this specification) should be omitted for
+built-in directives (any defined in this specification) should be omitted for
 brevity. Custom directives in use must be specified.
+
+When introspecting a GraphQL service, all provided directives including built-in
+directives must be included in the set of returned directives.
 
 **Custom Directives**
 
