@@ -1994,7 +1994,7 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 The `@skip` *built-in directive* may be provided for fields, fragment spreads,
 and inline fragments, and allows for conditional exclusion during execution as
-described by the if argument.
+described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
@@ -2014,7 +2014,7 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 The `@include` *built-in directive* may be provided for fields, fragment
 spreads, and inline fragments, and allows for conditional inclusion during
-execution as described by the if argument.
+execution as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
