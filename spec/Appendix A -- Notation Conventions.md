@@ -84,7 +84,7 @@ and their expanded definitions in the context-free grammar.
 A grammar production may specify that certain expansions are not permitted by
 using the phrase "but not" and then indicating the expansions to be excluded.
 
-For example, the following production means that the nonterminal {SafeWord} may
+For example, the following production means that the non-terminal {SafeWord} may
 be replaced by any sequence of characters that could replace {Word} provided
 that the same sequence of characters could not replace {SevenCarlinWords}.
 

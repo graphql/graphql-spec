@@ -1,0 +1,17 @@
+language: en
+words:
+  # Terms of art
+  - endianness
+  - interoperation
+  - monospace
+  - openwebfoundation
+  - parallelization
+  - structs
+  - subselection
+  # Fictional characters / examples
+  - hagrid
+  - leia
+  - othername
+  - skywalker
+  - zuck
+  - zuckerberg
