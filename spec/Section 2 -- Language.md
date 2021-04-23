@@ -621,7 +621,7 @@ For example in this operation using the Facebook data model:
 
 ```graphql example
 query FragmentTyping {
-  profiles(handles: ["zuck", "cocacola"]) {
+  profiles(handles: ["zuck", "coca-cola"]) {
     handle
     ...userFragment
     ...pageFragment
@@ -654,7 +654,7 @@ will be present and `friends` will not.
       "friends": { "count": 1234 }
     },
     {
-      "handle": "cocacola",
+      "handle": "coca-cola",
       "likers": { "count": 90234512 }
     }
   ]
@@ -673,7 +673,7 @@ example. We could accomplish the same thing using inline fragments.
 
 ```graphql example
 query inlineFragmentTyping {
-  profiles(handles: ["zuck", "cocacola"]) {
+  profiles(handles: ["zuck", "coca-cola"]) {
     handle
     ... on User {
       friends {

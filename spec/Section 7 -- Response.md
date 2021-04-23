@@ -38,9 +38,8 @@ in a response during debugging.
 
 The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an
-object of the schema's query root operation type; if the operation was a
-mutation, this output will be an object of the schema's mutation root
-operation type.
+object of the query root operation type; if the operation was a
+mutation, this output will be an object of the mutation root operation type.
 
 If an error was raised before execution begins, the `data` entry should
 not be present in the result.

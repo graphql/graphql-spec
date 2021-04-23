@@ -23,7 +23,7 @@ or are actively interested in, building their own GraphQL implementations and
 tools.
 
 In order to be broadly adopted, GraphQL will have to target a wide
-variety of backends, frameworks, and languages, which will necessitate a
+variety of backend environments, frameworks, and languages, which will necessitate a
 collaborative effort across projects and organizations. This specification serves as a point of coordination for this effort.
 
 Looking for help? Find resources [from the community](https://graphql.org/community/).
@@ -271,7 +271,6 @@ case, `Query`. As defined above, `Query` has a `hero` field that returns a
 returns a `String`, so we query for that, completing our query. The result of
 this query would then be:
 
-
 ```json
 {
   "hero": {
@@ -397,7 +396,7 @@ which will give us the nested response
 ```
 
 The `Query` type above defined a way to fetch a human given their
-ID. We can use it by hardcoding the ID in the query:
+ID. We can use it by hard-coding the ID in the query:
 
 ```graphql
 query FetchLukeQuery {
@@ -608,7 +607,7 @@ on runtime checks.
 
 For our Star Wars example, the file
 [starWarsValidationTests.js](https://github.com/graphql/graphql-js/blob/main/src/__tests__/starWarsValidation-test.js)
-contains a number of queries demonstrating various invalidities, and is a test
+contains a number of demonstrations of invalid operations, and is a test
 file that can be run to exercise the reference implementation's validator.
 
 To start, let's take a complex valid query. This is the `NestedQuery` example
