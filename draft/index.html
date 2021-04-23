@@ -797,8 +797,8 @@ many examples below will use the query short-hand syntax.</div>
 <p data-source="spec/Section%202%20--%20Language.md#L615">Fragments can be specified on object types, interfaces, and unions.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L617-L618">Selections within fragments only return values when the concrete type of the object it is operating on matches the type of the fragment.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L620">For example in this operation using the Facebook data model:</p>
-<pre id="example-6ce0d" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L622-L642"><a href="#example-6ce0d">Example № 21</a><code><span class="token keyword">query</span> FragmentTyping <span class="token punctuation">{</span>
-  profiles<span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"cocacola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-80138" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L622-L642"><a href="#example-80138">Example № 21</a><code><span class="token keyword">query</span> FragmentTyping <span class="token punctuation">{</span>
+  profiles<span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"coca-cola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     handle
     <span class="token operator">...</span><span class="token fragment function">userFragment</span>
     <span class="token operator">...</span><span class="token fragment function">pageFragment</span>
@@ -818,14 +818,14 @@ many examples below will use the query short-hand syntax.</div>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%202%20--%20Language.md#L644-L647">The <code>profiles</code> root field returns a list where each element could be a <code>Page</code> or a <code>User</code>. When the object in the <code>profiles</code> result is a <code>User</code>, <code>friends</code> will be present and <code>likers</code> will not. Conversely when the result is a <code>Page</code>, <code>likers</code> will be present and <code>friends</code> will not.</p>
-<pre id="example-9b2f4" class="spec-example" data-language="json" data-source="spec/Section%202%20--%20Language.md#L649-L662"><a href="#example-9b2f4">Example № 22</a><code><span class="token punctuation">{</span>
+<pre id="example-883a1" class="spec-example" data-language="json" data-source="spec/Section%202%20--%20Language.md#L649-L662"><a href="#example-883a1">Example № 22</a><code><span class="token punctuation">{</span>
   <span class="token property">"profiles"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"handle"</span><span class="token operator">:</span> <span class="token string">"zuck"</span><span class="token punctuation">,</span>
       <span class="token property">"friends"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span><span class="token operator">:</span> <span class="token number">1234</span> <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token punctuation">{</span>
-      <span class="token property">"handle"</span><span class="token operator">:</span> <span class="token string">"cocacola"</span><span class="token punctuation">,</span>
+      <span class="token property">"handle"</span><span class="token operator">:</span> <span class="token string">"coca-cola"</span><span class="token punctuation">,</span>
       <span class="token property">"likers"</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token property">"count"</span><span class="token operator">:</span> <span class="token number">90234512</span> <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
   <span class="token punctuation">]</span>
@@ -838,8 +838,8 @@ many examples below will use the query short-hand syntax.</div>
 <span class="spec-nt"><a href="#InlineFragment" data-name="InlineFragment">InlineFragment</a></span><div class="spec-rhs"><span class="spec-t">...</span><span class="spec-quantified"><span class="spec-nt"><a href="#TypeCondition" data-name="TypeCondition">TypeCondition</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#SelectionSet" data-name="SelectionSet">SelectionSet</a></span></div>
 </div>
 <p data-source="spec/Section%202%20--%20Language.md#L669-L672">Fragments can be defined inline within a selection set. This is done to conditionally include fields based on their runtime type. This feature of standard fragment inclusion was demonstrated in the <code>query FragmentTyping</code> example. We could accomplish the same thing using inline fragments.</p>
-<pre id="example-a6b78" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L674-L690"><a href="#example-a6b78">Example № 23</a><code><span class="token keyword">query</span> inlineFragmentTyping <span class="token punctuation">{</span>
-  profiles<span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"cocacola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-10b94" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L674-L690"><a href="#example-10b94">Example № 23</a><code><span class="token keyword">query</span> inlineFragmentTyping <span class="token punctuation">{</span>
+  profiles<span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"coca-cola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     handle
     <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
       friends <span class="token punctuation">{</span>
@@ -3301,7 +3301,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec-Validation.Examples" class="subsec">
 <h6 data-source="spec/Section%205%20--%20Validation.md#L33"><a href="#sec-Validation.Examples" title="link to this subsection">Examples</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L35-L36">For this section of this schema, we will assume the following type system in order to demonstrate examples:</p>
-<pre id="example-d4675" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L38-L90"><a href="#example-d4675">Example № 101</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+<pre id="example-19f2a" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L38-L90"><a href="#example-19f2a">Example № 101</a><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   <span class="token attr-name">dog</span><span class="token punctuation">:</span> Dog
 <span class="token punctuation">}</span>
 
@@ -3316,7 +3316,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   <span class="token attr-name">nickname</span><span class="token punctuation">:</span> String
   <span class="token attr-name">barkVolume</span><span class="token punctuation">:</span> Int
   <span class="token attr-name">doesKnowCommand</span><span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> DogCommand<span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span>
-  <span class="token attr-name">isHousetrained</span><span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span>
+  <span class="token attr-name">isHouseTrained</span><span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span>
   <span class="token attr-name">owner</span><span class="token punctuation">:</span> Human
 <span class="token punctuation">}</span>
 
@@ -3837,12 +3837,12 @@ While each subscription must have exactly one root field, a document may contain
 <h6 data-source="spec/Section%205%20--%20Validation.md#L650"><a href="#sec-Argument-Names.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L652-L653">Every argument provided to a field or directive must be defined in the set of possible arguments of that field or directive.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L655">For example the following are valid:</p>
-<pre id="example-760cb" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L657-L665"><a href="#example-760cb">Example № 128</a><code><span class="token keyword">fragment</span> <span class="token fragment function">argOnRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+<pre id="example-dfd15" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L657-L665"><a href="#example-dfd15">Example № 128</a><code><span class="token keyword">fragment</span> <span class="token fragment function">argOnRequiredArg</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   doesKnowCommand<span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">fragment</span> <span class="token fragment function">argOnOptional</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L667">the following is invalid since <code>command</code> is not defined on <code>DogCommand</code>.</p>
@@ -3851,13 +3851,13 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L675">and this is also invalid as <code>unless</code> is not defined on <code>@include</code>.</p>
-<pre id="example-4feee" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L677-L681"><a href="#example-4feee">Counter Example № 130</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">unless</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+<pre id="example-df41e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L677-L681"><a href="#example-df41e">Counter Example № 130</a><code><span class="token keyword">fragment</span> <span class="token fragment function">invalidArgName</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">)</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">unless</span><span class="token punctuation">:</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L683-L684">In order to explore more complicated argument examples, let&rsquo;s add the following to our type system:</p>
-<pre id="example-1891c" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L686-L700"><a href="#example-1891c">Example № 131</a><code><span class="token keyword">type</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">multipleReqs</span><span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Int<span class="token operator">!</span>
+<pre id="example-73706" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L686-L700"><a href="#example-73706">Example № 131</a><code><span class="token keyword">type</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">multipleRequirements</span><span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> Int<span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> Int<span class="token operator">!</span>
   <span class="token attr-name">booleanArgField</span><span class="token punctuation">(</span><span class="token attr-name">booleanArg</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span><span class="token punctuation">:</span> Boolean
   <span class="token attr-name">floatArgField</span><span class="token punctuation">(</span><span class="token attr-name">floatArg</span><span class="token punctuation">:</span> Float<span class="token punctuation">)</span><span class="token punctuation">:</span> Float
   <span class="token attr-name">intArgField</span><span class="token punctuation">(</span><span class="token attr-name">intArg</span><span class="token punctuation">:</span> Int<span class="token punctuation">)</span><span class="token punctuation">:</span> Int
@@ -3871,12 +3871,12 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L702">Order does not matter in arguments. Therefore both the following examples are valid.</p>
-<pre id="example-7fe03" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L704-L712"><a href="#example-7fe03">Example № 132</a><code><span class="token keyword">fragment</span> <span class="token fragment function">multipleArgs</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
-  multipleReqs<span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">)</span>
+<pre id="example-bda7e" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L704-L712"><a href="#example-bda7e">Example № 132</a><code><span class="token keyword">fragment</span> <span class="token fragment function">multipleArgs</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
+  multipleRequirements<span class="token punctuation">(</span><span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">fragment</span> <span class="token fragment function">multipleArgsReverseOrder</span> <span class="token keyword">on</span> <span class="token class-name">Arguments</span> <span class="token punctuation">{</span>
-  multipleReqs<span class="token punctuation">(</span><span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">)</span>
+  multipleRequirements<span class="token punctuation">(</span><span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
@@ -4112,7 +4112,7 @@ While each subscription must have exactly one root field, a document may contain
 </section>
 <section id="sec-Fragment-Spreads" secid="5.5.2">
 <h3 data-source="spec/Section%205%20--%20Validation.md#L973"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spreads">5.5.2</a></span>Fragment Spreads</h3>
-<p data-source="spec/Section%205%20--%20Validation.md#L975-L978">Field selection is also determined by spreading fragments into one another. The selection set of the target fragment is unioned with the selection set at the level at which the target fragment is referenced.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L975-L978">Field selection is also determined by spreading fragments into one another. The selection set of the target fragment is combined into the selection set at the level at which the target fragment is referenced.</p>
 <section id="sec-Fragment-spread-target-defined" secid="5.5.2.1">
 <h4 data-source="spec/Section%205%20--%20Validation.md#L981"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spread-target-defined">5.5.2.1</a></span>Fragment spread target defined</h4>
 <section id="sec-Fragment-spread-target-defined.Formal-Specification" class="subsec">
@@ -4589,14 +4589,14 @@ While each subscription must have exactly one root field, a document may contain
 <section id="sec-Variable-Uniqueness.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%205%20--%20Validation.md#L1536"><a href="#sec-Variable-Uniqueness.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1538-L1540">If any operation defines more than one variable with the same name, it is ambiguous and invalid. It is invalid even if the type of the duplicate variable is the same.</p>
-<pre id="example-b767a" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1542-L1548"><a href="#example-b767a">Counter Example № 165</a><code><span class="token keyword">query</span> houseTrainedQuery<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">,</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-abc9c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1542-L1548"><a href="#example-abc9c">Counter Example № 165</a><code><span class="token keyword">query</span> houseTrainedQuery<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">,</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+    isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1551-L1552">It is valid for multiple operations to define a variable with the same name. If two operations reference the same fragment, it might actually be necessary:</p>
-<pre id="example-03c2a" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1554-L1568"><a href="#example-03c2a">Example № 166</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-54c93" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1554-L1568"><a href="#example-54c93">Example № 166</a><code><span class="token keyword">query</span> <span class="token constant">A</span><span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span><span class="token fragment function">HouseTrainedFragment</span>
 <span class="token punctuation">}</span>
 
@@ -4606,7 +4606,7 @@ While each subscription must have exactly one root field, a document may contain
 
 <span class="token keyword">fragment</span> <span class="token fragment function">HouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+    isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -4628,7 +4628,7 @@ While each subscription must have exactly one root field, a document may contain
 <section id="sec-Variables-Are-Input-Types.Explanatory-Text" class="subsec">
 <h6 data-source="spec/Section%205%20--%20Validation.md#L1580"><a href="#sec-Variables-Are-Input-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1582-L1583">Variables can only be input types. Objects, unions, and interfaces cannot be used as inputs.</p>
-<p data-source="spec/Section%205%20--%20Validation.md#L1585">For these examples, consider the following typesystem additions:</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L1585">For these examples, consider the following type system additions:</p>
 <pre id="example-ce150" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1587-L1597"><a href="#example-ce150">Example № 167</a><code><span class="token keyword">input</span> ComplexInput <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
   <span class="token attr-name">owner</span><span class="token punctuation">:</span> String
@@ -4640,9 +4640,9 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1599">The following operations are valid:</p>
-<pre id="example-77f18" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1601-L1617"><a href="#example-77f18">Example № 168</a><code><span class="token keyword">query</span> takesBoolean<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-a4255" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1601-L1617"><a href="#example-a4255">Example № 168</a><code><span class="token keyword">query</span> takesBoolean<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+    isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
@@ -4695,95 +4695,95 @@ While each subscription must have exactly one root field, a document may contain
 <h6 data-source="spec/Section%205%20--%20Validation.md#L1651"><a href="#sec-All-Variable-Uses-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1653-L1655">Variables are scoped on a per-operation basis. That means that any variable used within the context of an operation must be defined at the top level of that operation</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1657">For example:</p>
-<pre id="example-a5099" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1659-L1665"><a href="#example-a5099">Example № 170</a><code><span class="token keyword">query</span> variableIsDefined<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-38119" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1659-L1665"><a href="#example-38119">Example № 170</a><code><span class="token keyword">query</span> variableIsDefined<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+    isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1667">is valid. $<var data-name="atOtherHomes">atOtherHomes</var> is defined by the operation.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1669">By contrast the following document is invalid:</p>
-<pre id="example-c8425" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1671-L1677"><a href="#example-c8425">Counter Example № 171</a><code><span class="token keyword">query</span> variableIsNotDefined <span class="token punctuation">{</span>
+<pre id="example-5ba94" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1671-L1677"><a href="#example-5ba94">Counter Example № 171</a><code><span class="token keyword">query</span> variableIsNotDefined <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+    isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1679">$<var data-name="atOtherHomes">atOtherHomes</var> is not defined by the operation.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1681-L1684">Fragments complicate this rule. Any fragment transitively included by an operation has access to the variables defined by that operation. Fragments can appear within multiple operations and therefore variable usages must correspond to variable definitions in all of those operations.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1686">For example the following is valid:</p>
-<pre id="example-f4a77" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1688-L1698"><a href="#example-f4a77">Example № 172</a><code><span class="token keyword">query</span> variableIsDefinedUsedInSingleFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-559c2" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1688-L1698"><a href="#example-559c2">Example № 172</a><code><span class="token keyword">query</span> variableIsDefinedUsedInSingleFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L1700-L1702">since <var data-name="isHousetrainedFragment">isHousetrainedFragment</var> is used within the context of the operation <var data-name="variableIsDefinedUsedInSingleFragment">variableIsDefinedUsedInSingleFragment</var> and the variable is defined by that operation.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L1700-L1702">since <var data-name="isHouseTrainedFragment">isHouseTrainedFragment</var> is used within the context of the operation <var data-name="variableIsDefinedUsedInSingleFragment">variableIsDefinedUsedInSingleFragment</var> and the variable is defined by that operation.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1704-L1705">On the other hand, if a fragment is included within an operation that does not define a referenced variable, the document is invalid.</p>
-<pre id="example-8c8db" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1707-L1717"><a href="#example-8c8db">Counter Example № 173</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInSingleFragment <span class="token punctuation">{</span>
+<pre id="example-93d3e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1707-L1717"><a href="#example-93d3e">Counter Example № 173</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInSingleFragment <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1719">This applies transitively as well, so the following also fails:</p>
-<pre id="example-7b65c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1721-L1735"><a href="#example-7b65c">Counter Example № 174</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInNestedFragment <span class="token punctuation">{</span>
+<pre id="example-ee7be" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1721-L1735"><a href="#example-ee7be">Counter Example № 174</a><code><span class="token keyword">query</span> variableIsNotDefinedUsedInNestedFragment <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">outerHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">outerHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">outerHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">outerHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1737-L1738">Variables must be defined in all operations in which a fragment is used.</p>
-<pre id="example-84129" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1740-L1756"><a href="#example-84129">Example № 175</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-d601e" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1740-L1756"><a href="#example-d601e">Example № 175</a><code><span class="token keyword">query</span> houseTrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">query</span> housetrainedQueryTwo<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token keyword">query</span> houseTrainedQueryTwo<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1758">However the following does not validate:</p>
-<pre id="example-ef68a" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1760-L1776"><a href="#example-ef68a">Counter Example № 176</a><code><span class="token keyword">query</span> housetrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-2b284" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1760-L1776"><a href="#example-2b284">Counter Example № 176</a><code><span class="token keyword">query</span> houseTrainedQueryOne<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">query</span> housetrainedQueryTwoNotDefined <span class="token punctuation">{</span>
+<span class="token keyword">query</span> houseTrainedQueryTwoNotDefined <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L1778-L1780">This is because <var data-name="housetrainedQueryTwoNotDefined">housetrainedQueryTwoNotDefined</var> does not define a variable $<var data-name="atOtherHomes">atOtherHomes</var> but that variable is used by <var data-name="isHousetrainedFragment">isHousetrainedFragment</var> which is included in that operation.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L1778-L1780">This is because <var data-name="houseTrainedQueryTwoNotDefined">houseTrainedQueryTwoNotDefined</var> does not define a variable $<var data-name="atOtherHomes">atOtherHomes</var> but that variable is used by <var data-name="isHouseTrainedFragment">isHouseTrainedFragment</var> which is included in that operation.</p>
 </section>
 </section>
 <section id="sec-All-Variables-Used" secid="5.8.4">
@@ -4800,52 +4800,52 @@ While each subscription must have exactly one root field, a document may contain
 <h6 data-source="spec/Section%205%20--%20Validation.md#L1793"><a href="#sec-All-Variables-Used.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1795-L1797">All variables defined by an operation must be used in that operation or a fragment transitively included by that operation. Unused variables cause a validation error.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1799">For example the following is invalid:</p>
-<pre id="example-516af" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1801-L1807"><a href="#example-516af">Counter Example № 177</a><code><span class="token keyword">query</span> variableUnused<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-464b6" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1801-L1807"><a href="#example-464b6">Counter Example № 177</a><code><span class="token keyword">query</span> variableUnused<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    isHousetrained
+    isHouseTrained
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1809">because $<var data-name="atOtherHomes">atOtherHomes</var> is not referenced.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1811">These rules apply to transitive fragment spreads as well:</p>
-<pre id="example-ed1fa" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1813-L1823"><a href="#example-ed1fa">Example № 178</a><code><span class="token keyword">query</span> variableUsedInFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-6d4bb" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1813-L1823"><a href="#example-6d4bb">Example № 178</a><code><span class="token keyword">query</span> variableUsedInFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L1825-L1826">The above is valid since $<var data-name="atOtherHomes">atOtherHomes</var> is used in <var data-name="isHousetrainedFragment">isHousetrainedFragment</var> which is included by <var data-name="variableUsedInFragment">variableUsedInFragment</var>.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L1825-L1826">The above is valid since $<var data-name="atOtherHomes">atOtherHomes</var> is used in <var data-name="isHouseTrainedFragment">isHouseTrainedFragment</var> which is included by <var data-name="variableUsedInFragment">variableUsedInFragment</var>.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1828">If that fragment did not have a reference to $<var data-name="atOtherHomes">atOtherHomes</var> it would be not valid:</p>
-<pre id="example-f6c72" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1830-L1840"><a href="#example-f6c72">Counter Example № 179</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-a30e2" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1830-L1840"><a href="#example-a30e2">Counter Example № 179</a><code><span class="token keyword">query</span> variableNotUsedWithinFragment<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedWithoutVariableFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedWithoutVariableFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedWithoutVariableFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedWithoutVariableFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1842">All operations in a document must use all of their variables.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1844">As a result, the following document does not validate.</p>
-<pre id="example-5593f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1846-L1862"><a href="#example-5593f">Counter Example № 180</a><code><span class="token keyword">query</span> queryWithUsedVar<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-e647f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1846-L1862"><a href="#example-e647f">Counter Example № 180</a><code><span class="token keyword">query</span> queryWithUsedVar<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
 <span class="token keyword">query</span> queryWithExtraVar<span class="token punctuation">(</span><span class="token variable">$atOtherHomes</span><span class="token punctuation">:</span> Boolean<span class="token punctuation">,</span> <span class="token variable">$extra</span><span class="token punctuation">:</span> Int<span class="token punctuation">)</span> <span class="token punctuation">{</span>
   dog <span class="token punctuation">{</span>
-    <span class="token operator">...</span><span class="token fragment function">isHousetrainedFragment</span>
+    <span class="token operator">...</span><span class="token fragment function">isHouseTrainedFragment</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">fragment</span> <span class="token fragment function">isHousetrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
-  isHousetrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
+<span class="token keyword">fragment</span> <span class="token fragment function">isHouseTrainedFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
+  isHouseTrained<span class="token punctuation">(</span><span class="token attr-name">atOtherHomes</span><span class="token punctuation">:</span> <span class="token variable">$atOtherHomes</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1864-L1865">This document is not valid because <var data-name="queryWithExtraVar">queryWithExtraVar</var> defines an extraneous variable.</p>
@@ -5614,36 +5614,36 @@ This is distinct from <a href="#sec-Errors.Request-errors">&ldquo;request errors
 When <code>errors</code> is present in the response, it may be helpful for it to appear first when serialized to make it more clear when errors are present in a response during debugging.</div>
 <section id="sec-Data" secid="7.1.1">
 <h3 data-source="spec/Section%207%20--%20Response.md#L37"><span class="spec-secid" title="link to this section"><a href="#sec-Data">7.1.1</a></span>Data</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L39-L43">The <code>data</code> entry in the response will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the schema&rsquo;s query root operation type; if the operation was a mutation, this output will be an object of the schema&rsquo;s mutation root operation type.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L45-L46">If an error was raised before execution begins, the <code>data</code> entry should not be present in the result.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L48-L49">If an error was raised during the execution that prevented a valid response, the <code>data</code> entry in the response should be <code>null</code>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L39-L42">The <code>data</code> entry in the response will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the query root operation type; if the operation was a mutation, this output will be an object of the mutation root operation type.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L44-L45">If an error was raised before execution begins, the <code>data</code> entry should not be present in the result.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L47-L48">If an error was raised during the execution that prevented a valid response, the <code>data</code> entry in the response should be <code>null</code>.</p>
 </section>
 <section id="sec-Errors" secid="7.1.2">
-<h3 data-source="spec/Section%207%20--%20Response.md#L52"><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.2</a></span>Errors</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L54-L55">The <code>errors</code> entry in the response is a non-empty list of errors, where each error is a map.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L57-L58">If no errors were raised during the request, the <code>errors</code> entry should not be present in the result.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L60-L62">If the <code>data</code> entry in the response is not present, the <code>errors</code> entry in the response must not be empty. It must contain at least one error. The errors it contains should indicate why no data was able to be returned.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L64-L67">If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry in the response may contain any field errors that were raised during execution. If field errors were raised during execution, it should contain those errors.</p>
+<h3 data-source="spec/Section%207%20--%20Response.md#L51"><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.2</a></span>Errors</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L53-L54">The <code>errors</code> entry in the response is a non-empty list of errors, where each error is a map.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L56-L57">If no errors were raised during the request, the <code>errors</code> entry should not be present in the result.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L59-L61">If the <code>data</code> entry in the response is not present, the <code>errors</code> entry in the response must not be empty. It must contain at least one error. The errors it contains should indicate why no data was able to be returned.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L63-L66">If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry in the response may contain any field errors that were raised during execution. If field errors were raised during execution, it should contain those errors.</p>
 <section id="sec-Errors.Request-errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L69"><a href="#sec-Errors.Request-errors" title="link to this subsection">Request errors</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L71-L73">Request errors are raised before execution begins. This may occur due to a parse grammar or validation error in the requested document, an inability to determine which operation to execute, or invalid input values for variables.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L75">Request errors are typically the fault of the requesting client.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L77-L78">If a request error is raised, execution does not begin and the <code>data</code> entry in the response must not be present. The <code>errors</code> entry must include the error.</p>
+<h6 data-source="spec/Section%207%20--%20Response.md#L68"><a href="#sec-Errors.Request-errors" title="link to this subsection">Request errors</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L70-L72">Request errors are raised before execution begins. This may occur due to a parse grammar or validation error in the requested document, an inability to determine which operation to execute, or invalid input values for variables.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L74">Request errors are typically the fault of the requesting client.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L76-L77">If a request error is raised, execution does not begin and the <code>data</code> entry in the response must not be present. The <code>errors</code> entry must include the error.</p>
 </section>
 <section id="sec-Errors.Field-errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L80"><a href="#sec-Errors.Field-errors" title="link to this subsection">Field errors</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L82-L84">Field errors are raised during execution from a particular field. This may occur due to an internal error during value resolution or failure to coerce the resulting value.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L86">Field errors are typically the fault of GraphQL service.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L88-L91">If a field error is raised, execution attempts to continue and a partial result is produced (see <a href="#sec-Handling-Field-Errors">Handling Field Errors</a>). The <code>data</code> entry in the response must be present. The <code>errors</code> entry should include all raised field errors.</p>
+<h6 data-source="spec/Section%207%20--%20Response.md#L79"><a href="#sec-Errors.Field-errors" title="link to this subsection">Field errors</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L81-L83">Field errors are raised during execution from a particular field. This may occur due to an internal error during value resolution or failure to coerce the resulting value.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L85">Field errors are typically the fault of GraphQL service.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L87-L90">If a field error is raised, execution attempts to continue and a partial result is produced (see <a href="#sec-Handling-Field-Errors">Handling Field Errors</a>). The <code>data</code> entry in the response must be present. The <code>errors</code> entry should include all raised field errors.</p>
 </section>
 <section id="sec-Errors.Error-result-format" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L93"><a href="#sec-Errors.Error-result-format" title="link to this subsection">Error result format</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L95-L97">Every error must contain an entry with the key <code>message</code> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L99-L103">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <code>locations</code> with a list of locations, where each location is a map with the keys <code>line</code> and <code>column</code>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L105-L108">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L110-L115">This field should be a list of path segments starting at the root of the response and ending with the field associated with the error. Path segments that represent fields should be strings, and path segments that represent list indices should be 0-indexed integers. If the error happens in an aliased field, the path to the error should use the aliased name, since it represents a path in the response, not in the request.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L117-L118">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
-<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L120-L130"><a href="#example-bc485">Example № 196</a><code><span class="token punctuation">{</span>
+<h6 data-source="spec/Section%207%20--%20Response.md#L92"><a href="#sec-Errors.Error-result-format" title="link to this subsection">Error result format</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L94-L96">Every error must contain an entry with the key <code>message</code> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L98-L102">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <code>locations</code> with a list of locations, where each location is a map with the keys <code>line</code> and <code>column</code>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L104-L107">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L109-L114">This field should be a list of path segments starting at the root of the response and ending with the field associated with the error. Path segments that represent fields should be strings, and path segments that represent list indices should be 0-indexed integers. If the error happens in an aliased field, the path to the error should use the aliased name, since it represents a path in the response, not in the request.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L116-L117">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
+<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L119-L129"><a href="#example-bc485">Example № 196</a><code><span class="token punctuation">{</span>
   hero<span class="token punctuation">(</span><span class="token attr-name">episode</span><span class="token punctuation">:</span> <span class="token variable">$episode</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     name
     <span class="token attr-name">heroFriends</span><span class="token punctuation">:</span> friends <span class="token punctuation">{</span>
@@ -5653,8 +5653,8 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L132">The response might look like:</p>
-<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L134-L163"><a href="#example-072c4">Example № 197</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L131">The response might look like:</p>
+<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L133-L162"><a href="#example-072c4">Example № 197</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5683,9 +5683,9 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L165-L168">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L170-L172">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
-<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L174-L200"><a href="#example-c18ef">Example № 198</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L164-L167">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L169-L171">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
+<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L173-L199"><a href="#example-c18ef">Example № 198</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5711,8 +5711,8 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L202-L205">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
-<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L207-L221"><a href="#example-8b658">Example № 199</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L201-L204">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
+<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L206-L220"><a href="#example-8b658">Example № 199</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5726,11 +5726,11 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L223-L225">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
-<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L227-L229">
+<p data-source="spec/Section%207%20--%20Response.md#L222-L224">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
+<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L226-L228">
 <a href="#note-5c13b">Note</a>
 Previous versions of this spec did not describe the <code>extensions</code> entry for error formatting. While non-specified entries are not violations, they are still discouraged.</div>
-<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L231-L243"><a href="#example-78af4">Counter Example № 200</a><code><span class="token punctuation">{</span>
+<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L230-L242"><a href="#example-78af4">Counter Example № 200</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5746,79 +5746,79 @@ Previous versions of this spec did not describe the <code>extensions</code> entr
 </section>
 </section>
 <section id="sec-Serialization-Format" secid="7.2">
-<h2 data-source="spec/Section%207%20--%20Response.md#L246"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
-<p data-source="spec/Section%207%20--%20Response.md#L248-L251">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
+<h2 data-source="spec/Section%207%20--%20Response.md#L245"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
+<p data-source="spec/Section%207%20--%20Response.md#L247-L250">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L253">Map</li>
-<li data-source="spec/Section%207%20--%20Response.md#L254">List</li>
-<li data-source="spec/Section%207%20--%20Response.md#L255">String</li>
-<li data-source="spec/Section%207%20--%20Response.md#L256">Null</li>
+<li data-source="spec/Section%207%20--%20Response.md#L252">Map</li>
+<li data-source="spec/Section%207%20--%20Response.md#L253">List</li>
+<li data-source="spec/Section%207%20--%20Response.md#L254">String</li>
+<li data-source="spec/Section%207%20--%20Response.md#L255">Null</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L258-L260">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
+<p data-source="spec/Section%207%20--%20Response.md#L257-L259">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L262">Boolean</li>
-<li data-source="spec/Section%207%20--%20Response.md#L263">Int</li>
-<li data-source="spec/Section%207%20--%20Response.md#L264">Float</li>
-<li data-source="spec/Section%207%20--%20Response.md#L265">Enum Value</li>
+<li data-source="spec/Section%207%20--%20Response.md#L261">Boolean</li>
+<li data-source="spec/Section%207%20--%20Response.md#L262">Int</li>
+<li data-source="spec/Section%207%20--%20Response.md#L263">Float</li>
+<li data-source="spec/Section%207%20--%20Response.md#L264">Enum Value</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L267-L270">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L266-L269">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
 <section id="sec-JSON-Serialization" secid="7.2.1">
-<h3 data-source="spec/Section%207%20--%20Response.md#L273"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L275-L276">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L278-L279">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
+<h3 data-source="spec/Section%207%20--%20Response.md#L272"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L274-L275">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L277-L278">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
 <table>
 <thead>
-<tr data-source="spec/Section%207%20--%20Response.md#L281">
+<tr data-source="spec/Section%207%20--%20Response.md#L280">
 <th>GraphQL Value</th>
 <th>JSON Value</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%207%20--%20Response.md#L283">
+<tr data-source="spec/Section%207%20--%20Response.md#L282">
 <td>Map</td>
 <td>Object</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L284">
+<tr data-source="spec/Section%207%20--%20Response.md#L283">
 <td>List</td>
 <td>Array</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L285">
+<tr data-source="spec/Section%207%20--%20Response.md#L284">
 <td>Null</td>
 <td><span class="spec-keyword">null</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L286">
+<tr data-source="spec/Section%207%20--%20Response.md#L285">
 <td>String</td>
 <td>String</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L287">
+<tr data-source="spec/Section%207%20--%20Response.md#L286">
 <td>Boolean</td>
 <td><span class="spec-keyword">true</span> or <span class="spec-keyword">false</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L288">
+<tr data-source="spec/Section%207%20--%20Response.md#L287">
 <td>Int</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L289">
+<tr data-source="spec/Section%207%20--%20Response.md#L288">
 <td>Float</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L290">
+<tr data-source="spec/Section%207%20--%20Response.md#L289">
 <td>Enum Value</td>
 <td>String</td>
 </tr>
 </tbody>
 </table>
-<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L292-L293">
+<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L291-L292">
 <a href="#note-786e2">Note</a>
 For consistency and ease of notation, examples of responses are given in JSON format throughout this document.</div>
 </section>
 <section id="sec-Serialized-Map-Ordering" secid="7.2.2">
-<h3 data-source="spec/Section%207%20--%20Response.md#L296"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L298-L304">Since the result of evaluating a selection set is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L306-L310">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L312-L314">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L316-L320">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
-<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L322-L324">
+<h3 data-source="spec/Section%207%20--%20Response.md#L295"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L297-L303">Since the result of evaluating a selection set is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L305-L309">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L311-L313">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L315-L319">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
+<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L321-L323">
 <a href="#note-4bb20">Note</a>
 This does not violate the JSON spec, as clients may still interpret objects in the response as unordered Maps and arrive at a valid value. </div>
 </section>
@@ -5866,7 +5866,7 @@ This does not violate the JSON spec, as clients may still interpret objects in t
 <section id="sec-Grammar-Notation.Constraints" class="subsec">
 <h6 data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L82"><a href="#sec-Grammar-Notation.Constraints" title="link to this subsection">Constraints</a></h6>
 <p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L84-L85">A grammar production may specify that certain expansions are not permitted by using the phrase &ldquo;but not&rdquo; and then indicating the expansions to be excluded.</p>
-<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L87-L89">For example, the following production means that the nonterminal <span class="spec-nt"><a href="#SafeWord" data-name="SafeWord">SafeWord</a></span> may be replaced by any sequence of characters that could replace <span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span> provided that the same sequence of characters could not replace <span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span>.</p>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L87-L89">For example, the following production means that the non-terminal <span class="spec-nt"><a href="#SafeWord" data-name="SafeWord">SafeWord</a></span> may be replaced by any sequence of characters that could replace <span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span> provided that the same sequence of characters could not replace <span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span>.</p>
 <div class="spec-production" id="SafeWord" data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L91">
 <span class="spec-nt"><a href="#SafeWord" data-name="SafeWord">SafeWord</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Word" data-name="Word">Word</a></span><span class="spec-butnot"><span class="spec-nt"><span data-name="SevenCarlinWords">SevenCarlinWords</span></span></span></span></div>
 </div>
