@@ -235,7 +235,7 @@ Fields\:
   Any named type which can be found through a field of any introspection type
   must be included in this set.
 * `directives` must return the set of all directives available within
-  this schema.
+  this schema including all built-in directives.
 
 
 ### The __Type Type
