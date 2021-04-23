@@ -118,9 +118,9 @@ warnings.
 
 **Schema Introspection Schema**
 
-The schema introspection system is itself, of course, represented as a GraphQL
-schema. Below is the full schema introspection set of type system definitions,
-which are expanded upon in the sections below.
+The schema introspection system is itself represented as a GraphQL schema. Below
+are the full set of type system definitions providing schema introspection,
+which are fully defined in the sections below.
 
 ```graphql
 type __Schema {
@@ -225,8 +225,7 @@ all information about the schema of a GraphQL service.
 Fields\:
 
 * `description` may return a String or {null}.
-* `queryType` is the root type of a query operation, if supported.
-  Otherwise {null}.
+* `queryType` is the root type of a query operation.
 * `mutationType` is the root type of a mutation operation, if supported.
   Otherwise {null}.
 * `subscriptionType` is the root type of a subscription operation, if supported.
