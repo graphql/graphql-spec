@@ -1890,7 +1890,7 @@ provide the `@specifiedBy` directive if representing custom scalar
 definitions.
 
 When representing a GraphQL schema using the type system definition language
-any *built-in directive* should be omitted for brevity.
+any *built-in directive* may be omitted for brevity.
 
 When introspecting a GraphQL service all provided directives, including
 any *built-in directive*, must be included in the set of returned directives.
