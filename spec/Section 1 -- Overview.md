@@ -26,7 +26,7 @@ Which produces the resulting data (in JSON):
 ```
 
 GraphQL is not a programming language capable of arbitrary computation, but is
-instead a language used to query application services that have
+instead a language used to make requests to application services that have
 capabilities defined in this specification. GraphQL does not mandate a
 particular programming language or storage system for application services that
 implement it. Instead, application services take their capabilities and map them

@@ -1,9 +1,11 @@
 # Type System
 
 The GraphQL Type system describes the capabilities of a GraphQL service and is
-used to determine if a query is valid. The type system also describes the
-input types of query variables to determine if values provided at runtime
-are valid.
+used to determine if a requested operation is valid, to guarantee the type of
+response results, and describes the input types of variables to determine if
+values provided at request time are valid.
+
+TypeSystemDocument : TypeSystemDefinition+
 
 TypeSystemDefinition :
   - SchemaDefinition
@@ -15,12 +17,11 @@ The GraphQL language includes an
 describe a GraphQL service's type system. Tools may use this definition language
 to provide utilities such as client code generation or service boot-strapping.
 
-GraphQL tools which only seek to provide GraphQL query execution may choose not
-to parse {TypeSystemDefinition}.
-
-A GraphQL Document which contains {TypeSystemDefinition} must not be executed;
-GraphQL execution services which receive a GraphQL Document containing type
-system definitions should return a descriptive error.
+GraphQL tools or services which only seek to execute GraphQL requests and not
+construct a new GraphQL schema may choose not to allow {TypeSystemDefinition}.
+Tools which only seek to produce schema and not execute requests may choose to
+only allow {TypeSystemDocument} and not allow {ExecutableDefinition} or
+{TypeSystemExtension} but should provide a descriptive error if present.
 
 Note: The type system definition language is used throughout the remainder of
 this specification document when illustrating example type systems.
@@ -28,14 +29,24 @@ this specification document when illustrating example type systems.
 
 ## Type System Extensions
 
+TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+  - TypeSystemDefinition
+  - TypeSystemExtension
+
 TypeSystemExtension :
   - SchemaExtension
   - TypeExtension
 
-Type system extensions are used to represent a GraphQL type system which has been
-extended from some original type system. For example, this might be used by a
-local service to represent data a GraphQL client only accesses locally, or by a
-GraphQL service which is itself an extension of another GraphQL service.
+Type system extensions are used to represent a GraphQL type system which has
+been extended from some original type system. For example, this might be used by
+a local service to represent data a GraphQL client only accesses locally, or by
+a GraphQL service which is itself an extension of another GraphQL service.
+
+Tools which only seek to produce and extend schema and not execute requests may
+choose to only allow {TypeSystemExtensionDocument} and not allow
+{ExecutableDefinition} but should provide a descriptive error if present.
 
 
 ## Descriptions
@@ -68,7 +79,7 @@ schema {
 }
 
 """
-Root type for all your queries
+Root type for all your query operations
 """
 type Query {
   """
@@ -180,7 +191,7 @@ When using the type system definition language, a document must include at most
 one {`schema`} definition.
 
 In this example, a GraphQL schema is defined with both query and mutation
-root types:
+root operation types:
 
 ```graphql example
 schema {
@@ -230,7 +241,7 @@ adds additional operation types, or additional directives to an existing schema.
 
 Note: Schema extensions without additional operation type definitions must not
 be followed by a {`{`} (such as a query shorthand) to avoid parsing ambiguity.
-This same limitation applies to the type definitions and extensions below.
+The same limitation applies to the type definitions and extensions below.
 
 **Schema Validation**
 
@@ -347,19 +358,9 @@ Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
 typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
-GraphQL provides a number of built-in scalars (see below), but type systems can
-add additional scalars with semantic meaning. For example, a GraphQL system
-could define a scalar called `Time` which, while serialized as a string,
-promises to conform to ISO-8601. When querying a field of type `Time`, you can
-then rely on the ability to parse the result with an ISO-8601 parser and use a
-client-specific primitive for time. Another example of a potentially useful
-custom scalar is `Url`, which serializes as a string, but is guaranteed by
-the service to be a valid URL.
-
-```graphql example
-scalar Time
-scalar Url
-```
+GraphQL provides a number of built-in scalars which are fully defined in the
+sections below, however type systems may also add additional custom scalars to
+introduce additional semantic meaning.
 
 **Built-in Scalars**
 
@@ -378,6 +379,45 @@ that type) then it must not be included.
 
 When representing a GraphQL schema using the type system definition language,
 all built-in scalars must be omitted for brevity.
+
+**Custom Scalars**
+
+GraphQL services may use custom scalar types in addition to the built-in
+scalars. For example, a GraphQL service could define a scalar called `UUID`
+which, while serialized as a string, conforms to [RFC 4122](https://tools.ietf.org/html/rfc4122).
+When querying a field of type `UUID`, you can then rely on the ability to parse
+the result with a RFC 4122 compliant parser. Another example of a potentially
+useful custom scalar is `URL`, which serializes as a string, but is guaranteed
+by the server to be a valid URL.
+
+:: When defining a custom scalar, GraphQL services should provide a *scalar
+specification URL* via the `@specifiedBy` directive or the `specifiedByURL`
+introspection field. This URL must link to a human-readable specification of the
+data format, serialization, and coercion rules for the scalar.
+
+For example, a GraphQL service providing a `UUID` scalar may link to RFC 4122,
+or some custom document defining a reasonable subset of that RFC. If a *scalar
+specification URL* is present, systems and tools that are aware of it should
+conform to its described rules.
+
+```graphql example
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
+```
+
+Custom *scalar specification URL*s should provide a single, stable format to
+avoid ambiguity. If the linked specification is in flux, the service should link
+to a fixed version rather than to a resource which might change.
+
+Custom *scalar specification URL*s should not be changed once defined. Doing so
+would likely disrupt tooling or could introduce breaking changes within the
+linked specification's contents.
+
+Built-in scalar types must not provide a *scalar specification URL* as they are
+specified by this document.
+
+Note: Custom scalars should also summarize the specified format and provide
+examples in their description.
 
 **Result Coercion and Serialization**
 
@@ -413,8 +453,8 @@ raised (input values are validated before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
-of input value is encountered. GraphQL may be parameterized by query variables,
-the values of which are often serialized when sent over a transport like HTTP. Since
+of input value is encountered. GraphQL may be parameterized by variables, the
+values of which are often serialized when sent over a transport like HTTP. Since
 some common serializations (ex. JSON) do not discriminate between integer
 and floating-point values, they are interpreted as an integer input value if
 they have an empty fractional part (ex. `1.0`) and otherwise as floating-point
@@ -491,14 +531,16 @@ outside the available precision), a request error must be raised.
 
 ### String
 
-The String scalar type represents textual data, represented as UTF-8 character
-sequences. The String type is most often used by GraphQL to represent free-form
-human-readable text. All response formats must support string representations,
-and that representation must be used here.
+The String scalar type represents textual data, represented as a sequence of
+Unicode code points. The String type is most often used by GraphQL to
+represent free-form human-readable text. How the String is encoded internally
+(for example UTF-8) is left to the service implementation. All response
+serialization formats must support a string representation (for example, JSON
+Unicode strings), and that representation must be used to serialize this type.
 
 **Result Coercion**
 
-Fields returning the type {String} expect to encounter UTF-8 string internal values.
+Fields returning the type {String} expect to encounter Unicode string values.
 
 GraphQL services may coerce non-string raw values to {String} when reasonable
 without losing information, otherwise they must raise a field error. Examples of
@@ -507,7 +549,7 @@ string `"1"` for the integer `1`.
 
 **Input Coercion**
 
-When expected as an input type, only valid UTF-8 string input values are
+When expected as an input type, only valid Unicode string input values are
 accepted. All other input values must raise a request error indicating an
 incorrect type.
 
@@ -590,14 +632,15 @@ FieldsDefinition : { FieldDefinition+ }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type Directives[Const]?
 
-GraphQL queries are hierarchical and composed, describing a tree of information.
-While Scalar types describe the leaf values of these hierarchical queries, Objects
-describe the intermediate levels.
+GraphQL operations are hierarchical and composed, describing a tree of
+information. While Scalar types describe the leaf values of these hierarchical
+operations, Objects describe the intermediate levels.
 
 GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
-queried field names (or aliases) are the keys and the result of evaluating
-the field is the value, ordered by the order in which they appear in the query.
+selected field names (or aliases) are the keys and the result of evaluating
+the field is the value, ordered by the order in which they appear in
+the selection set.
 
 All fields defined within an Object type must not have a name which begins with
 {"__"} (two underscores), as this is used exclusively by GraphQL's
@@ -676,8 +719,8 @@ type Person {
 }
 ```
 
-Valid queries must supply a nested field set for a field that returns
-an object, so this query is not valid:
+Valid operations must supply a nested field set for any field that returns an
+object, so this operation is not valid:
 
 ```graphql counter-example
 {
@@ -711,7 +754,7 @@ And will yield the subset of each object type queried:
 **Field Ordering**
 
 When querying an Object, the resulting mapping of fields are conceptually
-ordered in the same order in which they were encountered during query execution,
+ordered in the same order in which they were encountered during execution,
 excluding fragments for which the type does not apply and fields or
 fragments that are skipped via `@skip` or `@include` directives. This ordering
 is correctly produced when using the {CollectFields()} algorithm.
@@ -909,10 +952,10 @@ type Person {
 }
 ```
 
-GraphQL queries can optionally specify arguments to their fields to provide
+Operations can optionally specify arguments to their fields to provide
 these arguments.
 
-This example query:
+This example operation:
 
 ```graphql example
 {
@@ -921,7 +964,7 @@ This example query:
 }
 ```
 
-May yield the result:
+May return the result:
 
 ```json example
 {
@@ -937,9 +980,9 @@ Object, Interface, or Union type).
 ### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
-application. It is still legal to query for these fields (to ensure existing
-clients are not broken by the change), but the fields should be appropriately
-treated in documentation and tooling.
+application. It is still legal to include these fields in a selection set
+(to ensure existing clients are not broken by the change), but the fields should
+be appropriately treated in documentation and tooling.
 
 When using the type system definition language, `@deprecated` directives are
 used to indicate that a field is deprecated:
@@ -1051,7 +1094,7 @@ type Contact {
 }
 ```
 
-This allows us to write a query for a `Contact` that can select the
+This allows us to write a selection set for a `Contact` that can select the
 common fields.
 
 ```graphql example
@@ -1063,10 +1106,10 @@ common fields.
 }
 ```
 
-When querying for fields on an interface type, only those fields declared on
+When selecting fields on an interface type, only those fields declared on
 the interface may be queried. In the above example, `entity` returns a
 `NamedEntity`, and `name` is defined on `NamedEntity`, so it is valid. However,
-the following would not be a valid query:
+the following would not be a valid selection set against `Contact`:
 
 ```graphql counter-example
 {
@@ -1080,7 +1123,7 @@ the following would not be a valid query:
 
 because `entity` refers to a `NamedEntity`, and `age` is not defined on that
 interface. Querying for `age` is only valid when the result of `entity` is a
-`Person`; the query can express this using a fragment or an inline fragment:
+`Person`; this can be expressed using a fragment or an inline fragment:
 
 ```graphql example
 {
@@ -1138,7 +1181,7 @@ Interface definitions must not contain cyclic references nor implement
 themselves. This example is invalid because `Node` and `Named` implement
 themselves and each other:
 
-```graphgl counter-example
+```graphql counter-example
 interface Node implements Named & Node {
   id: ID!
   name: String
@@ -1283,11 +1326,9 @@ type SearchQuery {
 }
 ```
 
-When querying the `firstSearchResult` field of type `SearchQuery`, the
-query would ask for all fields inside of a fragment indicating the appropriate
-type. If the query wanted the name if the result was a Person, and the height if
-it was a photo, the following query is invalid, because the union itself
-defines no fields:
+In this example, a query operation wants the name if the result was a Person,
+and the height if it was a photo. However because a union itself defines no
+fields, this could be ambiguous and is invalid.
 
 ```graphql counter-example
 {
@@ -1298,7 +1339,7 @@ defines no fields:
 }
 ```
 
-Instead, the query would be:
+A valid operation includes typed fragments (in this example, inline fragments):
 
 ```graphql example
 {
@@ -1404,7 +1445,7 @@ reasonable coercion is not possible they must raise a field error.
 GraphQL has a constant literal to represent enum input values. GraphQL string
 literals must not be accepted as an enum input and instead raise a request error.
 
-Query variable transport serializations which have a different representation
+Variable transport serializations which have a different representation
 for non-string symbolic values (for example, [EDN](https://github.com/edn-format/edn))
 should only allow such values as enum input values. Otherwise, for most
 transport serializations that do not, strings may be interpreted as the enum
@@ -1698,9 +1739,9 @@ exclamation mark is used to denote a field that uses a Non-Null type like this:
 
 **Nullable vs. Optional**
 
-Fields are *always* optional within the context of a query, a field may be
-omitted and the query is still valid. However fields that return Non-Null types
-will never return the value {null} if queried.
+Fields are *always* optional within the context of a selection set, a field may
+be omitted and the selection set is still valid. However fields that return
+Non-Null types will never return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},
@@ -1839,6 +1880,14 @@ GraphQL implementations should provide the `@skip` and `@include` directives.
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of
 the schema.
+
+GraphQL implementations that support the type system definition language should
+provide the `@specifiedBy` directive if representing custom scalar
+definitions.
+
+When representing a GraphQL schema using the type system definition language,
+built in directives (any defined in this specification) should be omitted for
+brevity. Custom directives in use must be specified.
 
 **Custom Directives**
 
@@ -2001,4 +2050,24 @@ type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
 }
+```
+
+
+### @specifiedBy
+
+```graphql
+directive @specifiedBy(url: String!) on SCALAR
+```
+
+The `@specifiedBy` directive is used within the type system definition language
+to provide a *scalar specification URL* for specifying the behavior of
+[custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a
+human-readable specification of the data format, serialization, and
+coercion rules. It must not appear on built-in scalar types.
+
+In this example, a custom scalar type for `UUID` is defined with a URL pointing
+to the relevant IETF specification.
+
+```graphql example
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```

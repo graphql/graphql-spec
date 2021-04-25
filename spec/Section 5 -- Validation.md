@@ -51,7 +51,7 @@ type Dog implements Pet {
   nickname: String
   barkVolume: Int
   doesKnowCommand(dogCommand: DogCommand!): Boolean!
-  isHousetrained(atOtherHomes: Boolean): Boolean!
+  isHouseTrained(atOtherHomes: Boolean): Boolean!
   owner: Human
 }
 
@@ -97,8 +97,8 @@ union HumanOrAlien = Human | Alien
 **Formal Specification**
 
 * For each definition {definition} in the document.
-* {definition} must be {OperationDefinition} or {FragmentDefinition} (it must
-  not be {TypeSystemDefinition}).
+* {definition} must be {ExecutableDefinition} (it must not be
+  {TypeSystemDefinitionOrExtension}).
 
 **Explanatory Text**
 
@@ -106,11 +106,11 @@ GraphQL execution will only consider the executable definitions Operation and
 Fragment. Type system definitions and extensions are not executable, and are not
 considered during execution.
 
-To avoid ambiguity, a document containing {TypeSystemDefinition} is invalid
-for execution.
+To avoid ambiguity, a document containing {TypeSystemDefinitionOrExtension} is
+invalid for execution.
 
 GraphQL documents not intended to be directly executed may include
-{TypeSystemDefinition}.
+{TypeSystemDefinitionOrExtension}.
 
 For example, the following document is invalid for execution since the original
 executing schema may not know about the provided type extension:
@@ -255,7 +255,8 @@ query getName {
 * Let {variableValues} be the empty set.
 * Let {groupedFieldSet} be the result of
   {CollectFields(subscriptionType, selectionSet, variableValues)}.
-* {groupedFieldSet} must have exactly one entry.
+* {groupedFieldSet} must have exactly one entry, which must not be an
+  introspection field.
 
 **Explanatory Text**
 
@@ -311,14 +312,11 @@ fragment multipleSubscriptions on Subscription {
 }
 ```
 
-Introspection fields are counted. The following example is also invalid:
+The root field of a subscription operation must not be an introspection field.
+The following example is also invalid:
 
 ```graphql counter-example
 subscription sub {
-  newMessage {
-    body
-    sender
-  }
   __typename
 }
 ```
@@ -582,7 +580,7 @@ fragment conflictingDifferingResponses on Pet {
 **Explanatory Text**
 
 Field selections on scalars or enums are never allowed, because they
-are the leaf nodes of any GraphQL query.
+are the leaf nodes of any GraphQL operation.
 
 The following is valid.
 
@@ -602,11 +600,12 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the leaf field selections of GraphQL queries
+Conversely the leaf field selections of GraphQL operations
 must be of type scalar or enum. Leaf selections on objects, interfaces,
 and unions without subfields are disallowed.
 
-Let's assume the following additions to the query root type of the schema:
+Let's assume the following additions to the query root operation type of
+the schema:
 
 ```graphql example
 extend type Query {
@@ -661,7 +660,7 @@ fragment argOnRequiredArg on Dog {
 }
 
 fragment argOnOptional on Dog {
-  isHousetrained(atOtherHomes: true) @include(if: true)
+  isHouseTrained(atOtherHomes: true) @include(if: true)
 }
 ```
 
@@ -677,7 +676,7 @@ and this is also invalid as `unless` is not defined on `@include`.
 
 ```graphql counter-example
 fragment invalidArgName on Dog {
-  isHousetrained(atOtherHomes: true) @include(unless: false)
+  isHouseTrained(atOtherHomes: true) @include(unless: false)
 }
 ```
 
@@ -686,7 +685,7 @@ to our type system:
 
 ```graphql example
 type Arguments {
-  multipleReqs(x: Int!, y: Int!): Int!
+  multipleRequirements(x: Int!, y: Int!): Int!
   booleanArgField(booleanArg: Boolean): Boolean
   floatArgField(floatArg: Float): Float
   intArgField(intArg: Int): Int
@@ -704,11 +703,11 @@ Order does not matter in arguments. Therefore both the following examples are va
 
 ```graphql example
 fragment multipleArgs on Arguments {
-  multipleReqs(x: 1, y: 2)
+  multipleRequirements(x: 1, y: 2)
 }
 
 fragment multipleArgsReverseOrder on Arguments {
-  multipleReqs(y: 2, x: 1)
+  multipleRequirements(y: 2, x: 1)
 }
 ```
 
@@ -761,7 +760,7 @@ fragment goodNonNullArg on Arguments {
 
 The argument can be omitted from a field with a nullable argument.
 
-Therefore the following query is valid:
+Therefore the following fragment is valid:
 
 ```graphql example
 fragment goodBooleanArgDefault on Arguments {
@@ -861,7 +860,7 @@ fragment fragmentOne on Dog {
 
 Fragments must be specified on types that exist in the schema. This
 applies for both named and inline fragments. If they are
-not defined in the schema, the query does not validate.
+not defined in the schema, the fragment is invalid.
 
 For example the following fragments are valid:
 
@@ -974,7 +973,7 @@ fragment nameFragment on Dog { # unused
 ### Fragment Spreads
 
 Field selection is also determined by spreading fragments into one
-another. The selection set of the target fragment is unioned with
+another. The selection set of the target fragment is combined into
 the selection set at the level at which the target fragment is
 referenced.
 
@@ -1397,7 +1396,7 @@ which is not defined on the expected type:
 Input objects must not contain more than one field of the same name, otherwise
 an ambiguity would exist which includes an ignored portion of syntax.
 
-For example the following query will not pass validation.
+For example the following document will not pass validation.
 
 ```graphql counter-example
 {
@@ -1466,7 +1465,7 @@ GraphQL services define what directives they support and where they support them
 For each usage of a directive, the directive must be used in a location that the
 service has declared support for.
 
-For example the following query will not pass validation because `@skip` does
+For example the following document will not pass validation because `@skip` does
 not provide `QUERY` as a valid location.
 
 ```graphql counter-example
@@ -1496,7 +1495,7 @@ definition they apply to. When more than one directive of the same name is used,
 the expected metadata or behavior becomes ambiguous, therefore only one of each
 directive is allowed per location.
 
-For example, the following query will not pass validation because `@skip` has
+For example, the following document will not pass validation because `@skip` has
 been used twice for the same field:
 
 ```raw graphql counter-example
@@ -1506,7 +1505,8 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 ```
 
 However the following example is valid because `@skip` has been used only once
-per location, despite being used twice in the query and on the same named field:
+per location, despite being used twice in the operation and on the same
+named field:
 
 ```raw graphql example
 query ($foo: Boolean = true, $bar: Boolean = false) {
@@ -1542,7 +1542,7 @@ is the same.
 ```graphql counter-example
 query houseTrainedQuery($atOtherHomes: Boolean, $atOtherHomes: Boolean) {
   dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
+    isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 ```
@@ -1562,7 +1562,7 @@ query B($atOtherHomes: Boolean) {
 
 fragment HouseTrainedFragment on Query {
   dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
+    isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 ```
@@ -1582,7 +1582,7 @@ fragment HouseTrainedFragment on Query {
 Variables can only be input types. Objects, unions, and interfaces cannot be
 used as inputs.
 
-For these examples, consider the following typesystem additions:
+For these examples, consider the following type system additions:
 
 ```graphql example
 input ComplexInput {
@@ -1596,12 +1596,12 @@ extend type Query {
 }
 ```
 
-The following queries are valid:
+The following operations are valid:
 
 ```graphql example
 query takesBoolean($atOtherHomes: Boolean) {
   dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
+    isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 
@@ -1616,7 +1616,7 @@ query TakesListOfBooleanBang($booleans: [Boolean!]) {
 }
 ```
 
-The following queries are invalid:
+The following operations are invalid:
 
 ```graphql counter-example
 query takesCat($cat: Cat) {
@@ -1659,19 +1659,19 @@ For example:
 ```graphql example
 query variableIsDefined($atOtherHomes: Boolean) {
   dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
+    isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 ```
 
 is valid. ${atOtherHomes} is defined by the operation.
 
-By contrast the following query is invalid:
+By contrast the following document is invalid:
 
 ```graphql counter-example
 query variableIsNotDefined {
   dog {
-    isHousetrained(atOtherHomes: $atOtherHomes)
+    isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 ```
@@ -1688,31 +1688,31 @@ For example the following is valid:
 ```graphql example
 query variableIsDefinedUsedInSingleFragment($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
-since {isHousetrainedFragment} is used within the context of the operation
+since {isHouseTrainedFragment} is used within the context of the operation
 {variableIsDefinedUsedInSingleFragment} and the variable is defined by that
 operation.
 
 On the other hand, if a fragment is included within an operation that does
-not define a referenced variable, the query is invalid.
+not define a referenced variable, the document is invalid.
 
 ```graphql counter-example
 query variableIsNotDefinedUsedInSingleFragment {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1721,16 +1721,16 @@ This applies transitively as well, so the following also fails:
 ```graphql counter-example
 query variableIsNotDefinedUsedInNestedFragment {
   dog {
-    ...outerHousetrainedFragment
+    ...outerHouseTrainedFragment
   }
 }
 
-fragment outerHousetrainedFragment on Dog {
-  ...isHousetrainedFragment
+fragment outerHouseTrainedFragment on Dog {
+  ...isHouseTrainedFragment
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1738,45 +1738,45 @@ Variables must be defined in all operations in which a fragment
 is used.
 
 ```graphql example
-query housetrainedQueryOne($atOtherHomes: Boolean) {
+query houseTrainedQueryOne($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-query housetrainedQueryTwo($atOtherHomes: Boolean) {
+query houseTrainedQueryTwo($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
 However the following does not validate:
 
 ```graphql counter-example
-query housetrainedQueryOne($atOtherHomes: Boolean) {
+query houseTrainedQueryOne($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-query housetrainedQueryTwoNotDefined {
+query houseTrainedQueryTwoNotDefined {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
-This is because {housetrainedQueryTwoNotDefined} does not define
-a variable ${atOtherHomes} but that variable is used by {isHousetrainedFragment}
+This is because {houseTrainedQueryTwoNotDefined} does not define
+a variable ${atOtherHomes} but that variable is used by {isHouseTrainedFragment}
 which is included in that operation.
 
 
@@ -1801,7 +1801,7 @@ For example the following is invalid:
 ```graphql counter-example
 query variableUnused($atOtherHomes: Boolean) {
   dog {
-    isHousetrained
+    isHouseTrained
   }
 }
 ```
@@ -1813,16 +1813,16 @@ These rules apply to transitive fragment spreads as well:
 ```graphql example
 query variableUsedInFragment($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
-The above is valid since ${atOtherHomes} is used in {isHousetrainedFragment}
+The above is valid since ${atOtherHomes} is used in {isHouseTrainedFragment}
 which is included by {variableUsedInFragment}.
 
 If that fragment did not have a reference to ${atOtherHomes} it would be not valid:
@@ -1830,12 +1830,12 @@ If that fragment did not have a reference to ${atOtherHomes} it would be not val
 ```graphql counter-example
 query variableNotUsedWithinFragment($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedWithoutVariableFragment
+    ...isHouseTrainedWithoutVariableFragment
   }
 }
 
-fragment isHousetrainedWithoutVariableFragment on Dog {
-  isHousetrained
+fragment isHouseTrainedWithoutVariableFragment on Dog {
+  isHouseTrained
 }
 ```
 
@@ -1846,18 +1846,18 @@ As a result, the following document does not validate.
 ```graphql counter-example
 query queryWithUsedVar($atOtherHomes: Boolean) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
 query queryWithExtraVar($atOtherHomes: Boolean, $extra: Int) {
   dog {
-    ...isHousetrainedFragment
+    ...isHouseTrainedFragment
   }
 }
 
-fragment isHousetrainedFragment on Dog {
-  isHousetrained(atOtherHomes: $atOtherHomes)
+fragment isHouseTrainedFragment on Dog {
+  isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
@@ -1999,7 +1999,7 @@ query booleanArgQueryWithDefault($booleanArg: Boolean) {
 
 In the example below, an optional variable `$booleanArg` is allowed to be used
 in the non-null argument (`nonNullBooleanArg`) because the variable provides
-a default value in the query. This behavior is explicitly supported for
+a default value in the operation. This behavior is explicitly supported for
 compatibility with earlier editions of this specification. GraphQL authoring
 tools may wish to report this as a warning with the suggestion to replace
 `Boolean` with `Boolean!` to avoid ambiguity.

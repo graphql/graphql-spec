@@ -38,8 +38,8 @@ in a response during debugging.
 
 The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an
-object of the schema's query root type; if the operation was a mutation, this
-output will be an object of the schema's mutation root type.
+object of the query root operation type; if the operation was a
+mutation, this output will be an object of the mutation root operation type.
 
 If an error was raised before execution begins, the `data` entry should
 not be present in the result.
@@ -111,10 +111,10 @@ response and ending with the field associated with the error. Path segments
 that represent fields should be strings, and path segments that
 represent list indices should be 0-indexed integers. If the error happens
 in an aliased field, the path to the error should use the aliased name, since
-it represents a path in the response, not in the query.
+it represents a path in the response, not in the request.
 
 For example, if fetching one of the friends' names fails in the following
-query:
+operation:
 
 ```graphql example
 {
@@ -296,8 +296,8 @@ JSON format throughout this document.
 
 Since the result of evaluating a selection set is ordered, the serialized Map of
 results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by query execution. Producing a
-serialized response where fields are represented in the same order in which
+as those fields were requested as defined by selection set execution. Producing
+a serialized response where fields are represented in the same order in which
 they appear in the request improves human readability during debugging and
 enables more efficient parsing of responses if the order of properties can
 be anticipated.

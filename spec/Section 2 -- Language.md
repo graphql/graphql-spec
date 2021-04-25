@@ -3,7 +3,7 @@
 Clients use the GraphQL query language to make requests to a GraphQL service.
 We refer to these request sources as documents. A document may contain
 operations (queries, mutations, and subscriptions) as well as fragments, a
-common unit of composition allowing for query reuse.
+common unit of composition allowing for data requirement reuse.
 
 A GraphQL document is defined as a syntactic grammar where terminal symbols are
 tokens (indivisible lexical units). These tokens are defined in a lexical
@@ -53,19 +53,20 @@ SourceCharacter ::
   - "U+0020–U+FFFF"
 
 GraphQL documents are expressed as a sequence of
-[Unicode](https://unicode.org/standard/standard.html) characters. However, with
+[Unicode](https://unicode.org/standard/standard.html) code points (informally
+referred to as *"characters"* through most of this specification). However, with
 few exceptions, most of GraphQL is expressed only in the original non-control
 ASCII range so as to be as widely compatible with as many existing tools,
 languages, and serialization formats as possible and avoid display issues in
 text editors and source control.
 
+Note: Non-ASCII Unicode characters may appear freely within {StringValue} and
+{Comment} portions of GraphQL.
+
 
 ### Unicode
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
-
-Non-ASCII Unicode characters may freely appear within {StringValue} and
-{Comment} portions of GraphQL.
 
 The "Byte Order Mark" is a special Unicode character which
 may appear at the beginning of a file containing Unicode which programs may use
@@ -233,8 +234,9 @@ Document : Definition+
 
 Definition :
   - ExecutableDefinition
-  - TypeSystemDefinition
-  - TypeSystemExtension
+  - TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
   - OperationDefinition
@@ -244,12 +246,19 @@ A GraphQL Document describes a complete file or request string operated on
 by a GraphQL service or client. A document contains multiple definitions, either
 executable or representative of a GraphQL type system.
 
-Documents are only executable by a GraphQL service if they contain an
-{OperationDefinition} and otherwise only contain {ExecutableDefinition}.
-However documents which do not contain {OperationDefinition} or do contain
-{TypeSystemDefinition} or {TypeSystemExtension} may still be parsed
-and validated to allow client tools to represent many GraphQL uses which may
-appear across many individual files.
+Documents are only executable by a GraphQL service if they are
+{ExecutableDocument} and contain at least one {OperationDefinition}. A
+Document which contains {TypeSystemDefinitionOrExtension} must not be executed;
+GraphQL execution services which receive a Document containing these should
+return a descriptive error.
+
+GraphQL services which only seek to execute GraphQL requests and not construct
+a new GraphQL schema may choose to only permit {ExecutableDocument}.
+
+Documents which do not contain {OperationDefinition} or do contain
+{TypeSystemDefinitionOrExtension} may still be parsed and validated to allow
+client tools to represent many GraphQL uses which may appear across many
+individual files.
 
 If a Document contains only one operation, that operation may be unnamed. If
 that operation is a query without variables or directives then it may also be
@@ -258,10 +267,6 @@ as the operation name. Otherwise, if a GraphQL Document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
-
-GraphQL services which only seek to provide GraphQL query execution may choose
-to only include {ExecutableDefinition} and omit the {TypeSystemDefinition} and
-{TypeSystemExtension} rules from {Definition}.
 
 
 ## Operations
@@ -333,8 +338,8 @@ under-fetching data.
 }
 ```
 
-In this query, the `id`, `firstName`, and `lastName` fields form a selection
-set. Selection sets may also contain fragment references.
+In this query operation, the `id`, `firstName`, and `lastName` fields form a
+selection set. Selection sets may also contain fragment references.
 
 
 ## Fields
@@ -434,7 +439,7 @@ Many arguments can exist for a given field:
 Arguments may be provided in any syntactic order and maintain identical
 semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -542,7 +547,7 @@ query noFragments {
 ```
 
 The repeated fields could be extracted into a fragment and composed by
-a parent fragment or query.
+a parent fragment or operation.
 
 ```graphql example
 query withFragments {
@@ -563,8 +568,8 @@ fragment friendFields on User {
 }
 ```
 
-Fragments are consumed by using the spread operator (`...`). All fields selected
-by the fragment will be added to the query field selection at the same level
+Fragments are consumed by using the spread operator (`...`). All fields
+selected by the fragment will be added to the field selection at the same level
 as the fragment invocation. This happens through multiple levels of fragment
 spreads.
 
@@ -593,7 +598,7 @@ fragment standardProfilePic on User {
 }
 ```
 
-The queries `noFragments`, `withFragments`, and `withNestedFragments` all
+The operations `noFragments`, `withFragments`, and `withNestedFragments` all
 produce the same response object.
 
 
@@ -612,11 +617,11 @@ Fragments can be specified on object types, interfaces, and unions.
 Selections within fragments only return values when the concrete type of the object
 it is operating on matches the type of the fragment.
 
-For example in this query on the Facebook data model:
+For example in this operation using the Facebook data model:
 
 ```graphql example
 query FragmentTyping {
-  profiles(handles: ["zuck", "cocacola"]) {
+  profiles(handles: ["zuck", "coca-cola"]) {
     handle
     ...userFragment
     ...pageFragment
@@ -649,7 +654,7 @@ will be present and `friends` will not.
       "friends": { "count": 1234 }
     },
     {
-      "handle": "cocacola",
+      "handle": "coca-cola",
       "likers": { "count": 90234512 }
     }
   ]
@@ -668,7 +673,7 @@ example. We could accomplish the same thing using inline fragments.
 
 ```graphql example
 query inlineFragmentTyping {
-  profiles(handles: ["zuck", "cocacola"]) {
+  profiles(handles: ["zuck", "coca-cola"]) {
     handle
     ... on User {
       friends {
@@ -800,13 +805,13 @@ StringValue ::
   - `"""` BlockStringCharacter* `"""`
 
 StringCharacter ::
-  - SourceCharacter but not `"` or \ or LineTerminator
-  - \u EscapedUnicode
-  - \ EscapedCharacter
+  - SourceCharacter but not `"` or `\` or LineTerminator
+  - `\u` EscapedUnicode
+  - `\` EscapedCharacter
 
 EscapedUnicode :: /[0-9A-Fa-f]{4}/
 
-EscapedCharacter :: one of `"` \ `/` b f n r t
+EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
 BlockStringCharacter ::
   - SourceCharacter but not `"""` or `\"""`
@@ -821,9 +826,10 @@ be interpreted as the beginning of a block string. As an example, the source
 {`""""""`} can only be interpreted as a single empty block string and not three
 empty strings.
 
-Note: Unicode characters are allowed within String value literals, however
-{SourceCharacter} must not contain some ASCII control characters so escape
-sequences must be used to represent these characters.
+Non-ASCII Unicode characters are allowed within single-quoted strings.
+Since {SourceCharacter} must not contain some ASCII control characters, escape
+sequences must be used to represent these characters. The {`\`}, {`"`}
+characters also must be escaped. All other escape sequences are optional.
 
 **Block Strings**
 
@@ -887,32 +893,33 @@ StringValue :: `""`
 
 StringValue :: `"` StringCharacter+ `"`
 
-  * Return the Unicode character sequence of all {StringCharacter}
-    Unicode character values.
+  * Return the sequence of all {StringCharacter} code points.
 
-StringCharacter :: SourceCharacter but not `"` or \ or LineTerminator
+StringCharacter :: SourceCharacter but not `"` or `\` or LineTerminator
 
-  * Return the character value of {SourceCharacter}.
+  * Return the code point {SourceCharacter}.
 
-StringCharacter :: \u EscapedUnicode
+StringCharacter :: `\u` EscapedUnicode
 
-  * Return the character whose code unit value in the Unicode Basic Multilingual
-    Plane is the 16-bit hexadecimal value {EscapedUnicode}.
+  * Let {value} be the 16-bit hexadecimal value represented by the sequence of
+    hexadecimal digits within {EscapedUnicode}.
+  * Return the code point {value}.
 
-StringCharacter :: \ EscapedCharacter
+StringCharacter :: `\` EscapedCharacter
 
-  * Return the character value of {EscapedCharacter} according to the table below.
+  * Return the code point represented by {EscapedCharacter} according to the
+    table below.
 
-| Escaped Character | Code Unit Value | Character Name               |
-| ----------------- | --------------- | ---------------------------- |
-| `"`               | U+0022          | double quote                 |
-| `\`               | U+005C          | reverse solidus (back slash) |
-| `/`               | U+002F          | solidus (forward slash)      |
-| `b`               | U+0008          | backspace                    |
-| `f`               | U+000C          | form feed                    |
-| `n`               | U+000A          | line feed (new line)         |
-| `r`               | U+000D          | carriage return              |
-| `t`               | U+0009          | horizontal tab               |
+| Escaped Character | Code Point | Character Name               |
+| ----------------- | ---------- | ---------------------------- |
+| {`"`}             | U+0022     | double quote                 |
+| {`\`}             | U+005C     | reverse solidus (back slash) |
+| {`/`}             | U+002F     | solidus (forward slash)      |
+| {`b`}             | U+0008     | backspace                    |
+| {`f`}             | U+000C     | form feed                    |
+| {`n`}             | U+000A     | line feed (new line)         |
+| {`r`}             | U+000D     | carriage return              |
+| {`t`}             | U+0009     | horizontal tab               |
 
 StringValue :: `"""` BlockStringCharacter* `"""`
 
@@ -1045,7 +1052,7 @@ literal representation of input objects as "object literals."
 Input object fields may be provided in any syntactic order and maintain
 identical semantic meaning.
 
-These two queries are semantically identical:
+These two operations are semantically identical:
 
 ```graphql example
 {
@@ -1092,7 +1099,9 @@ If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
 
 Variables must be defined at the top of an operation and are in scope
-throughout the execution of that operation.
+throughout the execution of that operation. Values for those variables are
+provided to a GraphQL service as part of a request so they may be substituted
+in during execution.
 
 In this example, we want to fetch a profile picture size based on the size
 of a particular device:
@@ -1107,10 +1116,8 @@ query getZuckProfile($devicePicSize: Int) {
 }
 ```
 
-Values for those variables are provided to a GraphQL service along with a
-request so they may be substituted during execution. If providing JSON for the
-variables' values, we could run this query and request profilePic of
-size `60` width:
+If providing JSON for the variables' values, we could request a `profilePic` of
+size `60`:
 
 ```json example
 {
@@ -1120,11 +1127,10 @@ size `60` width:
 
 **Variable use within Fragments**
 
-Query variables can be used within fragments. Query variables have global scope
-with a given operation, so a variable used within a fragment must be declared
-in any top-level operation that transitively consumes that fragment. If
-a variable is referenced in a fragment and is included by an operation that does
-not define that variable, the operation cannot be executed.
+Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any
+top-level operation that transitively consumes that fragment. If a variable is
+referenced in a fragment and is included by an operation that does not define
+that variable, that operation is invalid (see [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
 
 
 ## Type References
@@ -1142,9 +1148,9 @@ NonNullType :
   - NamedType !
   - ListType !
 
-GraphQL describes the types of data expected by query variables. Input types
-may be lists of another input type, or a non-null variant of any other
-input type.
+GraphQL describes the types of data expected by arguments and variables.
+Input types may be lists of another input type, or a non-null variant of any
+other input type.
 
 **Semantics**
 
@@ -1184,8 +1190,8 @@ including or skipping a field. Directives provide this by describing additional 
 Directives have a name along with a list of arguments which may accept values
 of any input type.
 
-Directives can be used to describe additional information for types, fields, fragments
-and operations.
+Directives can be used to describe additional information for types, fields,
+fragments and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide
