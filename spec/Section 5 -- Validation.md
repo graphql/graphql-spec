@@ -249,18 +249,21 @@ query getName {
 
 **Formal Specification**
 
-* For each subscription operation definition {subscription} in the document
-* Let {subscriptionType} be the root Subscription type in {schema}.
-* Let {selectionSet} be the top level selection set on {subscription}.
-* Let {variableValues} be the empty set.
-* Let {groupedFieldSet} be the result of
-  {CollectFields(subscriptionType, selectionSet, variableValues)}.
-* {groupedFieldSet} must have exactly one entry, which must not be an
-  introspection field.
+* For each subscription operation definition {subscription} in the document:
+  * Let {subscriptionType} be the root Subscription type in {schema}.
+  * Let {selectionSet} be the top level selection set on {subscription}.
+  * Let {groupedFieldSet} be the result of
+    {CollectFields(subscriptionType, selectionSet, null)}.
+  * {groupedFieldSet} must have exactly one entry, which must not be an
+    introspection field.
 
 **Explanatory Text**
 
 Subscription operations must have exactly one root field.
+
+To enable us to determine this without access to runtime variables, we must
+forbid the `@skip` and `@include` directives in the root selection set (by
+passing `null` as the `variableValues` argument to {CollectFields()}).
 
 Valid examples:
 
@@ -309,6 +312,19 @@ fragment multipleSubscriptions on Subscription {
     sender
   }
   disallowedSecondRootField
+}
+```
+
+We do not allow the `@skip` and `@include` directives at the root of the
+subscription operation. The following example is also invalid:
+
+```graphql counter-example
+subscription requiredRuntimeValidation($bool: Boolean!) {
+  newMessage @include(if: $bool) {
+    body
+    sender
+  }
+  disallowedSecondRootField @skip(if: $bool)
 }
 ```
 
