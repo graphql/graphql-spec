@@ -1875,6 +1875,10 @@ A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
 
+**Built-in Directives**
+
+:: A *built-in directive* is any directive defined within this specification.
+
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
 GraphQL implementations that support the type system definition language must
@@ -1885,23 +1889,25 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar
 definitions.
 
-When representing a GraphQL schema using the type system definition language,
-built in directives (any defined in this specification) should be omitted for
-brevity. Custom directives in use must be specified.
+When representing a GraphQL schema using the type system definition language
+any *built-in directive* may be omitted for brevity.
+
+When introspecting a GraphQL service all provided directives, including
+any *built-in directive*, must be included in the set of returned directives.
 
 **Custom Directives**
 
-GraphQL services and client tooling may provide additional directives beyond
-those defined in this document. Directives are the preferred way to extend
-GraphQL with custom or experimental behavior.
+:: GraphQL services and client tooling may provide any additional
+*custom directive* beyond those defined in this document. Directives are the
+preferred way to extend GraphQL with custom or experimental behavior.
 
-Note: When defining a directive, it is recommended to prefix the directive's
-name to make its scope of usage clear and to prevent a collision with directives
-which may be specified by future versions of this document (which will not
-include `_` in their name). For example, a custom directive used by Facebook's
-GraphQL service should be named `@fb_auth` instead of `@auth`. This is
-especially recommended for proposed additions to this specification which can
-change during the [RFC process](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md).
+Note: When defining a *custom directive*, it is recommended to prefix the
+directive's name to make its scope of usage clear and to prevent a collision
+with *built-in directive* which may be specified by future versions of this
+document (which will not include `_` in their name). For example, a
+*custom directive* used by Facebook's GraphQL service should be named `@fb_auth`
+instead of `@auth`. This is especially recommended for proposed additions to
+this specification which can change during the [RFC process](https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md).
 For example a work in progress version of `@live` should be named `@rfc_live`.
 
 Directives must only be used in the locations they are declared to belong in.
@@ -1986,9 +1992,9 @@ repeatable directives.
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
-The `@skip` directive may be provided for fields, fragment spreads, and
-inline fragments, and allows for conditional exclusion during execution as
-described by the if argument.
+The `@skip` *built-in directive* may be provided for fields, fragment spreads,
+and inline fragments, and allows for conditional exclusion during execution as
+described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
@@ -2006,9 +2012,9 @@ query myQuery($someTest: Boolean!) {
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
-The `@include` directive may be provided for fields, fragment spreads, and
-inline fragments, and allows for conditional inclusion during execution as
-described by the if argument.
+The `@include` *built-in directive* may be provided for fields, fragment
+spreads, and inline fragments, and allows for conditional inclusion during
+execution as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
@@ -2035,8 +2041,8 @@ directive @deprecated(
 ) on FIELD_DEFINITION | ENUM_VALUE
 ```
 
-The `@deprecated` directive is used within the type system definition language
-to indicate deprecated portions of a GraphQL service's schema, such as
+The `@deprecated` *built-in directive* is used within the type system definition
+language to indicate deprecated portions of a GraphQL service's schema, such as
 deprecated fields on a type or deprecated enum values.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
@@ -2059,10 +2065,10 @@ type ExampleType {
 directive @specifiedBy(url: String!) on SCALAR
 ```
 
-The `@specifiedBy` directive is used within the type system definition language
-to provide a *scalar specification URL* for specifying the behavior of
-[custom scalar types](#sec-Scalars.Custom-Scalars). The URL should point to a
-human-readable specification of the data format, serialization, and
+The `@specifiedBy` *built-in directive* is used within the type system
+definition language to provide a *scalar specification URL* for specifying the
+behavior of [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should
+point to a human-readable specification of the data format, serialization, and
 coercion rules. It must not appear on built-in scalar types.
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing

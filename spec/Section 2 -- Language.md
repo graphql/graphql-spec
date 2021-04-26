@@ -1195,8 +1195,7 @@ fragments and operations.
 
 As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide
-additional [custom directives](#sec-Type-System.Directives.Custom-Directives)
-beyond those described here.
+any additional *custom directive* beyond those described here.
 
 **Directive order is significant**
 
