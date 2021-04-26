@@ -1362,18 +1362,18 @@ The same two methods of representing the lack of a value are possible via variab
 <p data-source="spec/Section%202%20--%20Language.md#L1186-L1188">In some cases, you need to provide options to alter GraphQL&rsquo;s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1190-L1191">Directives have a name along with a list of arguments which may accept values of any input type.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1193-L1194">Directives can be used to describe additional information for types, fields, fragments and operations.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1196-L1199">As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide additional <a href="#sec-Type-System.Directives.Custom-Directives">custom directives</a> beyond those described here.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1196-L1198">As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide any additional <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> beyond those described here.</p>
 <section id="sec-Language.Directives.Directive-order-is-significant" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1201"><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L1203">Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1205">These two type definitions may have different semantic meaning:</p>
-<pre id="example-2a4f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1207-L1213"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+<h6 data-source="spec/Section%202%20--%20Language.md#L1200"><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L1202">Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1204">These two type definitions may have different semantic meaning:</p>
+<pre id="example-2a4f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1206-L1212"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
   <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span>
   <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-c1f24" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1215-L1221"><a href="#example-c1f24">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+<pre id="example-c1f24" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1214-L1220"><a href="#example-c1f24">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
   <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span>
   <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> String
@@ -2832,39 +2832,44 @@ The Validation section defines providing a nullable variable type to a non-null 
 </table></div></div>
 </div>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1874-L1876">A GraphQL schema describes directives which are used to annotate various parts of a GraphQL document as an indicator that they should be evaluated differently by a validator, executor, or client tool such as a code generator.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1878">GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1880-L1882">GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1884-L1886">GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1888-L1890">When representing a GraphQL schema using the type system definition language, built in directives (any defined in this specification) should be omitted for brevity. Custom directives in use must be specified.</p>
+<section id="sec-Type-System.Directives.Built-in-Directives" class="subsec">
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1878"><a href="#sec-Type-System.Directives.Built-in-Directives" title="link to this subsection">Built-in Directives</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1880">A <dfn id="built-in-directive"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></dfn> is any directive defined within this specification.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1882">GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1884-L1886">GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1888-L1890">GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1892-L1893">When representing a GraphQL schema using the type system definition language any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be omitted for brevity.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1895-L1896">When introspecting a GraphQL service all provided directives, including any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span>, must be included in the set of returned directives.</p>
+</section>
 <section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1892"><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1894-L1896">GraphQL services and client tooling may provide additional directives beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
-<div id="note-855f9" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1898-L1905">
-<a href="#note-855f9">Note</a>
-When defining a directive, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with directives which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a custom directive used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md">RFC process</a>. For example a work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1907-L1908">Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
-<pre id="example-060af" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1910-L1916"><a href="#example-060af">Example № 88</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1898"><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1900-L1902">GraphQL services and client tooling may provide any additional <dfn id="custom-directive"><a href="#custom-directive" data-name="custom-directive">custom directive</a></dfn> beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
+<div id="note-39239" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1904-L1911">
+<a href="#note-39239">Note</a>
+When defining a <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span>, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md">RFC process</a>. For example a work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1913-L1914">Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
+<pre id="example-060af" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1916-L1922"><a href="#example-060af">Example № 88</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span>
 
 <span class="token keyword">fragment</span> <span class="token fragment function">SomeFragment</span> <span class="token keyword">on</span> <span class="token class-name">SomeType</span> <span class="token punctuation">{</span>
   field <span class="token directive function">@example</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1918-L1919">Directive locations may be defined with an optional leading <code>|</code> character to aid formatting when representing a longer list of possible locations:</p>
-<pre id="example-79697" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1921-L1926"><a href="#example-79697">Example № 89</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1924-L1925">Directive locations may be defined with an optional leading <code>|</code> character to aid formatting when representing a longer list of possible locations:</p>
+<pre id="example-79697" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1927-L1932"><a href="#example-79697">Example № 89</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span>
   <span class="token operator">|</span> <span class="token constant">FIELD</span>
   <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span>
   <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1928-L1931">Directives can also be used to annotate the type system definition language as well, which can be a useful tool for supplying additional metadata in order to generate GraphQL execution services, produce client generated runtime code, or many other useful extensions of the GraphQL semantics.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1933">In this example, the directive <code>@example</code> annotates field and argument definitions:</p>
-<pre id="example-c3a06" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1935-L1941"><a href="#example-c3a06">Example № 90</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1934-L1937">Directives can also be used to annotate the type system definition language as well, which can be a useful tool for supplying additional metadata in order to generate GraphQL execution services, produce client generated runtime code, or many other useful extensions of the GraphQL semantics.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1939">In this example, the directive <code>@example</code> annotates field and argument definitions:</p>
+<pre id="example-c3a06" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1941-L1947"><a href="#example-c3a06">Example № 90</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token class-name">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span>
 
 <span class="token keyword">type</span> <span class="token class-name">SomeType</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> Int <span class="token directive function">@example</span><span class="token punctuation">)</span><span class="token punctuation">:</span> String <span class="token directive function">@example</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1943-L1947">A directive may be defined as repeatable by including the &ldquo;repeatable&rdquo; keyword. Repeatable directives are often useful when the same directive should be used with different arguments at a single location, especially in cases where additional information needs to be provided to a type or schema extension via a directive:</p>
-<pre id="example-67869" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1949-L1957"><a href="#example-67869">Example № 91</a><code><span class="token keyword">directive</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token class-name">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1949-L1953">A directive may be defined as repeatable by including the &ldquo;repeatable&rdquo; keyword. Repeatable directives are often useful when the same directive should be used with different arguments at a single location, especially in cases where additional information needs to be provided to a type or schema extension via a directive:</p>
+<pre id="example-67869" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1955-L1963"><a href="#example-67869">Example № 91</a><code><span class="token keyword">directive</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> String<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token class-name">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"pageCount"</span><span class="token punctuation">)</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"author"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> ID<span class="token operator">!</span>
@@ -2872,73 +2877,73 @@ When defining a directive, it is recommended to prefix the directive&rsquo;s nam
 
 <span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"index"</span><span class="token punctuation">)</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1959">While defining a directive, it must not reference itself directly or indirectly:</p>
-<pre id="example-79945" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1961-L1963"><a href="#example-79945">Counter Example № 92</a><code><span class="token keyword">directive</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> String <span class="token directive function">@invalidExample</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">ARGUMENT_DEFINITION</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1965">While defining a directive, it must not reference itself directly or indirectly:</p>
+<pre id="example-79945" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1967-L1969"><a href="#example-79945">Counter Example № 92</a><code><span class="token keyword">directive</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> String <span class="token directive function">@invalidExample</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">ARGUMENT_DEFINITION</span>
 </code></pre>
-<div id="note-921fb" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1965-L1966">
+<div id="note-921fb" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1971-L1972">
 <a href="#note-921fb">Note</a>
 The order in which directives appear may be significant, including repeatable directives.</div>
 </section>
 <section id="sec-Type-System.Directives.Validation" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1968"><a href="#sec-Type-System.Directives.Validation" title="link to this subsection">Validation</a></h6>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1974"><a href="#sec-Type-System.Directives.Validation" title="link to this subsection">Validation</a></h6>
 <ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1970-L1971">A directive definition must not contain the use of a directive which references itself directly.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1972-L1974">A directive definition must not contain the use of a directive which references itself indirectly by referencing a Type or Directive which transitively includes a reference to this directive.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1975-L1976">The directive must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1977-L1981">For each argument of the directive:<ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1978-L1979">The argument must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1980-L1981">The argument must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="argumentType">argumentType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1976-L1977">A directive definition must not contain the use of a directive which references itself directly.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1978-L1980">A directive definition must not contain the use of a directive which references itself indirectly by referencing a Type or Directive which transitively includes a reference to this directive.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1981-L1982">The directive must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1983-L1987">For each argument of the directive:<ol>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1984-L1985">The argument must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1986-L1987">The argument must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="argumentType">argumentType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
 </ol>
 </li>
 </ol>
 </section>
 <section id="sec--skip" secid="3.13.1">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1983"><span class="spec-secid" title="link to this section"><a href="#sec--skip">3.13.1</a></span>@skip</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1985-L1987"><code><span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1989"><span class="spec-secid" title="link to this section"><a href="#sec--skip">3.13.1</a></span>@skip</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1991-L1993"><code><span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1989-L1991">The <code>@skip</code> directive may be provided for fields, fragment spreads, and inline fragments, and allows for conditional exclusion during execution as described by the if argument.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1993-L1994">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>false</code>.</p>
-<pre id="example-cb6b7" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1996-L2000"><a href="#example-cb6b7">Example № 93</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1995-L1997">The <code>@skip</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional exclusion during execution as described by the <code>if</code> argument.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1999-L2000">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>false</code>.</p>
+<pre id="example-cb6b7" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2002-L2006"><a href="#example-cb6b7">Example № 93</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   experimentalField <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec--include" secid="3.13.2">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2003"><span class="spec-secid" title="link to this section"><a href="#sec--include">3.13.2</a></span>@include</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2005-L2007"><code><span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2009"><span class="spec-secid" title="link to this section"><a href="#sec--include">3.13.2</a></span>@include</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2011-L2013"><code><span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2009-L2011">The <code>@include</code> directive may be provided for fields, fragment spreads, and inline fragments, and allows for conditional inclusion during execution as described by the if argument.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2013-L2014">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>true</code></p>
-<pre id="example-aa3a0" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2016-L2020"><a href="#example-aa3a0">Example № 94</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2015-L2017">The <code>@include</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional inclusion during execution as described by the <code>if</code> argument.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2019-L2020">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>true</code></p>
+<pre id="example-aa3a0" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2022-L2026"><a href="#example-aa3a0">Example № 94</a><code><span class="token keyword">query</span> myQuery<span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> Boolean<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   experimentalField <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-f3059" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2022-L2027">
+<div id="note-f3059" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2028-L2033">
 <a href="#note-f3059">Note</a>
 Neither <code>@skip</code> nor <code>@include</code> has precedence over the other. In the case that both the <code>@skip</code> and <code>@include</code> directives are provided on the same field or fragment, it <em>must</em> be queried only if the <code>@skip</code> condition is false <em>and</em> the <code>@include</code> condition is true. Stated conversely, the field or fragment must <em>not</em> be queried if either the <code>@skip</code> condition is true <em>or</em> the <code>@include</code> condition is false.</div>
 </section>
 <section id="sec--deprecated" secid="3.13.3">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2030"><span class="spec-secid" title="link to this section"><a href="#sec--deprecated">3.13.3</a></span>@deprecated</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2032-L2036"><code><span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2036"><span class="spec-secid" title="link to this section"><a href="#sec--deprecated">3.13.3</a></span>@deprecated</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2038-L2042"><code><span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
   <span class="token attr-name">reason</span><span class="token punctuation">:</span> String <span class="token operator">=</span> <span class="token string">"No longer supported"</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2038-L2040">The <code>@deprecated</code> directive is used within the type system definition language to indicate deprecated portions of a GraphQL service&rsquo;s schema, such as deprecated fields on a type or deprecated enum values.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2042-L2043">Deprecations include a reason for why it is deprecated, which is formatted using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>).</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2045-L2046">In this example type definition, <code>oldField</code> is deprecated in favor of using <code>newField</code>.</p>
-<pre id="example-d0cdc" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2048-L2053"><a href="#example-d0cdc">Example № 95</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2044-L2046">The <code>@deprecated</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to indicate deprecated portions of a GraphQL service&rsquo;s schema, such as deprecated fields on a type or deprecated enum values.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2048-L2049">Deprecations include a reason for why it is deprecated, which is formatted using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>).</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2051-L2052">In this example type definition, <code>oldField</code> is deprecated in favor of using <code>newField</code>.</p>
+<pre id="example-d0cdc" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2054-L2059"><a href="#example-d0cdc">Example № 95</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
   <span class="token attr-name">newField</span><span class="token punctuation">:</span> String
   <span class="token attr-name">oldField</span><span class="token punctuation">:</span> String <span class="token directive function">@deprecated</span><span class="token punctuation">(</span><span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token string">"Use `newField`."</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec--specifiedBy" secid="3.13.4">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2056"><span class="spec-secid" title="link to this section"><a href="#sec--specifiedBy">3.13.4</a></span>@specifiedBy</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2058-L2060"><code><span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> String<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">SCALAR</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2062"><span class="spec-secid" title="link to this section"><a href="#sec--specifiedBy">3.13.4</a></span>@specifiedBy</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2064-L2066"><code><span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> String<span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token class-name">SCALAR</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2062-L2066">The <code>@specifiedBy</code> directive is used within the type system definition language to provide a <span class="spec-ref"><a href="#scalar-specification-url" data-name="scalar-specification-url">scalar specification URL</a></span> for specifying the behavior of <a href="#sec-Scalars.Custom-Scalars">custom scalar types</a>. The URL should point to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2068-L2069">In this example, a custom scalar type for <code>UUID</code> is defined with a URL pointing to the relevant IETF specification.</p>
-<pre id="example-e5b0d" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2071-L2073"><a href="#example-e5b0d">Example № 96</a><code><span class="token keyword">scalar</span> <span class="token class-name">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2068-L2072">The <code>@specifiedBy</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to provide a <span class="spec-ref"><a href="#scalar-specification-url" data-name="scalar-specification-url">scalar specification URL</a></span> for specifying the behavior of <a href="#sec-Scalars.Custom-Scalars">custom scalar types</a>. The URL should point to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2074-L2075">In this example, a custom scalar type for <code>UUID</code> is defined with a URL pointing to the relevant IETF specification.</p>
+<pre id="example-e5b0d" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2077-L2079"><a href="#example-e5b0d">Example № 96</a><code><span class="token keyword">scalar</span> <span class="token class-name">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
 </code></pre>
 </section>
 </section>
@@ -3277,14 +3282,15 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-The-__Directive-Type" secid="4.5.6">
 <h3 data-source="spec/Section%204%20--%20Introspection.md#L430"><span class="spec-secid" title="link to this section"><a href="#sec-The-__Directive-Type">4.5.6</a></span>The __Directive Type</h3>
-<p data-source="spec/Section%204%20--%20Introspection.md#L432">The <code>__Directive</code> type represents a Directive that a service supports.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L434">Fields</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L432">The <code>__Directive</code> type represents any Directive that a service supports.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L434">This includes both any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> and any <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span>.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L436">Fields</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L436"><code>name</code> must return a String</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L437"><code>description</code> may return a String or <span class="spec-keyword">null</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L438-L439"><code>locations</code> returns a List of <code>__DirectiveLocation</code> representing the valid locations this directive may be placed.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L440-L441"><code>args</code> returns a List of <code>__InputValue</code> representing the arguments this directive accepts.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L442-L444"><code>isRepeatable</code> must return a Boolean that indicates if the directive may be used repeatedly at a single location. </li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L438"><code>name</code> must return a String</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L439"><code>description</code> may return a String or <span class="spec-keyword">null</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L440-L441"><code>locations</code> returns a List of <code>__DirectiveLocation</code> representing the valid locations this directive may be placed.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L442-L443"><code>args</code> returns a List of <code>__InputValue</code> representing the arguments this directive accepts.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L444-L446"><code>isRepeatable</code> must return a Boolean that indicates if the directive may be used repeatedly at a single location. </li>
 </ul>
 </section>
 </section>
@@ -6450,6 +6456,7 @@ Block string values are interpreted to exclude blank initial and trailing lines 
 <li><a href="#BlockStringCharacter">BlockStringCharacter</a></li>
 <li><a href="#BlockStringValue()">BlockStringValue</a></li>
 <li><a href="#BooleanValue">BooleanValue</a></li>
+<li><a href="#built-in-directive">built-in directive</a></li>
 <li><a href="#CoerceArgumentValues()">CoerceArgumentValues</a></li>
 <li><a href="#CoerceResult()">CoerceResult</a></li>
 <li><a href="#CoerceVariableValues()">CoerceVariableValues</a></li>
@@ -6459,6 +6466,7 @@ Block string values are interpreted to exclude blank initial and trailing lines 
 <li><a href="#CommentChar">CommentChar</a></li>
 <li><a href="#CompleteValue()">CompleteValue</a></li>
 <li><a href="#CreateSourceEventStream()">CreateSourceEventStream</a></li>
+<li><a href="#custom-directive">custom directive</a></li>
 <li><a href="#DefaultValue">DefaultValue</a></li>
 <li><a href="#Definition">Definition</a></li>
 <li><a href="#Description">Description</a></li>
