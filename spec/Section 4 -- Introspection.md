@@ -230,7 +230,7 @@ types in the system: both named types (e.g. Scalars and Object types) and
 wrapped types (e.g. List and Non-Null types).
 
 Wrapped types modify the type presented in the field `ofType` (the "inner
-type").  This inner type may recursively be a wrapped type, representing lists,
+type").  The inner type may recursively be a wrapped type, representing lists,
 non-nullables, and combinations thereof, ultimately modifying a named type.
 
 ### Type Kinds
