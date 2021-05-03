@@ -1583,21 +1583,53 @@ Literal Value            | Variables               | Coerced Value
       characters {"__"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
-   4. If the input field has a non-null default value:
-      1. If the input field references this Input Object either directly or
-         through referenced Input Objects, all input fields in the chain of
-         references which reference this Input Object must either:
-         1. have no default value; or
-         2. have a {null} default value; or
-         3. have a default value, {nestedDefaultValue}, such that the value for
-            this field within {nestedDefaultValue} is either {null} or an empty
-            list.
-      2. {defaultValue} must be compatible with {inputFieldType} as per the
-         coercion rules for that type.
+   4. Let {fieldSet} be a set containing {inputField};
+      {DefaultValueContainsCycle(inputFieldType, defaultValue, fieldSet)} must
+      return {false}.
+   5. {defaultValue} must be compatible with {inputFieldType} as per the
+       coercion rules for that type.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
 
+DefaultValueContainsCycle(type, defaultValue, visitedDefaultValueFields):
+
+- If {defaultValue} does not exist or is null, return {false}.
+- If {type} is a non-null type:
+  - Let {innerType} be the inner type of {type}.
+  - Return {DefaultValueContainsCycle(innerType, defaultValue, visitedDefaultValueFields)}.
+- If {type} is a list type:
+  - {defaultValue} must be a list. (TODO: should we coerce this to a list?)
+  - Let {innerType} be the inner type of {type}.
+  - For each {value} in {defaultValue}:
+    - If {DefaultValueContainsCycle(innerType, value, visitedDefaultValueFields)}:
+      - Return {true}.
+  - Return {false}.
+- If {type} is a scalar or enum type:
+  - Return {false}.
+- Assert: {type} is an input object type.
+- {defaultValue} must be an object.
+- For each field {field} in {type}:
+  - Let {fieldName} be the name of {field}.
+  - Let {fieldDefaultValue} be the value for attribute {fieldName} in {defaultValue}.
+  - If {fieldDefaultValue} does not exist:
+    - If {field} is within {visitedDefaultValueFields}:
+      - Return {true}.
+    - Add {field} to {visitedDefaultValueFields}.
+    - Let {fieldDefaultValue} be the default value for {field}.
+  - Let {fieldType} be the expected return type of {field}.
+  - If {DefaultValueContainsCycle(fieldType, fieldDefaultValue, visitedDefaultValueFields)}:
+    - Return {true}.
+- Return {false}.
+
+Note: in the above algorithm it's important that {visitedDefaultValueFields} is
+passed by value, not by reference, since each path needs its own independent
+stack.
+
+Note: the above algorithm works by determining if the default value on a
+particular input object field is referenced more than once in a particular
+chain. If it returns {true} (indicating a cycle was found) the object at fault
+might not be this object specifically, but one of the objects it references.
 
 ### Input Object Extensions
 
