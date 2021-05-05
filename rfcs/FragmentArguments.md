@@ -338,6 +338,8 @@ This validation rule is more strict than necessary: the graphql-js
 implementation did not require it, given the Overlapping Fields Can Be Merged
 changes that protect against mis-merged fields.
 
+This validation rule may end up being more strict than required, but it would be easier to relax the rule than make it more strict later.
+
 # Implementation
 
 This proposal is implemented completely in
