@@ -56,36 +56,15 @@ would produce the result:
 }
 ```
 
-## Reserved Names
+**Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
 the same context as user-defined types and fields are prefixed with {"__"} two
 underscores. This in order to avoid naming collisions with user-defined GraphQL
-types. Conversely, GraphQL type system authors must not define any types,
-fields, arguments, or any other type system artifact with two leading
-underscores.
+types.
 
-
-## Documentation
-
-All types in the introspection system provide a `description` field of type
-`String` to allow type designers to publish documentation in addition to
-capabilities. A GraphQL service may return the `description` field using Markdown
-syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
-recommended that any tool that displays `description` use a CommonMark-compliant
-Markdown renderer.
-
-
-## Deprecation
-
-To support the management of backwards compatibility, GraphQL fields and enum
-values can indicate whether or not they are deprecated (`isDeprecated: Boolean`)
-and a description of why it is deprecated (`deprecationReason: String`).
-
-Tools built using GraphQL introspection should respect deprecation by
-discouraging deprecated use through information hiding or developer-facing
-warnings.
-
+Otherwise, any {Name} within a GraphQL type system must not start with
+two underscores {"__"}.
 
 ## Type Name Introspection
 
@@ -118,7 +97,30 @@ __type(name: String!): __Type
 Like all meta-fields, these are implicit and do not appear in the fields list in
 the root type of the query operation.
 
-The schema of the GraphQL schema introspection system:
+**First Class Documentation**
+
+All types in the introspection system provide a `description` field of type
+`String` to allow type designers to publish documentation in addition to
+capabilities. A GraphQL service may return the `description` field using Markdown
+syntax (as specified by [CommonMark](https://commonmark.org/)). Therefore it is
+recommended that any tool that displays `description` use a CommonMark-compliant
+Markdown renderer.
+
+**Deprecation**
+
+To support the management of backwards compatibility, GraphQL fields and enum
+values can indicate whether or not they are deprecated (`isDeprecated: Boolean`)
+and a description of why it is deprecated (`deprecationReason: String`).
+
+Tools built using GraphQL introspection should respect deprecation by
+discouraging deprecated use through information hiding or developer-facing
+warnings.
+
+**Schema Introspection Schema**
+
+The schema introspection system is itself represented as a GraphQL schema. Below
+are the full set of type system definitions providing schema introspection,
+which are fully defined in the sections below.
 
 ```graphql
 type __Schema {
@@ -134,27 +136,31 @@ type __Type {
   kind: __TypeKind!
   name: String
   description: String
-
-  # should be non-null for OBJECT and INTERFACE only, must be null for the others
+  # must be non-null for OBJECT and INTERFACE, otherwise null.
   fields(includeDeprecated: Boolean = false): [__Field!]
-
-  # should be non-null for OBJECT and INTERFACE only, must be null for the others
+  # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
-
-  # should be non-null for INTERFACE and UNION only, always null for the others
+  # must be non-null for INTERFACE and UNION, otherwise null.
   possibleTypes: [__Type!]
-
-  # should be non-null for ENUM only, must be null for the others
+  # must be non-null for ENUM, otherwise null.
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
-
-  # should be non-null for INPUT_OBJECT only, must be null for the others
+  # must be non-null for INPUT_OBJECT, otherwise null.
   inputFields: [__InputValue!]
-
-  # should be non-null for NON_NULL and LIST only, must be null for the others
+  # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
-
-  # should be non-null for custom SCALAR only, must be null for the others
+  # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+}
+
+enum __TypeKind {
+  SCALAR
+  OBJECT
+  INTERFACE
+  UNION
+  ENUM
+  INPUT_OBJECT
+  LIST
+  NON_NULL
 }
 
 type __Field {
@@ -178,17 +184,6 @@ type __EnumValue {
   description: String
   isDeprecated: Boolean!
   deprecationReason: String
-}
-
-enum __TypeKind {
-  SCALAR
-  OBJECT
-  INTERFACE
-  UNION
-  ENUM
-  INPUT_OBJECT
-  LIST
-  NON_NULL
 }
 
 type __Directive {
@@ -222,6 +217,25 @@ enum __DirectiveLocation {
 }
 ```
 
+### The __Schema Type
+
+The `__Schema` type is returned from the `__schema` meta-field and provides
+all information about the schema of a GraphQL service.
+
+Fields\:
+
+* `description` may return a String or {null}.
+* `queryType` is the root type of a query operation.
+* `mutationType` is the root type of a mutation operation, if supported.
+  Otherwise {null}.
+* `subscriptionType` is the root type of a subscription operation, if supported.
+  Otherwise {null}.
+* `types` must return the set of all named types contained within this schema.
+  Any named type which can be found through a field of any introspection type
+  must be included in this set.
+* `directives` must return the set of all directives available within
+  this schema including all built-in directives.
+
 
 ### The __Type Type
 
@@ -233,20 +247,29 @@ Type modifiers are used to modify the type presented in the field `ofType`.
 This modified type may recursively be a modified type, representing lists,
 non-nullables, and combinations thereof, ultimately modifying a named type.
 
-### Type Kinds
-
 There are several different kinds of type. In each kind, different fields are
-actually valid. These kinds are listed in the `__TypeKind` enumeration.
+actually valid. All possible kinds are listed in the `__TypeKind` enum.
 
+Each sub-section below defines the expected fields of `__Type` given each
+possible value of the `__TypeKind` enum:
 
-#### Scalar
+* {"SCALAR"}
+* {"OBJECT"}
+* {"INTERFACE"}
+* {"UNION"}
+* {"ENUM"}
+* {"INPUT_OBJECT"}
+* {"LIST"}
+* {"NON_NULL"}
+
+**Scalar**
 
 Represents scalar types such as Int, String, and Boolean. Scalars cannot have fields.
 
 Also represents [Custom scalars](#sec-Scalars.Custom-Scalars) which may provide
 `specifiedByURL` as a *scalar specification URL*.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.SCALAR`.
 * `name` must return a String.
@@ -256,30 +279,31 @@ Fields
 * All other fields must return {null}.
 
 
-#### Object
+**Object**
 
 Object types represent concrete instantiations of sets of fields. The
 introspection types (e.g. `__Type`, `__Field`, etc) are examples of objects.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields that can be selected for this type.
+* `fields` must return the set of fields that can be selected for this type.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `interfaces`: The set of interfaces that an object implements.
+* `interfaces` must return the set of interfaces that an object implements
+  (if none, `interfaces` must return the empty set).
 * All other fields must return {null}.
 
 
-#### Union
+**Union**
 
 Unions are an abstract type where no common fields are declared. The possible
 types of a union are explicitly listed out in `possibleTypes`. Types can be
 made parts of unions without modification of that type.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.UNION`.
 * `name` must return a String.
@@ -289,44 +313,45 @@ Fields
 * All other fields must return {null}.
 
 
-#### Interface
+**Interface**
 
 Interfaces are an abstract type where there are common fields declared. Any type
 that implements an interface must define all the fields with names and types
 exactly matching. The implementations of this interface are explicitly listed
 out in `possibleTypes`.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.INTERFACE`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `fields`: The set of fields required by this interface.
+* `fields` must return the set of fields required by this interface.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-* `interfaces`: The set of interfaces that this interface implements.
+* `interfaces` must return the set of interfaces that an object implements
+  (if none, `interfaces` must return the empty set).
 * `possibleTypes` returns the list of types that implement this interface.
   They must be object types.
 * All other fields must return {null}.
 
 
-#### Enum
+**Enum**
 
 Enums are special scalars that can only have a defined set of values.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.ENUM`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `enumValues`: The list of `EnumValue`. There must be at least one and they
-  must have unique names.
+* `enumValues` must return the set of enum values as a list of `__EnumValue`.
+  There must be at least one and they must have unique names.
   * Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 * All other fields must return {null}.
 
 
-#### Input Object
+**Input Object**
 
 Input objects are composite types defined as a list of named input values. They
 are only used as inputs to arguments and variables and cannot be a field
@@ -341,16 +366,16 @@ input Point {
 }
 ```
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.INPUT_OBJECT`.
 * `name` must return a String.
 * `description` may return a String or {null}.
-* `inputFields`: a list of `InputValue`.
+* `inputFields` must return the set of input fields as a list of `__InputValue`.
 * All other fields must return {null}.
 
 
-#### List
+**List**
 
 Lists represent sequences of values in GraphQL. A List type is a type modifier:
 it wraps another type instance in the `ofType` field, which defines the type of
@@ -359,14 +384,14 @@ each item in the list.
 The modified type in the `ofType` field may itself be a modified type, allowing
 the representation of Lists of Lists, or Lists of Non-Nulls.
 
-Fields
+Fields\:
 
 * `kind` must return `__TypeKind.LIST`.
-* `ofType`: Any type.
+* `ofType` must return a type of any kind.
 * All other fields must return {null}.
 
 
-#### Non-Null
+**Non-Null**
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
@@ -378,8 +403,10 @@ The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Non-Null of Lists. However it must not be a
 modified Non-Null type to avoid a redundant Non-Null of Non-Null.
 
+Fields\:
+
 * `kind` must return `__TypeKind.NON_NULL`.
-* `ofType`: Any type except Non-Null.
+* `ofType` must return a type of any kind except Non-Null.
 * All other fields must return {null}.
 
 
@@ -387,7 +414,7 @@ modified Non-Null type to avoid a redundant Non-Null of Non-Null.
 
 The `__Field` type represents each field in an Object or Interface type.
 
-Fields
+Fields\:
 
 * `name` must return a String
 * `description` may return a String or {null}
@@ -405,7 +432,7 @@ Fields
 The `__InputValue` type represents field and directive arguments as well as the
 `inputFields` of an input object.
 
-Fields
+Fields\:
 
 * `name` must return a String
 * `description` may return a String or {null}
@@ -419,7 +446,7 @@ Fields
 
 The `__EnumValue` type represents one of possible values of an enum.
 
-Fields
+Fields\:
 
 * `name` must return a String
 * `description` may return a String or {null}
@@ -429,11 +456,34 @@ Fields
 
 ### The __Directive Type
 
-The `__Directive` type represents any Directive that a service supports.
+The `__Directive` type represents a directive that a service supports.
 
 This includes both any *built-in directive* and any *custom directive*.
 
-Fields
+Individual directives may only be used in locations that are explicitly
+supported. All possible locations are listed in the `__DirectiveLocation` enum:
+
+* {"QUERY"}
+* {"MUTATION"}
+* {"SUBSCRIPTION"}
+* {"FIELD"}
+* {"FRAGMENT_DEFINITION"}
+* {"FRAGMENT_SPREAD"}
+* {"INLINE_FRAGMENT"}
+* {"VARIABLE_DEFINITION"}
+* {"SCHEMA"}
+* {"SCALAR"}
+* {"OBJECT"}
+* {"FIELD_DEFINITION"}
+* {"ARGUMENT_DEFINITION"}
+* {"INTERFACE"}
+* {"UNION"}
+* {"ENUM"}
+* {"ENUM_VALUE"}
+* {"INPUT_OBJECT"}
+* {"INPUT_FIELD_DEFINITION"}
+
+Fields\:
 
 * `name` must return a String
 * `description` may return a String or {null}
