@@ -45,32 +45,22 @@ match, however some lookahead restrictions include additional constraints.
 
 ## Source Text
 
-SourceCharacter ::
+SourceCharacter :: "Any Unicode scalar value"
 
-- "U+0009"
-- "U+000A"
-- "U+000D"
-- "U+0020–U+10FFFF"
+GraphQL documents are interpreted from a source text, which is a sequence of
+{SourceCharacter}, each {SourceCharacter} being a _Unicode scalar value_ which
+may be any Unicode code point from U+0000 to U+D7FF or U+E000 to U+10FFFF
+(informally referred to as _"characters"_ through most of this specification).
 
-GraphQL documents are expressed as a sequence of
-[Unicode](https://unicode.org/standard/standard.html) code points (informally
-referred to as _"characters"_ through most of this specification). However, with
-few exceptions, most of GraphQL is expressed only in the original non-control
-ASCII range so as to be as widely compatible with as many existing tools,
-languages, and serialization formats as possible and avoid display issues in
-text editors and source control.
+A GraphQL document may be expressed only in the ASCII range to be as widely
+compatible with as many existing tools, languages, and serialization formats as
+possible and avoid display issues in text editors and source control. Non-ASCII
+Unicode scalar values may appear within {StringValue} and {Comment}.
 
-Note: Non-ASCII Unicode characters may appear freely within {StringValue} and
-{Comment} portions of GraphQL.
-
-### Unicode
-
-UnicodeBOM :: "Byte Order Mark (U+FEFF)"
-
-The "Byte Order Mark" is a special Unicode character which may appear at the
-beginning of a file containing Unicode which programs may use to determine the
-fact that the text stream is Unicode, what endianness the text stream is in, and
-which of several Unicode encodings to interpret.
+Note: An implementation which uses _UTF-16_ to represent GraphQL documents in
+memory (for example, JavaScript or Java) may encounter a _surrogate pair_. This
+encodes a _supplementary code point_ and is a single valid source character,
+however an unpaired _surrogate code point_ is not a valid source character.
 
 ### White Space
 
@@ -174,6 +164,17 @@ which appear in {Ignored} may also appear within a lexical {Token} in a
 significant way, for example a {StringValue} may contain white space characters.
 No {Ignored} may appear _within_ a {Token}, for example no white space
 characters are permitted between the characters defining a {FloatValue}.
+
+**Byte order mark**
+
+UnicodeBOM :: "Byte Order Mark (U+FEFF)"
+
+The _Byte Order Mark_ is a special Unicode code point which may appear at the
+beginning of a file which programs may use to determine the fact that the text
+stream is Unicode, and what specific encoding has been used.
+
+As files are often concatenated, a _Byte Order Mark_ may appear anywhere within
+a GraphQL document and is {Ignored}.
 
 ### Punctuators
 
@@ -814,8 +815,8 @@ StringCharacter ::
 
 EscapedUnicode ::
 
+- `{` HexDigit+ `}`
 - HexDigit HexDigit HexDigit HexDigit
-- `{` HexDigit+ `}` "but only if <= 0x10FFFF"
 
 HexDigit :: one of
 
@@ -830,19 +831,58 @@ BlockStringCharacter ::
 - SourceCharacter but not `"""` or `\"""`
 - `\"""`
 
-Strings are sequences of characters wrapped in quotation marks (U+0022). (ex.
-{`"Hello World"`}). White space and other otherwise-ignored characters are
-significant within a string value.
+{StringValue} is a sequence of characters wrapped in quotation marks (U+0022).
+(ex. {`"Hello World"`}). White space and other characters ignored in other parts
+of a GraphQL document are significant within a string value.
+
+A {StringValue} is evaluated to a Unicode text value, a sequence of Unicode
+scalar values, by interpreting all escape sequences using the static semantics
+defined below.
 
 The empty string {`""`} must not be followed by another {`"`} otherwise it would
 be interpreted as the beginning of a block string. As an example, the source
 {`""""""`} can only be interpreted as a single empty block string and not three
 empty strings.
 
-Non-ASCII Unicode characters are allowed within single-quoted strings. Since
-{SourceCharacter} must not contain some ASCII control characters, escape
-sequences must be used to represent these characters. The {`\`}, {`"`}
-characters also must be escaped. All other escape sequences are optional.
+**Escape Sequences**
+
+In a single-quoted {StringValue}, any Unicode scalar value may be expressed
+using an escape sequence. GraphQL strings allow both C-style escape sequences
+(for example `\n`) and two forms of Unicode escape sequences: one with a
+fixed-width of 4 hexadecimal digits (for example `\u000A`) and one with a
+variable-width most useful for representing a _supplementary character_ such as
+an Emoji (for example `\u{1F4A9}`).
+
+The hexadecimal number encoded by a Unicode escape sequence must describe a
+Unicode scalar value, otherwise parsing should stop with an early error. For
+example both sources `"\uDEAD"` and `"\u{110000}"` should not be considered
+valid {StringValue}.
+
+Escape sequences are only meaningful within a single-quoted string. Within a
+block string, they are simply that sequence of characters (for example
+`"""\n"""` represents the Unicode text [U+005C, U+006E]). Within a comment an
+escape sequence is not a significant sequence of characters. They may not appear
+elsewhere in a GraphQL document.
+
+Since {StringCharacter} must not contain some characters, escape sequences must
+be used to represent these characters. All other escape sequences are optional
+and unescaped non-ASCII Unicode characters are allowed within strings. If using
+GraphQL within a system which only supports ASCII, then escape sequences may be
+used to represent all Unicode characters outside of the ASCII range.
+
+For legacy reasons, a _supplementary character_ may be escaped by two
+fixed-width unicode escape sequences forming a _surrogate pair_. For example the
+input `"\uD83D\uDCA9"` is a valid {StringValue} which represents the same
+Unicode text as `"\u{1F4A9}"`. While this legacy form is allowed, it should be
+avoided as a variable-width unicode escape sequence is a clearer way to encode
+such code points.
+
+When producing a {StringValue}, implementations should use escape sequences to
+represent non-printable control characters (U+0000 to U+001F and U+007F to
+U+009F). Other escape sequences are not necessary, however an implementation may
+use escape sequences to represent any other range of code points. If an
+implementation chooses to escape a _supplementary character_, it should not use
+a fixed-width surrogate pair unicode escape sequence.
 
 **Block Strings**
 
@@ -898,7 +938,13 @@ Note: If non-printable ASCII characters are needed in a string value, a standard
 quoted string with appropriate escape sequences must be used instead of a block
 string.
 
-**Semantics**
+**Static Semantics**
+
+A {StringValue} describes a Unicode text value, a sequence of *Unicode scalar
+value*s. These semantics describe how to apply the {StringValue} grammar to a
+source text to evaluate a Unicode text. Errors encountered during this
+evaluation are considered a failure to apply the {StringValue} grammar to a
+source and result in a parsing error.
 
 StringValue :: `""`
 
@@ -906,35 +952,42 @@ StringValue :: `""`
 
 StringValue :: `"` StringCharacter+ `"`
 
-- Let {string} be the sequence of all {StringCharacter} code points.
-- For each {codePoint} at {index} in {string}:
-  - If {codePoint} is >= 0xD800 and <= 0xDBFF (a
-    [_High Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)):
-    - Let {lowPoint} be the code point at {index} + {1} in {string}.
-    - Assert {lowPoint} is >= 0xDC00 and <= 0xDFFF (a
-      [_Low Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)).
-    - Let {decodedPoint} = ({codePoint} - 0xD800) × 0x400 + ({lowPoint} -
-      0xDC00) + 0x10000.
-    - Within {string}, replace {codePoint} and {lowPoint} with {decodedPoint}.
-  - Otherwise, assert {codePoint} is not >= 0xDC00 and <= 0xDFFF (a
-    [_Low Surrogate_](https://unicodebook.readthedocs.io/unicode_encodings.html#utf-16-surrogate-pairs)).
-- Return {string}.
-
-Note: {StringValue} should avoid encoding code points as surrogate pairs. While
-services must interpret them accordingly, a braced escape (for example
-`"\u{1F4A9}"`) is a clearer way to encode code points outside of the
-[Basic Multilingual Plane](https://unicodebook.readthedocs.io/unicode.html#bmp).
+- Return the concatenated sequence of _Unicode scalar value_ by evaluating all
+  {StringCharacter}.
 
 StringCharacter :: SourceCharacter but not `"` or `\` or LineTerminator
 
-- Return the code point {SourceCharacter}.
+- Return the _Unicode scalar value_ {SourceCharacter}.
 
 StringCharacter :: `\u` EscapedUnicode
 
-- Let {value} be the 21-bit hexadecimal value represented by the sequence of
-  {HexDigit} within {EscapedUnicode}.
-- Assert {value} <= 0x10FFFF.
+- Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
+  within {EscapedUnicode}.
+- Assert {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+  0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the code point {value}.
+
+StringCharacter :: `\u` HexDigit HexDigit HexDigit HexDigit `\u` HexDigit
+HexDigit HexDigit HexDigit
+
+- Let {leadingValue} be the hexadecimal value represented by the first sequence
+  of {HexDigit}.
+- Let {trailingValue} be the hexadecimal value represented by the second
+  sequence of {HexDigit}.
+- If {leadingValue} is >= 0xD800 and <= 0xDBFF (a _Leading Surrogate_):
+  - Assert {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
+  - Return ({leadingValue} - 0xD800) × 0x400 + ({trailingValue} - 0xDC00) +
+    0x10000.
+- Otherwise:
+  - Assert {leadingValue} is within the _Unicode scalar value_ range.
+  - Assert {trailingValue} is within the _Unicode scalar value_ range.
+  - Return the sequence of the code point {leadingValue} followed by the code
+    point {trailingValue}.
+
+Note: If both escape sequences encode a _Unicode scalar value_, then this
+semantic is identical to applying the prior semantic on each fixed-width escape
+sequence. A variable-width escape sequence must only encode a _Unicode scalar
+value_.
 
 StringCharacter :: `\` EscapedCharacter
 
@@ -954,13 +1007,13 @@ StringCharacter :: `\` EscapedCharacter
 
 StringValue :: `"""` BlockStringCharacter\* `"""`
 
-- Let {rawValue} be the Unicode character sequence of all {BlockStringCharacter}
-  Unicode character values (which may be an empty sequence).
+- Let {rawValue} be the concatenated sequence of _Unicode scalar value_ by
+  evaluating all {BlockStringCharacter} (which may be an empty sequence).
 - Return the result of {BlockStringValue(rawValue)}.
 
 BlockStringCharacter :: SourceCharacter but not `"""` or `\"""`
 
-- Return the character value of {SourceCharacter}.
+- Return the _Unicode scalar value_ {SourceCharacter}.
 
 BlockStringCharacter :: `\"""`
 

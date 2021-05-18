@@ -2,12 +2,7 @@
 
 ## Source Text
 
-SourceCharacter ::
-
-- "U+0009"
-- "U+000A"
-- "U+000D"
-- "U+0020–U+10FFFF"
+SourceCharacter :: "Any Unicode scalar value"
 
 ## Ignored Tokens
 
@@ -115,8 +110,8 @@ StringCharacter ::
 
 EscapedUnicode ::
 
+- `{` HexDigit+ `}`
 - HexDigit HexDigit HexDigit HexDigit
-- `{` HexDigit+ `}` "but only if <= 0x10FFFF"
 
 HexDigit :: one of
 
