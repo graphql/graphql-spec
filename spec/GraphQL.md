@@ -8,42 +8,55 @@ This is the specification for GraphQL, a query language and execution engine
 originally created at Facebook in 2012 for describing the capabilities and
 requirements of data models for client-server applications. The development of
 this open standard started in 2015. This specification was licensed under OWFa
-1.0 in 2017. Copyright and trademark was transferred to the GraphQL Foundation
-in 2019.
+1.0 in 2017. The [GraphQL Foundation](https://graphql.org/foundation/) was
+formed in 2019 as a neutral focal point for organizations who support the
+GraphQL ecosystem, at which point the GraphQL Specification Project became a
+[Joint Development Foundation](https://www.jointdevelopment.org/) project. If
+your organization benefits from GraphQL, please consider becoming a member and
+helping us to sustain the activities that support the health of our
+neutral ecosystem.
 
 GraphQL has evolved and may continue to evolve in future editions of this
 specification. Previous editions of the GraphQL specification can be found at
 permalinks that match their [release tag](https://github.com/graphql/graphql-spec/releases).
 The latest working draft release can be found at [https://spec.graphql.org/draft](https://spec.graphql.org/draft).
 
+
 **Copyright notice**
 
 Copyright © 2015-2018, Facebook, Inc.
 
-Copyright © 2019-present, GraphQL Foundation
+Copyright © 2019-present, GraphQL contributors
 
-As of September 26, 2017, the following persons or entities have made this
-Specification available under the Open Web Foundation Final Specification
-Agreement (OWFa 1.0), which is available at [openwebfoundation.org](http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0).
-
-* Facebook, Inc.
-
-You can review the signed copies of the Open Web Foundation Final Specification
-Agreement Version 1.0 for this specification at [github.com/graphql/graphql-spec](https://github.com/graphql/graphql-spec/tree/main/signed-agreements),
-which may also include additional parties to those listed above.
-
-Your use of this Specification may be subject to other third party rights.
-THIS SPECIFICATION IS PROVIDED “AS IS.” The contributors expressly disclaim any
+THESE MATERIALS ARE PROVIDED “AS IS.” The parties expressly disclaim any
 warranties (express, implied, or otherwise), including implied warranties of
 merchantability, non-infringement, fitness for a particular purpose, or title,
-related to the Specification. The entire risk as to implementing or otherwise
-using the Specification is assumed by the Specification implementer and user.
-IN NO EVENT WILL ANY PARTY BE LIABLE TO ANY OTHER PARTY FOR LOST PROFITS OR ANY
-FORM OF INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER
-FROM ANY CAUSES OF ACTION OF ANY KIND WITH RESPECT TO THIS SPECIFICATION OR ITS
-GOVERNING AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING
-NEGLIGENCE), OR OTHERWISE, AND WHETHER OR NOT THE OTHER PARTY HAS BEEN ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
+related to the materials. The entire risk as to implementing or otherwise using
+the materials is assumed by the implementer and user. IN NO EVENT WILL THE
+PARTIES BE LIABLE TO ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT,
+SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES
+OF ACTION OF ANY KIND WITH RESPECT TO THIS DELIVERABLE OR ITS GOVERNING
+AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR
+OTHERWISE, AND WHETHER OR NOT THE OTHER MEMBER HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+
+**Licensing**
+
+The GraphQL Specification Project is made available by the
+[Joint Development Foundation](https://www.jointdevelopment.org/). The current
+[Working Group](https://github.com/graphql/graphql-wg) charter, which includes
+the IP policy governing all working group deliverables (including
+specifications, source code, and datasets) may be found at
+https://technical-charter.graphql.org.
+
+The licenses governing the GraphQL Specification Project are:
+
+| Deliverable    | License                                                 |
+| -------------- | ------------------------------------------------------- |
+| Specifications | [Open Web Foundation Agreement 1.0 Mode](http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0) (Patent and Copyright)
+| Source code    | [MIT License](https://opensource.org/licenses/MIT)
+| Data sets      | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)
 
 
 **Conformance**
