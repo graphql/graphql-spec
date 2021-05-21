@@ -10,19 +10,20 @@ requirements of data models for client-server applications. The development of
 this open standard started in 2015. This specification was licensed under OWFa
 1.0 in 2017. The [GraphQL Foundation](https://graphql.org/foundation/) was
 formed in 2019 as a neutral focal point for organizations who support the
-GraphQL ecosystem, and the [GraphQL Specification
-Project](https://graphql.org/community/) was established also in 2019 as the
-Joint Development Foundation Projects, LLC, GraphQL Series. 
+GraphQL ecosystem, and the
+[GraphQL Specification Project](https://graphql.org/community/) was established 
+also in 2019 as the Joint Development Foundation Projects, LLC, GraphQL Series.
 
-If your organization benefits from GraphQL, please consider [becoming a
-member](https://graphql.org/foundation/join/#graphql-foundation) and helping us
-to sustain the activities that support the health of our neutral ecosystem.
+If your organization benefits from GraphQL, please consider 
+[becoming a member](https://graphql.org/foundation/join/#graphql-foundation)
+and helping us to sustain the activities that support the health of our neutral
+ecosystem.
 
 The GraphQL Specification Project has evolved and may continue to evolve in
 future editions of this specification. Previous editions of the GraphQL
-specification can be found at permalinks that match their [release
-tag](https://github.com/graphql/graphql-spec/releases). The latest working
-draft release can be found at
+specification can be found at permalinks that match their
+[release tag](https://github.com/graphql/graphql-spec/releases). The latest
+working draft release can be found at
 [https://spec.graphql.org/draft](https://spec.graphql.org/draft).
 
 
@@ -47,10 +48,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 **Licensing**
 
-The GraphQL Specification Project is made available by the Joint Development
-Foundation. The current Working Group charter, which includes the IP policy
-governing all working group deliverables (including specifications, source
-code, and datasets) may be found at
+The GraphQL Specification Project is made available by the
+[Joint Development Foundation](https://www.jointdevelopment.org/). The current
+[Working Group](https://github.com/graphql/graphql-wg) charter, which includes
+the IP policy governing all working group deliverables (including specifications,
+source code, and datasets) may be found at
 [https://technical-charter.graphql.org](https://technical-charter.graphql.org). 
 
 Currently, the licenses governing GraphQL Specification Project deliverables are:
