@@ -17,42 +17,65 @@
 <p data-source="spec/GraphQL.md#L3"><em>Current Working Draft</em></p>
 <section id="sec-Introduction" class="subsec">
 <h6 data-source="spec/GraphQL.md#L5"><a href="#sec-Introduction" title="link to this subsection">Introduction</a></h6>
-<p data-source="spec/GraphQL.md#L7-L12">This is the specification for GraphQL, a query language and execution engine originally created at Facebook in 2012 for describing the capabilities and requirements of data models for client-server applications. The development of this open standard started in 2015. This specification was licensed under OWFa 1.0 in 2017. Copyright and trademark was transferred to the GraphQL Foundation in 2019.</p>
-<p data-source="spec/GraphQL.md#L14-L17">GraphQL has evolved and may continue to evolve in future editions of this specification. Previous editions of the GraphQL specification can be found at permalinks that match their <a href="https://github.com/graphql/graphql-spec/releases">release tag</a>. The latest working draft release can be found at <a href="https://spec.graphql.org/draft">https://spec.graphql.org/draft</a>.</p>
+<p data-source="spec/GraphQL.md#L7-L15">This is the specification for GraphQL, a query language and execution engine originally created at Facebook in 2012 for describing the capabilities and requirements of data models for client-server applications. The development of this open standard started in 2015. This specification was licensed under OWFa 1.0 in 2017. The <a href="https://graphql.org/foundation/">GraphQL Foundation</a> was formed in 2019 as a neutral focal point for organizations who support the GraphQL ecosystem, and the <a href="https://graphql.org/community/">GraphQL Specification Project</a> was established also in 2019 as the Joint Development Foundation Projects, LLC, GraphQL Series.</p>
+<p data-source="spec/GraphQL.md#L17-L20">If your organization benefits from GraphQL, please consider <a href="https://graphql.org/foundation/join/#graphql-foundation">becoming a member</a> and helping us to sustain the activities that support the health of our neutral ecosystem.</p>
+<p data-source="spec/GraphQL.md#L22-L27">The GraphQL Specification Project has evolved and may continue to evolve in future editions of this specification. Previous editions of the GraphQL specification can be found at permalinks that match their <a href="https://github.com/graphql/graphql-spec/releases">release tag</a>. The latest working draft release can be found at <a href="https://spec.graphql.org/draft">https://spec.graphql.org/draft</a>.</p>
 </section>
 <section id="sec-Copyright-notice" class="subsec">
-<h6 data-source="spec/GraphQL.md#L19"><a href="#sec-Copyright-notice" title="link to this subsection">Copyright notice</a></h6>
-<p data-source="spec/GraphQL.md#L21">Copyright © 2015-2018, Facebook, Inc.</p>
-<p data-source="spec/GraphQL.md#L23">Copyright © 2019-present, GraphQL Foundation</p>
-<p data-source="spec/GraphQL.md#L25-L27">As of September 26, 2017, the following persons or entities have made this Specification available under the Open Web Foundation Final Specification Agreement (OWFa 1.0), which is available at <a href="http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0">openwebfoundation.org</a>.</p>
-<ul>
-<li data-source="spec/GraphQL.md#L29">Facebook, Inc.</li>
-</ul>
-<p data-source="spec/GraphQL.md#L31-L33">You can review the signed copies of the Open Web Foundation Final Specification Agreement Version 1.0 for this specification at <a href="https://github.com/graphql/graphql-spec/tree/main/signed-agreements">github.com/graphql/graphql-spec</a>, which may also include additional parties to those listed above.</p>
-<p data-source="spec/GraphQL.md#L35-L46">Your use of this Specification may be subject to other third party rights. THIS SPECIFICATION IS PROVIDED &ldquo;AS IS.&rdquo; The contributors expressly disclaim any warranties (express, implied, or otherwise), including implied warranties of merchantability, non-infringement, fitness for a particular purpose, or title, related to the Specification. The entire risk as to implementing or otherwise using the Specification is assumed by the Specification implementer and user. IN NO EVENT WILL ANY PARTY BE LIABLE TO ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES OF ACTION OF ANY KIND WITH RESPECT TO THIS SPECIFICATION OR ITS GOVERNING AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND WHETHER OR NOT THE OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<h6 data-source="spec/GraphQL.md#L30"><a href="#sec-Copyright-notice" title="link to this subsection">Copyright notice</a></h6>
+<p data-source="spec/GraphQL.md#L32">Copyright © 2015-2018, Facebook, Inc.</p>
+<p data-source="spec/GraphQL.md#L34">Copyright © 2019-present, GraphQL contributors</p>
+<p data-source="spec/GraphQL.md#L36-L46">THESE MATERIALS ARE PROVIDED &ldquo;AS IS.&rdquo; The parties expressly disclaim any warranties (express, implied, or otherwise), including implied warranties of merchantability, non-infringement, fitness for a particular purpose, or title, related to the materials. The entire risk as to implementing or otherwise using the materials is assumed by the implementer and user. IN NO EVENT WILL THE PARTIES BE LIABLE TO ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES OF ACTION OF ANY KIND WITH RESPECT TO THIS DELIVERABLE OR ITS GOVERNING AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND WHETHER OR NOT THE OTHER MEMBER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+</section>
+<section id="sec-Licensing" class="subsec">
+<h6 data-source="spec/GraphQL.md#L49"><a href="#sec-Licensing" title="link to this subsection">Licensing</a></h6>
+<p data-source="spec/GraphQL.md#L51-L56">The GraphQL Specification Project is made available by the <a href="https://www.jointdevelopment.org/">Joint Development Foundation</a>. The current <a href="https://github.com/graphql/graphql-wg">Working Group</a> charter, which includes the IP policy governing all working group deliverables (including specifications, source code, and datasets) may be found at <a href="https://technical-charter.graphql.org">https://technical-charter.graphql.org</a>. </p>
+<p data-source="spec/GraphQL.md#L58">Currently, the licenses governing GraphQL Specification Project deliverables are:</p>
+<table>
+<thead>
+<tr data-source="spec/GraphQL.md#L60">
+<th>Deliverable</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr data-source="spec/GraphQL.md#L62">
+<td>Specifications</td>
+<td><a href="http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0">Open Web Foundation Agreement 1.0 Mode</a> (Patent and Copyright)</td>
+</tr>
+<tr data-source="spec/GraphQL.md#L63">
+<td>Source code</td>
+<td><a href="https://opensource.org/licenses/MIT">MIT License</a></td>
+</tr>
+<tr data-source="spec/GraphQL.md#L64">
+<td>Data sets</td>
+<td><a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="sec-Conformance" class="subsec">
-<h6 data-source="spec/GraphQL.md#L49"><a href="#sec-Conformance" title="link to this subsection">Conformance</a></h6>
-<p data-source="spec/GraphQL.md#L51-L53">A conforming implementation of GraphQL must fulfill all normative requirements. Conformance requirements are described in this document via both descriptive assertions and key words with clearly defined meanings.</p>
-<p data-source="spec/GraphQL.md#L55-L59">The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;, &ldquo;SHOULD&rdquo;, &ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in the normative portions of this document are to be interpreted as described in <a href="https://tools.ietf.org/html/rfc2119">IETF RFC 2119</a>. These key words may appear in lowercase and still retain their meaning unless explicitly declared as non-normative.</p>
-<p data-source="spec/GraphQL.md#L61-L63">A conforming implementation of GraphQL may provide additional functionality, but must not where explicitly disallowed or would otherwise result in non-conformance.</p>
+<h6 data-source="spec/GraphQL.md#L67"><a href="#sec-Conformance" title="link to this subsection">Conformance</a></h6>
+<p data-source="spec/GraphQL.md#L69-L71">A conforming implementation of GraphQL must fulfill all normative requirements. Conformance requirements are described in this document via both descriptive assertions and key words with clearly defined meanings.</p>
+<p data-source="spec/GraphQL.md#L73-L77">The key words &ldquo;MUST&rdquo;, &ldquo;MUST NOT&rdquo;, &ldquo;REQUIRED&rdquo;, &ldquo;SHALL&rdquo;, &ldquo;SHALL NOT&rdquo;, &ldquo;SHOULD&rdquo;, &ldquo;SHOULD NOT&rdquo;, &ldquo;RECOMMENDED&rdquo;, &ldquo;MAY&rdquo;, and &ldquo;OPTIONAL&rdquo; in the normative portions of this document are to be interpreted as described in <a href="https://tools.ietf.org/html/rfc2119">IETF RFC 2119</a>. These key words may appear in lowercase and still retain their meaning unless explicitly declared as non-normative.</p>
+<p data-source="spec/GraphQL.md#L79-L81">A conforming implementation of GraphQL may provide additional functionality, but must not where explicitly disallowed or would otherwise result in non-conformance.</p>
 </section>
 <section id="sec-Conforming-Algorithms" class="subsec">
-<h6 data-source="spec/GraphQL.md#L66"><a href="#sec-Conforming-Algorithms" title="link to this subsection">Conforming Algorithms</a></h6>
-<p data-source="spec/GraphQL.md#L68-L73">Algorithm steps phrased in imperative grammar (e.g. &ldquo;Return the result of calling resolver&rdquo;) are to be interpreted with the same level of requirement as the algorithm it is contained within. Any algorithm referenced within an algorithm step (e.g. &ldquo;Let completedResult be the result of calling CompleteValue()&rdquo;) is to be interpreted as having at least the same level of requirement as the algorithm containing that step.</p>
-<p data-source="spec/GraphQL.md#L75-L79">Conformance requirements expressed as algorithms can be fulfilled by an implementation of this specification in any way as long as the perceived result is equivalent. Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include equivalent but optimized implementations.</p>
-<p data-source="spec/GraphQL.md#L81-L83">See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more details about the definition of algorithms and other notational conventions used in this document.</p>
+<h6 data-source="spec/GraphQL.md#L84"><a href="#sec-Conforming-Algorithms" title="link to this subsection">Conforming Algorithms</a></h6>
+<p data-source="spec/GraphQL.md#L86-L91">Algorithm steps phrased in imperative grammar (e.g. &ldquo;Return the result of calling resolver&rdquo;) are to be interpreted with the same level of requirement as the algorithm it is contained within. Any algorithm referenced within an algorithm step (e.g. &ldquo;Let completedResult be the result of calling CompleteValue()&rdquo;) is to be interpreted as having at least the same level of requirement as the algorithm containing that step.</p>
+<p data-source="spec/GraphQL.md#L93-L97">Conformance requirements expressed as algorithms can be fulfilled by an implementation of this specification in any way as long as the perceived result is equivalent. Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include equivalent but optimized implementations.</p>
+<p data-source="spec/GraphQL.md#L99-L101">See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more details about the definition of algorithms and other notational conventions used in this document.</p>
 </section>
 <section id="sec-Non-Normative-Portions" class="subsec">
-<h6 data-source="spec/GraphQL.md#L86"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
-<p data-source="spec/GraphQL.md#L88-L89">All contents of this document are normative except portions explicitly declared as non-normative.</p>
-<p data-source="spec/GraphQL.md#L91-L95">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
-<pre id="example-fed99" class="spec-example" data-source="spec/GraphQL.md#L97-L99"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
+<h6 data-source="spec/GraphQL.md#L104"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
+<p data-source="spec/GraphQL.md#L106-L107">All contents of this document are normative except portions explicitly declared as non-normative.</p>
+<p data-source="spec/GraphQL.md#L109-L113">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
+<pre id="example-fed99" class="spec-example" data-source="spec/GraphQL.md#L115-L117"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
 </code></pre>
-<pre id="example-881bd" class="spec-counter-example" data-source="spec/GraphQL.md#L101-L103"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
+<pre id="example-881bd" class="spec-counter-example" data-source="spec/GraphQL.md#L119-L121"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
 </code></pre>
-<p data-source="spec/GraphQL.md#L105-L108">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
-<div id="note-c0129" class="spec-note" data-source="spec/GraphQL.md#L110">
+<p data-source="spec/GraphQL.md#L123-L126">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
+<div id="note-c0129" class="spec-note" data-source="spec/GraphQL.md#L128">
 <a href="#note-c0129">Note</a>
 This is an example of a non-normative note.</div>
 </section>
