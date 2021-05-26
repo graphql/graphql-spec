@@ -479,28 +479,17 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-When {CollectFields()} is used during validation (see for example the
-[single root field](#sec-Single-root-field) subscription operation validation
-rule), the runtime value for {variableValues} will not be available - in this
-case we set {variableValues} to {null} and forbid the use of the `@skip` and
-`@include` directives. During execution, {variableValues} will always be
-non-null.
-
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
   * If {visitedFragments} is not provided, initialize it to the empty set.
   * Initialize {groupedFields} to an empty ordered map of lists.
   * For each {selection} in {selectionSet}:
-    * If {variableValues} is {null}:
-      * {selection} must not provide the `@skip` directive.
-      * {selection} must not provide the `@include` directive.
-    * Otherwise:
-      * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
-        * If {skipDirective}'s {if} argument is {true} or is a variable in {variableValues} with the value {true}, continue with the next
-        {selection} in {selectionSet}.
-      * If {selection} provides the directive `@include`, let {includeDirective} be that directive.
-        * If {includeDirective}'s {if} argument is not {true} and is not a variable in {variableValues} with the value {true}, continue with the next
-        {selection} in {selectionSet}.
+    * If {selection} provides the directive `@skip`, let {skipDirective} be that directive.
+      * If {skipDirective}'s {if} argument is {true} or is a variable in {variableValues} with the value {true}, continue with the next
+      {selection} in {selectionSet}.
+    * If {selection} provides the directive `@include`, let {includeDirective} be that directive.
+      * If {includeDirective}'s {if} argument is not {true} and is not a variable in {variableValues} with the value {true}, continue with the next
+      {selection} in {selectionSet}.
     * If {selection} is a {Field}:
       * Let {responseKey} be the response key of {selection} (the alias if defined, otherwise the field name).
       * Let {groupForResponseKey} be the list in {groupedFields} for
