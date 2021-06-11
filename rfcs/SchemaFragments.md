@@ -58,9 +58,9 @@ Below I have `Users`(s) and `Post`(s) and where both types have the following pr
 
 ```graphql
 fragment BaseInterface on ObjectTypeDefinition {
-  id: ID # Repeated
-  createdAt: DateTime # Repeated
-  updatedAt: DateTime # Repeated
+  id: ID
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type User {
