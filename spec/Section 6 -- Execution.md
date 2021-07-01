@@ -763,7 +763,7 @@ field.
 Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
 to {null}, otherwise if it is a `Non-Null` type, the field error is further
-propagated to it's parent field.
+propagated to its parent field.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}.
