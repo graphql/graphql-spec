@@ -449,6 +449,14 @@ Adding a new construct for polymorphism support on input 'smells' like increasin
 
 Criteria score: 🥇
 
+## 🎯 P. Validation rule should produce easy to understand error message
+
+Implementation of validation rules should be able to produce easy to understand error for value that is invalid according to definition of input union. It's critical for developer experience since GrahphiQL, IDE and other similar tools will output this error during development.
+
+| [1][solution-1] | [2][solution-2] | [3][solution-3] | [4][solution-4] | [5][solution-5] |
+|----|----|----|----|----|
+| ✅️ | ✅️ | 🚫 | 🚫 | ✅ |
+
 # 🚧 Possible Solutions
 
 The community has imagined a variety of possible solutions, synthesized here.
