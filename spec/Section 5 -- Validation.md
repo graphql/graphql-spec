@@ -429,10 +429,10 @@ SameResponseShape(fieldA, fieldB):
 
   * Let {typeA} be the return type of {fieldA}.
   * Let {typeB} be the return type of {fieldB}.
-  * If {typeA} or {typeB} is Non-Null.
-    * If {typeA} or {typeB} is nullable, return false.
-    * Let {typeA} be the nullable type of {typeA}
-    * Let {typeB} be the nullable type of {typeB}
+  * If {typeA} is Non-Null.
+    * Let {typeA} be the unwrapped nullable type of {typeA}
+  * If {typeB} is Non-Null.
+    * Let {typeB} be the unwrapped nullable type of {typeB}
   * If {typeA} or {typeB} is List.
     * If {typeA} or {typeB} is not List, return false.
     * Let {typeA} be the item type of {typeA}
