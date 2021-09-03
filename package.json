@@ -20,8 +20,8 @@
     "watch": "nodemon -e json,md --exec 'npm run build'"
   },
   "devDependencies": {
-    "cspell": "5.3.12",
-    "nodemon": "2.0.7",
+    "cspell": "5.9.0",
+    "nodemon": "2.0.12",
     "spec-md": "3.0.2"
   }
 }
