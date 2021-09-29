@@ -1039,7 +1039,6 @@ ListValue : [ Value+ ]
     * Append {value} to {inputList}.
   * Return {inputList}
 
-
 ### Input Object Values
 
 ObjectValue[Const] :
@@ -1144,15 +1143,19 @@ that variable, that operation is invalid (see [All Variable Uses Defined](#sec-A
 Type :
   - NamedType
   - ListType
+  - MapType
   - NonNullType
 
 NamedType : Name
 
 ListType : [ Type ]
 
+MapType : { Type }
+
 NonNullType :
   - NamedType !
   - ListType !
+  - MapType !
 
 GraphQL describes the types of data expected by arguments and variables.
 Input types may be lists of another input type, or a non-null variant of any
@@ -1171,6 +1174,12 @@ Type : [ Type ]
 
   * Let {itemType} be the result of evaluating {Type}
   * Let {type} be a List type where {itemType} is the contained type.
+  * Return {type}
+
+Type : { Type }
+
+  * Let {itemType} be the result of evaluating {Type}
+  * Let {type} be a Map type where {itemType} is the value corresponding to a non-null string key.
   * Return {type}
 
 Type : Type !
