@@ -47,6 +47,10 @@ not be present in the result.
 If an error was raised during the execution that prevented a valid
 response, the `data` entry in the response should be `null`.
 
+Note: Request errors (including those raised during {ExecuteRequest()}) occur
+before execution begins; when a request error is raised the `data` entry should
+not be present in the result.
+
 
 ### Errors
 
