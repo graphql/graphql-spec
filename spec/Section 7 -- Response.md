@@ -160,10 +160,11 @@ The response might look like:
 }
 ```
 
-If the field which experienced an error was declared as `Non-Null`, the `null`
-result will bubble up to the next nullable field. In that case, the `path` for
-the error should include the full path to the result field where the error was
-raised, even if that field is not present in the response.
+If the field which experienced an error was declared as `Non-Null` or designated
+`Non-Null` in the query document, the `null` result will propagate to the 
+next nullable field. In that case, the `path` for the error should include
+the full path to the result field where the error was raised, even if that
+field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
