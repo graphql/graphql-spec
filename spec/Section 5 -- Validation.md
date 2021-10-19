@@ -564,6 +564,21 @@ fragment conflictingDifferingResponses on Pet {
 }
 ```
 
+The same is true if a field is designated `Non-Nullable` in an operation. In this
+case, `someValue` could be either a `String` or a `String!` which are two different
+types and therefor can not be merged:
+
+```graphql counter-example
+fragment conflictingDifferingResponses on Pet {
+  ... on Dog {
+    someValue: nickname
+  }
+  ... on Cat {
+    someValue: nickname!
+  }
+}
+```
+
 ### Leaf Field Selections
 
 **Formal Specification**
