@@ -351,7 +351,7 @@ selection set. Selection sets may also contain fragment references.
 
 ## Fields
 
-Field : Alias? Name Arguments? Directives? SelectionSet?
+Field : Alias? Name Arguments? Nullability? Directives? SelectionSet?
 
 A selection set is primarily composed of fields. A field describes one discrete
 piece of information available to request within a selection set.
@@ -511,6 +511,71 @@ which returns the result:
   "zuck": {
     "id": 4,
     "name": "Mark Zuckerberg"
+  }
+}
+```
+
+## Nullability
+
+Name Nullability?
+
+Fields can have their nullability designated with either a `!` to indicate that a
+field should be `Non-Nullable` or a `?` to indicate that a field should be 
+`Nullable`. These designators override the nullability set on a field by the schema 
+for the operation where they're being used.
+
+In this example, we can indicate that a `user`'s `name` that could possibly be 
+`null`, should not be `null`:
+
+```graphql example
+{
+  user(id: 4) {
+    id
+    name!
+  }
+}
+```
+
+If `name` comes back non-`null`, then the return value is the same as if the 
+nullability designator was not used:
+
+```json example
+{
+  "user": {
+    "id": 4,
+    "name": "Mark Zuckerberg"
+  }
+}
+```
+
+In the event that `name` is `null`, the field's parent selection set becomes `null` 
+in the result and an error is returned, just as if `name` was marked `Non-Nullable` 
+in the schema:
+
+```json example
+{
+  "data": {
+    "user": null
+  },
+  "errors": [
+    {
+      "locations": [{ "column": 13, "line": 4 }],
+      "message": "Cannot return null for non-nullable field User.name.",
+      "path": ["user", "name"],
+    },
+  ]
+}
+```
+
+If `user` was `Non-Nullable` in the schema, but we don't want `null`s bubbling past 
+that point, then we can use `?` as an error boundary. `User` will be treated as 
+`Nullable` for this operation:
+
+```graphql example
+{
+  user(id: 4)? {
+    id
+    name!
   }
 }
 ```
