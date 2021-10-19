@@ -517,7 +517,7 @@ which returns the result:
 
 ## Nullability
 
-Name Nullability?
+Nullability : (`?`|`!`)?
 
 Fields can have their nullability designated with either a `!` to indicate that a
 field should be `Non-Nullable` or a `?` to indicate that a field should be 

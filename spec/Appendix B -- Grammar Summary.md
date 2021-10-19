@@ -156,9 +156,11 @@ Selection :
 - FragmentSpread
 - InlineFragment
 
-Field : Alias? Name Arguments? Directives? SelectionSet?
+Field : Alias? Name Arguments? Nullability? Directives? SelectionSet?
 
 Alias : Name :
+
+Nullability : (`?`|`!`)?
 
 Arguments[Const] : ( Argument[?Const]+ )
 
