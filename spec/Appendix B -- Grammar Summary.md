@@ -160,7 +160,9 @@ Field : Alias? Name Arguments? Nullability? Directives? SelectionSet?
 
 Alias : Name :
 
-Nullability : (`?`|`!`)
+Nullability :
+  - !
+  - ?
 
 Arguments[Const] : ( Argument[?Const]+ )
 
