@@ -569,9 +569,9 @@ in the schema:
 }
 ```
 
-If `user` was `Non-Nullable` in the schema, but we don't want `null`s bubbling past 
-that point, then we can use `?` as an error boundary. `User` will be treated as 
-`Nullable` for this operation:
+If `user` was `Non-Nullable` in the schema, but we don't want `null`s propagating
+past that point, then we can use `?` to create an error boundary. `User` will be
+treated as `Nullable` for this operation:
 
 ```graphql example
 {
