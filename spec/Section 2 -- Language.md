@@ -524,7 +524,9 @@ Nullability :
 Fields can have their nullability designated with either a `!` to indicate that a
 field should be `Non-Nullable` or a `?` to indicate that a field should be 
 `Nullable`. These designators override the nullability set on a field by the schema 
-for the operation where they're being used.
+for the operation where they're being used. For example, a field marked with `!` in 
+a query will be treated identically to a field marked with `!` in the schema for the
+purposes of validation and execution.
 
 In this example, we can indicate that a `user`'s `name` that could possibly be 
 `null`, should not be `null`:
