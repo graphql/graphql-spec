@@ -426,6 +426,7 @@ FieldsInSetCanMerge(set):
 
 SameResponseShape(fieldA, fieldB):
 
+<<<<<<< HEAD
 - Let {typeA} be the return type of {fieldA}.
 - Let {typeB} be the return type of {fieldB}.
 - If {typeA} or {typeB} is Non-Null.
@@ -448,6 +449,34 @@ SameResponseShape(fieldA, fieldB):
 - Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
 - Return true.
+=======
+  * Let {typeA} be the return type of {fieldA}.
+  * Let {typeB} be the return type of {fieldB}.
+  * Let {fieldARequiredStatus} be the required status of {fieldA}
+  * Let {fieldBRequiredStatus} be the required status of {fieldB}
+  * Let {typeA} be the result of {ModifiedOutputType(typeA, fieldARequiredStatus)}
+  * Let {typeB} be the result of {ModifiedOutputType(typeB, fieldBRequiredStatus)}
+  * If {typeA} or {typeB} is Non-Null.
+    * If {typeA} or {typeB} is nullable, return false.
+    * Let {typeA} be the nullable type of {typeA}
+    * Let {typeB} be the nullable type of {typeB}
+  * If {typeA} or {typeB} is List.
+    * If {typeA} or {typeB} is not List, return false.
+    * Let {typeA} be the item type of {typeA}
+    * Let {typeB} be the item type of {typeB}
+    * Repeat from step 3.
+  * If {typeA} or {typeB} is Scalar or Enum.
+    * If {typeA} and {typeB} are the same type return true, otherwise return
+      false.
+  * Assert: {typeA} and {typeB} are both composite types.
+  * Let {mergedSet} be the result of adding the selection set of {fieldA} and
+    the selection set of {fieldB}.
+  * Let {fieldsForName} be the set of selections with a given response name in
+    {mergedSet} including visiting fragments and inline fragments.
+  * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
+    * If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
+  * Return true.
+>>>>>>> 9906241 (errors and validation formal definitions)
 
 **Explanatory Text**
 
