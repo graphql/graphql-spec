@@ -576,6 +576,13 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
   - Let {modifiedFieldType} be {ModifiedOutputType(fieldType, requiredStatus)}.
   - Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue, variableValues)}.
 
+## Accounting For Client Controlled Nullability Designators
+
+A field can have its nullability status set either in its service's schema, or
+it can be overriden by a designator (! or ?) for the duration of an execution.
+In order to determine a field's true nullability, both are taken into account
+and a final type is produced.
+
 ModifiedOutputType(outputType, requiredStatus):
 
   - If {requiredStatus} is 'required' and {outputType} is not a Non-Nullable type:
