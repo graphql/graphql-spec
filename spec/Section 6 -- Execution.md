@@ -568,14 +568,26 @@ set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
-- Let {field} be the first entry in {fields}.
-- Let {fieldName} be the field name of {field}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
-- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+  - Let {field} be the first entry in {fields}.
+  - Let {fieldName} be the field name of {field}.
+  - Let {requiredStatus} be the required status of {field}.
+  - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field, variableValues)}
+  - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName, argumentValues)}.
+  - Let {modifiedFieldType} be {ModifiedOutputType(fieldType, requiredStatus)}.
+  - Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue, variableValues)}.
+
+ModifiedOutputType(outputType, requiredStatus):
+
+  - If {requiredStatus} is 'required' and {outputType} is not a Non-Nullable type:
+    - Return Non-Null with an inner type of {outputType}.
+  - Otherwise if {requiredStatus} is 'optional':
+    - If {outputType} is not a Non-Nullable type:
+      - Return {outputType}.
+    - Otherwise if {outputType} is a Non-Nullable type:
+      - Let {innerOutputType} be the inner type of {outputType}.
+      - Return {innerOutputType}.
+  - Otherwise:
+    - Return {outputType}.
 
 ### Coercing Field Arguments
 
