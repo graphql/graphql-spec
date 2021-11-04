@@ -4,7 +4,7 @@ This describes the set of changes since the last edition of the GraphQL
 specification, [June2018](https://spec.graphql.org/June2018/). It's intended to
 ease the review of changes since the last edition for reviewers or curious
 readers, but is not normative. Please read the
-[specification document](https://spec.graphql.org/draft/) itself for full detail
+[specification document](https://spec.graphql.org/October2021/) itself for full detail
 and context.
 
 ## Authors
