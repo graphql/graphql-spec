@@ -486,7 +486,7 @@ fragment conflictingBecauseAlias on Dog {
 }
 ```
 
-Identical arguments are also merged if they have identical arguments. Both
+Identical fields are also merged if they have identical arguments. Both
 values and variables can be correctly merged.
 
 For example the following correctly merge:
