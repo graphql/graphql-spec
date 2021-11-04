@@ -3760,7 +3760,7 @@ While each subscription must have exactly one root field, a document may contain
   <span class="token property">name</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L489-L490">Identical arguments are also merged if they have identical arguments. Both values and variables can be correctly merged.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L489-L490">Identical fields are also merged if they have identical arguments. Both values and variables can be correctly merged.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L492">For example the following correctly merge:</p>
 <pre id="example-b6369" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L494-L504"><a href="#example-b6369">Example № 120</a><code><span class="token keyword">fragment</span> <span class="token fragment function">mergeIdenticalFieldsWithIdenticalArgs</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
   <span class="token property-query">doesKnowCommand</span><span class="token punctuation">(</span><span class="token attr-name">dogCommand</span><span class="token punctuation">:</span> <span class="token constant">SIT</span><span class="token punctuation">)</span>
