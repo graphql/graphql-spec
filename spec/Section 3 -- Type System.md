@@ -2242,7 +2242,8 @@ query myQuery($shouldStream: Boolean) {
   data from patch responses and associate it with the correct fragments. If
   provided, the GraphQL Server must add it to the payload.
 - `initialCount: Int` - The number of list items the server should return as
-  part of the initial response. If omitted, defaults to `0`.
+  part of the initial response. If omitted, defaults to `0`. If the value of
+  this argument is less than `0`, it is treated the same as `0`.
 
 Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
