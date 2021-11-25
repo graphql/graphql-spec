@@ -43,7 +43,9 @@ and `path` entries, and a `hasNext` entry with a value of `false`.
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
-restrictions on its contents.
+restrictions on its contents. When the response of the GraphQL operation is an
+event stream, implementors may send subsequent payloads containing only
+`hasNext` and `extensions` entries.
 
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
