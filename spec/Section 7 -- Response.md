@@ -24,10 +24,10 @@ validation error, this entry must not be present.
 
 When the response of the GraphQL operation is an event stream, the first value
 will be the initial response. All subsequent values may contain `label` and
-`path` entries. These two entries are used by clients to identify the the
-`@defer` or `@stream` directive from the GraphQL operation that triggered this
-value to be returned by the event stream. The combination of these two entries
-must be unique across all values returned by the event stream.
+`path` entries. These two entries are used by clients to identify the `@defer`
+or `@stream` directive from the GraphQL operation that triggered this value to
+be returned by the event stream. The combination of these two entries must be
+unique across all values returned by the event stream.
 
 If the response of the GraphQL operation is an event stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
