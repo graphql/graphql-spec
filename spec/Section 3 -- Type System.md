@@ -1838,7 +1838,7 @@ Expected Type | Internal Value   | Coerced Result
 
 ## Directives
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations Directives?
 
 DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
@@ -1870,6 +1870,7 @@ TypeSystemDirectiveLocation : one of
   - `ENUM_VALUE`
   - `INPUT_OBJECT`
   - `INPUT_FIELD_DEFINITION`
+  - `DIRECTIVE_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
