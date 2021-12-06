@@ -1528,6 +1528,34 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 }
 ```
 
+### Defer And Stream Directives Are Used On Valid Root Field
+
+** Formal Specification **
+
+- For every {directive} in a document.
+- Let {directiveName} be the name of {directive}.
+- Let {mutationType} be the root Mutation type in {schema}.
+- Let {subscriptionType} be the root Subscription type in {schema}.
+- If {directiveName} is "defer" or "stream":
+  - The parent type of {directive} must not be {mutationType} or
+    {subscriptionType}.
+
+**Explanatory Text**
+
+The defer and stream directives are not allowed to be used on root fields of the
+mutation or subscription type.
+
+For example, the following document will not pass validation because `@defer`
+has been used on a root mutation field:
+
+```raw graphql counter-example
+mutation {
+  ... @defer {
+    mutationField
+  }
+}
+```
+
 ### Stream Directives Are Used On List Fields
 
 **Formal Specification**
