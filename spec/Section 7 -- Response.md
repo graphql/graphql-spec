@@ -63,9 +63,9 @@ of the query root operation type; if the operation was a mutation, this output
 will be an object of the mutation root operation type.
 
 If the result of the operation is an event stream, the `data` entry in
-subsequent values will be an object of the type of a particular field in the
-GraphQL result. The adjacent `path` field will contain the path segments of the
-field this data is associated with.
+subsequent values will be of the type of a particular field in the GraphQL
+result. The adjacent `path` field will contain the path segments of the field
+this data is associated with.
 
 If an error was raised before execution begins, the `data` entry should not be
 present in the result.
