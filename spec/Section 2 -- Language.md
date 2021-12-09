@@ -274,6 +274,18 @@ operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL.
+GraphQL descriptions are defined using the Markdown syntax (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often {BlockString})
+occur immediately before the definition they describe.
+
+GraphQL definitions (e.g. queries, fragments, types, fields, arguments, etc.)
+which can be described should provide a {Description} unless they are considered
+self descriptive.
 
 ## Operations
 
