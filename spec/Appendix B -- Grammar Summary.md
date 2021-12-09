@@ -320,7 +320,7 @@ InputObjectTypeExtension :
   - extend input Name Directives[Const]? InputFieldsDefinition
   - extend input Name Directives[Const] [lookahead != `{`]
 
-DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
+DirectiveDefinition : Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations Directives?
 
 DirectiveLocations :
   - DirectiveLocations | DirectiveLocation
@@ -352,3 +352,4 @@ TypeSystemDirectiveLocation : one of
   - `ENUM_VALUE`
   - `INPUT_OBJECT`
   - `INPUT_FIELD_DEFINITION`
+  - `DIRECTIVE_DEFINITION`
