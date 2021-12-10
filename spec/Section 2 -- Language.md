@@ -1190,6 +1190,12 @@ in ways field arguments will not suffice, such as conditionally including or
 skipping a field. Directives provide this by describing additional information
 to the executor.
 
+Note: Directives provide metadata, but may also describe a specific manner in which that metadata should be interpreted by an executor or other tool. To be compliant with this specification, executors and other tools must adhere to the behavior changes prescribed by all defined directives. The normative force, however, of that prescribed behavior may vary. For example, the `@skip` and `@include` directives provide metadata that a compliant executor must
+respect when collecting fields. A custom directive could provide metadata with prescribed behavior changes that are optional, or even optional under certain conditions. Directives are free to prescribe normative behavior of any force or complexity, and executors and other tools must respect the behavior changes at the normative level at which they are specified.
+
+Directives have a name along with a list of arguments which may accept values
+of any input type.
+
 Directives have a name along with a list of arguments which may accept values of
 any input type.
 
