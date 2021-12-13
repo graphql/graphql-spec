@@ -839,7 +839,7 @@ Produces the ordered result:
 ```
 
 If a field is queried multiple times in a selection, it is ordered by the first
-time it is encountered. However fragments for which the type does not apply does
+time it is encountered. However fragments for which the type does not apply do
 not affect ordering.
 
 ```graphql example
