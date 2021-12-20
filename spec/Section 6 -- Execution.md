@@ -394,9 +394,9 @@ YieldSubsequentPayloads(subsequentPayloads):
       - Return.
     - If {subsequentPayloads} is not empty:
       - Continue to the next record in {subsequentPayloads}.
-  - If {record} is not the final element in {subsequentPayloads}
+  - If {record} is not the final element in {subsequentPayloads}:
     - Add an entry to {payload} named `hasNext` with the value {true}.
-  - If {record} is the final element in {subsequentPayloads}
+  - If {record} is the final element in {subsequentPayloads}:
     - Add an entry to {payload} named `hasNext` with the value {false}.
   - Yield {payload}
 
@@ -694,11 +694,16 @@ path, variableValues, parentRecord, subsequentPayloads):
 - Let {deferRecord} be an async payload record created from {label} and {path}.
 - Initialize {errors} on {deferRecord} to an empty list.
 - Let {dataExecution} be the asynchronous future value of:
-  - Let {payload} be the result of {ExecuteSelectionSet(fragmentSelectionSet,
+  - Let {payload} be an unordered map.
+  - Let {data} be the result of {ExecuteSelectionSet(fragmentSelectionSet,
     objectType, objectValue, variableValues, path, subsequentPayloads,
     deferRecord)}.
+  - Append any encountered field errors to {errors}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
+  - If {errors} is not empty:
+    - Add an entry to {payload} named `errors` with the value {errors}.
+  - Add an entry to {payload} named `data` with the value {data}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {path}.
   - Return {payload}.
@@ -849,8 +854,8 @@ directive.
 
 #### Execute Stream Field
 
-ExecuteStreamRecord(label, iterator, index, fields, innerType, path
-streamRecord, variableValues, subsequentPayloads):
+ExecuteStreamField(label, iterator, index, fields, innerType, path streamRecord,
+variableValues, subsequentPayloads):
 
 - Let {streamRecord} be an async payload record created from {label}, {path},
   and {iterator}.
@@ -860,14 +865,19 @@ streamRecord, variableValues, subsequentPayloads):
   - Wait for the next item from {iterator}.
   - If an item is not retrieved because {iterator} has completed:
     - Return {null}.
+  - Let {payload} be an unordered map.
   - Let {item} be the item retrieved from {iterator}.
-  - Let {payload} be the result of calling {CompleteValue(innerType, fields,
-    item, variableValues, indexPath, subsequentPayloads, parentRecord)}.
+  - Let {data} be the result of calling {CompleteValue(innerType, fields, item,
+    variableValues, indexPath, subsequentPayloads, parentRecord)}.
+  - Append any encountered field errors to {errors}.
   - Increment {index}.
-  - Call {ExecuteStreamRecord(label, iterator, index, fields, innerType, path,
+  - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
     streamRecord, variableValues, subsequentPayloads)}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
+  - If {errors} is not empty:
+    - Add an entry to {payload} named `errors` with the value {errors}.
+  - Add an entry to {payload} named `data` with the value {data}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {indexPath}.
   - Return {payload}.
@@ -910,7 +920,7 @@ subsequentPayloads, asyncRecord):
         - Increment {index}.
       - If {streamDirective} was provided and {index} is greater than or equal
         to {initialCount}:
-        - Call {ExecuteStreamRecord(label, result, index, fields, innerType,
+        - Call {ExecuteStreamField(label, result, index, fields, innerType,
           path, asyncRecord, subsequentPayloads)}.
         - Let {result} be {initialItems}.
         - Exit while loop.
