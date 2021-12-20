@@ -380,21 +380,13 @@ YieldSubsequentPayloads(subsequentPayloads):
 - While {subsequentPayloads} is not empty:
 - If a termination signal is received:
   - For each {record} in {subsequentPayloads}:
-    - If {record} is a Stream Record:
-      - Let {iterator} be the correspondent fields on the Stream Record
-        structure.
+    - If {record} contains {iterator}:
       - Send a termination signal to {iterator}.
   - Return.
-- Let {record} be the first complete item in {subsequentPayloads}.
+- Let {record} be the first item in {subsequentPayloads} with a completed
+  {dataExecution}.
   - Remove {record} from {subsequentPayloads}.
-  - Assert: {record} must be a Deferred Fragment Record or a Stream Record.
-  - If {record} is a Deferred Fragment Record:
-    - Let {payload} be the result of running
-      {ResolveDeferredFragmentRecord(record, variableValues,
-      subsequentPayloads)}.
-  - If {record} is a Stream Record:
-    - Let {payload} be the result of running {ResolveStreamRecord(record,
-      variableValues, subsequentPayloads)}.
+  - Let {payload} be the completed result returned by {dataExecution}.
   - If {payload} is {null}:
     - If {subsequentPayloads} is empty:
       - Yield a map containing a field `hasNext` with the value {false}.
@@ -626,10 +618,9 @@ subsequentPayloads, asyncRecord, visitedFragments):
     - If {deferDirective} is defined:
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
-      - Let {deferredFragmentRecord} be the result of calling
-        {CreateDeferredFragmentRecord(label, objectType, objectValue,
-        fragmentSelectionSet, path, asyncRecord)}.
-      - Append {deferredFragmentRecord} to {subsequentPayloads}.
+      - Call {ExecuteDeferredFragment(label, objectType, objectValue,
+        fragmentSelectionSet, path, variableValues, asyncRecord,
+        subsequentPayloads)}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, objectValue, fragmentSelectionSet,
@@ -652,10 +643,8 @@ subsequentPayloads, asyncRecord, visitedFragments):
         {variableValues} with the value {true}:
         - Let {label} be the value or the variable to {deferDirective}'s {label}
           argument.
-        - Let {deferredFragmentRecord} be the result of calling
-          {CreateDeferredFragmentRecord(label, objectType, objectValue,
-          fragmentSelectionSet, path, asyncRecord)}.
-        - Append {deferredFragmentRecord} to {subsequentPayloads}.
+        - Call {ExecuteDeferredFragment(label, objectType, objectValue,
+          fragmentSelectionSet, path, asyncRecord, subsequentPayloads)}.
         - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, objectValue, fragmentSelectionSet,
@@ -689,50 +678,31 @@ An Async Payload Record is either a Deferred Fragment Record or a Stream Record.
 All Async Payload Records are structures containing:
 
 - {label}: value derived from the corresponding `@defer` or `@stream` directive.
-- {parentRecord}: optionally an Async Payload Record.
+- {path}: a list of field names and indices from root to the location of the
+  corresponding `@defer` or `@stream` directive.
+- {iterator}: The underlying iterator if created from a `@stream` directive.
 - {errors}: a list of field errors encountered during execution.
 - {dataExecution}: A result that can notify when the corresponding execution has
   completed.
-- {path}: a list of field names and indices from root to the location of the
-  corresponding `@defer` or `@stream` directive.
 
-#### Deferred Fragment Record
+#### Execute Deferred Fragment
 
-Let {deferredFragmentRecord} be an inline fragment or fragment spread with
-`@defer` provided.
+ExecuteDeferredFragment(label, objectType, objectValue, fragmentSelectionSet,
+path, variableValues, parentRecord, subsequentPayloads):
 
-Deferred Fragment Record is a structure containing all the entries of Async
-Payload Record, and additionally:
-
-- {objectType}: of the {deferredFragmentRecord}.
-- {objectValue}: of the {deferredFragmentRecord}.
-- {fragmentSelectionSet}: the top level selection set of
-  {deferredFragmentRecord}.
-
-CreateDeferredFragmentRecord(label, objectType, objectValue,
-fragmentSelectionSet, path, parentRecord):
-
-- Construct a deferred fragment record based on the parameters passed in.
-- Initialize {errors} to an empty list.
-
-ResolveDeferredFragmentRecord(deferredFragmentRecord, variableValues,
-subsequentPayloads):
-
-- Let {label}, {objectType}, {objectValue}, {fragmentSelectionSet}, {path},
-  {parentRecord} be the corresponding fields in the deferred fragment record
-  structure.
+- Let {deferRecord} be an async payload record created from {label} and {path}.
+- Initialize {errors} on {deferRecord} to an empty list.
 - Let {dataExecution} be the asynchronous future value of:
   - Let {payload} be the result of {ExecuteSelectionSet(fragmentSelectionSet,
     objectType, objectValue, variableValues, path, subsequentPayloads,
-    deferredFragmentRecord)}.
+    deferRecord)}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
+  - Add an entry to {payload} named `label` with the value {label}.
+  - Add an entry to {payload} named `path` with the value {path}.
   - Return {payload}.
 - Set {dataExecution} on {deferredFragmentRecord}.
-- Let {payload} be the result of waiting for {dataExecution}.
-- Add an entry to {payload} named `label` with the value {label}.
-- Add an entry to {payload} named `path` with the value {path}.
-- Return {payload}.
+- Append {deferRecord} to {subsequentPayloads}.
 
 ## Executing Fields
 
@@ -876,28 +846,14 @@ field, value completion iterates over the iterator until the number of items
 yield by the iterator satisfies `initialCount` specified on the `@stream`
 directive.
 
-#### Stream Record
+#### Execute Stream Field
 
-Let {streamField} be a list field with a `@stream` directive provided.
+ExecuteStreamRecord(label, iterator, index, fields, innerType, path
+streamRecord, variableValues, subsequentPayloads):
 
-A Stream Record is a structure containing all the entries of Async Payload
-Record, and additionally:
-
-- {iterator}: created by {ResolveFieldGenerator}.
-- {index}: indicating the position of the item in the complete list.
-- {fields}: the group of fields grouped by CollectFields() for {streamField}.
-- {innerType}: inner type of {streamField}'s type.
-
-CreateStreamRecord(label, iterator, index, fields, innerType, path,
-parentRecord):
-
-- Construct a stream record based on the parameters passed in.
-- Initialize {errors} to an empty list.
-
-ResolveStreamRecord(streamRecord, variableValues, subsequentPayloads):
-
-- Let {label}, {parentRecord}, {iterator}, {index}, {path}, {fields},
-  {innerType} be the correspondent fields on the Stream Record structure.
+- Let {streamRecord} be an async payload record created from {label}, {path},
+  and {iterator}.
+- Initialize {errors} on {streamRecord} to an empty list.
 - Let {indexPath} be {path} with {index} appended.
 - Let {dataExecution} be the asynchronous future value of:
   - Wait for the next item from {iterator}.
@@ -907,17 +863,15 @@ ResolveStreamRecord(streamRecord, variableValues, subsequentPayloads):
   - Let {payload} be the result of calling {CompleteValue(innerType, fields,
     item, variableValues, indexPath, subsequentPayloads, parentRecord)}.
   - Increment {index}.
-  - Let {nextStreamRecord} be the result of calling {CreateStreamRecord(label,
-    iterator, index, fields, innerType, path, streamRecord)}.
-  - Append {nextStreamRecord} to {subsequentPayloads}.
+  - Call {ExecuteStreamRecord(label, iterator, index, fields, innerType, path,
+    streamRecord, variableValues, subsequentPayloads)}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
+  - Add an entry to {payload} named `label` with the value {label}.
+  - Add an entry to {payload} named `path` with the value {indexPath}.
   - Return {payload}.
 - Set {dataExecution} on {streamRecord}.
-- Let {payload} be the result of waiting for {dataExecution}.
-- Add an entry to {payload} named `label` with the value {label}.
-- Add an entry to {payload} named `path` with the value {indexPath}.
-- Return {payload}.
+- Append {streamRecord} to {subsequentPayloads}.
 
 CompleteValue(fieldType, fields, result, variableValues, path,
 subsequentPayloads, asyncRecord):
@@ -955,9 +909,8 @@ subsequentPayloads, asyncRecord):
         - Increment {index}.
       - If {streamDirective} was provided and {index} is greater than or equal
         to {initialCount}:
-        - Let {streamRecord} be the result of calling {CreateStreamRecord(label,
-          result, index, fields, innerType, path, asyncRecord)}.
-        - Append {streamRecord} to {subsequentPayloads}.
+        - Call {ExecuteStreamRecord(label, result, index, fields, innerType,
+          path, asyncRecord, subsequentPayloads)}.
         - Let {result} be {initialItems}.
         - Exit while loop.
     - Return {initialItems}.
