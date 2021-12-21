@@ -579,22 +579,52 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 ## Accounting For Client Controlled Nullability Designators
 
 A field can have its nullability status set either in its service's schema, or
-it can be overriden by a designator (! or ?) for the duration of an execution.
+a nullability designator (! or ?) can override it for the duration of an execution.
 In order to determine a field's true nullability, both are taken into account
 and a final type is produced.
 
 ModifiedOutputType(outputType, requiredStatus):
 
-  - If {requiredStatus} is 'required' and {outputType} is not a Non-Nullable type:
-    - Return Non-Null with an inner type of {outputType}.
-  - Otherwise if {requiredStatus} is 'optional':
-    - If {outputType} is not a Non-Nullable type:
-      - Return {outputType}.
-    - Otherwise if {outputType} is a Non-Nullable type:
-      - Let {innerOutputType} be the inner type of {outputType}.
-      - Return {innerOutputType}.
-  - Otherwise:
-    - Return {outputType}.
+  - Create a {stack} initially containing {type}.
+  - As long as the top of {stack} is a list:
+    - Let {currentType} be the top item of {stack}.
+    - Push the {elementType} of {currentType} to the {stack}.
+  - If {requiredStatus} exists:
+    - Start visiting {node}s in {requiredStatus} and building up a {resultingType}:
+      - For each {node} that is a RequiredDesignator:
+        - If {resultingType} exists:
+          - Let {nullableResult} be the nullable type of {resultingType}.
+          - Set {resultingType} to the Non-Nullable type of {nullableResult}.
+          - Continue onto the next node.
+        - Pop the top of {stack} and let {nextType} be the result.
+        - Let {nullableType} be the nullable type of {nextType}.
+        - Set {resultingType} to the Non-Nullable type of {nullableType}.
+        - Continue onto the next node.
+      - For each {node} that is a OptionalDesignator:
+        - If {resultingType} exists:
+          - Set {resultingType} to the nullableType type of {resultingType}.
+          - Continue onto the next node.
+        - Pop the top of {stack} and let {nextType} be the result.
+        - Set {resultingType} to the nullable type of {resultingType}
+        - Continue onto the next node.
+      - For each {node} that is a ListNullabilityDesignator:
+        -  Pop the top of {stack} and let {listType} be the result
+        -  If the nullable type of {listType} is not a list
+           -  Pop the top of {stack} and set {listType} to the result
+        -  If {listType} does not exist:
+           -  Throw an error because {requiredStatus} had more list dimensions than {outputType} and is invalid.
+        -  If {resultingType} exist:
+           -  If {listType} is Non-Nullable:
+              -  Set {resultingType} to a Non-Nullable list where the element is {resultingType}.
+           -  Otherwise:
+              -  Set {resultingType} to a list where the element is {resultingType}.
+           -  Continue onto the next node.
+        -  Set {resultingType} to {listType}
+   -  If {stack} is not empty:
+      -  Throw an error because {requiredStatus} had fewer list dimensions than {outputType} and is invalid.
+   -  Return {resultingType}.
+-  Otherwise:
+   -  Return {outputType}.
 
 ### Coercing Field Arguments
 
