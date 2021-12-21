@@ -426,7 +426,6 @@ FieldsInSetCanMerge(set):
 
 SameResponseShape(fieldA, fieldB):
 
-<<<<<<< HEAD
 - Let {typeA} be the return type of {fieldA}.
 - Let {typeB} be the return type of {fieldB}.
 - If {typeA} or {typeB} is Non-Null.
@@ -449,34 +448,6 @@ SameResponseShape(fieldA, fieldB):
 - Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
 - Return true.
-=======
-  * Let {typeA} be the return type of {fieldA}.
-  * Let {typeB} be the return type of {fieldB}.
-  * Let {fieldARequiredStatus} be the required status of {fieldA}
-  * Let {fieldBRequiredStatus} be the required status of {fieldB}
-  * Let {typeA} be the result of {ModifiedOutputType(typeA, fieldARequiredStatus)}
-  * Let {typeB} be the result of {ModifiedOutputType(typeB, fieldBRequiredStatus)}
-  * If {typeA} or {typeB} is Non-Null.
-    * If {typeA} or {typeB} is nullable, return false.
-    * Let {typeA} be the nullable type of {typeA}
-    * Let {typeB} be the nullable type of {typeB}
-  * If {typeA} or {typeB} is List.
-    * If {typeA} or {typeB} is not List, return false.
-    * Let {typeA} be the item type of {typeA}
-    * Let {typeB} be the item type of {typeB}
-    * Repeat from step 3.
-  * If {typeA} or {typeB} is Scalar or Enum.
-    * If {typeA} and {typeB} are the same type return true, otherwise return
-      false.
-  * Assert: {typeA} and {typeB} are both composite types.
-  * Let {mergedSet} be the result of adding the selection set of {fieldA} and
-    the selection set of {fieldB}.
-  * Let {fieldsForName} be the set of selections with a given response name in
-    {mergedSet} including visiting fragments and inline fragments.
-  * Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
-    * If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
-  * Return true.
->>>>>>> 9906241 (errors and validation formal definitions)
 
 **Explanatory Text**
 
@@ -607,6 +578,27 @@ fragment conflictingDifferingResponses on Pet {
   }
 }
 ```
+
+### Client Controlled Nullability Designator List Dimensions
+
+**Formal Specification**
+
+* For each {field} in the document
+  * Let {fieldDef} be the definition of {field}
+  * Let {fieldType} be the type of {fieldDef}
+  * Let {requiredStatus} be the required status of {field}
+  * Let {designatorDepth} be the number of square bracket pairs in {requiredStatus}
+  * Let {typeDepth} be the number of list dimensions in {fieldType}
+  * If {typeDepth} equals {designatorDepth} return true
+  * Otherwise return false
+
+**Explanatory Text**
+
+List fields can be marked with nullability designators that look like `[?]!` to indicate the 
+nullability of the list's elements and the nullability of the list itself. For multi-dimensional
+lists, the designator would look something like `[[[!]?]]!`. The number of dimensions of the 
+designator are required to match the number of dimensions of the field's type. If the two do not 
+match then a validation error is thrown.
 
 ### Leaf Field Selections
 
