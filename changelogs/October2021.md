@@ -740,7 +740,7 @@ git log June2018..HEAD --format="| [%h](https://github.com/graphql/graphql-spec/
  ## Operations
 
  OperationDefinition :
-   - OperationType Name? VariableDefinitions? Directives? SelectionSet
+   - OperationType Name? VariablesDefinition? Directives? SelectionSet
    - SelectionSet
 
  OperationType : one of `query` `mutation` `subscription`
@@ -1309,7 +1309,7 @@ git log June2018..HEAD --format="| [%h](https://github.com/graphql/graphql-spec/
 
  Variable : $ Name
 
- VariableDefinitions : ( VariableDefinition+ )
+ VariablesDefinition : ( VariableDefinition+ )
 
 -VariableDefinition : Variable : Type DefaultValue?
 +VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
@@ -5618,8 +5618,8 @@ git log June2018..HEAD --format="| [%h](https://github.com/graphql/graphql-spec/
  CoerceVariableValues(schema, operation, variableValues):
 
    * Let {coercedValues} be an empty unordered Map.
-   * Let {variableDefinitions} be the variables defined by {operation}.
-   * For each {variableDefinition} in {variableDefinitions}:
+   * Let {variablesDefinition} be the variables defined by {operation}.
+   * For each {variableDefinition} in {variablesDefinition}:
 @@ -87,62 +87,63 @@ CoerceVariableValues(schema, operation, variableValues):
      * Let {hasValue} be {true} if {variableValues} provides a value for the
        name {variableName}.
@@ -6704,7 +6704,7 @@ git log June2018..HEAD --format="| [%h](https://github.com/graphql/graphql-spec/
 
  OperationDefinition :
 -  - SelectionSet
-   - OperationType Name? VariableDefinitions? Directives? SelectionSet
+   - OperationType Name? VariablesDefinition? Directives? SelectionSet
 +  - SelectionSet
 
 -OperationType : one of query mutation subscription
@@ -6724,7 +6724,7 @@ git log June2018..HEAD --format="| [%h](https://github.com/graphql/graphql-spec/
 
  ObjectField[Const] : Name : Value[?Const]
 
- VariableDefinitions : ( VariableDefinition+ )
+ VariablesDefinition : ( VariableDefinition+ )
 
 -VariableDefinition : Variable : Type DefaultValue?
 +VariableDefinition : Variable : Type DefaultValue? Directives[Const]?

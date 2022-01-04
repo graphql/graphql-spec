@@ -78,8 +78,8 @@ execution.
 CoerceVariableValues(schema, operation, variableValues):
 
   * Let {coercedValues} be an empty unordered Map.
-  * Let {variableDefinitions} be the variables defined by {operation}.
-  * For each {variableDefinition} in {variableDefinitions}:
+  * Let {variablesDefinition} be the variables defined by {operation}.
+  * For each {variableDefinition} in {variablesDefinition}:
     * Let {variableName} be the name of {variableDefinition}.
     * Let {variableType} be the expected type of {variableDefinition}.
     * Assert: {IsInputType(variableType)} must be {true}.
