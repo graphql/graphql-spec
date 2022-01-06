@@ -1584,52 +1584,42 @@ Literal Value            | Variables               | Coerced Value
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. Let {fieldSet} be a set containing {inputField}.
-   5. {DetectDefaultValueCycle(inputFieldType, defaultValue, fieldSet)}.
-   6. {defaultValue} must be compatible with {inputFieldType} as per the
-       coercion rules for that type.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
+4. {DetectInputObjectDefaultValueCycle(inputObject)}.
 
-DetectDefaultValueCycle(type, defaultValue, visitedFields):
+DetectInputObjectDefaultValueCycle(inputObject, defaultValue, visitedFields):
 
-- If {defaultValue} does not exist or is null, return.
-- If {type} is a non-null type:
-  - Let {innerType} be the inner type of {type}.
-  - {DetectDefaultValueCycle(innerType, defaultValue, visitedFields)}.
+- If {defaultValue} is not provided, initialize it to an empty unordered map.
+- If {visitedFields} is not provided, initialize it to the empty set.
+- If {defaultValue} is a list:
+  - For each {itemValue} in {defaultValue}:
+    - {DetectInputObjectDefaultValueCycle(inputObject, itemValue, visitedFields)}.
+- Otherwise:
+  - If {defaultValue} is not an unordered map:
+    - Return.
+  - For each field {field} in {inputObject}:
+    - {DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields)}.
+
+DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields):
+
+- Assert: {defaultValue} is an unordered map.
+- Let {fieldType} be the type of {field}.
+- Let {namedFieldType} be the underlying named type of {fieldType}.
+- If {namedFieldType} is not an input object type:
   - Return.
-- If {type} is a list type:
-  - {defaultValue} must be a list.
-  - If {defaultValue} is not a list:
-    - Let {list} be a list containing {defaultValue}.
-  - Otherwise:
-    - Let {list} be {defaultValue}.
-  - Let {innerType} be the inner type of {type}.
-  - For each {value} in {list}:
-    - {DetectDefaultValueCycle(innerType, value, visitedFields)}.
-  - Return.
-- If {type} is a scalar or enum type:
-  - Return.
-- Assert: {type} is an input object type.
-- {defaultValue} must be an object.
-- For each field {field} in {type}:
-  - Let {fieldName} be the name of {field}.
-  - Let {fieldDefaultValue} be the value for attribute {fieldName} in {defaultValue}.
+- Let {fieldName} be the name of {field}.
+- Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
+- If {fieldDefaultValue} exists:
+  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
+- Otherwise:
+  - Let {fieldDefaultValue} be the default value of {field}.
   - If {fieldDefaultValue} does not exist:
-    - {field} must not be withing {visitedFields}.
-    - Add {field} to {visitedFields}.
-    - Let {fieldDefaultValue} be the default value for {field}.
-  - Let {fieldType} be the expected return type of {field}.
-  - {DetectDefaultValueCycle(fieldType, fieldDefaultValue, visitedFields)}.
-
-Note: in the above algorithm it's important that {visitedDefaultValueFields} is
-passed by value, not by reference, since each path needs its own independent
-stack.
-
-Note: the above algorithm works by determining if the default value on a
-particular input object field is referenced more than once in a particular
-chain. If it returns {true} (indicating a cycle was found) the object at fault
-might not be this object specifically, but one of the objects it references.
+    - Return.
+  - {field} must not be within {visitedFields}.
+  - Add {field} to {visitedFields}.
+  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
 
 ### Input Object Extensions
 
