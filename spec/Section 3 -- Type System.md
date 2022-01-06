@@ -1591,35 +1591,35 @@ Literal Value            | Variables               | Coerced Value
 
 DetectInputObjectDefaultValueCycle(inputObject, defaultValue, visitedFields):
 
-- If {defaultValue} is not provided, initialize it to an empty unordered map.
-- If {visitedFields} is not provided, initialize it to the empty set.
-- If {defaultValue} is a list:
-  - For each {itemValue} in {defaultValue}:
-    - {DetectInputObjectDefaultValueCycle(inputObject, itemValue, visitedFields)}.
-- Otherwise:
-  - If {defaultValue} is not an unordered map:
-    - Return.
-  - For each field {field} in {inputObject}:
-    - {DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields)}.
+* If {defaultValue} is not provided, initialize it to an empty unordered map.
+* If {visitedFields} is not provided, initialize it to the empty set.
+* If {defaultValue} is a list:
+  * For each {itemValue} in {defaultValue}:
+    * {DetectInputObjectDefaultValueCycle(inputObject, itemValue, visitedFields)}.
+* Otherwise:
+  * If {defaultValue} is not an unordered map:
+    * Return.
+  * For each field {field} in {inputObject}:
+    * {DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields)}.
 
 DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields):
 
-- Assert: {defaultValue} is an unordered map.
-- Let {fieldType} be the type of {field}.
-- Let {namedFieldType} be the underlying named type of {fieldType}.
-- If {namedFieldType} is not an input object type:
-  - Return.
-- Let {fieldName} be the name of {field}.
-- Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
-- If {fieldDefaultValue} exists:
-  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
-- Otherwise:
-  - Let {fieldDefaultValue} be the default value of {field}.
-  - If {fieldDefaultValue} does not exist:
-    - Return.
-  - {field} must not be within {visitedFields}.
-  - Add {field} to {visitedFields}.
-  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
+* Assert: {defaultValue} is an unordered map.
+* Let {fieldType} be the type of {field}.
+* Let {namedFieldType} be the underlying named type of {fieldType}.
+* If {namedFieldType} is not an input object type:
+  * Return.
+* Let {fieldName} be the name of {field}.
+* Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
+* If {fieldDefaultValue} exists:
+  * {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
+* Otherwise:
+  * Let {fieldDefaultValue} be the default value of {field}.
+  * If {fieldDefaultValue} does not exist:
+    * Return.
+  * {field} must not be within {visitedFields}.
+  * Add {field} to {visitedFields}.
+  * {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue, visitedFields)}.
 
 ### Input Object Extensions
 
