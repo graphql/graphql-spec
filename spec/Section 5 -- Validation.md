@@ -738,6 +738,7 @@ and invalid.
       * Let {argumentName} be the name of {argumentDefinition}.
       * Let {argument} be the argument in {arguments} named {argumentName}
       * {argument} must exist.
+      * {argument} must not be deprecated.
       * Let {value} be the value of {argument}.
       * {value} must not be the {null} literal.
 
@@ -782,6 +783,18 @@ always have a non-null type.
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
   nonNullBooleanArgField(nonNullBooleanArg: null)
+}
+```
+
+If an argument is required (non-null without a default value), it must not be
+marked as deprecated. 
+
+```graphql counter-example
+type Query {
+  """
+  This is invalid because the locale argument is both required and deprecated.
+  """
+  myName(locale: String! @deprecated): String
 }
 ```
 
@@ -1419,6 +1432,7 @@ For example the following document will not pass validation.
     * Let {fieldName} be the name of {fieldDefinition}.
     * Let {field} be the input field in {fields} named {fieldName}
     * {field} must exist.
+    * {field} must not be deprecated.
     * Let {value} be the value of {field}.
     * {value} must not be the {null} literal.
 
@@ -1429,6 +1443,15 @@ arguments, an input object may have required fields. An input field is required
 if it has a non-null type and does not have a default value. Otherwise, the
 input object field is optional.
 
+A required input object field must not be marked as deprecated.
+
+```graphql counter-example
+input Point {
+  x: Int!
+  y: Int!
+  z: Int! @deprecated(reason: "Northward, not upward")
+}
+```
 
 ## Directives
 

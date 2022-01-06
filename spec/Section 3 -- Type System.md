@@ -2060,6 +2060,22 @@ type ExampleType {
 }
 ```
 
+The `@deprecated` directive must not appear on required (non-null without a default)
+arguments or input object field definitions. Deprecated arguments and fields are 
+excluded by default in introspection, and deprecating required arguments or 
+input fields could create confusion for clients.
+
+```graphql counter-example
+type ExampleType {
+  invalidField(
+    newArg: String
+    oldArg: String! @deprecated(reason: "Use `newArg`.")
+  ): String
+}
+```
+
+A required argument or input field should first be made optional by either 
+changing the type to nullable or adding a default value.
 
 ### @specifiedBy
 
