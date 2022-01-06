@@ -614,6 +614,10 @@ Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid queries
 must only allow usage of variables of appropriate types.
 
+Note: As an optimization you might choose to coerce each {defaultValue} at
+schema build time and cache the results, then refer to this cache within
+{CoerceArgumentValues()} calls.
+
 
 ### Value Resolution
 
