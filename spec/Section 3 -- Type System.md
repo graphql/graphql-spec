@@ -2078,9 +2078,7 @@ type ExampleType {
 ```
 
 The `@deprecated` directive must not appear on required (non-null without a
-default) arguments or input object field definitions. Deprecated arguments and
-fields are excluded by default in introspection, and deprecating required
-arguments or input fields could create confusion for clients.
+default) arguments or input object field definitions.
 
 ```graphql counter-example
 type ExampleType {
