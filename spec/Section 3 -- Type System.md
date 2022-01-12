@@ -879,6 +879,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          {"\_\_"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If argument type is Non-Null and a default value is not defined:
+         - The `@deprecated` directive shall not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1652,6 +1654,8 @@ input ExampleInputObject {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+   4. If input field type is Non-Null and a default value is not defined:
+      - The `@deprecated` directive shall not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -2074,9 +2078,7 @@ type ExampleType {
 ```
 
 The `@deprecated` directive must not appear on required (non-null without a
-default) arguments or input object field definitions. Deprecated arguments and
-fields are excluded by default in introspection, and deprecating required
-arguments or input fields could create confusion for clients.
+default) arguments or input object field definitions.
 
 ```graphql counter-example
 type ExampleType {
