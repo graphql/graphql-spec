@@ -566,7 +566,7 @@ fragment conflictingDifferingResponses on Pet {
 
 The same is true if a field is designated `Non-Nullable` in an operation. In this
 case, `someValue` could be either a `String` or a `String!` which are two different
-types and therefor can not be merged:
+types and therefore can not be merged:
 
 ```graphql counter-example
 fragment conflictingDifferingResponses on Pet {
