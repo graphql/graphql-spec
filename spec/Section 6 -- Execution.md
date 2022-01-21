@@ -600,7 +600,7 @@ subsequentPayloads, asyncRecord, visitedFragments):
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} provides the directive `@defer` and it's {if}
+    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
       argument is {true} or is a variable in {variableValues} with the value
       {true}:
       - Let {deferDirective} be that directive.
