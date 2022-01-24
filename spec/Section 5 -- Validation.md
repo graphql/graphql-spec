@@ -38,6 +38,7 @@ order to demonstrate examples:
 ```graphql example
 type Query {
   dog: Dog
+  findDog(searchBy: FindDogInput): Dog
 }
 
 enum DogCommand {
@@ -87,6 +88,11 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+input FindDogInput {
+  name: String
+  owner: String
+}
 ```
 
 ## Documents
@@ -1308,8 +1314,10 @@ fragment coercedIntIntoFloatArg on Arguments {
   floatArgField(floatArg: 123)
 }
 
-query goodComplexDefaultValue($search: ComplexInput = { name: "Fido" }) {
-  findDog(complex: $search)
+query goodComplexDefaultValue($search: FindDogInput = { name: "Fido" }) {
+  findDog(searchBy: $search) {
+    name
+  }
 }
 ```
 
@@ -1322,7 +1330,9 @@ fragment stringIntoInt on Arguments {
 }
 
 query badComplexValue {
-  findDog(complex: { name: 123 })
+  findDog(searchBy: { name: 123 }) {
+    name
+  }
 }
 ```
 
@@ -1345,7 +1355,9 @@ For example the following example input object is valid:
 
 ```graphql example
 {
-  findDog(complex: { name: "Fido" })
+  findDog(searchBy: { name: "Fido" }) {
+    name
+  }
 }
 ```
 
@@ -1354,7 +1366,9 @@ which is not defined on the expected type:
 
 ```graphql counter-example
 {
-  findDog(complex: { favoriteCookieFlavor: "Bacon" })
+  findDog(searchBy: { favoriteCookieFlavor: "Bacon" }) {
+    name
+  }
 }
 ```
 
@@ -1555,13 +1569,7 @@ used as inputs.
 For these examples, consider the following type system additions:
 
 ```graphql example
-input ComplexInput {
-  name: String
-  owner: String
-}
-
 extend type Query {
-  findDog(complex: ComplexInput): Dog
   booleanList(booleanListArg: [Boolean!]): Boolean
 }
 ```
@@ -1575,8 +1583,8 @@ query takesBoolean($atOtherHomes: Boolean) {
   }
 }
 
-query takesComplexInput($complexInput: ComplexInput) {
-  findDog(complex: $complexInput) {
+query takesComplexInput($search: FindDogInput) {
+  findDog(searchBy: $search) {
     name
   }
 }
