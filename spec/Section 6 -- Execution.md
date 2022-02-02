@@ -604,9 +604,10 @@ subsequentPayloads, asyncRecord, visitedFragments):
       argument is {true} or is a variable in {variableValues} with the value
       {true}:
       - Let {deferDirective} be that directive.
-    - If {fragmentSpreadName} is in {visitedFragments} and {deferDirective} is
-      not defined, continue with the next {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
+    - If {deferDirective} is not defined:
+      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
