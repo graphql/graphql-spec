@@ -452,6 +452,9 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
+Note: The previous two examples depict only a selection set and _not_ a full
+document using the query shorthand.
+
 ### Field Collection
 
 Before execution, the selection set is converted to a grouped field set by
