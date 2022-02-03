@@ -7,7 +7,8 @@ Security concerns that impact repos under the
 implementations and official tools) may be responsibly disclosed to the TSC via
 [any current TSC member](https://github.com/graphql/graphql-wg/blob/main/GraphQL-TSC.md#tsc-members-1),
 with the expectation that they will be discussed and triaged by the TSC as a
-whole.
+whole. You may reach a subset of current TSC members via
+[security@graphql.org](mailto:security@graphql.org).
 
 Our goal is to provide complete, accurate, and actionable disclosures once a
 reported issue has been sufficiently understood and there has been a reasonable
