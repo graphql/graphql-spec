@@ -904,7 +904,9 @@ subsequentPayloads, asyncRecord):
     - Let {field} be the first entry in {fields}.
     - Let {innerType} be the inner type of {fieldType}.
     - If {field} provides the directive `@stream` and its {if} argument is
-      {true} or is a variable in {variableValues} with the value {true} and :
+      {true} or is a variable in {variableValues} with the value {true} and
+      {innerType} is the outermost return type of the list type defined for
+      {field}:
       - Let {streamDirective} be that directive.
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
