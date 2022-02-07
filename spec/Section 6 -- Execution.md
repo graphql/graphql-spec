@@ -862,7 +862,7 @@ variableValues, subsequentPayloads):
 - Let {streamRecord} be an async payload record created from {label}, {path},
   and {iterator}.
 - Initialize {errors} on {streamRecord} to an empty list.
-- Let {indexPath} be {path} with {index} appended.
+- Let {itemPath} be {path} with {index} appended.
 - Let {dataExecution} be the asynchronous future value of:
   - Wait for the next item from {iterator}.
   - If an item is not retrieved because {iterator} has completed:
@@ -871,7 +871,7 @@ variableValues, subsequentPayloads):
   - Let {payload} be an unordered map.
   - Let {item} be the item retrieved from {iterator}.
   - Let {data} be the result of calling {CompleteValue(innerType, fields, item,
-    variableValues, indexPath, subsequentPayloads, parentRecord)}.
+    variableValues, itemPath, subsequentPayloads, parentRecord)}.
   - Append any encountered field errors to {errors}.
   - Increment {index}.
   - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
@@ -882,7 +882,7 @@ variableValues, subsequentPayloads):
     - Add an entry to {payload} named `errors` with the value {errors}.
   - Add an entry to {payload} named `data` with the value {data}.
   - Add an entry to {payload} named `label` with the value {label}.
-  - Add an entry to {payload} named `path` with the value {indexPath}.
+  - Add an entry to {payload} named `path` with the value {itemPath}.
   - Return {payload}.
 - Set {dataExecution} on {streamRecord}.
 - Append {streamRecord} to {subsequentPayloads}.
@@ -902,7 +902,9 @@ subsequentPayloads, asyncRecord):
   - If {result} is an iterator:
     - Let {field} be the first entry in {fields}.
     - Let {innerType} be the inner type of {fieldType}.
-    - Let {streamDirective} be the `@stream` directive provided on {field}.
+    - If {field} provides the directive `@stream` and its {if} argument is
+      {true} or is a variable in {variableValues} with the value {true} and :
+      - Let {streamDirective} be that directive.
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
     - If {initialCount} is less than zero, raise a _field error_.
@@ -911,18 +913,18 @@ subsequentPayloads, asyncRecord):
     - Let {initialItems} be an empty list
     - Let {index} be zero.
     - While {result} is not closed:
-      - If {streamDirective} was not provided or {index} is not greater than or
+      - If {streamDirective} is not defined or {index} is not greater than or
         equal to {initialCount}:
         - Wait for the next item from {result}.
         - Let {resultItem} be the item retrieved from {result}.
-        - Let {indexPath} be {path} with {index} appended.
+        - Let {itemPath} be {path} with {index} appended.
         - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
-          fields, resultItem, variableValues, indexPath, subsequentPayloads,
+          fields, resultItem, variableValues, itemPath, subsequentPayloads,
           asyncRecord)}.
         - Append {resolvedItem} to {initialItems}.
         - Increment {index}.
-      - If {streamDirective} was provided and {index} is greater than or equal
-        to {initialCount}:
+      - If {streamDirective} is defined and {index} is greater than or equal to
+        {initialCount}:
         - Call {ExecuteStreamField(label, result, index, fields, innerType,
           path, asyncRecord, subsequentPayloads)}.
         - Let {result} be {initialItems}.
@@ -931,9 +933,9 @@ subsequentPayloads, asyncRecord):
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues, indexPath,
+    {CompleteValue(innerType, fields, resultItem, variableValues, itemPath,
     subsequentPayloads, asyncRecord)}, where {resultItem} is each item in
-    {result} and {indexPath} is {path} with the index of the item appended.
+    {result} and {itemPath} is {path} with the index of the item appended.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
