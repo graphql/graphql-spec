@@ -1556,6 +1556,71 @@ mutation {
 }
 ```
 
+### Defer And Stream Directive Labels Are Unique
+
+** Formal Specification **
+
+- For every {directive} in a document.
+- Let {directiveName} be the name of {directive}.
+- If {directiveName} is "defer" or "stream":
+  - For every {argument} in {directive}:
+    - Let {argumentName} be the name of {argument}.
+    - Let {argumentValue} be the value passed to {argument}.
+    - If {argumentName} is "label":
+      - {argumentValue} must not be a variable.
+    - Let {labels} be all label values passed to defer or stream directive label
+      arguments.
+    - {labels} must be a set of one.
+
+**Explanatory Text**
+
+The `@defer` and `@stream` directives each accept an argument "label". This
+label may be used by GraphQL clients to uniquely identify response payloads. If
+a label is passed, it must not be a variable and it must be unique within all
+other `@defer` and `@stream` directives in the document.
+
+For example the following document is valid:
+
+```graphql example
+{
+  dog {
+    ...fragmentOne
+    ...fragmentTwo @defer(label: "dogDefer")
+  }
+  pets @stream(label: "petStream") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentTwo on Dog {
+  owner {
+    name
+  }
+}
+```
+
+For example, the following document will not pass validation because the same
+label is used in different `@defer` and `@stream` directives.:
+
+```raw graphql counter-example
+{
+  dog {
+    ...fragmentOne @defer(label: "MyLabel")
+  }
+  pets @stream(label: "MyLabel") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+```
+
 ### Stream Directives Are Used On List Fields
 
 **Formal Specification**
