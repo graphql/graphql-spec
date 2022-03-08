@@ -2206,10 +2206,11 @@ fragment someFragment on User {
 - `if: Boolean` - When `true`, fragment _should_ be deferred. When `false`,
   fragment will not be deferred and data will be included in the initial
   response. If omitted, defaults to `true`.
-- `label: String` - A unique label across all `@defer` and `@stream` directives
-  in an operation. This label should be used by GraphQL clients to identify the
-  data from patch responses and associate it with the correct fragments. If
-  provided, the GraphQL Server must add it to the payload.
+- `label: String` - May be used by GraphQL clients to identify the data from
+  responses and associate it with the corresponding defer directive. If
+  provided, the GraphQL Server must add it to the corresponding payload. `label`
+  must be unique label across all `@defer` and `@stream` directives in a
+  document. `label` must not be provided as a variable.
 
 ### @stream
 
@@ -2237,10 +2238,12 @@ query myQuery($shouldStream: Boolean) {
 - `if: Boolean` - When `true`, field _should_ be streamed. When `false`, the
   field will not be streamed and all list items will be included in the initial
   response. If omitted, defaults to `true`.
-- `label: String` - A unique label across all `@defer` and `@stream` directives
-  in an operation. This label should be used by GraphQL clients to identify the
-  data from patch responses and associate it with the correct fragments. If
-  provided, the GraphQL Server must add it to the payload.
+- `label: String` - May be used by GraphQL clients to identify the data from
+  responses and associate it with the corresponding stream directive. If
+  provided, the GraphQL Server must add it to the corresponding payload. `label`
+  must be unique label across all `@defer` and `@stream` directives in a
+  document. `label` must not be provided as a variable.
+
 - `initialCount: Int` - The number of list items the server should return as
   part of the initial response. If omitted, defaults to `0`. A field error will
   be raised if the value of this argument is less than `0`.
