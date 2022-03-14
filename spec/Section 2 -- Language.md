@@ -530,16 +530,17 @@ NullabilityModifier :
 Fields can have their nullability designated with either a `!` to indicate that a
 field should be `Non-Nullable` or a `?` to indicate that a field should be 
 `Nullable`. These designators override the nullability set on a field by the schema 
-for the operation where they're being used. For example, a field marked with `!` in 
-a query will be treated identically to a field marked with `!` in the schema for the
-purposes of validation and execution.
+for the operation where they're being used. In addition to being `Non-Nullable`, 
+if a field marked with `!` resolves to `null`, it propagates to the nearest parent
+field marked with a `?` or to `data` if one does not exist. An error is added to 
+the `errors` array identical to if the field had been `Non-Nullable` in the schema.
 
 In this example, we can indicate that a `user`'s `name` that could possibly be 
-`null`, should not be `null`:
+`null`, should not be `null` and that `null` propagation should halt at the `user` field:
 
 ```graphql example
 {
-  user(id: 4) {
+  user(id: 4)? {
     id
     name!
   }
@@ -609,8 +610,13 @@ applied to multidimensional lists.
 {
   threeDimensionalMatrix[[[?]!]]!
 }
+```
 
-Any element without a nullability designator will inherit its nullability from the schema definition, exactly the same as non-list fields do. The number of dimensions indicated by
+Any element without a nullability designator will inherit its nullability from the 
+schema definition, exactly the same as non-list fields do. When designating 
+nullability for list fields, query authors can either use a single designator (`!` or `?`)
+to designate the nullability of the entire field, or they can use the list element
+nullability syntax displayed above. The number of dimensions indicated by
 list element nullability syntax is required to match the number of dimensions of the field.
 Anything else results in a query validation error.
 
