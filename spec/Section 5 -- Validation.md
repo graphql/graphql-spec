@@ -583,20 +583,20 @@ fragment conflictingDifferingResponses on Pet {
 
 **Formal Specification**
 
-* For each {field} in the document
-  * Let {fieldDef} be the definition of {field}
-  * Let {fieldType} be the type of {fieldDef}
-  * Let {requiredStatus} be the required status of {field}
-  * Let {designatorDepth} be the number of square bracket pairs in {requiredStatus}
-  * Let {typeDepth} be the number of list dimensions in {fieldType}
-  * If {typeDepth} equals {designatorDepth} return true
-  * Otherwise return false
+- For each {field} in the document
+  - Let {fieldDef} be the definition of {field}
+  - Let {fieldType} be the type of {fieldDef}
+  - Let {requiredStatus} be the required status of {field}
+  - Let {designatorDepth} be the number of square bracket pairs in {requiredStatus}
+  - Let {typeDepth} be the number of list dimensions in {fieldType}
+  - If {typeDepth} equals {designatorDepth} or {designatorDepth} equals 0 return true
+  - Otherwise return false
 
 **Explanatory Text**
 
 List fields can be marked with nullability designators that look like `[?]!` to indicate the 
 nullability of the list's elements and the nullability of the list itself. For multi-dimensional
-lists, the designator would look something like `[[[!]?]]!`. The number of dimensions of the 
+lists, the designator would look something like `[[[!]?]]!`. If the designator is not a simple `!` or `?`, then the number of dimensions of the 
 designator are required to match the number of dimensions of the field's type. If the two do not 
 match then a validation error is thrown.
 
