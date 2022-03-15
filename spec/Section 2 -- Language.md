@@ -518,25 +518,29 @@ which returns the result:
 ## Nullability
 
 Nullability :
-  - ListNullability NullabilityModifier?
-  - NullabilityModifier
+
+- ListNullability NullabilityModifier?
+- NullabilityModifier
 
 ListNullability : `[` Nullability? `]`
 
 NullabilityModifier :
-  - `!` 
-  - `?`
 
-Fields can have their nullability designated with either a `!` to indicate that a
-field should be `Non-Nullable` or a `?` to indicate that a field should be 
-`Nullable`. These designators override the nullability set on a field by the schema 
-for the operation where they're being used. In addition to being `Non-Nullable`, 
-if a field marked with `!` resolves to `null`, it propagates to the nearest parent
-field marked with a `?` or to `data` if one does not exist. An error is added to 
-the `errors` array identical to if the field had been `Non-Nullable` in the schema.
+- `!`
+- `?`
 
-In this example, we can indicate that a `user`'s `name` that could possibly be 
-`null`, should not be `null` and that `null` propagation should halt at the `user` field:
+Fields can have their nullability designated with either a `!` to indicate that
+a field should be `Non-Nullable` or a `?` to indicate that a field should be
+`Nullable`. These designators override the nullability set on a field by the
+schema for the operation where they're being used. In addition to being
+`Non-Nullable`, if a field marked with `!` resolves to `null`, it propagates to
+the nearest parent field marked with a `?` or to `data` if one does not exist.
+An error is added to the `errors` array identical to if the field had been
+`Non-Nullable` in the schema.
+
+In this example, we can indicate that a `user`'s `name` that could possibly be
+`null`, should not be `null` and that `null` propagation should halt at the
+`user` field:
 
 ```graphql example
 {
@@ -547,7 +551,7 @@ In this example, we can indicate that a `user`'s `name` that could possibly be
 }
 ```
 
-If `name` comes back non-`null`, then the return value is the same as if the 
+If `name` comes back non-`null`, then the return value is the same as if the
 nullability designator was not used:
 
 ```json example
@@ -559,9 +563,9 @@ nullability designator was not used:
 }
 ```
 
-In the event that `name` is `null`, the field's parent selection set becomes `null` 
-in the result and an error is returned, just as if `name` was marked `Non-Nullable` 
-in the schema:
+In the event that `name` is `null`, the field's parent selection set becomes
+`null` in the result and an error is returned, just as if `name` was marked
+`Non-Nullable` in the schema:
 
 ```json example
 {
@@ -572,15 +576,15 @@ in the schema:
     {
       "locations": [{ "column": 13, "line": 4 }],
       "message": "Cannot return null for non-nullable field User.name.",
-      "path": ["user", "name"],
-    },
+      "path": ["user", "name"]
+    }
   ]
 }
 ```
 
-If `user` was `Non-Nullable` in the schema, but we don't want `null`s propagating
-past that point, then we can use `?` to create null propagation boundary. `User` will be
-treated as `Nullable` for this operation:
+If `user` was `Non-Nullable` in the schema, but we don't want `null`s
+propagating past that point, then we can use `?` to create null propagation
+boundary. `User` will be treated as `Nullable` for this operation:
 
 ```graphql example
 {
@@ -602,9 +606,9 @@ Nullability designators can also be applied to list elements like so.
 }
 ```
 
-In the above example, the query author is saying that each individual pet name should be
-`Non-Nullable`, but the list as a whole should be `Nullable`. The same syntax can be
-applied to multidimensional lists.
+In the above example, the query author is saying that each individual pet name
+should be `Non-Nullable`, but the list as a whole should be `Nullable`. The same
+syntax can be applied to multidimensional lists.
 
 ```graphql example
 {
@@ -612,13 +616,13 @@ applied to multidimensional lists.
 }
 ```
 
-Any element without a nullability designator will inherit its nullability from the 
-schema definition, exactly the same as non-list fields do. When designating 
-nullability for list fields, query authors can either use a single designator (`!` or `?`)
-to designate the nullability of the entire field, or they can use the list element
-nullability syntax displayed above. The number of dimensions indicated by
-list element nullability syntax is required to match the number of dimensions of the field.
-Anything else results in a query validation error.
+Any element without a nullability designator will inherit its nullability from
+the schema definition, exactly the same as non-list fields do. When designating
+nullability for list fields, query authors can either use a single designator
+(`!` or `?`) to designate the nullability of the entire field, or they can use
+the list element nullability syntax displayed above. The number of dimensions
+indicated by list element nullability syntax is required to match the number of
+dimensions of the field. Anything else results in a query validation error.
 
 ## Fragments
 

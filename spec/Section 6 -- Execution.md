@@ -568,63 +568,70 @@ set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
-  - Let {field} be the first entry in {fields}.
-  - Let {fieldName} be the field name of {field}.
-  - Let {requiredStatus} be the required status of {field}.
-  - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field, variableValues)}
-  - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName, argumentValues)}.
-  - Let {modifiedFieldType} be {ModifiedOutputType(fieldType, requiredStatus)}.
-  - Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue, variableValues)}.
+- Let {field} be the first entry in {fields}.
+- Let {fieldName} be the field name of {field}.
+- Let {requiredStatus} be the required status of {field}.
+- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
+  variableValues)}
+- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
+  argumentValues)}.
+- Let {modifiedFieldType} be {ModifiedOutputType(fieldType, requiredStatus)}.
+- Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue,
+  variableValues)}.
 
 ## Accounting For Client Controlled Nullability Designators
 
-A field can have its nullability status set either in its service's schema, or
-a nullability designator (! or ?) can override it for the duration of an execution.
-In order to determine a field's true nullability, both are taken into account
-and a final type is produced.
+A field can have its nullability status set either in its service's schema, or a
+nullability designator (! or ?) can override it for the duration of an
+execution. In order to determine a field's true nullability, both are taken into
+account and a final type is produced.
 
 ModifiedOutputType(outputType, requiredStatus):
 
-  - Create a {stack} initially containing {type}.
-  - As long as the top of {stack} is a list:
-    - Let {currentType} be the top item of {stack}.
-    - Push the {elementType} of {currentType} to the {stack}.
-  - If {requiredStatus} exists:
-    - Start visiting {node}s in {requiredStatus} and building up a {resultingType}:
-      - For each {node} that is a RequiredDesignator:
-        - If {resultingType} exists:
-          - Let {nullableResult} be the nullable type of {resultingType}.
-          - Set {resultingType} to the Non-Nullable type of {nullableResult}.
-          - Continue onto the next node.
-        - Pop the top of {stack} and let {nextType} be the result.
-        - Let {nullableType} be the nullable type of {nextType}.
-        - Set {resultingType} to the Non-Nullable type of {nullableType}.
+- Create a {stack} initially containing {type}.
+- As long as the top of {stack} is a list:
+  - Let {currentType} be the top item of {stack}.
+  - Push the {elementType} of {currentType} to the {stack}.
+- If {requiredStatus} exists:
+  - Start visiting {node}s in {requiredStatus} and building up a
+    {resultingType}:
+    - For each {node} that is a RequiredDesignator:
+      - If {resultingType} exists:
+        - Let {nullableResult} be the nullable type of {resultingType}.
+        - Set {resultingType} to the Non-Nullable type of {nullableResult}.
         - Continue onto the next node.
-      - For each {node} that is a OptionalDesignator:
-        - If {resultingType} exists:
-          - Set {resultingType} to the nullableType type of {resultingType}.
-          - Continue onto the next node.
-        - Pop the top of {stack} and let {nextType} be the result.
-        - Set {resultingType} to the nullable type of {resultingType}
+      - Pop the top of {stack} and let {nextType} be the result.
+      - Let {nullableType} be the nullable type of {nextType}.
+      - Set {resultingType} to the Non-Nullable type of {nullableType}.
+      - Continue onto the next node.
+    - For each {node} that is a OptionalDesignator:
+      - If {resultingType} exists:
+        - Set {resultingType} to the nullableType type of {resultingType}.
         - Continue onto the next node.
-      - For each {node} that is a ListNullabilityDesignator:
-        -  Pop the top of {stack} and let {listType} be the result
-        -  If the nullable type of {listType} is not a list
-           -  Pop the top of {stack} and set {listType} to the result
-        -  If {listType} does not exist:
-           -  Throw an error because {requiredStatus} had more list dimensions than {outputType} and is invalid.
-        -  If {resultingType} exist:
-           -  If {listType} is Non-Nullable:
-              -  Set {resultingType} to a Non-Nullable list where the element is {resultingType}.
-           -  Otherwise:
-              -  Set {resultingType} to a list where the element is {resultingType}.
-           -  Continue onto the next node.
-        -  Set {resultingType} to {listType}
-   -  If {stack} is not empty:
-      -  Throw an error because {requiredStatus} had fewer list dimensions than {outputType} and is invalid.
-   -  Return {resultingType}.
--  Otherwise:
-   -  Return {outputType}.
+      - Pop the top of {stack} and let {nextType} be the result.
+      - Set {resultingType} to the nullable type of {resultingType}
+      - Continue onto the next node.
+    - For each {node} that is a ListNullabilityDesignator:
+      - Pop the top of {stack} and let {listType} be the result
+      - If the nullable type of {listType} is not a list
+        - Pop the top of {stack} and set {listType} to the result
+      - If {listType} does not exist:
+        - Throw an error because {requiredStatus} had more list dimensions than
+          {outputType} and is invalid.
+      - If {resultingType} exist:
+        - If {listType} is Non-Nullable:
+          - Set {resultingType} to a Non-Nullable list where the element is
+            {resultingType}.
+        - Otherwise:
+          - Set {resultingType} to a list where the element is {resultingType}.
+        - Continue onto the next node.
+      - Set {resultingType} to {listType}
+- If {stack} is not empty:
+  - Throw an error because {requiredStatus} had fewer list dimensions than
+    {outputType} and is invalid.
+- Return {resultingType}.
+- Otherwise:
+  - Return {outputType}.
 
 ### Coercing Field Arguments
 
@@ -827,9 +834,9 @@ field returned {null}, and the error must be added to the {"errors"} list in the
 response.
 
 If the result of resolving a field is {null} (either because the function to
-resolve the field returned {null} or because a field error was raised), and 
-the {ModifiedOutputType} of that field is of a `Non-Null` type, then a field 
-error is raised. The error must be added to the {"errors"} list in the response.
+resolve the field returned {null} or because a field error was raised), and the
+{ModifiedOutputType} of that field is of a `Non-Null` type, then a field error
+is raised. The error must be added to the {"errors"} list in the response.
 
 If the field returns {null} because of a field error which has already been
 added to the {"errors"} list in the response, the {"errors"} list must not be
@@ -838,7 +845,7 @@ field.
 
 Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
-to {null}, otherwise if its {ModifiedOutputType} is a `Non-Null` type, the field 
+to {null}, otherwise if its {ModifiedOutputType} is a `Non-Null` type, the field
 error is further propagated to its parent field.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
