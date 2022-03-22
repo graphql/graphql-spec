@@ -1,0 +1,23 @@
+language: en-US
+ignoreRegExpList:
+  # Posessives
+  - /[a-z]{2,}'s/
+words:
+  # Terms of art
+  - endianness
+  - interoperation
+  - monospace
+  - openwebfoundation
+  - parallelization
+  - structs
+  - subselection
+  # Fictional characters / examples
+  - alderaan
+  - hagrid
+  - leia
+  - newhope
+  - othername
+  - skywalker
+  - tatooine
+  - zuck
+  - zuckerberg

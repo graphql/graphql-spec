@@ -1,27 +1,19 @@
 #!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
 
-# Build the specification document into publishable form
-echo "Building spec"
-npm run build > /dev/null 2>&1
-
 # Determine if this is a tagged release
 GITTAG=$(git tag --points-at HEAD)
 
-# Check out gh-pages locally.
-echo "Cloning gh-pages"
-rm -rf gh-pages
-git clone -b gh-pages "https://${GH_TOKEN}@github.com/graphql/graphql-spec.git" gh-pages > /dev/null 2>&1
+# Build the specification draft document
+echo "Building spec draft"
+mkdir -p public/draft
+spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/main/" spec/GraphQL.md > public/draft/index.html
 
-# Replace /draft with this build.
-echo "Publishing to: /draft"
-rm -rf gh-pages/draft
-cp -R out/ gh-pages/draft
-
-# If this is a tagged commit, publish to a permalink and index.
+# If this is a tagged commit, also build the release document
 if [ -n "$GITTAG" ]; then
-  echo "Publishing to: /$GITTAG"
-  cp -R out/ "gh-pages/$GITTAG"
+  echo "Building spec release $GITTAG"
+  mkdir -p "public/$GITTAG"
+  spec-md --githubSource "https://github.com/graphql/graphql-spec/blame/$GITTAG/" spec/GraphQL.md > "public/$GITTAG/index.html"
 fi
 
 # Create the index file
@@ -110,17 +102,4 @@ HTML="$HTML
   </body>
 </html>"
 
-echo $HTML > "gh-pages/index.html"
-
-echo "Pushing update"
-cd gh-pages
-git config user.name "Travis CI"
-git config user.email "github@fb.com"
-git add -A .
-if git diff --staged --quiet; then
-  echo "Nothing to publish"
-else
-  git commit -a -m "Deploy to GitHub Pages"
-  git push > /dev/null 2>&1
-  echo "Pushed"
-fi
+echo $HTML > "public/index.html"
