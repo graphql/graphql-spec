@@ -879,9 +879,6 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          {"\_\_"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-      3. If the field is a Oneof Field:
-         1. The argument must be nullable.
-         2. The argument must not have a default value.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -909,8 +906,6 @@ IsValidImplementation(type, implementedType):
        2. Let {implementedFieldType} be the return type of {implementedField}.
        3. {IsValidImplementationFieldType(fieldType, implementedFieldType)} must
           be {true}.
-    6. {field} must be a Oneof Field if and only if {implementedField} is a
-       Oneof Field.
 
 IsValidImplementationFieldType(fieldType, implementedFieldType):
 
@@ -983,31 +978,6 @@ May return the result:
 
 The type of an object field argument must be an input type (any type except an
 Object, Interface, or Union type).
-
-**Oneof Fields**
-
-Oneof Fields are a special variant of Object Type fields where the type system
-asserts that exactly one of the field's arguments must be set and non-null, all
-others being omitted. This is useful for representing situations where a field
-provides more than one input option to accomplish the same (or similar) goal.
-
-When using the type system definition language, the `@oneOf` directive is used
-to indicate that a Field is a Oneof Field (and thus requires exactly one of its
-arguments be provided):
-
-```graphql
-type Query {
-  findUser(
-    byID: ID
-    byUsername: String
-    byEmail: String
-    byRegistrationNumber: Int
-  ): User @oneOf
-}
-```
-
-In schema introspection, the `__Field.oneOf` field will return {true} for Oneof
-Fields, and {false} for all other Fields.
 
 ### Field Deprecation
 
@@ -1254,9 +1224,6 @@ Interface types have the potential to be invalid if incorrectly defined.
          {"\_\_"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-      3. If the field is a Oneof Field:
-         1. The argument must be nullable.
-         2. The argument must not have a default value.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
@@ -1712,7 +1679,7 @@ input ExampleInputObject {
 | `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.         |
 | `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}          |
 
-Following are examples of input coercion for a Oneof Input Object with a
+Following are examples of input coercion for a oneOf input object type with a
 `String` member field `a` and an `Int` member field `b`:
 
 ```graphql example
@@ -2007,8 +1974,7 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
 GraphQL implementations that support the type system definition language should
-provide the `@oneOf` directive if the schema contains Oneof Input Objects or
-Oneof Fields.
+provide the `@oneOf` directive if representing Oneof Input Objects.
 
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
@@ -2201,14 +2167,11 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ### @oneOf
 
 ```graphql
-directive @oneOf on INPUT_OBJECT | FIELD_DEFINITION
+directive @oneOf on INPUT_OBJECT
 ```
 
 The `@oneOf` directive is used within the type system definition language to
-indicate:
-
-- an Input Object is a Oneof Input Object, or
-- an Object Type's Field is a Oneof Field.
+indicate an Input Object is a Oneof Input Object.
 
 ```graphql example
 input UserUniqueCondition @oneOf {

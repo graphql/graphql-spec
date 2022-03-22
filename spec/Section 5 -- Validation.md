@@ -804,29 +804,6 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
-#### Oneof Fields Have Exactly One Argument
-
-- For each {operation} in {document}:
-  - Let {oneofFields} be all Oneof Fields transitively included in the
-    {operation}.
-  - For each {oneofField} in {oneofFields}:
-    - Let {arguments} be the arguments provided by {oneofField}.
-    - {arguments} must contain exactly one entry.
-    - Let {argument} be the sole entry in {arguments}.
-    - Let {value} be the value of {argument}.
-    - {value} must not be the {null} literal.
-    - If {value} is a variable:
-      - Let {variableName} be the name of {variable}.
-      - Let {variableDefinition} be the {VariableDefinition} named
-        {variableName} defined within {operation}.
-      - Let {variableType} be the expected type of {variableDefinition}.
-      - {variableType} must be a non-null type.
-
-**Explanatory Text**
-
-Oneof Fields require that exactly one argument must be supplied and that
-argument must not be null.
-
 ## Fragments
 
 ### Fragment Declarations

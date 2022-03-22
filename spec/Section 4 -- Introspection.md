@@ -172,7 +172,6 @@ type __Field {
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
-  oneOf: Boolean!
 }
 
 type __InputValue {
@@ -370,8 +369,8 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
-- `oneOf` must return {true} for Oneof Input Objects, {false} for all other
-  Input Objects.
+- `oneOf` must return {true} when representing a Oneof Input Object, {false}
+  otherwise.
 - All other fields must return {null}.
 
 **List**
@@ -422,7 +421,6 @@ Fields\:
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this field is deprecated.
-- `oneOf` must return {true} for Oneof Fields, {false} for all other Fields.
 
 ### The \_\_InputValue Type
 
