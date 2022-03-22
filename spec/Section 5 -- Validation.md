@@ -1427,12 +1427,12 @@ arguments, an input object may have required fields. An input field is required
 if it has a non-null type and does not have a default value. Otherwise, the
 input object field is optional.
 
-### Oneof Input Objects Have Exactly One Field
+### OneOf Input Objects Have Exactly One Field
 
 **Formal Specification**
 
 - For each {operation} in {document}:
-  - Let {oneofInputObjects} be all Oneof Input Objects transitively included in
+  - Let {oneofInputObjects} be all OneOf Input Objects transitively included in
     the {operation}.
   - For each {oneofInputObject} in {oneofInputObjects}:
     - Let {fields} be the fields provided by {oneofInputObject}.
@@ -1449,10 +1449,10 @@ input object field is optional.
 
 **Explanatory Text**
 
-Oneof Input Objects require that exactly one field must be supplied and that
+OneOf Input Objects require that exactly one field must be supplied and that
 field must not be {null}.
 
-An empty Oneof Input Object is invalid.
+An empty OneOf Input Object is invalid.
 
 ```graphql counter-example
 mutation addPet {
@@ -1488,7 +1488,7 @@ mutation addPet {
 }
 ```
 
-Variables used for Oneof Input Object fields must be non-nullable.
+Variables used for OneOf Input Object fields must be non-nullable.
 
 ```graphql example
 mutation addPet($cat: CatInput!) {

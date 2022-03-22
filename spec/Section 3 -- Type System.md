@@ -1520,15 +1520,15 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
-**Oneof Input Objects**
+**OneOf Input Objects**
 
-Oneof Input Objects are a special variant of Input Objects where the type system
+OneOf Input Objects are a special variant of Input Objects where the type system
 asserts that exactly one of the fields must be set and non-null, all others
 being omitted. This is useful for representing situations where an input may be
 one of many different options.
 
 When using the type system definition language, the `@oneOf` directive is used
-to indicate that an Input Object is a Oneof Input Object (and thus requires
+to indicate that an Input Object is a OneOf Input Object (and thus requires
 exactly one of its field be provided):
 
 ```graphql
@@ -1539,7 +1539,7 @@ input UserUniqueCondition @oneOf {
 }
 ```
 
-In schema introspection, the `__Type.oneOf` field will return {true} for Oneof
+In schema introspection, the `__Type.oneOf` field will return {true} for OneOf
 Input Objects, and {false} for all other Input Objects.
 
 **Circular References**
@@ -1635,7 +1635,7 @@ is constructed with the following rules:
   does not provide a default value, the input object field definition's default
   value should be used.
 
-Further, if the input object is a Oneof Input Object, the following additional
+Further, if the input object is a OneOf Input Object, the following additional
 rules apply:
 
 - If the input object literal or unordered map does not contain exactly one
@@ -1720,7 +1720,7 @@ input ExampleInputTagged @oneOf {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
-   4. If the Input Object is a Oneof Input Object then:
+   4. If the Input Object is a OneOf Input Object then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
@@ -1750,7 +1750,7 @@ defined.
    the original Input Object.
 4. Any non-repeatable directives provided must not already apply to the original
    Input Object type.
-5. If the original Input Object is a Oneof Input Object then:
+5. If the original Input Object is a OneOf Input Object then:
    1. All fields of the Input Object type extension must be nullable.
    2. All fields of the Input Object type extension must not have default
       values.
@@ -1974,7 +1974,7 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
 GraphQL implementations that support the type system definition language should
-provide the `@oneOf` directive if representing Oneof Input Objects.
+provide the `@oneOf` directive if representing OneOf Input Objects.
 
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
@@ -2171,7 +2171,7 @@ directive @oneOf on INPUT_OBJECT
 ```
 
 The `@oneOf` directive is used within the type system definition language to
-indicate an Input Object is a Oneof Input Object.
+indicate an Input Object is a OneOf Input Object.
 
 ```graphql example
 input UserUniqueCondition @oneOf {
