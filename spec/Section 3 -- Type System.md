@@ -1294,7 +1294,7 @@ defined.
 ## Unions
 
 UnionTypeDefinition : Description? union Name Directives[Const]?
-UnionMemberTypes?
+UnionMemberTypes
 
 UnionMemberTypes :
 
