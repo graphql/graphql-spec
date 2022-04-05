@@ -1051,7 +1051,9 @@ InterfaceTypeDefinition :
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+the implementing type will define all fields defined by those interfaces. Unions
+can also implement interfaces, as long as each union member implements those
+interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1144,9 +1146,9 @@ interface. Querying for `age` is only valid when the result of `entity` is a
 **Interfaces Implementing Interfaces**
 
 When defining an interface that implements another interface, the implementing
-interface must define each field that is specified by the implemented interface.
-For example, the interface Resource must define the field id to implement the
-Node interface:
+type must define each field that is specified by the implemented interface. For
+example, the interface Resource must define the field id to implement the Node
+interface:
 
 ```raw graphql example
 interface Node {
@@ -1160,9 +1162,8 @@ interface Resource implements Node {
 ```
 
 Transitively implemented interfaces (interfaces implemented by the interface
-that is being implemented) must also be defined on an implementing type or
-interface. For example, `Image` cannot implement `Resource` without also
-implementing `Node`:
+that is being implemented) must also be defined on the implementing type. For
+example, `Image` cannot implement `Resource` without also implementing `Node`:
 
 ```raw graphql example
 interface Node {
@@ -1180,6 +1181,8 @@ interface Image implements Resource & Node {
   thumbnail: String
 }
 ```
+
+Similar syntax for unions implementing interfaces is detailed below.
 
 Interface definitions must not contain cyclic references nor implement
 themselves. This example is invalid because `Node` and `Named` implement
@@ -1293,8 +1296,8 @@ defined.
 
 ## Unions
 
-UnionTypeDefinition : Description? union Name Directives[Const]?
-UnionMemberTypes?
+UnionTypeDefinition : Description? union Name ImplementsInterfaces?
+Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
 
@@ -1370,6 +1373,50 @@ union SearchResult =
   | Person
 ```
 
+**Unions Implementing Interfaces**
+
+When defining unions that implement interfaces, each union member must
+explicitly implement each interface implemented by the union. For example, the
+member types of union SearchResult must each explicitly implement the Resource
+interface:
+
+```raw graphql example
+interface Resource {
+  url: String
+}
+
+union SearchResult implements Resource = Photo | Article
+
+type Article implements Resource {
+  url: String
+  title: String
+}
+
+type Image implements Resource {
+  url: String
+  height: Int
+  width: Int
+}
+```
+
+Transitively implemented interfaces (interfaces implemented by the interface
+that is being implemented) must also be defined on the implementing union. For
+example, `SearchResult` cannot implement `Resource` without also implementing
+`Node`:
+
+```raw graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+union SearchResult implements Resource & Node = Photo | Article
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1388,13 +1435,21 @@ Union types have the potential to be invalid if incorrectly defined.
 2. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
+3. An union type may declare that it implements one or more unique interfaces.
+4. Each member of a union must be a super-set of all union-implemented
+   interfaces:
+   1. Let this union type be {implementingType}.
+   2. For each member type of {implementingType}:
+      1. Let this member type be {memberType}.
+      2. For each interface declared implemented as {implementedType},
+         {IsValidImplementation(memberType, implementedType)} must be {true}.
 
 ### Union Extensions
 
 UnionTypeExtension :
 
-- extend union Name Directives[Const]? UnionMemberTypes
-- extend union Name Directives[Const]
+- extend union Name ImplementsInterfaces? Directives[Const]? UnionMemberTypes
+- extend union Name ImplementsInterfaces? Directives[Const]
 
 Union type extensions are used to represent a union type which has been extended
 from some original union type. For example, this might be used to represent
@@ -1414,6 +1469,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the original Union type.
 5. Any non-repeatable directives provided must not already apply to the original
    Union type.
+6. All member types of the resulting extended Union type must be a super-set of
+   all Interfaces it implements.
 
 ## Enums
 
