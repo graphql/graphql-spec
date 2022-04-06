@@ -1437,12 +1437,17 @@ Union types have the potential to be invalid if incorrectly defined.
    wrapping types must not be member types of a Union.
 3. A union type may declare that it implements one or more unique interfaces.
 4. Each member of a union must be a super-set of all union-implemented
-   interfaces:
+   interfaces. Moreover, each union member must declare that it implements each
+   interface declared on the union:
    1. Let this union type be {implementingType}.
    2. For each member type of {implementingType}:
       1. Let this member type be {memberType}.
-      2. For each interface declared implemented as {implementedType},
-         {IsValidImplementation(memberType, implementedType)} must be {true}.
+      2. For each interface declared implemented by {implementingType}.
+         1. Let the implemented type be {implementedType}.
+         2. {IsValidImplementation(memberType, implementedType)} must be {true}.
+         3. Let the set of types declared as implemented by {memberType} be
+            {memberImplementedTypes}.
+         4. {memberImplementedTypes} must contain {implementedType}.
 
 ### Union Extensions
 
@@ -1470,7 +1475,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
 5. Any non-repeatable directives provided must not already apply to the original
    Union type.
 6. All member types of the resulting extended Union type must be a super-set of
-   all Interfaces it implements.
+   all Interfaces it implements. Moreover, each union member must declare that
+   it implements each interface that declared on the union.
 
 ## Enums
 
