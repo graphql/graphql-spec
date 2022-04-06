@@ -1146,9 +1146,9 @@ interface. Querying for `age` is only valid when the result of `entity` is a
 **Interfaces Implementing Interfaces**
 
 When defining an interface that implements another interface, the implementing
-type must define each field that is specified by the implemented interface. For
-example, the interface Resource must define the field id to implement the Node
-interface:
+interface must define each field that is specified by the implemented interface.
+For example, the interface Resource must define the field id to implement the
+Node interface:
 
 ```raw graphql example
 interface Node {
@@ -1392,7 +1392,7 @@ type Article implements Resource {
   title: String
 }
 
-type Image implements Resource {
+type Photo implements Resource {
   url: String
   height: Int
   width: Int
@@ -1435,7 +1435,7 @@ Union types have the potential to be invalid if incorrectly defined.
 2. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
-3. An union type may declare that it implements one or more unique interfaces.
+3. A union type may declare that it implements one or more unique interfaces.
 4. Each member of a union must be a super-set of all union-implemented
    interfaces:
    1. Let this union type be {implementingType}.
