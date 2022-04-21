@@ -569,7 +569,7 @@ fragment conflictingDifferingResponses on Pet {
 **Formal Specification**
 
 - For each {selection} in the document
-- Let {selectionType} be the result type of {selection}
+- Let {selectionType} be the return type of {selection}
 - If {selectionType} is a scalar or enum:
   - The subselection set of that selection must be empty
 - If {selectionType} is an interface, union, or object
