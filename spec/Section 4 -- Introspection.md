@@ -71,11 +71,12 @@ underscores {"\_\_"}.
 GraphQL supports type name introspection within any selection set in an
 operation, with the single exception of selections at the root of a subscription
 operation. Type name introspection is accomplished via the meta-field
-`__typename: String!` on any Object, Interface, or Union. It returns the name of
-the concrete Object type at that point during execution.
+`__typename: String!` on any Object, Interface, Union, Intersection. It returns
+the name of the concrete Object type at that point during execution.
 
-This is most often used when querying against Interface or Union types to
-identify which actual Object type of the possible types has been returned.
+This is most often used when querying against Interface, Union, or Intersection
+types to identify which actual Object type of the possible types has been
+returned.
 
 As a meta-field, `__typename` is implicit and does not appear in the fields list
 in any defined type.
@@ -140,7 +141,9 @@ type __Type {
   fields(includeDeprecated: Boolean = false): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
-  # must be non-null for INTERFACE and UNION, otherwise null.
+  # must be non-null for INTERSECTION, otherwise null.
+  memberTypes: [__Type!]
+  # must be non-null for INTERFACE, UNION, and INTERSECTION, otherwise null.
   possibleTypes: [__Type!]
   # must be non-null for ENUM, otherwise null.
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
@@ -157,6 +160,7 @@ enum __TypeKind {
   OBJECT
   INTERFACE
   UNION
+  INTERSECTION
   ENUM
   INPUT_OBJECT
   LIST
@@ -210,6 +214,7 @@ enum __DirectiveLocation {
   ARGUMENT_DEFINITION
   INTERFACE
   UNION
+  INTERSECTION
   ENUM
   ENUM_VALUE
   INPUT_OBJECT
@@ -256,6 +261,7 @@ possible value of the `__TypeKind` enum:
 - {"OBJECT"}
 - {"INTERFACE"}
 - {"UNION"}
+- {"INTERSECTION"}
 - {"ENUM"}
 - {"INPUT_OBJECT"}
 - {"LIST"}
@@ -308,6 +314,25 @@ Fields\:
 - `description` may return a String or {null}.
 - `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
+- All other fields must return {null}.
+
+**Intersection**
+
+Intersections are a higher-order abstract type defined by a list of constraining
+abstract types. The list of constraining abstract member types is accessible in
+`memberTypes`. The possible types of an intersection are explicitly listed out
+in `possibleTypes`. Types can be made parts of intersections without
+modification of that type.
+
+Fields\:
+
+- `kind` must return `__TypeKind.INTERSECTION`.
+- `name` must return a String.
+- `description` may return a String or {null}.
+- `memberTypes` returns the list of constraining abstract types defined by the
+  intersection. They must be interface or union types.
+- `possibleTypes` returns the list of types that can be represented within this
+  intersection. They must be object types.
 - All other fields must return {null}.
 
 **Interface**
@@ -470,6 +495,7 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 - {"ARGUMENT_DEFINITION"}
 - {"INTERFACE"}
 - {"UNION"}
+- {"INTERSECTION"}
 - {"ENUM"}
 - {"ENUM_VALUE"}
 - {"INPUT_OBJECT"}

@@ -87,6 +87,9 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+intersection CatOrDogPet = CatOrDog & Pet
+intersection FriendlySmallAnimal = CatOrDog & DogOrHuman
 ```
 
 ## Documents
@@ -330,7 +333,7 @@ must provide the operation name as described in {GetOperation()}.
 
 ### Field Selections
 
-Field selections must exist on Object, Interface, and Union types.
+Field selections must exist on Object, Interface, Union, and Intersection types.
 
 **Formal Specification**
 
@@ -375,10 +378,10 @@ fragment definedOnImplementorsButNotInterface on Pet {
 }
 ```
 
-Because unions do not define fields, fields may not be directly selected from a
-union-typed selection set, with the exception of the meta-field {\_\_typename}.
-Fields from a union-typed selection set must only be queried indirectly via a
-fragment.
+Because unions and intersections do not define fields, fields may not be
+directly selected from a union-typed selection set, with the exception of the
+meta-field {\_\_typename}. Fields from a union or intersection-typed selection
+set must only be queried indirectly via a fragment.
 
 For example the following is valid:
 
@@ -394,10 +397,15 @@ fragment inDirectFieldSelectionOnUnion on CatOrDog {
 }
 ```
 
-But the following is invalid:
+But the following fragments are invalid:
 
 ```graphql counter-example
 fragment directFieldSelectionOnUnion on CatOrDog {
+  name
+  barkVolume
+}
+
+fragment directFieldSelectionOnIntersection on FriendlySmallAnimal {
   name
   barkVolume
 }
@@ -572,7 +580,7 @@ fragment conflictingDifferingResponses on Pet {
 - Let {selectionType} be the result type of {selection}
 - If {selectionType} is a scalar or enum:
   - The subselection set of that selection must be empty
-- If {selectionType} is an interface, union, or object
+- If {selectionType} is an interface, union, intersection, or object
   - The subselection set of that selection must NOT BE empty
 
 **Explanatory Text**
@@ -899,7 +907,8 @@ fragment inlineNotExistingType on Dog {
 **Formal Specification**
 
 - For each {fragment} defined in the document.
-- The target type of fragment must have kind {UNION}, {INTERFACE}, or {OBJECT}.
+- The target type of fragment must have kind {UNION}, {INTERFACE},
+  {INTERSECTION}, or {OBJECT}.
 
 **Explanatory Text**
 
@@ -1093,6 +1102,10 @@ GetPossibleTypes(type):
 - If {type} is an object type, return a set containing {type}
 - If {type} is an interface type, return the set of types implementing {type}
 - If {type} is a union type, return the set of possible types of {type}
+- If {type} is an intersection type:
+  - Let {memberTypes} be the set of abstract types defined by the intersection.
+  - Return the intersection of {GetPossibleTypes(memberType)} for each
+    {memberType} of {memberTypes}.
 
 **Explanatory Text**
 
@@ -1128,8 +1141,9 @@ fragment catInDogFragmentInvalid on Dog {
 
 ##### Abstract Spreads in Object Scope
 
-In scope of an object type, unions or interface spreads can be used if the
-object type implements the interface or is a member of the union.
+In scope of an object type, union, interface, or intersection spreads can be
+used if the object type implements the interface or is a member of the union or
+intersection.
 
 For example
 
@@ -1157,18 +1171,23 @@ fragment catOrDogNameFragment on CatOrDog {
 fragment unionWithObjectFragment on Dog {
   ...catOrDogNameFragment
 }
+
+fragment intersectionWithObjectFragment on FriendlySmallAnimal {
+  ...catOrDogNameFragment
+}
 ```
 
-is valid because {Dog} is a member of the {CatOrDog} union. It is worth noting
-that if one inspected the contents of the {CatOrDogNameFragment} you could note
-that no valid results would ever be returned. However we do not specify this as
-invalid because we only consider the fragment declaration, not its body.
+is valid because {Dog} is a member of the {CatOrDog} union and
+{FriendlySmallAnimal} intersection. It is worth noting that if one inspected the
+contents of the {CatOrDogNameFragment} you could note that no valid results
+would ever be returned. However we do not specify this as invalid because we
+only consider the fragment declaration, not its body.
 
 ##### Object Spreads In Abstract Scope
 
-Union or interface spreads can be used within the context of an object type
-fragment, but only if the object type is one of the possible types of that
-interface or union.
+Union, interface, or intersection spreads can be used within the context of an
+object type fragment, but only if the object type is one of the possible types
+of that interface or union.
 
 For example, the following fragments are valid:
 
@@ -1185,10 +1204,18 @@ fragment catOrDogFragment on CatOrDog {
     meowVolume
   }
 }
+
+fragment friendlySmallAnimalFragment on FriendlySmallAnimal {
+  ... on Dog {
+    barkVolume
+  }
+}
 ```
 
 {petFragment} is valid because {Dog} implements the interface {Pet}.
 {catOrDogFragment} is valid because {Cat} is a member of the {CatOrDog} union.
+{friendlySmallAnimalFragment} is valid because {Dog} is a member of the
+{FriendlySmallAnimal} intersection.
 
 By contrast the following fragments are invalid:
 
@@ -1204,18 +1231,26 @@ fragment humanOrAlienFragment on HumanOrAlien {
     meowVolume
   }
 }
+
+fragment friendlySmallAnimalFragment on FriendlySmallAnimal {
+  ... on Cat {
+    meowVolume
+  }
+}
 ```
 
 {Dog} does not implement the interface {Sentient} and therefore
 {sentientFragment} can never return meaningful results. Therefore the fragment
-is invalid. Likewise {Cat} is not a member of the union {HumanOrAlien}, and it
-can also never return meaningful results, making it invalid.
+is invalid. Likewise {Cat} is not a member of the union {HumanOrAlien} or the
+intersection {FriendlySmallAnimal}, and it can also never return meaningful
+results, making the remaining fragments invalid.
 
 ##### Abstract Spreads in Abstract Scope
 
-Union or interfaces fragments can be used within each other. As long as there
-exists at least _one_ object type that exists in the intersection of the
-possible types of the scope and the spread, the spread is considered valid.
+Union, interface, and intersection fragments can be used within each other. As
+long as there exists at least _one_ object type that exists in the intersection
+of the possible types of the scope and the spread, the spread is considered
+valid.
 
 So for example
 

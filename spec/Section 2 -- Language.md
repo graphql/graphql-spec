@@ -528,8 +528,8 @@ Fragments are the primary unit of composition in GraphQL.
 
 Fragments allow for the reuse of common repeated selections of fields, reducing
 duplicated text in the document. Inline Fragments can be used directly within a
-selection to condition upon a type condition when querying against an interface
-or union.
+selection to condition upon a type condition when querying against an interface,
+union, or intersection.
 
 For example, if we wanted to fetch some common information about mutual friends
 as well as friends of some user:

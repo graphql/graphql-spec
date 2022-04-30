@@ -343,6 +343,19 @@ UnionTypeExtension :
 - extend union Name Directives[Const]? UnionMemberTypes
 - extend union Name Directives[Const]
 
+IntersectionTypeDefinition : Description? intersection Name Directives[Const]?
+IntersectionMemberTypes?
+
+UnionMemberTypes :
+
+- IntersectionMemberTypes | NamedType
+- = `|`? NamedType
+
+IntersectionTypeExtension :
+
+- extend intersection Name Directives[Const]? IntersectionMemberTypes
+- extend intersection Name Directives[Const]
+
 EnumTypeDefinition :
 
 - Description? enum Name Directives[Const]? EnumValuesDefinition
@@ -402,6 +415,7 @@ TypeSystemDirectiveLocation : one of
 - `ARGUMENT_DEFINITION`
 - `INTERFACE`
 - `UNION`
+- `INTERSECTION`
 - `ENUM`
 - `ENUM_VALUE`
 - `INPUT_OBJECT`

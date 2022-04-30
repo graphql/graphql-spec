@@ -261,6 +261,7 @@ TypeDefinition :
 - ObjectTypeDefinition
 - InterfaceTypeDefinition
 - UnionTypeDefinition
+- IntersectionTypeDefinition
 - EnumTypeDefinition
 - InputObjectTypeDefinition
 
@@ -276,7 +277,7 @@ Scalars and Enums form the leaves in response trees; the intermediate levels are
 `Object` types, which define a set of fields, where each field is another type
 in the system, allowing the definition of arbitrary type hierarchies.
 
-GraphQL supports two abstract types: interfaces and unions.
+GraphQL supports three abstract types: interfaces, unions and intersections.
 
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
@@ -286,6 +287,11 @@ implementing Object type during execution.
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
+
+An `Intersection` defines a list of constraining abstract types. If a field
+claims it returns an Intersection type, it will return only types that are
+contained within all of the Intersections's Unions and types that implement all
+of the Intersection's Interfaces.
 
 Finally, oftentimes it is useful to provide complex structs as inputs to GraphQL
 field arguments or variables; the `Input Object` type allows the schema to
@@ -314,9 +320,9 @@ to arguments and variables as well as the values output by fields. These two
 uses categorize types as _input types_ and _output types_. Some kinds of types,
 like Scalar and Enum types, can be used as both input types and output types;
 other kinds of types can only be used in one or the other. Input Object types
-can only be used as input types. Object, Interface, and Union types can only be
-used as output types. Lists and Non-Null types may be used as input types or
-output types depending on how the wrapped type may be used.
+can only be used as input types. Object, Interface, Union, and Intersection
+types can only be used as output types. Lists and Non-Null types may be used as
+input types or output types depending on how the wrapped type may be used.
 
 IsInputType(type) :
 
@@ -332,7 +338,7 @@ IsOutputType(type) :
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
   - Return IsOutputType({unwrappedType})
-- If {type} is a Scalar, Object, Interface, Union, or Enum type:
+- If {type} is a Scalar, Object, Interface, Union, Intersection, or Enum type:
   - Return {true}
 - Return {false}
 
@@ -706,8 +712,8 @@ Must only yield exactly that subset:
 ```
 
 A field of an Object type may be a Scalar, Enum, another Object type, an
-Interface, or a Union. Additionally, it may be any wrapping type whose
-underlying base type is one of those five.
+Interface, a Union, or an Intersection. Additionally, it may be any wrapping
+type whose underlying base type is one of those five.
 
 For example, the `Person` type might include a `relationship`:
 
@@ -928,7 +934,13 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
 5. If {fieldType} is an Object or Interface type and {implementedFieldType} is
    an Interface type and {fieldType} declares it implements
    {implementedFieldType} then return {true}.
-6. Otherwise return {false}.
+6. If {fieldType} is an IntersectionType and {implementedFieldType} is an Union
+   type and {fieldType} is a member type of {implementedFieldType} then return
+   {true}.
+7. If {fieldType} is an IntersectionType and {implementedFieldType} is an
+   Interface type and at least one of the members of {fieldType} declares it
+   implements {implementedFieldType} then return {true}.
+8. Otherwise return {false}.
 
 ### Field Arguments
 
@@ -977,7 +989,7 @@ May return the result:
 ```
 
 The type of an object field argument must be an input type (any type except an
-Object, Interface, or Union type).
+Object, Interface, Union, or Intersection type).
 
 ### Field Deprecation
 
@@ -1054,8 +1066,8 @@ objects and interfaces can then implement these interfaces which requires that
 the implementing type will define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
-their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
-type whose base type is one of those five.
+their type can be Scalar, Object, Enum, Interface, Union, or Intersection, or
+any wrapping type whose base type is one of those five.
 
 For example, an interface `NamedEntity` may describe a required field and types
 such as `Person` or `Business` may then implement this interface to guarantee
@@ -1414,6 +1426,181 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the original Union type.
 5. Any non-repeatable directives provided must not already apply to the original
    Union type.
+
+## Intersections
+
+IntersectionTypeDefinition : Description? intersection Name Directives[Const]?
+IntersectionMemberTypes?
+
+IntersectionMemberTypes :
+
+- IntersectionMemberTypes | NamedType
+- = `|`? NamedType
+
+GraphQL Intersections are higher order abstract types that represent objects
+satisfying the requirements of all of the Intersection's abstract member types.
+Intersections combine the features of interfaces and unions; the objects
+represented by an Intersection must implement all of the Intersection's
+interfaces and must also be included within all of its unions.
+
+Just as with unions, intersections do not directly define any fields, so **no**
+fields may be queried on this type without the use of type refining fragments or
+inline fragments (with the exception of the meta-field {\_\_typename}).
+
+For example, we might define the following types:
+
+```graphql example
+interface Link {
+  link: Downloadable
+}
+
+type SearchResultLink implements Link {
+  link: DownloadableSearchResult
+}
+
+interface Downloadable {
+  url: string
+}
+
+union SearchResult = Photo | Person
+
+intersection DownloadableSearchResult = SearchResult & Downloadable
+
+type Person implements Downloadable {
+  url: String
+  name: String
+  age: Int
+}
+
+type Photo implements Downloadable {
+  url: String
+  height: Int
+  width: Int
+}
+
+type SearchQuery {
+  firstDownloadableSearchResult: DownloadableSearchResult
+}
+```
+
+Because intersection `DownloadableSearchResult` includes interface
+`Downloadable` as a constraining member type, the possible types of the
+intersection implement the `Downloadable` interface. The `link` field within
+`SearchResultLink` therefore implements the `link` field of interface `Link`.
+
+Just as with unions, the below could be ambiguous and is invalid.
+
+```graphql counter-example
+{
+  firstDownloadableSearchResult {
+    url
+    name
+    height
+  }
+}
+```
+
+A valid operation includes typed fragments (in this example, inline fragments):
+
+```graphql example
+{
+  firstDownloadableSearchResult {
+    ... on Downloadable {
+      url
+    }
+    ... on Person {
+      name
+    }
+    ... on Photo {
+      height
+    }
+  }
+}
+```
+
+Intersection members may be defined with an optional leading `&` character to
+aid formatting when representing a longer list of constraining types:
+
+```raw graphql example
+intersection DownloadableSearchResult =
+  & Downloadable
+  & SearchResult
+```
+
+Interfaces that are transitively included within an intersection (interfaces
+implemented by an included interface) must also be included within the
+intersection. For example, `AuthoredPublicContent` cannot include `Authored`
+without also including `Node`:
+
+```raw graphql example
+interface Node {
+  id: ID!
+}
+
+interface Authored implements Node {
+  author: String
+}
+
+union PublicContent = Document | Image
+
+intersection AuthoredPublicContent = PublicContent & Authored & Node
+```
+
+**Result Coercion**
+
+The intersection type should have some way of determining which object a given
+result corresponds to. Once it has done so, the result coercion of the
+intersection is the same as the result coercion of the object.
+
+**Input Coercion**
+
+Intersections are never valid inputs.
+
+**Type Validation**
+
+Intersection types have the potential to be invalid if incorrectly defined.
+
+1. An Intersection type must include one or more unique member types.
+2. The member types of a Intersection type must all be Interface or Union base
+   types; Scalar, Enum, Object and other Intersection types must not be member
+   types of an Intersection. Similarly, wrapping types must not be member types
+   of an Intersection.
+3. For each member type of an Intersection type:
+   1. Let this member type be {memberType}.
+   2. If {memberType} is an interface, all interfaces that {memberType} declares
+      it implements must also be member types of the Intersection.
+
+### Intersection Extensions
+
+IntersectionTypeExtension :
+
+- extend intersection Name Directives[Const]? IntersectionMemberTypes
+- extend intersection Name Directives[Const]
+
+Intersection type extensions are used to represent an intersection type which
+has been extended from some original intersection type. Similar to unions, this
+might by utilized by a GraphQL service which is itself an extension of another
+GraphQL service.
+
+**Type Validation**
+
+Intersection type extensions have the potential to be invalid if incorrectly
+defined.
+
+1. The named type must already be defined and must be a Intersection type.
+2. The member types of a Intersection type must all be Interface or Union base
+   types; Scalar, Enum, Object and other Intersection types must not be member
+   types of an Intersection. Similarly, wrapping types must not be member types
+   of an Intersection.
+3. For each member type of an Intersection type:
+   1. Let this member type be {memberType}.
+   2. If {memberType} is an interface, all interfaces that {memberType} declares
+      it implements must also be member types of the Intersection.
+4. All member types of an Intersection type extension must be unique.
+5. All member types of an Intersection type extension must not already be a
+   member of the original Intersection type.
+6. Any non-repeatable directives provided must not already apply to the original
+   Intersection type.
 
 ## Enums
 
@@ -1876,6 +2063,7 @@ TypeSystemDirectiveLocation : one of
 - `ARGUMENT_DEFINITION`
 - `INTERFACE`
 - `UNION`
+- `INTERSECTION`
 - `ENUM`
 - `ENUM_VALUE`
 - `INPUT_OBJECT`

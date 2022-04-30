@@ -551,7 +551,7 @@ DoesFragmentTypeApply(objectType, fragmentType):
 - If {fragmentType} is an Interface Type:
   - if {objectType} is an implementation of {fragmentType}, return {true}
     otherwise return {false}.
-- If {fragmentType} is a Union:
+- If {fragmentType} is a Union or Intersection:
   - if {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
@@ -680,10 +680,10 @@ CompleteValue(fieldType, fields, result, variableValues):
     {resultItem} is each item in {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
-- If {fieldType} is an Object, Interface, or Union type:
+- If {fieldType} is an Object, Interface, Union, or Intersection type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
-  - Otherwise if {fieldType} is an Interface or Union type.
+  - Otherwise if {fieldType} is an Interface, Union, or Intersection type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
   - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
@@ -716,10 +716,10 @@ and output of {CoerceResult()} must not be {null}.
 
 **Resolving Abstract Types**
 
-When completing a field with an abstract return type, that is an Interface or
-Union return type, first the abstract type must be resolved to a relevant Object
-type. This determination is made by the internal system using whatever means
-appropriate.
+When completing a field with an abstract return type, that is an Interface,
+Union or Intersection return type, first the abstract type must be resolved to a
+relevant Object type. This determination is made by the internal system using
+whatever means appropriate.
 
 Note: A common method of determining the Object type for an {objectValue} in
 object-oriented environments, such as Java or C#, is to use the class name of
