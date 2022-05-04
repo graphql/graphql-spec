@@ -995,6 +995,22 @@ type ExampleType {
 }
 ```
 
+### Experimental fields
+
+Fields in an object may be marked as experimental as deemed necessary by the
+application. Experimental fields can be included in selection sets but might 
+be changed in a backward incompatible manner. The fields should be
+appropriately treated in documentation and tooling.
+
+When using the type system definition language, `@experimental` directives are
+used to indicate that a field is experimental:
+
+```graphql example
+type ExampleType {
+  newField: String @experimental
+}
+```
+
 ### Object Extensions
 
 ObjectTypeExtension :
@@ -1895,6 +1911,10 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
 
+GraphQL implementations that support the type system definition language must
+provide the `@experimental` directive if representing experimental portions of the
+schema.
+
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
@@ -2064,6 +2084,26 @@ In this example type definition, `oldField` is deprecated in favor of using
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
+}
+```
+
+### @experimental
+
+```graphql
+directive @experimental on FIELD_DEFINITION | ENUM_VALUE
+```
+
+The `@experimental` _built-in directive_ is used within the type system definition
+language to indicate experimental portions of a GraphQL service's schema, such as
+experimental fields on a type or experimental enum values.
+
+In this example type definition, `newField` is experimental and might be changed in
+a backward incompatible way. For an example, it could be renamed and/or its type
+may be changed.
+
+```graphql example
+type ExampleType {
+  newField: String @experimental
 }
 ```
 
