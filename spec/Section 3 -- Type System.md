@@ -2094,25 +2094,25 @@ type ExampleType {
 ### @experimental
 
 ```graphql
-directive @experimental(reason: String = "Experimental") on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+directive @experimental(
+  reason: String = "Experimental"
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
 The `@experimental` _built-in directive_ is used within the type system
 definition language to indicate experimental portions of a GraphQL service's
-schema, such as experimental fields on a type, arguments on a field, input fields on an input
-type, or values of an enum type.
+schema, such as experimental fields on a type, arguments on a field, input
+fields on an input type, or values of an enum type.
 
-In this example type definition, `newField` and `newArg` are experimental and might be changed
-in a backward incompatible way. For an example, it could be renamed and/or its
-type may be changed.
+In this example type definition, `newField` and `newArg` are experimental and
+might be changed in a backward incompatible way. For an example, it could be
+renamed and/or its type may be changed.
 
 ```graphql example
 type ExampleType {
   newField: String @experimental
 
-  anotherField(
-    newArg: String @experimental
-  ): String
+  anotherField(newArg: String @experimental): String
 }
 ```
 
@@ -2121,9 +2121,7 @@ default) arguments or input object field definitions.
 
 ```graphql counter-example
 type ExampleType {
-  invalidField(
-    newArg: String! @experimental
-  ): String
+  invalidField(newArg: String! @experimental): String
 }
 ```
 
