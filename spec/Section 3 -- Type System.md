@@ -879,6 +879,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          {"\_\_"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If argument type is Non-Null and a default value is not defined:
+         - The `@experimental` directive shall not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1668,6 +1670,8 @@ input ExampleInputObject {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+   4. If input field type is Non-Null and a default value is not defined:
+      - The `@experimental` directive shall not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -2090,20 +2094,36 @@ type ExampleType {
 ### @experimental
 
 ```graphql
-directive @experimental on FIELD_DEFINITION | ENUM_VALUE
+directive @experimental(reason: String = "Experimental") on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
 The `@experimental` _built-in directive_ is used within the type system
 definition language to indicate experimental portions of a GraphQL service's
-schema, such as experimental fields on a type or experimental enum values.
+schema, such as experimental fields on a type, arguments on a field, input fields on an input
+type, or values of an enum type.
 
-In this example type definition, `newField` is experimental and might be changed
+In this example type definition, `newField` and `newArg` are experimental and might be changed
 in a backward incompatible way. For an example, it could be renamed and/or its
 type may be changed.
 
 ```graphql example
 type ExampleType {
   newField: String @experimental
+
+  anotherField(
+    newArg: String @experimental
+  ): String
+}
+```
+
+The `@experimental` directive must not appear on required (non-null without a
+default) arguments or input object field definitions.
+
+```graphql counter-example
+type ExampleType {
+  invalidField(
+    newArg: String! @experimental
+  ): String
 }
 ```
 
