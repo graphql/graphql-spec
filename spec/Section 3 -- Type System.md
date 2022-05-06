@@ -2180,14 +2180,3 @@ input UserUniqueCondition @oneOf {
   organizationAndEmail: OrganizationAndEmailInput
 }
 ```
-
-```graphql example
-type Query {
-  findUser(
-    byID: ID
-    byUsername: String
-    byEmail: String
-    byRegistrationNumber: Int
-  ): User @oneOf
-}
-```
