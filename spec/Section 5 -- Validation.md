@@ -565,16 +565,16 @@ fragment conflictingDifferingResponses on Pet {
 ```
 
 The same is true if a field is designated `Non-Nullable` in an operation. In
-this case, `someValue` could be either a `String` or a `String!` which are two
+this case, `nickname` could be either a `String` or a `String!` which are two
 different types and therefore can not be merged:
 
 ```graphql counter-example
 fragment conflictingDifferingResponses on Pet {
   ... on Dog {
-    someValue: nickname
+    nickname
   }
   ... on Cat {
-    someValue: nickname!
+    nickname!
   }
 }
 ```
@@ -587,8 +587,10 @@ fragment conflictingDifferingResponses on Pet {
   - Let {fieldDef} be the definition of {field}
   - Let {fieldType} be the type of {fieldDef}
   - Let {requiredStatus} be the required status of {field}
-  - Let {designatorDepth} be the number of square bracket pairs in
+  - Let {designatorDepth} be the number of ListNullability operators in
     {requiredStatus}
+  - If {designatorDepth} is 0
+    - return true
   - Let {typeDepth} be the number of list dimensions in {fieldType}
   - If {typeDepth} equals {designatorDepth} or {designatorDepth} equals 0 return
     true
@@ -599,7 +601,7 @@ fragment conflictingDifferingResponses on Pet {
 List fields can be marked with nullability designators that look like `[?]!` to
 indicate the nullability of the list's elements and the nullability of the list
 itself. For multi-dimensional lists, the designator would look something like
-`[[[!]?]]!`. If the designator is not a simple `!` or `?`, then the number of
+`[[[!]?]]!`. If any `ListNullability` operators are used then the number of
 dimensions of the designator are required to match the number of dimensions of
 the field's type. If the two do not match then a validation error is thrown.
 

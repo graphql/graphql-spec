@@ -162,8 +162,15 @@ Alias : Name :
 
 Nullability :
 
-- !
-- ?
+- ListNullability NullabilityDesignator?
+- NullabilityDesignator
+
+ListNullability : `[` Nullability? `]`
+
+NullabilityDesignator :
+
+- `!`
+- `?`
 
 Arguments[Const] : ( Argument[?Const]+ )
 

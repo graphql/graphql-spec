@@ -564,30 +564,49 @@ Each field requested in the grouped field set that is defined on the selected
 objectType will result in an entry in the response map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
-set or coercing a scalar value.
+set or coercing a scalar value. `ccnPropagationPairs` is an unordered map where
+the keys are paths of required fields, and values are paths of the nearest
+optional parent to those required fields. `currentPropagationPath` starts as an
+empty path to indicate that `null` propagation should continue until it hits
+`data` if there is no optional field.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+currentPropagationPath, ccnPropagationPairs):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
 - Let {requiredStatus} be the required status of {field}.
+- Let {newPropagationPath} be {path} if {requiredStatus} is optional, otherwise
+  let {newPropagationPath} be {currentPropagationPath}
+- If {requiredStatus} is optional:
+  - Let {newPropagationPath} be {path}
+- If {requiredStatus} is required:
+  - Set {path} to {newPropagationPath} in {ccnPropagationPairs}
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Let {modifiedFieldType} be {ModifiedOutputType(fieldType, requiredStatus)}.
+- Let {modifiedFieldType} be {ApplyRequiredStatus(fieldType, requiredStatus)}.
 - Return the result of {CompleteValue(modifiedFieldType, fields, resolvedValue,
-  variableValues)}.
+  variableValues, newPropagationPath, ccnPropagationPairs)}.
 
 ## Accounting For Client Controlled Nullability Designators
 
 A field can have its nullability status set either in its service's schema, or a
-nullability designator (! or ?) can override it for the duration of an
+nullability designator (`!` or `?`) can override it for the duration of an
 execution. In order to determine a field's true nullability, both are taken into
-account and a final type is produced.
+account and a final type is produced. A field marked with a `!` is called a
+"required field" and a field marked with a `?` is called an optional field.
 
-ModifiedOutputType(outputType, requiredStatus):
+ApplyRequiredStatus(type, requiredStatus):
 
+- If there is no {requiredStatus}:
+  - return {type}
+- If {requiredStatus} is not a list:
+  - If {requiredStatus} is required:
+    - return a `Non-Null` version of {type}
+  - If {requiredStatus} is optional:
+    - return a nullable version of {type}
 - Create a {stack} initially containing {type}.
 - As long as the top of {stack} is a list:
   - Let {currentType} be the top item of {stack}.
@@ -616,8 +635,8 @@ ModifiedOutputType(outputType, requiredStatus):
       - If the nullable type of {listType} is not a list
         - Pop the top of {stack} and set {listType} to the result
       - If {listType} does not exist:
-        - Throw an error because {requiredStatus} had more list dimensions than
-          {outputType} and is invalid.
+        - Raise a field error because {requiredStatus} had more list dimensions
+          than {outputType} and is invalid.
       - If {resultingType} exist:
         - If {listType} is Non-Nullable:
           - Set {resultingType} to a Non-Nullable list where the element is
@@ -627,11 +646,9 @@ ModifiedOutputType(outputType, requiredStatus):
         - Continue onto the next node.
       - Set {resultingType} to {listType}
 - If {stack} is not empty:
-  - Throw an error because {requiredStatus} had fewer list dimensions than
+  - Raise a field error because {requiredStatus} had fewer list dimensions than
     {outputType} and is invalid.
 - Return {resultingType}.
-- Otherwise:
-  - Return {outputType}.
 
 ### Coercing Field Arguments
 
@@ -835,8 +852,9 @@ response.
 
 If the result of resolving a field is {null} (either because the function to
 resolve the field returned {null} or because a field error was raised), and the
-{ModifiedOutputType} of that field is of a `Non-Null` type, then a field error
-is raised. The error must be added to the {"errors"} list in the response.
+type of the field after {ApplyRequiredStatus} has been applied to it is of a
+`Non-Null` type, then a field error is raised. The error must be added to the
+{"errors"} list in the response.
 
 If the field returns {null} because of a field error which has already been
 added to the {"errors"} list in the response, the {"errors"} list must not be
@@ -845,8 +863,11 @@ field.
 
 Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
-to {null}, otherwise if its {ModifiedOutputType} is a `Non-Null` type, the field
-error is further propagated to its parent field.
+to {null}, otherwise if it is a `Non-Null` type, the field error is further
+propagated to its parent field.
+
+If a required field resolves to {null}, propagation instead happens until an
+optional field is found.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
