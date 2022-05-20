@@ -129,6 +129,39 @@ extend type Dog {
 
 ## Operations
 
+### Operation Types
+
+**Formal Specification**
+
+- For each {operation} in the document.
+- Let {operationType} be the type of {operation}
+- Let {operationRootType} be the root type in {schema} for {operationType}.
+- {operationRootType} must exist.
+
+**Explanatory Text**
+
+The root type for a given operation must be defined within the schema.
+
+For example the following document is valid:
+
+```graphql example
+query getDogName {
+  dog {
+    name
+  }
+}
+```
+
+While the following document is invalid:
+
+```graphql counter-example
+mutation getDogName {
+  dog {
+    name
+  }
+}
+```
+
 ### Named Operation Definitions
 
 #### Operation Name Uniqueness
