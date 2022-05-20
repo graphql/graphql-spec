@@ -129,7 +129,7 @@ extend type Dog {
 
 ## Operations
 
-### Operation Types
+### Operation Type Existence
 
 **Formal Specification**
 
