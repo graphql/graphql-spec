@@ -330,15 +330,26 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
+- If {objectType} is a OneOf Object type:
+  - Let {oneOfResult} be {ResolveOneOf(objectType, objectValue)}.
+  - Let {oneOfFieldName} be the value for {fieldName} in {oneOfResult}.
+  - Let {oneOfFieldValue} be the value for {fieldValue} in {oneOfResult}.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
+    - If {oneOfFieldName} is defined:
+      - If {fieldName} is equal to {oneOfFieldName}:
+        - Let {responseValue} be {CompleteValue(fieldType, fields,
+          oneOfFieldValue, variableValues)}.
+        - If {responseValue} is null, raise a field error.
+        - Set {responseValue} as the value for {responseKey} in {resultMap}.
+    - Otherwise:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fields, variableValues)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -730,6 +741,26 @@ ResolveAbstractType(abstractType, objectValue):
 - Return the result of calling the internal method provided by the type system
   for determining the Object type of {abstractType} given the value
   {objectValue}.
+
+**Resolving OneOf Field**
+
+When completing a field with a OneOf Object type return type, we must determine
+which field was returned and its value. This determination is made by the
+internal system using whatever means appropriate.
+
+Note: A common method of determining the field to use on a OneOf Object type for
+an {objectValue} in object-oriented environments, such as Java or C#, is to look
+for the only non-null field key on the {objectValue}.
+
+ResolveOneOf(oneOfObjectType, objectValue):
+
+- Call the internal method provided by the type system for determining the
+  {fieldName} and {fieldValue} of the OneOf Object type of {oneOfObjectType}
+  given the value {objectValue}.
+- If {fieldName} is not the name of a field in {oneOfObjectType}, raise a field
+  error.
+- If {fieldValue} is null, raise a field error.
+- Return an unordered map containing {fieldName} and {fieldValue}.
 
 **Merging Selection Sets**
 

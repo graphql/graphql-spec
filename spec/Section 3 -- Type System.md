@@ -852,6 +852,29 @@ Produces the ordered result:
 }
 ```
 
+**OneOf Objects**
+
+OneOf Objects are a special variant of Objects where the type system asserts
+that exactly one of the fields will be present and non-null, all others being
+omitted. This is useful for representing situations where an output may be one
+of many different options, and is more powerful than interfaces and unions
+because it can represent lists and leaves too.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that an Object is a OneOf Object (and thus exactly one of its field
+will be provided and non-null):
+
+```graphql
+type QuickReply @oneOf {
+  approve: Boolean
+  emojis: [Emoji!]
+  autoReply: AutoReply
+}
+```
+
+In schema introspection, the `__Type.oneOf` field will return {true} for OneOf
+Objects, and {false} for all other Objects.
+
 **Result Coercion**
 
 Determining the result of coercing an object is the heart of the GraphQL
@@ -884,6 +907,11 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
       {IsValidImplementation(objectType, interfaceType)} must be {true}.
+5. If the Object type is a OneOf Object type then:
+   1. The OneOf Object type must not declare that it implements any interfaces.
+   2. For each field of the OneOf Object type:
+      1. The field must be nullable.
+      2. The field must not accept arguments.
 
 IsValidImplementation(type, implementedType):
 
@@ -1039,6 +1067,11 @@ Object type extensions have the potential to be invalid if incorrectly defined.
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
    implements.
+7. If the named type is a OneOf Object type:
+   1. Interfaces must no be provided.
+   2. For each field of the Object type extension:
+      1. The field must be nullable.
+      2. The field must not accept arguments.
 
 ## Interfaces
 
@@ -1974,7 +2007,8 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
 GraphQL implementations that support the type system definition language should
-provide the `@oneOf` directive if representing OneOf Input Objects.
+provide the `@oneOf` directive if representing OneOf Input Objects and/or OneOf
+Objects.
 
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
@@ -2167,16 +2201,21 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ### @oneOf
 
 ```graphql
-directive @oneOf on INPUT_OBJECT
+directive @oneOf on INPUT_OBJECT | OBJECT
 ```
 
 The `@oneOf` directive is used within the type system definition language to
-indicate an Input Object is a OneOf Input Object.
+indicate an Input Object is a OneOf Input Object or an Object is a OneOf Object.
 
 ```graphql example
 input UserUniqueCondition @oneOf {
   id: ID
   username: String
   organizationAndEmail: OrganizationAndEmailInput
+}
+type QuickReply @oneOf {
+  approve: Boolean
+  emojis: [Emoji!]
+  autoReply: AutoReply
 }
 ```

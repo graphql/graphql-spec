@@ -150,7 +150,7 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
-  # should be non-null for INPUT_OBJECT only
+  # should be non-null for INPUT_OBJECT and OBJECT only
   oneOf: Boolean
 }
 
@@ -295,6 +295,8 @@ Fields\:
     {true}, deprecated fields are also returned.
 - `interfaces` must return the set of interfaces that an object implements (if
   none, `interfaces` must return the empty set).
+- `oneOf` must return {true} when representing a OneOf Object, {false}
+  otherwise.
 - All other fields must return {null}.
 
 **Union**
