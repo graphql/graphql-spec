@@ -340,15 +340,15 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - If {oneOfFieldName} is defined:
-      - If {fieldName} is equal to {oneOfFieldName}:
-        - Let {responseValue} be {CompleteValue(fieldType, fields,
-          oneOfFieldValue, variableValues)}.
-        - If {responseValue} is null, raise a field error.
-        - Set {responseValue} as the value for {responseKey} in {resultMap}.
-    - Otherwise:
+    - If {oneOfFieldName} is not defined, or {fieldName} relates to a
+      meta-field:
       - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
         fields, variableValues)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+    - Otherwise, if {fieldName} is equal to {oneOfFieldName}:
+      - Let {responseValue} be {CompleteValue(fieldType, fields,
+        oneOfFieldValue, variableValues)}.
+      - If {responseValue} is null, raise a field error.
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Return {resultMap}.
 
