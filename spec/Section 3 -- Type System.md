@@ -1305,16 +1305,17 @@ UnionMemberTypes :
 - = `|`? NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL Object
-types, but provides for no guaranteed fields between those types. They also
-differ from interfaces in that Object types declare what interfaces they
-implement, but are not aware of what unions contain them.
+types. They differ from interfaces in that Object types declare what interfaces
+they implement, but are not aware of what unions contain them.
 
 With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments must be
-used. This is the same as for unions, but unions do not define any fields, so
-**no** fields may be queried on this type without the use of type refining
-fragments or inline fragments (with the exception of the meta-field
-{\_\_typename}).
+used. This is the same as for unions, but unions do not directly define any
+fields, so the only fields that may be queried on a Union are the meta-field
+{\_\_typename} and the fields of the interfaces that the Union declares it
+implements (see
+[Unions Implementing Interfaces](#sec-Unions.Unions-Implementing-Interfaces)).
+Otherwise, type refining fragments or inline fragments must be used.
 
 For example, we might define the following types:
 
@@ -1396,6 +1397,22 @@ type Photo implements Resource {
   url: String
   height: Int
   width: Int
+}
+```
+
+The following query would then be valid:
+
+```graphql example
+{
+  firstSearchResult {
+    url
+    ... on Article {
+      title
+    }
+    ... on Photo {
+      height
+    }
+  }
 }
 ```
 
