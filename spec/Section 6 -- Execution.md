@@ -742,7 +742,7 @@ ResolveAbstractType(abstractType, objectValue):
   for determining the Object type of {abstractType} given the value
   {objectValue}.
 
-**Resolving OneOf Field**
+**Resolving OneOf Fields**
 
 When completing a field with a OneOf Object type return type, we must determine
 which field was returned and its value. This determination is made by the
