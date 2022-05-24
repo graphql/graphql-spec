@@ -1,7 +1,7 @@
 # Language
 
 Clients use the GraphQL query language to make requests to a GraphQL service. We
-refer to these request sources as documents. A document may contain operations
+refer to these _request_ sources as documents. A document may contain operations
 (queries, mutations, and subscriptions) as well as fragments, a common unit of
 composition allowing for data requirement reuse.
 
