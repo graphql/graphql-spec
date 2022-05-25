@@ -151,7 +151,7 @@ type __Type {
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
   # should be non-null for INPUT_OBJECT only
-  oneOf: Boolean
+  isOneOf: Boolean
 }
 
 enum __TypeKind {
@@ -369,7 +369,7 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
-- `oneOf` must return {true} when representing a OneOf Input Object, {false}
+- `isOneOf` must return {true} when representing a OneOf Input Object, {false}
   otherwise.
 - All other fields must return {null}.
 

@@ -1539,7 +1539,7 @@ input UserUniqueCondition @oneOf {
 }
 ```
 
-In schema introspection, the `__Type.oneOf` field will return {true} for OneOf
+In schema introspection, the `__Type.isOneOf` field will return {true} for OneOf
 Input Objects, and {false} for all other Input Objects.
 
 **Circular References**
