@@ -1639,15 +1639,15 @@ Further, if the input object is a OneOf Input Object, the following additional
 rules apply:
 
 - If the input object literal or unordered map does not contain exactly one
-  entry, an error must be thrown.
+  entry an error must be thrown.
 
-- If the single entry in the input object literal or unordered map is {null}, an
-  error must be thrown.
+- Within the input object literal or unordered map, if the single entry is
+  {null} an error must be thrown.
 
-- If the coerced unordered map does not contain exactly one entry, an error must
+- If the coerced unordered map does not contain exactly one entry an error must
   be thrown.
 
-- If the value of the single entry in the coerced unordered map is {null}, an
+- If the value of the single entry in the coerced unordered map is {null} an
   error must be thrown.
 
 Following are examples of input coercion for an input object type with a
