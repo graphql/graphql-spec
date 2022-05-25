@@ -1693,6 +1693,7 @@ input ExampleInputTagged @oneOf {
 | ------------------------ | ----------------------- | --------------------------------------------------- |
 | `{ a: "abc", b: 123 }`   | `{}`                    | Error: Exactly one key must be specified            |
 | `{ a: null, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
+| `{ a: null }`            | `{}`                    | Error: Value for member field {a} must be non-null  |
 | `{ b: 123 }`             | `{}`                    | `{ b: 123 }`                                        |
 | `{ a: $var, b: 123 }`    | `{ var: null }`         | Error: Exactly one key must be specified            |
 | `{ a: $var, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
