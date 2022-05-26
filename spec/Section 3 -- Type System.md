@@ -1751,7 +1751,9 @@ defined.
    the original Input Object.
 4. Any non-repeatable directives provided must not already apply to the original
    Input Object type.
-5. If the original Input Object is a OneOf Input Object then:
+5. The `@oneOf` directive must not be provided by an Input Object type
+   extension.
+6. If the original Input Object is a OneOf Input Object then:
    1. All fields of the Input Object type extension must be nullable.
    2. All fields of the Input Object type extension must not have default
       values.
