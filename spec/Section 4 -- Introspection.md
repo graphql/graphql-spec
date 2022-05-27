@@ -140,6 +140,8 @@ type __Type {
   fields(includeDeprecated: Boolean = false): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
+  # must be non-null for UNION, otherwise null.
+  memberTypes: [__Type!]
   # must be non-null for INTERFACE and UNION, otherwise null.
   possibleTypes: [__Type!]
   # must be non-null for ENUM, otherwise null.
@@ -297,7 +299,8 @@ Fields\:
 
 **Union**
 
-Unions are an abstract type where no common fields are declared. The possible
+Unions are an abstract type where no common fields are declared. The declared
+member types of a union are accessible via `memberTypes`. The possible Object
 types of a union are explicitly listed out in `possibleTypes`. Types can be made
 parts of unions without modification of that type.
 
@@ -306,8 +309,9 @@ Fields\:
 - `kind` must return `__TypeKind.UNION`.
 - `name` must return a String.
 - `description` may return a String or {null}.
-- `possibleTypes` returns the list of types that can be represented within this
-  union. They must be object types.
+- `memberTypes` returns the list of member types declared by the union.
+- `possibleTypes` returns the list of Object types that can be represented
+  within this union.
 - All other fields must return {null}.
 
 **Interface**

@@ -923,8 +923,8 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
    3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
 3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
 4. If {fieldType} is an Object type and {implementedFieldType} is a Union type
-   and {fieldType} is a possible type of {implementedFieldType} then return
-   {true}.
+   and {fieldType} is a possible type or member type of {implementedFieldType}
+   then return {true}.
 5. If {fieldType} is an Object or Interface type and {implementedFieldType} is
    an Interface type and {fieldType} declares it implements
    {implementedFieldType} then return {true}.
@@ -1302,8 +1302,8 @@ UnionMemberTypes :
 - = `|`? NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL Object
-types, but provides for no guaranteed fields between those types. They also
-differ from interfaces in that Object types declare what interfaces they
+types, providing for no guaranteed fields between those types. They differ from
+interfaces in that Object and Interface types declare what interfaces they
 implement, but are not aware of what unions contain them.
 
 With interfaces and objects, only those fields defined on the type can be
@@ -1370,6 +1370,61 @@ union SearchResult =
   | Person
 ```
 
+**Unions of Interfaces and Unions**
+
+A Union may declare interfaces or other unions as member types. The parent
+Union's possible types transitively include all the possible types of any
+abstract member types. For example, the following types are valid:
+
+```graphql example
+union SearchResult = Photo | Named
+
+interface Named {
+  name: String
+}
+
+type Person {
+  name: String
+  age: Int
+}
+
+union Item = Photo | Video
+
+type Photo {
+  height: Int
+  width: Int
+}
+
+type Video {
+  codec: String
+}
+
+type SearchQuery {
+  firstSearchResult: SearchResult
+}
+```
+
+And, given the above, the following operation is valid:
+
+```graphql example
+{
+  firstSearchResult {
+    ... on Named {
+      name
+    }
+    ... on Person {
+      age
+    }
+    ... on Photo {
+      height
+    }
+    ... on Video {
+      codec
+    }
+  }
+}
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1385,8 +1440,8 @@ Unions are never valid inputs.
 Union types have the potential to be invalid if incorrectly defined.
 
 1. A Union type must include one or more unique member types.
-2. The member types of a Union type must all be Object base types; Scalar,
-   Interface and Union types must not be member types of a Union. Similarly,
+2. The member types of a Union type must all be Object, Interface or Union
+   types; Scalar and Enum types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
 
 ### Union Extensions
@@ -1406,9 +1461,9 @@ another GraphQL service.
 Union type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Union type.
-2. The member types of a Union type extension must all be Object base types;
-   Scalar, Interface and Union types must not be member types of a Union.
-   Similarly, wrapping types must not be member types of a Union.
+2. The member types of a Union type must all be Object, Interface or Union
+   types; Scalar and Enum types must not be member types of a Union. Similarly,
+   wrapping types must not be member types of a Union.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
    the original Union type.
