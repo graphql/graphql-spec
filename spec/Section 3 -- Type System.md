@@ -1372,12 +1372,13 @@ union SearchResult =
 
 **Unions of Interfaces and Unions**
 
-A Union may declare interfaces or other unions as member types. The parent
-Union's possible types transitively include all the possible types of any
-abstract member types. For example, the following types are valid:
+A Union may declare interfaces or other unions as member types. Transitively
+included object types (object types included within a union included by a union)
+must also be included within the parent union. For example, the following types
+are valid:
 
 ```graphql example
-union SearchResult = Photo | Named
+union SearchResult = Item | Photo | Video | Named
 
 interface Named {
   name: String
@@ -1425,6 +1426,13 @@ And, given the above, the following operation is valid:
 }
 ```
 
+While the following union is invalid, because the member types of `Item` are not
+explicitly included within `SearchResult`:
+
+```graphql counter-example
+union SearchResult = Item | Named
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1443,6 +1451,12 @@ Union types have the potential to be invalid if incorrectly defined.
 2. The member types of a Union type must all be Object, Interface or Union
    types; Scalar and Enum types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
+3. A parent Union must explicitly include as member types of all child Union
+   members.
+   1. Let this union type be {unionType}.
+   2. For each {memberType} declared as a member of {unionType}, if {memberType}
+      is a Union type, all of the members of {memberType} must also be members
+      of {unionType}.
 
 ### Union Extensions
 
@@ -1469,6 +1483,12 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the original Union type.
 5. Any non-repeatable directives provided must not already apply to the original
    Union type.
+6. A parent Union must explicitly include as member types of all child Union
+   members.
+   1. Let this union type be {unionType}.
+   2. For each {memberType} declared as a member of {unionType}, if {memberType}
+      is a Union type, all of the members of {memberType} must also be members
+      of {unionType}.
 
 ## Enums
 
