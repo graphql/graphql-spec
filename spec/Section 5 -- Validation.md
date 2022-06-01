@@ -136,14 +136,14 @@ extend type Dog {
 **Formal Specification**
 
 - For each operation definition {operation} in the document.
-- Let {operationRootType} be the root type in {schema} corresponding to the
-  type of {operation}.
+- Let {operationRootType} be the root type in {schema} corresponding to the type
+  of {operation}.
 - {operationRootType} must exist.
 
 **Explanatory Text**
 
-Each operation must reference an operation type which has a valid root type
-in the schema.
+Each operation must reference an operation type which has a valid root type in
+the schema.
 
 For example given the following schema:
 
@@ -156,13 +156,17 @@ type Query {
 The following operation is valid:
 
 ```graphql example
-query helloQuery { hello }
+query helloQuery {
+  hello
+}
 ```
 
 While the following operation is invalid:
 
 ```graphql example
-mutation goodbyeMutation { goodbye }
+mutation goodbyeMutation {
+  goodbye
+}
 ```
 
 ### Named Operation Definitions
