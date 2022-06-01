@@ -148,12 +148,14 @@ type system where those operations begin.
 The {`query`} root operation type must be provided and must be an Object type.
 
 The {`mutation`} root operation type is optional; if it is not provided, the
-service does not support mutations. If it is provided, it must be an Object
-type.
+service does not support mutations (see
+[Operation Type Existence](#sec-Operation-Type-Existence)). If it is provided,
+it must be an Object type.
 
 Similarly, the {`subscription`} root operation type is also optional; if it is
-not provided, the service does not support subscriptions. If it is provided, it
-must be an Object type.
+not provided, the service does not support subscriptions (see
+[Operation Type Existence](#sec-Operation-Type-Existence))s. If it is provided,
+it must be an Object type.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
