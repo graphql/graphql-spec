@@ -1845,7 +1845,8 @@ variable.
     - Let {variableName} be the name of {variableUsage}.
     - Let {variableDefinition} be the {VariableDefinition} named {variableName}
       defined within {operation}.
-    - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
+    - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be
+      {true}.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
