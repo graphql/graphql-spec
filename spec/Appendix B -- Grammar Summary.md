@@ -143,7 +143,7 @@ ExecutableDefinition :
 
 OperationDefinition :
 
-- OperationType Name? VariableDefinitions? Directives? SelectionSet
+- OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -205,7 +205,7 @@ ObjectValue[Const] :
 
 ObjectField[Const] : Name : Value[?Const]
 
-VariableDefinitions : ( VariableDefinition+ )
+VariablesDefinition : ( VariableDefinition+ )
 
 VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 

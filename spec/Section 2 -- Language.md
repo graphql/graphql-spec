@@ -280,7 +280,7 @@ be executed must also be provided.
 
 OperationDefinition :
 
-- OperationType Name? VariableDefinitions? Directives? SelectionSet
+- OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -1086,7 +1086,7 @@ ObjectValue : { ObjectField+ }
 
 Variable : $ Name
 
-VariableDefinitions : ( VariableDefinition+ )
+VariablesDefinition : ( VariableDefinition+ )
 
 VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
