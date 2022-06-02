@@ -95,9 +95,9 @@ union HumanOrAlien = Human | Alien
 
 **Formal Specification**
 
-- For each definition {definition} in the document.
-- {definition} must be {ExecutableDefinition} (it must not be
-  {TypeSystemDefinitionOrExtension}).
+- For each definition {definition} in the document:
+  - {definition} must be {ExecutableDefinition} (it must not be
+    {TypeSystemDefinitionOrExtension}).
 
 **Explanatory Text**
 
@@ -135,12 +135,12 @@ extend type Dog {
 
 **Formal Specification**
 
-- For each operation definition {operation} in the document.
-- Let {operationName} be the name of {operation}.
-- If {operationName} exists
-  - Let {operations} be all operation definitions in the document named
-    {operationName}.
-  - {operations} must be a set of one.
+- For each operation definition {operation} in the document:
+  - Let {operationName} be the name of {operation}.
+  - If {operationName} exists:
+    - Let {operations} be all operation definitions in the document named
+      {operationName}.
+    - {operations} must be a set of one.
 
 **Explanatory Text**
 
@@ -249,14 +249,14 @@ query getName {
 
 **Formal Specification**
 
-- For each subscription operation definition {subscription} in the document
 - Let {subscriptionType} be the root Subscription type in {schema}.
-- Let {selectionSet} be the top level selection set on {subscription}.
-- Let {variableValues} be the empty set.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
-- {groupedFieldSet} must have exactly one entry, which must not be an
-  introspection field.
+- For each subscription operation definition {subscription} in the document:
+  - Let {selectionSet} be the top level selection set on {subscription}.
+  - Let {variableValues} be the empty set.
+  - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
+    selectionSet, variableValues)}.
+  - {groupedFieldSet} must have exactly one entry, which must not be an
+    introspection field.
 
 **Explanatory Text**
 
@@ -334,9 +334,9 @@ Field selections must exist on Object, Interface, and Union types.
 
 **Formal Specification**
 
-- For each {selection} in the document.
-- Let {fieldName} be the target field of {selection}
-- {fieldName} must be defined on type in scope
+- For each {selection} in the document:
+  - Let {fieldName} be the target field of {selection}.
+  - {fieldName} must be defined on type in scope.
 
 **Explanatory Text**
 
@@ -428,16 +428,16 @@ SameResponseShape(fieldA, fieldB):
 
 - Let {typeA} be the return type of {fieldA}.
 - Let {typeB} be the return type of {fieldB}.
-- If {typeA} or {typeB} is Non-Null.
+- If {typeA} or {typeB} is Non-Null:
   - If {typeA} or {typeB} is nullable, return false.
-  - Let {typeA} be the nullable type of {typeA}
-  - Let {typeB} be the nullable type of {typeB}
-- If {typeA} or {typeB} is List.
+  - Let {typeA} be the nullable type of {typeA}.
+  - Let {typeB} be the nullable type of {typeB}.
+- If {typeA} or {typeB} is List:
   - If {typeA} or {typeB} is not List, return false.
-  - Let {typeA} be the item type of {typeA}
-  - Let {typeB} be the item type of {typeB}
+  - Let {typeA} be the item type of {typeA}.
+  - Let {typeB} be the item type of {typeB}.
   - Repeat from step 3.
-- If {typeA} or {typeB} is Scalar or Enum.
+- If {typeA} or {typeB} is Scalar or Enum:
   - If {typeA} and {typeB} are the same type return true, otherwise return
     false.
 - Assert: {typeA} and {typeB} are both composite types.
@@ -568,12 +568,12 @@ fragment conflictingDifferingResponses on Pet {
 
 **Formal Specification**
 
-- For each {selection} in the document
-- Let {selectionType} be the result type of {selection}
-- If {selectionType} is a scalar or enum:
-  - The subselection set of that selection must be empty
-- If {selectionType} is an interface, union, or object
-  - The subselection set of that selection must NOT BE empty
+- For each {selection} in the document:
+  - Let {selectionType} be the result type of {selection}.
+  - If {selectionType} is a scalar or enum:
+    - The subselection set of that selection must be empty.
+  - If {selectionType} is an interface, union, or object:
+    - The subselection set of that selection must NOT BE empty.
 
 **Explanatory Text**
 
@@ -638,11 +638,11 @@ rules apply in both cases.
 
 **Formal Specification**
 
-- For each {argument} in the document
-- Let {argumentName} be the Name of {argument}.
-- Let {argumentDefinition} be the argument definition provided by the parent
-  field or definition named {argumentName}.
-- {argumentDefinition} must exist.
+- For each {argument} in the document:
+  - Let {argumentName} be the Name of {argument}.
+  - Let {argumentDefinition} be the argument definition provided by the parent
+    field or definition named {argumentName}.
+  - {argumentDefinition} must exist.
 
 **Explanatory Text**
 
@@ -717,27 +717,27 @@ invalid.
 
 **Formal Specification**
 
-- For each {argument} in the Document.
-- Let {argumentName} be the Name of {argument}.
-- Let {arguments} be all Arguments named {argumentName} in the Argument Set
-  which contains {argument}.
-- {arguments} must be the set containing only {argument}.
+- For each {argument} in the Document:
+  - Let {argumentName} be the Name of {argument}.
+  - Let {arguments} be all Arguments named {argumentName} in the Argument Set
+    which contains {argument}.
+  - {arguments} must be the set containing only {argument}.
 
 #### Required Arguments
 
-- For each Field or Directive in the document.
-- Let {arguments} be the arguments provided by the Field or Directive.
-- Let {argumentDefinitions} be the set of argument definitions of that Field or
-  Directive.
-- For each {argumentDefinition} in {argumentDefinitions}:
-  - Let {type} be the expected type of {argumentDefinition}.
-  - Let {defaultValue} be the default value of {argumentDefinition}.
-  - If {type} is Non-Null and {defaultValue} does not exist:
-    - Let {argumentName} be the name of {argumentDefinition}.
-    - Let {argument} be the argument in {arguments} named {argumentName}
-    - {argument} must exist.
-    - Let {value} be the value of {argument}.
-    - {value} must not be the {null} literal.
+- For each Field or Directive in the document:
+  - Let {arguments} be the arguments provided by the Field or Directive.
+  - Let {argumentDefinitions} be the set of argument definitions of that Field
+    or Directive.
+  - For each {argumentDefinition} in {argumentDefinitions}:
+    - Let {type} be the expected type of {argumentDefinition}.
+    - Let {defaultValue} be the default value of {argumentDefinition}.
+    - If {type} is Non-Null and {defaultValue} does not exist:
+      - Let {argumentName} be the name of {argumentDefinition}.
+      - Let {argument} be the argument in {arguments} named {argumentName}.
+      - {argument} must exist.
+      - Let {value} be the value of {argument}.
+      - {value} must not be the {null} literal.
 
 **Explanatory Text**
 
@@ -791,11 +791,11 @@ fragment missingRequiredArg on Arguments {
 
 **Formal Specification**
 
-- For each fragment definition {fragment} in the document
-- Let {fragmentName} be the name of {fragment}.
-- Let {fragments} be all fragment definitions in the document named
-  {fragmentName}.
-- {fragments} must be a set of one.
+- For each fragment definition {fragment} in the document:
+  - Let {fragmentName} be the name of {fragment}.
+  - Let {fragments} be all fragment definitions in the document named
+    {fragmentName}.
+  - {fragments} must be a set of one.
 
 **Explanatory Text**
 
@@ -850,9 +850,9 @@ fragment fragmentOne on Dog {
 
 **Formal Specification**
 
-- For each named spread {namedSpread} in the document
-- Let {fragment} be the target of {namedSpread}
-- The target type of {fragment} must be defined in the schema
+- For each named spread {namedSpread} in the document:
+  - Let {fragment} be the target of {namedSpread}.
+  - The target type of {fragment} must be defined in the schema.
 
 **Explanatory Text**
 
@@ -898,8 +898,9 @@ fragment inlineNotExistingType on Dog {
 
 **Formal Specification**
 
-- For each {fragment} defined in the document.
-- The target type of fragment must have kind {UNION}, {INTERFACE}, or {OBJECT}.
+- For each {fragment} defined in the document:
+  - The target type of fragment must have kind {UNION}, {INTERFACE}, or
+    {OBJECT}.
 
 **Explanatory Text**
 
@@ -943,8 +944,8 @@ fragment inlineFragOnScalar on Dog {
 
 **Formal Specification**
 
-- For each {fragment} defined in the document.
-- {fragment} must be the target of at least one spread in the document
+- For each {fragment} defined in the document:
+  - {fragment} must be the target of at least one spread in the document.
 
 **Explanatory Text**
 
@@ -974,9 +975,9 @@ level at which the target fragment is referenced.
 
 **Formal Specification**
 
-- For every {namedSpread} in the document.
-- Let {fragment} be the target of {namedSpread}
-- {fragment} must be defined in the document
+- For every {namedSpread} in the document:
+  - Let {fragment} be the target of {namedSpread}.
+  - {fragment} must be defined in the document.
 
 **Explanatory Text**
 
@@ -995,17 +996,17 @@ is a validation error if the target of a spread is not defined.
 
 **Formal Specification**
 
-- For each {fragmentDefinition} in the document
-- Let {visited} be the empty set.
-- {DetectFragmentCycles(fragmentDefinition, visited)}
+- For each {fragmentDefinition} in the document:
+  - Let {visited} be the empty set.
+  - {DetectFragmentCycles(fragmentDefinition, visited)}
 
 DetectFragmentCycles(fragmentDefinition, visited):
 
-- Let {spreads} be all fragment spread descendants of {fragmentDefinition}
-- For each {spread} in {spreads}
-  - {visited} must not contain {spread}
-  - Let {nextVisited} be the set including {spread} and members of {visited}
-  - Let {nextFragmentDefinition} be the target of {spread}
+- Let {spreads} be all fragment spread descendants of {fragmentDefinition}.
+- For each {spread} in {spreads}:
+  - {visited} must not contain {spread}.
+  - Let {nextVisited} be the set including {spread} and members of {visited}.
+  - Let {nextFragmentDefinition} be the target of {spread}.
   - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}
 
 **Explanatory Text**
@@ -1080,19 +1081,19 @@ fragment ownerFragment on Human {
 
 **Formal Specification**
 
-- For each {spread} (named or inline) defined in the document.
-- Let {fragment} be the target of {spread}
-- Let {fragmentType} be the type condition of {fragment}
-- Let {parentType} be the type of the selection set containing {spread}
-- Let {applicableTypes} be the intersection of {GetPossibleTypes(fragmentType)}
-  and {GetPossibleTypes(parentType)}
-- {applicableTypes} must not be empty.
+- For each {spread} (named or inline) defined in the document:
+  - Let {fragment} be the target of {spread}.
+  - Let {fragmentType} be the type condition of {fragment}.
+  - Let {parentType} be the type of the selection set containing {spread}.
+  - Let {applicableTypes} be the intersection of
+    {GetPossibleTypes(fragmentType)} and {GetPossibleTypes(parentType)}.
+  - {applicableTypes} must not be empty.
 
 GetPossibleTypes(type):
 
-- If {type} is an object type, return a set containing {type}
-- If {type} is an interface type, return the set of types implementing {type}
-- If {type} is a union type, return the set of possible types of {type}
+- If {type} is an object type, return a set containing {type}.
+- If {type} is an interface type, return the set of types implementing {type}.
+- If {type} is a union type, return the set of possible types of {type}.
 
 **Explanatory Text**
 
@@ -1282,7 +1283,7 @@ fragment resourceFragment on Resource {
 
 **Formal Specification**
 
-- For each input Value {value} in the document.
+- For each input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
   - {value} must be coercible to {type}.
 
@@ -1330,11 +1331,11 @@ query badComplexValue {
 
 **Formal Specification**
 
-- For each Input Object Field {inputField} in the document
-- Let {inputFieldName} be the Name of {inputField}.
-- Let {inputFieldDefinition} be the input field definition provided by the
-  parent input object type named {inputFieldName}.
-- {inputFieldDefinition} must exist.
+- For each Input Object Field {inputField} in the document:
+  - Let {inputFieldName} be the Name of {inputField}.
+  - Let {inputFieldDefinition} be the input field definition provided by the
+    parent input object type named {inputFieldName}.
+  - {inputFieldDefinition} must exist.
 
 **Explanatory Text**
 
@@ -1362,11 +1363,11 @@ which is not defined on the expected type:
 
 **Formal Specification**
 
-- For each input object value {inputObject} in the document.
-- For every {inputField} in {inputObject}
-  - Let {name} be the Name of {inputField}.
-  - Let {fields} be all Input Object Fields named {name} in {inputObject}.
-  - {fields} must be the set containing only {inputField}.
+- For each input object value {inputObject} in the document:
+  - For every {inputField} in {inputObject}:
+    - Let {name} be the Name of {inputField}.
+    - Let {fields} be all Input Object Fields named {name} in {inputObject}.
+    - {fields} must be the set containing only {inputField}.
 
 **Explanatory Text**
 
@@ -1385,19 +1386,19 @@ For example the following document will not pass validation.
 
 **Formal Specification**
 
-- For each Input Object in the document.
+- For each Input Object in the document:
   - Let {fields} be the fields provided by that Input Object.
   - Let {fieldDefinitions} be the set of input field definitions of that Input
     Object.
-- For each {fieldDefinition} in {fieldDefinitions}:
-  - Let {type} be the expected type of {fieldDefinition}.
-  - Let {defaultValue} be the default value of {fieldDefinition}.
-  - If {type} is Non-Null and {defaultValue} does not exist:
-    - Let {fieldName} be the name of {fieldDefinition}.
-    - Let {field} be the input field in {fields} named {fieldName}
-    - {field} must exist.
-    - Let {value} be the value of {field}.
-    - {value} must not be the {null} literal.
+  - For each {fieldDefinition} in {fieldDefinitions}:
+    - Let {type} be the expected type of {fieldDefinition}.
+    - Let {defaultValue} be the default value of {fieldDefinition}.
+    - If {type} is Non-Null and {defaultValue} does not exist:
+      - Let {fieldName} be the name of {fieldDefinition}.
+      - Let {field} be the input field in {fields} named {fieldName}.
+      - {field} must exist.
+      - Let {value} be the value of {field}.
+      - {value} must not be the {null} literal.
 
 **Explanatory Text**
 
@@ -1412,10 +1413,10 @@ input object field is optional.
 
 **Formal Specification**
 
-- For every {directive} in a document.
-- Let {directiveName} be the name of {directive}.
-- Let {directiveDefinition} be the directive named {directiveName}.
-- {directiveDefinition} must exist.
+- For every {directive} in a document:
+  - Let {directiveName} be the name of {directive}.
+  - Let {directiveDefinition} be the directive named {directiveName}.
+  - {directiveDefinition} must exist.
 
 **Explanatory Text**
 
@@ -1426,12 +1427,12 @@ directive, the directive must be available on that service.
 
 **Formal Specification**
 
-- For every {directive} in a document.
-- Let {directiveName} be the name of {directive}.
-- Let {directiveDefinition} be the directive named {directiveName}.
-- Let {locations} be the valid locations for {directiveDefinition}.
-- Let {adjacent} be the AST node the directive affects.
-- {adjacent} must be represented by an item within {locations}.
+- For every {directive} in a document:
+  - Let {directiveName} be the name of {directive}.
+  - Let {directiveDefinition} be the directive named {directiveName}.
+  - Let {locations} be the valid locations for {directiveDefinition}.
+  - Let {adjacent} be the AST node the directive affects.
+  - {adjacent} must be represented by an item within {locations}.
 
 **Explanatory Text**
 
@@ -1498,12 +1499,12 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 **Formal Specification**
 
-- For every {operation} in the document
-  - For every {variable} defined on {operation}
-    - Let {variableName} be the name of {variable}
+- For every {operation} in the document:
+  - For every {variable} defined on {operation}:
+    - Let {variableName} be the name of {variable}.
     - Let {variables} be the set of all variables named {variableName} on
-      {operation}
-    - {variables} must be a set of one
+      {operation}.
+    - {variables} must be a set of one.
 
 **Explanatory Text**
 
@@ -1542,10 +1543,10 @@ fragment HouseTrainedFragment on Query {
 
 **Formal Specification**
 
-- For every {operation} in a {document}
-- For every {variable} on each {operation}
-  - Let {variableType} be the type of {variable}
-  - {IsInputType(variableType)} must be {true}
+- For every {operation} in a {document}:
+  - For every {variable} on each {operation}:
+    - Let {variableType} be the type of {variable}.
+    - {IsInputType(variableType)} must be {true}.
 
 **Explanatory Text**
 
@@ -1610,12 +1611,12 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 
 **Formal Specification**
 
-- For each {operation} in a document
+- For each {operation} in a document:
   - For each {variableUsage} in scope, variable must be in {operation}'s
     variable list.
   - Let {fragments} be every fragment referenced by that {operation}
-    transitively
-  - For each {fragment} in {fragments}
+    transitively.
+  - For each {fragment} in {fragments}:
     - For each {variableUsage} in scope of {fragment}, variable must be in
       {operation}'s variable list.
 
@@ -1753,11 +1754,11 @@ included in that operation.
 
 **Formal Specification**
 
-- For every {operation} in the document.
-- Let {variables} be the variables defined by that {operation}
-- Each {variable} in {variables} must be used at least once in either the
-  operation scope itself or any fragment transitively referenced by that
-  operation.
+- For every {operation} in the document:
+  - Let {variables} be the variables defined by that {operation}.
+  - Each {variable} in {variables} must be used at least once in either the
+    operation scope itself or any fragment transitively referenced by that
+    operation.
 
 **Explanatory Text**
 
@@ -1839,12 +1840,12 @@ variable.
 **Formal Specification**
 
 - For each {operation} in {document}:
-- Let {variableUsages} be all usages transitively included in the {operation}.
-- For each {variableUsage} in {variableUsages}:
-  - Let {variableName} be the name of {variableUsage}.
-  - Let {variableDefinition} be the {VariableDefinition} named {variableName}
-    defined within {operation}.
-  - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
+  - Let {variableUsages} be all usages transitively included in the {operation}.
+  - For each {variableUsage} in {variableUsages}:
+    - Let {variableName} be the name of {variableUsage}.
+    - Let {variableDefinition} be the {VariableDefinition} named {variableName}
+      defined within {operation}.
+    - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be {true}.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
