@@ -555,7 +555,7 @@ fragment safeDifferingArgs on Pet {
 ```
 
 However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
+scalar types must not differ. In this example, `someValue` might be a `String`
 or an `Int`:
 
 ```graphql counter-example
@@ -575,9 +575,9 @@ fragment conflictingDifferingResponses on Pet {
 
 - For each {selection} in the document:
   - Let {selectionType} be the result type of {selection}.
-  - If {selectionType} is a scalar or enum:
+  - If {selectionType} is a scalar or enum or list of these types:
     - The subselection set of that selection must be empty.
-  - If {selectionType} is an interface, union, or object:
+  - If {selectionType} is an interface, union, or object or list of these types:
     - The subselection set of that selection must NOT BE empty.
 
 **Explanatory Text**
