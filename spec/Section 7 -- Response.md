@@ -63,7 +63,7 @@ If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry in the response may contain any field errors that
 were raised during execution. 
 
-**Request errors**
+**Request Errors**
 
 Request errors are raised before execution begins. This may occur due to a parse
 grammar or validation error in the request document, an inability to determine
@@ -74,7 +74,7 @@ Request errors are typically the fault of the requesting client.
 If a request error is raised, execution does not begin and the `data` entry in
 the response must not be present. The `errors` entry must include the error.
 
-**Field errors**
+**Field Errors**
 
 Field errors are raised during execution from a particular field. This may occur
 due to an internal error during value resolution or failure to coerce the
@@ -87,7 +87,7 @@ is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)). The
 `data` entry in the response must be present. The `errors` entry should include
 all raised field errors.
 
-**Error result format**
+**Error Result Format**
 
 Every error must contain an entry with the key `message` with a string
 description of the error intended for the developer as a guide to understand and
