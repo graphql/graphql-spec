@@ -879,6 +879,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          {"\_\_"} (two underscores).
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      3. If argument type is Non-Null and a default value is not defined:
+         - The `@deprecated` directive must not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1652,6 +1654,8 @@ input ExampleInputObject {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+   4. If input field type is Non-Null and a default value is not defined:
+      - The `@deprecated` directive must not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -2047,25 +2051,46 @@ condition is false.
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
 The `@deprecated` _built-in directive_ is used within the type system definition
 language to indicate deprecated portions of a GraphQL service's schema, such as
-deprecated fields on a type or deprecated enum values.
+deprecated fields on a type, arguments on a field, input fields on an input
+type, or values of an enum type.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of using
-`newField`.
+`newField` and `oldArg` is deprecated in favor of using `newArg`.
 
 ```graphql example
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
+
+  anotherField(
+    newArg: String
+    oldArg: String @deprecated(reason: "Use `newArg`.")
+  ): String
 }
 ```
+
+The `@deprecated` directive must not appear on required (non-null without a
+default) arguments or input object field definitions.
+
+```graphql counter-example
+type ExampleType {
+  invalidField(
+    newArg: String
+    oldArg: String! @deprecated(reason: "Use `newArg`.")
+  ): String
+}
+```
+
+To deprecate a required argument or input field, it must first be made optional
+by either changing the type to nullable or adding a default value.
 
 ### @specifiedBy
 
