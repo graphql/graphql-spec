@@ -216,10 +216,6 @@ system definition language can omit the schema definition when the {`query`},
 {`mutation`}, and {`subscription`} root types are named {"Query"}, {"Mutation"},
 and {"Subscription"} respectively.
 
-Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if it only uses the default root
-operation type names.
-
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
 {`query`} root operation type of the schema.
@@ -854,8 +850,9 @@ Produces the ordered result:
 
 **Result Coercion**
 
-Determining the result of coercing an object is the heart of the GraphQL
-executor, so this is covered in that section of the spec.
+Determining the result of coercing an object is a part of the GraphQL request execution,
+so this is covered in the [Coercing Results](#sec-Value-Completion.Coercing-Results)
+section within the Execution section.
 
 **Input Coercion**
 
@@ -1768,8 +1765,9 @@ Non-Null type is that result. If that result was {null}, then a field error must
 be raised.
 
 Note: When a field error is raised on a non-null value, the error propagates to
-the parent field. For more information on this process, see "Errors and
-Non-Nullability" within the Execution section.
+the parent field. For more information on this process, see 
+[Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields) 
+within the Execution section.
 
 **Input Coercion**
 
