@@ -90,7 +90,7 @@ LineTerminator ::
 Like white space, line terminators are used to improve the legibility of source
 text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
-Document. Line terminators are not found within any other token.
+Document. 
 
 Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
@@ -358,8 +358,8 @@ piece of information available to request within a selection set.
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
 for deeply nested requests. All GraphQL operations must specify their selections
-down to fields which return scalar values to ensure an unambiguously shaped
-response.
+down to fields which return scalar or enum values (or lists of those types) 
+to ensure an unambiguously shaped response.
 
 For example, this operation selects fields of complex data and relationships
 down to scalar values.
@@ -668,7 +668,7 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
 Fragments can be defined inline within a selection set. This is done to
-conditionally include fields based on their runtime type. This feature of
+conditionally include fields based on parent object's runtime type. This feature of
 standard fragment inclusion was demonstrated in the `query FragmentTyping`
 example. We could accomplish the same thing using inline fragments.
 
@@ -1171,8 +1171,8 @@ VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 DefaultValue : = Value[Const]
 
-A GraphQL operation can be parameterized with variables, maximizing reuse, and
-avoiding costly string building in clients at runtime.
+A GraphQL operation can be parameterized with variables
+maximizing reuse of parsed queries by the GraphQL service.
 
 If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
