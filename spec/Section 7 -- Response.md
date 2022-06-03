@@ -61,13 +61,12 @@ contains should indicate why no data was able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry in the response may contain any field errors that
-were raised during execution. If field errors were raised during execution, it
-should contain those errors.
+were raised during execution. 
 
 **Request errors**
 
 Request errors are raised before execution begins. This may occur due to a parse
-grammar or validation error in the requested document, an inability to determine
+grammar or validation error in the request document, an inability to determine
 which operation to execute, or invalid input values for variables.
 
 Request errors are typically the fault of the requesting client.
