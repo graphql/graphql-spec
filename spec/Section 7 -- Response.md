@@ -1,6 +1,6 @@
 # Response
 
-When a GraphQL service receives a request, it must return a well-formed
+When a GraphQL service receives a _request_, it must return a well-formed
 response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors raised during the request.
 

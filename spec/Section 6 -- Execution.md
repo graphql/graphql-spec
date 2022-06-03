@@ -2,7 +2,7 @@
 
 GraphQL generates a response from a request via execution.
 
-A request for execution consists of a few pieces of information:
+:: A _request_ for execution consists of a few pieces of information:
 
 - The schema to use, typically solely provided by the GraphQL service.
 - A {Document} which must contain GraphQL {OperationDefinition} and may contain
@@ -16,6 +16,10 @@ A request for execution consists of a few pieces of information:
 
 Given this information, the result of {ExecuteRequest()} produces the response,
 to be formatted according to the Response section below.
+
+Note: GraphQL requests do not require any specific serialization format or
+transport mechanism. Message serialization and transport mechanisms should be
+chosen by the implementing service.
 
 ## Executing Requests
 

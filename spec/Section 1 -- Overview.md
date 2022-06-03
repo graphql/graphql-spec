@@ -4,7 +4,7 @@ GraphQL is a query language designed to build client applications by providing
 an intuitive and flexible syntax and system for describing their data
 requirements and interactions.
 
-For example, this GraphQL request will receive the name of the user with id 4
+For example, this GraphQL _request_ will receive the name of the user with id 4
 from the Facebook implementation of GraphQL.
 
 ```graphql example
