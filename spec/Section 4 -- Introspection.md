@@ -371,7 +371,7 @@ Fields\:
 - `description` may return a String or {null}.
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated fields are also returned.
+    {true}, deprecated input fields are also returned.
 - All other fields must return {null}.
 
 **List**

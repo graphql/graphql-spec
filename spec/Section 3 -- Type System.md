@@ -880,7 +880,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       2. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
       3. If argument type is Non-Null and a default value is not defined:
-         - The `@deprecated` directive shall not be applied to this argument.
+         - The `@deprecated` directive must not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1655,7 +1655,7 @@ input ExampleInputObject {
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
-      - The `@deprecated` directive shall not be applied to this input field.
+      - The `@deprecated` directive must not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -2089,8 +2089,8 @@ type ExampleType {
 }
 ```
 
-A required argument or input field should first be made optional by either
-changing the type to nullable or adding a default value.
+To deprecate a required argument or input field, it must first be made optional
+by either changing the type to nullable or adding a default value.
 
 ### @specifiedBy
 
