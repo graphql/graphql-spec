@@ -306,7 +306,7 @@ mutation {
 }
 ```
 
-**Query shorthand**
+**Query Shorthand**
 
 If a document contains only one operation and that operation is a query which
 defines no variables and has no directives applied to it then that operation may
@@ -439,7 +439,7 @@ Many arguments can exist for a given field:
 }
 ```
 
-**Arguments are unordered**
+**Arguments are Unordered**
 
 Arguments may be provided in any syntactic order and maintain identical semantic
 meaning.
@@ -1127,7 +1127,7 @@ curly-braces `{ }`. The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
-**Input object fields are unordered**
+**Input Object Fields are Unordered**
 
 Input object fields may be provided in any syntactic order and maintain
 identical semantic meaning.
@@ -1204,7 +1204,7 @@ size `60`:
 }
 ```
 
-**Variable use within Fragments**
+**Variable Use within Fragments**
 
 Variables can be used within fragments. Variables have global scope with a given
 operation, so a variable used within a fragment must be declared in any
@@ -1279,7 +1279,7 @@ As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide
 any additional _custom directive_ beyond those described here.
 
-**Directive order is significant**
+**Directive Order is Significant**
 
 Directives may be provided in a specific syntactic order which may have semantic
 interpretation.
