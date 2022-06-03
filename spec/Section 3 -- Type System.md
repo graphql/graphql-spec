@@ -852,6 +852,29 @@ Produces the ordered result:
 }
 ```
 
+**OneOf Objects**
+
+OneOf Objects are a special variant of Objects where the type system asserts
+that exactly one of the fields will be present and non-null, all others being
+omitted. This is useful for representing situations where an output may be one
+of many different options, and is more powerful than interfaces and unions
+because it can represent lists and leaves too.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that an Object is a OneOf Object (and thus exactly one of its field
+will be provided and non-null):
+
+```graphql
+type QuickReply @oneOf {
+  approve: Boolean
+  emojis: [Emoji!]
+  autoReply: AutoReply
+}
+```
+
+In schema introspection, the `__Type.oneOf` field will return {true} for OneOf
+Objects, and {false} for all other Objects.
+
 **Result Coercion**
 
 Determining the result of coercing an object is the heart of the GraphQL
@@ -884,6 +907,11 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
       {IsValidImplementation(objectType, interfaceType)} must be {true}.
+5. If the Object type is a OneOf Object type then:
+   1. The OneOf Object type must not declare that it implements any interfaces.
+   2. For each field of the OneOf Object type:
+      1. The field must be nullable.
+      2. The field must not accept arguments.
 
 IsValidImplementation(type, implementedType):
 
@@ -1039,6 +1067,11 @@ Object type extensions have the potential to be invalid if incorrectly defined.
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
    implements.
+7. If the named type is a OneOf Object type:
+   1. Interfaces must no be provided.
+   2. For each field of the Object type extension:
+      1. The field must be nullable.
+      2. The field must not accept arguments.
 
 ## Interfaces
 
@@ -1520,6 +1553,28 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
+**OneOf Input Objects**
+
+OneOf Input Objects are a special variant of Input Objects where the type system
+asserts that exactly one of the fields must be set and non-null, all others
+being omitted. This is useful for representing situations where an input may be
+one of many different options.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that an Input Object is a OneOf Input Object (and thus requires
+exactly one of its field be provided):
+
+```graphql
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+```
+
+In schema introspection, the `__Type.oneOf` field will return {true} for OneOf
+Input Objects, and {false} for all other Input Objects.
+
 **Circular References**
 
 Input Objects are allowed to reference other Input Objects as field types. A
@@ -1613,6 +1668,21 @@ is constructed with the following rules:
   does not provide a default value, the input object field definition's default
   value should be used.
 
+Further, if the input object is a OneOf Input Object, the following additional
+rules apply:
+
+- If the input object literal or unordered map does not contain exactly one
+  entry, an error must be thrown.
+
+- If the single entry in the input object literal or unordered map is {null}, an
+  error must be thrown.
+
+- If the coerced unordered map does not contain exactly one entry, an error must
+  be thrown.
+
+- If the value of the single entry in the coerced unordered map is {null}, an
+  error must be thrown.
+
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
 
@@ -1642,6 +1712,37 @@ input ExampleInputObject {
 | `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.         |
 | `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}          |
 
+Following are examples of input coercion for a oneOf input object type with a
+`String` member field `a` and an `Int` member field `b`:
+
+```graphql example
+input ExampleInputTagged @oneOf {
+  a: String
+  b: Int
+}
+```
+
+| Literal Value            | Variables               | Coerced Value                                       |
+| ------------------------ | ----------------------- | --------------------------------------------------- |
+| `{ a: "abc", b: 123 }`   | `{}`                    | Error: Exactly one key must be specified            |
+| `{ a: null, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
+| `{ b: 123 }`             | `{}`                    | `{ b: 123 }`                                        |
+| `{ a: $var, b: 123 }`    | `{ var: null }`         | Error: Exactly one key must be specified            |
+| `{ a: $var, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
+| `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`                                        |
+| `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`                                        |
+| `"abc123"`               | `{}`                    | Error: Incorrect value                              |
+| `$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value                              |
+| `{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified            |
+| `{ b: "123" }`           | `{}`                    | Error: Incorrect value for member field {b}         |
+| `{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`                                      |
+| `{ b: $var }`            | `{}`                    | Error: Value for member field {b} must be specified |
+| `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`                                      |
+| `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified            |
+| `{ b: $var }`            | `{ var: null }`         | Error: Value for member field {b} must be non-null  |
+| `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}                         |
+| `{ a: $a, b: $b }`       | `{ a: "abc" }`          | Error: Exactly one key must be specified            |
+
 **Type Validation**
 
 1. An Input Object type must define one or more input fields.
@@ -1652,6 +1753,9 @@ input ExampleInputObject {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
+   4. If the Input Object is a OneOf Input Object then:
+      1. The type of the input field must be nullable.
+      2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -1679,6 +1783,10 @@ defined.
    the original Input Object.
 4. Any non-repeatable directives provided must not already apply to the original
    Input Object type.
+5. If the original Input Object is a OneOf Input Object then:
+   1. All fields of the Input Object type extension must be nullable.
+   2. All fields of the Input Object type extension must not have default
+      values.
 
 ## List
 
@@ -1898,6 +2006,10 @@ schema.
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
+GraphQL implementations that support the type system definition language should
+provide the `@oneOf` directive if representing OneOf Input Objects and/or OneOf
+Objects.
+
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
 
@@ -2084,4 +2196,26 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+### @oneOf
+
+```graphql
+directive @oneOf on INPUT_OBJECT | OBJECT
+```
+
+The `@oneOf` directive is used within the type system definition language to
+indicate an Input Object is a OneOf Input Object or an Object is a OneOf Object.
+
+```graphql example
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+type QuickReply @oneOf {
+  approve: Boolean
+  emojis: [Emoji!]
+  autoReply: AutoReply
+}
 ```

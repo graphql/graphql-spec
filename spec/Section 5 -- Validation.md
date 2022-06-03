@@ -40,6 +40,10 @@ type Query {
   dog: Dog
 }
 
+type Mutation {
+  addPet(pet: PetInput): Pet
+}
+
 enum DogCommand {
   SIT
   DOWN
@@ -87,6 +91,23 @@ type Cat implements Pet {
 union CatOrDog = Cat | Dog
 union DogOrHuman = Dog | Human
 union HumanOrAlien = Human | Alien
+
+input CatInput {
+  name: String!
+  nickname: String
+  meowVolume: Int
+}
+
+input DogInput {
+  name: String!
+  nickname: String
+  barkVolume: Int
+}
+
+input PetInput @oneOf {
+  cat: CatInput
+  dog: DogInput
+}
 ```
 
 ## Documents
@@ -1406,6 +1427,103 @@ Input object fields may be required. Much like a field may have required
 arguments, an input object may have required fields. An input field is required
 if it has a non-null type and does not have a default value. Otherwise, the
 input object field is optional.
+
+### OneOf Input Objects Have Exactly One Field
+
+**Formal Specification**
+
+- For each {operation} in {document}:
+  - Let {oneofInputObjects} be all OneOf Input Objects transitively included in
+    the {operation}.
+  - For each {oneofInputObject} in {oneofInputObjects}:
+    - Let {fields} be the fields provided by {oneofInputObject}.
+    - {fields} must contain exactly one entry.
+    - Let {field} be the sole entry in {fields}.
+    - Let {value} be the value of {field}.
+    - {value} must not be the {null} literal.
+    - If {value} is a variable:
+      - Let {variableName} be the name of {variable}.
+      - Let {variableDefinition} be the {VariableDefinition} named
+        {variableName} defined within {operation}.
+      - Let {variableType} be the expected type of {variableDefinition}.
+      - {variableType} must be a non-null type.
+
+**Explanatory Text**
+
+OneOf Input Objects require that exactly one field must be supplied and that
+field must not be {null}.
+
+An empty OneOf Input Object is invalid.
+
+```graphql counter-example
+mutation addPet {
+  addPet(pet: {}) {
+    name
+  }
+}
+```
+
+Multiple fields are not allowed.
+
+```graphql counter-example
+mutation addPet($cat: CatInput, $dog: DogInput) {
+  addPet(pet: { cat: $cat, dog: $dog }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addPet($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addPet {
+  addPet(pet: { cat: { name: "Brontie" }, dog: null }) {
+    name
+  }
+}
+```
+
+Variables used for OneOf Input Object fields must be non-nullable.
+
+```graphql example
+mutation addPet($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addPet($cat: CatInput) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+If a field with a literal value is present then the value must not be {null}.
+
+```graphql example
+mutation addPet {
+  addPet(pet: { cat: { name: "Brontie" } }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addPet {
+  addPet(pet: { cat: null }) {
+    name
+  }
+}
+```
 
 ## Directives
 
