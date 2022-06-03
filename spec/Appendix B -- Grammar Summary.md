@@ -2,12 +2,7 @@
 
 ## Source Text
 
-SourceCharacter ::
-
-- "U+0009"
-- "U+000A"
-- "U+000D"
-- "U+0020–U+FFFF"
+SourceCharacter :: "Any Unicode scalar value"
 
 ## Ignored Tokens
 
@@ -113,7 +108,16 @@ StringCharacter ::
 - `\u` EscapedUnicode
 - `\` EscapedCharacter
 
-EscapedUnicode :: /[0-9A-Fa-f]{4}/
+EscapedUnicode ::
+
+- `{` HexDigit+ `}`
+- HexDigit HexDigit HexDigit HexDigit
+
+HexDigit :: one of
+
+- `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
+- `A` `B` `C` `D` `E` `F`
+- `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
