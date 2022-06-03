@@ -1768,8 +1768,9 @@ Non-Null type is that result. If that result was {null}, then a field error must
 be raised.
 
 Note: When a field error is raised on a non-null value, the error propagates to
-the parent field. For more information on this process, see "Errors and
-Non-Nullability" within the Execution section.
+the parent field. For more information on this process, see 
+[Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields) 
+within the Execution section.
 
 **Input Coercion**
 

@@ -1,6 +1,6 @@
 # Validation
 
-GraphQL does not just verify if a request is syntactically correct, but also
+A GraphQL service does not just verify if a request is syntactically correct, but also
 ensures that it is unambiguous and mistake-free in the context of a given
 GraphQL schema.
 
@@ -19,7 +19,7 @@ or development-time tool should report validation errors and not allow the
 formulation or execution of requests known to be invalid at that given point in
 time.
 
-**Type system evolution**
+**Type System Evolution**
 
 As GraphQL type system schema evolves over time by adding new types and new
 fields, it is possible that a request which was previously valid could later
@@ -556,7 +556,7 @@ fragment safeDifferingArgs on Pet {
 ```
 
 However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
+scalar types must not differ. In this example, `someValue` might be a `String`
 or an `Int`:
 
 ```graphql counter-example
@@ -1083,7 +1083,7 @@ fragment ownerFragment on Human {
 }
 ```
 
-#### Fragment spread is possible
+#### Fragment Spread is Possible
 
 **Formal Specification**
 
@@ -1108,7 +1108,7 @@ type matches the type condition. They also are spread within the context of a
 parent type. A fragment spread is only valid if its type condition could ever
 apply within the parent type.
 
-##### Object Spreads In Object Scope
+##### Object Spreads in Object Scope
 
 In the scope of an object type, the only valid object type fragment spread is
 one that applies to the same type that is in scope.
@@ -1171,7 +1171,7 @@ that if one inspected the contents of the {CatOrDogNameFragment} you could note
 that no valid results would ever be returned. However we do not specify this as
 invalid because we only consider the fragment declaration, not its body.
 
-##### Object Spreads In Abstract Scope
+##### Object Spreads in Abstract Scope
 
 Union or interface spreads can be used within the context of an object type
 fragment, but only if the object type is one of the possible types of that
@@ -1961,7 +1961,7 @@ query listToNonNullList($booleanList: [Boolean]) {
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 Similarly a `[T]` cannot be passed to a `[T!]`.
 
-**Allowing optional variables when default values exist**
+**Allowing Optional Variables when Default Values Exist**
 
 A notable exception to typical variable type compatibility is allowing a
 variable definition with a nullable type to be provided to a non-null location

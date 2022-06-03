@@ -90,7 +90,7 @@ LineTerminator ::
 Like white space, line terminators are used to improve the legibility of source
 text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
-Document. Line terminators are not found within any other token.
+Document. 
 
 Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
@@ -306,7 +306,7 @@ mutation {
 }
 ```
 
-**Query shorthand**
+**Query Shorthand**
 
 If a document contains only one operation and that operation is a query which
 defines no variables and has no directives applied to it then that operation may
@@ -358,8 +358,8 @@ piece of information available to request within a selection set.
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
 for deeply nested requests. All GraphQL operations must specify their selections
-down to fields which return scalar values to ensure an unambiguously shaped
-response.
+down to leaf fields (fields whose unwrapped type is a scalar or enum) to ensure
+an unambiguously shaped response.
 
 For example, this operation selects fields of complex data and relationships
 down to scalar values.
@@ -439,7 +439,7 @@ Many arguments can exist for a given field:
 }
 ```
 
-**Arguments are unordered**
+**Arguments are Unordered**
 
 Arguments may be provided in any syntactic order and maintain identical semantic
 meaning.
@@ -668,9 +668,10 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
 Fragments can be defined inline within a selection set. This is done to
-conditionally include fields based on their runtime type. This feature of
-standard fragment inclusion was demonstrated in the `query FragmentTyping`
-example. We could accomplish the same thing using inline fragments.
+conditionally include fields based on the concrete type of the object at
+runtime. This feature of standard fragment inclusion was demonstrated in the
+`query FragmentTyping` example. We could accomplish the same thing using inline
+fragments.
 
 ```graphql example
 query inlineFragmentTyping {
@@ -1127,7 +1128,7 @@ curly-braces `{ }`. The values of an object literal may be any input value
 literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
-**Input object fields are unordered**
+**Input Object Fields are Unordered**
 
 Input object fields may be provided in any syntactic order and maintain
 identical semantic meaning.
@@ -1204,7 +1205,7 @@ size `60`:
 }
 ```
 
-**Variable use within Fragments**
+**Variable Use within Fragments**
 
 Variables can be used within fragments. Variables have global scope with a given
 operation, so a variable used within a fragment must be declared in any
@@ -1279,7 +1280,7 @@ As future versions of GraphQL adopt new configurable execution capabilities,
 they may be exposed via directives. GraphQL services and tools may also provide
 any additional _custom directive_ beyond those described here.
 
-**Directive order is significant**
+**Directive Order is Significant**
 
 Directives may be provided in a specific syntactic order which may have semantic
 interpretation.

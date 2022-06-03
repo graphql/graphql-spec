@@ -1,6 +1,6 @@
 # Execution
 
-GraphQL generates a response from a request via execution.
+A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
@@ -174,7 +174,7 @@ Subscribe(subscription, schema, variableValues, initialValue):
   {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
 - Return {responseStream}.
 
-Note: In large scale subscription systems, the {Subscribe()} and
+Note: In a large-scale subscription system, the {Subscribe()} and
 {ExecuteSubscriptionEvent()} algorithms may be run on separate services to
 maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
@@ -236,12 +236,12 @@ connectivity.
 **Delivery Agnostic**
 
 GraphQL subscriptions do not require any specific serialization format or
-transport mechanism. Subscriptions specifies algorithms for the creation of a
-stream, the content of each payload on that stream, and the closing of that
-stream. There are intentionally no specifications for message acknowledgement,
-buffering, resend requests, or any other quality of service (QoS) details.
-Message serialization, transport mechanisms, and quality of service details
-should be chosen by the implementing service.
+transport mechanism. GraphQL specifies algorithms for the creation of a
+subscription stream, the content of each payload on that stream, and the closing
+of that stream. There are intentionally no specifications for message
+acknowledgement, buffering, resend requests, or any other quality of service
+(QoS) details. Message serialization, transport mechanisms, and quality of
+service details should be chosen by the implementing service.
 
 #### Source Stream
 
