@@ -1,6 +1,6 @@
 # Execution
 
-GraphQL generates a response from a request via execution.
+GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
@@ -144,8 +144,7 @@ executing the operation’s top level selection set on the mutation root object
 type. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
-side-effects on the underlying data system. Serial execution of the provided
-mutations ensures against race conditions during these side-effects.
+side-effects on the underlying data system. 
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
@@ -174,7 +173,7 @@ Subscribe(subscription, schema, variableValues, initialValue):
   {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
 - Return {responseStream}.
 
-Note: In large scale subscription systems, the {Subscribe()} and
+Note: In a large-scale subscription system, the {Subscribe()} and
 {ExecuteSubscriptionEvent()} algorithms may be run on separate services to
 maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
@@ -222,7 +221,7 @@ must receive no more events from that event stream.
 
 **Supporting Subscriptions at Scale**
 
-Supporting subscriptions is a significant change for any GraphQL service. Query
+Supporting subscriptions is a significant challenge for a GraphQL service. Query
 and mutation operations are stateless, allowing scaling via cloning of GraphQL
 service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
@@ -396,7 +395,7 @@ completion before it continues on to the next item in the grouped field set:
 For example, given the following selection set to be executed serially:
 
 ```graphql example
-{
+mutation {
   changeBirthday(birthday: $newBirthday) {
     month
   }
@@ -418,7 +417,7 @@ As an illustrative example, let's assume we have a mutation field
 we execute the following selection set serially:
 
 ```graphql example
-{
+mutation {
   first: changeTheNumber(newNumber: 1) {
     theNumber
   }
