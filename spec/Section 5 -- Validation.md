@@ -1,6 +1,6 @@
 # Validation
 
-GraphQL does not just verify if a request is syntactically correct, but also
+GraphQL service does not just verify if a request is syntactically correct, but also
 ensures that it is unambiguous and mistake-free in the context of a given
 GraphQL schema.
 
@@ -13,9 +13,8 @@ Typically validation is performed in the context of a request immediately before
 execution, however a GraphQL service may execute a request without explicitly
 validating it if that exact same request is known to have been validated before.
 For example: the request may be validated during development, provided it does
-not later change, or a service may validate a request once and memoize the
-result to avoid validating the same request again in the future. Any client-side
-or development-time tool should report validation errors and not allow the
+not later change. Any client-side or development-time 
+tool should report validation errors and not allow the
 formulation or execution of requests known to be invalid at that given point in
 time.
 
