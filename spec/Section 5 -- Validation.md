@@ -605,8 +605,8 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 ```
 
 Conversely the underlying type of leaf field selections of GraphQL operations
-must be scalar or enum. Leaf selections on fields whose underlying type is
-object, interface, or union are disallowed.
+must be scalar or enum. Leaf selections without subfields on fields whose
+underlying type is object, interface, or union are disallowed.
 
 Let's assume the following additions to the query root operation type of the
 schema:
