@@ -668,9 +668,10 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
 Fragments can be defined inline within a selection set. This is done to
-conditionally include fields based on parent object's runtime type. This feature of
-standard fragment inclusion was demonstrated in the `query FragmentTyping`
-example. We could accomplish the same thing using inline fragments.
+conditionally include fields based on the concrete type of the object at
+runtime. This feature of standard fragment inclusion was demonstrated in the
+`query FragmentTyping` example. We could accomplish the same thing using inline
+fragments.
 
 ```graphql example
 query inlineFragmentTyping {
