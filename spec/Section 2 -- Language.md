@@ -358,8 +358,8 @@ piece of information available to request within a selection set.
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
 for deeply nested requests. All GraphQL operations must specify their selections
-down to fields which return scalar or enum values (or lists of those types) 
-to ensure an unambiguously shaped response.
+down to leaf fields (fields whose unwrapped type is a scalar or enum) to ensure
+an unambiguously shaped response.
 
 For example, this operation selects fields of complex data and relationships
 down to scalar values.
