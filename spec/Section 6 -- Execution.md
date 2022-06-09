@@ -39,13 +39,8 @@ Alternatively, the socket can provide a write buffer pointer to allow
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
 - If {operation} is a query operation:
-  - Let {executionResult} be the result of calling {ExecuteQuery(operation,
-    schema, coercedVariableValues, initialValue, subsequentPayloads)}.
-  - If {executionResult} is an iterator:
-    - For each {payload} in {executionResult}:
-      - Yield {payload}.
-  - Otherwise:
-    - Return {executionResult}.
+  - Return {ExecuteQuery(operation, schema, coercedVariableValues,
+    initialValue)}.
 - Otherwise if {operation} is a mutation operation:
   - Return {ExecuteMutation(operation, schema, coercedVariableValues,
     initialValue)}.
