@@ -30,6 +30,7 @@ request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
+
 Note: the execution assumes implementing language supports coroutines.
 Alternatively, the socket can provide a write buffer pointer to allow
 {ExecuteRequest()} to directly write payloads into the buffer.
