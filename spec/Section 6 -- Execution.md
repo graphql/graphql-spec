@@ -221,7 +221,7 @@ must receive no more events from that event stream.
 
 **Supporting Subscriptions at Scale**
 
-Supporting subscriptions is a significant challenge for a GraphQL service. Query
+Supporting subscriptions is a significant change for any GraphQL service. Query
 and mutation operations are stateless, allowing scaling via cloning of GraphQL
 service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
@@ -235,12 +235,12 @@ connectivity.
 **Delivery Agnostic**
 
 GraphQL subscriptions do not require any specific serialization format or
-transport mechanism. Subscriptions specify parameters for the creation of a
-stream, the content of each payload on that stream, and the closing of that
-stream. There are intentionally no specifications for message acknowledgement,
-buffering, resend requests, or any other quality of service (QoS) details.
-Message serialization, transport mechanisms, and quality of service details
-should be chosen by the implementing service.
+transport mechanism. GraphQL specifies algorithms for the creation of a
+subscription stream, the content of each payload on that stream, and the closing
+of that stream. There are intentionally no specifications for message
+acknowledgement, buffering, resend requests, or any other quality of service
+(QoS) details. Message serialization, transport mechanisms, and quality of
+service details should be chosen by the implementing service.
 
 #### Source Stream
 
@@ -395,7 +395,7 @@ completion before it continues on to the next item in the grouped field set:
 For example, given the following selection set to be executed serially:
 
 ```graphql example
-mutation {
+{
   changeBirthday(birthday: $newBirthday) {
     month
   }
@@ -417,7 +417,7 @@ As an illustrative example, let's assume we have a mutation field
 we execute the following selection set serially:
 
 ```graphql example
-mutation {
+{
   first: changeTheNumber(newNumber: 1) {
     theNumber
   }

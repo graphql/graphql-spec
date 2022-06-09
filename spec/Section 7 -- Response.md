@@ -61,7 +61,8 @@ contains should indicate why no data was able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry in the response may contain any field errors that
-were raised during execution. 
+were raised during execution. If field errors were raised during execution, it
+should contain those errors.
 
 **Request Errors**
 

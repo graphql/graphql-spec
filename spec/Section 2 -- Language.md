@@ -1172,8 +1172,8 @@ VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
 
 DefaultValue : = Value[Const]
 
-A GraphQL operation can be parameterized with variables
-maximizing reuse of parsed queries by the GraphQL service.
+A GraphQL operation can be parameterized with variables, maximizing reuse, and
+avoiding costly string building in clients at runtime.
 
 If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
