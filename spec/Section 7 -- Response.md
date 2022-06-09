@@ -12,9 +12,9 @@ the case that any _field error_ was raised on a field and was replaced with
 
 A response to a GraphQL request must be a map or an event stream of maps.
 
-If the operation encountered any errors, the response map must contain an entry
-with key `errors`. The value of this entry is described in the "Errors" section.
-If the request completed without raising any errors, this entry must not be
+If the request raised any errors, the response map must contain an entry with
+key `errors`. The value of this entry is described in the "Errors" section. If
+the request completed without raising any errors, this entry must not be
 present.
 
 If the request included execution, the response map must contain an entry with
