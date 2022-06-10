@@ -739,10 +739,9 @@ ResolveAbstractType(abstractType, objectValue):
 - Let {possibleRuntimeType} be the result of calling the internal method
   provided by the type system, given Abstract type {abstractType} and value
   {objectValue}.
-- If {possibleRuntimeType} is an Object type:
-  - Return {possibleRuntimeType}.
 - If {possibleRuntimeType} is an Interface type:
   - Return ResolveAbstractTypeImpl(possibleRuntimeType, objectValue).
+- Return {possibleRuntimeType}.
 
 **Merging Selection Sets**
 
