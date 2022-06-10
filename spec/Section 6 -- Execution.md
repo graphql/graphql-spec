@@ -722,8 +722,13 @@ and output of {CoerceResult()} must not be {null}.
 
 When completing a field with an abstract return type, that is an Interface or
 Union return type, first the abstract type must be resolved to a relevant Object
-type. This determination is made by the internal system using whatever means
-appropriate.
+type. The internal system must provided a method for doing so using whatever
+means appropriate.
+
+Note: In cases where interfaces may implement interfaces, creating an abstract
+type hierarchy, the provided internal method may find it convenient on some
+systems to return an intermediate Interface type rather than the runtime Object
+type, requiring recursion, as detailed below.
 
 Note: A common method of determining the Object type for an {objectValue} in
 object-oriented environments, such as Java or C#, is to use the class name of
@@ -731,9 +736,13 @@ the {objectValue}.
 
 ResolveAbstractType(abstractType, objectValue):
 
-- Return the result of calling the internal method provided by the type system
-  for determining the Object type of {abstractType} given the value
+- Let {possibleRuntimeType} be the result of calling the internal method
+  provided by the type system, given Abstract type {abstractType} and value
   {objectValue}.
+- If {possibleRuntimeType} is an Object type:
+  - Return {possibleRuntimeType}.
+- If {possibleRuntimeType} is an Interface type:
+  - Return ResolveAbstractTypeImpl(possibleRuntimeType, objectValue).
 
 **Merging Selection Sets**
 
