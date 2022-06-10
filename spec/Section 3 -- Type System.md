@@ -220,10 +220,6 @@ Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if it only uses the default root
 operation type names.
 
-Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if it only uses the default root
-operation type names.
-
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
 {`query`} root operation type of the schema.

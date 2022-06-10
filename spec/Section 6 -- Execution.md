@@ -1,6 +1,6 @@
 # Execution
 
-GraphQL service generates a response from a request via execution.
+A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
@@ -144,7 +144,8 @@ executing the operation’s top level selection set on the mutation root object
 type. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
-side-effects on the underlying data system. 
+side-effects on the underlying data system. Serial execution of the provided
+mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
