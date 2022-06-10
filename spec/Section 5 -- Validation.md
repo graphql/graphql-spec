@@ -575,7 +575,7 @@ fragment conflictingDifferingResponses on Pet {
 **Formal Specification**
 
 - For each {selection} in the document:
-  - Let {selectionType} be the unwrapped result type of {selection}.
+  - Let {selectionType} be the result type of {selection}.
   - If {selectionType} is a scalar or enum:
     - The subselection set of that selection must be empty.
   - If {selectionType} is an interface, union, or object:
@@ -583,8 +583,8 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Scalars and enums are the underlying type of leaf nodes of any GraphQL
-operation. Field selections are never allowed on leaf nodes.
+Field selections on scalars or enums are never allowed, because they are the
+leaf nodes of any GraphQL operation.
 
 The following is valid.
 
@@ -604,9 +604,9 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the underlying type of leaf field selections of GraphQL operations
-must be scalar or enum. Leaf selections without subfields on fields whose
-underlying type is object, interface, or union are disallowed.
+Conversely the leaf field selections of GraphQL operations must be of type
+scalar or enum. Leaf selections on objects, interfaces, and unions without
+subfields are disallowed.
 
 Let's assume the following additions to the query root operation type of the
 schema:
