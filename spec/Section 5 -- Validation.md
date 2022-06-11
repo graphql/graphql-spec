@@ -1,8 +1,8 @@
 # Validation
 
-A GraphQL service does not just verify if a request is syntactically correct, but also
-ensures that it is unambiguous and mistake-free in the context of a given
-GraphQL schema.
+A GraphQL service does not just verify if a request is syntactically correct,
+but also ensures that it is unambiguous and mistake-free in the context of a
+given GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
 stable result as defined by the algorithms in the Execution section, however

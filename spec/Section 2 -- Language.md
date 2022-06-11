@@ -90,7 +90,7 @@ LineTerminator ::
 Like white space, line terminators are used to improve the legibility of source
 text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
-Document. 
+Document.
 
 Note: Any error reporting which provides the line number in the source of the
 offending syntax should use the preceding amount of {LineTerminator} to produce
