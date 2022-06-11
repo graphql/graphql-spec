@@ -15,11 +15,11 @@
   "scripts": {
     "test": "npm run test:build && npm run test:spellcheck",
     "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
-    "test:spellcheck": "cspell 'spec/**/*.md' README.md",
-    "format": "prettier --write '**/*.{md,yml,yaml,json}'",
-    "format:check": "prettier --check '**/*.{md,yml,yaml,json}'",
+    "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
+    "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
+    "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
     "build": "./build.sh",
-    "watch": "nodemon -e json,md --exec 'npm run build'"
+    "watch": "nodemon -e json,md --exec \"npm run build\""
   },
   "devDependencies": {
     "cspell": "5.9.1",
