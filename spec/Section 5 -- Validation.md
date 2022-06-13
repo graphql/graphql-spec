@@ -135,10 +135,10 @@ extend type Dog {
 
 **Formal Specification**
 
-- For each operation definition {operation} in the document.
-- Let {operationRootType} be the root type in {schema} corresponding to the type
+- For each operation definition {operation} in the document:
+  - Let {operationRootType} be the root type in {schema} corresponding to the type
   of {operation}.
-- {operationRootType} must exist.
+  - {operationRootType} must exist.
 
 **Explanatory Text**
 
