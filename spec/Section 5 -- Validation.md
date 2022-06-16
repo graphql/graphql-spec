@@ -583,8 +583,8 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Field subselections are never allowed on leaf fields. A leaf field is any
-field with a scalar or enum result type.
+Field subselections are never allowed on leaf fields. A leaf field is any field
+with a scalar or enum result type.
 
 The following is valid.
 
@@ -637,7 +637,6 @@ query directQueryOnUnionWithoutSubFields {
 ```
 
 However the following example is valid since it includes a field subselection.
-
 
 ```graphql example
 query directQueryOnObjectWithSubFields {
