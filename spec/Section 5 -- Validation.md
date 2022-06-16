@@ -583,8 +583,8 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Scalars and enums are the underlying type of leaf nodes of any GraphQL
-operation. Field selections are never allowed on leaf nodes.
+Field subselections are never allowed on leaf fields. A leaf field is any
+field with a scalar or enum result type.
 
 The following is valid.
 
@@ -604,9 +604,9 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the underlying type of leaf field selections of GraphQL operations
-must be scalar or enum. Leaf selections without subfields on fields whose
-underlying type is object, interface, or union are disallowed.
+Conversely, any field without subselections must be a leaf field. That is,
+fields with an object, interface, or union result type must have a field
+subselection.
 
 Let's assume the following additions to the query root operation type of the
 schema:
@@ -619,7 +619,8 @@ extend type Query {
 }
 ```
 
-The following examples are invalid
+The following examples are invalid because they include non-leaf fields without
+field subselections.
 
 ```graphql counter-example
 query directQueryOnObjectWithoutSubFields {
@@ -632,6 +633,17 @@ query directQueryOnInterfaceWithoutSubFields {
 
 query directQueryOnUnionWithoutSubFields {
   catOrDog
+}
+```
+
+However the following example is valid since it includes a field subselection.
+
+
+```graphql example
+query directQueryOnObjectWithSubFields {
+  human {
+    name
+  }
 }
 ```
 
