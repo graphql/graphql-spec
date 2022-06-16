@@ -583,7 +583,7 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Field subselections are never allowed on leaf fields. A leaf field is any field
+A field subselection is not allowed on leaf fields. A leaf field is any field
 with a scalar or enum result type.
 
 The following is valid.
@@ -619,7 +619,7 @@ extend type Query {
 ```
 
 The following examples are invalid because they include non-leaf fields without
-field subselections.
+a field subselection.
 
 ```graphql counter-example
 query directQueryOnObjectWithoutSubFields {
