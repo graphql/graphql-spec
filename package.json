@@ -7,18 +7,28 @@
     "Daniel Schafer <dschafer@fb.com>"
   ],
   "license": "OWFa-1.0",
-  "homepage": "https://graphql.github.io/graphql-spec",
+  "homepage": "https://spec.graphql.org/",
   "repository": {
     "type": "git",
     "url": "http://github.com/graphql/graphql-spec.git"
   },
   "scripts": {
-    "test": "spec-md spec/GraphQL.md > /dev/null",
-    "build": "mkdir -p out; spec-md spec/GraphQL.md > out/index.html",
-    "watch": "mkdir -p out; nodemon --exec 'spec-md > out/index.html' spec/GraphQL.md"
+    "test": "npm run test:build && npm run test:spellcheck",
+    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
+    "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
+    "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
+    "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
+    "build": "./build.sh",
+    "watch": "nodemon -e json,md --exec \"npm run build\""
   },
   "devDependencies": {
-    "nodemon": "1.19.1",
-    "spec-md": "1.1.1"
+    "cspell": "5.9.1",
+    "nodemon": "2.0.12",
+    "prettier": "^2.3.0",
+    "spec-md": "3.0.2"
+  },
+  "prettier": {
+    "proseWrap": "always",
+    "trailingComma": "none"
   }
 }
