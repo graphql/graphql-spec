@@ -604,9 +604,8 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely, any field without subselections must be a leaf field. That is,
-fields with an object, interface, or union result type must have a field
-subselection.
+Conversely, non-leaf fields must have a field subselection. A non-leaf field is
+any field with an object, interface, or union result type.
 
 Let's assume the following additions to the query root operation type of the
 schema:
