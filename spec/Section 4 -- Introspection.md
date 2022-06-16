@@ -56,8 +56,7 @@ would produce the result:
 }
 ```
 
-
-## Reserved Names
+**Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
 the same context as user-defined types and fields are prefixed with {"\_\_"} two
@@ -462,8 +461,7 @@ Fields\:
 - `deprecationReason` optionally provides a reason why this input field or
   argument is deprecated.
 
-
-### The __EnumValue Type
+### The \_\_EnumValue Type
 
 The `__EnumValue` type represents one of possible values of an enum.
 
@@ -473,18 +471,43 @@ Fields\:
 - `description` may return a String or {null}
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-* `deprecationReason` optionally provides a reason why this enum value is deprecated.
+- `deprecationReason` optionally provides a reason why this enum value is
+  deprecated.
 
+### The \_\_Directive Type
 
-### The __Directive Type
+The `__Directive` type represents a directive that a service supports.
 
-The `__Directive` type represents a Directive that a server supports.
+This includes both any _built-in directive_ and any _custom directive_.
 
-Fields
+Individual directives may only be used in locations that are explicitly
+supported. All possible locations are listed in the `__DirectiveLocation` enum:
 
-* `name` must return a String
-* `description` may return a String or {null}
-* `locations` returns a List of `__DirectiveLocation` representing the valid
+- {"QUERY"}
+- {"MUTATION"}
+- {"SUBSCRIPTION"}
+- {"FIELD"}
+- {"FRAGMENT_DEFINITION"}
+- {"FRAGMENT_SPREAD"}
+- {"INLINE_FRAGMENT"}
+- {"VARIABLE_DEFINITION"}
+- {"SCHEMA"}
+- {"SCALAR"}
+- {"OBJECT"}
+- {"FIELD_DEFINITION"}
+- {"ARGUMENT_DEFINITION"}
+- {"INTERFACE"}
+- {"UNION"}
+- {"ENUM"}
+- {"ENUM_VALUE"}
+- {"INPUT_OBJECT"}
+- {"INPUT_FIELD_DEFINITION"}
+
+Fields\:
+
+- `name` must return a String
+- `description` may return a String or {null}
+- `locations` returns a List of `__DirectiveLocation` representing the valid
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
