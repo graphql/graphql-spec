@@ -575,7 +575,7 @@ fragment conflictingDifferingResponses on Pet {
 **Formal Specification**
 
 - For each {selection} in the document:
-  - Let {selectionType} be the result type of {selection}.
+  - Let {selectionType} be the unwrapped result type of {selection}.
   - If {selectionType} is a scalar or enum:
     - The subselection set of that selection must be empty.
   - If {selectionType} is an interface, union, or object:
@@ -583,8 +583,8 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-Field selections on scalars or enums are never allowed, because they are the
-leaf nodes of any GraphQL operation.
+A field subselection is not allowed on leaf fields. A leaf field is any field
+with a scalar or enum unwrapped type.
 
 The following is valid.
 
@@ -604,9 +604,8 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the leaf field selections of GraphQL operations must be of type
-scalar or enum. Leaf selections on objects, interfaces, and unions without
-subfields are disallowed.
+Conversely, non-leaf fields must have a field subselection. A non-leaf field is
+any field with an object, interface, or union unwrapped type.
 
 Let's assume the following additions to the query root operation type of the
 schema:
@@ -619,7 +618,8 @@ extend type Query {
 }
 ```
 
-The following examples are invalid
+The following examples are invalid because they include non-leaf fields without
+a field subselection.
 
 ```graphql counter-example
 query directQueryOnObjectWithoutSubFields {
@@ -632,6 +632,16 @@ query directQueryOnInterfaceWithoutSubFields {
 
 query directQueryOnUnionWithoutSubFields {
   catOrDog
+}
+```
+
+However the following example is valid since it includes a field subselection.
+
+```graphql example
+query directQueryOnObjectWithSubFields {
+  human {
+    name
+  }
 }
 ```
 
