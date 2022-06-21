@@ -3427,7 +3427,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-Validation" secid="5">
 <h1 data-source="spec/Section%205%20--%20Validation.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Validation">5</a></span>Validation</h1>
-<p data-source="spec/Section%205%20--%20Validation.md#L3-L5">GraphQL does not just verify if a request is syntactically correct, but also ensures that it is unambiguous and mistake-free in the context of a given GraphQL schema.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L3-L5">A GraphQL service does not just verify if a request is syntactically correct, but also ensures that it is unambiguous and mistake-free in the context of a given GraphQL schema.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L7-L10">An invalid request is still technically executable, and will always produce a stable result as defined by the algorithms in the Execution section, however that result may be ambiguous, surprising, or unexpected relative to a request containing validation errors, so execution should only occur for valid requests.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L12-L20">Typically validation is performed in the context of a request immediately before execution, however a GraphQL service may execute a request without explicitly validating it if that exact same request is known to have been validated before. For example: the request may be validated during development, provided it does not later change, or a service may validate a request once and memoize the result to avoid validating the same request again in the future. Any client-side or development-time tool should report validation errors and not allow the formulation or execution of requests known to be invalid at that given point in time.</p>
 <section id="sec-Validation.Type-system-evolution" class="subsec">
@@ -5169,7 +5169,7 @@ The value <span class="spec-keyword">null</span> could still be provided to such
 </section>
 <section id="sec-Execution" secid="6">
 <h1 data-source="spec/Section%206%20--%20Execution.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Execution">6</a></span>Execution</h1>
-<p data-source="spec/Section%206%20--%20Execution.md#L3">GraphQL generates a response from a request via execution.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L3">A GraphQL service generates a response from a request via execution.</p>
 <p data-source="spec/Section%206%20--%20Execution.md#L5">A <dfn id="request"><a href="#request" data-name="request">request</a></dfn> for execution consists of a few pieces of information:</p>
 <ul>
 <li data-source="spec/Section%206%20--%20Execution.md#L7">The schema to use, typically solely provided by the GraphQL service.</li>
@@ -5313,9 +5313,9 @@ This algorithm is very similar to <span class="spec-call"><a href="#CoerceArgume
 <li data-source="spec/Section%206%20--%20Execution.md#L175">Return <var data-name="responseStream">responseStream</var>.</li>
 </ol>
 </div>
-<div id="note-79d56" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L177-L180">
-<a href="#note-79d56">Note</a>
-In large scale subscription systems, the <span class="spec-call"><a href="#Subscribe()" data-name="Subscribe">Subscribe</a>()</span> and <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>()</span> algorithms may be run on separate services to maintain predictable scaling properties. See the section below on Supporting Subscriptions at Scale.</div>
+<div id="note-b7e10" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L177-L180">
+<a href="#note-b7e10">Note</a>
+In a large-scale subscription system, the <span class="spec-call"><a href="#Subscribe()" data-name="Subscribe">Subscribe</a>()</span> and <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>()</span> algorithms may be run on separate services to maintain predictable scaling properties. See the section below on Supporting Subscriptions at Scale.</div>
 <p data-source="spec/Section%206%20--%20Execution.md#L182-L183">As an example, consider a chat application. To subscribe to new messages posted to the chat room, the client sends a request like so:</p>
 <pre id="example-2a5f0" class="spec-example" data-language="graphql" data-source="spec/Section%206%20--%20Execution.md#L185-L192"><a href="#example-2a5f0">Example № 190</a><code><span class="token keyword">subscription</span> <span class="token object">NewMessages</span> <span class="token punctuation">{</span>
   <span class="token property-query">newMessage</span><span class="token punctuation">(</span><span class="token attr-name">roomId</span><span class="token punctuation">:</span> <span class="token number">123</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
