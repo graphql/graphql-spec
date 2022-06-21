@@ -1,6 +1,6 @@
 # Execution
 
-GraphQL generates a response from a request via execution.
+A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
@@ -174,7 +174,7 @@ Subscribe(subscription, schema, variableValues, initialValue):
   {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
 - Return {responseStream}.
 
-Note: In large scale subscription systems, the {Subscribe()} and
+Note: In a large-scale subscription system, the {Subscribe()} and
 {ExecuteSubscriptionEvent()} algorithms may be run on separate services to
 maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
