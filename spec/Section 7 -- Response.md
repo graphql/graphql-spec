@@ -52,7 +52,7 @@ If an error was raised during the execution that prevented a valid response, the
 The `errors` entry in the response is a non-empty list of errors, where each
 error is a map.
 
-If no errors were raised during the request, the `errors` entry should not be
+If no errors were raised during the request, the `errors` entry must not be
 present in the result.
 
 If the `data` entry in the response is not present, the `errors` entry in the
