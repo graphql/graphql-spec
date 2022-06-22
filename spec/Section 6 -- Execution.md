@@ -776,9 +776,8 @@ A _field error_ is an error raised from a particular field during value
 resolution or coercion. While these errors should be reported in the response,
 they are "handled" by producing a partial response.
 
-Note: This is distinct from a _request error_ which is raised before execution
-begins. If a request error is encountered, execution does not begin and no data
-is returned in the response.
+Note: This is distinct from a _request error_ which results in a response with
+no data.
 
 If a field error is raised while resolving a field, it is handled as though the
 field returned {null}, and the error must be added to the {"errors"} list in the
