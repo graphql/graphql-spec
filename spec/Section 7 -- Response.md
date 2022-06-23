@@ -63,8 +63,8 @@ present. It must contain at least one _request error_ indicating why no data was
 able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry must also be present if a _field error_ was raised
-during execution.
+{null}), the `errors` entry must be present if and only if one or more _field
+error_ was raised during execution.
 
 **Request errors**
 
@@ -76,8 +76,8 @@ to determine which operation to execute, or invalid input values for variables.
 A request error is typically the fault of the requesting client.
 
 If a request error is raised, the `data` entry in the response must not be
-present. If a request error is encountered before execution, execution should
-not begin. The `errors` entry must include the error.
+present, the `errors` entry must include the error, and request execution should
+be halted.
 
 **Field errors**
 
