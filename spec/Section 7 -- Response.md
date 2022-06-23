@@ -4,9 +4,9 @@ When a GraphQL service receives a _request_, it must return a well-formed
 response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors raised during the request.
 
-A response may contain both a partial response as well as a list of all _field
-error_ in the case that any field error was raised on a field and was replaced
-with {null}.
+A response may contain both a partial response as well as a list of errors in
+the case that any _field error_ was raised on a field and was replaced with
+{null}.
 
 ## Response Format
 
