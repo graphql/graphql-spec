@@ -300,8 +300,8 @@ A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be {null} (and that a field error cannot result in a
-{null} value).
+resulting value will never be {null} (and that a _field error_ cannot result in
+a {null} value).
 
 These two types are referred to as "wrapping types"; non-wrapping types are
 referred to as "named types". A wrapping type has an underlying named type,
@@ -425,14 +425,14 @@ examples in their description.
 
 A GraphQL service, when preparing a field of a given scalar type, must uphold
 the contract the scalar type describes, either by coercing the value or
-producing a [field error](#sec-Errors.Field-errors) if a value cannot be coerced
-or if coercion may result in data loss.
+producing a _field error_ if a value cannot be coerced or if coercion may result
+in data loss.
 
 A GraphQL service may decide to allow coercing different internal types to the
 expected return type. For example when coercing a field of type {Int} a boolean
 {true} value may produce {1} or a string value {"123"} may be parsed as base-10
 {123}. However if internal type coercion cannot be reasonably performed without
-losing information, then it must raise a field error.
+losing information, then it must raise a _field error_.
 
 Since this coercion behavior is not observable to clients of the GraphQL
 service, the precise rules of coercion are left to the implementation. The only
@@ -450,8 +450,8 @@ information on the serialization of scalars in common JSON and other formats.
 
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
-a coercion rule, a [request error](#sec-Errors.Request-errors) must be raised
-(input values are validated before execution begins).
+a coercion rule, a _request error_ must be raised (input values are validated
+before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -477,14 +477,15 @@ Fields returning the type {Int} expect to encounter 32-bit integer internal
 values.
 
 GraphQL services may coerce non-integer internal values to integers when
-reasonable without losing information, otherwise they must raise a field error.
-Examples of this may include returning `1` for the floating-point number `1.0`,
-or returning `123` for the string `"123"`. In scenarios where coercion may lose
-data, raising a field error is more appropriate. For example, a floating-point
-number `1.2` should raise a field error instead of being truncated to `1`.
+reasonable without losing information, otherwise they must raise a _field
+error_. Examples of this may include returning `1` for the floating-point number
+`1.0`, or returning `123` for the string `"123"`. In scenarios where coercion
+may lose data, raising a field error is more appropriate. For example, a
+floating-point number `1.2` should raise a field error instead of being
+truncated to `1`.
 
 If the integer internal value represents a value less than -2<sup>31</sup> or
-greater than or equal to 2<sup>31</sup>, a field error should be raised.
+greater than or equal to 2<sup>31</sup>, a _field error_ should be raised.
 
 **Input Coercion**
 
@@ -492,7 +493,7 @@ When expected as an input type, only integer input values are accepted. All
 other input values, including strings with numeric content, must raise a request
 error indicating an incorrect type. If the integer input value represents a
 value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a
-request error should be raised.
+_request error_ should be raised.
 
 Note: Numeric integer values larger than 32-bit should either use String or a
 custom-defined Scalar type, as not all platforms and transports support encoding
@@ -511,22 +512,22 @@ Fields returning the type {Float} expect to encounter double-precision
 floating-point internal values.
 
 GraphQL services may coerce non-floating-point internal values to {Float} when
-reasonable without losing information, otherwise they must raise a field error.
-Examples of this may include returning `1.0` for the integer number `1`, or
-`123.0` for the string `"123"`.
+reasonable without losing information, otherwise they must raise a _field
+error_. Examples of this may include returning `1.0` for the integer number `1`,
+or `123.0` for the string `"123"`.
 
 Non-finite floating-point internal values ({NaN} and {Infinity}) cannot be
-coerced to {Float} and must raise a field error.
+coerced to {Float} and must raise a _field error_.
 
 **Input Coercion**
 
 When expected as an input type, both integer and float input values are
 accepted. Integer input values are coerced to Float by adding an empty
 fractional part, for example `1.0` for the integer input value `1`. All other
-input values, including strings with numeric content, must raise a request error
-indicating an incorrect type. If the input value otherwise represents a value
-not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value outside
-the available precision), a request error must be raised.
+input values, including strings with numeric content, must raise a _request
+error_ indicating an incorrect type. If the input value otherwise represents a
+value not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value
+outside the available precision), a _request error_ must be raised.
 
 ### String
 
@@ -542,14 +543,14 @@ that representation must be used to serialize this type.
 Fields returning the type {String} expect to encounter Unicode string values.
 
 GraphQL services may coerce non-string raw values to {String} when reasonable
-without losing information, otherwise they must raise a field error. Examples of
-this may include returning the string `"true"` for a boolean true value, or the
-string `"1"` for the integer `1`.
+without losing information, otherwise they must raise a _field error_. Examples
+of this may include returning the string `"true"` for a boolean true value, or
+the string `"1"` for the integer `1`.
 
 **Input Coercion**
 
 When expected as an input type, only valid Unicode string input values are
-accepted. All other input values must raise a request error indicating an
+accepted. All other input values must raise a _request error_ indicating an
 incorrect type.
 
 ### Boolean
@@ -563,13 +564,13 @@ representation of the integers `1` and `0`.
 Fields returning the type {Boolean} expect to encounter boolean internal values.
 
 GraphQL services may coerce non-boolean raw values to {Boolean} when reasonable
-without losing information, otherwise they must raise a field error. Examples of
-this may include returning `true` for non-zero numbers.
+without losing information, otherwise they must raise a _field error_. Examples
+of this may include returning `true` for non-zero numbers.
 
 **Input Coercion**
 
 When expected as an input type, only boolean input values are accepted. All
-other input values must raise a request error indicating an incorrect type.
+other input values must raise a _request error_ indicating an incorrect type.
 
 ### ID
 
@@ -586,15 +587,15 @@ large 128-bit random numbers, to base64 encoded values, or string values of a
 format like [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier).
 
 GraphQL services should coerce as appropriate given the ID formats they expect.
-When coercion is not possible they must raise a field error.
+When coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
 
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
 formats a given GraphQL service expects. Any other input value, including float
-input values (such as `4.0`), must raise a request error indicating an incorrect
-type.
+input values (such as `4.0`), must raise a _request error_ indicating an
+incorrect type.
 
 ### Scalar Extensions
 
@@ -1448,7 +1449,7 @@ enum Direction {
 **Result Coercion**
 
 GraphQL services must return one of the defined set of possible values. If a
-reasonable coercion is not possible they must raise a field error.
+reasonable coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
 
@@ -1584,9 +1585,9 @@ type of an Object or Interface field.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise a request error must be raised. In either
-case, the input object literal or unordered map must not contain any entries
-with names not defined by a field of this input object type, otherwise a
+map supplied by a variable, otherwise a _request error_ must be raised. In
+either case, the input object literal or unordered map must not contain any
+entries with names not defined by a field of this input object type, otherwise a
 response error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
@@ -1610,7 +1611,7 @@ is constructed with the following rules:
 
 - If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type is
-  non-null, a field error must be raised. If no runtime value is provided, the
+  non-null, a _field error_ must be raised. If no runtime value is provided, the
   variable definition's default value should be used. If the variable definition
   does not provide a default value, the input object field definition's default
   value should be used.
@@ -1698,13 +1699,14 @@ brackets like this: `pets: [Pet]`. Nesting lists is allowed: `matrix: [[Int]]`.
 
 GraphQL services must return an ordered list as the result of a list type. Each
 item in the list must be the result of a result coercion of the item type. If a
-reasonable coercion is not possible it must raise a field error. In particular,
-if a non-list is returned, the coercion should fail, as this indicates a
-mismatch in expectations between the type system and the implementation.
+reasonable coercion is not possible it must raise a _field error_. In
+particular, if a non-list is returned, the coercion should fail, as this
+indicates a mismatch in expectations between the type system and the
+implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
 coercion of an individual item in the list must result in a the value {null} at
-that position in the list along with a field error added to the response. If a
+that position in the list along with a _field error_ added to the response. If a
 list's item type is non-null, a field error occurring at an individual item in
 the list must result in a field error for the entire list.
 
@@ -1764,11 +1766,11 @@ always optional and non-null types are always required.
 In all of the above result coercions, {null} was considered a valid value. To
 coerce the result of a Non-Null type, the coercion of the wrapped type should be
 performed. If that result was not {null}, then the result of coercing the
-Non-Null type is that result. If that result was {null}, then a field error must
-be raised.
+Non-Null type is that result. If that result was {null}, then a _field error_
+must be raised.
 
-Note: When a field error is raised on a non-null value, the error propagates to
-the parent field. For more information on this process, see
+Note: When a _field error_ is raised on a non-null value, the error propagates
+to the parent field. For more information on this process, see
 [Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields)
 within the Execution section.
 
@@ -1777,7 +1779,7 @@ within the Execution section.
 If an argument or input-object field of a Non-Null type is not provided, is
 provided with the literal value {null}, or is provided with a variable that was
 either not provided a value at runtime, or was provided the value {null}, then a
-request error must be raised.
+_request error_ must be raised.
 
 If the value provided to the Non-Null type is provided with a literal value
 other than {null}, or a Non-Null variable value, it is coerced using the input
