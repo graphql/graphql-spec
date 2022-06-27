@@ -848,8 +848,9 @@ many examples below will use the query short-hand syntax.</div>
 <div class="spec-production" id="InlineFragment" data-source="spec/Section%202%20--%20Language.md#L668">
 <span class="spec-nt"><a href="#InlineFragment" data-name="InlineFragment">InlineFragment</a></span><div class="spec-rhs"><span class="spec-t">...</span><span class="spec-quantified"><span class="spec-nt"><a href="#TypeCondition" data-name="TypeCondition">TypeCondition</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#SelectionSet" data-name="SelectionSet">SelectionSet</a></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L670-L673">Fragments can be defined inline within a selection set. This is done to conditionally include fields based on their runtime type. This feature of standard fragment inclusion was demonstrated in the <code>query FragmentTyping</code> example. We could accomplish the same thing using inline fragments.</p>
-<pre id="example-10b94" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L675-L691"><a href="#example-10b94">Example № 23</a><code><span class="token keyword">query</span> <span class="token definition-query function">inlineFragmentTyping</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L670-L672">Fragments can also be defined inline within a selection set. This is useful for conditionally including fields based on a type condition or applying a directive to a selection set.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L674-L676">This feature of standard fragment inclusion was demonstrated in the <code>query FragmentTyping</code> example above. We could accomplish the same thing using inline fragments.</p>
+<pre id="example-10b94" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L678-L694"><a href="#example-10b94">Example № 23</a><code><span class="token keyword">query</span> <span class="token definition-query function">inlineFragmentTyping</span> <span class="token punctuation">{</span>
   <span class="token property-query">profiles</span><span class="token punctuation">(</span><span class="token attr-name">handles</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"coca-cola"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">handle</span>
     <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
@@ -865,8 +866,8 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L693-L695">Inline fragments may also be used to apply a directive to a group of fields. If the TypeCondition is omitted, an inline fragment is considered to be of the same type as the enclosing context.</p>
-<pre id="example-77377" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L697-L709"><a href="#example-77377">Example № 24</a><code><span class="token keyword">query</span> <span class="token definition-query function">inlineFragmentNoType</span><span class="token punctuation">(</span><span class="token variable">$expandedInfo</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L696-L698">Inline fragments may also be used to apply a directive to a group of fields. If the TypeCondition is omitted, an inline fragment is considered to be of the same type as the enclosing context.</p>
+<pre id="example-77377" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L700-L712"><a href="#example-77377">Example № 24</a><code><span class="token keyword">query</span> <span class="token definition-query function">inlineFragmentNoType</span><span class="token punctuation">(</span><span class="token variable">$expandedInfo</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property-query">user</span><span class="token punctuation">(</span><span class="token attr-name">handle</span><span class="token punctuation">:</span> <span class="token string">"zuck"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">id</span>
     <span class="token property">name</span>
@@ -881,8 +882,8 @@ many examples below will use the query short-hand syntax.</div>
 </section>
 </section>
 <section id="sec-Input-Values" secid="2.9">
-<h2 data-source="spec/Section%202%20--%20Language.md#L711"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Values">2.9</a></span>Input Values</h2>
-<div class="spec-production" id="Value" data-source="spec/Section%202%20--%20Language.md#L713-L723">
+<h2 data-source="spec/Section%202%20--%20Language.md#L714"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Values">2.9</a></span>Input Values</h2>
+<div class="spec-production" id="Value" data-source="spec/Section%202%20--%20Language.md#L716-L726">
 <span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-condition not">Const</span><span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span></div>
@@ -893,87 +894,87 @@ many examples below will use the query short-hand syntax.</div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#ObjectValue" data-name="ObjectValue">ObjectValue</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L725-L726">Field and directive arguments accept input values of various literal primitives; input values can be scalars, enumeration values, lists, or input objects.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L728-L730">If not defined as constant (for example, in <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span>), input values can be specified as a variable. List and inputs objects may also contain variables (unless defined to be constant).</p>
+<p data-source="spec/Section%202%20--%20Language.md#L728-L729">Field and directive arguments accept input values of various literal primitives; input values can be scalars, enumeration values, lists, or input objects.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L731-L733">If not defined as constant (for example, in <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span>), input values can be specified as a variable. List and inputs objects may also contain variables (unless defined to be constant).</p>
 <section id="sec-Int-Value" secid="2.9.1">
-<h3 data-source="spec/Section%202%20--%20Language.md#L732"><span class="spec-secid" title="link to this section"><a href="#sec-Int-Value">2.9.1</a></span>Int Value</h3>
-<div class="spec-production d2" id="IntValue" data-source="spec/Section%202%20--%20Language.md#L734">
+<h3 data-source="spec/Section%202%20--%20Language.md#L735"><span class="spec-secid" title="link to this section"><a href="#sec-Int-Value">2.9.1</a></span>Int Value</h3>
+<div class="spec-production d2" id="IntValue" data-source="spec/Section%202%20--%20Language.md#L737">
 <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span></span></div>
 </div>
-<div class="spec-production d2" id="IntegerPart" data-source="spec/Section%202%20--%20Language.md#L736-L739">
+<div class="spec-production d2" id="IntegerPart" data-source="spec/Section%202%20--%20Language.md#L739-L742">
 <span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">0</span></div>
 <div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#NonZeroDigit" data-name="NonZeroDigit">NonZeroDigit</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
-<div class="spec-production d2" id="NegativeSign" data-source="spec/Section%202%20--%20Language.md#L741">
+<div class="spec-production d2" id="NegativeSign" data-source="spec/Section%202%20--%20Language.md#L744">
 <span class="spec-nt"><a href="#NegativeSign" data-name="NegativeSign">NegativeSign</a></span><div class="spec-rhs"><span class="spec-t">-</span></div>
 </div>
-<div class="spec-production d2" id="NonZeroDigit" data-source="spec/Section%202%20--%20Language.md#L743">
+<div class="spec-production d2" id="NonZeroDigit" data-source="spec/Section%202%20--%20Language.md#L746">
 <span class="spec-nt"><a href="#NonZeroDigit" data-name="NonZeroDigit">NonZeroDigit</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-butnot"><span class="spec-t">0</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L745-L746">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> is specified without a decimal point or exponent but may be negative (ex. <span class="spec-t">-123</span>). It must not have any leading <span class="spec-t">0</span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L748-L752">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">12</span> cannot be interpreted as two tokens since <span class="spec-t">1</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">2</span>. This also means the source <span class="spec-t">00</span> is invalid since it can neither be interpreted as a single token nor two <span class="spec-t">0</span> tokens.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L754-L757">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-t">.</span> or <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span>. If either <span class="spec-t">.</span> or <span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span> follows then the token must only be interpreted as a possible <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>. No other <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span> character can follow. For example the sequences <code>0x123</code> and <code>123L</code> have no valid lexical representations.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L748-L749">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> is specified without a decimal point or exponent but may be negative (ex. <span class="spec-t">-123</span>). It must not have any leading <span class="spec-t">0</span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L751-L755">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, an <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">12</span> cannot be interpreted as two tokens since <span class="spec-t">1</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">2</span>. This also means the source <span class="spec-t">00</span> is invalid since it can neither be interpreted as a single token nor two <span class="spec-t">0</span> tokens.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L757-L760">An <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> must not be followed by a <span class="spec-t">.</span> or <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span>. If either <span class="spec-t">.</span> or <span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span> follows then the token must only be interpreted as a possible <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>. No other <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span> character can follow. For example the sequences <code>0x123</code> and <code>123L</code> have no valid lexical representations.</p>
 </section>
 <section id="sec-Float-Value" secid="2.9.2">
-<h3 data-source="spec/Section%202%20--%20Language.md#L759"><span class="spec-secid" title="link to this section"><a href="#sec-Float-Value">2.9.2</a></span>Float Value</h3>
-<div class="spec-production d2" id="FloatValue" data-source="spec/Section%202%20--%20Language.md#L761-L765">
+<h3 data-source="spec/Section%202%20--%20Language.md#L762"><span class="spec-secid" title="link to this section"><a href="#sec-Float-Value">2.9.2</a></span>Float Value</h3>
+<div class="spec-production d2" id="FloatValue" data-source="spec/Section%202%20--%20Language.md#L764-L768">
 <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#IntegerPart" data-name="IntegerPart">IntegerPart</a></span><span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><span class="spec-lookahead set not"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span></span></div>
 </div>
-<div class="spec-production d2" id="FractionalPart" data-source="spec/Section%202%20--%20Language.md#L767">
+<div class="spec-production d2" id="FractionalPart" data-source="spec/Section%202%20--%20Language.md#L770">
 <span class="spec-nt"><a href="#FractionalPart" data-name="FractionalPart">FractionalPart</a></span><div class="spec-rhs"><span class="spec-t">.</span><span class="spec-quantified"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
-<div class="spec-production d2" id="ExponentPart" data-source="spec/Section%202%20--%20Language.md#L769">
+<div class="spec-production d2" id="ExponentPart" data-source="spec/Section%202%20--%20Language.md#L772">
 <span class="spec-nt"><a href="#ExponentPart" data-name="ExponentPart">ExponentPart</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Sign" data-name="Sign">Sign</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-quantified"><span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
-<div class="spec-production d2" id="ExponentIndicator" data-source="spec/Section%202%20--%20Language.md#L771">
+<div class="spec-production d2" id="ExponentIndicator" data-source="spec/Section%202%20--%20Language.md#L774">
 <span class="spec-nt"><a href="#ExponentIndicator" data-name="ExponentIndicator">ExponentIndicator</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">e</span></td><td class="spec-rhs"><span class="spec-t">E</span></td></tr>
 </table></div></div>
 </div>
-<div class="spec-production d2" id="Sign" data-source="spec/Section%202%20--%20Language.md#L773">
+<div class="spec-production d2" id="Sign" data-source="spec/Section%202%20--%20Language.md#L776">
 <span class="spec-nt"><a href="#Sign" data-name="Sign">Sign</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">+</span></td><td class="spec-rhs"><span class="spec-t">-</span></td></tr>
 </table></div></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L775-L777">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> includes either a decimal point (ex. <span class="spec-t">1.0</span>) or an exponent (ex. <span class="spec-t">1e50</span>) or both (ex. <span class="spec-t">6.0221413e23</span>) and may be negative. Like <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span>, it also must not have any leading <span class="spec-t">0</span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L779-L782">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">1.23</span> cannot be interpreted as two tokens since <span class="spec-t">1.2</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L784-L785">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-t">.</span>. For example, the sequence <span class="spec-t">1.23.4</span> cannot be interpreted as two tokens (<span class="spec-t">1.2</span>, <span class="spec-t">3.4</span>).</p>
-<p data-source="spec/Section%202%20--%20Language.md#L787-L788">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span>. For example the sequence <code>0x1.2p3</code> has no valid lexical representation.</p>
-<div id="note-dea61" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L790-L792">
+<p data-source="spec/Section%202%20--%20Language.md#L778-L780">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> includes either a decimal point (ex. <span class="spec-t">1.0</span>) or an exponent (ex. <span class="spec-t">1e50</span>) or both (ex. <span class="spec-t">6.0221413e23</span>) and may be negative. Like <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span>, it also must not have any leading <span class="spec-t">0</span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L782-L785">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span>. In other words, a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> token is always the longest possible valid sequence. The source characters <span class="spec-t">1.23</span> cannot be interpreted as two tokens since <span class="spec-t">1.2</span> is followed by the <span class="spec-nt"><a href="#Digit" data-name="Digit">Digit</a></span> <span class="spec-t">3</span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L787-L788">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-t">.</span>. For example, the sequence <span class="spec-t">1.23.4</span> cannot be interpreted as two tokens (<span class="spec-t">1.2</span>, <span class="spec-t">3.4</span>).</p>
+<p data-source="spec/Section%202%20--%20Language.md#L790-L791">A <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> must not be followed by a <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span>. For example the sequence <code>0x1.2p3</code> has no valid lexical representation.</p>
+<div id="note-dea61" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L793-L795">
 <a href="#note-dea61">Note</a>
 The numeric literals <span class="spec-nt"><a href="#IntValue" data-name="IntValue">IntValue</a></span> and <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span> both restrict being immediately followed by a letter (or other <span class="spec-nt"><a href="#NameStart" data-name="NameStart">NameStart</a></span>) to reduce confusion or unexpected behavior since GraphQL only supports decimal numbers.</div>
 </section>
 <section id="sec-Boolean-Value" secid="2.9.3">
-<h3 data-source="spec/Section%202%20--%20Language.md#L794"><span class="spec-secid" title="link to this section"><a href="#sec-Boolean-Value">2.9.3</a></span>Boolean Value</h3>
-<div class="spec-production" id="BooleanValue" data-source="spec/Section%202%20--%20Language.md#L796">
+<h3 data-source="spec/Section%202%20--%20Language.md#L797"><span class="spec-secid" title="link to this section"><a href="#sec-Boolean-Value">2.9.3</a></span>Boolean Value</h3>
+<div class="spec-production" id="BooleanValue" data-source="spec/Section%202%20--%20Language.md#L799">
 <span class="spec-nt"><a href="#BooleanValue" data-name="BooleanValue">BooleanValue</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">true</span></td><td class="spec-rhs"><span class="spec-t">false</span></td></tr>
 </table></div></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L798">The two keywords <code>true</code> and <code>false</code> represent the two boolean values.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L801">The two keywords <code>true</code> and <code>false</code> represent the two boolean values.</p>
 </section>
 <section id="sec-String-Value" secid="2.9.4">
-<h3 data-source="spec/Section%202%20--%20Language.md#L800"><span class="spec-secid" title="link to this section"><a href="#sec-String-Value">2.9.4</a></span>String Value</h3>
-<div class="spec-production d2" id="StringValue" data-source="spec/Section%202%20--%20Language.md#L802-L806">
+<h3 data-source="spec/Section%202%20--%20Language.md#L803"><span class="spec-secid" title="link to this section"><a href="#sec-String-Value">2.9.4</a></span>String Value</h3>
+<div class="spec-production d2" id="StringValue" data-source="spec/Section%202%20--%20Language.md#L805-L809">
 <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">""</span><span class="spec-lookahead not"><span class="spec-t">"</span></span></div>
 <div class="spec-rhs"><span class="spec-t">"</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">"</span></div>
 <div class="spec-rhs"><span class="spec-t">"""</span><span class="spec-quantified"><span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">"""</span></div>
 </div>
-<div class="spec-production d2" id="StringCharacter" data-source="spec/Section%202%20--%20Language.md#L808-L812">
+<div class="spec-production d2" id="StringCharacter" data-source="spec/Section%202%20--%20Language.md#L811-L815">
 <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-t">"</span><span class="spec-t">\</span><span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span></span></span></div>
 <div class="spec-rhs"><span class="spec-t">\u</span><span class="spec-nt"><a href="#EscapedUnicode" data-name="EscapedUnicode">EscapedUnicode</a></span></div>
 <div class="spec-rhs"><span class="spec-t">\</span><span class="spec-nt"><a href="#EscapedCharacter" data-name="EscapedCharacter">EscapedCharacter</a></span></div>
 </div>
-<div class="spec-production d2" id="EscapedUnicode" data-source="spec/Section%202%20--%20Language.md#L814-L817">
+<div class="spec-production d2" id="EscapedUnicode" data-source="spec/Section%202%20--%20Language.md#L817-L820">
 <span class="spec-nt"><a href="#EscapedUnicode" data-name="EscapedUnicode">EscapedUnicode</a></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span></div>
 </div>
-<div class="spec-production d2" id="HexDigit" data-source="spec/Section%202%20--%20Language.md#L819-L823">
+<div class="spec-production d2" id="HexDigit" data-source="spec/Section%202%20--%20Language.md#L822-L826">
 <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">0</span></td><td class="spec-rhs"><span class="spec-t">1</span></td><td class="spec-rhs"><span class="spec-t">2</span></td><td class="spec-rhs"><span class="spec-t">3</span></td><td class="spec-rhs"><span class="spec-t">4</span></td><td class="spec-rhs"><span class="spec-t">5</span></td><td class="spec-rhs"><span class="spec-t">6</span></td><td class="spec-rhs"><span class="spec-t">7</span></td><td class="spec-rhs"><span class="spec-t">8</span></td><td class="spec-rhs"><span class="spec-t">9</span></td></tr>
@@ -983,33 +984,33 @@ The numeric literals <span class="spec-nt"><a href="#IntValue" data-name="IntVal
 <td class="spec-rhs"><span class="spec-t">a</span></td><td class="spec-rhs"><span class="spec-t">b</span></td><td class="spec-rhs"><span class="spec-t">c</span></td><td class="spec-rhs"><span class="spec-t">d</span></td><td class="spec-rhs"><span class="spec-t">e</span></td><td class="spec-rhs"><span class="spec-t">f</span></td></tr>
 </table></div></div>
 </div>
-<div class="spec-production d2" id="EscapedCharacter" data-source="spec/Section%202%20--%20Language.md#L825">
+<div class="spec-production d2" id="EscapedCharacter" data-source="spec/Section%202%20--%20Language.md#L828">
 <span class="spec-nt"><a href="#EscapedCharacter" data-name="EscapedCharacter">EscapedCharacter</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">"</span></td><td class="spec-rhs"><span class="spec-t">\</span></td><td class="spec-rhs"><span class="spec-t">/</span></td><td class="spec-rhs"><span class="spec-t">b</span></td><td class="spec-rhs"><span class="spec-t">f</span></td><td class="spec-rhs"><span class="spec-t">n</span></td><td class="spec-rhs"><span class="spec-t">r</span></td><td class="spec-rhs"><span class="spec-t">t</span></td></tr>
 </table></div></div>
 </div>
-<div class="spec-production d2" id="BlockStringCharacter" data-source="spec/Section%202%20--%20Language.md#L827-L830">
+<div class="spec-production d2" id="BlockStringCharacter" data-source="spec/Section%202%20--%20Language.md#L830-L833">
 <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-t">"""</span><span class="spec-t">\"""</span></span></span></div>
 <div class="spec-rhs"><span class="spec-t">\"""</span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L832-L835">A <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> is evaluated to a <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> value, a sequence of <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>, by interpreting all escape sequences using the static semantics defined below. White space and other characters ignored between lexical tokens are significant within a string value.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L837-L840">The empty string <span class="spec-t">""</span> must not be followed by another <span class="spec-t">"</span> otherwise it would be interpreted as the beginning of a block string. As an example, the source <span class="spec-t">""""""</span> can only be interpreted as a single empty block string and not three empty strings.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L835-L838">A <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> is evaluated to a <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> value, a sequence of <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>, by interpreting all escape sequences using the static semantics defined below. White space and other characters ignored between lexical tokens are significant within a string value.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L840-L843">The empty string <span class="spec-t">""</span> must not be followed by another <span class="spec-t">"</span> otherwise it would be interpreted as the beginning of a block string. As an example, the source <span class="spec-t">""""""</span> can only be interpreted as a single empty block string and not three empty strings.</p>
 <section id="sec-String-Value.Escape-Sequences" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L842"><a href="#sec-String-Value.Escape-Sequences" title="link to this subsection">Escape Sequences</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L844-L849">In a single-quoted <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>, any <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> may be expressed using an escape sequence. GraphQL strings allow both C-style escape sequences (for example <code>\n</code>) and two forms of Unicode escape sequences: one with a fixed-width of 4 hexadecimal digits (for example <code>\u000A</code>) and one with a variable-width most useful for representing a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span> such as an Emoji (for example <code>\u{1F4A9}</code>).</p>
-<p data-source="spec/Section%202%20--%20Language.md#L851-L854">The hexadecimal number encoded by a Unicode escape sequence must describe a <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>, otherwise must result in a parse error. For example both sources <code>"\uDEAD"</code> and <code>"\u{110000}"</code> should not be considered valid <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L856-L860">Escape sequences are only meaningful within a single-quoted string. Within a block string, they are simply that sequence of characters (for example <code>"""\n"""</code> represents the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> [U+005C, U+006E]). Within a comment an escape sequence is not a significant sequence of characters. They may not appear elsewhere in a GraphQL document.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L862-L867">Since <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span> must not contain some code points directly (for example, a <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span>), escape sequences must be used to represent them. All other escape sequences are optional and unescaped non-ASCII Unicode characters are allowed within strings. If using GraphQL within a system which only supports ASCII, then escape sequences may be used to represent all Unicode characters outside of the ASCII range.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L869-L874">For legacy reasons, a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span> may be escaped by two fixed-width unicode escape sequences forming a <span class="spec-ref"><a href="https://www.unicode.org/glossary#surrogate_pair" data-name="surrogate-pair" target="_blank">surrogate pair</a></span>. For example the input <code>"\uD83D\uDCA9"</code> is a valid <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> which represents the same <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> as <code>"\u{1F4A9}"</code>. While this legacy form is allowed, it should be avoided as a variable-width unicode escape sequence is a clearer way to encode such code points.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L876-L882">When producing a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>, implementations should use escape sequences to represent non-printable control characters (U+0000 to U+001F and U+007F to U+009F). Other escape sequences are not necessary, however an implementation may use escape sequences to represent any other range of code points (for example, when producing ASCII-only output). If an implementation chooses to escape a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span>, it should only use a variable-width unicode escape sequence.</p>
+<h6 data-source="spec/Section%202%20--%20Language.md#L845"><a href="#sec-String-Value.Escape-Sequences" title="link to this subsection">Escape Sequences</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L847-L852">In a single-quoted <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>, any <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> may be expressed using an escape sequence. GraphQL strings allow both C-style escape sequences (for example <code>\n</code>) and two forms of Unicode escape sequences: one with a fixed-width of 4 hexadecimal digits (for example <code>\u000A</code>) and one with a variable-width most useful for representing a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span> such as an Emoji (for example <code>\u{1F4A9}</code>).</p>
+<p data-source="spec/Section%202%20--%20Language.md#L854-L857">The hexadecimal number encoded by a Unicode escape sequence must describe a <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>, otherwise must result in a parse error. For example both sources <code>"\uDEAD"</code> and <code>"\u{110000}"</code> should not be considered valid <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L859-L863">Escape sequences are only meaningful within a single-quoted string. Within a block string, they are simply that sequence of characters (for example <code>"""\n"""</code> represents the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> [U+005C, U+006E]). Within a comment an escape sequence is not a significant sequence of characters. They may not appear elsewhere in a GraphQL document.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L865-L870">Since <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span> must not contain some code points directly (for example, a <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span>), escape sequences must be used to represent them. All other escape sequences are optional and unescaped non-ASCII Unicode characters are allowed within strings. If using GraphQL within a system which only supports ASCII, then escape sequences may be used to represent all Unicode characters outside of the ASCII range.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L872-L877">For legacy reasons, a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span> may be escaped by two fixed-width unicode escape sequences forming a <span class="spec-ref"><a href="https://www.unicode.org/glossary#surrogate_pair" data-name="surrogate-pair" target="_blank">surrogate pair</a></span>. For example the input <code>"\uD83D\uDCA9"</code> is a valid <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> which represents the same <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> as <code>"\u{1F4A9}"</code>. While this legacy form is allowed, it should be avoided as a variable-width unicode escape sequence is a clearer way to encode such code points.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L879-L885">When producing a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span>, implementations should use escape sequences to represent non-printable control characters (U+0000 to U+001F and U+007F to U+009F). Other escape sequences are not necessary, however an implementation may use escape sequences to represent any other range of code points (for example, when producing ASCII-only output). If an implementation chooses to escape a <span class="spec-ref"><a href="https://www.unicode.org/glossary#supplementary_character" data-name="supplementary-character" target="_blank">supplementary character</a></span>, it should only use a variable-width unicode escape sequence.</p>
 </section>
 <section id="sec-String-Value.Block-Strings" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L884"><a href="#sec-String-Value.Block-Strings" title="link to this subsection">Block Strings</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L886-L889">Block strings are sequences of characters wrapped in triple-quotes (<code>"""</code>). White space, line terminators, quote, and backslash characters may all be used unescaped to enable verbatim text. Characters must all be valid <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L891-L893">Since block strings represent freeform text often used in indented positions, the string value semantics of a block string excludes uniform indentation and blank initial and trailing lines via <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>()</span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L895">For example, the following operation containing a block string:</p>
-<pre id="example-fe73f" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L897-L907"><a href="#example-fe73f">Example № 25</a><code><span class="token keyword">mutation</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%202%20--%20Language.md#L887"><a href="#sec-String-Value.Block-Strings" title="link to this subsection">Block Strings</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L889-L892">Block strings are sequences of characters wrapped in triple-quotes (<code>"""</code>). White space, line terminators, quote, and backslash characters may all be used unescaped to enable verbatim text. Characters must all be valid <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L894-L896">Since block strings represent freeform text often used in indented positions, the string value semantics of a block string excludes uniform indentation and blank initial and trailing lines via <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>()</span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L898">For example, the following operation containing a block string:</p>
+<pre id="example-fe73f" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L900-L910"><a href="#example-fe73f">Example № 25</a><code><span class="token keyword">mutation</span> <span class="token punctuation">{</span>
   <span class="token property-query">sendEmail</span><span class="token punctuation">(</span><span class="token attr-name">message</span><span class="token punctuation">:</span> <span class="token string">"""
     Hello,
       World!
@@ -1019,327 +1020,327 @@ The numeric literals <span class="spec-nt"><a href="#IntValue" data-name="IntVal
   """</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L909">Is identical to the standard quoted string:</p>
-<pre id="example-c6521" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L911-L915"><a href="#example-c6521">Example № 26</a><code><span class="token keyword">mutation</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L912">Is identical to the standard quoted string:</p>
+<pre id="example-c6521" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L914-L918"><a href="#example-c6521">Example № 26</a><code><span class="token keyword">mutation</span> <span class="token punctuation">{</span>
   <span class="token property-query">sendEmail</span><span class="token punctuation">(</span><span class="token attr-name">message</span><span class="token punctuation">:</span> <span class="token string">"Hello,\n  World!\n\nYours,\n  GraphQL."</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L917-L920">Since block string values strip leading and trailing empty lines, there is no single canonical printed block string for a given value. Because block strings typically represent freeform text, it is considered easier to read if they begin and end with an empty line.</p>
-<pre id="example-8e831" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L922-L927"><a href="#example-8e831">Example № 27</a><code><span class="token string">"""
+<p data-source="spec/Section%202%20--%20Language.md#L920-L923">Since block string values strip leading and trailing empty lines, there is no single canonical printed block string for a given value. Because block strings typically represent freeform text, it is considered easier to read if they begin and end with an empty line.</p>
+<pre id="example-8e831" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L925-L930"><a href="#example-8e831">Example № 27</a><code><span class="token string">"""
 This starts with and ends with an empty line,
 which makes it easier to read.
 """</span>
 </code></pre>
-<pre id="example-b874e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L929-L932"><a href="#example-b874e">Counter Example № 28</a><code><span class="token string">"""This does not start with or end with any empty lines,
+<pre id="example-b874e" class="spec-counter-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L932-L935"><a href="#example-b874e">Counter Example № 28</a><code><span class="token string">"""This does not start with or end with any empty lines,
 which makes it a little harder to read."""</span>
 </code></pre>
-<div id="note-65771" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L934-L936">
+<div id="note-65771" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L937-L939">
 <a href="#note-65771">Note</a>
 If non-printable ASCII characters are needed in a string value, a standard quoted string with appropriate escape sequences must be used instead of a block string.</div>
 </section>
 <section id="sec-String-Value.Static-Semantics" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L938"><a href="#sec-String-Value.Static-Semantics" title="link to this subsection">Static Semantics</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L940-L941">A <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> describes a <dfn id="unicode-text"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></dfn> value, which is a sequence of <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L943-L946">These semantics describe how to apply the <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> grammar to a source text to evaluate a <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span>. Errors encountered during this evaluation are considered a failure to apply the <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> grammar to a source and must result in a parsing error.</p>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L948-L950">
+<h6 data-source="spec/Section%202%20--%20Language.md#L941"><a href="#sec-String-Value.Static-Semantics" title="link to this subsection">Static Semantics</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L943-L944">A <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> describes a <dfn id="unicode-text"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></dfn> value, which is a sequence of <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L946-L949">These semantics describe how to apply the <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> grammar to a source text to evaluate a <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span>. Errors encountered during this evaluation are considered a failure to apply the <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> grammar to a source and must result in a parsing error.</p>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L951-L953">
 <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">""</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L950">Return an empty sequence.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L953">Return an empty sequence.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L952-L955">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L955-L958">
 <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">"</span><span class="spec-quantified"><span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">"</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L954-L955">Return the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> by concatenating the evaluation of all <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L957-L958">Return the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> by concatenating the evaluation of all <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span>.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L957-L959">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L960-L962">
 <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-t">"</span><span class="spec-t">\</span><span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span></span></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L959">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L962">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L961-L967">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L964-L970">
 <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><div class="spec-rhs"><span class="spec-t">\u</span><span class="spec-nt"><a href="#EscapedUnicode" data-name="EscapedUnicode">EscapedUnicode</a></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L963-L964">Let <var data-name="value">value</var> be the hexadecimal value represented by the sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span> within <span class="spec-nt"><a href="#EscapedUnicode" data-name="EscapedUnicode">EscapedUnicode</a></span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L965-L966">Assert <var data-name="value">value</var> is a within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range (&ge; 0x0000 and &le; 0xD7FF or &ge; 0xE000 and &le; 0x10FFFF).</li>
-<li data-source="spec/Section%202%20--%20Language.md#L967">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="value">value</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L966-L967">Let <var data-name="value">value</var> be the hexadecimal value represented by the sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span> within <span class="spec-nt"><a href="#EscapedUnicode" data-name="EscapedUnicode">EscapedUnicode</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L968-L969">Assert <var data-name="value">value</var> is a within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range (&ge; 0x0000 and &le; 0xD7FF or &ge; 0xE000 and &le; 0x10FFFF).</li>
+<li data-source="spec/Section%202%20--%20Language.md#L970">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="value">value</var>.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L969-L984">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L972-L987">
 <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><div class="spec-rhs"><span class="spec-t">\u</span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-t">\u</span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span><span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L972-L973">Let <var data-name="leadingValue">leadingValue</var> be the hexadecimal value represented by the first sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L974-L975">Let <var data-name="trailingValue">trailingValue</var> be the hexadecimal value represented by the second sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L976-L979">If <var data-name="leadingValue">leadingValue</var> is &ge; 0xD800 and &le; 0xDBFF (a <span class="spec-ref"><a href="https://www.unicode.org/glossary#leading_surrogate" data-name="leading-surrogate" target="_blank">Leading Surrogate</a></span>):<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L977">Assert <var data-name="trailingValue">trailingValue</var> is &ge; 0xDC00 and &le; 0xDFFF (a <span class="spec-ref"><a href="https://www.unicode.org/glossary#trailing_surrogate" data-name="trailing-surrogate" target="_blank">Trailing Surrogate</a></span>).</li>
-<li data-source="spec/Section%202%20--%20Language.md#L978-L979">Return (<var data-name="leadingValue">leadingValue</var> - 0xD800) × 0x400 + (<var data-name="trailingValue">trailingValue</var> - 0xDC00) + 0x10000.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L975-L976">Let <var data-name="leadingValue">leadingValue</var> be the hexadecimal value represented by the first sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L977-L978">Let <var data-name="trailingValue">trailingValue</var> be the hexadecimal value represented by the second sequence of <span class="spec-nt"><a href="#HexDigit" data-name="HexDigit">HexDigit</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L979-L982">If <var data-name="leadingValue">leadingValue</var> is &ge; 0xD800 and &le; 0xDBFF (a <span class="spec-ref"><a href="https://www.unicode.org/glossary#leading_surrogate" data-name="leading-surrogate" target="_blank">Leading Surrogate</a></span>):<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L980">Assert <var data-name="trailingValue">trailingValue</var> is &ge; 0xDC00 and &le; 0xDFFF (a <span class="spec-ref"><a href="https://www.unicode.org/glossary#trailing_surrogate" data-name="trailing-surrogate" target="_blank">Trailing Surrogate</a></span>).</li>
+<li data-source="spec/Section%202%20--%20Language.md#L981-L982">Return (<var data-name="leadingValue">leadingValue</var> - 0xD800) × 0x400 + (<var data-name="trailingValue">trailingValue</var> - 0xDC00) + 0x10000.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L980-L984">Otherwise:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L981">Assert <var data-name="leadingValue">leadingValue</var> is within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L982">Assert <var data-name="trailingValue">trailingValue</var> is within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L983-L984">Return the sequence of the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="leadingValue">leadingValue</var> followed by the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="trailingValue">trailingValue</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L983-L987">Otherwise:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L984">Assert <var data-name="leadingValue">leadingValue</var> is within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L985">Assert <var data-name="trailingValue">trailingValue</var> is within the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> range.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L986-L987">Return the sequence of the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="leadingValue">leadingValue</var> followed by the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <var data-name="trailingValue">trailingValue</var>.</li>
 </ol>
 </li>
 </ol>
 </div>
-<div id="note-97840" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L986-L989">
+<div id="note-97840" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L989-L992">
 <a href="#note-97840">Note</a>
 If both escape sequences encode a <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>, then this semantic is identical to applying the prior semantic on each fixed-width escape sequence. A variable-width escape sequence must only encode a <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span>.</div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L991-L994">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L994-L997">
 <span class="spec-nt"><a href="#StringCharacter" data-name="StringCharacter">StringCharacter</a></span><div class="spec-rhs"><span class="spec-t">\</span><span class="spec-nt"><a href="#EscapedCharacter" data-name="EscapedCharacter">EscapedCharacter</a></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L993-L994">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> represented by <span class="spec-nt"><a href="#EscapedCharacter" data-name="EscapedCharacter">EscapedCharacter</a></span> according to the table below.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L996-L997">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> represented by <span class="spec-nt"><a href="#EscapedCharacter" data-name="EscapedCharacter">EscapedCharacter</a></span> according to the table below.</li>
 </ol>
 </div>
 <table>
 <thead>
-<tr data-source="spec/Section%202%20--%20Language.md#L996">
+<tr data-source="spec/Section%202%20--%20Language.md#L999">
 <th>Escaped Character</th>
 <th>Scalar Value</th>
 <th>Character Name</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%202%20--%20Language.md#L998">
+<tr data-source="spec/Section%202%20--%20Language.md#L1001">
 <td><span class="spec-t">"</span></td>
 <td>U+0022</td>
 <td>double quote</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L999">
+<tr data-source="spec/Section%202%20--%20Language.md#L1002">
 <td><span class="spec-t">\</span></td>
 <td>U+005C</td>
 <td>reverse solidus (back slash)</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1000">
+<tr data-source="spec/Section%202%20--%20Language.md#L1003">
 <td><span class="spec-t">/</span></td>
 <td>U+002F</td>
 <td>solidus (forward slash)</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1001">
+<tr data-source="spec/Section%202%20--%20Language.md#L1004">
 <td><span class="spec-t">b</span></td>
 <td>U+0008</td>
 <td>backspace</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1002">
+<tr data-source="spec/Section%202%20--%20Language.md#L1005">
 <td><span class="spec-t">f</span></td>
 <td>U+000C</td>
 <td>form feed</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1003">
+<tr data-source="spec/Section%202%20--%20Language.md#L1006">
 <td><span class="spec-t">n</span></td>
 <td>U+000A</td>
 <td>line feed (new line)</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1004">
+<tr data-source="spec/Section%202%20--%20Language.md#L1007">
 <td><span class="spec-t">r</span></td>
 <td>U+000D</td>
 <td>carriage return</td>
 </tr>
-<tr data-source="spec/Section%202%20--%20Language.md#L1005">
+<tr data-source="spec/Section%202%20--%20Language.md#L1008">
 <td><span class="spec-t">t</span></td>
 <td>U+0009</td>
 <td>horizontal tab</td>
 </tr>
 </tbody>
 </table>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1007-L1011">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1010-L1014">
 <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span><div class="spec-rhs"><span class="spec-t">"""</span><span class="spec-quantified"><span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">"""</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1009-L1010">Let <var data-name="rawValue">rawValue</var> be the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> by concatenating the evaluation of all <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span> (which may be an empty sequence).</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1011">Return the result of <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>(<var data-name="rawValue">rawValue</var>)</span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1012-L1013">Let <var data-name="rawValue">rawValue</var> be the <span class="spec-ref"><a href="#unicode-text" data-name="unicode-text">Unicode text</a></span> by concatenating the evaluation of all <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span> (which may be an empty sequence).</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1014">Return the result of <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>(<var data-name="rawValue">rawValue</var>)</span>.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1013-L1015">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1016-L1018">
 <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span><span class="spec-butnot"><span class="spec-t">"""</span><span class="spec-t">\"""</span></span></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1015">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1018">Return the <span class="spec-ref"><a href="https://www.unicode.org/glossary#unicode_scalar_value" data-name="unicode-scalar-value" target="_blank">Unicode scalar value</a></span> <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</li>
 </ol>
 </div>
-<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1017-L1019">
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1020-L1022">
 <span class="spec-nt"><a href="#BlockStringCharacter" data-name="BlockStringCharacter">BlockStringCharacter</a></span><div class="spec-rhs"><span class="spec-t">\"""</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1019">Return the character sequence <code>"""</code>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1022">Return the character sequence <code>"""</code>.</li>
 </ol>
 </div>
-<div class="spec-algo" id="BlockStringValue()" data-source="spec/Section%202%20--%20Language.md#L1021-L1048">
+<div class="spec-algo" id="BlockStringValue()" data-source="spec/Section%202%20--%20Language.md#L1024-L1051">
 <span class="spec-call"><a href="#BlockStringValue()" data-name="BlockStringValue">BlockStringValue</a>(<var data-name="rawValue">rawValue</var>)</span><ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1023">Let <var data-name="lines">lines</var> be the result of splitting <var data-name="rawValue">rawValue</var> by <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1024">Let <var data-name="commonIndent">commonIndent</var> be <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1025-L1032">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1026">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>, continue to the next line.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1027">Let <var data-name="length">length</var> be the number of characters in <var data-name="line">line</var>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1028-L1029">Let <var data-name="indent">indent</var> be the number of leading consecutive <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> characters in <var data-name="line">line</var>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1030-L1032">If <var data-name="indent">indent</var> is less than <var data-name="length">length</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1031-L1032">If <var data-name="commonIndent">commonIndent</var> is <span class="spec-keyword">null</span> or <var data-name="indent">indent</var> is less than <var data-name="commonIndent">commonIndent</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1032">Let <var data-name="commonIndent">commonIndent</var> be <var data-name="indent">indent</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1026">Let <var data-name="lines">lines</var> be the result of splitting <var data-name="rawValue">rawValue</var> by <span class="spec-nt"><a href="#LineTerminator" data-name="LineTerminator">LineTerminator</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1027">Let <var data-name="commonIndent">commonIndent</var> be <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1028-L1035">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1029">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>, continue to the next line.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1030">Let <var data-name="length">length</var> be the number of characters in <var data-name="line">line</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1031-L1032">Let <var data-name="indent">indent</var> be the number of leading consecutive <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span> characters in <var data-name="line">line</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1033-L1035">If <var data-name="indent">indent</var> is less than <var data-name="length">length</var>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1034-L1035">If <var data-name="commonIndent">commonIndent</var> is <span class="spec-keyword">null</span> or <var data-name="indent">indent</var> is less than <var data-name="commonIndent">commonIndent</var>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1035">Let <var data-name="commonIndent">commonIndent</var> be <var data-name="indent">indent</var>.</li>
 </ol>
 </li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1033-L1036">If <var data-name="commonIndent">commonIndent</var> is not <span class="spec-keyword">null</span>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1034-L1036">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1035">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>, continue to the next line.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1036">Remove <var data-name="commonIndent">commonIndent</var> characters from the beginning of <var data-name="line">line</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1036-L1039">If <var data-name="commonIndent">commonIndent</var> is not <span class="spec-keyword">null</span>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1037-L1039">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1038">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>, continue to the next line.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1039">Remove <var data-name="commonIndent">commonIndent</var> characters from the beginning of <var data-name="line">line</var>.</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1037-L1038">While the first item <var data-name="line">line</var> in <var data-name="lines">lines</var> contains only <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1038">Remove the first item from <var data-name="lines">lines</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1040-L1041">While the first item <var data-name="line">line</var> in <var data-name="lines">lines</var> contains only <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1041">Remove the first item from <var data-name="lines">lines</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1039-L1040">While the last item <var data-name="line">line</var> in <var data-name="lines">lines</var> contains only <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1040">Remove the last item from <var data-name="lines">lines</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1042-L1043">While the last item <var data-name="line">line</var> in <var data-name="lines">lines</var> contains only <span class="spec-nt"><a href="#WhiteSpace" data-name="WhiteSpace">WhiteSpace</a></span>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1043">Remove the last item from <var data-name="lines">lines</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1041">Let <var data-name="formatted">formatted</var> be the empty character sequence.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1042-L1047">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1043-L1044">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1044">Append <var data-name="formatted">formatted</var> with <var data-name="line">line</var>.</li>
-</ol>
-</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1045-L1047">Otherwise:<ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1046">Append <var data-name="formatted">formatted</var> with a line feed character (U+000A).</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1044">Let <var data-name="formatted">formatted</var> be the empty character sequence.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1045-L1050">For each <var data-name="line">line</var> in <var data-name="lines">lines</var>:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1046-L1047">If <var data-name="line">line</var> is the first item in <var data-name="lines">lines</var>:<ol>
 <li data-source="spec/Section%202%20--%20Language.md#L1047">Append <var data-name="formatted">formatted</var> with <var data-name="line">line</var>.</li>
 </ol>
 </li>
+<li data-source="spec/Section%202%20--%20Language.md#L1048-L1050">Otherwise:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1049">Append <var data-name="formatted">formatted</var> with a line feed character (U+000A).</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1050">Append <var data-name="formatted">formatted</var> with <var data-name="line">line</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1048">Return <var data-name="formatted">formatted</var>.</li>
+</ol>
+</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1051">Return <var data-name="formatted">formatted</var>.</li>
 </ol>
 </div>
 </section>
 </section>
 <section id="sec-Null-Value" secid="2.9.5">
-<h3 data-source="spec/Section%202%20--%20Language.md#L1050"><span class="spec-secid" title="link to this section"><a href="#sec-Null-Value">2.9.5</a></span>Null Value</h3>
-<div class="spec-production" id="NullValue" data-source="spec/Section%202%20--%20Language.md#L1052">
+<h3 data-source="spec/Section%202%20--%20Language.md#L1053"><span class="spec-secid" title="link to this section"><a href="#sec-Null-Value">2.9.5</a></span>Null Value</h3>
+<div class="spec-production" id="NullValue" data-source="spec/Section%202%20--%20Language.md#L1055">
 <span class="spec-nt"><a href="#NullValue" data-name="NullValue">NullValue</a></span><div class="spec-rhs"><span class="spec-t">null</span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1054">Null values are represented as the keyword <span class="spec-keyword">null</span>.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1056">GraphQL has two semantically different ways to represent the lack of a value:</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1057">Null values are represented as the keyword <span class="spec-keyword">null</span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1059">GraphQL has two semantically different ways to represent the lack of a value:</p>
 <ul>
-<li data-source="spec/Section%202%20--%20Language.md#L1058">Explicitly providing the literal value: <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1059">Implicitly not providing a value at all.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1061">Explicitly providing the literal value: <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1062">Implicitly not providing a value at all.</li>
 </ul>
-<p data-source="spec/Section%202%20--%20Language.md#L1061">For example, these two field calls are similar, but are not identical:</p>
-<pre id="example-1c7eb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1063-L1068"><a href="#example-1c7eb">Example № 29</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L1064">For example, these two field calls are similar, but are not identical:</p>
+<pre id="example-1c7eb" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1066-L1071"><a href="#example-1c7eb">Example № 29</a><code><span class="token punctuation">{</span>
   <span class="token property-query">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token property">null</span><span class="token punctuation">)</span>
   <span class="token property">field</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L1070-L1074">The first has explicitly provided <span class="spec-keyword">null</span> to the argument &ldquo;arg&rdquo;, while the second has implicitly not provided a value to the argument &ldquo;arg&rdquo;. These two forms may be interpreted differently. For example, a mutation representing deleting a field vs not altering a field, respectively. Neither form may be used for an input expecting a Non-Null type.</p>
-<div id="note-eab9b" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L1076-L1078">
+<p data-source="spec/Section%202%20--%20Language.md#L1073-L1077">The first has explicitly provided <span class="spec-keyword">null</span> to the argument &ldquo;arg&rdquo;, while the second has implicitly not provided a value to the argument &ldquo;arg&rdquo;. These two forms may be interpreted differently. For example, a mutation representing deleting a field vs not altering a field, respectively. Neither form may be used for an input expecting a Non-Null type.</p>
+<div id="note-eab9b" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L1079-L1081">
 <a href="#note-eab9b">Note</a>
 The same two methods of representing the lack of a value are possible via variables by either providing the variable value as <span class="spec-keyword">null</span> or not providing a variable value at all.</div>
 </section>
 <section id="sec-Enum-Value" secid="2.9.6">
-<h3 data-source="spec/Section%202%20--%20Language.md#L1080"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Value">2.9.6</a></span>Enum Value</h3>
-<div class="spec-production" id="EnumValue" data-source="spec/Section%202%20--%20Language.md#L1082">
+<h3 data-source="spec/Section%202%20--%20Language.md#L1083"><span class="spec-secid" title="link to this section"><a href="#sec-Enum-Value">2.9.6</a></span>Enum Value</h3>
+<div class="spec-production" id="EnumValue" data-source="spec/Section%202%20--%20Language.md#L1085">
 <span class="spec-nt"><a href="#EnumValue" data-name="EnumValue">EnumValue</a></span><div class="spec-rhs"><span class="spec-constrained"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-butnot"><span class="spec-t">true</span><span class="spec-t">false</span><span class="spec-t">null</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1084-L1087">Enum values are represented as unquoted names (ex. <code>MOBILE_WEB</code>). It is recommended that Enum values be &ldquo;all caps&rdquo;. Enum values are only used in contexts where the precise enumeration type is known. Therefore it&rsquo;s not necessary to supply an enumeration type name in the literal.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1087-L1090">Enum values are represented as unquoted names (ex. <code>MOBILE_WEB</code>). It is recommended that Enum values be &ldquo;all caps&rdquo;. Enum values are only used in contexts where the precise enumeration type is known. Therefore it&rsquo;s not necessary to supply an enumeration type name in the literal.</p>
 </section>
 <section id="sec-List-Value" secid="2.9.7">
-<h3 data-source="spec/Section%202%20--%20Language.md#L1089"><span class="spec-secid" title="link to this section"><a href="#sec-List-Value">2.9.7</a></span>List Value</h3>
-<div class="spec-production" id="ListValue" data-source="spec/Section%202%20--%20Language.md#L1091-L1094">
+<h3 data-source="spec/Section%202%20--%20Language.md#L1092"><span class="spec-secid" title="link to this section"><a href="#sec-List-Value">2.9.7</a></span>List Value</h3>
+<div class="spec-production" id="ListValue" data-source="spec/Section%202%20--%20Language.md#L1094-L1097">
 <span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-t">]</span></div>
 <div class="spec-rhs"><span class="spec-t">[</span><span class="spec-quantified"><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">]</span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1096-L1097">Lists are ordered sequences of values wrapped in square-brackets <code>[ ]</code>. The values of a List literal may be any value literal or variable (ex. <code>[1, 2, 3]</code>).</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1099-L1100">Commas are optional throughout GraphQL so trailing commas are allowed and repeated commas do not represent missing values.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1099-L1100">Lists are ordered sequences of values wrapped in square-brackets <code>[ ]</code>. The values of a List literal may be any value literal or variable (ex. <code>[1, 2, 3]</code>).</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1102-L1103">Commas are optional throughout GraphQL so trailing commas are allowed and repeated commas do not represent missing values.</p>
 <section id="sec-List-Value.Semantics" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1102"><a href="#sec-List-Value.Semantics" title="link to this subsection">Semantics</a></h6>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1104-L1106">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1105"><a href="#sec-List-Value.Semantics" title="link to this subsection">Semantics</a></h6>
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1107-L1109">
 <span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-t">]</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1106">Return a new empty list value.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1109">Return a new empty list value.</li>
 </ol>
 </div>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1108-L1114">
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1111-L1117">
 <span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-quantified"><span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">]</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1110">Let <var data-name="inputList">inputList</var> be a new empty list value.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1111-L1113">For each <span class="spec-quantified"><span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1112">Let <var data-name="value">value</var> be the result of evaluating <span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1113">Append <var data-name="value">value</var> to <var data-name="inputList">inputList</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1113">Let <var data-name="inputList">inputList</var> be a new empty list value.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1114-L1116">For each <span class="spec-quantified"><span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1115">Let <var data-name="value">value</var> be the result of evaluating <span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1116">Append <var data-name="value">value</var> to <var data-name="inputList">inputList</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1114">Return <var data-name="inputList">inputList</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1117">Return <var data-name="inputList">inputList</var></li>
 </ol>
 </div>
 </section>
 </section>
 <section id="sec-Input-Object-Values" secid="2.9.8">
-<h3 data-source="spec/Section%202%20--%20Language.md#L1116"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Values">2.9.8</a></span>Input Object Values</h3>
-<div class="spec-production" id="ObjectValue" data-source="spec/Section%202%20--%20Language.md#L1118-L1121">
+<h3 data-source="spec/Section%202%20--%20Language.md#L1119"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Values">2.9.8</a></span>Input Object Values</h3>
+<div class="spec-production" id="ObjectValue" data-source="spec/Section%202%20--%20Language.md#L1121-L1124">
 <span class="spec-nt"><a href="#ObjectValue" data-name="ObjectValue">ObjectValue</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-t">}</span></div>
 <div class="spec-rhs"><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 </div>
-<div class="spec-production" id="ObjectField" data-source="spec/Section%202%20--%20Language.md#L1123">
+<div class="spec-production" id="ObjectField" data-source="spec/Section%202%20--%20Language.md#L1126">
 <span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1125-L1128">Input object literal values are unordered lists of keyed input values wrapped in curly-braces <code>{ }</code>. The values of an object literal may be any input value literal or variable (ex. <code>{ name: "Hello world", score: 1.0 }</code>). We refer to literal representation of input objects as &ldquo;object literals.&rdquo;</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1128-L1131">Input object literal values are unordered lists of keyed input values wrapped in curly-braces <code>{ }</code>. The values of an object literal may be any input value literal or variable (ex. <code>{ name: "Hello world", score: 1.0 }</code>). We refer to literal representation of input objects as &ldquo;object literals.&rdquo;</p>
 <section id="sec-Input-Object-Values.Input-object-fields-are-unordered" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1130"><a href="#sec-Input-Object-Values.Input-object-fields-are-unordered" title="link to this subsection">Input object fields are unordered</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L1132-L1133">Input object fields may be provided in any syntactic order and maintain identical semantic meaning.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1135">These two operations are semantically identical:</p>
-<pre id="example-09646" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1137-L1141"><a href="#example-09646">Example № 30</a><code><span class="token punctuation">{</span>
+<h6 data-source="spec/Section%202%20--%20Language.md#L1133"><a href="#sec-Input-Object-Values.Input-object-fields-are-unordered" title="link to this subsection">Input object fields are unordered</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L1135-L1136">Input object fields may be provided in any syntactic order and maintain identical semantic meaning.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1138">These two operations are semantically identical:</p>
+<pre id="example-09646" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1140-L1144"><a href="#example-09646">Example № 30</a><code><span class="token punctuation">{</span>
   <span class="token property-query">nearestThing</span><span class="token punctuation">(</span><span class="token attr-name">location</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">lon</span><span class="token punctuation">:</span> <span class="token number">12.43</span><span class="token punctuation">,</span> <span class="token attr-name">lat</span><span class="token punctuation">:</span> <span class="token number">-53.211</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-6ebee" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1143-L1147"><a href="#example-6ebee">Example № 31</a><code><span class="token punctuation">{</span>
+<pre id="example-6ebee" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1146-L1150"><a href="#example-6ebee">Example № 31</a><code><span class="token punctuation">{</span>
   <span class="token property-query">nearestThing</span><span class="token punctuation">(</span><span class="token attr-name">location</span><span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token attr-name">lat</span><span class="token punctuation">:</span> <span class="token number">-53.211</span><span class="token punctuation">,</span> <span class="token attr-name">lon</span><span class="token punctuation">:</span> <span class="token number">12.43</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec-Input-Object-Values.Semantics" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1149"><a href="#sec-Input-Object-Values.Semantics" title="link to this subsection">Semantics</a></h6>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1151-L1153">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1152"><a href="#sec-Input-Object-Values.Semantics" title="link to this subsection">Semantics</a></h6>
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1154-L1156">
 <span class="spec-nt"><a href="#ObjectValue" data-name="ObjectValue">ObjectValue</a></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-t">}</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1153">Return a new input object value with no fields.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1156">Return a new input object value with no fields.</li>
 </ol>
 </div>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1155-L1162">
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1158-L1165">
 <span class="spec-nt"><a href="#ObjectValue" data-name="ObjectValue">ObjectValue</a></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1157">Let <var data-name="inputObject">inputObject</var> be a new input object value with no fields.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1158-L1161">For each <var data-name="field">field</var> in <span class="spec-quantified"><span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1159">Let <var data-name="name">name</var> be <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> in <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1160">Let <var data-name="value">value</var> be the result of evaluating <span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span> in <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1161">Add a field to <var data-name="inputObject">inputObject</var> of name <var data-name="name">name</var> containing value <var data-name="value">value</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1160">Let <var data-name="inputObject">inputObject</var> be a new input object value with no fields.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1161-L1164">For each <var data-name="field">field</var> in <span class="spec-quantified"><span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1162">Let <var data-name="name">name</var> be <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> in <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1163">Let <var data-name="value">value</var> be the result of evaluating <span class="spec-nt"><a href="#Value" data-name="Value">Value</a></span> in <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1164">Add a field to <var data-name="inputObject">inputObject</var> of name <var data-name="name">name</var> containing value <var data-name="value">value</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1162">Return <var data-name="inputObject">inputObject</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1165">Return <var data-name="inputObject">inputObject</var></li>
 </ol>
 </div>
 </section>
 </section>
 </section>
 <section id="sec-Language.Variables" secid="2.10">
-<h2 data-source="spec/Section%202%20--%20Language.md#L1164"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Variables">2.10</a></span>Variables</h2>
-<div class="spec-production" id="Variable" data-source="spec/Section%202%20--%20Language.md#L1166">
+<h2 data-source="spec/Section%202%20--%20Language.md#L1167"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Variables">2.10</a></span>Variables</h2>
+<div class="spec-production" id="Variable" data-source="spec/Section%202%20--%20Language.md#L1169">
 <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span><div class="spec-rhs"><span class="spec-t">$</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
 </div>
-<div class="spec-production" id="VariablesDefinition" data-source="spec/Section%202%20--%20Language.md#L1168">
+<div class="spec-production" id="VariablesDefinition" data-source="spec/Section%202%20--%20Language.md#L1171">
 <span class="spec-nt"><a href="#VariablesDefinition" data-name="VariablesDefinition">VariablesDefinition</a></span><div class="spec-rhs"><span class="spec-t">(</span><span class="spec-quantified"><span class="spec-nt"><a href="#VariableDefinition" data-name="VariableDefinition">VariableDefinition</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">)</span></div>
 </div>
-<div class="spec-production" id="VariableDefinition" data-source="spec/Section%202%20--%20Language.md#L1170">
+<div class="spec-production" id="VariableDefinition" data-source="spec/Section%202%20--%20Language.md#L1173">
 <span class="spec-nt"><a href="#VariableDefinition" data-name="VariableDefinition">VariableDefinition</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span><span class="spec-t">:</span><span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
-<div class="spec-production" id="DefaultValue" data-source="spec/Section%202%20--%20Language.md#L1172">
+<div class="spec-production" id="DefaultValue" data-source="spec/Section%202%20--%20Language.md#L1175">
 <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span><div class="spec-rhs"><span class="spec-t">=</span><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param">Const</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1174-L1175">A GraphQL operation can be parameterized with variables, maximizing reuse, and avoiding costly string building in clients at runtime.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1177-L1178">If not defined as constant (for example, in <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span>), a <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span> can be supplied for an input value.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1180-L1183">Variables must be defined at the top of an operation and are in scope throughout the execution of that operation. Values for those variables are provided to a GraphQL service as part of a request so they may be substituted in during execution.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1185-L1186">In this example, we want to fetch a profile picture size based on the size of a particular device:</p>
-<pre id="example-7f690" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1188-L1196"><a href="#example-7f690">Example № 32</a><code><span class="token keyword">query</span> <span class="token definition-query function">getZuckProfile</span><span class="token punctuation">(</span><span class="token variable">$devicePicSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L1177-L1178">A GraphQL operation can be parameterized with variables, maximizing reuse, and avoiding costly string building in clients at runtime.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1180-L1181">If not defined as constant (for example, in <span class="spec-nt"><a href="#DefaultValue" data-name="DefaultValue">DefaultValue</a></span>), a <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span> can be supplied for an input value.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1183-L1186">Variables must be defined at the top of an operation and are in scope throughout the execution of that operation. Values for those variables are provided to a GraphQL service as part of a request so they may be substituted in during execution.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1188-L1189">In this example, we want to fetch a profile picture size based on the size of a particular device:</p>
+<pre id="example-7f690" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1191-L1199"><a href="#example-7f690">Example № 32</a><code><span class="token keyword">query</span> <span class="token definition-query function">getZuckProfile</span><span class="token punctuation">(</span><span class="token variable">$devicePicSize</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property-query">user</span><span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token number">4</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">id</span>
     <span class="token property">name</span>
@@ -1347,87 +1348,87 @@ The same two methods of representing the lack of a value are possible via variab
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L1198-L1199">If providing JSON for the variables&rsquo; values, we could request a <code>profilePic</code> of size <code>60</code>:</p>
-<pre id="example-98958" class="spec-example" data-language="json" data-source="spec/Section%202%20--%20Language.md#L1201-L1205"><a href="#example-98958">Example № 33</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%202%20--%20Language.md#L1201-L1202">If providing JSON for the variables&rsquo; values, we could request a <code>profilePic</code> of size <code>60</code>:</p>
+<pre id="example-98958" class="spec-example" data-language="json" data-source="spec/Section%202%20--%20Language.md#L1204-L1208"><a href="#example-98958">Example № 33</a><code><span class="token punctuation">{</span>
   <span class="token property">"devicePicSize"</span><span class="token operator">:</span> <span class="token number">60</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <section id="sec-Language.Variables.Variable-use-within-Fragments" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1207"><a href="#sec-Language.Variables.Variable-use-within-Fragments" title="link to this subsection">Variable use within Fragments</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L1209-L1214">Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any top-level operation that transitively consumes that fragment. If a variable is referenced in a fragment and is included by an operation that does not define that variable, that operation is invalid (see <a href="#sec-All-Variable-Uses-Defined">All Variable Uses Defined</a>).</p>
+<h6 data-source="spec/Section%202%20--%20Language.md#L1210"><a href="#sec-Language.Variables.Variable-use-within-Fragments" title="link to this subsection">Variable use within Fragments</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L1212-L1217">Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any top-level operation that transitively consumes that fragment. If a variable is referenced in a fragment and is included by an operation that does not define that variable, that operation is invalid (see <a href="#sec-All-Variable-Uses-Defined">All Variable Uses Defined</a>).</p>
 </section>
 </section>
 <section id="sec-Type-References" secid="2.11">
-<h2 data-source="spec/Section%202%20--%20Language.md#L1216"><span class="spec-secid" title="link to this section"><a href="#sec-Type-References">2.11</a></span>Type References</h2>
-<div class="spec-production" id="Type" data-source="spec/Section%202%20--%20Language.md#L1218-L1222">
+<h2 data-source="spec/Section%202%20--%20Language.md#L1219"><span class="spec-secid" title="link to this section"><a href="#sec-Type-References">2.11</a></span>Type References</h2>
+<div class="spec-production" id="Type" data-source="spec/Section%202%20--%20Language.md#L1221-L1225">
 <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#NamedType" data-name="NamedType">NamedType</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#ListType" data-name="ListType">ListType</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#NonNullType" data-name="NonNullType">NonNullType</a></span></div>
 </div>
-<div class="spec-production" id="NamedType" data-source="spec/Section%202%20--%20Language.md#L1224">
+<div class="spec-production" id="NamedType" data-source="spec/Section%202%20--%20Language.md#L1227">
 <span class="spec-nt"><a href="#NamedType" data-name="NamedType">NamedType</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
 </div>
-<div class="spec-production" id="ListType" data-source="spec/Section%202%20--%20Language.md#L1226">
+<div class="spec-production" id="ListType" data-source="spec/Section%202%20--%20Language.md#L1229">
 <span class="spec-nt"><a href="#ListType" data-name="ListType">ListType</a></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><span class="spec-t">]</span></div>
 </div>
-<div class="spec-production" id="NonNullType" data-source="spec/Section%202%20--%20Language.md#L1228-L1231">
+<div class="spec-production" id="NonNullType" data-source="spec/Section%202%20--%20Language.md#L1231-L1234">
 <span class="spec-nt"><a href="#NonNullType" data-name="NonNullType">NonNullType</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#NamedType" data-name="NamedType">NamedType</a></span><span class="spec-t">!</span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#ListType" data-name="ListType">ListType</a></span><span class="spec-t">!</span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1233-L1235">GraphQL describes the types of data expected by arguments and variables. Input types may be lists of another input type, or a non-null variant of any other input type.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1236-L1238">GraphQL describes the types of data expected by arguments and variables. Input types may be lists of another input type, or a non-null variant of any other input type.</p>
 <section id="sec-Type-References.Semantics" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1237"><a href="#sec-Type-References.Semantics" title="link to this subsection">Semantics</a></h6>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1239-L1244">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1240"><a href="#sec-Type-References.Semantics" title="link to this subsection">Semantics</a></h6>
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1242-L1247">
 <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1241">Let <var data-name="name">name</var> be the string value of <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></li>
-<li data-source="spec/Section%202%20--%20Language.md#L1242">Let <var data-name="type">type</var> be the type defined in the Schema named <var data-name="name">name</var></li>
-<li data-source="spec/Section%202%20--%20Language.md#L1243"><var data-name="type">type</var> must not be <span class="spec-keyword">null</span></li>
-<li data-source="spec/Section%202%20--%20Language.md#L1244">Return <var data-name="type">type</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1244">Let <var data-name="name">name</var> be the string value of <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1245">Let <var data-name="type">type</var> be the type defined in the Schema named <var data-name="name">name</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1246"><var data-name="type">type</var> must not be <span class="spec-keyword">null</span></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1247">Return <var data-name="type">type</var></li>
 </ol>
 </div>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1246-L1250">
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1249-L1253">
 <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><div class="spec-rhs"><span class="spec-t">[</span><span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><span class="spec-t">]</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1248">Let <var data-name="itemType">itemType</var> be the result of evaluating <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span></li>
-<li data-source="spec/Section%202%20--%20Language.md#L1249">Let <var data-name="type">type</var> be a List type where <var data-name="itemType">itemType</var> is the contained type.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1250">Return <var data-name="type">type</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1251">Let <var data-name="itemType">itemType</var> be the result of evaluating <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1252">Let <var data-name="type">type</var> be a List type where <var data-name="itemType">itemType</var> is the contained type.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1253">Return <var data-name="type">type</var></li>
 </ol>
 </div>
-<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1252-L1256">
+<div class="spec-semantic" data-source="spec/Section%202%20--%20Language.md#L1255-L1259">
 <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span><span class="spec-t">!</span></div>
 <ol>
-<li data-source="spec/Section%202%20--%20Language.md#L1254">Let <var data-name="nullableType">nullableType</var> be the result of evaluating <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span></li>
-<li data-source="spec/Section%202%20--%20Language.md#L1255">Let <var data-name="type">type</var> be a Non-Null type where <var data-name="nullableType">nullableType</var> is the contained type.</li>
-<li data-source="spec/Section%202%20--%20Language.md#L1256">Return <var data-name="type">type</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1257">Let <var data-name="nullableType">nullableType</var> be the result of evaluating <span class="spec-nt"><a href="#Type" data-name="Type">Type</a></span></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1258">Let <var data-name="type">type</var> be a Non-Null type where <var data-name="nullableType">nullableType</var> is the contained type.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1259">Return <var data-name="type">type</var></li>
 </ol>
 </div>
 </section>
 </section>
 <section id="sec-Language.Directives" secid="2.12">
-<h2 data-source="spec/Section%202%20--%20Language.md#L1258"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Directives">2.12</a></span>Directives</h2>
-<div class="spec-production" id="Directives" data-source="spec/Section%202%20--%20Language.md#L1260">
+<h2 data-source="spec/Section%202%20--%20Language.md#L1261"><span class="spec-secid" title="link to this section"><a href="#sec-Language.Directives">2.12</a></span>Directives</h2>
+<div class="spec-production" id="Directives" data-source="spec/Section%202%20--%20Language.md#L1263">
 <span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Directive" data-name="Directive">Directive</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span></div>
 </div>
-<div class="spec-production" id="Directive" data-source="spec/Section%202%20--%20Language.md#L1262">
+<div class="spec-production" id="Directive" data-source="spec/Section%202%20--%20Language.md#L1265">
 <span class="spec-nt"><a href="#Directive" data-name="Directive">Directive</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Arguments" data-name="Arguments">Arguments</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span></div>
 </div>
-<p data-source="spec/Section%202%20--%20Language.md#L1264-L1265">Directives provide a way to describe alternate runtime execution and type validation behavior in a GraphQL document.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1267-L1270">In some cases, you need to provide options to alter GraphQL&rsquo;s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1272-L1273">Directives have a name along with a list of arguments which may accept values of any input type.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1275-L1276">Directives can be used to describe additional information for types, fields, fragments and operations.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1278-L1280">As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide any additional <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> beyond those described here.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1267-L1268">Directives provide a way to describe alternate runtime execution and type validation behavior in a GraphQL document.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1270-L1273">In some cases, you need to provide options to alter GraphQL&rsquo;s execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1275-L1276">Directives have a name along with a list of arguments which may accept values of any input type.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1278-L1279">Directives can be used to describe additional information for types, fields, fragments and operations.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1281-L1283">As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide any additional <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> beyond those described here.</p>
 <section id="sec-Language.Directives.Directive-order-is-significant" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1282"><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
-<p data-source="spec/Section%202%20--%20Language.md#L1284-L1285">Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L1287">These two type definitions may have different semantic meaning:</p>
-<pre id="example-2a4f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1289-L1295"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+<h6 data-source="spec/Section%202%20--%20Language.md#L1285"><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L1287-L1288">Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1290">These two type definitions may have different semantic meaning:</p>
+<pre id="example-2a4f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1292-L1298"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
   <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span>
   <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<pre id="example-c1f24" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1297-L1303"><a href="#example-c1f24">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
+<pre id="example-c1f24" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1300-L1306"><a href="#example-c1f24">Example № 35</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
   <span class="token directive function">@excludeField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"photo"</span><span class="token punctuation">)</span>
   <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
