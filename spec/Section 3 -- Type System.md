@@ -264,32 +264,43 @@ TypeDefinition :
 - EnumTypeDefinition
 - InputObjectTypeDefinition
 
-The fundamental unit of any GraphQL Schema is the type. There are six kinds of
+The fundamental unit of any GraphQL schema is the type. There are six kinds of
 named type definitions in GraphQL, and two wrapping types.
 
-The most basic type is a `Scalar`. A scalar represents a primitive value, like a
-string or an integer. Oftentimes, the possible responses for a scalar field are
-enumerable. GraphQL offers an `Enum` type in those cases, where the type
-specifies the space of valid responses.
+:: A _leaf type_ is a kind of type representing a primitive value which cannot
+be further selected and thus form the leaves in a response tree. GraphQL
+provides two kinds of leaf types: `Scalar` and `Enum`.
 
-Scalars and Enums form the leaves in response trees; the intermediate levels are
-`Object` types, which define a set of fields, where each field is another type
-in the system, allowing the definition of arbitrary type hierarchies.
+A `Scalar` represents a primitive scalar value, such as a string or number.
+Oftentimes, the possible responses for a scalar field are enumerable. GraphQL
+offers an `Enum` type in those cases, where the type specifies the set of valid
+responses.
 
-GraphQL supports two abstract types: interfaces and unions.
+:: A _composite type_ is a type composed of other types via a set of named
+fields. Each field may provide a _leaf type_ or another composite type (or
+wrapped types of either), allowing for the definition of arbitrary type
+hierarchies.
 
-An `Interface` defines a list of fields; `Object` types and other Interface
-types which implement this Interface are guaranteed to implement those fields.
-Whenever a field claims it will return an Interface type, it will return a valid
-implementing Object type during execution.
+An `Object` type is a _composite type_ representing composite values selectable
+within a GraphQL operation. They provide the intermediate levels of a schema,
+allowing GraphQL to describe an interconnected graph of information.
 
-A `Union` defines a list of possible types; similar to interfaces, whenever the
-type system claims a union will be returned, one of the possible types will be
-returned.
+:: An _abstract type_ allows a GraphQL schema to introduce polymorphism; where a
+field may provide one of many possible types at runtime. GraphQL provides two
+kinds of abstract types: `Interface` and `Union`.
+
+An `Interface` defines a list of fields; `Object` types and other `Interface`
+types which implement this `Interface` are guaranteed to implement those fields.
+Whenever a field claims it will return an `Interface` type, it will return a
+valid implementing `Object` type during execution.
+
+A `Union` defines a list of possible types. Similar to `Interfaces`, whenever a
+field claims it will return a `Union` type, it will return one of the possible
+`Object` types during execution.
 
 Finally, oftentimes it is useful to provide complex structs as inputs to GraphQL
-field arguments or variables; the `Input Object` type allows the schema to
-define exactly what data is expected.
+field arguments or variables; the `Input Object` type is a _composite type_
+which allows the schema to define more complex expected input data.
 
 ### Wrapping Types
 
@@ -635,14 +646,14 @@ FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
 
 GraphQL operations are hierarchical and composed, describing a tree of
-information. While Scalar types describe the leaf values of these hierarchical
+information. While _leaf types_ describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values should be serialized as ordered maps, where the
-selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the selection
-set.
+GraphQL Objects are a _composite type_ representing a list of named fields, each
+of which yield a value of a specific type. Object values should be serialized as
+ordered maps, where the selected field names (or aliases) are the keys and the
+result of evaluating the field is the value, ordered by the order in which they
+appear in the selection set.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -1052,9 +1063,14 @@ InterfaceTypeDefinition :
 - Description? interface Name ImplementsInterfaces? Directives[Const]?
   [lookahead != `{`]
 
-GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+GraphQL interfaces are an _abstract type_ which when used as the type of a field
+provides polymorphism where any implementation may be a possible type during
+execution.
+
+Interfaces are also a _composite type_ as they represent a list of named fields
+and their arguments. An object or interface can declare that it implements an
+interface which requires that the implementing type will define all fields
+defined by that interface.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1304,17 +1320,18 @@ UnionMemberTypes :
 - UnionMemberTypes | NamedType
 - = `|`? NamedType
 
-GraphQL Unions represent an object that could be one of a list of GraphQL Object
-types, but provides for no guaranteed fields between those types. They also
-differ from interfaces in that Object types declare what interfaces they
-implement, but are not aware of what unions contain them.
+GraphQL Unions are an _abstract type_ representing one of a list of GraphQL
+Object possible types, but provides for no guaranteed fields between those
+types. They also differ from interfaces in that Object types declare what
+interfaces they implement, but are not aware of what unions contain them.
 
 With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments must be
 used. This is the same as for unions, but unions do not define any fields, so
 **no** fields may be queried on this type without the use of type refining
 fragments or inline fragments (with the exception of the meta-field
-{\_\_typename}).
+{\_\_typename}). Despite this, a union is still considered a _composite type_ as
+it cannot represent a _leaf type_.
 
 For example, we might define the following types:
 
@@ -1429,8 +1446,9 @@ EnumValuesDefinition : { EnumValueDefinition+ }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
-GraphQL Enum types, like Scalar types, also represent leaf values in a GraphQL
-type system. However Enum types describe the set of possible values.
+GraphQL Enum types, like Scalar types, are a _leaf type_ which represents a
+_leaf field_ in a GraphQL type system. However Enum types describe the set of
+possible values.
 
 Enums are not references for a numeric value, but are unique values in their own
 right. They may serialize as a string: the name of the represented value.

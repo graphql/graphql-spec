@@ -700,9 +700,9 @@ CompleteValue(fieldType, fields, result, variableValues):
 **Coercing Results**
 
 The primary purpose of value completion is to ensure that the values returned by
-field resolvers are valid according to the GraphQL type system and a service's
-schema. This "dynamic type checking" allows GraphQL to provide consistent
-guarantees about returned types atop any service's internal runtime.
+_leaf type_ field resolvers are valid according to the GraphQL type system and a
+service's schema. This "dynamic type checking" allows GraphQL to provide
+consistent guarantees about returned types atop any service's internal runtime.
 
 See the Scalars
 [Result Coercion and Serialization](#sec-Scalars.Result-Coercion-and-Serialization)
@@ -723,9 +723,9 @@ and output of {CoerceResult()} must not be {null}.
 
 **Resolving Abstract Types**
 
-When completing a field with an abstract return type, that is an Interface or
-Union return type, first the abstract type must be resolved to a relevant Object
-type. This determination is made by the internal system using whatever means
+When completing a field with an _abstract type_, that is an Interface or Union
+return type, first the abstract type must be resolved to a relevant Object type.
+This determination is made by the internal system using whatever means
 appropriate.
 
 Note: A common method of determining the Object type for an {objectValue} in

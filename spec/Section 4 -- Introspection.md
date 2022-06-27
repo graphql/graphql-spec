@@ -300,7 +300,7 @@ Fields\:
 
 **Union**
 
-Unions are an abstract type where no common fields are declared. The possible
+Unions are an _abstract type_ where no common fields are declared. The possible
 types of a union are explicitly listed out in `possibleTypes`. Types can be made
 parts of unions without modification of that type.
 
@@ -315,10 +315,10 @@ Fields\:
 
 **Interface**
 
-Interfaces are an abstract type where there are common fields declared. Any type
-that implements an interface must define all the fields with names and types
-exactly matching. The implementations of this interface are explicitly listed
-out in `possibleTypes`.
+Interfaces are an _abstract type_ where there are common fields declared. Any
+type that implements an interface must define all the fields with names and
+types exactly matching. The implementations of this interface are explicitly
+listed out in `possibleTypes`.
 
 Fields\:
 
@@ -351,9 +351,9 @@ Fields\:
 
 **Input Object**
 
-Input objects are composite types defined as a list of named input values. They
-are only used as inputs to arguments and variables and cannot be a field return
-type.
+Input Objects are a _composite type_ defined as a list of named input field
+values. They are only used as inputs to arguments and variables and cannot be a
+field return type.
 
 For example the input object `Point` could be defined as:
 
