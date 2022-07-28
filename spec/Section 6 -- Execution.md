@@ -738,9 +738,8 @@ ResolveAbstractType(abstractType, objectValue):
   the type system for determining the Object type of {abstractType} given the
   value {objectValue}.
 - Assert {resolvedType} is an Object type.
-- If {IsSubType(abstractType, resolvedType)}:
-  - Return {resolvedType}.
-- Otherwise, raise a field error.
+- Assert {IsSubType(abstractType, resolvedType)}.
+- Return {resolvedType}.
 
 IsSubType(superType, maybeSubType):
 
