@@ -1462,12 +1462,14 @@ Union types have the potential to be invalid if incorrectly defined.
 2. The member types of a Union type must all be Object, Interface or Union
    types; Scalar and Enum types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
-3. A parent Union must explicitly include as member types of all child Union
-   members.
+3. A Union type must explicitly include all possible types of any included
+   abstract types.
    1. Let this union type be {unionType}.
-   2. For each {memberType} declared as a member of {unionType}, if {memberType}
-      is a Union type, all of the members of {memberType} must also be members
-      of {unionType}.
+   2. For each {memberType} declared as a member of {unionType}:
+      1. If {memberType} is a Union type, all of the members of {memberType}
+         must also be members of {unionType}.
+      2. If {memberType} is an Interface type, all implementations of
+         {memberType} must also be members of {unionType}.
 
 ### Union Extensions
 
@@ -1494,12 +1496,14 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the original Union type.
 5. Any non-repeatable directives provided must not already apply to the original
    Union type.
-6. A parent Union must explicitly include as member types of all child Union
-   members.
+6. A Union type must explicitly include all possible types of any included
+   abstract types.
    1. Let this union type be {unionType}.
-   2. For each {memberType} declared as a member of {unionType}, if {memberType}
-      is a Union type, all of the members of {memberType} must also be members
-      of {unionType}.
+   2. For each {memberType} declared as a member of {unionType}:
+      1. If {memberType} is a Union type, all of the members of {memberType}
+         must also be members of {unionType}.
+      2. If {memberType} is an Interface type, all implementations of
+         {memberType} must also be members of {unionType}.
 
 ## Enums
 
