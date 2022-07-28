@@ -1373,18 +1373,22 @@ union SearchResult =
 **Unions of Interfaces and Unions**
 
 A Union may declare interfaces or other unions as member types. Transitively
-included object types (object types included within a union included by a union)
-must also be included within the parent union. For example, the following types
-are valid:
+included types must also be explicitly included within the parent union, i.e. if
+a parent union includes a child union, all types included by the child union
+must be explicitly included by the parent union. Similarly, if a union includes
+an interface, all types implementing the interface must be explicitly included
+by the union.
+
+For example, the following types are valid:
 
 ```graphql example
-union SearchResult = Item | Photo | Video | Named
+union SearchResult = Item | Photo | Video | Named | Person
 
 interface Named {
   name: String
 }
 
-type Person {
+type Person implements Named {
   name: String
   age: Int
 }
@@ -1426,11 +1430,18 @@ And, given the above, the following operation is valid:
 }
 ```
 
-While the following union is invalid, because the member types of `Item` are not
-explicitly included within `SearchResult`:
+While the following union is invalid, because `Photo` and `Video` are contained
+by the union `Item` and are not explicitly included within `SearchResult`:
 
 ```graphql counter-example
-union SearchResult = Item | Named
+union SearchResult = Item | Named | Person
+```
+
+The following union is also invalid, because `Person` implements `Named`, but is
+not explicitly included within `SearchResult`:
+
+```graphql counter-example
+union SearchResult = Item | Photo | Video | Named
 ```
 
 **Result Coercion**
