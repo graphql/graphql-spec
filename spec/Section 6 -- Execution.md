@@ -741,13 +741,13 @@ ResolveAbstractType(abstractType, objectValue):
 - Assert {IsSubType(abstractType, resolvedType)}.
 - Return {resolvedType}.
 
-IsSubType(superType, maybeSubType):
+IsSubType(abstractType, objectType):
 
 - If {abstractType} is an Interface type.
-  - If {resolvedType} implements {abstractType}, return {true}.
+  - If {objectType} implements {abstractType}, return {true}.
   - Otherwise, return {false}.
 - If {abstractType} is a Union type.
-  - If {resolvedType} is a member type of {abstractType}, return {true}.
+  - If {objectType} is a member type of {abstractType}, return {true}.
   - Otherwise, return {false}.
 
 **Merging Selection Sets**
