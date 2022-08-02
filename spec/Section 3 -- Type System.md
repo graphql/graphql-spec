@@ -924,14 +924,17 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
    2. Let {implementedItemType} be the unwrapped item type of
       {implementedFieldType}.
    3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
-3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
-4. If {fieldType} is an Object type and {implementedFieldType} is a Union type
-   and {fieldType} is a possible type of {implementedFieldType} then return
-   {true}.
-5. If {fieldType} is an Object or Interface type and {implementedFieldType} is
-   an Interface type and {fieldType} declares it implements
-   {implementedFieldType} then return {true}.
-6. Otherwise return {false}.
+3. Return {IsSubType(fieldType, implementedFieldType)}.
+
+IsSubType(possibleSubType, superType):
+
+1. If {possibleSubType} is the same type as {superType} then return {true}.
+2. If {possibleSubType} is an Object type and {superType} is a Union type and
+   {possibleSubType} is a possible type of {superType} then return {true}.
+3. If {possibleSubType} is an Object or Interface type and {superType} is an
+   Interface type and {possibleSubType} declares it implements {superType} then
+   return {true}.
+4. Otherwise return {false}.
 
 ### Field Arguments
 
