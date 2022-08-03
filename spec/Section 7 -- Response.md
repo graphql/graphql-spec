@@ -66,7 +66,7 @@ If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry must be present if and only if one or more _field
 error_ was raised during execution.
 
-**Request errors**
+**Request Errors**
 
 :: A _request error_ is an error raised during a _request_ which results in no
 response data. Typically raised before execution begins, a request error may
@@ -79,7 +79,7 @@ If a request error is raised, the `data` entry in the response must not be
 present, the `errors` entry must include the error, and request execution should
 be halted.
 
-**Field errors**
+**Field Errors**
 
 :: A _field error_ is an error raised during the execution of a particular field
 which results in partial response data. This may occur due to an internal error
@@ -92,7 +92,7 @@ is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)). The
 `data` entry in the response must be present. The `errors` entry should include
 this error.
 
-**Error result format**
+**Error Result Format**
 
 Every error must contain an entry with the key `message` with a string
 description of the error intended for the developer as a guide to understand and
