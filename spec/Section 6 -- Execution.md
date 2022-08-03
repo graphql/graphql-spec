@@ -740,7 +740,7 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one field of the same name is executed in parallel, their
+When multiple fields with the same name or alias are executed, their
 selection sets are merged together when completing the value in order to
 continue execution of the sub-selection sets.
 
