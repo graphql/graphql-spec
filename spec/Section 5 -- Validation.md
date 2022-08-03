@@ -579,7 +579,7 @@ fragment conflictingDifferingResponses on Pet {
   - If {selectionType} is a scalar or enum:
     - The subselection set of that selection must be empty.
   - If {selectionType} is an interface, union, or object:
-    - The subselection set of that selection must NOT BE empty.
+    - The subselection set of that selection must not be empty.
 
 **Explanatory Text**
 
