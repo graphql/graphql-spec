@@ -399,7 +399,7 @@ completion before it continues on to the next item in the grouped field set:
 For example, given the following selection set to be executed serially:
 
 ```graphql example
-{
+mutation {
   changeBirthday(birthday: $newBirthday) {
     month
   }
@@ -421,7 +421,7 @@ As an illustrative example, let's assume we have a mutation field
 we execute the following selection set serially:
 
 ```graphql example
-{
+mutation {
   first: changeTheNumber(newNumber: 1) {
     theNumber
   }
