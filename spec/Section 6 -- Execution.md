@@ -410,8 +410,9 @@ subsequentPayloads, asyncRecord):
 
 - If {path} is not provided, initialize it to an empty list.
 - If {subsequentPayloads} is not provided, initialize it to the empty set.
-- Let {groupedFieldSet} be the result of {CollectFields(objectType, objectValue,
-  selectionSet, variableValues, path subsequentPayloads, asyncRecord)}.
+- Let {groupedFieldSet} and {deferredGroupedFieldsList} be the result of
+  {CollectFields(objectType, objectValue, selectionSet, variableValues, path,
+  asyncRecord)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -422,6 +423,10 @@ subsequentPayloads, asyncRecord):
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues, path, subsequentPayloads, asyncRecord)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- For each {deferredGroupFieldSet} and {label} in {deferredGroupedFieldsList}
+  - Call {ExecuteDeferredFragment(label, objectType, objectValue,
+    deferredGroupFieldSet, path, variableValues, asyncRecord,
+    subsequentPayloads)}
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -573,10 +578,12 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, objectValue, selectionSet, variableValues, path,
-subsequentPayloads, asyncRecord, visitedFragments):
+asyncRecord, visitedFragments, deferredGroupedFieldsList):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
+- If {deferredGroupedFieldsList} is not provided, initialize it to an empty
+  list.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -615,13 +622,17 @@ subsequentPayloads, asyncRecord, visitedFragments):
     - If {deferDirective} is defined:
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
-      - Call {ExecuteDeferredFragment(label, objectType, objectValue,
-        fragmentSelectionSet, path, variableValues, asyncRecord,
-        subsequentPayloads)}.
+      - Let {deferredGroupedFields} be the result of calling
+        {CollectFields(objectType, objectValue, fragmentSelectionSet,
+        variableValues, path, asyncRecord, visitedFragments,
+        deferredGroupedFieldsList)}.
+      - Append a record containing {label} and {deferredGroupedFields} to
+        {deferredGroupedFieldsList}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, objectValue, fragmentSelectionSet,
-      variableValues, path, subsequentPayloads, asyncRecord, visitedFragments)}.
+      variableValues, path, asyncRecord, visitedFragments,
+      deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -640,19 +651,24 @@ subsequentPayloads, asyncRecord, visitedFragments):
         {variableValues} with the value {true}:
         - Let {label} be the value or the variable to {deferDirective}'s {label}
           argument.
-        - Call {ExecuteDeferredFragment(label, objectType, objectValue,
-          fragmentSelectionSet, path, asyncRecord, subsequentPayloads)}.
+        - Let {deferredGroupedFields} be the result of calling
+          {CollectFields(objectType, objectValue, fragmentSelectionSet,
+          variableValues, path, asyncRecord, visitedFragments,
+          deferredGroupedFieldsList)}.
+        - Append a record containing {label} and {deferredGroupedFields} to
+          {deferredGroupedFieldsList}.
         - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, objectValue, fragmentSelectionSet,
-      variableValues, path, subsequentPayloads, asyncRecord, visitedFragments)}.
+      variableValues, path, asyncRecord, visitedFragments,
+      deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+- Return {groupedFields} and {deferredGroupedFieldsList}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
@@ -686,22 +702,29 @@ All Async Payload Records are structures containing:
 
 #### Execute Deferred Fragment
 
-ExecuteDeferredFragment(label, objectType, objectValue, fragmentSelectionSet,
-path, variableValues, parentRecord, subsequentPayloads):
+ExecuteDeferredFragment(label, objectType, objectValue, groupedFieldSet, path,
+variableValues, parentRecord, subsequentPayloads):
 
 - Let {deferRecord} be an async payload record created from {label} and {path}.
 - Initialize {errors} on {deferRecord} to an empty list.
 - Let {dataExecution} be the asynchronous future value of:
   - Let {payload} be an unordered map.
-  - Let {data} be the result of {ExecuteSelectionSet(fragmentSelectionSet,
-    objectType, objectValue, variableValues, path, subsequentPayloads,
-    deferRecord)}.
+  - Initialize {resultMap} to an empty ordered map.
+  - For each {groupedFieldSet} as {responseKey} and {fields}:
+    - Let {fieldName} be the name of the first entry in {fields}. Note: This
+      value is unaffected if an alias is used.
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - If {fieldType} is defined:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fields, variableValues, path, subsequentPayloads, asyncRecord)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
   - Append any encountered field errors to {errors}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
-  - Add an entry to {payload} named `data` with the value {data}.
+  - Add an entry to {payload} named `data` with the value {resultMap}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {path}.
   - Return {payload}.
