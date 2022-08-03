@@ -214,11 +214,8 @@ type MyMutationRootType {
 While any type can be the root operation type for a GraphQL operation, the type
 system definition language can omit the schema definition when the {`query`},
 {`mutation`}, and {`subscription`} root types are named {"Query"}, {"Mutation"},
-and {"Subscription"} respectively.
-
-Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if it only uses the default root
-operation type names.
+and {"Subscription"} respectively. This rule applies also when Mutation or 
+Subscription type is not defined (or both); only the Query type is required.  
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
