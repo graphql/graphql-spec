@@ -556,7 +556,7 @@ fragment safeDifferingArgs on Pet {
 ```
 
 However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
+field types must not differ. In this example, `someValue` might be a `String`
 or an `Int`:
 
 ```graphql counter-example
