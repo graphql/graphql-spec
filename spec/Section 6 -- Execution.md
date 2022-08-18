@@ -30,13 +30,21 @@ request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
+Note: the execution assumes implementing language supports coroutines.
+Alternatively, the socket can provide a write buffer pointer to allow
+{ExecuteRequest()} to directly write payloads into the buffer.
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
 - If {operation} is a query operation:
-  - Return {ExecuteQuery(operation, schema, coercedVariableValues,
-    initialValue)}.
+  - Let {executionResult} be the result of calling {ExecuteQuery(operation,
+    schema, coercedVariableValues, initialValue, subsequentPayloads)}.
+  - If {executionResult} is an iterator:
+    - For each {payload} in {executionResult}:
+      - Yield {payload}.
+  - Otherwise:
+    - Return {executionResult}.
 - Otherwise if {operation} is a mutation operation:
   - Return {ExecuteMutation(operation, schema, coercedVariableValues,
     initialValue)}.
@@ -128,15 +136,28 @@ An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
+- Let {subsequentPayloads} be an empty list.
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+  queryType, initialValue, variableValues, subsequentPayloads)} _normally_
+  (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is not empty:
+  - Yield an unordered map containing {data}, {errors}, and an entry named
+    {hasNext} with the value {true}.
+  - Let {iterator} be the result of running
+    {YieldSubsequentPayloads(subsequentPayloads)}.
+  - For each {payload} yielded by {iterator}:
+    - If a termination signal is received:
+      - Send a termination signal to {iterator}.
+      - Return.
+    - Otherwise:
+      - Yield {payload}.
 
 ### Mutation
 
@@ -150,14 +171,27 @@ mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
+- Let {subsequentPayloads} be an empty list.
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
+  mutationType, initialValue, variableValues, subsequentPayloads)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is not empty:
+  - Yield an unordered map containing {data}, {errors}, and an entry named
+    {hasNext} with the value {true}.
+  - Let {iterator} be the result of running
+    {YieldSubsequentPayloads(subsequentPayloads)}.
+  - For each {payload} yielded by {iterator}:
+    - If a termination signal is received:
+      - Send a termination signal to {iterator}.
+      - Return.
+    - Otherwise:
+      - Yield {payload}.
 
 ### Subscription
 
@@ -291,22 +325,36 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
 - For each {event} on {sourceStream}:
-  - Let {response} be the result of running
+  - Let {executionResult} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
+  - For each {response} yielded by {executionResult}:
+    - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
+- Let {subsequentPayloads} be an empty list.
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+  subscriptionType, initialValue, variableValues, subsequentPayloads)}
+  _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is not empty:
+  - Yield an unordered map containing {data}, {errors}, and an entry named
+    {hasNext} with the value {true}.
+  - Let {iterator} be the result of running
+    {YieldSubsequentPayloads(subsequentPayloads)}.
+  - For each {payload} yielded by {iterator}:
+    - If a termination signal is received:
+      - Send a termination signal to {iterator}.
+      - Return.
+    - Otherwise:
+      - Yield {payload}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -322,6 +370,44 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}
 
+## Yield Subsequent Payloads
+
+If an operation contains subsequent payload records resulting from `@stream` or
+`@defer` directives, the {YieldSubsequentPayloads} algorithm defines how the
+payloads should be processed.
+
+YieldSubsequentPayloads(subsequentPayloads):
+
+- While {subsequentPayloads} is not empty:
+- If a termination signal is received:
+  - For each {record} in {subsequentPayloads}:
+    - If {record} is a Stream Record:
+      - Let {iterator} be the correspondent fields on the Stream Record
+        structure.
+      - Send a termination signal to {iterator}.
+  - Return.
+- Let {record} be the first complete item in {subsequentPayloads}.
+  - Remove {record} from {subsequentPayloads}.
+  - Assert: {record} must be a Deferred Fragment Record or a Stream Record.
+  - If {record} is a Deferred Fragment Record:
+    - Let {payload} be the result of running
+      {ResolveDeferredFragmentRecord(record, variableValues,
+      subsequentPayloads)}.
+  - If {record} is a Stream Record:
+    - Let {payload} be the result of running {ResolveStreamRecord(record,
+      variableValues, subsequentPayloads)}.
+  - If {payload} is {null}:
+    - If {subsequentPayloads} is empty:
+      - Yield a map containing a field `hasNext` with the value {false}.
+      - Return.
+    - If {subsequentPayloads} is not empty:
+      - Continue to the next record in {subsequentPayloads}.
+  - If {record} is not the final element in {subsequentPayloads}
+    - Add an entry to {payload} named `hasNext` with the value {true}.
+  - If {record} is the final element in {subsequentPayloads}
+    - Add an entry to {payload} named `hasNext` with the value {false}.
+  - Yield {payload}
+
 ## Executing Selection Sets
 
 To execute a selection set, the object value being evaluated and the object type
@@ -332,10 +418,13 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
 map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues,
+subsequentPayloads, parentPath):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+- If {subsequentPayloads} is not provided, initialize it to the empty set.
+- If {parentPath} is not provided, initialize it to an empty list.
+- Let {groupedFieldSet} be the result of {CollectFields(objectType, objectValue,
+  selectionSet, variableValues, subsequentPayloads, parentPath)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -344,7 +433,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     {objectType}.
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+      fields, variableValues, subsequentPayloads, parentPath)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Return {resultMap}.
 
@@ -465,7 +554,13 @@ Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
 name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+referenced fragments) are executed at the same time. A deferred selection set's
+fields will not be included in the grouped field set. Rather, a record
+representing the deferred fragment and additional context will be stored in a
+list. The executor revisits and resumes execution for the list of deferred
+fragment records after the initial execution is initiated. This deferred
+execution would ‘re-execute’ fields with the same response key that were present
+in the grouped field set.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -490,7 +585,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, objectValue, selectionSet, variableValues,
+deferredFragments, parentPath, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -513,8 +609,12 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
+    - If {fragmentSpreadName} provides the directive `@defer` and it's {if}
+      argument is {true} or is a variable in {variableValues} with the value
+      {true}:
+      - Let {deferDirective} be that directive.
+    - If {fragmentSpreadName} is in {visitedFragments} and {deferDirective} is
+      not defined, continue with the next {selection} in {selectionSet}.
     - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
@@ -524,6 +624,12 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - If {deferDirective} is defined:
+      - Let {deferredFragment} be the result of calling
+        {DeferFragment(objectType, objectValue, fragmentSelectionSet,
+        parentPath)}.
+      - Append {deferredFragment} to {deferredFragments}.
+      - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
@@ -539,9 +645,18 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - If {InlineFragment} provides the directive `@defer`, let {deferDirective}
+      be that directive.
+      - If {deferDirective}'s {if} argument is {true} or is a variable in
+        {variableValues} with the value {true}:
+        - Let {deferredFragment} be the result of calling
+          {DeferFragment(objectType, objectValue, fragmentSelectionSet,
+          parentPath)}.
+        - Append {deferredFragment} to {deferredFragments}.
+        - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, parentPath)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -549,6 +664,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
 - Return {groupedFields}.
+
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -562,8 +680,47 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - if {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
-Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
-directives may be applied in either order since they apply commutatively.
+DeferFragment(objectType, objectValue, fragmentSelectionSet, parentPath):
+
+- Let {label} be the value or the variable to {deferDirective}'s {label}
+  argument.
+- Let {deferredFragmentRecord} be the result of calling
+  {CreateDeferredFragmentRecord(label, objectType, objectValue,
+  fragmentSelectionSet, parentPath)}.
+- return {deferredFragmentRecord}.
+
+#### Deferred Fragment Record
+
+Let {deferredFragmentRecord} be an inline fragment or fragment spread with
+`@defer` provided.
+
+Deferred Fragment Record is a structure containing:
+
+- {label}: value derived from the `@defer` directive.
+- {objectType}: of the {deferredFragmentRecord}.
+- {objectValue}: of the {deferredFragmentRecord}.
+- {fragmentSelectionSet}: the top level selection set of
+  {deferredFragmentRecord}.
+- {path}: a list of field names and indices from root to
+  {deferredFragmentRecord}.
+
+CreateDeferredFragmentRecord(label, objectType, objectValue,
+fragmentSelectionSet, path):
+
+- If {path} is not provided, initialize it to an empty list.
+- Construct a deferred fragment record based on the parameters passed in.
+
+ResolveDeferredFragmentRecord(deferredFragmentRecord, variableValues,
+subsequentPayloads):
+
+- Let {label}, {objectType}, {objectValue}, {fragmentSelectionSet}, {path} be
+  the corresponding fields in the deferred fragment record structure.
+- Let {payload} be the result of calling
+  {ExecuteSelectionSet(fragmentSelectionSet, objectType, objectValue,
+  variableValues, subsequentPayloads, path)}.
+- Add an entry to {payload} named `label` with the value {label}.
+- Add an entry to {payload} named `path` with the value {path}.
+- Return {payload}.
 
 ## Executing Fields
 
@@ -573,16 +730,29 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+subsequentPayloads, parentPath):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
+- If {field} provides the directive `@stream`, let {streamDirective} be that
+  directive.
+  - Let {initialCount} be the value or variable provided to {streamDirective}'s
+    {initialCount} argument.
+  - Let {resolvedValue} be {ResolveFieldGenerator(objectType, objectValue,
+    fieldName, argumentValues, initialCount)}.
+  - Let {result} be the result of calling {CompleteValue(fieldType, fields,
+    resolvedValue, variableValues, subsequentPayloads, parentPath)}.
+  - Append {fieldName} to the {path} field of every {subsequentPayloads}.
+  - Return {result}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Let {result} be the result of calling {CompleteValue(fieldType, fields,
+  resolvedValue, variableValues, subsequentPayloads)}.
+- Append {fieldName} to the {path} for every {subsequentPayloads}.
+- Return {result}.
 
 ### Coercing Field Arguments
 
@@ -645,11 +815,20 @@ must only allow usage of variables of appropriate types.
 While nearly all of GraphQL execution can be described generically, ultimately
 the internal system exposing the GraphQL interface must provide values. This is
 exposed via {ResolveFieldValue}, which produces a value for a given field on a
-type for a real value.
+type for a real value. In addition, {ResolveFieldGenerator} will be exposed to
+produce an iterator for a field with `List` return type. The internal system may
+optionally define a generator function. In the case where the generator is not
+defined, the GraphQL executor provides a default generator. For example, a
+trivial generator that yields the entire list upon the first iteration.
 
-As an example, this might accept the {objectType} `Person`, the {field}
-{"soulMate"}, and the {objectValue} representing John Lennon. It would be
-expected to yield the value representing Yoko Ono.
+As an example, a {ResolveFieldValue} might accept the {objectType} `Person`, the
+{field} {"soulMate"}, and the {objectValue} representing John Lennon. It would
+be expected to yield the value representing Yoko Ono.
+
+A {ResolveFieldGenerator} might accept the {objectType} `MusicBand`, the {field}
+{"members"}, and the {objectValue} representing Beatles. It would be expected to
+yield a iterator of values representing, John Lennon, Paul McCartney, Ringo
+Starr and George Harrison.
 
 ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 
@@ -658,18 +837,74 @@ ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 - Return the result of calling {resolver}, providing {objectValue} and
   {argumentValues}.
 
+ResolveFieldGenerator(objectType, objectValue, fieldName, argumentValues,
+initialCount):
+
+- If {objectType} provide an internal function {generatorResolver} for
+  generating partially resolved value of a list field named {fieldName}:
+  - Let {generatorResolver} be the internal function.
+  - Return the iterator from calling {generatorResolver}, providing
+    {objectValue}, {argumentValues} and {initialCount}.
+- Create {generator} from {ResolveFieldValue(objectType, objectValue, fieldName,
+  argumentValues)}.
+- Return {generator}.
+
 Note: It is common for {resolver} to be asynchronous due to relying on reading
 an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
-flow.
+flow. In addition, a common implementation of {generator} is to leverage
+asynchronous iterators or asynchronous generators provided by many programming
+languages.
 
 ### Value Completion
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively.
+field execution process continues recursively. In the case where a value
+returned for a list type field is an iterator due to `@stream` specified on the
+field, value completion iterates over the iterator until the number of items
+yield by the iterator satisfies `initialCount` specified on the `@stream`
+directive. Unresolved items in the iterator will be stored in a stream record
+which the executor resumes to execute after the initial execution finishes.
 
-CompleteValue(fieldType, fields, result, variableValues):
+#### Stream Record
+
+Let {streamField} be a list field with a `@stream` directive provided.
+
+A Stream Record is a structure containing:
+
+- {label}: value derived from the `@stream` directive's `label` argument.
+- {iterator}: created by {ResolveFieldGenerator}.
+- {resolvedItems}: items resolved from the {iterator} but not yet delivered.
+- {index}: indicating the position of the item in the complete list.
+- {path}: a list of field names and indices from root to {streamField}.
+- {fields}: the group of fields grouped by CollectFields() for {streamField}.
+- {innerType}: inner type of {streamField}'s type.
+
+CreateStreamRecord(label, initialCount, iterator, resolvedItems, index, fields,
+innerType):
+
+- Construct a stream record based on the parameters passed in.
+
+ResolveStreamRecord(streamRecord, variableValues, subsequentPayloads):
+
+- Let {label}, {iterator}, {resolvedItems}, {index}, {path}, {fields},
+  {innerType} be the correspondent fields on the Stream Record structure.
+- Wait for the next item from {iterator}.
+- If an item is not retrieved because {iterator} has completed:
+  - Return {null}
+- Let {item} be the item retrieved from {iterator}.
+- Append {index} to {path}.
+- Increment {index}.
+- Let {payload} be the result of calling CompleteValue(innerType, fields, item,
+  variableValues, subsequentPayloads, path)}.
+- Add an entry to {payload} named `label` with the value {label}.
+- Add an entry to {payload} named `path` with the value {path}.
+- Append {streamRecord} to {subsequentPayloads}.
+- Return {payload}.
+
+CompleteValue(fieldType, fields, result, variableValues, subsequentPayloads,
+parentPath):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
@@ -680,11 +915,34 @@ CompleteValue(fieldType, fields, result, variableValues):
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
+  - If {result} is an iterator:
+    - Let {field} be the first entry in {fields}.
+    - Let {innerType} be the inner type of {fieldType}.
+    - Let {streamDirective} be the `@stream` directive provided on {field}.
+    - Let {initialCount} be the value or variable provided to
+      {streamDirective}'s {initialCount} argument.
+    - Let {label} be the value or variable provided to {streamDirective}'s
+      {label} argument.
+    - Let {resolvedItems} be an empty list
+    - For each {members} in {result}:
+      - Append all items from {members} to {resolvedItems}.
+      - If the length of {resolvedItems} is greater or equal to {initialCount}:
+        - Let {initialItems} be the sublist of the first {initialCount} items
+          from {resolvedItems}.
+        - Let {remainingItems} be the sublist of the items in {resolvedItems}
+          after the first {initialCount} items.
+        - Let {streamRecord} be the result of calling {CreateStreamRecord(label,
+          initialCount, result, remainingItems, initialCount, fields, innerType,
+          parentPath)}
+        - Append {streamRecord} to {subsequentPayloads}.
+        - Let {result} be {initialItems}.
+        - Exit for each loop.
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+    {CompleteValue(innerType, fields, resultItem, variableValues,
+    subsequentPayloads, parentPath)}, where {resultItem} is each item in
+    {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -694,8 +952,8 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
   - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+    objectType, result, variableValues, subsequentPayloads, parentPath)}
+    _normally_ (allowing for parallelization).
 
 **Coercing Results**
 
