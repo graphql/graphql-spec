@@ -23,11 +23,14 @@ request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
 When the response of the GraphQL operation is an event stream, the first value
-will be the initial response. All subsequent values may contain `label` and
-`path` entries. These two entries are used by clients to identify the `@defer`
-or `@stream` directive from the GraphQL operation that triggered this value to
-be returned by the event stream. When a label is provided, the combination of
-these two entries will be unique across all values returned by the event stream.
+will be the initial response. All subsequent values may contain an `incremental`
+entry, containing a list of Defer or Stream responses.
+
+The `label` and `path` entries on Defer and Stream responses are used by clients
+to identify the `@defer` or `@stream` directive from the GraphQL operation that
+triggered this response to be included in an `incremental` entry on a value
+returned by the event stream. When a label is provided, the combination of these
+two entries will be unique across all values returned by the event stream.
 
 If the response of the GraphQL operation is an event stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
@@ -45,11 +48,13 @@ set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents. When the response of the GraphQL operation is an
 event stream, implementors may send subsequent payloads containing only
-`hasNext` and `extensions` entries.
+`hasNext` and `extensions` entries. Defer and Stream responses may also contain
+an entry with the key `extensions`, also reserved for implementors to extend the
+protocol however they see fit.
 
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
-three described above.
+five described above.
 
 Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present in a
@@ -61,11 +66,6 @@ The `data` entry in the response will be the result of the execution of the
 requested operation. If the operation was a query, this output will be an object
 of the query root operation type; if the operation was a mutation, this output
 will be an object of the mutation root operation type.
-
-If the result of the operation is an event stream, the `data` entry in
-subsequent values will be of the type of a particular field in the GraphQL
-result. The adjacent `path` field will contain the path segments of the field
-this data is associated with.
 
 If an error was raised before execution begins, the `data` entry should not be
 present in the result.
@@ -263,7 +263,43 @@ discouraged.
 }
 ```
 
-## Path
+### Incremental
+
+The `incremental` entry in the response is a non-empty list of Defer or Stream
+responses. If the response of the GraphQL operation is an event stream, this
+field may appear on both the initial and subsequent values.
+
+#### Stream response
+
+A stream response is a map that may appear as an item in the `incremental` entry
+of a response. A stream response is the result of an associated `@stream`
+directive in the operation. A stream response must contain `items` and `path`
+entries and may contain `label`, `errors`, and `extensions` entries.
+
+##### Items
+
+The `items` entry in a stream response is a list of results from the execution
+of the associated @stream directive. This output will be a list of the same type
+of the field with the associated `@stream` directive. If `items` is set to
+`null`, it indicates that an error has caused a `null` to bubble up to a field
+higher than the list field with the associated `@stream` directive.
+
+#### Defer response
+
+A defer response is a map that may appear as an item in the `incremental` entry
+of a response. A defer response is the result of an associated `@defer`
+directive in the operation. A defer response must contain `data` and `path`
+entries and may contain `label`, `errors`, and `extensions` entries.
+
+##### Data
+
+The `data` entry in a Defer response will be of the type of a particular field
+in the GraphQL result. The adjacent `path` field will contain the path segments
+of the field this data is associated with. If `data` is set to `null`, it
+indicates that an error has caused a `null` to bubble up to a field higher than
+the field that contains the fragment with the associated `@defer` directive.
+
+#### Path
 
 A `path` field allows for the association to a particular field in a GraphQL
 result. This field should be a list of path segments starting at the root of the
@@ -273,21 +309,30 @@ indices should be 0-indexed integers. If the path is associated to an aliased
 field, the path should use the aliased name, since it represents a path in the
 response, not in the request.
 
-When the `path` field is present on a GraphQL response, it indicates that the
-`data` field is not the root query or mutation result, but is rather associated
-to a particular field in the root result.
+When the `path` field is present on a Stream response, it indicates that the
+`items` field represents the partial result of the list field containing the
+corresponding `@stream` directive. All but the non-final path segments must
+refer to the location of the list field containing the corresponding `@stream`
+directive. The final segment of the path list must be a 0-indexed integer. This
+integer indicates that this result is set at a range, where the beginning of the
+range is at the index of this integer, and the length of the range is the length
+of the data.
+
+When the `path` field is present on a Defer response, it indicates that the
+`data` field represents the result of the fragment containing the corresponding
+`@defer` directive. The path segments must point to the location of the result
+of the field containing the associated `@defer` directive.
 
 When the `path` field is present on an "Error result", it indicates the response
 field which experienced the error.
 
-## Label
+#### Label
 
-If the response of the GraphQL operation is an event stream, subsequent values
-may contain a string field `label`. This `label` is the same label passed to the
-`@defer` or `@stream` directive that triggered this value. This allows clients
-to identify which `@defer` or `@stream` directive is associated with this value.
-`label` will not be present if the corresponding `@defer` or `@stream` directive
-is not passed a `label` argument.
+Stream and Defer responses may contain a string field `label`. This `label` is
+the same label passed to the `@defer` or `@stream` directive associated with the
+response. This allows clients to identify which `@defer` or `@stream` directive
+is associated with this value. `label` will not be present if the corresponding
+`@defer` or `@stream` directive is not passed a `label` argument.
 
 ## Serialization Format
 

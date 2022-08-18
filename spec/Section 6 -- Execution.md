@@ -144,10 +144,10 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Yield an unordered map containing {data}, {errors}, and an entry named
-    {hasNext} with the value {true}.
+  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
+    entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(subsequentPayloads)}.
+    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -178,10 +178,10 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Yield an unordered map containing {data}, {errors}, and an entry named
-    {hasNext} with the value {true}.
+  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
+    entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(subsequentPayloads)}.
+    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -340,10 +340,10 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Yield an unordered map containing {data}, {errors}, and an entry named
-    {hasNext} with the value {true}.
+  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
+    entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(subsequentPayloads)}.
+    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -371,29 +371,42 @@ If an operation contains subsequent payload records resulting from `@stream` or
 `@defer` directives, the {YieldSubsequentPayloads} algorithm defines how the
 payloads should be processed.
 
-YieldSubsequentPayloads(subsequentPayloads):
+YieldSubsequentPayloads(intialResponse, subsequentPayloads):
 
+- Let {initialRecords} be any items in {subsequentPayloads} with a completed
+  {dataExecution}.
+- Initialize {initialIncremental} to an empty list.
+- For each {record} in {initialRecords}:
+  - Remove {record} from {subsequentPayloads}.
+  - If {isCompletedIterator} on {record} is {true}:
+    - Continue to the next record in {records}.
+  - Let {payload} be the completed result returned by {dataExecution}.
+  - Append {payload} to {initialIncremental}.
+- If {initialIncremental} is not empty:
+  - Add an entry to {intialResponse} named `incremental` containing the value
+    {incremental}.
+- Yield {intialResponse}.
 - While {subsequentPayloads} is not empty:
 - If a termination signal is received:
   - For each {record} in {subsequentPayloads}:
     - If {record} contains {iterator}:
       - Send a termination signal to {iterator}.
   - Return.
-- Let {record} be the first item in {subsequentPayloads} with a completed
+- Wait for at least one record in {subsequentPayloads} to have a completed
   {dataExecution}.
-  - Remove {record} from {subsequentPayloads}.
-  - If {isCompletedIterator} on {record} is {true}:
-    - If {subsequentPayloads} is empty:
-      - Yield a map containing a field `hasNext` with the value {false}.
-      - Return.
-    - If {subsequentPayloads} is not empty:
-      - Continue to the next record in {subsequentPayloads}.
-  - Let {payload} be the completed result returned by {dataExecution}.
-  - If {record} is not the final element in {subsequentPayloads}:
-    - Add an entry to {payload} named `hasNext` with the value {true}.
-  - If {record} is the final element in {subsequentPayloads}:
-    - Add an entry to {payload} named `hasNext` with the value {false}.
-  - Yield {payload}
+- Let {subsequentResponse} be an unordered map with an entry {incremental}
+  initialized to an empty list.
+- Let {records} be the items in {subsequentPayloads} with a completed
+  {dataExecution}.
+  - For each {record} in {records}:
+    - Remove {record} from {subsequentPayloads}.
+    - If {isCompletedIterator} on {record} is {true}:
+      - Continue to the next record in {records}.
+    - Let {payload} be the completed result returned by {dataExecution}.
+    - Append {payload} to {incremental}.
+  - If {subsequentPayloads} is empty:
+    - Add an entry to {response} named `hasNext` with the value {false}.
+  - Yield {response}
 
 ## Executing Selection Sets
 
@@ -899,7 +912,8 @@ variableValues, subsequentPayloads):
     - Wait for the result of {dataExecution} on {parentRecord}.
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
-  - Add an entry to {payload} named `data` with the value {data}.
+  - Add an entry to {payload} named `items` with a list containing the value
+    {data}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {itemPath}.
   - Return {payload}.
