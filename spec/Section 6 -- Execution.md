@@ -31,6 +31,10 @@ request is determined by the result of executing this operation according to the
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
+Note: the execution assumes implementing language supports coroutines.
+Alternatively, the socket can provide a write buffer pointer to allow
+{ExecuteRequest()} to directly write payloads into the buffer.
+
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
@@ -298,7 +302,9 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
   subscriptionType, selectionSet)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
-{ExecuteQuery()} since this is how each event result is produced.
+{ExecuteQuery()} since this is how each event result is produced. Incremental
+delivery, however, is not supported within {ExecuteSubscriptionEvent()} and will
+result in a _field error_.
 
 #### Unsubscribe
 
@@ -324,18 +330,33 @@ the underlying Source Stream).
 First, the selection set is turned into a grouped field set; then, we execute
 this grouped field set and return the resulting {data} and {errors}.
 
+If an operation contains `@stream` directives, execution may also result in an
+Subsequent Result stream in addition to the initial response. The procedure for
+yielding subsequent results is specified by the {YieldSubsequentResults()}
+algorithm.
+
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
 
 - If {serial} is not provided, initialize it to {false}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
-- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
-  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
-  _normally_ (allowing parallelization) otherwise.
+- Let {data} and {incrementalDigests} be the result of
+  {ExecuteGroupedFieldSet(groupedFieldSet, queryType, initialValue,
+  variableValues)} _serially_ if {serial} is {true}, _normally_ (allowing
+  parallelization) otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+  {groupedFieldSet}.
+- Let {newPendingResults} and {futures} be the results of
+  {ProcessIncrementalDigests(incrementalDigests)}.
+- Let {ids} and {initialPayload} be the result of
+  {GetIncrementalPayload(newPendingResults)}.
+- If {ids} is empty, return an empty unordered map consisting of {data} and
+  {errors}.
+- Set the corresponding entries on {initialPayload} to {data} and {errors}.
+- Let {subsequentResults} be the result of {YieldSubsequentResults(ids,
+  futures)}.
+- Return {initialPayload} and {subsequentResults}.
 
 ### Field Collection
 
@@ -443,6 +464,154 @@ DoesFragmentTypeApply(objectType, fragmentType):
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
 
+### Processing Incremental Digests
+
+An Incremental Digest is a structure containing:
+
+- {newPendingResults}: a list of new pending results to publish.
+- {futures}: a list of future executions whose results will complete pending
+  results. The results of these future execution may immediately complete the
+  pending results, or may incrementally complete the pending results, and
+  contain additional Incremental Digests that will immediately or eventually
+  complete those results.
+
+ProcessIncrementalDigests(incrementalDigests):
+
+- Let {newPendingResults} and {futures} be lists containing all of the items
+  from the corresponding lists within each item of {incrementalDigests}.
+- Return {newPendingResults} and {futures}.
+
+### Yielding Subsequent Results
+
+The procedure for yielding subsequent results is specified by the
+{YieldSubsequentResults()} algorithm. First, any initiated future executions are
+initiated. Then, any completed future executions are processed to determine the
+payload to be yielded. Finally, if any pending results remain, the procedure is
+repeated recursively.
+
+YieldSubsequentResults(originalIds, newFutures, initiatedFutures):
+
+- Initialize {futures} to a list containing all items in {initiatedFutures}.
+- For each {future} in {newFutures}:
+  - If {future} has not been initiated, initiate it.
+  - Append {future} to {futures}.
+- Wait for any future execution contained in {futures} to complete.
+- Let {updates}, {newPendingResults}, {newestFutures}, and {remainingFutures} be
+  the result of {ProcessCompletedFutures(futures)}.
+- Let {ids} and {payload} be the result of
+  {GetIncrementalPayload(newPendingResults, originalIds, updates)}.
+- Yield {payload}.
+- If {hasNext} on {payload} is {false}:
+  - Complete this subsequent result stream and return.
+- Yield the results of {YieldSubsequentResults(ids, newestFutures,
+  remainingFutures)}.
+
+GetIncrementalPayload(newPendingResults, originalIds, updates):
+
+- Let {ids} be a new unordered map containing all of the entries in
+  {originalIds}.
+- Initialize {pending}, {incremental}, and {completed} to empty lists.
+- For each {newPendingResult} in {newPendingResults}:
+  - Let {path} and {label} be the corresponding entries on {newPendingResult}.
+  - Let {id} be a unique identifier for this {newPendingResult}.
+  - Set the entry for {newPendingResult} in {ids} to {id}.
+  - Let {pendingEntry} be an unordered map containing {path}, {label}, and {id}.
+  - Append {pendingEntry} to {pending}.
+- For each {update} of {updates}:
+  - Let {completed}, {errors}, and {incremental} be the corresponding entries on
+    {update}.
+  - For each {completedResult} in {completed}:
+    - Let {id} be the entry for {completedResult} on {ids}.
+    - If {id} is not defined, continue to the next {completedResult} in
+      {completed}.
+    - Remove the entry on {ids} for {completedResult}.
+    - Let {completedEntry} be an unordered map containing {id}.
+    - If {errors} is defined, set the corresponding entry on {completedEntry} to
+      {errors}.
+    - Append {completedEntry} to {completed}.
+  - For each {incrementalResult} in {incremental}:
+    - Let {stream} be the corresponding entry on {incrementalResult}.
+    - Let {id} be the corresponding entry on {ids} for {stream}.
+    - If {id} is not defined, continue to the next {incrementalResult} in
+      {incremental}.
+    - Let {items} and {errors} be the corresponding entries on
+      {incrementalResult}.
+    - Let {incrementalEntry} be an unordered map containing {id}, {items}, and
+      {errors}.
+- Let {hasNext} be {false} if {ids} is empty, otherwise {true}.
+- Let {payload} be an unordered map containing {hasNext}.
+- If {pending} is not empty:
+  - Set the corresponding entry on {payload} to {pending}.
+- If {incremental} is not empty:
+  - Set the corresponding entry on {payload} to {incremental}.
+- If {completed} is not empty:
+  - Set the corresponding entry on {payload} to {completed}.
+- Return {ids} and {payload}.
+
+### Processing Completed Futures
+
+As future executions are completed, the {ProcessCompletedFutures()} algorithm
+describes how the results of these executions impact the incremental state.
+Results from completed futures are processed individually, with each result
+possibly:
+
+- Completing existing pending results.
+- Contributing data for the next payload.
+- Containing additional Incremental Digests.
+
+When encountering additional Incremental Digests, {ProcessCompletedFutures()}
+calls itself recursively, processing the new Incremental Digests and checking
+for any completed futures, as long as the new Incremental Digests do not contain
+any new pending results. If they do, first a new payload is yielded, notifying
+the client that new pending results have been encountered.
+
+ProcessCompletedFutures(maybeCompletedFutures, updates, pending,
+incrementalDigests, remainingFutures):
+
+- If {updates}, {pending}, {incrementalDigests}, or {remainingFutures} are not
+  provided, initialize them to empty lists.
+- Let {completedFutures} be a list containing all completed futures from
+  {maybeCompletedFutures}; append the remaining futures to {remainingFutures}.
+- Initialize {supplementalIncrementalDigests} to an empty list.
+- For each {completedFuture} in {completedFutures}:
+  - Let {result} be the result of {completedFuture}.
+  - Let {update} and {resultIncrementalDigests} be the result of calling
+    {GetUpdatesForStreamItems(result)}.
+  - Append {update} to {updates}.
+  - For each {resultIncrementalDigest} in {resultIncrementalDigests}:
+    - If {resultIncrementalDigest} contains a {newPendingResults} entry:
+      - Append {resultIncrementalDigest} to {incrementalDigests}.
+    - Otherwise:
+      - Append {resultIncrementalDigest} to {supplementalIncrementalDigests}.
+- If {supplementalIncrementalDigests} is empty:
+  - Let {newPendingResults} and {futures} be the result of
+    {ProcessIncrementalDigests(incrementalDigests)}.
+  - Append all items in {newPendingResults} to {pending}.
+  - Return {updates}, {pending}, {newFutures}, and {remainingFutures}.
+- Let {newPendingResults} and {futures} be the result of
+  {ProcessIncrementalDigests(supplementalIncrementalDigests)}.
+- Append all items in {newPendingResults} to {pending}.
+- Return the result of {ProcessCompletedFutures(futures, updates, pending,
+  incrementalDigests, remainingFutures)}.
+
+GetUpdatesForStreamItems(streamItems):
+
+- Let {stream}, {items}, and {errors} be the corresponding entries on
+  {streamItems}.
+- If {items} is not defined, the stream has asynchronously ended:
+  - Let {completed} be a list containing {stream}.
+  - Let {update} be an unordered map containing {completed}.
+- Otherwise, if {items} is {null}:
+  - Let {completed} be a list containing {stream}.
+  - Let {errors} be the corresponding entry on {streamItems}.
+  - Let {update} be an unordered map containing {completed} and {errors}.
+- Otherwise:
+  - Let {incremental} be a list containing {streamItems}.
+  - Let {update} be an unordered map containing {incremental}.
+  - Let {incrementalDigests} be the corresponding entry on {streamItems}.
+- Let {updates} be a list containing {update}.
+- Return {updates} and {incrementalDigests}.
+
 ## Executing a Grouped Field Set
 
 To execute a grouped field set, the object value being evaluated and the object
@@ -452,20 +621,25 @@ be executed in parallel.
 Each represented field in the grouped field set produces an entry into a
 response map.
 
-ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-variableValues):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
+path):
 
+- If {path} is not provided, initialize it to an empty list.
 - Initialize {resultMap} to an empty ordered map.
+- Initialize {incrementalDigests} to an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+    - Let {responseValue} and {fieldIncrementalDigests} be the result of
+      {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+      path)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Return {resultMap}.
+    - Append all Incremental Digests in {fieldIncrementalDigests} to
+      {incrementalDigests}.
+- Return {resultMap} and {incrementalDigests}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section above.
@@ -478,6 +652,31 @@ either resolving to {null} if allowed or further propagated to a parent field.
 
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
+
+Additionally, Subsequent Result records must not be yielded if their path points
+to a location that has resolved to {null} due to propagation of a field error.
+If these subsequent results have not yet executed or have not yet yielded a
+value they may also be cancelled to avoid unnecessary work.
+
+For example, assume the field `alwaysThrows` is a list of `Non-Null` type where
+completion of the list item always raises a field error:
+
+```graphql example
+{
+  myObject(initialCount: 1) @stream {
+    alwaysThrows
+  }
+}
+```
+
+In this case, only one response should be sent. Subsequent items from the stream
+should be ignored and their completion, if initiated, may be cancelled.
+
+```json example
+{
+  "data": { "myObject": null }
+}
+```
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
@@ -578,6 +777,10 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
+When subsections contain a `@stream` directive, these subsections are no longer
+required to execute serially. Execution of the streamed sections of the
+subsection may be executed in parallel, as defined in {ExecuteStreamField}.
+
 ## Executing Fields
 
 Each field requested in the grouped field set that is defined on the selected
@@ -586,16 +789,17 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
+- Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+  variableValues, path)}.
 
 ### Coercing Field Arguments
 
@@ -682,29 +886,74 @@ an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
 flow. In addition, an implementation for collections may leverage asynchronous
 iterators or asynchronous generators provided by many programming languages.
+This may be particularly helpful when used in conjunction with the `@stream`
+directive.
 
 ### Value Completion
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively.
+field execution process continues recursively. If the return type is a List
+type, each member of the resolved collection is completed using the same value
+completion process. In the case where `@stream` is specified on a field of list
+type, value completion iterates over the collection until the number of items
+yielded items satisfies `initialCount` specified on the `@stream` directive.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fields, result, variableValues, path):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+  - Let {completedResult} and {incrementalDigests} be the result of calling
+    {CompleteValue(innerType, fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult}.
+  - Return {completedResult} and {incrementalDigests}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
+  - Initialize {incrementalDigests} to an empty list.
   - If {result} is not a collection of values, raise a _field error_.
+  - Let {field} be the first entry in {fields}.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - If {field} provides the directive `@stream` and its {if} argument is not
+    {false} and is not a variable in {variableValues} with the value {false} and
+    {innerType} is the outermost return type of the list type defined for
+    {field}:
+    - Let {streamDirective} be that directive.
+    - If this execution is for a subscription operation, raise a _field error_.
+    - Let {initialCount} be the value or variable provided to
+      {streamDirective}'s {initialCount} argument.
+    - If {initialCount} is less than zero, raise a _field error_.
+    - Let {label} be the value or variable provided to {streamDirective}'s
+      {label} argument.
+  - Let {iterator} be an iterator for {result}.
+  - Let {items} be an empty list.
+  - Let {index} be zero.
+  - While {result} is not closed:
+    - If {streamDirective} is defined and {index} is greater than or equal to
+      {initialCount}:
+      - Let {stream} be an unordered map containing {path} and {label}.
+      - Let {future} represent the future execution of
+        {ExecuteStreamField(stream, iterator, streamFieldDetailsList, index,
+        innerType, variableValues)}.
+      - If early execution of streamed fields is desired:
+        - Following any implementation specific deferral of further execution,
+          initiate {future}.
+      - Let {incrementalDigest} be a new Incremental Digest created from
+        {stream} and {future}.
+      - Append {incrementalDigest} to {incrementalDigests}.
+      - Return {items} and {incrementalDigests}.
+    - Otherwise:
+      - Wait for the next item from {result} via the {iterator}.
+      - If an item is not retrieved because of an error, raise a _field error_.
+      - Let {item} be the item retrieved from {result}.
+      - Let {itemPath} be {path} with {index} appended.
+      - Let {completedItem} and {itemIncrementalDigests} be the result of
+        calling {CompleteValue(innerType, fields, item, variableValues,
+        itemPath)}.
+      - Append {completedItem} to {items}.
+      - Append all Incremental Digests in {itemIncrementalDigests} to
+        {incrementalDigests}.
+  - Return {items} and {incrementalDigests}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -717,6 +966,35 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
+
+#### Execute Stream Field
+
+ExecuteStreamField(stream, iterator, fields, index, innerType, variableValues):
+
+- Let {path} be the corresponding entry on {stream}.
+- Let {itemPath} be {path} with {index} appended.
+- Wait for the next item from {iterator}.
+- If {iterator} is closed, return.
+- Let {item} be the next item retrieved via {iterator}.
+- Let {nextIndex} be {index} plus one.
+- Let {completedItem} and {itemIncrementalDigests} be the result of
+  {CompleteValue(innerType, fields, item, variableValues, itemPath)}.
+- Initialize {items} to an empty list.
+- Append {completedItem} to {items}.
+- Let {errors} be the list of all _field error_ raised while completing the
+  item.
+- Let {future} represent the future execution of {ExecuteStreamField(stream,
+  path, iterator, fields, nextIndex, innerType, variableValues)}.
+- If early execution of streamed fields is desired:
+  - Following any implementation specific deferral of further execution,
+    initiate {future}.
+- Let {incrementalDigest} be a new Incremental Digest created from {future}.
+- Initialize {incrementalDigests} to a list containing {incrementalDigest}.
+- Append all Incremental Digests in {itemIncrementalDigests} to
+  {incrementalDigests}.
+- Let {streamedItems} be an unordered map containing {stream}, {items} {errors},
+  and {incrementalDigests}.
+- Return {streamedItem}.
 
 **Coercing Results**
 
@@ -828,6 +1106,86 @@ If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
+
+When a field error is raised inside `ExecuteStreamField`, the stream payloads
+act as error boundaries. That is, the null resulting from a `Non-Null` type
+cannot propagate outside of the boundary of the stream payload.
+
+If the `stream` directive is present on a list field with a Non-Nullable inner
+type, and a field error has caused a {null} to propagate to the list item, the
+{null} similarly should not be sent to the client, as this will overwrite
+existing data. In this case, the associated Stream's `completed` entry must
+include the causative errors, whose presence indicated the failure of the stream
+to complete successfully. For example, assume the `films` field is a `List` type
+with an `Non-Null` inner type. In this case, the second list item raises a field
+error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "pending": [{ "path": ["films"] }],
+  "hasNext": true
+}
+```
+
+Response 2, the stream is completed with errors. Incremental data cannot be
+sent, as this would overwrite previously sent values.
+
+```json example
+{
+  "completed": [
+    {
+      "path": ["films"],
+      "errors": [...],
+    }
+  ],
+  "hasNext": false
+}
+```
+
+In this alternative example, assume the `films` field is a `List` type without a
+`Non-Null` inner type. In this case, the second list item also raises a field
+error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "hasNext": true
+}
+```
+
+Response 2, the first stream payload is sent; the stream is not completed. The
+{items} entry has been set to a list containing {null}, as this {null} has only
+propagated as high as the list item.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["films", 1],
+      "items": [null],
+      "errors": [...],
+    }
+  ],
+  "hasNext": true
+}
+```
 
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be

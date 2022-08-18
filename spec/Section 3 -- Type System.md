@@ -1941,6 +1941,11 @@ by a validator, executor, or client tool such as a code generator.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
+GraphQL implementations are not required to implement the `@stream` directive.
+If the directive is implemented, it must be implemented according to this
+specification. GraphQL implementations that do not support the `@stream`
+directive must not make it available via introspection.
+
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
@@ -2161,3 +2166,55 @@ to the relevant IETF specification.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
+
+### @stream
+
+```graphql
+directive @stream(
+  label: String
+  if: Boolean! = true
+  initialCount: Int = 0
+) on FIELD
+```
+
+The `@stream` directive may be provided for a field of `List` type so that the
+backend can leverage technology such as asynchronous iterators to provide a
+partial list in the initial response, and additional list items in subsequent
+responses. `@include` and `@skip` take precedence over `@stream`.
+
+```graphql example
+query myQuery($shouldStream: Boolean) {
+  user {
+    friends(first: 10) {
+      nodes @stream(label: "friendsStream", initialCount: 5, if: $shouldStream)
+    }
+  }
+}
+```
+
+#### @stream Arguments
+
+- `if: Boolean! = true` - When `true`, field _should_ be streamed (See
+  [related note](#note-088b7)). When `false`, the field will not be streamed and
+  all list items will be included in the initial response. Defaults to `true`
+  when omitted.
+- `label: String` - May be used by GraphQL clients to identify the data from
+  responses and associate it with the corresponding stream directive. If
+  provided, the GraphQL service must add it to the corresponding payload.
+  `label` must be unique label across all `@stream` directives in a document.
+  `label` must not be provided as a variable.
+- `initialCount: Int` - The number of list items the service should return as
+  part of the initial response. If omitted, defaults to `0`. A field error will
+  be raised if the value of this argument is less than `0`.
+
+Note: The ability to stream parts of a response can have a potentially
+significant impact on application performance. Developers generally need clear,
+predictable control over their application's performance. It is highly
+recommended that GraphQL services honor the `@stream` directives on each
+execution. However, the specification allows advanced use cases where the
+service can determine that it is more performant to not stream. Therefore,
+GraphQL clients _must_ be able to process a response that ignores the `@stream`
+directive. This also applies to the `initialCount` argument on the `@stream`
+directive. Clients _must_ be able to process a streamed response that contains a
+different number of initial list items than what was specified in the
+`initialCount` argument.
