@@ -30,7 +30,8 @@ The `label` and `path` entries on Defer and Stream responses are used by clients
 to identify the `@defer` or `@stream` directive from the GraphQL operation that
 triggered this response to be included in an `incremental` entry on a value
 returned by the event stream. When a label is provided, the combination of these
-two entries will be unique across all values returned by the event stream.
+two entries will be unique across all Defer and Stream responses returned in the
+event stream.
 
 If the response of the GraphQL operation is an event stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
