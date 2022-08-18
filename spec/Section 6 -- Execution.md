@@ -144,10 +144,10 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
-    entry named {hasNext} with the value {true}.
+  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
+    an entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
+    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -178,10 +178,10 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
-    entry named {hasNext} with the value {true}.
+  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
+    an entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
+    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -340,10 +340,10 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - If {subsequentPayloads} is empty:
   - Return an unordered map containing {data} and {errors}.
 - If {subsequentPayloads} is not empty:
-  - Let {intialResponse} be an unordered map containing {data}, {errors}, and an
-    entry named {hasNext} with the value {true}.
+  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
+    an entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(intialResponse, subsequentPayloads)}.
+    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -371,7 +371,7 @@ If an operation contains subsequent payload records resulting from `@stream` or
 `@defer` directives, the {YieldSubsequentPayloads} algorithm defines how the
 payloads should be processed.
 
-YieldSubsequentPayloads(intialResponse, subsequentPayloads):
+YieldSubsequentPayloads(initialResponse, subsequentPayloads):
 
 - Let {initialRecords} be any items in {subsequentPayloads} with a completed
   {dataExecution}.
@@ -383,9 +383,9 @@ YieldSubsequentPayloads(intialResponse, subsequentPayloads):
   - Let {payload} be the completed result returned by {dataExecution}.
   - Append {payload} to {initialIncremental}.
 - If {initialIncremental} is not empty:
-  - Add an entry to {intialResponse} named `incremental` containing the value
+  - Add an entry to {initialResponse} named `incremental` containing the value
     {incremental}.
-- Yield {intialResponse}.
+- Yield {initialResponse}.
 - While {subsequentPayloads} is not empty:
 - If a termination signal is received:
   - For each {record} in {subsequentPayloads}:
@@ -554,7 +554,7 @@ A correct executor must generate the following result for that selection set:
 ```
 
 When subsections contain a `@stream` or `@defer` directive, these subsections
-are no longer required to execute serially. Exeuction of the deferred or
+are no longer required to execute serially. Execution of the deferred or
 streamed sections of the subsection may be executed in parallel, as defined in
 {ExecuteStreamField} and {ExecuteDeferredFragment}.
 
