@@ -794,8 +794,9 @@ And will yield the subset of each object type queried:
 When querying an Object, the resulting mapping of fields are conceptually
 ordered in the same order in which they were encountered during execution,
 excluding fragments for which the type does not apply and fields or fragments
-that are skipped via `@skip` or `@include` directives. This ordering is
-correctly produced when using the {CollectFields()} algorithm.
+that are skipped via `@skip` or `@include` directives or temporarily skipped via
+`@defer`. This ordering is correctly produced when using the {CollectFields()}
+algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
@@ -1942,6 +1943,11 @@ by a validator, executor, or client tool such as a code generator.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
+GraphQL implementations are not required to implement the `@defer` and `@stream`
+directives. If they are implemented, they must be implemented according to this
+specification. GraphQL implementations that do not support these directives must
+not make them available via introspection.
+
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
@@ -2161,4 +2167,57 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+### @defer
+
+```graphql
+directive @defer(
+  label: String
+  if: Boolean
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+```
+
+The `@defer` directive may be provided for fragment spreads and inline fragments
+to inform the executor to delay the execution of the current fragment to
+indicate deprioritization of the current fragment. A query with `@defer`
+directive will cause the request to potentially return multiple responses, where
+non-deferred data is delivered in the initial response and data deferred is
+delivered in a subsequent response. `@include` and `@skip` take precedence over
+`@defer`.
+
+```graphql example
+query myQuery($shouldDefer: Boolean) {
+   user {
+     name
+     ...someFragment @defer(label: 'someLabel', if: $shouldDefer)
+   }
+}
+fragment someFragment on User {
+  id
+  profile_picture {
+    uri
+  }
+}
+```
+
+### @stream
+
+```graphql
+directive @stream(label: String, initialCount: Int = 0, if: Boolean) on FIELD
+```
+
+The `@stream` directive may be provided for a field of `List` type so that the
+backend can leverage technology such as asynchronous iterators to provide a
+partial list in the initial response, and additional list items in subsequent
+responses. `@include` and `@skip` take precedence over `@stream`.
+
+```graphql example
+query myQuery($shouldStream: Boolean) {
+  user {
+    friends(first: 10) {
+      nodes @stream(label: "friendsStream", initialCount: 5, if: $shouldStream)
+    }
+  }
+}
 ```

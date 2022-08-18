@@ -4,12 +4,14 @@ ignoreRegExpList:
   - /[a-z]{2,}'s/
 words:
   # Terms of art
+  - deprioritization
   - endianness
   - interoperation
   - monospace
   - openwebfoundation
   - parallelization
   - structs
+  - sublist
   - subselection
   # Fictional characters / examples
   - alderaan
