@@ -554,6 +554,11 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
+When subsections contain a `@stream` or `@defer` directive, these subsections
+are no longer required to execute serially. Exeuction of the deferred or
+streamed sections of the subsection may be executed in parallel, as defined in
+{ExecuteStreamField} and {ExecuteDeferredFragment}.
+
 ### Field Collection
 
 Before execution, the selection set is converted to a grouped field set by
