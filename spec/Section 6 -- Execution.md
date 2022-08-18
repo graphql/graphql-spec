@@ -921,6 +921,7 @@ parentPath):
     - Let {streamDirective} be the `@stream` directive provided on {field}.
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
+    - If {initialCount} is less than zero, raise a _field error_.
     - Let {label} be the value or variable provided to {streamDirective}'s
       {label} argument.
     - Let {resolvedItems} be an empty list
