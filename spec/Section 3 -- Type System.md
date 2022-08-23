@@ -2128,7 +2128,7 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```graphql
 directive @defer(
   label: String
-  if: Boolean
+  if: Boolean! = true
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
@@ -2157,9 +2157,9 @@ fragment someFragment on User {
 
 #### @defer Arguments
 
-- `if: Boolean` - When `true`, fragment _should_ be deferred. When `false`,
-  fragment will not be deferred and data will be included in the initial
-  response. If omitted, defaults to `true`.
+- `if: Boolean! = true` - When `true`, fragment _should_ be deferred. When
+  `false`, fragment will not be deferred and data will be included in the
+  initial response. If omitted, defaults to `true`.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding defer directive. If
   provided, the GraphQL Server must add it to the corresponding payload. `label`
@@ -2169,7 +2169,11 @@ fragment someFragment on User {
 ### @stream
 
 ```graphql
-directive @stream(label: String, initialCount: Int = 0, if: Boolean) on FIELD
+directive @stream(
+  label: String
+  if: Boolean! = true
+  initialCount: Int = 0
+) on FIELD
 ```
 
 The `@stream` directive may be provided for a field of `List` type so that the
@@ -2189,15 +2193,14 @@ query myQuery($shouldStream: Boolean) {
 
 #### @stream Arguments
 
-- `if: Boolean` - When `true`, field _should_ be streamed. When `false`, the
-  field will not be streamed and all list items will be included in the initial
-  response. If omitted, defaults to `true`.
+- `if: Boolean! = true` - When `true`, field _should_ be streamed. When `false`,
+  the field will not be streamed and all list items will be included in the
+  initial response. If omitted, defaults to `true`.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding stream directive. If
   provided, the GraphQL Server must add it to the corresponding payload. `label`
   must be unique label across all `@defer` and `@stream` directives in a
   document. `label` must not be provided as a variable.
-
 - `initialCount: Int` - The number of list items the server should return as
   part of the initial response. If omitted, defaults to `0`. A field error will
   be raised if the value of this argument is less than `0`.
