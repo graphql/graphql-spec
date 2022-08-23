@@ -388,26 +388,30 @@ YieldSubsequentPayloads(initialResponse, subsequentPayloads):
     {incremental}.
 - Yield {initialResponse}.
 - While {subsequentPayloads} is not empty:
-- If a termination signal is received:
-  - For each {record} in {subsequentPayloads}:
-    - If {record} contains {iterator}:
-      - Send a termination signal to {iterator}.
-  - Return.
-- Wait for at least one record in {subsequentPayloads} to have a completed
-  {dataExecution}.
-- Let {subsequentResponse} be an unordered map with an entry {incremental}
-  initialized to an empty list.
-- Let {records} be the items in {subsequentPayloads} with a completed
-  {dataExecution}.
+  - If a termination signal is received:
+    - For each {record} in {subsequentPayloads}:
+      - If {record} contains {iterator}:
+        - Send a termination signal to {iterator}.
+    - Return.
+  - Wait for at least one record in {subsequentPayloads} to have a completed
+    {dataExecution}.
+  - Let {subsequentResponse} be an unordered map with an entry {incremental}
+    initialized to an empty list.
+  - Let {records} be the items in {subsequentPayloads} with a completed
+    {dataExecution}.
   - For each {record} in {records}:
     - Remove {record} from {subsequentPayloads}.
     - If {isCompletedIterator} on {record} is {true}:
       - Continue to the next record in {records}.
     - Let {payload} be the completed result returned by {dataExecution}.
-    - Append {payload} to {incremental}.
+    - Append {payload} to the {incremental} entry on {subsequentResponse}.
   - If {subsequentPayloads} is empty:
-    - Add an entry to {response} named `hasNext` with the value {false}.
-  - Yield {response}
+    - Add an entry to {subsequentResponse} named `hasNext` with the value
+      {false}.
+  - Otherwise, if {subsequentPayloads} is not empty:
+    - Add an entry to {subsequentResponse} named `hasNext` with the value
+      {true}.
+  - Yield {subsequentResponse}
 
 ## Executing Selection Sets
 
