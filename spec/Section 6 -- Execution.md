@@ -627,8 +627,8 @@ asyncRecord, visitedFragments, deferredGroupedFieldsList):
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} provides the directive `@defer` and its {if}
-      argument is {true} or is a variable in {variableValues} with the value
-      {true}:
+      argument is not {false} and is not a variable in {variableValues} with the
+      value {false}:
       - Let {deferDirective} be that directive.
     - If {deferDirective} is not defined:
       - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -668,19 +668,20 @@ asyncRecord, visitedFragments, deferredGroupedFieldsList):
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - If {InlineFragment} provides the directive `@defer`, let {deferDirective}
-      be that directive.
-      - If {deferDirective}'s {if} argument is {true} or is a variable in
-        {variableValues} with the value {true}:
-        - Let {label} be the value or the variable to {deferDirective}'s {label}
-          argument.
-        - Let {deferredGroupedFields} be the result of calling
-          {CollectFields(objectType, objectValue, fragmentSelectionSet,
-          variableValues, path, asyncRecord, visitedFragments,
-          deferredGroupedFieldsList)}.
-        - Append a record containing {label} and {deferredGroupedFields} to
-          {deferredGroupedFieldsList}.
-        - Continue with the next {selection} in {selectionSet}.
+    - If {InlineFragment} provides the directive `@defer` and its {if} argument
+      is not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+    - If {deferDirective} is defined:
+      - Let {label} be the value or the variable to {deferDirective}'s {label}
+        argument.
+      - Let {deferredGroupedFields} be the result of calling
+        {CollectFields(objectType, objectValue, fragmentSelectionSet,
+        variableValues, path, asyncRecord, visitedFragments,
+        deferredGroupedFieldsList)}.
+      - Append a record containing {label} and {deferredGroupedFields} to
+        {deferredGroupedFieldsList}.
+      - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, objectValue, fragmentSelectionSet,
       variableValues, path, asyncRecord, visitedFragments,
@@ -945,9 +946,9 @@ subsequentPayloads, asyncRecord):
   - If {result} is an iterator:
     - Let {field} be the first entry in {fields}.
     - Let {innerType} be the inner type of {fieldType}.
-    - If {field} provides the directive `@stream` and its {if} argument is
-      {true} or is a variable in {variableValues} with the value {true} and
-      {innerType} is the outermost return type of the list type defined for
+    - If {field} provides the directive `@stream` and its {if} argument is not
+      {false} and is not a variable in {variableValues} with the value {false}
+      and {innerType} is the outermost return type of the list type defined for
       {field}:
       - Let {streamDirective} be that directive.
     - Let {initialCount} be the value or variable provided to

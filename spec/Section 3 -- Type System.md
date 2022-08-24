@@ -2159,7 +2159,7 @@ fragment someFragment on User {
 
 - `if: Boolean! = true` - When `true`, fragment _should_ be deferred. When
   `false`, fragment will not be deferred and data will be included in the
-  initial response. If omitted, defaults to `true`.
+  initial response. Defaults to `true` when omitted or null.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding defer directive. If
   provided, the GraphQL Server must add it to the corresponding payload. `label`
@@ -2195,7 +2195,7 @@ query myQuery($shouldStream: Boolean) {
 
 - `if: Boolean! = true` - When `true`, field _should_ be streamed. When `false`,
   the field will not be streamed and all list items will be included in the
-  initial response. If omitted, defaults to `true`.
+  initial response. Defaults to `true` when omitted or null.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding stream directive. If
   provided, the GraphQL Server must add it to the corresponding payload. `label`
