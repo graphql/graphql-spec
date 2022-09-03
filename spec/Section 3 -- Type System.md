@@ -212,18 +212,18 @@ type MyMutationRootType {
 **Default Root Operation Type Names**
 
 :: While any type can be the root operation type for a GraphQL operation, the
-_default root operation type name_ for the {`query`}, {`mutation`}, and
+_default operation type name_ for the {`query`}, {`mutation`}, and
 {`subscription`} root types are {"Query"}, {"Mutation"}, and {"Subscription"}
 respectively.
 
 The type system definition language can omit the schema definition when each
-root type present uses its respective _default root operation type name_ and no
-other type uses a default root operation type name.
+root type present uses its respective _default operation type name_ and no other
+type uses a default operation type name.
 
 Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if each root type present uses
-its respective _default root operation type name_ and no other type uses a
-default root operation type name.
+its respective _default operation type name_ and no other type uses a default
+operation type name.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
