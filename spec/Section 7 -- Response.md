@@ -24,13 +24,13 @@ validation error, this entry must not be present.
 
 When the response of the GraphQL operation is an event stream, the first value
 will be the initial response. All subsequent values may contain an `incremental`
-entry, containing a list of Defer or Stream responses.
+entry, containing a list of Defer or Stream payloads.
 
-The `label` and `path` entries on Defer and Stream responses are used by clients
+The `label` and `path` entries on Defer and Stream payloads are used by clients
 to identify the `@defer` or `@stream` directive from the GraphQL operation that
 triggered this response to be included in an `incremental` entry on a value
 returned by the event stream. When a label is provided, the combination of these
-two entries will be unique across all Defer and Stream responses returned in the
+two entries will be unique across all Defer and Stream payloads returned in the
 event stream.
 
 If the response of the GraphQL operation is an event stream, each response map
@@ -49,7 +49,7 @@ set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents. When the response of the GraphQL operation is an
 event stream, implementors may send subsequent payloads containing only
-`hasNext` and `extensions` entries. Defer and Stream responses may also contain
+`hasNext` and `extensions` entries. Defer and Stream payloads may also contain
 an entry with the key `extensions`, also reserved for implementors to extend the
 protocol however they see fit.
 
@@ -267,38 +267,38 @@ discouraged.
 ### Incremental
 
 The `incremental` entry in the response is a non-empty list of Defer or Stream
-responses. If the response of the GraphQL operation is an event stream, this
+payloads. If the response of the GraphQL operation is an event stream, this
 field may appear on both the initial and subsequent values.
 
-#### Stream response
+#### Stream payload
 
-A stream response is a map that may appear as an item in the `incremental` entry
-of a response. A stream response is the result of an associated `@stream`
-directive in the operation. A stream response must contain `items` and `path`
+A stream payload is a map that may appear as an item in the `incremental` entry
+of a response. A stream payload is the result of an associated `@stream`
+directive in the operation. A stream payload must contain `items` and `path`
 entries and may contain `label`, `errors`, and `extensions` entries.
 
 ##### Items
 
-The `items` entry in a stream response is a list of results from the execution
-of the associated @stream directive. This output will be a list of the same type
-of the field with the associated `@stream` directive. If `items` is set to
-`null`, it indicates that an error has caused a `null` to bubble up to a field
-higher than the list field with the associated `@stream` directive.
+The `items` entry in a stream payload is a list of results from the execution of
+the associated @stream directive. This output will be a list of the same type of
+the field with the associated `@stream` directive. If `items` is set to `null`,
+it indicates that an error has caused a `null` to bubble up to a field higher
+than the list field with the associated `@stream` directive.
 
-#### Defer response
+#### Defer payload
 
-A defer response is a map that may appear as an item in the `incremental` entry
-of a response. A defer response is the result of an associated `@defer`
-directive in the operation. A defer response must contain `data` and `path`
-entries and may contain `label`, `errors`, and `extensions` entries.
+A defer payload is a map that may appear as an item in the `incremental` entry
+of a response. A defer payload is the result of an associated `@defer` directive
+in the operation. A defer payload must contain `data` and `path` entries and may
+contain `label`, `errors`, and `extensions` entries.
 
 ##### Data
 
-The `data` entry in a Defer response will be of the type of a particular field
-in the GraphQL result. The adjacent `path` field will contain the path segments
-of the field this data is associated with. If `data` is set to `null`, it
-indicates that an error has caused a `null` to bubble up to a field higher than
-the field that contains the fragment with the associated `@defer` directive.
+The `data` entry in a Defer payload will be of the type of a particular field in
+the GraphQL result. The adjacent `path` field will contain the path segments of
+the field this data is associated with. If `data` is set to `null`, it indicates
+that an error has caused a `null` to bubble up to a field higher than the field
+that contains the fragment with the associated `@defer` directive.
 
 #### Path
 
@@ -310,7 +310,7 @@ indices should be 0-indexed integers. If the path is associated to an aliased
 field, the path should use the aliased name, since it represents a path in the
 response, not in the request.
 
-When the `path` field is present on a Stream response, it indicates that the
+When the `path` field is present on a Stream payload, it indicates that the
 `items` field represents the partial result of the list field containing the
 corresponding `@stream` directive. All but the non-final path segments must
 refer to the location of the list field containing the corresponding `@stream`
@@ -319,7 +319,7 @@ integer indicates that this result is set at a range, where the beginning of the
 range is at the index of this integer, and the length of the range is the length
 of the data.
 
-When the `path` field is present on a Defer response, it indicates that the
+When the `path` field is present on a Defer payload, it indicates that the
 `data` field represents the result of the fragment containing the corresponding
 `@defer` directive. The path segments must point to the location of the result
 of the field containing the associated `@defer` directive.
@@ -329,7 +329,7 @@ field which experienced the error.
 
 #### Label
 
-Stream and Defer responses may contain a string field `label`. This `label` is
+Stream and Defer payloads may contain a string field `label`. This `label` is
 the same label passed to the `@defer` or `@stream` directive associated with the
 response. This allows clients to identify which `@defer` or `@stream` directive
 is associated with this value. `label` will not be present if the corresponding
