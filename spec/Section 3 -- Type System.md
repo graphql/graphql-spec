@@ -2255,8 +2255,8 @@ Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
 need clear, predictable control over their application's performance. It is
 highly recommended that GraphQL servers honor the `@defer` and `@stream`
-directives on each execution. However, the specification allows advanced
-use-cases where the server can determine that it is more performant to not defer
+directives on each execution. However, the specification allows advanced use
+cases where the server can determine that it is more performant to not defer
 and/or stream. Therefore, GraphQL clients _must_ be able to process a response
 that ignores the `@defer` and/or `@stream` directives. This also applies to the
 `initialCount` argument on the `@stream` directive. Clients _must_ be able to
