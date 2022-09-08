@@ -41,8 +41,8 @@ operations that return a single response map.
 
 The GraphQL server may determine there are no more values in the response stream
 after a previous value with `hasNext` equal to `true` has been emitted. In this
-case the last value in the response stream should be a map without `data`,
-`label`, and `path` entries, and a `hasNext` entry with a value of `false`.
+case the last value in the response stream should be a map without `data` and
+`incremental` entries, and a `hasNext` entry with a value of `false`.
 
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementors to
@@ -326,7 +326,10 @@ Response 2, contains the defer payload and the first stream payload.
 }
 ```
 
-Response 3, contains an additional stream payload.
+Response 3, contains the final stream payload. In this example, the underlying
+iterator does not close synchronously so {hasNext} is set to {true}. If this
+iterator did close synchronously, {hasNext} would be set to {true} and this
+would be the final response.
 
 ```json example
 {
@@ -341,8 +344,9 @@ Response 3, contains an additional stream payload.
 }
 ```
 
-Response 4, contains no incremental payloads, {hasNext} set to {false} indicates
-the end of the stream.
+Response 4, contains no incremental payloads. {hasNext} set to {false} indicates
+the end of the response stream. This response is sent when the underlying
+iterator of the `films` field closes.
 
 ```json example
 {
