@@ -456,11 +456,16 @@ If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
 _field error_ then that error must propagate to this entire selection set,
 either resolving to {null} if allowed or further propagated to a parent field.
 
-If this occurs, any defer or stream executions with a path that starts with the
-same path as the resolved {null} must not return their results to the client.
-These defer or stream executions or any sibling fields which have not yet
-executed or have not yet yielded a value may be cancelled to avoid unnecessary
-work.
+If this occurs, any sibling fields which have not yet executed or have not yet
+yielded a value may be cancelled to avoid unnecessary work.
+
+Additionally, the path of each {asyncRecord} in {subsequentPayloads} must be
+compared with the path of the field that ultimately resolved to {null}. If the
+path of any {asyncRecord} starts with, but is not equal to, the path of the
+resolved {null}, the {asyncRecord} must be removed from {subsequentPayloads} and
+its result must not be sent to clients. If these async records have not yet
+executed or have not yet yielded a value they may also be cancelled to avoid
+unnecessary work.
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
