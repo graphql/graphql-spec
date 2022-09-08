@@ -1560,17 +1560,17 @@ mutation {
 
 ** Formal Specification **
 
-- For every {directive} in a document.
-- Let {directiveName} be the name of {directive}.
-- If {directiveName} is "defer" or "stream":
-  - For every {argument} in {directive}:
-    - Let {argumentName} be the name of {argument}.
-    - Let {argumentValue} be the value passed to {argument}.
-    - If {argumentName} is "label":
-      - {argumentValue} must not be a variable.
-    - Let {labels} be all label values passed to defer or stream directive label
-      arguments.
-    - {labels} must be a set of one.
+- Let {labelValues} be an empty set.
+- For every {directive} in the document:
+  - Let {directiveName} be the name of {directive}.
+  - If {directiveName} is "defer" or "stream":
+    - For every {argument} in {directive}:
+      - Let {argumentName} be the name of {argument}.
+      - Let {argumentValue} be the value passed to {argument}.
+      - If {argumentName} is "label":
+        - {argumentValue} must not be a variable.
+        - {argumentValue} must not be present in {labelValues}.
+        - Append {argumentValue} to {labelValues}.
 
 **Explanatory Text**
 
