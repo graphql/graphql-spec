@@ -10,7 +10,7 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A response to a GraphQL request must be a map or an event stream of maps.
+A response to a GraphQL request must be a map or a response stream of maps.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -22,33 +22,33 @@ key `data`. The value of this entry is described in the "Data" section. If the
 request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
-When the response of the GraphQL operation is an event stream, the first value
+When the response of the GraphQL operation is a response stream, the first value
 will be the initial response. All subsequent values may contain an `incremental`
 entry, containing a list of Defer or Stream payloads.
 
 The `label` and `path` entries on Defer and Stream payloads are used by clients
 to identify the `@defer` or `@stream` directive from the GraphQL operation that
 triggered this response to be included in an `incremental` entry on a value
-returned by the event stream. When a label is provided, the combination of these
-two entries will be unique across all Defer and Stream payloads returned in the
-event stream.
+returned by the response stream. When a label is provided, the combination of
+these two entries will be unique across all Defer and Stream payloads returned
+in the response stream.
 
-If the response of the GraphQL operation is an event stream, each response map
+If the response of the GraphQL operation is a response stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
 all but the last response in the stream. The value of this entry is `false` for
 the last response of the stream. This entry is not required for GraphQL
 operations that return a single response map.
 
-The GraphQL server may determine there are no more values in the event stream
+The GraphQL server may determine there are no more values in the response stream
 after a previous value with `hasNext` equal to `true` has been emitted. In this
-case the last value in the event stream should be a map without `data`, `label`,
-and `path` entries, and a `hasNext` entry with a value of `false`.
+case the last value in the response stream should be a map without `data`,
+`label`, and `path` entries, and a `hasNext` entry with a value of `false`.
 
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
-restrictions on its contents. When the response of the GraphQL operation is an
-event stream, implementors may send subsequent payloads containing only
+restrictions on its contents. When the response of the GraphQL operation is a
+response stream, implementors may send subsequent response maps containing only
 `hasNext` and `extensions` entries. Defer and Stream payloads may also contain
 an entry with the key `extensions`, also reserved for implementors to extend the
 protocol however they see fit.
@@ -267,7 +267,7 @@ discouraged.
 ### Incremental
 
 The `incremental` entry in the response is a non-empty list of Defer or Stream
-payloads. If the response of the GraphQL operation is an event stream, this
+payloads. If the response of the GraphQL operation is a response stream, this
 field may appear on both the initial and subsequent values.
 
 #### Stream payload
