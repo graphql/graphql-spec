@@ -270,6 +270,86 @@ The `incremental` entry in the response is a non-empty list of Defer or Stream
 payloads. If the response of the GraphQL operation is a response stream, this
 field may appear on both the initial and subsequent values.
 
+For example, a query containing both defer and stream:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    name
+    films @stream(initialCount: 1, label: "filmsStream") {
+      title
+    }
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Response 1, the initial response does not contain any deferred or streamed
+results.
+
+```json example
+{
+  "data": {
+    "person": {
+      "name": "Luke Skywalker",
+      "films": [{ "title": "A New Hope" }]
+    }
+  },
+  "hasNext": true
+}
+```
+
+Response 2, contains the defer payload and the first stream payload.
+
+```json example
+{
+  "incremental": [
+    {
+      "label": "homeWorldDefer",
+      "path": ["person"],
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "label": "filmsStream",
+      "path": ["person", "films", 1],
+      "items": [{ "title": "The Empire Strikes Back" }]
+    }
+  ],
+  "hasNext": true
+}
+```
+
+Response 3, contains an additional stream payload.
+
+```json example
+{
+  "incremental": [
+    {
+      "label": "filmsStream",
+      "path": ["person", "films", 2],
+      "items": [{ "title": "Return of the Jedi" }]
+    }
+  ],
+  "hasNext": true
+}
+```
+
+Response 4, contains no incremental payloads, {hasNext} set to {false} indicates
+the end of the stream.
+
+```json example
+{
+  "hasNext": false
+}
+```
+
 #### Stream payload
 
 A stream payload is a map that may appear as an item in the `incremental` entry
