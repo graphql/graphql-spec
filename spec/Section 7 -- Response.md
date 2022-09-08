@@ -134,7 +134,7 @@ If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
 `null` result is intentional or caused by a runtime error. The value of this
-field is described in the "Path" section.
+field is described in the [Path](#sec-Path) section.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
