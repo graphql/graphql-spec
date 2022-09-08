@@ -461,11 +461,35 @@ yielded a value may be cancelled to avoid unnecessary work.
 
 Additionally, the path of each {asyncRecord} in {subsequentPayloads} must be
 compared with the path of the field that ultimately resolved to {null}. If the
-path of any {asyncRecord} starts with, but is not equal to, the path of the
-resolved {null}, the {asyncRecord} must be removed from {subsequentPayloads} and
-its result must not be sent to clients. If these async records have not yet
-executed or have not yet yielded a value they may also be cancelled to avoid
-unnecessary work.
+path of any {asyncRecord} starts with the path of the resolved {null}, the
+{asyncRecord} must be removed from {subsequentPayloads} and its result must not
+be sent to clients. If these async records have not yet executed or have not yet
+yielded a value they may also be cancelled to avoid unnecessary work.
+
+For example, assume the field `alwaysThrows` is a `Non-Null` type that always
+raises a field error:
+
+```graphql example
+{
+  myObject {
+    ... @defer {
+      name
+    }
+    alwaysThrows
+  }
+}
+```
+
+In this case, only one response should be sent. The async payload record
+associated with the `@defer` directive should be removed and it's execution may
+be cancelled.
+
+```json example
+{
+  "data": { "myObject": null },
+  "hasNext": false
+}
+```
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
@@ -757,7 +781,7 @@ variableValues, parentRecord, subsequentPayloads):
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
   - If a field error was raised, causing a {null} to be propagated to
-    {responseValue}, and {objectType} is a Non-Nullable type:
+    {responseValue}:
     - Add an entry to {payload} named `data` with the value {null}.
   - Otherwise:
     - Add an entry to {payload} named `data` with the value {resultMap}.
@@ -1121,15 +1145,120 @@ When a field error is raised inside `ExecuteDeferredFragment` or
 That is, the null resulting from a `Non-Null` type cannot propagate outside of
 the boundary of the defer or stream payload.
 
-If a fragment with the `defer` directive is spread on a Non-Nullable object
-type, and a field error has caused a {null} to propagate to the associated
-object, the {null} should not propagate any further, and the associated Defer
-Payload's `data` field must be set to {null}.
+If a field error is raised while executing the selection set of a fragment with
+the `defer` directive, causing a {null} to propagate to the object containing
+this fragment, the {null} should not propagate any further. In this case, the
+associated Defer Payload's `data` field must be set to {null}.
+
+For example, assume the `month` field is a `Non-Null` type that raises a field
+error:
+
+```graphql example
+{
+  birthday {
+    ... @defer {
+      month
+    }
+  }
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "birthday": {} },
+  "hasNext": true
+}
+```
+
+Response 2, the defer payload is sent. The {data} entry has been set to {null},
+as this {null} as propagated as high as the error boundary will allow.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["birthday"],
+      "data": null
+    }
+  ],
+  "hasNext": false
+}
+```
 
 If the `stream` directive is present on a list field with a Non-Nullable inner
 type, and a field error has caused a {null} to propagate to the list item, the
 {null} should not propagate any further, and the associated Stream Payload's
 `item` field must be set to {null}.
+
+For example, assume the `films` field is a `List` type with an `Non-Null` inner
+type. In this case, the second list item raises a field error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "hasNext": true
+}
+```
+
+Response 2, the first stream payload is sent. The {items} entry has been set to
+{null}, as this {null} as propagated as high as the error boundary will allow.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["films", 1],
+      "items": null
+    }
+  ],
+  "hasNext": false
+}
+```
+
+In this alternative example, assume the `films` field is a `List` type without a
+`Non-Null` inner type. In this case, the second list item also raises a field
+error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "hasNext": true
+}
+```
+
+Response 2, the first stream payload is sent. The {items} entry has been set to
+a list containing {null}, as this {null} has only propagated as high as the list
+item.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["films", 1],
+      "items": [null]
+    }
+  ],
+  "hasNext": false
+}
+```
 
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be
