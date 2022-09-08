@@ -455,8 +455,11 @@ If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
 _field error_ then that error must propagate to this entire selection set,
 either resolving to {null} if allowed or further propagated to a parent field.
 
-If this occurs, any sibling fields which have not yet executed or have not yet
-yielded a value may be cancelled to avoid unnecessary work.
+If this occurs, any defer or stream executions with a path that starts with the
+same path as the resolved {null} must not return their results to the client.
+These defer or stream executions or any sibling fields which have not yet
+executed or have not yet yielded a value may be cancelled to avoid unnecessary
+work.
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
@@ -747,7 +750,11 @@ variableValues, parentRecord, subsequentPayloads):
     - Wait for the result of {dataExecution} on {parentRecord}.
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
-  - Add an entry to {payload} named `data` with the value {resultMap}.
+  - If a field error was raised, causing a {null} to be propagated to
+    {responseValue}, and {objectType} is a Non-Nullable type:
+    - Add an entry to {payload} named `data` with the value {null}.
+  - Otherwise:
+    - Add an entry to {payload} named `data` with the value {resultMap}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {path}.
   - Return {payload}.
@@ -922,8 +929,12 @@ variableValues, subsequentPayloads):
     - Wait for the result of {dataExecution} on {parentRecord}.
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
-  - Add an entry to {payload} named `items` with a list containing the value
-    {data}.
+  - If a field error was raised, causing a {null} to be propagated to {data},
+    and {innerType} is a Non-Nullable type:
+    - Add an entry to {payload} named `items` with the value {null}.
+  - Otherwise:
+    - Add an entry to {payload} named `items` with a list containing the value
+      {data}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {itemPath}.
   - Return {payload}.
@@ -1098,6 +1109,21 @@ If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
+
+When a field error is raised inside `ExecuteDeferredFragment` or
+`ExecuteStreamField`, the defer and stream payloads act as error boundaries.
+That is, the null resulting from a `Non-Null` type cannot propagate outside of
+the boundary of the defer or stream payload.
+
+If a fragment with the `defer` directive is spread on a Non-Nullable object
+type, and a field error has caused a {null} to propagate to the associated
+object, the {null} should not propagate any further, and the associated Defer
+Payload's `data` field must be set to {null}.
+
+If the `stream` directive is present on a list field with a Non-Nullable inner
+type, and a field error has caused a {null} to propagate to the list item, the
+{null} should not propagate any further, and the associated Stream Payload's
+`item` field must be set to {null}.
 
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be
