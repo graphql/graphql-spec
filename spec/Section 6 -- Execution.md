@@ -458,12 +458,45 @@ either resolving to {null} if allowed or further propagated to a parent field.
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
-Additionally, the path of each {asyncRecord} in {subsequentPayloads} must be
-compared with the path of the field that ultimately resolved to {null}. If the
-path of any {asyncRecord} starts with the path of the resolved {null}, the
-{asyncRecord} must be removed from {subsequentPayloads} and its result must not
-be sent to clients. If these async records have not yet executed or have not yet
-yielded a value they may also be cancelled to avoid unnecessary work.
+Additionally, async payload records in {subsequentPayloads} must be filtered if
+their path points to a location that has resolved to {null} due to propagation
+of a field error. This is described in
+[Filter Subsequent Payloads](#sec-Filter-Subsequent-Payloads). These async
+payload records must be removed from {subsequentPayloads} and their result must
+not be sent to clients. If these async records have not yet executed or have not
+yet yielded a value they may also be cancelled to avoid unnecessary work.
+
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
+
+### Filter Subsequent Payloads
+
+When a field error is raised, there may be async payload records in
+{subsequentPayloads} with a path that points to a location that has been removed
+or set to null due to null propagation. These async payload records must be
+removed from subsequent payloads and their results must not be sent to clients.
+
+In {FilterSubsequentPayloads}, {nullPath} is the path which has resolved to null
+after propagation as a result of a field error. {currentAsyncRecord} is the
+async payload record where the field error was raised. {currentAsyncRecord} will
+not be set for field errors that were raised during the initial execution
+outside of {ExecuteDeferredFragment} or {ExecuteStreamField}.
+
+FilterSubsequentPayloads(subsequentPayloads, nullPath, currentAsyncRecord):
+
+- For each {asyncRecord} in {subsequentPayloads}:
+  - If {asyncRecord} is the same record as {currentAsyncRecord}:
+    - Continue to the next record in {subsequentPayloads}.
+  - Initialize {index} to zero.
+  - While {index} is less then the length of {nullPath}:
+    - Initialize {nullPathItem} to the element at {index} in {nullPath}.
+    - Initialize {asyncRecordPathItem} to the element at {index} in the {path}
+      of {asyncRecord}.
+    - If {nullPathItem} is not equivalent to {asyncRecordPathItem}:
+      - Continue to the next record in {subsequentPayloads}.
+    - Increment {index} by one.
+  - Remove {asyncRecord} from {subsequentPayloads}. Optionally, cancel any
+    incomplete work in the execution of {asyncRecord}.
 
 For example, assume the field `alwaysThrows` is a `Non-Null` type that always
 raises a field error:
@@ -489,9 +522,6 @@ be cancelled.
   "hasNext": false
 }
 ```
-
-Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
-this behavior.
 
 ### Normal and Serial Execution
 
