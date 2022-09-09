@@ -480,7 +480,7 @@ raises a field error:
 ```
 
 In this case, only one response should be sent. The async payload record
-associated with the `@defer` directive should be removed and it's execution may
+associated with the `@defer` directive should be removed and its execution may
 be cancelled.
 
 ```json example
