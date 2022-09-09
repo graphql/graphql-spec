@@ -1155,8 +1155,11 @@ error:
 ```graphql example
 {
   birthday {
-    ... @defer {
+    ... @defer(label: "monthDefer") {
       month
+    }
+    ... @defer(label: "yearDefer") {
+      year
     }
   }
 }
@@ -1171,15 +1174,33 @@ Response 1, the initial response is sent:
 }
 ```
 
-Response 2, the defer payload is sent. The {data} entry has been set to {null},
-as this {null} as propagated as high as the error boundary will allow.
+Response 2, the defer payload for label "monthDefer" is sent. The {data} entry
+has been set to {null}, as this {null} as propagated as high as the error
+boundary will allow.
 
 ```json example
 {
   "incremental": [
     {
       "path": ["birthday"],
+      "label": "monthDefer",
       "data": null
+    }
+  ],
+  "hasNext": false
+}
+```
+
+Response 3, the defer payload for label "yearDefer" is sent. The data in this
+payload is unaffected by the previous null error.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["birthday"],
+      "label": "yearDefer",
+      "data": { "year": "2022" }
     }
   ],
   "hasNext": false
