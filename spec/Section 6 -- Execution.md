@@ -294,7 +294,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - Let {response} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
   - Yield an event containing {response}.
-- When {responseStream} completes: complete this event stream.
+- When {sourceStream} completes: complete {responseStream}.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
