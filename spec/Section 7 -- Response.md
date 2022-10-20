@@ -293,7 +293,7 @@ In the same way the following GraphQL values should be used to decode JSON
 variables when a GraphQL request is deserialized:
 
 | JSON Value        | GraphQL Value              |
-| ----------------- |----------------------------|
+| ----------------- | -------------------------- |
 | Object            | Input Object               |
 | Array             | List                       |
 | {null}            | Null                       |
