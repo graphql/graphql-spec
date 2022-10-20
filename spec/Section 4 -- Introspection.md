@@ -109,7 +109,7 @@ CommonMark-compliant Markdown renderer.
 **Deprecation**
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
-input fields, and enum values can indicate whether or not they are deprecated
+input fields, enum values, and objects can indicate whether or not they are deprecated
 (`isDeprecated: Boolean`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
@@ -126,7 +126,7 @@ which are fully defined in the sections below.
 ```graphql
 type __Schema {
   description: String
-  types: [__Type!]!
+  types(includeDeprecated: Boolean = false): [__Type!]!
   queryType: __Type!
   mutationType: __Type
   subscriptionType: __Type
@@ -151,6 +151,8 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 enum __TypeKind {
@@ -236,6 +238,8 @@ Fields\:
 - `types` must return the set of all named types contained within this schema.
   Any named type which can be found through a field of any introspection type
   must be included in this set.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
 - `directives` must return the set of all directives available within this
   schema including all built-in directives.
 
