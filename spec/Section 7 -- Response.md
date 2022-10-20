@@ -289,6 +289,20 @@ values should be used to encode the related GraphQL values:
 | Float         | Number            |
 | Enum Value    | String            |
 
+In the same way the following GraphQL values should be used to decode JSON
+variables when a GraphQL request is deserialized:
+
+| JSON Value        | GraphQL Value        |
+| ----------------- | -------------------- |
+| Object            | Input Object         |
+| Array             | List                 |
+| {null}            | Null                 |
+| String            | String or Enum Value |
+| {true} or {false} | Boolean              |
+| Number            | Int or Float         |
+
+Additionally, any JSON value can be an accepted value for a custom Scalar.
+
 Note: For consistency and ease of notation, examples of responses are given in
 JSON format throughout this document.
 
