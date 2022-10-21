@@ -2098,9 +2098,10 @@ type ExampleType {
 To deprecate a required argument or input field, it must first be made optional
 by either changing the type to nullable or adding a default value.
 
-The `@deprecated` directive is useful for object types that are included in unions or
-interfaces. Deprecating the type indicates to clients that the server will no longer be returning
-this type and clients should remove references to this type in their queries.
+The `@deprecated` directive is useful for object types that are included in
+unions or interfaces. Deprecating the type indicates to clients that the server
+will no longer be returning this type and clients should remove references to
+this type in their queries.
 
 ```graphql example
 type Query {
@@ -2114,7 +2115,8 @@ type DeprecatedType @deprecated {
 }
 ```
 
-The `@deprecated` directive should not appear on object types that are referenced by non-deprecated fields.
+The `@deprecated` directive should not appear on object types that are
+referenced by non-deprecated fields.
 
 ```graphql counter-example
 type Query {

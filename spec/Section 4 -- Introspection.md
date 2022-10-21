@@ -109,9 +109,9 @@ CommonMark-compliant Markdown renderer.
 **Deprecation**
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
-input fields, enum values, and objects can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
-(`deprecationReason: String`).
+input fields, enum values, and objects can indicate whether or not they are
+deprecated (`isDeprecated: Boolean`) along with a description of why it is
+deprecated (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
@@ -142,7 +142,7 @@ type __Type {
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
   # must be non-null for INTERFACE and UNION, otherwise null.
-  possibleTypes: [__Type!]
+  possibleTypes(includeDeprecated: Boolean = false): [__Type!]
   # must be non-null for ENUM, otherwise null.
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
   # must be non-null for INPUT_OBJECT, otherwise null.
@@ -315,6 +315,8 @@ Fields\:
 - `description` may return a String or {null}.
 - `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
 - All other fields must return {null}.
 
 **Interface**
@@ -336,6 +338,8 @@ Fields\:
   (if none, `interfaces` must return the empty set).
 - `possibleTypes` returns the list of types that implement this interface. They
   must be object types.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
 - All other fields must return {null}.
 
 **Enum**
