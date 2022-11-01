@@ -36,7 +36,7 @@ in the response stream.
 If the response of the GraphQL operation is a response stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
 all but the last response in the stream. The value of this entry is `false` for
-the last response of the stream. This entry is not required for GraphQL
+the last response of the stream. This entry must not be present for GraphQL
 operations that return a single response map.
 
 The GraphQL server may determine there are no more values in the response stream
