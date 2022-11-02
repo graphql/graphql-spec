@@ -334,8 +334,8 @@ map.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+- Let {groupedFieldSet} and {groupedSignals} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -346,6 +346,12 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- For each {groupedSignals} as {referenceName} and {requestedSignals}:
+  - Initialize {signalValues} to an empty ordered map.
+  - For each {signal} in {requestedSignals}:
+    - If the signal type of {signal} is `selected`:
+      - Set {null} as the value for `selected` in {signalValues}.
+  - Set {signalValues} as the value for {referenceName} in {resultMap}.
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -461,11 +467,12 @@ A correct executor must generate the following result for that selection set:
 
 ### Field Collection
 
-Before execution, the selection set is converted to a grouped field set by
-calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+Before execution, the selection set is converted to a grouped field set and
+grouped reference signal set by calling {CollectFields()}. Each entry in the
+grouped field set is a list of fields that share a response key (the alias if
+defined, otherwise the field name). This ensures all fields with the same
+response key (including those in referenced fragments) are executed at the same
+time.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -494,6 +501,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {groupedSignals} to an empty ordered map of sets.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -523,32 +531,52 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
+    - If a {reference} is defined for the given {fragment}:
+      - Let {signalsForReference} be the result of calling
+        {CollectSignals(reference)}.
+      - Let {referenceName} be the name of {reference}.
+      - Set the entry for {referenceName} in {groupedSignals} to
+        {signalsForReference}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+    - Let {fragmentGroupedFieldSet} and {fragmentRequestedSignals} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - For each {fragmentRequestedSignals} as {referenceName} and
+      {signalsForReference}:
+      - Set the entry for {referenceName} in {groupedSignals} to
+        {signalsForReference}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
+    - If a {reference} is defined for the given {fragment}:
+      - Let {signalsForReference} be the result of calling
+        {CollectSignals(reference)}.
+      - Let {referenceName} be the name of {reference}.
+      - Set the entry for {referenceName} in {requestedSignals} to
+        {signalsForReference}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+    - Let {fragmentGroupedFieldSet} and {fragmentRequestedSignals} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+    - For each {fragmentRequestedSignals} as {referenceName} and
+      {signalsForReference}:
+      - Set the entry for {referenceName} in {groupedSignals} to
+        {signalsForReference}.
+- Return {groupedFields} and {groupedSignals}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -561,6 +589,15 @@ DoesFragmentTypeApply(objectType, fragmentType):
 - If {fragmentType} is a Union:
   - if {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
+
+CollectSignals(reference):
+
+- Let {signalsForReference} be an empty set.
+- Let {signalSet} be the signal set of {reference}.
+- For each {signal} in {signalSet}:
+  - Let {signalType} be the signal type of {signal}.
+  - Add {signalType} to {signalsForReference}.
+- Return {signalsForReference}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.

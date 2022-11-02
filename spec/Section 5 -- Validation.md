@@ -429,6 +429,20 @@ FieldsInSetCanMerge(set):
     - Let {mergedSet} be the result of adding the selection set of {fieldA} and
       the selection set of {fieldB}.
     - {FieldsInSetCanMerge(mergedSet)} must be true.
+- {ReferencesInSetCanMerge(set)} must be true.
+
+ReferencesInSetCanMerge(references):
+
+- Let {fieldResponseNames} be the set of response names for fields within {set}
+  including visiting fragments and inline fragments.
+- Let {references} be the set of references in {set}, including visiting
+  fragments and inline fragments.
+- For each {reference} in {references}:
+  - The name of {reference} must not be contained by {fieldResponseNames}.
+- Given each pair of members {referenceA} and {referenceB} in {references}:
+  - If the parent types of {fieldA} and {fieldB} are equal or if either is not
+    an Object Type:
+    - {referenceA} and {referenceB} must have different names.
 
 SameResponseShape(fieldA, fieldB):
 
