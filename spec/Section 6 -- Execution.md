@@ -131,7 +131,9 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
+- Let {groupedFieldSet} be the result of {CollectRootFields(queryType,
+  selectionSet, variableValues)}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
@@ -153,7 +155,9 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
+- Let {groupedFieldSet} be the result of {CollectRootFields(mutationType,
+  selectionSet, variableValues)}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
   mutationType, initialValue, variableValues)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
@@ -256,7 +260,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
+- Let {groupedFieldSet} be the result of {CollectRootFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fields} be the value of the first entry in {groupedFieldSet}.
@@ -301,7 +305,9 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
+- Let {groupedFieldSet} be the result of {CollectRootFields(subscriptionType,
+  selectionSet, variableValues)}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
@@ -322,20 +328,18 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}
 
-## Executing Selection Sets
+## Executing Grouped Field Sets
 
-To execute a selection set, the object value being evaluated and the object type
-need to be known, as well as whether it must be executed serially, or may be
-executed in parallel.
+To execute a grouped field set, the object value being evaluated and the object
+type need to be known, as well as whether it must be executed serially, or may
+be executed in parallel.
 
-First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+Each represented field in the grouped field set produces an entry into a
+response map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -492,8 +496,7 @@ response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
-- If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {groupedFieldSet} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -508,7 +511,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
+    - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
@@ -530,7 +533,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
+      - Let {groupForResponseKey} be the list in {groupedFieldSet} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
   - If {selection} is an {InlineFragment}:
@@ -545,10 +548,10 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
+      - Let {groupForResponseKey} be the list in {groupedFieldSet} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+- Return {groupedFields} and {visitedFragments}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -564,6 +567,39 @@ DoesFragmentTypeApply(objectType, fragmentType):
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+### Root Field Collection
+
+Root field collection processes the operation's top-level selection set:
+
+CollectRootFields(rootType, operationSelectionSet, variableValues):
+
+- Initialize {visitedFragments} to the empty set.
+- Let {groupedFieldSet} be the result of calling {CollectFields(rootType,
+  operationSelectionSet, variableValues, visitedFragments)}.
+- Return {groupedFieldSet}.
+
+### Object Subfield Collection
+
+Object subfield collection processes a field's sub-selection sets:
+
+CollectSubfields(objectType, fields, variableValues):
+
+- Initialize {visitedFragments} to the empty set.
+- Initialize {groupedSubfieldSet} to an empty ordered map of lists.
+- For each {field} in {fields}:
+  - Let {fieldSelectionSet} be the selection set of {field}.
+  - If {fieldSelectionSet} is null or empty, continue to the next field.
+  - Let {fieldGroupedFieldSet} be the result of calling
+    {CollectFields(objectType, fieldSelectionSet, variableValues,
+    visitedFragments)}.
+  - For each {fieldGroup} in {fieldGroupedFieldSet}:
+    - Let {responseKey} be the response key shared by all fields in
+      {fragmentGroup}.
+    - Let {groupForResponseKey} be the list in {groupedFieldSet} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append all items in {fieldGroup} to {groupForResponseKey}.
+- Return {groupedSubfieldSet}.
 
 ## Executing Fields
 
@@ -692,8 +728,9 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
+  - Let {groupedSubfieldSet} be the result of calling
+    {CollectSubfields(objectType, fields, variableValues)}.
+  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedSubfieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
 
@@ -758,17 +795,9 @@ sub-selections.
 }
 ```
 
-After resolving the value for `me`, the selection sets are merged together so
-`firstName` and `lastName` can be resolved for one value.
-
-MergeSelectionSets(fields):
-
-- Let {selectionSet} be an empty list.
-- For each {field} in {fields}:
-  - Let {fieldSelectionSet} be the selection set of {field}.
-  - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Append all selections in {fieldSelectionSet} to {selectionSet}.
-- Return {selectionSet}.
+After resolving the value for `me`, the selection sets are merged together by
+calling {CollectSubfields()} so `firstName` and `lastName` can be resolved for
+one value.
 
 ### Handling Field Errors
 
