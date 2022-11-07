@@ -429,8 +429,7 @@ subsequentPayloads, asyncRecord):
 - If {path} is not provided, initialize it to an empty list.
 - If {subsequentPayloads} is not provided, initialize it to the empty set.
 - Let {groupedFieldSet} and {deferredGroupedFieldsList} be the result of
-  {CollectFields(objectType, objectValue, selectionSet, variableValues, path,
-  asyncRecord)}.
+  {CollectFields(objectType, selectionSet, variableValues, path, asyncRecord)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -662,8 +661,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, objectValue, selectionSet, variableValues, path,
-asyncRecord, visitedFragments, deferredGroupedFieldsList):
+CollectFields(objectType, selectionSet, variableValues, path, asyncRecord,
+visitedFragments, deferredGroupedFieldsList):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -708,16 +707,14 @@ asyncRecord, visitedFragments, deferredGroupedFieldsList):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, objectValue, fragmentSelectionSet,
-        variableValues, path, asyncRecord, visitedFragments,
-        deferredGroupedFieldsList)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+        asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
       - Append a record containing {label} and {deferredGroupedFields} to
         {deferredGroupedFieldsList}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, objectValue, fragmentSelectionSet,
-      variableValues, path, asyncRecord, visitedFragments,
-      deferredGroupedFieldsList)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -738,16 +735,14 @@ asyncRecord, visitedFragments, deferredGroupedFieldsList):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, objectValue, fragmentSelectionSet,
-        variableValues, path, asyncRecord, visitedFragments,
-        deferredGroupedFieldsList)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+        asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
       - Append a record containing {label} and {deferredGroupedFields} to
         {deferredGroupedFieldsList}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, objectValue, fragmentSelectionSet,
-      variableValues, path, asyncRecord, visitedFragments,
-      deferredGroupedFieldsList)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -965,8 +960,8 @@ directive.
 
 #### Execute Stream Field
 
-ExecuteStreamField(label, iterator, index, fields, innerType, path streamRecord,
-variableValues, subsequentPayloads):
+ExecuteStreamField(label, iterator, index, fields, innerType, path,
+streamRecord, variableValues, subsequentPayloads):
 
 - Let {streamRecord} be an async payload record created from {label}, {path},
   and {iterator}.
