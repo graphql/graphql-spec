@@ -832,15 +832,6 @@ subsequentPayloads, asyncRecord):
 - Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
-- If {field} provides the directive `@stream`, let {streamDirective} be that
-  directive.
-  - Let {initialCount} be the value or variable provided to {streamDirective}'s
-    {initialCount} argument.
-  - Let {resolvedValue} be {ResolveFieldGenerator(objectType, objectValue,
-    fieldName, argumentValues)}.
-  - Let {result} be the result of calling {CompleteValue(fieldType, fields,
-    resolvedValue, variableValues, path, subsequentPayloads, asyncRecord)}.
-  - Return {result}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Let {result} be the result of calling {CompleteValue(fieldType, fields,
@@ -908,20 +899,17 @@ must only allow usage of variables of appropriate types.
 While nearly all of GraphQL execution can be described generically, ultimately
 the internal system exposing the GraphQL interface must provide values. This is
 exposed via {ResolveFieldValue}, which produces a value for a given field on a
-type for a real value. In addition, {ResolveFieldGenerator} will be exposed to
-produce an iterator for a field with `List` return type. The internal system may
-optionally define a generator function. In the case where the generator is not
-defined, the GraphQL executor provides a default generator. For example, a
-trivial generator that yields the entire list upon the first iteration.
+type for a real value.
 
-As an example, a {ResolveFieldValue} might accept the {objectType} `Person`, the
-{field} {"soulMate"}, and the {objectValue} representing John Lennon. It would
-be expected to yield the value representing Yoko Ono.
+As an example, this might accept the {objectType} `Person`, the {field}
+{"soulMate"}, and the {objectValue} representing John Lennon. It would be
+expected to yield the value representing Yoko Ono.
 
-A {ResolveFieldGenerator} might accept the {objectType} `MusicBand`, the {field}
-{"members"}, and the {objectValue} representing Beatles. It would be expected to
-yield a iterator of values representing John Lennon, Paul McCartney, Ringo Starr
-and George Harrison.
+List values are resolved similarly. For example, {ResolveFieldValue} might also
+accept the {objectType} `MusicBand`, the {field} {"members"}, and the
+{objectValue} representing the Beatles. It would be expected to yield a
+collection of values representing John Lennon, Paul McCartney, Ringo Starr and
+George Harrison.
 
 ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 
@@ -930,33 +918,23 @@ ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 - Return the result of calling {resolver}, providing {objectValue} and
   {argumentValues}.
 
-ResolveFieldGenerator(objectType, objectValue, fieldName, argumentValues):
-
-- If {objectType} provide an internal function {generatorResolver} for
-  generating partially resolved value of a list field named {fieldName}:
-  - Let {generatorResolver} be the internal function.
-  - Return the iterator from calling {generatorResolver}, providing
-    {objectValue} and {argumentValues}.
-- Create {generator} from {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}.
-- Return {generator}.
-
 Note: It is common for {resolver} to be asynchronous due to relying on reading
 an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
-flow. In addition, a common implementation of {generator} is to leverage
-asynchronous iterators or asynchronous generators provided by many programming
-languages.
+flow. In addition, an implementation for collections may leverage asynchronous
+iterators or asynchronous generators provided by many programming languages.
+This may be particularly helpful when used in conjunction with the `@stream`
+directive.
 
 ### Value Completion
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively. In the case where a value
-returned for a list type field is an iterator due to `@stream` specified on the
-field, value completion iterates over the iterator until the number of items
-yield by the iterator satisfies `initialCount` specified on the `@stream`
-directive.
+field execution process continues recursively. If the return type is a List
+type, each member of the resolved collection is completed using the same value
+completion process. In the case where `@stream` is specified on a field of list
+type, value completion iterates over the collection until the number of items
+yielded items satisfies `initialCount` specified on the `@stream` directive.
 
 #### Execute Stream Field
 
@@ -1008,45 +986,38 @@ subsequentPayloads, asyncRecord):
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
-  - If {result} is an iterator:
-    - Let {field} be the first entry in {fields}.
-    - Let {innerType} be the inner type of {fieldType}.
-    - If {field} provides the directive `@stream` and its {if} argument is not
-      {false} and is not a variable in {variableValues} with the value {false}
-      and {innerType} is the outermost return type of the list type defined for
-      {field}:
-      - Let {streamDirective} be that directive.
+  - If {result} is not a collection of values, raise a _field error_.
+  - Let {field} be the first entry in {fields}.
+  - Let {innerType} be the inner type of {fieldType}.
+  - If {field} provides the directive `@stream` and its {if} argument is not
+    {false} and is not a variable in {variableValues} with the value {false} and
+    {innerType} is the outermost return type of the list type defined for
+    {field}:
+    - Let {streamDirective} be that directive.
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
     - If {initialCount} is less than zero, raise a _field error_.
     - Let {label} be the value or variable provided to {streamDirective}'s
       {label} argument.
-    - Let {initialItems} be an empty list
-    - Let {index} be zero.
+  - Let {iterator} be an iterator for {result}.
+  - Let {items} be an empty list.
+  - Let {index} be zero.
     - While {result} is not closed:
-      - If {streamDirective} is not defined or {index} is not greater than or
-        equal to {initialCount}:
-        - Wait for the next item from {result}.
-        - Let {resultItem} be the item retrieved from {result}.
-        - Let {itemPath} be {path} with {index} appended.
-        - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
-          fields, resultItem, variableValues, itemPath, subsequentPayloads,
-          asyncRecord)}.
-        - Append {resolvedItem} to {initialItems}.
-        - Increment {index}.
-      - If {streamDirective} is defined and {index} is greater than or equal to
-        {initialCount}:
-        - Call {ExecuteStreamField(label, result, index, fields, innerType,
-          path, asyncRecord, subsequentPayloads)}.
-        - Let {result} be {initialItems}.
-        - Exit while loop.
-    - Return {initialItems}.
-  - If {result} is not a collection of values, raise a _field error_.
-  - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues, itemPath,
-    subsequentPayloads, asyncRecord)}, where {resultItem} is each item in
-    {result} and {itemPath} is {path} with the index of the item appended.
+    - If {streamDirective} is defined and {index} is greater than or equal to
+      {initialCount}:
+      - Call {ExecuteStreamField(label, iterator, index, fields, innerType,
+        path, asyncRecord, subsequentPayloads)}.
+      - Return {items}.
+    - Otherwise:
+      - Retrieve the next item from {result} via the {iterator}.
+      - Let {resultItem} be the item retrieved from {result}.
+      - Let {itemPath} be {path} with {index} appended.
+      - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
+        fields, resultItem, variableValues, itemPath, subsequentPayloads,
+        asyncRecord)}.
+      - Append {resolvedItem} to {initialItems}.
+      - Increment {index}.
+    - Return {items}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
