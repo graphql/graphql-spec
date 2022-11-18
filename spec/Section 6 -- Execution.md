@@ -1001,7 +1001,7 @@ subsequentPayloads, asyncRecord):
   - Let {iterator} be an iterator for {result}.
   - Let {items} be an empty list.
   - Let {index} be zero.
-    - While {result} is not closed:
+  - While {result} is not closed:
     - If {streamDirective} is defined and {index} is greater than or equal to
       {initialCount}:
       - Call {ExecuteStreamField(label, iterator, index, fields, innerType,
@@ -1014,9 +1014,9 @@ subsequentPayloads, asyncRecord):
       - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
         fields, resultItem, variableValues, itemPath, subsequentPayloads,
         asyncRecord)}.
-      - Append {resolvedItem} to {initialItems}.
+      - Append {resolvedItem} to {items}.
       - Increment {index}.
-    - Return {items}.
+  - Return {items}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
