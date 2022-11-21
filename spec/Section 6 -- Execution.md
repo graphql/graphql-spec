@@ -950,25 +950,29 @@ streamRecord, variableValues, subsequentPayloads):
     - Set {isCompletedIterator} to {true} on {streamRecord}.
     - Return {null}.
   - Let {payload} be an unordered map.
-  - Let {item} be the item retrieved from {iterator}.
-  - Let {data} be the result of calling {CompleteValue(innerType, fields, item,
-    variableValues, itemPath, subsequentPayloads, parentRecord)}.
-  - Append any encountered field errors to {errors}.
-  - Increment {index}.
-  - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
-    streamRecord, variableValues, subsequentPayloads)}.
-  - If {parentRecord} is defined:
-    - Wait for the result of {dataExecution} on {parentRecord}.
-  - If {errors} is not empty:
-    - Add an entry to {payload} named `errors` with the value {errors}.
-  - If a field error was raised, causing a {null} to be propagated to {data},
-    and {innerType} is a Non-Nullable type:
+  - If an item is not retrieved because of an error:
+    - Append the encountered error to {errors}.
     - Add an entry to {payload} named `items` with the value {null}.
   - Otherwise:
-    - Add an entry to {payload} named `items` with a list containing the value
-      {data}.
+    - Let {item} be the item retrieved from {iterator}.
+    - Let {data} be the result of calling {CompleteValue(innerType, fields,
+      item, variableValues, itemPath, subsequentPayloads, parentRecord)}.
+    - Append any encountered field errors to {errors}.
+    - Increment {index}.
+    - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
+      streamRecord, variableValues, subsequentPayloads)}.
+    - If a field error was raised, causing a {null} to be propagated to {data},
+      and {innerType} is a Non-Nullable type:
+      - Add an entry to {payload} named `items` with the value {null}.
+    - Otherwise:
+      - Add an entry to {payload} named `items` with a list containing the value
+        {data}.
+  - If {errors} is not empty:
+    - Add an entry to {payload} named `errors` with the value {errors}.
   - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {itemPath}.
+  - If {parentRecord} is defined:
+    - Wait for the result of {dataExecution} on {parentRecord}.
   - Return {payload}.
 - Set {dataExecution} on {streamRecord}.
 - Append {streamRecord} to {subsequentPayloads}.
@@ -1008,7 +1012,8 @@ subsequentPayloads, asyncRecord):
         path, asyncRecord, subsequentPayloads)}.
       - Return {items}.
     - Otherwise:
-      - Retrieve the next item from {result} via the {iterator}.
+      - Wait for the next item from {result} via the {iterator}.
+      - If an item is not retrieved because of an error, raise a _field error_.
       - Let {resultItem} be the item retrieved from {result}.
       - Let {itemPath} be {path} with {index} appended.
       - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
