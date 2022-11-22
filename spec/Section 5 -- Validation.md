@@ -1556,6 +1556,55 @@ mutation {
 }
 ```
 
+### Defer And Stream Directives Are Used On Valid Operations
+
+** Formal Specification **
+
+- Let {subscriptionFragments} be the empty set.
+- For each {operation} in a document:
+  - If {operation} is a subscription operation:
+    - Let {fragments} be every fragment referenced by that {operation}
+      transitively.
+    - For each {fragment} in {fragments}:
+      - Let {fragmentName} be the name of {fragment}.
+      - Add {fragmentName} to {subscriptionFragments}.
+- For every {directive} in a document:
+  - If {directiveName} is not "defer" or "stream":
+    - Continue to the next {directive}.
+  - Let {ancestor} be the ancestor operation or fragment definition of
+    {directive}.
+  - If {ancestor} is a fragment definition:
+    - If the fragment name of {ancestor} is not present in
+      {subscriptionFragments}:
+      - Continue to the next {directive}.
+  - If {ancestor} is not a subscription operation:
+    - Continue to the next {directive}.
+  - Let {if} be the argument named "if" on {directive}.
+  - {if} must be defined.
+  - Let {argumentValue} be the value passed to {if}.
+  - {argumentValue} must be a variable, or the boolean value "false".
+
+**Explanatory Text**
+
+The defer and stream directives can not be used to defer or stream data in
+subscription operations. If these directives appear in a subscription operation
+they must be disabled using the "if" argument. This rule will not permit any
+defer or stream directives on a subscription operation that cannot be disabled
+using the "if" argument.
+
+For example, the following document will not pass validation because `@defer`
+has been used in a subscription operation with no "if" argument defined:
+
+```raw graphql counter-example
+subscription sub {
+  newMessage {
+    ... @defer {
+      body
+    }
+  }
+}
+```
+
 ### Defer And Stream Directive Labels Are Unique
 
 ** Formal Specification **
