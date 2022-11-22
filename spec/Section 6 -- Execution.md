@@ -329,28 +329,15 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
-- Let {subsequentPayloads} be an empty list.
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues, subsequentPayloads)}
-  _normally_ (allowing parallelization).
+  subscriptionType, initialValue, variableValues)} _normally_ (allowing
+  parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {subsequentPayloads} is empty:
-  - Return an unordered map containing {data} and {errors}.
-- If {subsequentPayloads} is not empty:
-  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
-    an entry named {hasNext} with the value {true}.
-  - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
-  - For each {payload} yielded by {iterator}:
-    - If a termination signal is received:
-      - Send a termination signal to {iterator}.
-      - Return.
-    - Otherwise:
-      - Yield {payload}.
+- Return an unordered map containing {data} and {errors}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -691,6 +678,8 @@ visitedFragments, deferredGroupedFieldsList):
       argument is not {false} and is not a variable in {variableValues} with the
       value {false}:
       - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
     - If {deferDirective} is not defined:
       - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
         {selection} in {selectionSet}.
@@ -731,6 +720,8 @@ visitedFragments, deferredGroupedFieldsList):
       is not {false} and is not a variable in {variableValues} with the value
       {false}:
       - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
     - If {deferDirective} is defined:
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
@@ -998,6 +989,7 @@ subsequentPayloads, asyncRecord):
     {innerType} is the outermost return type of the list type defined for
     {field}:
     - Let {streamDirective} be that directive.
+    - If this execution is for a subscription operation, raise a _field error_.
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
     - If {initialCount} is less than zero, raise a _field error_.
