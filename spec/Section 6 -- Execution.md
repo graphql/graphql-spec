@@ -800,7 +800,8 @@ variableValues, parentRecord, subsequentPayloads):
     - Add an entry to {payload} named `data` with the value {null}.
   - Otherwise:
     - Add an entry to {payload} named `data` with the value {resultMap}.
-  - Add an entry to {payload} named `label` with the value {label}.
+  - If {label} is defined:
+    - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {path}.
   - Return {payload}.
 - Set {dataExecution} on {deferredFragmentRecord}.
@@ -960,7 +961,8 @@ streamRecord, variableValues, subsequentPayloads):
         {data}.
   - If {errors} is not empty:
     - Add an entry to {payload} named `errors` with the value {errors}.
-  - Add an entry to {payload} named `label` with the value {label}.
+  - If {label} is defined:
+    - Add an entry to {payload} named `label` with the value {label}.
   - Add an entry to {payload} named `path` with the value {itemPath}.
   - If {parentRecord} is defined:
     - Wait for the result of {dataExecution} on {parentRecord}.
