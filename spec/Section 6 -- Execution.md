@@ -132,22 +132,29 @@ An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
-- Let {subsequentPayloads} be an empty list.
+- Let {publisherRecord} be the result of {CreatePublisher()}.
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues, subsequentPayloads)} _normally_
-  (allowing parallelization).
+- Let {groupedFieldSet} and {deferUsages} be the result of
+  {CollectRootFields(queryType, selectionSet, variableValues)}.
+- Initialize {deferMap} to an empty map of Defer Usage records to Async Payload
+  records.
+- For each {deferUsage} in {deferUsages}:
+  - Let {deferRecord} be a new Async Payload record created from {deferUsage}.
+  - Set the record in {deferMap} for {deferUsage} equal to {deferRecord}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
+  queryType, initialValue, variableValues, deferMap, publisherRecord)}
+  _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {subsequentPayloads} is empty:
+- If {HasNext(publisherRecord)} is {false}:
   - Return an unordered map containing {data} and {errors}.
-- If {subsequentPayloads} is not empty:
+- Otherwise:
   - Let {initialResponse} be an unordered map containing {data}, {errors}, and
     an entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
+    {YieldSubsequentPayloads(initialResponse, publisherRecord)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -167,21 +174,29 @@ mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
-- Let {subsequentPayloads} be an empty list.
+- Let {publisherRecord} be the result of {CreatePublisher()}.
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues, subsequentPayloads)} _serially_.
+- Let {groupedFieldSet} and {deferUsages} be the result of
+  {CollectRootFields(mutationType, selectionSet, variableValues)}.
+- Initialize {deferMap} to an empty map of Defer Usage records to Async Payload
+  records.
+- For each {deferUsage} in {deferUsages}:
+  - Let {deferRecord} be a new Async Payload record created from {deferUsage}.
+  - Set the record in {deferMap} for {deferUsage} equal to {deferRecord}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
+  mutationType, initialValue, variableValues, deferMap, publisherRecord)}
+  _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {subsequentPayloads} is empty:
+- If {HasNext(publisherRecord)} is {false}:
   - Return an unordered map containing {data} and {errors}.
-- If {subsequentPayloads} is not empty:
+- Otherwise:
   - Let {initialResponse} be an unordered map containing {data}, {errors}, and
     an entry named {hasNext} with the value {true}.
   - Let {iterator} be the result of running
-    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
+    {YieldSubsequentPayloads(initialResponse, publisherRecord)}.
   - For each {payload} yielded by {iterator}:
     - If a termination signal is received:
       - Send a termination signal to {iterator}.
@@ -286,13 +301,14 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
+- Let {groupedFieldSet} be the result of {CollectRootFields(subscriptionType,
+  selectionSet, variableValues)}.}
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
+- Let {fieldGroup} be that entry.
+- Let {fieldName} be the corresponding entry on {fieldGroup}. Note: This value
   is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fields} by the corresponding entry of {fieldGroup}.
+- Let {field} be the first entry of the first list in {fields}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}
 - Let {fieldStream} be the result of running
@@ -353,84 +369,175 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}
 
+## Publisher Record
+
+If an operation contains `@defer` or `@stream` directives, execution may also
+result in an Async Payload Record stream in addition to the initial response.
+The Async Payload Records may be published lazily as requested, with the
+internal state of the unpublished stream held by a Publisher Record unique to
+the request.
+
+- {pending}: the set of Async Payload Records for this response that have not
+  yet been completed.
+- {waiting}: the set of Async Payload Records for this response that have been
+  completed, but are waiting for a parent to complete.
+- {waitingByParent}: an unordered map of uncompleted parent Async Payload
+  Records to sets of completed child Async Payload Records.
+- {current}: the set of Async Payload Records for this response that may be
+  yielded on the next request.
+- {signal}: An asynchronous signal that can be awaited and triggered.
+
+## Create Publisher
+
+CreatePublisher():
+
+- Let {publisherRecord} be a publisher record.
+- Initialize {pending} on {publisherRecord} to an empty set.
+- Initialize {waiting} on {publisherRecord} to an empty set.
+- Initialize {waitingByParent} on {publisherRecord} to an empty unordered map.
+- Initialize {current} on {publisherRecord} to an empty set.
+- Initialize {signal}.
+- Return {publisherRecord}.
+
+## Has Next
+
+HasNext(publisherRecord):
+
+- Let {pending}, {waiting}, and {current} be the corresponding entries on
+  {publisherRecord}.
+- If {pending}, {waiting}, or {current} is not empty, return {true}.
+- Return {false}.
+
+## Add Payload
+
+AddPayload(payload, publisherRecord):
+
+- Let {pending} be the corresponding entry on {publisherRecord}.
+- Add {payload} to {pending}.
+
+## Complete Payload
+
+CompletePayload(payload, publisherRecord):
+
+- Let {pending} be the corresponding entry on {publisherRecord}.
+- If {payload} is not within {pending}, return.
+- Remove {payload} from {pending}.
+- Let {parentRecords} be the corresponding entry on {payload}.
+- If {parentRecords} is undefined:
+  - Call PushPayload(payload, publisherRecord).
+  - Let {signal} be the corresponding entry on {publisherRecord}.
+  - Trigger {signal}.
+  - Return.
+- Let {waiting} be the corresponding entry on {publisherRecord}.
+- For each {parentRecord} in {parentRecords}:
+  - If both {pending} and {waiting} do not contain {parentRecord}:
+    - Call PushPayload(payload, publisherRecord).
+    - Let {signal} be the corresponding entry on {publisherRecord}.
+    - Trigger {signal}.
+    - Return.
+- Otherwise:
+  - Let {waitingByChildren} be the corresponding entries on {publisherRecord}.
+  - Add {payload} to {waiting}.
+  - For each {parentRecord} in {parentRecords}:
+    - Let {children} be the set in {waitingByParent} for {parentRecord}; if no
+      such set exists, create it as an empty set.
+    - Append {payload} to {children}.
+
+## Push Payload
+
+PushPayload(payload, publisherRecord):
+
+- Let {current}, and {waitingByParent} be the corresponding entries on
+  {publisherRecord}.
+- Add {payload} to {current}.
+- Let {children} be the set in {waitingByParent} for {payload}.
+- If {children} is not defined, return.
+- Let {waiting} be the corresponding entry on {publisherRecord}.
+- For each {child} in {children}:
+  - Call {PushPayload(payload, publisherRecord)}.
+  - Remove {child} from {waiting}.
+- Remove the set in {waitingByParent} for {parentRecord}.
+
 ## Yield Subsequent Payloads
 
 If an operation contains subsequent payload records resulting from `@stream` or
 `@defer` directives, the {YieldSubsequentPayloads} algorithm defines how the
 payloads should be processed.
 
-YieldSubsequentPayloads(initialResponse, subsequentPayloads):
+YieldSubsequentPayloads(initialResponse, publisherRecord):
 
-- Let {initialRecords} be any items in {subsequentPayloads} with a completed
-  {dataExecution}.
+- Let {current} be the corresponding entry on {publisherRecord}.
 - Initialize {initialIncremental} to an empty list.
-- For each {record} in {initialRecords}:
-  - Remove {record} from {subsequentPayloads}.
+- For each {record} in {current}:
+  - Remove {record} from {current}.
   - If {isCompletedIterator} on {record} is {true}:
     - Continue to the next record in {records}.
-  - Let {payload} be the completed result returned by {dataExecution}.
+  - Let {payload} be the corresponding entry on {record}.
   - Append {payload} to {initialIncremental}.
+- Reset {current} to an empty set.
 - If {initialIncremental} is not empty:
   - Add an entry to {initialResponse} named `incremental` containing the value
     {incremental}.
 - Yield {initialResponse}.
-- While {subsequentPayloads} is not empty:
+- While {HasNext(publisherRecord)} is {true}:
   - If a termination signal is received:
     - For each {record} in {subsequentPayloads}:
       - If {record} contains {iterator}:
         - Send a termination signal to {iterator}.
     - Return.
-  - Wait for at least one record in {subsequentPayloads} to have a completed
-    {dataExecution}.
+  - Let {signal} be the corresponding entry on {publisherRecord}.
+  - Wait for {signal} to be triggered.
+  - Reinitialize {signal} on {publisherRecord}.
   - Let {subsequentResponse} be an unordered map with an entry {incremental}
     initialized to an empty list.
-  - Let {records} be the items in {subsequentPayloads} with a completed
-    {dataExecution}.
-  - For each {record} in {records}:
-    - Remove {record} from {subsequentPayloads}.
+  - Let {current} be the corresponding entry on {publisherRecord}.
+  - For each {record} in {current}:
+    - Remove {record} from {current}.
     - If {isCompletedIterator} on {record} is {true}:
-      - Continue to the next record in {records}.
-    - Let {payload} be the completed result returned by {dataExecution}.
-    - Append {payload} to the {incremental} entry on {subsequentResponse}.
-  - If {subsequentPayloads} is empty:
-    - Add an entry to {subsequentResponse} named `hasNext` with the value
-      {false}.
-  - Otherwise, if {subsequentPayloads} is not empty:
-    - Add an entry to {subsequentResponse} named `hasNext` with the value
-      {true}.
+      - Continue to the next record in {current}.
+    - Let {payload} be the corresponding entry on {record}.
+  - Reset {current} to an empty set.
+  - Append {payload} to the {incremental} entry on {subsequentResponse}.
+  - Let {hasNext} be the result of {HasNext(publisherRecord)}.
+  - Add an entry to {subsequentResponse} named `hasNext` with the value
+    {hasNext}.
   - Yield {subsequentResponse}
 
-## Executing Selection Sets
+## Executing Grouped Field Sets
 
-To execute a selection set, the object value being evaluated and the object type
-need to be known, as well as whether it must be executed serially, or may be
-executed in parallel.
+To execute a grouped field set, the object value being evaluated and the object
+type need to be known, as well as whether it must be executed serially, or may
+be executed in parallel.
 
-First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
-
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues, path,
-subsequentPayloads, asyncRecord):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
+path, deferMap, publisherRecord, priority, parentRecords):
 
 - If {path} is not provided, initialize it to an empty list.
-- If {subsequentPayloads} is not provided, initialize it to the empty set.
-- Let {groupedFieldSet} and {deferredGroupedFieldsList} be the result of
-  {CollectFields(objectType, selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
+- Initialize {contextByFieldGroup} to an empty ordered map.
+- For each {groupedFieldSet} as {responseKey} and {fieldGroup}:
+  - Let {fieldName} be the corresponding entry on {fieldGroup}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
+    - Let {fieldPath} be {path} with {fieldName} appended.
+    - Set the entry for {responseKey} on {fieldGroupContexts} to a record
+      consisting of {fieldGroup}, {fieldType}, and {fieldPath}.
+    - Call {AddPendingDeferredField(fieldGroup, fieldPath, deferMap)}.
+- For each {contextByFieldGroup} as {responseKey}, {fieldGroup}, {fieldType},
+  and {fieldPath}:
+  - Let {priority} and {parentFieldGroup} be the corresponding entries on
+    {fieldGroup}.
+  - If {parentFieldGroup} is {undefined} and {priority} is greater than zero, or
+    if {priority} is greater than the corresponding entry on {parentFieldGroup}.
+    - Call {ExecuteDeferredField(objectType, objectValue, fieldType, fieldGroup,
+      variableValues, path, deferMap, publisherRecord, parentRecords)}.
+  - Otherwise:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues, path, subsequentPayloads, asyncRecord)}.
+      fieldGroup, variableValues, path, deferMap, publisherRecord,
+      parentRecords)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- For each {deferredGroupFieldSet} and {label} in {deferredGroupedFieldsList}
-  - Call {ExecuteDeferredFragment(label, objectType, objectValue,
-    deferredGroupFieldSet, path, variableValues, asyncRecord,
-    subsequentPayloads)}
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -445,45 +552,64 @@ either resolving to {null} if allowed or further propagated to a parent field.
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
-Additionally, async payload records in {subsequentPayloads} must be filtered if
-their path points to a location that has resolved to {null} due to propagation
-of a field error. This is described in
-[Filter Subsequent Payloads](#sec-Filter-Subsequent-Payloads). These async
-payload records must be removed from {subsequentPayloads} and their result must
-not be sent to clients. If these async records have not yet executed or have not
-yet yielded a value they may also be cancelled to avoid unnecessary work.
+Additionally, unpublished Async Payload Records must be filtered if their path
+points to a location that has resolved to {null} due to propagation of a field
+error. This is described in
+[Filter Subsequent Payloads](#sec-Filter-Subsequent-Payloads). The result of
+these async payload records must not be sent to clients. If these async records
+have not yet executed or have not yet yielded a value they may also be cancelled
+to avoid unnecessary work.
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
 
 ### Filter Subsequent Payloads
 
-When a field error is raised, there may be async payload records in
-{subsequentPayloads} with a path that points to a location that has been removed
-or set to null due to null propagation. These async payload records must be
-removed from subsequent payloads and their results must not be sent to clients.
+When a field error is raised, there may be unpublished async payload records
+with a path that points to a location that has been removed or set to null due
+to null propagation. The results of these async payload records must not be sent
+to clients.
 
 In {FilterSubsequentPayloads}, {nullPath} is the path which has resolved to null
 after propagation as a result of a field error. {currentAsyncRecord} is the
 async payload record where the field error was raised. {currentAsyncRecord} will
 not be set for field errors that were raised during the initial execution
-outside of {ExecuteDeferredFragment} or {ExecuteStreamField}.
+outside of {ExecuteDeferredField} or {ExecuteStreamField}.
 
-FilterSubsequentPayloads(subsequentPayloads, nullPath, currentAsyncRecord):
+FilterSubsequentPayloads(publisherRecord, nullPath, currentAsyncRecords):
 
-- For each {asyncRecord} in {subsequentPayloads}:
+- Let {pending}, {current}, {waiting}, and {waitingByParent} be the
+  corresponding entries on {publisherRecord}.
+- For each {asyncRecord} in {pending} and {current}:
+  - If {ShouldKeepPayload(asyncRecord, nullPath, currentAsyncRecords)} is
+    {true}:
+  - Continue to the next record in {set}.
+  - Remove {asyncRecord} from {set}. Optionally, cancel any incomplete work in
+    the execution of {asyncRecord}.
+- For each {asyncRecord} in {waiting}:
+  - If {ShouldKeepPayload(asyncRecord, nullPath, currentAsyncRecords)} is
+    {true}:
+  - Continue to the next record in {waiting}.
+  - Remove {asyncRecord} from {waiting}. Optionally, cancel any incomplete work
+    in the execution of {asyncRecord}.
+  - Let {parentRecords} be the corresponding entry on {asyncRecord}.
+  - For each {parentRecord} in {parentRecords}:
+    - Let {children} be the set in {waitingByParent} for {parentRecord}.
+    - Remove {asyncRecord} from {children}.
+
+ShouldKeepPayload(asyncRecord, nullPath, currentAsyncRecords):
+
+- For each {currentAsyncRecord} in {currentAsyncRecords}:
   - If {asyncRecord} is the same record as {currentAsyncRecord}:
-    - Continue to the next record in {subsequentPayloads}.
-  - Initialize {index} to zero.
-  - While {index} is less then the length of {nullPath}:
-    - Initialize {nullPathItem} to the element at {index} in {nullPath}.
-    - Initialize {asyncRecordPathItem} to the element at {index} in the {path}
-      of {asyncRecord}.
-    - If {nullPathItem} is not equivalent to {asyncRecordPathItem}:
-      - Continue to the next record in {subsequentPayloads}.
-    - Increment {index} by one.
-  - Remove {asyncRecord} from {subsequentPayloads}. Optionally, cancel any
-    incomplete work in the execution of {asyncRecord}.
+    - Return {true}.
+- Initialize {index} to zero.
+- While {index} is less then the length of {nullPath}:
+  - Initialize {nullPathItem} to the element at {index} in {nullPath}.
+  - Initialize {asyncRecordPathItem} to the element at {index} in the {path} of
+    {asyncRecord}.
+  - If {nullPathItem} is not equivalent to {asyncRecordPathItem}:
+    - Return {true}.
+  - Increment {index} by one. Return {false}.
 
 For example, assume the field `alwaysThrows` is a `Non-Null` type that always
 raises a field error:
@@ -609,7 +735,7 @@ A correct executor must generate the following result for that selection set:
 When subsections contain a `@stream` or `@defer` directive, these subsections
 are no longer required to execute serially. Execution of the deferred or
 streamed sections of the subsection may be executed in parallel, as defined in
-{ExecuteStreamField} and {ExecuteDeferredFragment}.
+{ExecuteStreamField} and {ExecuteDeferredField}.
 
 ### Field Collection
 
@@ -617,13 +743,44 @@ Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
 name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time. A deferred selection set's
-fields will not be included in the grouped field set. Rather, a record
-representing the deferred fragment and additional context will be stored in a
-list. The executor revisits and resumes execution for the list of deferred
-fragment records after the initial execution is initiated. This deferred
-execution would ‘re-execute’ fields with the same response key that were present
-in the grouped field set.
+referenced fragments) are executed at the same time. {CollectFields} also
+returns a list of references to any encountered deferred fragments within the
+selection set. A deferred selection set's fields will be included in the grouped
+field set, but execution may be delayed in the absence of overlapping
+non-deferred fields. The executor executes each field exactly once, guaranteeing
+consistent results.
+
+Information derived from the presence of a `@defer` directive on a fragment is
+returned as a Defer Usage record, unique to the label, a structure containing:
+
+- {label}: value of the corresponding argument to the `@defer` directive.
+- {priority}: a positive integer derived the `@defer` directive's location
+  within the operation, with lower numbers representing higher priorities.
+  Nested defers at different levels within the operation cause further increase
+  in the priority value, with nested `@defer` directive at the same level not
+  causing any change in priority.
+
+Information derived from the presence of a `@stream` directive on a field is
+returned as a Stream Usage record, a structure containing:
+
+- {label}: value of the corresponding argument to the `@stream` directive.
+- {initialCount}: value of the corresponding argument to the `@stream`
+  directive.
+
+Information about all fields sharing a response key are stored within Field
+Group records, structures containing:
+
+- {parentType}: the type of the parent object for this field.
+- {fieldName}: the name of this field.
+- {fields}: a map of lists of collected field nodes, indexed by the Defer Usage
+  record corresponding to the originating enclosing deferred fragment, or by
+  {undefined} if the field is not contained by a deferred fragment.
+- {streamUsage}: information derived from any `@stream` directive on this field.
+- {priority}: the overall priority for this field group, equivalent to the
+  lowest priority of any indexing Defer Usage records within the {fields}, or 0,
+  if any field nodes without Defer Usage records are present.
+- {parentFieldGroup}: the parent Field Group record, or undefined, if this is
+  the root field group.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -641,7 +798,7 @@ fragment ExampleFragment on Query {
     subfield2
   }
   b
-}
+}run
 ```
 
 The depth-first-search order of the field groups produced by {CollectFields()}
@@ -649,12 +806,10 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments,
-deferredGroupedFieldsList):
+priority, parentFieldGroup, deferUsage):
 
-- If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
-- If {deferredGroupedFieldsList} is not provided, initialize it to an empty
-  list.
+- Initialize {groupedFieldSet} to an empty ordered map of Field Group records.
+- Initialize {deferUsages} to an empty map of Defer Usage records.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -669,9 +824,29 @@ deferredGroupedFieldsList):
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {groupForResponseKey} be the entry in in {groupedFieldSet} for
+      {responseKey}.
+    - If {groupForResponseKey} is {undefined}:
+      - Let {fieldName} be the name of {selection}.
+      - Initialize {fields} to an empty map of lists of collected field nodes,
+        indexed by originating Defer Usage record, or by {undefined}.
+      - Let {listForDeferUsage} be a list containing {selection}.
+      - Set the entry for {deferUsage} in {fields} to {listForDeferUsage}.
+      - If {selection} provides the directive `@stream` and its {if} argument is
+        not {false} and is not a variable in {variableValues} with the value
+        {false}, let {streamDirective} be that directive.
+      - Let {groupForResponseKey} be a new Field Group record created from
+        {runtimeType}, {fieldName}, {fields}, {streamDirective}, {priority}, and
+        {parentFieldGroup}.
+    - Otherwise:
+      - Let {fields} be the corresponding entry on {groupForResponseKey}.
+      - Let {listForDeferUsage} be the list in {fields} for {deferUsage}; if no
+        such list exists, create it as an empty list.
+      - Append {selection} to {listForDeferUsage}.
+      - Let {fieldGroupPriority} be the value of the {priority} entry on
+        {fieldGroup}.
+      - If {priority} is less than {fieldGroupPriority}, update the {priority}
+        entry on {fieldGroup} to {priority}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} provides the directive `@defer` and its {if}
@@ -692,24 +867,58 @@ deferredGroupedFieldsList):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {maybeNewDefer} be equal to {deferDirective}.
+    - Let {maybeIncreasedPriority} be equal to {priority}.
     - If {deferDirective} is defined:
+      - If {parentFieldGroup} is {undefined}, set {maybeIncreasedPriority} to 1.
+      - Otherwise:
+        - Let {parentFieldGroupPriority} be the value of the {priority} entry on
+          {parentFieldGroup}.
+        - If {maybeIncreasedPriority} is equal to {parentFieldGroupPriority},
+          set {maybeIncreasedPriority} to {maybeIncreasedPriority} + 1.
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
-      - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues,
-        visitedFragments, deferredGroupedFieldsList)}.
-      - Append a record containing {label} and {deferredGroupedFields} to
-        {deferredGroupedFieldsList}.
-      - Continue with the next {selection} in {selectionSet}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments, deferredGroupedFieldsList)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+      - Let {existingDefer} be the record in {deferUsages} for {label}.
+      - If {existingDefer} is undefined:
+        - Set {maybeNewDefer} equal to a new Defer Usage record created from
+          {label} and {maybeIncreasedPriority}.
+        - Set the record in {deferUsages} for {label} to {maybeNewDefer}.
+      - Otherwise, set {maybeNewDefer} to {existingDefer}.
+    - Let {fragmentGroupedFieldSet} and {fragmentDeferUsages} be the result of
+      calling {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments, maybeIncreasedPriority, parentFieldGroup,
+      maybeNewDefer)}.
+    - For each {label} and {fragmentDeferUsage} in {fragmentDeferUsages}:
+      - Let {existingDeferUsage} be the record in {deferUsages} for {label}.
+      - If {existingDeferUsage} is {undefined}:
+        - Set the record in {deferUsages} for {label} to {fragmentDeferUsage}.
+    - For each {responseKey} and {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {groupForResponseKey} be the record in {groupedFieldSet} for
+        {responseKey}.
+      - If {groupForResponseKey} is {undefined}, set the record in
+        {groupedFieldSet} for {responseKey} to {fragmentGroup}.
+      - Otherwise:
+        - Let {fieldGroupPriority} be equal to the {priority} entry on
+          {groupForResponseKey}.
+        - Let {fragmentGroupPriority} be equal to the {priority} entry on
+          {fragmentGroup}.
+        - If {fragmentGroupPriority} is less than {fieldGroupPriority}, update
+          the {priority} entry on {fieldGroup} to {fragmentGroupPriority}.
+        - Let {fields} be the corresponding entry on {groupForResponseKey}.
+        - Let {fragmentFields} be equal to the {fields} entry on
+          {fragmentGroup}.
+        - For each {fragmentDeferUsage} and {fragmentListForDeferUsage} in
+          {fragmentFields}:
+          - Let {label} be the corresponding entry in {fragmentDeferUsage}.
+          - Let {uniqueDeferUsage} be the record in {deferUsages} for {label}.
+          - If {uniqueDeferUsage} is {undefined}, let {uniqueDeferUsage} be
+            equal to {fragmentDeferUsage}.
+          - Let {listForDeferUsage} be the record in {fields} for
+            {uniqueDeferUsage}.
+          - If {listForDeferUsage} is {undefined}, set the record in {fields}
+            for {uniqueDeferUsage} to {fragmentListForDeferUsage}.
+          - Otherwise, append all items in {fragmentListForDeferUsage} to
+            {listForDeferUsage}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -722,25 +931,60 @@ deferredGroupedFieldsList):
       - Let {deferDirective} be that directive.
       - If this execution is for a subscription operation, raise a _field
         error_.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {maybeNewDefer} be equal to {deferDirective}.
+    - Let {maybeIncreasedPriority} be equal to {priority}.
     - If {deferDirective} is defined:
+      - If {parentFieldGroup} is {undefined}, set {maybeIncreasedPriority} to 1.
+      - Otherwise:
+        - Let {parentFieldGroupPriority} be the value of the {priority} entry on
+          {parentFieldGroup}.
+        - If {maybeIncreasedPriority} is equal to {parentFieldGroupPriority},
+          set {maybeIncreasedPriority} to {maybeIncreasedPriority} + 1.
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
-      - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues,
-        visitedFragments, deferredGroupedFieldsList)}.
-      - Append a record containing {label} and {deferredGroupedFields} to
-        {deferredGroupedFieldsList}.
-      - Continue with the next {selection} in {selectionSet}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments, deferredGroupedFieldsList)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}, {deferredGroupedFieldsList} and {visitedFragments}.
+      - Let {existingDefer} be the record in {deferUsages} for {label}.
+      - If {existingDefer} is undefined:
+        - Set {maybeNewDefer} equal to a new Defer Usage record created from
+          {label} and {maybeIncreasedPriority}.
+        - Set the record in {deferUsages} for {label} to {maybeNewDefer}.
+      - Otherwise, set {maybeNewDefer} to {existingDefer}.
+    - Let {fragmentGroupedFieldSet} and {fragmentDeferUsages} be the result of
+      calling {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments, maybeIncreasedPriority, parentFieldGroup,
+      maybeNewDefer)}.
+    - For each {label} and {fragmentDeferUsage} in {fragmentDeferUsages}:
+      - Let {existingDeferUsage} be the record in {deferUsages} for {label}.
+      - If {existingDeferUsage} is {undefined}:
+        - Set the record in {deferUsages} for {label} to {fragmentDeferUsage}.
+    - For each {responseKey} and {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {groupForResponseKey} be the record in {groupedFieldSet} for
+        {responseKey}.
+      - If {groupForResponseKey} is {undefined}, set the record in
+        {groupedFieldSet} for {responseKey} to {fragmentGroup}.
+      - Otherwise:
+        - Let {fieldGroupPriority} be equal to the {priority} entry on
+          {groupForResponseKey}.
+        - Let {fragmentGroupPriority} be equal to the {priority} entry on
+          {fragmentGroup}.
+        - If {fragmentGroupPriority} is less than {fieldGroupPriority}, update
+          the {priority} entry on {fieldGroup} to {fragmentGroupPriority}.
+        - Let {fields} be the corresponding entry on {groupForResponseKey}.
+        - Let {fragmentFields} be equal to the {fields} entry on
+          {fragmentGroup}.
+        - For each {fragmentDeferUsage} and {fragmentListForDeferUsage} in
+          {fragmentFields}:
+          - Let {label} be the corresponding entry in {fragmentDeferUsage}.
+          - Let {uniqueDeferUsage} be the record in {deferUsages} for {label}.
+          - If {uniqueDeferUsage} is {undefined}, let {uniqueDeferUsage} be
+            equal to {fragmentDeferUsage}.
+          - Let {listForDeferUsage} be the record in {fields} for
+            {uniqueDeferUsage}.
+          - If {listForDeferUsage} is {undefined}, set the record in {fields}
+            for {uniqueDeferUsage} to {fragmentListForDeferUsage}.
+          - Otherwise, append all items in {fragmentListForDeferUsage} to
+            {listForDeferUsage}.
+- Return {groupedFieldSet} and {deferUsages}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
@@ -757,56 +1001,95 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - if {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
+### Root Field Collection
+
+Root field collection processes the operation's top-level selection set:
+
+CollectRootFields(rootType, operationSelectionSet, variableValues):
+
+- Initialize {visitedFragments} to the empty set.
+- Let {groupedFieldSet} and {deferUsages} be the result of calling
+  {CollectFields(rootType, operationSelectionSet, variableValues,
+  visitedFragments)}.
+- Return {groupedFieldSet} and {deferUsages}.
+
+### Object Subfield Collection
+
+Object subfield collection processes a field's sub-selection sets:
+
+CollectSubfields(objectType, fieldGroup, variableValues):
+
+- Initialize {visitedFragments} to the empty set.
+- Initialize {groupedSubfieldSet} to an empty ordered map of Field Group
+  records.
+- Initialize {deferUsages} to an empty map of strings to Defer Usage records.
+- Let {fields}, {priority}, and {parentFieldGroup} be the corresponding entries
+  on {fieldGroup}.
+- For each {deferUsage} and {listOfFieldNodes} within {fields}:
+  - For each {fieldNode} of {listOfFieldNodes}:
+    - Let {fieldSelectionSet} be the selection set of {fieldNode}.
+    - If {fieldSelectionSet} is null or empty, continue to the next field.
+    - Let {subfieldGroupedFieldSet} and {subfieldDeferUsages} be the result of
+      calling {CollectFields(objectType, fieldSelectionSet, variableValues,
+      visitedFragments, priority, parentFieldGroup, deferUsage)}.
+    - For each {label} and {subfieldDeferUsage} in {subfieldDeferUsages}:
+      - Let {existingDeferUsage} be the record in {deferUsages} for {label}.
+      - If {existingDeferUsage} is {undefined}:
+        - Set the record in {deferUsages} for {label} to {fieldDeferUsage}.
+    - For each {responseKey} and {subfieldGroup} in {subfieldGroupedFieldSet}:
+      - Let {groupForResponseKey} be the record in {groupedSubfieldSet} for
+        {responseKey}.
+      - If {groupForResponseKey} is {undefined}, set the record in
+        {groupedSubfieldSet} for {responseKey} to {subfieldGroup}.
+      - Otherwise:
+        - Let {fieldGroupPriority} be equal to the {priority} entry on
+          {groupForResponseKey}.
+        - Let {subfieldGroupPriority} be equal to the {priority} entry on
+          {subfieldGroup}.
+        - If {subfieldGroupPriority} is less than {fieldGroupPriority}, update
+          the {priority} entry on {groupForResponseKey} to
+          {subfieldGroupPriority}.
+        - Let {fields} be the corresponding entry on {groupForResponseKey}.
+        - Let {subfieldFields} be equal to the {fields} entry on
+          {subfieldGroup}.
+        - For each {subfieldDeferUsage} and {subfieldListForDeferUsage} in
+          {subfieldFields}:
+          - Let {label} be the corresponding entry in {subfieldDeferUsage}.
+          - Let {uniqueDeferUsage} be the record in {deferUsages} for {label}.
+          - If {uniqueDeferUsage} is {undefined}, let {uniqueDeferUsage} be
+            equal to {subfieldDeferUsage}.
+          - Let {listForDeferUsage} be the record in {fields} for
+            {uniqueDeferUsage}.
+          - If {listForDeferUsage} is {undefined}, set the record in {fields}
+            for {uniqueDeferUsage} to {subfieldListForDeferUsage}.
+          - Otherwise, append all items in {subfieldListForDeferUsage} to
+            {listForDeferUsage}.
+- Return {groupedSubfieldSet} and {deferUsages}.
+
 #### Async Payload Record
 
 An Async Payload Record is either a Deferred Fragment Record or a Stream Record.
 All Async Payload Records are structures containing:
 
+- {parentRecords}: The generating parent Async Payload Records, not defined if
+  this Async Payload Record is spawned by the initial result.
 - {label}: value derived from the corresponding `@defer` or `@stream` directive.
 - {path}: a list of field names and indices from root to the location of the
-  corresponding `@defer` or `@stream` directive.
-- {iterator}: The underlying iterator if created from a `@stream` directive.
+  corresponding `@defer` or `@stream` directive. from an iterator that has
+  completed.
+- {errors}: a list of field errors encountered during execution.
+- {payload}: An unordered map containing the formatted payload.
+
+Deferred Fragment Records also contain the following:
+
+- {pending}: a set of pending paths.
+- {results}: a list of completed paths and results.
+
+Stream Records also contain the following:
+
+- {iterator}: The underlying iterator.
 - {isCompletedIterator}: a boolean indicating the payload record was generated
   from an iterator that has completed.
-- {errors}: a list of field errors encountered during execution.
-- {dataExecution}: A result that can notify when the corresponding execution has
-  completed.
-
-#### Execute Deferred Fragment
-
-ExecuteDeferredFragment(label, objectType, objectValue, groupedFieldSet, path,
-variableValues, parentRecord, subsequentPayloads):
-
-- Let {deferRecord} be an async payload record created from {label} and {path}.
-- Initialize {errors} on {deferRecord} to an empty list.
-- Let {dataExecution} be the asynchronous future value of:
-  - Let {payload} be an unordered map.
-  - Initialize {resultMap} to an empty ordered map.
-  - For each {groupedFieldSet} as {responseKey} and {fields}:
-    - Let {fieldName} be the name of the first entry in {fields}. Note: This
-      value is unaffected if an alias is used.
-    - Let {fieldType} be the return type defined for the field {fieldName} of
-      {objectType}.
-    - If {fieldType} is defined:
-      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-        fields, variableValues, path, subsequentPayloads, asyncRecord)}.
-      - Set {responseValue} as the value for {responseKey} in {resultMap}.
-  - Append any encountered field errors to {errors}.
-  - If {parentRecord} is defined:
-    - Wait for the result of {dataExecution} on {parentRecord}.
-  - If {errors} is not empty:
-    - Add an entry to {payload} named `errors` with the value {errors}.
-  - If a field error was raised, causing a {null} to be propagated to
-    {responseValue}:
-    - Add an entry to {payload} named `data` with the value {null}.
-  - Otherwise:
-    - Add an entry to {payload} named `data` with the value {resultMap}.
-  - If {label} is defined:
-    - Add an entry to {payload} named `label` with the value {label}.
-  - Add an entry to {payload} named `path` with the value {path}.
-  - Return {payload}.
-- Set {dataExecution} on {deferredFragmentRecord}.
-- Append {deferRecord} to {subsequentPayloads}.
 
 ## Executing Fields
 
@@ -816,19 +1099,31 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path,
-subsequentPayloads, asyncRecord):
+ExecuteField(objectType, objectValue, fieldType, fieldGroup, variableValues,
+path, deferMap, publisherRecord, parentRecords):
 
-- Let {field} be the first entry in {fields}.
-- Let {fieldName} be the field name of {field}.
-- Append {fieldName} to {path}.
+- Let {fieldName} and {fields} be the corresponding entries on {fieldGroup}.
+- Let {field} be the first entry of the first list in {fields}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Let {result} be the result of calling {CompleteValue(fieldType, fields,
-  resolvedValue, variableValues, path, subsequentPayloads, asyncRecord)}.
+  resolvedValue, variableValues, path, deferMap, publisherRecord,
+  parentRecords)}.
 - Return {result}.
+
+## Executing Deferred Fields
+
+Deferred field are delivered after non-deferred fields. Execution is deferred in
+an implementation-defined manner.
+
+ExecuteDeferredField(objectType, objectValue, fieldType, fieldGroup,
+variableValues, path, deferMap, publisherRecord, parentRecords):
+
+- Defer further execution in an implementation-defined manner.
+- Call {ExecuteField(objectType, objectValue, fieldType, fieldGroup,
+  variableValues, path, deferMap, publisherRecord, parentRecords)}.
 
 ### Coercing Field Arguments
 
@@ -928,70 +1223,97 @@ completion process. In the case where `@stream` is specified on a field of list
 type, value completion iterates over the collection until the number of items
 yielded items satisfies `initialCount` specified on the `@stream` directive.
 
+#### Add Pending Deferred Field
+
+AddPendingDeferredField(fieldGroup, path, deferMap):
+
+- Let {fields} be the corresponding entry on {fieldGroup}.
+- For each {deferUsage} in {fields}:
+  - If {deferUsage} is defined:
+    - Let {deferRecord} be the record in {deferMap} for {deferUsage}.
+    - Let {pending} be the corresponding entry on {deferRecord}.
+    - Add {path} to {pending}.
+
+#### Report Deferred Value
+
+ReportDeferredValue(value, fieldGroup, path, deferMap, publisherRecords,
+parentRecords):
+
+- If {value} is {null}:
+  - Call {FilterSubsequentPayloads(publisherRecords, path, parentRecords)}.
+- Let {fields} be the corresponding entry on {fieldGroup}.
+- For each {deferUsage} in {fields}:
+  - If {deferUsage} is defined:
+    - Let {deferRecord} be the record in {deferMap} for {deferUsage}.
+    - Let {payload}, {pending} and {results} be the corresponding entries on
+      {deferRecord}.
+    - Remove {path} from {pending}.
+    - Append a record containing {path} and {value} to {results}.
+    - If {pending} is empty, build {payload} from {results}.
+    - Call {CompletePayload(deferRecord, publisherRecord)}.
+
 #### Execute Stream Field
 
-ExecuteStreamField(label, iterator, index, fields, innerType, path,
-parentRecord, variableValues, subsequentPayloads):
+ExecuteStreamField(label, iterator, index, fieldGroup, innerType, path,
+variableValues, publisherRecord, parentRecords):
 
-- Let {streamRecord} be an async payload record created from {label}, {path},
-  and {iterator}.
+- Let {streamRecord} be an async payload record created from {parentRecords},
+  {label}, {path}, and {iterator}.
+- Call {AddPayload(streamRecord, publisherRecord)}.
 - Initialize {errors} on {streamRecord} to an empty list.
 - Let {itemPath} be {path} with {index} appended.
-- Let {dataExecution} be the asynchronous future value of:
-  - Wait for the next item from {iterator}.
-  - If an item is not retrieved because {iterator} has completed:
-    - Set {isCompletedIterator} to {true} on {streamRecord}.
-    - Return {null}.
-  - Let {payload} be an unordered map.
-  - If an item is not retrieved because of an error:
-    - Append the encountered error to {errors}.
+- Wait for the next item from {iterator}.
+- If an item is not retrieved because {iterator} has completed:
+  - Set {isCompletedIterator} to {true} on {streamRecord}.
+  - Return {null}.
+- Let {payload} be an unordered map.
+- If an item is not retrieved because of an error:
+  - Append the encountered error to {errors}.
+  - Add an entry to {payload} named `items` with the value {null}.
+- Otherwise:
+  - Let {item} be the item retrieved from {iterator}.
+  - Let {data} be the result of calling {CompleteValue(innerType, fieldGroup,
+    item, variableValues, itemPath, deferMap, publisherRecord, parentRecords)}.
+  - Append any encountered field errors to {errors}.
+  - Increment {index}.
+  - Let {newParentRecords} be a list containing {streamRecord}.
+  - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
+    variableValues, deferMap, publisherRecord, newParentRecords)}.
+  - If a field error was raised, causing a {null} to be propagated to {data},
+    and {innerType} is a Non-Nullable type:
     - Add an entry to {payload} named `items` with the value {null}.
   - Otherwise:
-    - Let {item} be the item retrieved from {iterator}.
-    - Let {data} be the result of calling {CompleteValue(innerType, fields,
-      item, variableValues, itemPath, subsequentPayloads, parentRecord)}.
-    - Append any encountered field errors to {errors}.
-    - Increment {index}.
-    - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
-      streamRecord, variableValues, subsequentPayloads)}.
-    - If a field error was raised, causing a {null} to be propagated to {data},
-      and {innerType} is a Non-Nullable type:
-      - Add an entry to {payload} named `items` with the value {null}.
-    - Otherwise:
-      - Add an entry to {payload} named `items` with a list containing the value
-        {data}.
-  - If {errors} is not empty:
-    - Add an entry to {payload} named `errors` with the value {errors}.
-  - If {label} is defined:
-    - Add an entry to {payload} named `label` with the value {label}.
-  - Add an entry to {payload} named `path` with the value {itemPath}.
-  - If {parentRecord} is defined:
-    - Wait for the result of {dataExecution} on {parentRecord}.
-  - Return {payload}.
-- Set {dataExecution} on {streamRecord}.
-- Append {streamRecord} to {subsequentPayloads}.
+    - Add an entry to {payload} named `items` with a list containing the value
+      {data}.
+- If {errors} is not empty:
+  - Add an entry to {payload} named `errors` with the value {errors}.
+- If {label} is defined:
+  - Add an entry to {payload} named `label` with the value {label}.
+- Add an entry to {payload} named `path` with the value {itemPath}.
+- Set {payload} on {streamRecord}.
+- Call {CompletePayload(streamRecord, publisherRecord)}.
 
-CompleteValue(fieldType, fields, result, variableValues, path,
-subsequentPayloads, asyncRecord):
+CompleteValue(fieldType, fieldGroup, result, variableValues, path, deferMap,
+publisherRecord, parentRecords):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues, path)}.
+    fieldGroup, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
-  {undefined}), return {null}.
+  {undefined}):
+  - Call {ReportDeferredValue(null, fieldGroup, path, deferMap, publisherRecord,
+    parentRecords)}.
+  - Return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {field} be the first entry in {fields}.
   - Let {innerType} be the inner type of {fieldType}.
-  - If {field} provides the directive `@stream` and its {if} argument is not
-    {false} and is not a variable in {variableValues} with the value {false} and
-    {innerType} is the outermost return type of the list type defined for
-    {field}:
-    - Let {streamDirective} be that directive.
-    - If this execution is for a subscription operation, raise a _field error_.
+  - Let {streamUsage} be the corresponding entry on {fieldGroup}.
+  - If {streamUsage} is defined and {innerType} is the outermost return type of
+    the list type defined for {field}:
     - Let {initialCount} be the value or variable provided to
       {streamDirective}'s {initialCount} argument.
     - If {initialCount} is less than zero, raise a _field error_.
@@ -1003,31 +1325,70 @@ subsequentPayloads, asyncRecord):
   - While {result} is not closed:
     - If {streamDirective} is defined and {index} is greater than or equal to
       {initialCount}:
-      - Call {ExecuteStreamField(label, iterator, index, fields, innerType,
-        path, asyncRecord, subsequentPayloads)}.
+      - Let {parentType}, {fieldName}, and {fields} be the corresponding entries
+        on {fieldGroup}.
+      - Let {streamedFields} be a new empty map of Defer Usage records or
+        {undefined} to Async Payload records.
+      - For each {deferUsage} and {listForDeferUsage} of {fields}:
+        - Let {list} be the entry for {undefined} on {streamedFields}.
+        - If {list} is not defined:
+          - Set the list for {undefined} in {streamedFields} to
+            {listForDeferUsage}.
+        - Otherwise,
+          - Append all items in {listForDeferUsage} to {list}.
+      - Let {priority} be zero.
+      - Let {streamedFieldGroup} be a new Field Group record created from
+        {parentType}, {fieldName}, {streamedFields}, and {priority}.
+      - Call {ExecuteStreamField(label, iterator, index, streamedFieldGroup,
+        innerType, path, publisherRecord, parentRecords)}.
       - Return {items}.
     - Otherwise:
       - Wait for the next item from {result} via the {iterator}.
       - If an item is not retrieved because of an error, raise a _field error_.
       - Let {resultItem} be the item retrieved from {result}.
       - Let {itemPath} be {path} with {index} appended.
+      - Call {AddPendingDeferredField(fieldGroup, itemPath, deferMap)}.
       - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
-        fields, resultItem, variableValues, itemPath, subsequentPayloads,
-        asyncRecord)}.
+        fields, resultItem, variableValues, itemPath, deferMap, publisherRecord,
+        parentRecords)}.
       - Append {resolvedItem} to {items}.
       - Increment {index}.
+  - Let {emptyList} be an empty list.
+  - Call {ReportDeferredValue(emptyList, fieldGroup, path, deferMap,
+    parentRecords)}.
   - Return {items}.
 - If {fieldType} is a Scalar or Enum type:
+  - Call {ReportDeferredValue(result, fieldGroup, path, deferMap,
+    publisherRecord, parentRecords)}.
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues, path, subsequentPayloads, asyncRecord)}
+  - Initialize {newParentRecords} to an empty list of Async Payload records.
+  - Let {fields} be the corresponding entry on {fieldGroup}.
+  - For each {deferUsage} in {fields}:
+    - If {deferUsage} is defined, append {deferUsage} to {newParentRecords}.
+    - Otherwise:
+      - Set {newParentRecords} to {undefined}.
+      - Stop iterating through {fields}.
+  - Initialize {newDeferMap} to an map of Defer Usage records to Async Payload
+    records, with all of the entries in {deferMap}.
+  - For each {deferUsage} in {deferUsages}:
+    - Let {deferRecord} be a new Async Payload record created from {deferUsage},
+      {path}, and {newParentRecords}.
+    - Set the record in {newDeferMap} for {deferUsage} equal to {deferRecord}.
+  - Let {groupedSubfieldSet} and {deferUsages} be the result of calling
+    {CollectSubfields(objectType, fields, variableValues)}.
+  - Let {completed} be the result of evaluating
+    {ExecuteGroupedFieldSet(groupedSubfieldSet, objectType, result,
+    variableValues, path, newDeferMap, publisherRecord, newParentRecords)}
     _normally_ (allowing for parallelization).
+  - Let {emptyMap} be an empty ordered map.
+  - Call {ReportDeferredValue(emptyMap, fieldGroup, path, deferMap,
+    publisherRecord, parentRecords)}.
+  - Return {completed}.
 
 **Coercing Results**
 
@@ -1090,17 +1451,9 @@ sub-selections.
 }
 ```
 
-After resolving the value for `me`, the selection sets are merged together so
-`firstName` and `lastName` can be resolved for one value.
-
-MergeSelectionSets(fields):
-
-- Let {selectionSet} be an empty list.
-- For each {field} in {fields}:
-  - Let {fieldSelectionSet} be the selection set of {field}.
-  - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Append all selections in {fieldSelectionSet} to {selectionSet}.
-- Return {selectionSet}.
+After resolving the value for `me`, the selection sets are merged together by
+calling {CollectSubfields()} so `firstName` and `lastName` can be resolved for
+one value.
 
 ### Handling Field Errors
 
@@ -1135,7 +1488,7 @@ resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
 
-When a field error is raised inside `ExecuteDeferredFragment` or
+When a field error is raised inside `ExecuteDeferredField` or
 `ExecuteStreamField`, the defer and stream payloads act as error boundaries.
 That is, the null resulting from a `Non-Null` type cannot propagate outside of
 the boundary of the defer or stream payload.
