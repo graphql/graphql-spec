@@ -930,7 +930,7 @@ yielded items satisfies `initialCount` specified on the `@stream` directive.
 #### Execute Stream Field
 
 ExecuteStreamField(label, iterator, index, fields, innerType, path,
-streamRecord, variableValues, subsequentPayloads):
+parentRecord, variableValues, subsequentPayloads):
 
 - Let {streamRecord} be an async payload record created from {label}, {path},
   and {iterator}.
