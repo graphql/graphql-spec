@@ -328,7 +328,7 @@ Response 2, contains the defer payload and the first stream payload.
 
 Response 3, contains the final stream payload. In this example, the underlying
 iterator does not close synchronously so {hasNext} is set to {true}. If this
-iterator did close synchronously, {hasNext} would be set to {true} and this
+iterator did close synchronously, {hasNext} would be set to {false} and this
 would be the final response.
 
 ```json example
