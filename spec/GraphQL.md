@@ -26,7 +26,7 @@ specification can be found at permalinks that match their
 working draft release can be found at
 [https://spec.graphql.org/draft](https://spec.graphql.org/draft).
 
-**Copyright notice**
+**Copyright Notice**
 
 Copyright © 2015-2018, Facebook, Inc.
 
