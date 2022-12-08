@@ -446,7 +446,7 @@ SameResponseShape(fieldA, fieldB):
 - If {typeA} or {typeB} is Scalar or Enum:
   - If {typeA} and {typeB} are the same type return true, otherwise return
     false.
-- Assert: {typeA} and {typeB} are both composite types.
+- Assert: {typeA} and {typeB} are both Object, Interface or Union.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
@@ -555,8 +555,8 @@ fragment safeDifferingArgs on Pet {
 }
 ```
 
-However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
+However, the field responses must be shapes which can be merged, and _leaf
+field_ types must not differ. In this example, `someValue` might be a `String`
 or an `Int`:
 
 ```graphql counter-example
@@ -583,8 +583,8 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-A field subselection is not allowed on leaf fields. A leaf field is any field
-with a scalar or enum unwrapped type.
+A field subselection is not allowed on a _leaf field_, a field with a Scalar or
+Enum unwrapped type.
 
 The following is valid.
 
@@ -1145,8 +1145,9 @@ fragment catInDogFragmentInvalid on Dog {
 
 ##### Abstract Spreads in Object Scope
 
-In scope of an object type, unions or interface spreads can be used if the
-object type implements the interface or is a member of the union.
+In scope of an object type, a fragment spread of an _abstract type_ (interface
+or union) can be used if the object type is one of the possible types of that
+abstract type (it implements the interface or is a member of the union).
 
 For example
 
@@ -1183,9 +1184,9 @@ invalid because we only consider the fragment declaration, not its body.
 
 ##### Object Spreads In Abstract Scope
 
-Union or interface spreads can be used within the context of an object type
-fragment, but only if the object type is one of the possible types of that
-interface or union.
+In the scope of an _abstract type_ (interface or union), a fragment spread of an
+object type can be used if the object type is one of the possible types of that
+abstract type (it implements the interface or is a member of the union).
 
 For example, the following fragments are valid:
 
@@ -1230,9 +1231,10 @@ can also never return meaningful results, making it invalid.
 
 ##### Abstract Spreads in Abstract Scope
 
-Union or interfaces fragments can be used within each other. As long as there
-exists at least _one_ object type that exists in the intersection of the
-possible types of the scope and the spread, the spread is considered valid.
+In the scope of an _abstract type_ (interface or union), a fragment spread of
+another _abstract type_ can be used as long as there exists at least _one_
+object type that exists in the intersection of the possible types of the scope
+and the spread.
 
 So for example
 
