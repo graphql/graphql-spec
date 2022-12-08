@@ -856,7 +856,7 @@ Produces the ordered result:
 **Result Coercion**
 
 Determining the result of coercing an object is the heart of the GraphQL
-executor, so this is covered in that section of the spec.
+executor, see [Value Completion](#sec-Value-Completion).
 
 **Input Coercion**
 
