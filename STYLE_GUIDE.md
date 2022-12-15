@@ -36,7 +36,7 @@ the spec numbering system. In the output are styled similarly to an H4. An
 unnumbered heading is a line on its own that is bolded:
 
 ```md
-\*\*This Is an Example Of an Unnumbered Heading
+\*\*This Is an Example Of an Unnumbered Heading\*\*
 ```
 
 ### Title Case
