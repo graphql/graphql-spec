@@ -513,17 +513,23 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
+    - Let {arguments} be the set of arguments on {selection}.
+    - Let {fragmentSpreadKey} be a unique key of {fragmentSpreadName} and
+      {arguments}.
+    - If {fragmentSpreadKey} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadKey} to {visitedFragments}.
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentWithArgumentSubstitutions} be the result of calling
+      {SubstituteFragmentArguments(fragment, arguments)}.
+    - Let {fragmentSelectionSet} be the top-level selection set of
+      {fragmentWithArgumentSubstitutions}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
@@ -562,8 +568,35 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - if {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
+SubstituteFragmentArguments(fragment, arguments):
+
+- Let {variablesToSubstitute} be initialized to an empty map.
+- For each {variableDefinition} in {fragment}:
+  - Let {variableName} be the name of {variableDefinition}.
+  - If {variableName} is a key in {arguments}:
+    - Let {argumentValue} be the value of {variableName} in {arguments}.
+    - Add {argumentValue} to {variablesToSubstitute} at key {variableName}.
+  - Otherwise if {variableDefinition} has a default value {defaultValue}:
+    - Add {defaultValue} to {variablesToSubstitute} at key {variableName}.
+  - Otherwise:
+    - Set the key {variableName} in {variableToSubstitute} to a value indicating
+      the variable is unset.
+- Let {substitutedFragment} be a copy of {fragment} where:
+  - For each {variable} in the selection set of {fragment}:
+    - Let {variableUsageName} be the name of {variable}.
+    - If {variableUsageName} is in {variablesToSubstitute}:
+      - Replace {variable} with the value of {variableUsageName} in
+        {variablesToSubstitute}.
+- Return {substitutedFragment}.
+
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+Note: The unset value used to replace unset fragment-defined arguments in
+{SubstituteFragmentArguments()} must not be a variable defined by any operation
+that includes the fragment. An example would be to use a variable with a
+reserved prefix, like `$__UNSET`, to replace all unset fragment-defined
+variables.
 
 ## Executing Fields
 
@@ -577,8 +610,8 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
+- Let {argumentValues} be the result of {CoerceFieldArgumentValues(objectType,
+  field, variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
@@ -593,13 +626,17 @@ the type system to have a specific input type.
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
-CoerceArgumentValues(objectType, field, variableValues):
+CoerceFieldArgumentValues(objectType, field, variableValues):
 
-- Let {coercedValues} be an empty unordered Map.
 - Let {argumentValues} be the argument values provided in {field}.
 - Let {fieldName} be the name of {field}.
 - Let {argumentDefinitions} be the arguments defined by {objectType} for the
   field named {fieldName}.
+- Return {CoerceArgumentValues(argumentDefinitions, argumentValues,
+  variableValues)}
+
+CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues):
+
 - For each {argumentDefinition} in {argumentDefinitions}:
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.

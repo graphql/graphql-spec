@@ -516,10 +516,10 @@ which returns the result:
 
 ## Fragments
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : ... FragmentName Arguments? Directives?
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : fragment FragmentName VariablesDefinition? TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -1209,12 +1209,69 @@ size `60`:
 
 **Variable Use Within Fragments**
 
-Variables can be used within fragments. Variables have global scope with a given
-operation, so a variable used within a fragment must be declared in any
-top-level operation that transitively consumes that fragment. If a variable is
-referenced in a fragment and is included by an operation that does not define
-that variable, that operation is invalid (see
+Variables can be used within fragments. Operation-defined variables have global
+scope with a given operation, so a variable used within a fragment must either
+be declared in any top-level operation that transitively consumes that fragment,
+or by that same fragment as a fragment variable definition. If a variable is
+referenced in a fragment is included by an operation where neither the fragment
+nor the operation defines that variable, that operation is invalid (see
 [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
+
+## Fragment Variable Definitions
+
+Fragments may define locally scoped variables. This allows fragments to be
+reused while enabling the caller to specify the fragment's behavior.
+
+For example, the profile picture may need to be a different size depending on
+the parent context:
+
+```graphql example
+query withFragmentArguments {
+  user(id: 4) {
+    ...dynamicProfilePic(size: 100)
+    friends(first: 10) {
+      id
+      name
+      ...dynamicProfilePic
+    }
+  }
+}
+
+fragment dynamicProfilePic($size: Int! = 50) on User {
+  profilePic(size: $size)
+}
+```
+
+In this case the `user` will have a larger `profilePic` than those found in the
+list of `friends`.
+
+A fragment-defined variable is scoped to the fragment that defines it.
+Fragment-defined variables are allowed to shadow operation-defined variables.
+
+```graphql example
+query withShadowedVariables($size: Int) {
+  user(id: 4) {
+    ...variableProfilePic
+  }
+  secondUser: user(id: 5) {
+    ...dynamicProfilePic(size: 10)
+  }
+}
+
+fragment variableProfilePic on User {
+  ...dynamicProfilePic(size: $size)
+}
+
+fragment dynamicProfilePic($size: Int!) on User {
+  profilePic(size: $size)
+}
+```
+
+The profilePic for `user` will be determined by the variables set by the
+operation, while `secondUser` will always have a profilePic of size 10. In this
+case, the fragment `variableProfilePic` uses the operation-defined variable,
+while `dynamicProfilePic` uses the value passed in via the fragment spread's
+argument `size`.
 
 ## Type References
 
