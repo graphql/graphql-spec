@@ -1876,6 +1876,7 @@ ExecutableDirectiveLocation : one of
 - `FRAGMENT_SPREAD`
 - `INLINE_FRAGMENT`
 - `VARIABLE_DEFINITION`
+- `FRAGMENT_ARGUMENT_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
 

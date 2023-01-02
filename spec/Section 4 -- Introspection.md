@@ -206,6 +206,7 @@ enum __DirectiveLocation {
   FRAGMENT_SPREAD
   INLINE_FRAGMENT
   VARIABLE_DEFINITION
+  FRAGMENT_ARGUMENT_DEFINITION
   SCHEMA
   SCALAR
   OBJECT
@@ -475,6 +476,7 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 - {"FRAGMENT_SPREAD"}
 - {"INLINE_FRAGMENT"}
 - {"VARIABLE_DEFINITION"}
+- {"FRAGMENT_ARGUMENT_DEFINITION"}
 - {"SCHEMA"}
 - {"SCALAR"}
 - {"OBJECT"}

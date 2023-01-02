@@ -168,14 +168,19 @@ Arguments[Const] : ( Argument[?Const]+ )
 
 Argument[Const] : Name : Value[?Const]
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : ... FragmentName Arguments? Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : fragment FragmentName FragmentArgumentsDefinition?
+TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
+
+FragmentArgumentsDefinition : ( FragmentArgumentDefinition+ )
+
+FragmentArgumentDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 TypeCondition : on NamedType
 
@@ -396,6 +401,7 @@ ExecutableDirectiveLocation : one of
 - `FRAGMENT_SPREAD`
 - `INLINE_FRAGMENT`
 - `VARIABLE_DEFINITION`
+- `FRAGMENT_ARGUMENT_DEFINITION`
 
 TypeSystemDirectiveLocation : one of
 
