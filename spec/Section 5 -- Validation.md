@@ -418,8 +418,14 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
+- Let {visitedSelections} be the selections in {set} including visiting
+  fragments and inline fragments an applying any supplied fragment arguments.
+- Let {spreadsForName} be the set of fragment spreads with a given name in
+  {visitedSelections}.
+- Given each pair of members {spreadA} and {spreadB} in {spreadsForName}:
+  - {spreadA} and {spreadB} must have identical sets of arguments.
 - Let {fieldsForName} be the set of selections with a given response name in
-  {set} including visiting fragments and inline fragments.
+  {visitedSelections}.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
@@ -605,14 +611,14 @@ fragment conflictingFragmentArguments on Dog {
 }
 ```
 
-the response will have two conflicting versions of the `doesKnowCommand` that
-cannot merge.
+the response will have two conflicting versions of the `doesKnowCommand`
+fragment that cannot merge.
 
-One strategy to resolving field conflicts caused by duplicated fragment spreads
-is to short-circuit when two fragment spreads with the same name are found to be
-merging with different argument values. In this case, validation could short
-circuit when `commandFragment(command: SIT)` is merged with
-`commandFragment(command: DOWN)`.
+If two fragment spreads with the same name supply different argument values,
+their fields will not be able to merge. In this case, validation fails because
+the fragment spread `...commandFragment(command: SIT)` and
+`...commandFragment(command: DOWN)` are part of the visited selections that will
+be merged.
 
 ### Leaf Field Selections
 
@@ -729,7 +735,7 @@ fragment usesFragmentArg on Dog {
 }
 ```
 
-the following is invalid since `command:` is not defined on
+The following is invalid since `command` is not defined on
 `Dog.doesKnowCommand`.
 
 ```graphql counter-example
@@ -738,7 +744,7 @@ fragment invalidArgName on Dog {
 }
 ```
 
-and this is also invalid as `$dogCommand` is not defined on fragment
+and this is also invalid as the argument `dogCommand` is not defined on fragment
 `withFragmentArg`.
 
 ```graphql counter-example
@@ -1892,7 +1898,7 @@ fragment isHouseTrainedWithoutVariableFragment on Dog {
 ```
 
 Fragment arguments can shadow operation variables: fragments that use an
-argument are not using the operation defined variable of the same name.
+argument are not using the operation-defined variable of the same name.
 
 Likewise, it would be invalid if the variable was shadowed by a fragment
 argument:
@@ -1911,7 +1917,7 @@ fragment shadowedVariableFragment($atOtherHomes: Boolean) on Dog {
 
 because
 {$atOtherHomes} is only referenced in a fragment that defines it as a
-locally scoped argument, the operation defined {$atOtherHomes}
+locally scoped argument, the operation-defined {$atOtherHomes}
 variable is never used.
 
 All operations in a document must use all of their variables.
@@ -1951,11 +1957,10 @@ variable.
 **Explanatory Text**
 
 All arguments defined by a fragment must be used in that same fragment. Because
-fragment arguments are scoped to the fragment they're defined on, if the
-fragment does not contain a variable with the same name as the argument, then
-the argument is superfluous.
+fragment arguments are scoped to the fragment they are defined on, if the
+fragment does not use the argument, then the argument is superfluous.
 
-For example the following is invalid:
+For example, the following is invalid:
 
 ```graphql counter-example
 query queryWithFragmentArgUnused($atOtherHomes: Boolean) {

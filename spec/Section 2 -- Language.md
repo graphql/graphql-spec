@@ -1225,7 +1225,7 @@ FragmentArgumentDefinition : Description? Variable : Type DefaultValue?
 Directives[Const]?
 
 Fragments may define locally scoped arguments, which can be used in locations
-that accept variables. This allows fragments to be re-used while enabling the
+that accept variables. This allows fragments to be reused while enabling the
 caller to specify the fragment's behavior.
 
 For example, the profile picture may need to be a different size depending on
@@ -1248,7 +1248,7 @@ fragment dynamicProfilePic($size: Int! = 50) on User {
 }
 ```
 
-In this case, the `user` will have a larger `profilePic` than those found in the
+In this case the `user` will have a larger `profilePic` than those found in the
 list of `friends`.
 
 A fragment argument is scoped to the fragment that defines it. Fragment
@@ -1277,7 +1277,7 @@ The profilePic for `user` will be determined by the variables set by the
 operation, while `secondUser` will always have a profilePic of size 10. In this
 case, the fragment `variableProfilePic` uses the operation defined variable,
 while `dynamicProfilePic` uses the value passed in via the fragment spread's
-argument `size:`.
+argument `size`.
 
 ## Type References
 
