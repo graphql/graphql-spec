@@ -286,6 +286,28 @@ fragment Bar($x: Int!) on User {
 }
 ```
 
+### Potential Alternative: Default Value indicates _required or not_, and `!` indicates _non-null or nullable_.
+
+If we were writing the language from scratch, I'd advocate for making _all_
+argument definitions without a default value to be required, regardless of their
+nullability. If you want to make a nullable argument optional, you do so by
+adding a `= null` to its definition.
+
+In short, if I define:
+
+```
+fragment Bar($x: Int) { number(x: $x) }
+```
+
+then `...Bar` would be **invalid**.
+
+However, that's not how operation variables, field arguments, directive
+arguments or input object fields work today, no matter how much I might wish it.
+For this RFC, I'm making the meaning of "required" and "nullable" for fragment
+spread arguments the same as all other inputs, because doing something
+_different_ would be more confusing IMO, even if that difference would lead to
+unvalidated fewer foot guns.
+
 ## Updated Validation: Overlapping Fields Can Be Merged
 
 Previously, fragment spreads didn't have to be considered as unique selections
