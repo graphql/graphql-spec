@@ -3,8 +3,9 @@
 # GraphQL Specification Style Guide
 
 This document outlines the styles used in the GraphQL spec to aid editorial and
-consistency. When making changes to the GraphQL specification, please aim to be
-consistent with this style guide.
+consistency. The writing style portions are inspired by the AP style guide. When
+making changes to the GraphQL specification, please aim to be consistent with
+this style guide.
 
 ## Auto-formatting
 
