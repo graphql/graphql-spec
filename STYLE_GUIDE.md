@@ -42,8 +42,8 @@ unnumbered heading is a line on its own that is bolded:
 
 ### Title Case
 
-In GraphQL's Title Case every word in the heading (including words after
-hyphens) is capitalized, with the following exceptions:
+Title case is used for headings. Every word in a heading (including words after
+hyphens) should be capitalized, with the following exceptions:
 
 - articles: a, an, the
 - conjunctions under 4 letters in length: for, and, nor, but, or, yet, so, as,
