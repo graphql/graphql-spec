@@ -1209,7 +1209,7 @@ size `60`:
 
 **Variable Use Within Fragments**
 
-Variables can be used within fragments. Operation defined variables have global
+Variables can be used within fragments. Operation-defined variables have global
 scope with a given operation, so a variable used within a fragment must either
 be declared in any top-level operation that transitively consumes that fragment,
 or by that same fragment as a fragment argument. If a variable is referenced in
@@ -1275,7 +1275,7 @@ fragment dynamicProfilePic($size: Int!) on User {
 
 The profilePic for `user` will be determined by the variables set by the
 operation, while `secondUser` will always have a profilePic of size 10. In this
-case, the fragment `variableProfilePic` uses the operation defined variable,
+case, the fragment `variableProfilePic` uses the operation-defined variable,
 while `dynamicProfilePic` uses the value passed in via the fragment spread's
 argument `size`.
 
