@@ -316,9 +316,10 @@ Fields\:
 **Interface**
 
 Interfaces are an abstract type where there are common fields declared. Any type
-that implements an interface must define all the fields with names and types
-either exactly matching or of covariant types. The implementations of this interface 
-are explicitly listed out in `possibleTypes`.
+that implements an interface must define all the named fields where each
+implementing field type is equal to or a sub-type of (covariant) the interface
+type. The implementations of this interface are explicitly listed out in
+`possibleTypes`.
 
 Fields\:
 
