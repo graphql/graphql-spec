@@ -1488,13 +1488,13 @@ query @skip(if: $foo) {
 
 **Explanatory Text**
 
-GraphQL allows directives that are defined as `repeatable` to be used 
-more than once on the definition they apply to, possibly with different arguments. 
-In contrast, if a directive is not `repeatable`, then only one occurence of it 
-is allowed per location.
+GraphQL allows directives that are defined as `repeatable` to be used more than
+once on the definition they apply to, possibly with different arguments. In
+contrast, if a directive is not `repeatable`, then only one occurrence of it is
+allowed per location.
 
-For example, the following document will not pass validation because non-repeatable
-`@skip` has been used twice for the same field:
+For example, the following document will not pass validation because
+non-repeatable `@skip` has been used twice for the same field:
 
 ```raw graphql counter-example
 query ($foo: Boolean = true, $bar: Boolean = false) {
