@@ -13,18 +13,18 @@
     "url": "http://github.com/graphql/graphql-spec.git"
   },
   "scripts": {
-    "test": "npm run test:build && npm run test:spellcheck",
-    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
-    "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
+    "test": "npm run test:spelling && npm run test:format && npm run test:build",
+    "test:spelling": "cspell \"spec/**/*.md\" README.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
-    "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
+    "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\"",
     "build": "./build.sh",
+    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
     "watch": "nodemon -e json,md --exec \"npm run build\""
   },
   "devDependencies": {
     "cspell": "5.9.1",
     "nodemon": "2.0.12",
-    "prettier": "^2.3.0",
+    "prettier": "2.8.1",
     "spec-md": "3.0.2"
   },
   "prettier": {
