@@ -52,5 +52,6 @@ hyphens) should be capitalized, with the following exceptions:
 - directive names and type names are unchanged: @include, @specifiedBy,
   \_\_EnumValue, \_\_Schema
 
-Capitalized words follow the same rules, e.g. `Non-Null`, `Context-Free`,
-`Built-in` (`in` is a preposition).
+All elements in hyphenated words follow the same rules, e.g. headings may
+contain `Non-Null`, `Context-Free`, `Built-in` (`in` is a preposition, so is not
+capitalized).
