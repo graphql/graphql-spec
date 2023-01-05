@@ -3907,7 +3907,7 @@ While each subscription must have exactly one root field, a document may contain
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L558-L560">However, the field responses must be shapes which can be merged. For example, scalar values must not differ. In this example, <code>someValue</code> might be a <code>String</code> or an <code>Int</code>:</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L558-L560">However, the field responses must be shapes which can be merged. For example, leaf types must not differ. In this example, <code>someValue</code> might be a <code>String</code> or an <code>Int</code>:</p>
 <pre id="example-54e3d" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L562-L571"><a href="#example-54e3d">Counter Example № 124</a><code><span class="token keyword">fragment</span> <span class="token fragment function">conflictingDifferingResponses</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
     <span class="token attr-name">someValue</span><span class="token punctuation">:</span> <span class="token property">nickname</span>
