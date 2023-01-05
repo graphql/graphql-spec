@@ -289,19 +289,24 @@ fragment Bar($x: Int!) on User {
 ## Updated Validation: Overlapping Fields Can Be Merged
 
 Previously, fragment spreads didn't have to be considered as unique selections
-in the overlapping field merging algorithm. However, the algorithm still
-de-duplicated common fragment spreads.
+in the overlapping field merging algorithm. However, in practice the algorithm,
+but not the spec, still de-duplicated common fragment spreads.
 
-With this change, we can either just treat deduplicated fragment spreads as
-being keyed by (name, arguments) rather than just by name, and then apply the
-arguments when traversing the child selection set.
+With this change, we can just treat deduplicated fragment spreads as being keyed
+by (name, arguments) rather than just by name. When visiting child selections,
+we need to apply any fragment argument values (basically replace them with
+either variable or const values), and then any time we encounter duplicated
+fragment spreads with different arguments within merging selections, we consider
+that invalid.
 
-Alternatively, and as implemented in
-[graphql-js](https://github.com/graphql/graphql-js/pull/3152), we can both keep
-track of the updated fragment keys and also short-circuit whenever we encounter
-two fragments with the same name but different arguments.
+We _could_ just allow field merging rules to apply, but stopping the validation
+when same-named fragment spreads with different args are discovered helps
+provide much better error messaging and root-causes the issue: the issue isn't
+that you reached the same field in the same fragment twice, but rather than you
+reached the same fragment spread with different arguments, which will induce
+those two usages to be merging the same field with different arguments.
 
-## WILL NOT IMPLEMENT Validation Rule: Argument Uniqueness
+## WILL NOT IMPLEMENT Validation Rule: Document Argument Uniqueness
 
 If the client pre-server compiler rewrites an operation, it's possible to end up
 with a selection set that violates
