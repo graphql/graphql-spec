@@ -21,8 +21,8 @@
 <p data-source="spec/GraphQL.md#L17-L20">If your organization benefits from GraphQL, please consider <a href="https://graphql.org/foundation/join/#graphql-foundation">becoming a member</a> and helping us to sustain the activities that support the health of our neutral ecosystem.</p>
 <p data-source="spec/GraphQL.md#L22-L27">The GraphQL Specification Project has evolved and may continue to evolve in future editions of this specification. Previous editions of the GraphQL specification can be found at permalinks that match their <a href="https://github.com/graphql/graphql-spec/releases">release tag</a>. The latest working draft release can be found at <a href="https://spec.graphql.org/draft">https://spec.graphql.org/draft</a>.</p>
 </section>
-<section id="sec-Copyright-notice" class="subsec">
-<h6 data-source="spec/GraphQL.md#L29"><a href="#sec-Copyright-notice" title="link to this subsection">Copyright notice</a></h6>
+<section id="sec-Copyright-Notice" class="subsec">
+<h6 data-source="spec/GraphQL.md#L29"><a href="#sec-Copyright-Notice" title="link to this subsection">Copyright Notice</a></h6>
 <p data-source="spec/GraphQL.md#L31">Copyright © 2015-2018, Facebook, Inc.</p>
 <p data-source="spec/GraphQL.md#L33">Copyright © 2019-present, GraphQL contributors</p>
 <p data-source="spec/GraphQL.md#L35-L45">THESE MATERIALS ARE PROVIDED &ldquo;AS IS&rdquo;. The parties expressly disclaim any warranties (express, implied, or otherwise), including implied warranties of merchantability, non-infringement, fitness for a particular purpose, or title, related to the materials. The entire risk as to implementing or otherwise using the materials is assumed by the implementer and user. IN NO EVENT WILL THE PARTIES BE LIABLE TO ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES OF ACTION OF ANY KIND WITH RESPECT TO THIS DELIVERABLE OR ITS GOVERNING AGREEMENT, WHETHER BASED ON BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND WHETHER OR NOT THE OTHER MEMBER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
@@ -210,7 +210,7 @@ This is an example of a non-normative note.</div>
 </ol>
 </li>
 <li><a href="#sec-Subscription-Operation-Definitions"><span class="spec-secid">5.2.3</span>Subscription Operation Definitions</a><ol>
-<li><a href="#sec-Single-root-field"><span class="spec-secid">5.2.3.1</span>Single root field</a></li>
+<li><a href="#sec-Single-Root-Field"><span class="spec-secid">5.2.3.1</span>Single Root Field</a></li>
 </ol>
 </li>
 </ol>
@@ -233,17 +233,17 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Fragment-Declarations"><span class="spec-secid">5.5.1</span>Fragment Declarations</a><ol>
 <li><a href="#sec-Fragment-Name-Uniqueness"><span class="spec-secid">5.5.1.1</span>Fragment Name Uniqueness</a></li>
 <li><a href="#sec-Fragment-Spread-Type-Existence"><span class="spec-secid">5.5.1.2</span>Fragment Spread Type Existence</a></li>
-<li><a href="#sec-Fragments-On-Composite-Types"><span class="spec-secid">5.5.1.3</span>Fragments On Composite Types</a></li>
+<li><a href="#sec-Fragments-on-Composite-Types"><span class="spec-secid">5.5.1.3</span>Fragments on Composite Types</a></li>
 <li><a href="#sec-Fragments-Must-Be-Used"><span class="spec-secid">5.5.1.4</span>Fragments Must Be Used</a></li>
 </ol>
 </li>
 <li><a href="#sec-Fragment-Spreads"><span class="spec-secid">5.5.2</span>Fragment Spreads</a><ol>
-<li><a href="#sec-Fragment-spread-target-defined"><span class="spec-secid">5.5.2.1</span>Fragment spread target defined</a></li>
-<li><a href="#sec-Fragment-spreads-must-not-form-cycles"><span class="spec-secid">5.5.2.2</span>Fragment spreads must not form cycles</a></li>
-<li><a href="#sec-Fragment-spread-is-possible"><span class="spec-secid">5.5.2.3</span>Fragment spread is possible</a><ol>
-<li><a href="#sec-Object-Spreads-In-Object-Scope"><span class="spec-secid">5.5.2.3.1</span>Object Spreads In Object Scope</a></li>
+<li><a href="#sec-Fragment-Spread-Target-Defined"><span class="spec-secid">5.5.2.1</span>Fragment Spread Target Defined</a></li>
+<li><a href="#sec-Fragment-Spreads-Must-Not-Form-Cycles"><span class="spec-secid">5.5.2.2</span>Fragment Spreads Must Not Form Cycles</a></li>
+<li><a href="#sec-Fragment-Spread-Is-Possible"><span class="spec-secid">5.5.2.3</span>Fragment Spread Is Possible</a><ol>
+<li><a href="#sec-Object-Spreads-in-Object-Scope"><span class="spec-secid">5.5.2.3.1</span>Object Spreads in Object Scope</a></li>
 <li><a href="#sec-Abstract-Spreads-in-Object-Scope"><span class="spec-secid">5.5.2.3.2</span>Abstract Spreads in Object Scope</a></li>
-<li><a href="#sec-Object-Spreads-In-Abstract-Scope"><span class="spec-secid">5.5.2.3.3</span>Object Spreads In Abstract Scope</a></li>
+<li><a href="#sec-Object-Spreads-in-Abstract-Scope"><span class="spec-secid">5.5.2.3.3</span>Object Spreads in Abstract Scope</a></li>
 <li><a href="#sec-Abstract-Spreads-in-Abstract-Scope"><span class="spec-secid">5.5.2.3.4</span>Abstract Spreads in Abstract Scope</a></li>
 </ol>
 </li>
@@ -260,8 +260,8 @@ This is an example of a non-normative note.</div>
 </li>
 <li><a href="#sec-Validation.Directives"><span class="spec-secid">5.7</span>Directives</a><ol>
 <li><a href="#sec-Directives-Are-Defined"><span class="spec-secid">5.7.1</span>Directives Are Defined</a></li>
-<li><a href="#sec-Directives-Are-In-Valid-Locations"><span class="spec-secid">5.7.2</span>Directives Are In Valid Locations</a></li>
-<li><a href="#sec-Directives-Are-Unique-Per-Location"><span class="spec-secid">5.7.3</span>Directives Are Unique Per Location</a></li>
+<li><a href="#sec-Directives-Are-in-Valid-Locations"><span class="spec-secid">5.7.2</span>Directives Are in Valid Locations</a></li>
+<li><a href="#sec-Directives-Are-Unique-per-Location"><span class="spec-secid">5.7.3</span>Directives Are Unique per Location</a></li>
 </ol>
 </li>
 <li><a href="#sec-Validation.Variables"><span class="spec-secid">5.8</span>Variables</a><ol>
@@ -269,7 +269,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Variables-Are-Input-Types"><span class="spec-secid">5.8.2</span>Variables Are Input Types</a></li>
 <li><a href="#sec-All-Variable-Uses-Defined"><span class="spec-secid">5.8.3</span>All Variable Uses Defined</a></li>
 <li><a href="#sec-All-Variables-Used"><span class="spec-secid">5.8.4</span>All Variables Used</a></li>
-<li><a href="#sec-All-Variable-Usages-are-Allowed"><span class="spec-secid">5.8.5</span>All Variable Usages are Allowed</a></li>
+<li><a href="#sec-All-Variable-Usages-Are-Allowed"><span class="spec-secid">5.8.5</span>All Variable Usages Are Allowed</a></li>
 </ol>
 </li>
 </ol>
@@ -459,8 +459,8 @@ Any error reporting which provides the line number in the source of the offendin
 </div>
 <p data-source="spec/Section%202%20--%20Language.md#L156-L158"><span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> tokens are used to improve readability and provide separation between lexical tokens, but are otherwise insignificant and not referenced in syntactical grammar productions.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L160-L165">Any amount of <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may appear before and after every lexical token. No ignored regions of a source document are significant, however <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span> which appear in <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may also appear within a lexical <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span> in a significant way, for example a <span class="spec-nt"><a href="#StringValue" data-name="StringValue">StringValue</a></span> may contain white space characters. No <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> may appear <em>within</em> a <span class="spec-nt"><a href="#Token" data-name="Token">Token</a></span>, for example no white space characters are permitted between the characters defining a <span class="spec-nt"><a href="#FloatValue" data-name="FloatValue">FloatValue</a></span>.</p>
-<section id="sec-Language.Source-Text.Ignored-Tokens.Byte-order-mark" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L167"><a href="#sec-Language.Source-Text.Ignored-Tokens.Byte-order-mark" title="link to this subsection">Byte order mark</a></h6>
+<section id="sec-Language.Source-Text.Ignored-Tokens.Byte-Order-Mark" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L167"><a href="#sec-Language.Source-Text.Ignored-Tokens.Byte-Order-Mark" title="link to this subsection">Byte Order Mark</a></h6>
 <div class="spec-production d2" id="UnicodeBOM" data-source="spec/Section%202%20--%20Language.md#L169">
 <span class="spec-nt"><a href="#UnicodeBOM" data-name="UnicodeBOM">UnicodeBOM</a></span><div class="spec-rhs"><span class="spec-prose">Byte Order Mark (U+FEFF)</span></div>
 </div>
@@ -571,8 +571,8 @@ Names in GraphQL are limited to the Latin <acronym>ASCII</acronym> subset of <sp
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<section id="sec-Language.Operations.Query-shorthand" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L309"><a href="#sec-Language.Operations.Query-shorthand" title="link to this subsection">Query shorthand</a></h6>
+<section id="sec-Language.Operations.Query-Shorthand" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L309"><a href="#sec-Language.Operations.Query-Shorthand" title="link to this subsection">Query Shorthand</a></h6>
 <p data-source="spec/Section%202%20--%20Language.md#L311-L314">If a document contains only one operation and that operation is a query which defines no variables and has no directives applied to it then that operation may be represented in a short-hand form which omits the <span class="spec-t">query</span> keyword and operation name.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L316">For example, this unnamed query operation is written via query shorthand.</p>
 <pre id="example-63b18" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L318-L322"><a href="#example-63b18">Example № 6</a><code><span class="token punctuation">{</span>
@@ -670,8 +670,8 @@ many examples below will use the query short-hand syntax.</div>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<section id="sec-Language.Arguments.Arguments-are-unordered" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L442"><a href="#sec-Language.Arguments.Arguments-are-unordered" title="link to this subsection">Arguments are unordered</a></h6>
+<section id="sec-Language.Arguments.Arguments-Are-Unordered" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L442"><a href="#sec-Language.Arguments.Arguments-Are-Unordered" title="link to this subsection">Arguments Are Unordered</a></h6>
 <p data-source="spec/Section%202%20--%20Language.md#L444-L445">Arguments may be provided in any syntactic order and maintain identical semantic meaning.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L447">These two operations are semantically identical:</p>
 <pre id="example-7eba7" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L449-L453"><a href="#example-7eba7">Example № 12</a><code><span class="token punctuation">{</span>
@@ -1285,8 +1285,8 @@ The same two methods of representing the lack of a value are possible via variab
 <span class="spec-nt"><a href="#ObjectField" data-name="ObjectField">ObjectField</a><span class="spec-params"><span class="spec-param">Const</span></span></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-nt"><a href="#Value" data-name="Value">Value</a><span class="spec-params"><span class="spec-param conditional">Const</span></span></span></div>
 </div>
 <p data-source="spec/Section%202%20--%20Language.md#L1128-L1131">Input object literal values are unordered lists of keyed input values wrapped in curly-braces <code>{ }</code>. The values of an object literal may be any input value literal or variable (ex. <code>{ name: "Hello world", score: 1.0 }</code>). We refer to literal representation of input objects as &ldquo;object literals.&rdquo;</p>
-<section id="sec-Input-Object-Values.Input-object-fields-are-unordered" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1133"><a href="#sec-Input-Object-Values.Input-object-fields-are-unordered" title="link to this subsection">Input object fields are unordered</a></h6>
+<section id="sec-Input-Object-Values.Input-Object-Fields-Are-Unordered" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1133"><a href="#sec-Input-Object-Values.Input-Object-Fields-Are-Unordered" title="link to this subsection">Input Object Fields Are Unordered</a></h6>
 <p data-source="spec/Section%202%20--%20Language.md#L1135-L1136">Input object fields may be provided in any syntactic order and maintain identical semantic meaning.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1138">These two operations are semantically identical:</p>
 <pre id="example-09646" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1140-L1144"><a href="#example-09646">Example № 30</a><code><span class="token punctuation">{</span>
@@ -1353,8 +1353,8 @@ The same two methods of representing the lack of a value are possible via variab
   <span class="token property">"devicePicSize"</span><span class="token operator">:</span> <span class="token number">60</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<section id="sec-Language.Variables.Variable-use-within-Fragments" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1210"><a href="#sec-Language.Variables.Variable-use-within-Fragments" title="link to this subsection">Variable use within Fragments</a></h6>
+<section id="sec-Language.Variables.Variable-Use-Within-Fragments" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1210"><a href="#sec-Language.Variables.Variable-Use-Within-Fragments" title="link to this subsection">Variable Use Within Fragments</a></h6>
 <p data-source="spec/Section%202%20--%20Language.md#L1212-L1217">Variables can be used within fragments. Variables have global scope with a given operation, so a variable used within a fragment must be declared in any top-level operation that transitively consumes that fragment. If a variable is referenced in a fragment and is included by an operation that does not define that variable, that operation is invalid (see <a href="#sec-All-Variable-Uses-Defined">All Variable Uses Defined</a>).</p>
 </section>
 </section>
@@ -1418,8 +1418,8 @@ The same two methods of representing the lack of a value are possible via variab
 <p data-source="spec/Section%202%20--%20Language.md#L1275-L1276">Directives have a name along with a list of arguments which may accept values of any input type.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1278-L1279">Directives can be used to describe additional information for types, fields, fragments and operations.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1281-L1283">As future versions of GraphQL adopt new configurable execution capabilities, they may be exposed via directives. GraphQL services and tools may also provide any additional <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> beyond those described here.</p>
-<section id="sec-Language.Directives.Directive-order-is-significant" class="subsec">
-<h6 data-source="spec/Section%202%20--%20Language.md#L1285"><a href="#sec-Language.Directives.Directive-order-is-significant" title="link to this subsection">Directive order is significant</a></h6>
+<section id="sec-Language.Directives.Directive-Order-Is-Significant" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1285"><a href="#sec-Language.Directives.Directive-Order-Is-Significant" title="link to this subsection">Directive Order Is Significant</a></h6>
 <p data-source="spec/Section%202%20--%20Language.md#L1287-L1288">Directives may be provided in a specific syntactic order which may have semantic interpretation.</p>
 <p data-source="spec/Section%202%20--%20Language.md#L1290">These two type definitions may have different semantic meaning:</p>
 <pre id="example-2a4f9" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1292-L1298"><a href="#example-2a4f9">Example № 34</a><code><span class="token keyword">type</span> <span class="token class-name">Person</span>
@@ -3436,8 +3436,8 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <p data-source="spec/Section%205%20--%20Validation.md#L3-L5">A GraphQL service does not just verify if a request is syntactically correct, but also ensures that it is unambiguous and mistake-free in the context of a given GraphQL schema.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L7-L10">An invalid request is still technically executable, and will always produce a stable result as defined by the algorithms in the Execution section, however that result may be ambiguous, surprising, or unexpected relative to a request containing validation errors, so execution should only occur for valid requests.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L12-L20">Typically validation is performed in the context of a request immediately before execution, however a GraphQL service may execute a request without explicitly validating it if that exact same request is known to have been validated before. For example: the request may be validated during development, provided it does not later change, or a service may validate a request once and memoize the result to avoid validating the same request again in the future. Any client-side or development-time tool should report validation errors and not allow the formulation or execution of requests known to be invalid at that given point in time.</p>
-<section id="sec-Validation.Type-system-evolution" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L22"><a href="#sec-Validation.Type-system-evolution" title="link to this subsection">Type system evolution</a></h6>
+<section id="sec-Validation.Type-System-Evolution" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L22"><a href="#sec-Validation.Type-System-Evolution" title="link to this subsection">Type System Evolution</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L24-L31">As GraphQL type system schema evolves over time by adding new types and new fields, it is possible that a request which was previously valid could later become invalid. Any change that can cause a previously valid request to become invalid is considered a <em>breaking change</em>. GraphQL services and schema maintainers are encouraged to avoid breaking changes, however in order to be more resilient to these breaking changes, sophisticated GraphQL systems may still allow for the execution of requests which <em>at some point</em> were known to be free of any validation errors, and have not changed since.</p>
 </section>
 <section id="sec-Validation.Examples" class="subsec">
@@ -3649,10 +3649,10 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </section>
 <section id="sec-Subscription-Operation-Definitions" secid="5.2.3">
 <h3 data-source="spec/Section%205%20--%20Validation.md#L252"><span class="spec-secid" title="link to this section"><a href="#sec-Subscription-Operation-Definitions">5.2.3</a></span>Subscription Operation Definitions</h3>
-<section id="sec-Single-root-field" secid="5.2.3.1">
-<h4 data-source="spec/Section%205%20--%20Validation.md#L254"><span class="spec-secid" title="link to this section"><a href="#sec-Single-root-field">5.2.3.1</a></span>Single root field</h4>
-<section id="sec-Single-root-field.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L256"><a href="#sec-Single-root-field.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Single-Root-Field" secid="5.2.3.1">
+<h4 data-source="spec/Section%205%20--%20Validation.md#L254"><span class="spec-secid" title="link to this section"><a href="#sec-Single-Root-Field">5.2.3.1</a></span>Single Root Field</h4>
+<section id="sec-Single-Root-Field.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L256"><a href="#sec-Single-Root-Field.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L258">Let <var data-name="subscriptionType">subscriptionType</var> be the root Subscription type in <var data-name="schema">schema</var>.</li>
 <li data-source="spec/Section%205%20--%20Validation.md#L259-L265">For each subscription operation definition <var data-name="subscription">subscription</var> in the document:<ul>
@@ -3664,8 +3664,8 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 </li>
 </ul>
 </section>
-<section id="sec-Single-root-field.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L267"><a href="#sec-Single-root-field.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Single-Root-Field.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L267"><a href="#sec-Single-Root-Field.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L269">Subscription operations must have exactly one root field.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L271">Valid examples:</p>
 <pre id="example-5bbc3" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L273-L280"><a href="#example-5bbc3">Example № 109</a><code><span class="token keyword">subscription</span> <span class="token object">sub</span> <span class="token punctuation">{</span>
@@ -4219,10 +4219,10 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 </section>
 </section>
-<section id="sec-Fragments-On-Composite-Types" secid="5.5.1.3">
-<h4 data-source="spec/Section%205%20--%20Validation.md#L913"><span class="spec-secid" title="link to this section"><a href="#sec-Fragments-On-Composite-Types">5.5.1.3</a></span>Fragments On Composite Types</h4>
-<section id="sec-Fragments-On-Composite-Types.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L915"><a href="#sec-Fragments-On-Composite-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Fragments-on-Composite-Types" secid="5.5.1.3">
+<h4 data-source="spec/Section%205%20--%20Validation.md#L913"><span class="spec-secid" title="link to this section"><a href="#sec-Fragments-on-Composite-Types">5.5.1.3</a></span>Fragments on Composite Types</h4>
+<section id="sec-Fragments-on-Composite-Types.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L915"><a href="#sec-Fragments-on-Composite-Types.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L917-L919">For each <var data-name="fragment">fragment</var> defined in the document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L918-L919">The target type of fragment must have kind <span class="spec-nt"><span data-name="UNION">UNION</span></span>, <span class="spec-nt"><span data-name="INTERFACE">INTERFACE</span></span>, or <span class="spec-nt"><span data-name="OBJECT">OBJECT</span></span>.</li>
@@ -4230,8 +4230,8 @@ While each subscription must have exactly one root field, a document may contain
 </li>
 </ul>
 </section>
-<section id="sec-Fragments-On-Composite-Types.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L921"><a href="#sec-Fragments-On-Composite-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Fragments-on-Composite-Types.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L921"><a href="#sec-Fragments-on-Composite-Types.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L923-L925">Fragments can only be declared on unions, interfaces, and objects. They are invalid on scalars. They can only be applied on non-leaf fields. This rule applies to both inline and named fragments.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L927">The following fragment declarations are valid:</p>
 <pre id="example-3c8d4" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L929-L943"><a href="#example-3c8d4">Example № 143</a><code><span class="token keyword">fragment</span> <span class="token fragment function">fragOnObject</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
@@ -4292,10 +4292,10 @@ While each subscription must have exactly one root field, a document may contain
 <section id="sec-Fragment-Spreads" secid="5.5.2">
 <h3 data-source="spec/Section%205%20--%20Validation.md#L984"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spreads">5.5.2</a></span>Fragment Spreads</h3>
 <p data-source="spec/Section%205%20--%20Validation.md#L986-L988">Field selection is also determined by spreading fragments into one another. The selection set of the target fragment is combined into the selection set at the level at which the target fragment is referenced.</p>
-<section id="sec-Fragment-spread-target-defined" secid="5.5.2.1">
-<h4 data-source="spec/Section%205%20--%20Validation.md#L990"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spread-target-defined">5.5.2.1</a></span>Fragment spread target defined</h4>
-<section id="sec-Fragment-spread-target-defined.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L992"><a href="#sec-Fragment-spread-target-defined.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Fragment-Spread-Target-Defined" secid="5.5.2.1">
+<h4 data-source="spec/Section%205%20--%20Validation.md#L990"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spread-Target-Defined">5.5.2.1</a></span>Fragment Spread Target Defined</h4>
+<section id="sec-Fragment-Spread-Target-Defined.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L992"><a href="#sec-Fragment-Spread-Target-Defined.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L994-L996">For every <var data-name="namedSpread">namedSpread</var> in the document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L995">Let <var data-name="fragment">fragment</var> be the target of <var data-name="namedSpread">namedSpread</var>.</li>
@@ -4304,8 +4304,8 @@ While each subscription must have exactly one root field, a document may contain
 </li>
 </ul>
 </section>
-<section id="sec-Fragment-spread-target-defined.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L998"><a href="#sec-Fragment-spread-target-defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Fragment-Spread-Target-Defined.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L998"><a href="#sec-Fragment-Spread-Target-Defined.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1000-L1001">Named fragment spreads must refer to fragments defined within the document. It is a validation error if the target of a spread is not defined.</p>
 <pre id="example-28421" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1003-L1009"><a href="#example-28421">Counter Example № 146</a><code><span class="token punctuation">{</span>
   <span class="token object">dog</span> <span class="token punctuation">{</span>
@@ -4315,10 +4315,10 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 </section>
 </section>
-<section id="sec-Fragment-spreads-must-not-form-cycles" secid="5.5.2.2">
-<h4 data-source="spec/Section%205%20--%20Validation.md#L1011"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spreads-must-not-form-cycles">5.5.2.2</a></span>Fragment spreads must not form cycles</h4>
-<section id="sec-Fragment-spreads-must-not-form-cycles.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1013"><a href="#sec-Fragment-spreads-must-not-form-cycles.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Fragment-Spreads-Must-Not-Form-Cycles" secid="5.5.2.2">
+<h4 data-source="spec/Section%205%20--%20Validation.md#L1011"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spreads-Must-Not-Form-Cycles">5.5.2.2</a></span>Fragment Spreads Must Not Form Cycles</h4>
+<section id="sec-Fragment-Spreads-Must-Not-Form-Cycles.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1013"><a href="#sec-Fragment-Spreads-Must-Not-Form-Cycles.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1015-L1017">For each <var data-name="fragmentDefinition">fragmentDefinition</var> in the document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1016">Let <var data-name="visited">visited</var> be the empty set.</li>
@@ -4339,8 +4339,8 @@ While each subscription must have exactly one root field, a document may contain
 </ol>
 </div>
 </section>
-<section id="sec-Fragment-spreads-must-not-form-cycles.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1028"><a href="#sec-Fragment-spreads-must-not-form-cycles.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Fragment-Spreads-Must-Not-Form-Cycles.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1028"><a href="#sec-Fragment-Spreads-Must-Not-Form-Cycles.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1030-L1032">The graph of fragment spreads must not form any cycles including spreading itself. Otherwise an operation could infinitely spread or infinitely execute on cycles in the underlying data.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1034">This invalidates fragments that would result in an infinite spread:</p>
 <pre id="example-9ceb4" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1036-L1052"><a href="#example-9ceb4">Counter Example № 147</a><code><span class="token punctuation">{</span>
@@ -4396,10 +4396,10 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 </section>
 </section>
-<section id="sec-Fragment-spread-is-possible" secid="5.5.2.3">
-<h4 data-source="spec/Section%205%20--%20Validation.md#L1096"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-spread-is-possible">5.5.2.3</a></span>Fragment spread is possible</h4>
-<section id="sec-Fragment-spread-is-possible.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1098"><a href="#sec-Fragment-spread-is-possible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Fragment-Spread-Is-Possible" secid="5.5.2.3">
+<h4 data-source="spec/Section%205%20--%20Validation.md#L1096"><span class="spec-secid" title="link to this section"><a href="#sec-Fragment-Spread-Is-Possible">5.5.2.3</a></span>Fragment Spread Is Possible</h4>
+<section id="sec-Fragment-Spread-Is-Possible.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1098"><a href="#sec-Fragment-Spread-Is-Possible.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1100-L1106">For each <var data-name="spread">spread</var> (named or inline) defined in the document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1101">Let <var data-name="fragment">fragment</var> be the target of <var data-name="spread">spread</var>.</li>
@@ -4418,12 +4418,12 @@ While each subscription must have exactly one root field, a document may contain
 </ol>
 </div>
 </section>
-<section id="sec-Fragment-spread-is-possible.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1114"><a href="#sec-Fragment-spread-is-possible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Fragment-Spread-Is-Possible.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1114"><a href="#sec-Fragment-Spread-Is-Possible.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1116-L1119">Fragments are declared on a type and will only apply when the runtime object type matches the type condition. They also are spread within the context of a parent type. A fragment spread is only valid if its type condition could ever apply within the parent type.</p>
 </section>
-<section id="sec-Object-Spreads-In-Object-Scope" secid="5.5.2.3.1">
-<h5 data-source="spec/Section%205%20--%20Validation.md#L1121"><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-In-Object-Scope">5.5.2.3.1</a></span>Object Spreads In Object Scope</h5>
+<section id="sec-Object-Spreads-in-Object-Scope" secid="5.5.2.3.1">
+<h5 data-source="spec/Section%205%20--%20Validation.md#L1121"><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-in-Object-Scope">5.5.2.3.1</a></span>Object Spreads in Object Scope</h5>
 <p data-source="spec/Section%205%20--%20Validation.md#L1123-L1124">In the scope of an object type, the only valid object type fragment spread is one that applies to the same type that is in scope.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1126">For example</p>
 <pre id="example-0fc38" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1128-L1134"><a href="#example-0fc38">Example № 150</a><code><span class="token keyword">fragment</span> <span class="token fragment function">dogFragment</span> <span class="token keyword">on</span> <span class="token class-name">Dog</span> <span class="token punctuation">{</span>
@@ -4466,8 +4466,8 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1179-L1182">is valid because <span class="spec-nt"><span data-name="Dog">Dog</span></span> is a member of the <span class="spec-nt"><span data-name="CatOrDog">CatOrDog</span></span> union. It is worth noting that if one inspected the contents of the <span class="spec-nt"><span data-name="CatOrDogNameFragment">CatOrDogNameFragment</span></span> you could note that no valid results would ever be returned. However we do not specify this as invalid because we only consider the fragment declaration, not its body.</p>
 </section>
-<section id="sec-Object-Spreads-In-Abstract-Scope" secid="5.5.2.3.3">
-<h5 data-source="spec/Section%205%20--%20Validation.md#L1184"><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-In-Abstract-Scope">5.5.2.3.3</a></span>Object Spreads In Abstract Scope</h5>
+<section id="sec-Object-Spreads-in-Abstract-Scope" secid="5.5.2.3.3">
+<h5 data-source="spec/Section%205%20--%20Validation.md#L1184"><span class="spec-secid" title="link to this section"><a href="#sec-Object-Spreads-in-Abstract-Scope">5.5.2.3.3</a></span>Object Spreads in Abstract Scope</h5>
 <p data-source="spec/Section%205%20--%20Validation.md#L1186-L1188">Union or interface spreads can be used within the context of an object type fragment, but only if the object type is one of the possible types of that interface or union.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1190">For example, the following fragments are valid:</p>
 <pre id="example-85110" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1192-L1205"><a href="#example-85110">Example № 154</a><code><span class="token keyword">fragment</span> <span class="token fragment function">petFragment</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
@@ -4524,8 +4524,8 @@ While each subscription must have exactly one root field, a document may contain
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1266-L1267">is not valid because there exists no type that implements both <span class="spec-nt"><span data-name="Pet">Pet</span></span> and <span class="spec-nt"><span data-name="Sentient">Sentient</span></span>.</p>
-<section id="sec-Abstract-Spreads-in-Abstract-Scope.Interface-Spreads-in-implemented-Interface-Scope" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1269"><a href="#sec-Abstract-Spreads-in-Abstract-Scope.Interface-Spreads-in-implemented-Interface-Scope" title="link to this subsection">Interface Spreads in implemented Interface Scope</a></h6>
+<section id="sec-Abstract-Spreads-in-Abstract-Scope.Interface-Spreads-in-Implemented-Interface-Scope" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1269"><a href="#sec-Abstract-Spreads-in-Abstract-Scope.Interface-Spreads-in-Implemented-Interface-Scope" title="link to this subsection">Interface Spreads in Implemented Interface Scope</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1271-L1272">Additionally, an interface type fragment can always be spread into an interface scope which it implements.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1274-L1275">In the example below, the <code>...resourceFragment</code> fragments spreads is valid, since <code>Resource</code> implements <code>Node</code>.</p>
 <pre id="example-bc12a" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1277-L1294"><a href="#example-bc12a">Example № 158</a><code><span class="token keyword">interface</span> <span class="token class-name">Node</span> <span class="token punctuation">{</span>
@@ -4706,10 +4706,10 @@ While each subscription must have exactly one root field, a document may contain
 <p data-source="spec/Section%205%20--%20Validation.md#L1447-L1448">GraphQL services define what directives they support. For each usage of a directive, the directive must be available on that service.</p>
 </section>
 </section>
-<section id="sec-Directives-Are-In-Valid-Locations" secid="5.7.2">
-<h3 data-source="spec/Section%205%20--%20Validation.md#L1450"><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-In-Valid-Locations">5.7.2</a></span>Directives Are In Valid Locations</h3>
-<section id="sec-Directives-Are-In-Valid-Locations.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1452"><a href="#sec-Directives-Are-In-Valid-Locations.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Directives-Are-in-Valid-Locations" secid="5.7.2">
+<h3 data-source="spec/Section%205%20--%20Validation.md#L1450"><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-in-Valid-Locations">5.7.2</a></span>Directives Are in Valid Locations</h3>
+<section id="sec-Directives-Are-in-Valid-Locations.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1452"><a href="#sec-Directives-Are-in-Valid-Locations.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1454-L1459">For every <var data-name="directive">directive</var> in a document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1455">Let <var data-name="directiveName">directiveName</var> be the name of <var data-name="directive">directive</var>.</li>
@@ -4721,8 +4721,8 @@ While each subscription must have exactly one root field, a document may contain
 </li>
 </ul>
 </section>
-<section id="sec-Directives-Are-In-Valid-Locations.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1461"><a href="#sec-Directives-Are-In-Valid-Locations.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Directives-Are-in-Valid-Locations.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1461"><a href="#sec-Directives-Are-in-Valid-Locations.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1463-L1465">GraphQL services define what directives they support and where they support them. For each usage of a directive, the directive must be used in a location that the service has declared support for.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1467-L1468">For example the following document will not pass validation because <code>@skip</code> does not provide <code>QUERY</code> as a valid location.</p>
 <pre id="example-55f3f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1470-L1474"><a href="#example-55f3f">Counter Example № 164</a><code><span class="token keyword">query</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$foo</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -4731,10 +4731,10 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 </section>
 </section>
-<section id="sec-Directives-Are-Unique-Per-Location" secid="5.7.3">
-<h3 data-source="spec/Section%205%20--%20Validation.md#L1476"><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-Unique-Per-Location">5.7.3</a></span>Directives Are Unique Per Location</h3>
-<section id="sec-Directives-Are-Unique-Per-Location.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1478"><a href="#sec-Directives-Are-Unique-Per-Location.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-Directives-Are-Unique-per-Location" secid="5.7.3">
+<h3 data-source="spec/Section%205%20--%20Validation.md#L1476"><span class="spec-secid" title="link to this section"><a href="#sec-Directives-Are-Unique-per-Location">5.7.3</a></span>Directives Are Unique per Location</h3>
+<section id="sec-Directives-Are-Unique-per-Location.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1478"><a href="#sec-Directives-Are-Unique-per-Location.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1480-L1487">For every <var data-name="location">location</var> in the document for which Directives can apply:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1481-L1482">Let <var data-name="directives">directives</var> be the set of Directives which apply to <var data-name="location">location</var> and are not repeatable.</li>
@@ -4748,8 +4748,8 @@ While each subscription must have exactly one root field, a document may contain
 </li>
 </ul>
 </section>
-<section id="sec-Directives-Are-Unique-Per-Location.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1489"><a href="#sec-Directives-Are-Unique-Per-Location.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-Directives-Are-Unique-per-Location.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1489"><a href="#sec-Directives-Are-Unique-per-Location.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1491-L1494">GraphQL allows directives that are defined as <code>repeatable</code> to be used more than once on the definition they apply to, possibly with different arguments. In contrast, if a directive is not <code>repeatable</code>, then only one occurrence of it is allowed per location.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1496-L1497">For example, the following document will not pass validation because non-repeatable <code>@skip</code> has been used twice for the same field:</p>
 <pre id="example-b2e6c" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1499-L1503"><a href="#example-b2e6c">Counter Example № 165</a><code><span class="token keyword">query</span> <span class="token punctuation">(</span><span class="token variable">$foo</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token variable">$bar</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -5050,10 +5050,10 @@ While each subscription must have exactly one root field, a document may contain
 <p data-source="spec/Section%205%20--%20Validation.md#L1853-L1854">This document is not valid because <var data-name="queryWithExtraVar">queryWithExtraVar</var> defines an extraneous variable.</p>
 </section>
 </section>
-<section id="sec-All-Variable-Usages-are-Allowed" secid="5.8.5">
-<h3 data-source="spec/Section%205%20--%20Validation.md#L1856"><span class="spec-secid" title="link to this section"><a href="#sec-All-Variable-Usages-are-Allowed">5.8.5</a></span>All Variable Usages are Allowed</h3>
-<section id="sec-All-Variable-Usages-are-Allowed.Formal-Specification" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1858"><a href="#sec-All-Variable-Usages-are-Allowed.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
+<section id="sec-All-Variable-Usages-Are-Allowed" secid="5.8.5">
+<h3 data-source="spec/Section%205%20--%20Validation.md#L1856"><span class="spec-secid" title="link to this section"><a href="#sec-All-Variable-Usages-Are-Allowed">5.8.5</a></span>All Variable Usages Are Allowed</h3>
+<section id="sec-All-Variable-Usages-Are-Allowed.Formal-Specification" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1858"><a href="#sec-All-Variable-Usages-Are-Allowed.Formal-Specification" title="link to this subsection">Formal Specification</a></h6>
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1860-L1867">For each <var data-name="operation">operation</var> in <var data-name="document">document</var>:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1861">Let <var data-name="variableUsages">variableUsages</var> be all usages transitively included in the <var data-name="operation">operation</var>.</li>
@@ -5107,8 +5107,8 @@ While each subscription must have exactly one root field, a document may contain
 </ol>
 </div>
 </section>
-<section id="sec-All-Variable-Usages-are-Allowed.Explanatory-Text" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1905"><a href="#sec-All-Variable-Usages-are-Allowed.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
+<section id="sec-All-Variable-Usages-Are-Allowed.Explanatory-Text" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1905"><a href="#sec-All-Variable-Usages-Are-Allowed.Explanatory-Text" title="link to this subsection">Explanatory Text</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1907">Variable usages must be compatible with the arguments they are passed to.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1909-L1911">Validation failures occur when variables are used in the context of types that are complete mismatches, or if a nullable type in a variable is passed to a non-null argument type.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1913">Types must match:</p>
@@ -5149,8 +5149,8 @@ While each subscription must have exactly one root field, a document may contain
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L1971-L1972">This would fail validation because a <code>[T]</code> cannot be passed to a <code>[T]!</code>. Similarly a <code>[T]</code> cannot be passed to a <code>[T!]</code>.</p>
 </section>
-<section id="sec-All-Variable-Usages-are-Allowed.Allowing-optional-variables-when-default-values-exist" class="subsec">
-<h6 data-source="spec/Section%205%20--%20Validation.md#L1974"><a href="#sec-All-Variable-Usages-are-Allowed.Allowing-optional-variables-when-default-values-exist" title="link to this subsection">Allowing optional variables when default values exist</a></h6>
+<section id="sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist" class="subsec">
+<h6 data-source="spec/Section%205%20--%20Validation.md#L1974"><a href="#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist" title="link to this subsection">Allowing Optional Variables When Default Values Exist</a></h6>
 <p data-source="spec/Section%205%20--%20Validation.md#L1976-L1978">A notable exception to typical variable type compatibility is allowing a variable definition with a nullable type to be provided to a non-null location as long as either that variable or that location provides a default value.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L1980-L1982">In the example below, an optional variable <code>$booleanArg</code> is allowed to be used in the non-null argument <code>optionalBooleanArg</code> because the field argument is optional since it provides a default value in the schema.</p>
 <pre id="example-0877c" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L1984-L1990"><a href="#example-0877c">Example № 188</a><code><span class="token keyword">query</span> <span class="token definition-query function">booleanArgQueryWithDefault</span><span class="token punctuation">(</span><span class="token variable">$booleanArg</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -5828,20 +5828,20 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <p data-source="spec/Section%207%20--%20Response.md#L57-L59">If present, the <code>errors</code> entry in the response must contain at least one error. If no errors were raised during the request, the <code>errors</code> entry must not be present in the result.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L61-L63">If the <code>data</code> entry in the response is not present, the <code>errors</code> entry must be present. It must contain at least one <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> indicating why no data was able to be returned.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L65-L67">If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry must be present if and only if one or more <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span> was raised during execution.</p>
-<section id="sec-Errors.Request-errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L69"><a href="#sec-Errors.Request-errors" title="link to this subsection">Request errors</a></h6>
+<section id="sec-Errors.Request-Errors" class="subsec">
+<h6 data-source="spec/Section%207%20--%20Response.md#L69"><a href="#sec-Errors.Request-Errors" title="link to this subsection">Request Errors</a></h6>
 <p data-source="spec/Section%207%20--%20Response.md#L71-L74">A <dfn id="request-error"><a href="#request-error" data-name="request-error">request error</a></dfn> is an error raised during a <span class="spec-ref"><a href="#request" data-name="request">request</a></span> which results in no response data. Typically raised before execution begins, a request error may occur due to a parse grammar or validation error in the <em>Document</em>, an inability to determine which operation to execute, or invalid input values for variables.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L76">A request error is typically the fault of the requesting client.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L78-L80">If a request error is raised, the <code>data</code> entry in the response must not be present, the <code>errors</code> entry must include the error, and request execution should be halted.</p>
 </section>
-<section id="sec-Errors.Field-errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L82"><a href="#sec-Errors.Field-errors" title="link to this subsection">Field errors</a></h6>
+<section id="sec-Errors.Field-Errors" class="subsec">
+<h6 data-source="spec/Section%207%20--%20Response.md#L82"><a href="#sec-Errors.Field-Errors" title="link to this subsection">Field Errors</a></h6>
 <p data-source="spec/Section%207%20--%20Response.md#L84-L86">A <dfn id="field-error"><a href="#field-error" data-name="field-error">field error</a></dfn> is an error raised during the execution of a particular field which results in partial response data. This may occur due to an internal error during value resolution or failure to coerce the resulting value.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L88">A field error is typically the fault of a GraphQL service.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L90-L93">If a field error is raised, execution attempts to continue and a partial result is produced (see <a href="#sec-Handling-Field-Errors">Handling Field Errors</a>). The <code>data</code> entry in the response must be present. The <code>errors</code> entry should include this error.</p>
 </section>
-<section id="sec-Errors.Error-result-format" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L95"><a href="#sec-Errors.Error-result-format" title="link to this subsection">Error result format</a></h6>
+<section id="sec-Errors.Error-Result-Format" class="subsec">
+<h6 data-source="spec/Section%207%20--%20Response.md#L95"><a href="#sec-Errors.Error-Result-Format" title="link to this subsection">Error Result Format</a></h6>
 <p data-source="spec/Section%207%20--%20Response.md#L97-L99">Every error must contain an entry with the key <code>message</code> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L101-L105">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <code>locations</code> with a list of locations, where each location is a map with the keys <code>line</code> and <code>column</code>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L107-L110">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error.</p>
@@ -6977,7 +6977,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_5.2.3"><a href="#sec-Subscription-Operation-Definitions"><span class="spec-secid">5.2.3</span>Subscription Operation Definitions</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_5.2.3" /><label for="_toggle_5.2.3"></label>
 <ol>
-<li id="_sidebar_5.2.3.1"><a href="#sec-Single-root-field"><span class="spec-secid">5.2.3.1</span>Single root field</a></li>
+<li id="_sidebar_5.2.3.1"><a href="#sec-Single-Root-Field"><span class="spec-secid">5.2.3.1</span>Single Root Field</a></li>
 </ol>
 </li>
 </ol>
@@ -7010,21 +7010,21 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <ol>
 <li id="_sidebar_5.5.1.1"><a href="#sec-Fragment-Name-Uniqueness"><span class="spec-secid">5.5.1.1</span>Fragment Name Uniqueness</a></li>
 <li id="_sidebar_5.5.1.2"><a href="#sec-Fragment-Spread-Type-Existence"><span class="spec-secid">5.5.1.2</span>Fragment Spread Type Existence</a></li>
-<li id="_sidebar_5.5.1.3"><a href="#sec-Fragments-On-Composite-Types"><span class="spec-secid">5.5.1.3</span>Fragments On Composite Types</a></li>
+<li id="_sidebar_5.5.1.3"><a href="#sec-Fragments-on-Composite-Types"><span class="spec-secid">5.5.1.3</span>Fragments on Composite Types</a></li>
 <li id="_sidebar_5.5.1.4"><a href="#sec-Fragments-Must-Be-Used"><span class="spec-secid">5.5.1.4</span>Fragments Must Be Used</a></li>
 </ol>
 </li>
 <li id="_sidebar_5.5.2"><a href="#sec-Fragment-Spreads"><span class="spec-secid">5.5.2</span>Fragment Spreads</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_5.5.2" /><label for="_toggle_5.5.2"></label>
 <ol>
-<li id="_sidebar_5.5.2.1"><a href="#sec-Fragment-spread-target-defined"><span class="spec-secid">5.5.2.1</span>Fragment spread target defined</a></li>
-<li id="_sidebar_5.5.2.2"><a href="#sec-Fragment-spreads-must-not-form-cycles"><span class="spec-secid">5.5.2.2</span>Fragment spreads must not form cycles</a></li>
-<li id="_sidebar_5.5.2.3"><a href="#sec-Fragment-spread-is-possible"><span class="spec-secid">5.5.2.3</span>Fragment spread is possible</a>
+<li id="_sidebar_5.5.2.1"><a href="#sec-Fragment-Spread-Target-Defined"><span class="spec-secid">5.5.2.1</span>Fragment Spread Target Defined</a></li>
+<li id="_sidebar_5.5.2.2"><a href="#sec-Fragment-Spreads-Must-Not-Form-Cycles"><span class="spec-secid">5.5.2.2</span>Fragment Spreads Must Not Form Cycles</a></li>
+<li id="_sidebar_5.5.2.3"><a href="#sec-Fragment-Spread-Is-Possible"><span class="spec-secid">5.5.2.3</span>Fragment Spread Is Possible</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_5.5.2.3" /><label for="_toggle_5.5.2.3"></label>
 <ol>
-<li id="_sidebar_5.5.2.3.1"><a href="#sec-Object-Spreads-In-Object-Scope"><span class="spec-secid">5.5.2.3.1</span>Object Spreads In Object Scope</a></li>
+<li id="_sidebar_5.5.2.3.1"><a href="#sec-Object-Spreads-in-Object-Scope"><span class="spec-secid">5.5.2.3.1</span>Object Spreads in Object Scope</a></li>
 <li id="_sidebar_5.5.2.3.2"><a href="#sec-Abstract-Spreads-in-Object-Scope"><span class="spec-secid">5.5.2.3.2</span>Abstract Spreads in Object Scope</a></li>
-<li id="_sidebar_5.5.2.3.3"><a href="#sec-Object-Spreads-In-Abstract-Scope"><span class="spec-secid">5.5.2.3.3</span>Object Spreads In Abstract Scope</a></li>
+<li id="_sidebar_5.5.2.3.3"><a href="#sec-Object-Spreads-in-Abstract-Scope"><span class="spec-secid">5.5.2.3.3</span>Object Spreads in Abstract Scope</a></li>
 <li id="_sidebar_5.5.2.3.4"><a href="#sec-Abstract-Spreads-in-Abstract-Scope"><span class="spec-secid">5.5.2.3.4</span>Abstract Spreads in Abstract Scope</a></li>
 </ol>
 </li>
@@ -7045,8 +7045,8 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <input hidden class="toggle" type="checkbox" id="_toggle_5.7" /><label for="_toggle_5.7"></label>
 <ol>
 <li id="_sidebar_5.7.1"><a href="#sec-Directives-Are-Defined"><span class="spec-secid">5.7.1</span>Directives Are Defined</a></li>
-<li id="_sidebar_5.7.2"><a href="#sec-Directives-Are-In-Valid-Locations"><span class="spec-secid">5.7.2</span>Directives Are In Valid Locations</a></li>
-<li id="_sidebar_5.7.3"><a href="#sec-Directives-Are-Unique-Per-Location"><span class="spec-secid">5.7.3</span>Directives Are Unique Per Location</a></li>
+<li id="_sidebar_5.7.2"><a href="#sec-Directives-Are-in-Valid-Locations"><span class="spec-secid">5.7.2</span>Directives Are in Valid Locations</a></li>
+<li id="_sidebar_5.7.3"><a href="#sec-Directives-Are-Unique-per-Location"><span class="spec-secid">5.7.3</span>Directives Are Unique per Location</a></li>
 </ol>
 </li>
 <li id="_sidebar_5.8"><a href="#sec-Validation.Variables"><span class="spec-secid">5.8</span>Variables</a>
@@ -7056,7 +7056,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_5.8.2"><a href="#sec-Variables-Are-Input-Types"><span class="spec-secid">5.8.2</span>Variables Are Input Types</a></li>
 <li id="_sidebar_5.8.3"><a href="#sec-All-Variable-Uses-Defined"><span class="spec-secid">5.8.3</span>All Variable Uses Defined</a></li>
 <li id="_sidebar_5.8.4"><a href="#sec-All-Variables-Used"><span class="spec-secid">5.8.4</span>All Variables Used</a></li>
-<li id="_sidebar_5.8.5"><a href="#sec-All-Variable-Usages-are-Allowed"><span class="spec-secid">5.8.5</span>All Variable Usages are Allowed</a></li>
+<li id="_sidebar_5.8.5"><a href="#sec-All-Variable-Usages-Are-Allowed"><span class="spec-secid">5.8.5</span>All Variable Usages Are Allowed</a></li>
 </ol>
 </li>
 </ol>
