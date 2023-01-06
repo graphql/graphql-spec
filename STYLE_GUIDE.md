@@ -7,7 +7,7 @@ consistency. The writing style portions are inspired by the AP style guide. When
 making changes to the GraphQL specification, please aim to be consistent with
 this style guide.
 
-## Auto-formatting
+## Auto-Formatting
 
 The GraphQL specification is formatted using the `prettier` tool, so you should
 not need to think about gaps between paragraphs and titles, nor about word
@@ -18,7 +18,7 @@ wrapping - this is handled for you.
 The GraphQL specification uses two types of headings: numbered headings and
 unnumbered headings. All headings should be written in Title Case (see below).
 
-### Numbered headings
+### Numbered Headings
 
 Lines beginning with a `#` will become numbered headings in the spec-md output.
 
@@ -30,14 +30,14 @@ Lines beginning with a `#` will become numbered headings in the spec-md output.
 ##### H5
 ```
 
-### Unnumbered headings
+### Unnumbered Headings
 
 Unnumbered headings are added to split large blocks of text up without impacting
 the spec numbering system. In the output are styled similarly to an H4. An
 unnumbered heading is a line on its own that is bolded:
 
 ```md
-\*\*This Is an Example Of an Unnumbered Heading\*\*
+\*\*This Is an Example of an Unnumbered Heading\*\*
 ```
 
 ### Title Case
