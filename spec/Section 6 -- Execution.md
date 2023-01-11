@@ -224,8 +224,8 @@ must receive no more events from that event stream.
 
 **Supporting Subscriptions at Scale**
 
-Supporting subscriptions is a significant challenge for a GraphQL service. Query
-and mutation operations are stateless, allowing scaling via cloning of GraphQL
+Supporting subscriptions at scale might be challenging for a GraphQL service. 
+Query and mutation operations are stateless, allowing scaling via cloning of GraphQL
 service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
