@@ -389,7 +389,7 @@ which, while serialized as a string, conforms to
 [RFC 4122](https://tools.ietf.org/html/rfc4122). When querying a field of type
 `UUID`, you can then rely on the ability to parse the result with a RFC 4122
 compliant parser. Another example of a potentially useful custom scalar is
-`URL`, which serializes as a string, but is guaranteed by the server to be a
+`URL`, which serializes as a string, but is guaranteed by the service to be a
 valid URL.
 
 :: When defining a custom scalar, GraphQL services should provide a _scalar
