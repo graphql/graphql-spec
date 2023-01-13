@@ -16,7 +16,8 @@
     "test": "npm run test:spelling && npm run test:format && npm run test:build",
     "test:spelling": "cspell \"spec/**/*.md\" README.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
-    "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || (echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1)",
+    "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || npm run suggest:format",
+    "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "build": "./build.sh",
     "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
     "watch": "nodemon -e json,md --exec \"npm run build\""
