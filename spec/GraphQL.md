@@ -26,7 +26,7 @@ specification can be found at permalinks that match their
 working draft release can be found at
 [https://spec.graphql.org/draft](https://spec.graphql.org/draft).
 
-**Copyright notice**
+**Copyright Notice**
 
 Copyright © 2015-2018, Facebook, Inc.
 
@@ -56,11 +56,11 @@ specifications, source code, and datasets) may be found at
 Currently, the licenses governing GraphQL Specification Project deliverables
 are:
 
-| Deliverable    | License                                                                                                                                 |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Specifications | [Open Web Foundation Agreement 1.0 Mode](http://www.openwebfoundation.org/legal/the-owf-1-0-agreements/owfa-1-0) (Patent and Copyright) |
-| Source code    | [MIT License](https://opensource.org/licenses/MIT)                                                                                      |
-| Data sets      | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)                                                                           |
+| Deliverable    | License                                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Specifications | [Open Web Foundation Agreement 1.0 (Patent and Copyright Grants)](https://www.openwebfoundation.org/the-agreements/the-owf-1-0-agreements-granted-claims/owfa-1-0) |
+| Source code    | [MIT License](https://opensource.org/licenses/MIT)                                                                                                                 |
+| Data sets      | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)                                                                                                      |
 
 **Conformance**
 

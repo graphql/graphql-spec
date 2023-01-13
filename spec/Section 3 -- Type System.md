@@ -389,7 +389,7 @@ which, while serialized as a string, conforms to
 [RFC 4122](https://tools.ietf.org/html/rfc4122). When querying a field of type
 `UUID`, you can then rely on the ability to parse the result with a RFC 4122
 compliant parser. Another example of a potentially useful custom scalar is
-`URL`, which serializes as a string, but is guaranteed by the server to be a
+`URL`, which serializes as a string, but is guaranteed by the service to be a
 valid URL.
 
 :: When defining a custom scalar, GraphQL services should provide a _scalar
@@ -856,7 +856,7 @@ Produces the ordered result:
 **Result Coercion**
 
 Determining the result of coercing an object is the heart of the GraphQL
-executor, so this is covered in that section of the spec.
+executor, see [Value Completion](#sec-Value-Completion).
 
 **Input Coercion**
 
@@ -924,14 +924,17 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
    2. Let {implementedItemType} be the unwrapped item type of
       {implementedFieldType}.
    3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
-3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
-4. If {fieldType} is an Object type and {implementedFieldType} is a Union type
-   and {fieldType} is a possible type of {implementedFieldType} then return
-   {true}.
-5. If {fieldType} is an Object or Interface type and {implementedFieldType} is
-   an Interface type and {fieldType} declares it implements
-   {implementedFieldType} then return {true}.
-6. Otherwise return {false}.
+3. Return {IsSubType(fieldType, implementedFieldType)}.
+
+IsSubType(possibleSubType, superType):
+
+1. If {possibleSubType} is the same type as {superType} then return {true}.
+2. If {possibleSubType} is an Object type and {superType} is a Union type and
+   {possibleSubType} is a possible type of {superType} then return {true}.
+3. If {possibleSubType} is an Object or Interface type and {superType} is an
+   Interface type and {possibleSubType} declares it implements {superType} then
+   return {true}.
+4. Otherwise return {false}.
 
 ### Field Arguments
 

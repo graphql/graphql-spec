@@ -1,32 +1,45 @@
 name: CI
+
 on:
   push:
     branches:
       - main
   pull_request:
-    branches:
-      - main
+
 jobs:
-  test:
+  test-spelling:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "16.x"
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
       - run: npm ci
-      - run: npm test
+      - run: npm run test:spelling
+  test-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+      - run: npm run test:format
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm ci
+      - run: npm run test:build
   publish:
     if: github.ref == 'refs/heads/main'
-    needs: test
+    needs:
+      - test-spelling
+      - test-format
+      - test-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "16.x"
+      - uses: actions/setup-node@v3
       - run: npm ci
       - run: npm run build
       - uses: peaceiris/actions-gh-pages@v3

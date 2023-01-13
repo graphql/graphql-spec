@@ -19,7 +19,7 @@ or development-time tool should report validation errors and not allow the
 formulation or execution of requests known to be invalid at that given point in
 time.
 
-**Type system evolution**
+**Type System Evolution**
 
 As GraphQL type system schema evolves over time by adding new types and new
 fields, it is possible that a request which was previously valid could later
@@ -251,7 +251,7 @@ query getName {
 
 ### Subscription Operation Definitions
 
-#### Single root field
+#### Single Root Field
 
 **Formal Specification**
 
@@ -556,8 +556,8 @@ fragment safeDifferingArgs on Pet {
 ```
 
 However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
-or an `Int`:
+leaf types must not differ. In this example, `someValue` might be a `String` or
+an `Int`:
 
 ```graphql counter-example
 fragment conflictingDifferingResponses on Pet {
@@ -579,7 +579,7 @@ fragment conflictingDifferingResponses on Pet {
   - If {selectionType} is a scalar or enum:
     - The subselection set of that selection must be empty.
   - If {selectionType} is an interface, union, or object:
-    - The subselection set of that selection must NOT BE empty.
+    - The subselection set of that selection must not be empty.
 
 **Explanatory Text**
 
@@ -910,7 +910,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments On Composite Types
+#### Fragments on Composite Types
 
 **Formal Specification**
 
@@ -987,7 +987,7 @@ Field selection is also determined by spreading fragments into one another. The
 selection set of the target fragment is combined into the selection set at the
 level at which the target fragment is referenced.
 
-#### Fragment spread target defined
+#### Fragment Spread Target Defined
 
 **Formal Specification**
 
@@ -1008,7 +1008,7 @@ is a validation error if the target of a spread is not defined.
 }
 ```
 
-#### Fragment spreads must not form cycles
+#### Fragment Spreads Must Not Form Cycles
 
 **Formal Specification**
 
@@ -1093,7 +1093,7 @@ fragment ownerFragment on Human {
 }
 ```
 
-#### Fragment spread is possible
+#### Fragment Spread Is Possible
 
 **Formal Specification**
 
@@ -1118,7 +1118,7 @@ type matches the type condition. They also are spread within the context of a
 parent type. A fragment spread is only valid if its type condition could ever
 apply within the parent type.
 
-##### Object Spreads In Object Scope
+##### Object Spreads in Object Scope
 
 In the scope of an object type, the only valid object type fragment spread is
 one that applies to the same type that is in scope.
@@ -1181,7 +1181,7 @@ that if one inspected the contents of the {CatOrDogNameFragment} you could note
 that no valid results would ever be returned. However we do not specify this as
 invalid because we only consider the fragment declaration, not its body.
 
-##### Object Spreads In Abstract Scope
+##### Object Spreads in Abstract Scope
 
 Union or interface spreads can be used within the context of an object type
 fragment, but only if the object type is one of the possible types of that
@@ -1266,7 +1266,7 @@ fragment sentientFragment on Sentient {
 is not valid because there exists no type that implements both {Pet} and
 {Sentient}.
 
-**Interface Spreads in implemented Interface Scope**
+**Interface Spreads in Implemented Interface Scope**
 
 Additionally, an interface type fragment can always be spread into an interface
 scope which it implements.
@@ -1447,7 +1447,7 @@ input object field is optional.
 GraphQL services define what directives they support. For each usage of a
 directive, the directive must be available on that service.
 
-### Directives Are In Valid Locations
+### Directives Are in Valid Locations
 
 **Formal Specification**
 
@@ -1473,7 +1473,7 @@ query @skip(if: $foo) {
 }
 ```
 
-### Directives Are Unique Per Location
+### Directives Are Unique per Location
 
 **Formal Specification**
 
@@ -1488,13 +1488,13 @@ query @skip(if: $foo) {
 
 **Explanatory Text**
 
-Directives are used to describe some metadata or behavioral change on the
-definition they apply to. When more than one directive of the same name is used,
-the expected metadata or behavior becomes ambiguous, therefore only one of each
-directive is allowed per location.
+GraphQL allows directives that are defined as `repeatable` to be used more than
+once on the definition they apply to, possibly with different arguments. In
+contrast, if a directive is not `repeatable`, then only one occurrence of it is
+allowed per location.
 
-For example, the following document will not pass validation because `@skip` has
-been used twice for the same field:
+For example, the following document will not pass validation because
+non-repeatable `@skip` has been used twice for the same field:
 
 ```raw graphql counter-example
 query ($foo: Boolean = true, $bar: Boolean = false) {
@@ -1853,7 +1853,7 @@ fragment isHouseTrainedFragment on Dog {
 This document is not valid because {queryWithExtraVar} defines an extraneous
 variable.
 
-### All Variable Usages are Allowed
+### All Variable Usages Are Allowed
 
 **Formal Specification**
 
@@ -1971,7 +1971,7 @@ query listToNonNullList($booleanList: [Boolean]) {
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 Similarly a `[T]` cannot be passed to a `[T!]`.
 
-**Allowing optional variables when default values exist**
+**Allowing Optional Variables When Default Values Exist**
 
 A notable exception to typical variable type compatibility is allowing a
 variable definition with a nullable type to be provided to a non-null location
