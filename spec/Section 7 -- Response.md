@@ -39,10 +39,10 @@ all but the last response in the stream. The value of this entry is `false` for
 the last response of the stream. This entry must not be present for GraphQL
 operations that return a single response map.
 
-The GraphQL server may determine there are no more values in the response stream
-after a previous value with `hasNext` equal to `true` has been emitted. In this
-case the last value in the response stream should be a map without `data` and
-`incremental` entries, and a `hasNext` entry with a value of `false`.
+The GraphQL service may determine there are no more values in the response
+stream after a previous value with `hasNext` equal to `true` has been emitted.
+In this case the last value in the response stream should be a map without
+`data` and `incremental` entries, and a `hasNext` entry with a value of `false`.
 
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementors to
