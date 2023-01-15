@@ -2163,8 +2163,8 @@ fragment someFragment on User {
   omitted.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding defer directive. If
-  provided, the GraphQL Server must add it to the corresponding payload. `label`
-  must be unique label across all `@defer` and `@stream` directives in a
+  provided, the GraphQL service must add it to the corresponding payload.
+  `label` must be unique label across all `@defer` and `@stream` directives in a
   document. `label` must not be provided as a variable.
 
 ### @stream
@@ -2200,19 +2200,19 @@ query myQuery($shouldStream: Boolean) {
   when omitted.
 - `label: String` - May be used by GraphQL clients to identify the data from
   responses and associate it with the corresponding stream directive. If
-  provided, the GraphQL Server must add it to the corresponding payload. `label`
-  must be unique label across all `@defer` and `@stream` directives in a
+  provided, the GraphQL service must add it to the corresponding payload.
+  `label` must be unique label across all `@defer` and `@stream` directives in a
   document. `label` must not be provided as a variable.
-- `initialCount: Int` - The number of list items the server should return as
+- `initialCount: Int` - The number of list items the service should return as
   part of the initial response. If omitted, defaults to `0`. A field error will
   be raised if the value of this argument is less than `0`.
 
 Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
 need clear, predictable control over their application's performance. It is
-highly recommended that GraphQL servers honor the `@defer` and `@stream`
+highly recommended that GraphQL services honor the `@defer` and `@stream`
 directives on each execution. However, the specification allows advanced use
-cases where the server can determine that it is more performant to not defer
+cases where the service can determine that it is more performant to not defer
 and/or stream. Therefore, GraphQL clients _must_ be able to process a response
 that ignores the `@defer` and/or `@stream` directives. This also applies to the
 `initialCount` argument on the `@stream` directive. Clients _must_ be able to
