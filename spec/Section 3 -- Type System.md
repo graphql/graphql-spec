@@ -395,7 +395,7 @@ valid URL.
 :: When defining a custom scalar, GraphQL services should provide a _scalar
 specification URL_ via the `@specifiedBy` directive or the `specifiedByURL`
 introspection field. This URL must link to a human-readable specification of the
-data format, serialization, and coercion rules for the scalar.
+data format, serialization, and coercion rules for the scalar. See more on the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/).
 
 For example, a GraphQL service providing a `UUID` scalar may link to RFC 4122,
 or some custom document defining a reasonable subset of that RFC. If a _scalar
@@ -405,11 +405,12 @@ conform to its described rules.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
+scalar DateTime @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time")
 ```
 
 Custom *scalar specification URL*s should provide a single, stable format to
 avoid ambiguity. If the linked specification is in flux, the service should link
-to a fixed version rather than to a resource which might change.
+to a fixed version rather than to a resource which might change. You can host your custom scalar specification on the GraphQL Foundation owned domain [scalars.graphql.org](https://scalars.graphql.org/), see how to add your specification on the [contribution guide](https://scalars.graphql.org/readme-contribution-guide). 
 
 Custom *scalar specification URL*s should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
@@ -419,7 +420,7 @@ Built-in scalar types must not provide a _scalar specification URL_ as they are
 specified by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
-examples in their description.
+examples in their description. See the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/).
 
 **Result Coercion and Serialization**
 
@@ -2108,11 +2109,15 @@ The `@specifiedBy` _built-in directive_ is used within the type system
 definition language to provide a _scalar specification URL_ for specifying the
 behavior of [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should
 point to a human-readable specification of the data format, serialization, and
-coercion rules. It must not appear on built-in scalar types.
+coercion rules. See more on the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/). This directive must not appear on built-in scalar types.
+
+You can host your custom scalar specification on the GraphQL Foundation owned domain [scalars.graphql.org](https://scalars.graphql.org/), see how to add your specification on the [contribution guide](https://scalars.graphql.org/readme-contribution-guide).
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
+scalar DateTime @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time")
 ```
