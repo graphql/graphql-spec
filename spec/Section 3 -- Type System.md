@@ -395,7 +395,7 @@ valid URL.
 :: When defining a custom scalar, GraphQL services should provide a _scalar
 specification URL_ via the `@specifiedBy` directive or the `specifiedByURL`
 introspection field. This URL must link to a human-readable specification of the
-data format, serialization, and coercion rules for the scalar. See more on the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/).
+data format, serialization, and coercion rules for the scalar.
 
 For example, a GraphQL service providing a `UUID` scalar may link to RFC 4122,
 or some custom document defining a reasonable subset of that RFC. If a _scalar
