@@ -410,7 +410,9 @@ scalar DateTime @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-ti
 
 Custom *scalar specification URL*s should provide a single, stable format to
 avoid ambiguity. If the linked specification is in flux, the service should link
-to a fixed version rather than to a resource which might change. You can host your custom scalar specification on the GraphQL Foundation owned domain [scalars.graphql.org](https://scalars.graphql.org/), see how to add your specification on the [contribution guide](https://scalars.graphql.org/readme-contribution-guide). 
+to a fixed version rather than to a resource which might change.
+
+Note: Some community-maintained custom scalar specifications are hosted at [scalars.graphql.org](https://scalars.graphql.org/).
 
 Custom *scalar specification URL*s should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
