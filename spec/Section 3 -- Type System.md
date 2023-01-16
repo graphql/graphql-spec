@@ -2111,9 +2111,9 @@ The `@specifiedBy` _built-in directive_ is used within the type system
 definition language to provide a _scalar specification URL_ for specifying the
 behavior of [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should
 point to a human-readable specification of the data format, serialization, and
-coercion rules. See more on the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/). This directive must not appear on built-in scalar types.
+coercion rules. It must not appear on built-in scalar types.
 
-You can host your custom scalar specification on the GraphQL Foundation owned domain [scalars.graphql.org](https://scalars.graphql.org/), see how to add your specification on the [contribution guide](https://scalars.graphql.org/readme-contribution-guide).
+Note: Details on implementing a GraphQL scalar specification can be found in the [scalars.graphql.org implementation guide](https://scalars.graphql.org/implementation-guide).
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.
