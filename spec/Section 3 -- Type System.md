@@ -422,7 +422,7 @@ Built-in scalar types must not provide a _scalar specification URL_ as they are
 specified by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
-examples in their description. See the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) and see [custom scalar specification templates](https://scalars.graphql.org/) at [scalars.graphql.org](https://scalars.graphql.org/).
+examples in their description; see the GraphQL scalars [implementation guide](https://scalars.graphql.org/implementation-guide) for more guidance.
 
 **Result Coercion and Serialization**
 
