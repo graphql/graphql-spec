@@ -415,7 +415,7 @@ subsequentPayloads, asyncRecord):
 - If {path} is not provided, initialize it to an empty list.
 - If {subsequentPayloads} is not provided, initialize it to the empty set.
 - Let {groupedFieldSet} and {deferredGroupedFieldsList} be the result of
-  {CollectFields(objectType, selectionSet, variableValues, path, asyncRecord)}.
+  {CollectFields(objectType, selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -647,8 +647,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, path, asyncRecord,
-visitedFragments, deferredGroupedFieldsList):
+CollectFields(objectType, selectionSet, variableValues, visitedFragments,
+deferredGroupedFieldsList):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -695,14 +695,14 @@ visitedFragments, deferredGroupedFieldsList):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
-        asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues,
+        visitedFragments, deferredGroupedFieldsList)}.
       - Append a record containing {label} and {deferredGroupedFields} to
         {deferredGroupedFieldsList}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
-      asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -725,21 +725,21 @@ visitedFragments, deferredGroupedFieldsList):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {deferredGroupedFields} be the result of calling
-        {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
-        asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
+        {CollectFields(objectType, fragmentSelectionSet, variableValues,
+        visitedFragments, deferredGroupedFieldsList)}.
       - Append a record containing {label} and {deferredGroupedFields} to
         {deferredGroupedFieldsList}.
       - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
-      asyncRecord, visitedFragments, deferredGroupedFieldsList)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields} and {deferredGroupedFieldsList}.
+- Return {groupedFields}, {deferredGroupedFieldsList} and {visitedFragments}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
