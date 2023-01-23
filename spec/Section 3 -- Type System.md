@@ -2120,6 +2120,4 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
-scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
-scalar DateTime @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time")
 ```
