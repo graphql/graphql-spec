@@ -118,8 +118,6 @@ enum Language {
 SchemaDefinition : Description? schema Directives[Const]? {
 OperationTypeDefinition\* }
 
-OperationTypeDefinition : OperationKind : NamedType
-
 :: A GraphQL service's collective type system capabilities are referred to as
 that service's _schema_. A schema is defined in terms of the types and
 directives it supports as well as the _operation type_ for each kind of
@@ -140,6 +138,8 @@ introspection system.
 
 ### Operation Types
 
+OperationTypeDefinition : OperationKind : NamedType
+
 :: A schema defines an _operation type_ for each kind of operation it supports:
 query, mutation, and subscription. This describes the type of the _root
 selection set_ for that kind of operation and by doing so determines the place
@@ -154,8 +154,8 @@ Similarly, the subscription _operation type_ is also optional; if it is not
 provided, the service does not support subscriptions. If it is provided, it must
 be an Object type.
 
-The query, mutation, and subscription _operation type_ must each be different
-types, if provided.
+Each provided query, mutation, and subscription _operation type_ must be
+different types.
 
 The fields on the query _operation type_ indicate what fields are available at
 the top level of a GraphQL query operation.
@@ -220,8 +220,8 @@ its respective _default operation type name_ and no other type uses any _default
 operation type name_.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
-including a {`schema`} definition. The {"Query"} type is presumed to be the
-query _operation type_ of the schema.
+including a schema definition. The {"Query"} type is presumed to be the query
+_operation type_ of the schema.
 
 ```graphql example
 type Query {

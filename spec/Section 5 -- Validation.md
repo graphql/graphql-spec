@@ -251,7 +251,7 @@ query getName {
 
 ### Subscription Operation Definitions
 
-#### Single field in the root selection set
+#### Single collected root field
 
 **Formal Specification**
 
@@ -266,7 +266,8 @@ query getName {
 
 **Explanatory Text**
 
-Subscription operations must have exactly one field in the _root selection set_.
+Subscription operations must have exactly one field collected from its _root
+selection set_.
 
 Valid examples:
 
@@ -318,8 +319,8 @@ fragment multipleSubscriptions on Subscription {
 }
 ```
 
-The single field from the _root selection set_ of a subscription must not be an
-introspection field. The following example is invalid:
+The single field collected from the _root selection set_ of a subscription must
+not be an introspection field. The following example is invalid:
 
 ```graphql counter-example
 subscription sub {
@@ -327,11 +328,11 @@ subscription sub {
 }
 ```
 
-Note: While each subscription must have exactly one field in the _root selection
-set_, a document may contain any number of subscription operations, each of
-which may contain different fields. When executed, a document containing
-multiple subscription operations must provide the operation name as described in
-{GetOperation()}.
+Note: While each subscription must have exactly one field collected from the
+_root selection set_, a document may contain any number of subscription
+operations, each of which may contain different fields. When executed, a
+document containing multiple subscription operations must provide the operation
+name as described in {GetOperation()}.
 
 ## Fields
 

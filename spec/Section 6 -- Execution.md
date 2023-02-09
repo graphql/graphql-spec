@@ -269,12 +269,13 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   argumentValues)}.
 - Return {fieldStream}.
 
-ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
+ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
+argumentValues):
 
 - Let {resolver} be the internal function provided by {subscriptionType} for
   determining the resolved event stream of a subscription field named
   {fieldName}.
-- Return the result of calling {resolver}, providing {rootValue} and
+- Return the result of calling {resolver}, providing {initialValue} and
   {argumentValues}.
 
 Note: This {ResolveFieldEventStream()} algorithm is intentionally similar to

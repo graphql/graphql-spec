@@ -69,10 +69,10 @@ underscores {"\_\_"}.
 ## Type Name Introspection
 
 GraphQL supports type name introspection within any selection set in an
-operation, with the single exception of a subscription _root selection set_.
-Type name introspection is accomplished via the meta-field `__typename: String!`
-on any Object, Interface, or Union. It returns the name of the concrete Object
-type at that point during execution.
+operation, with the exception of those collected from a subscription _root
+selection set_. Type name introspection is accomplished via the meta-field
+`__typename: String!` on any Object, Interface, or Union. It returns the name of
+the concrete Object type at that point during execution.
 
 This is most often used when querying against Interface or Union types to
 identify which actual Object type of the possible types has been returned.
@@ -80,8 +80,8 @@ identify which actual Object type of the possible types has been returned.
 As a meta-field, `__typename` is implicit and does not appear in the fields list
 in any defined type.
 
-Note: `__typename` may not be included as a field in a subscription _root
-selection set_.
+Note: `__typename` may not be included as a collected field from a subscription
+_root selection set_.
 
 ## Schema Introspection
 
@@ -94,7 +94,7 @@ __type(name: String!): __Type
 ```
 
 Like all meta-fields, these are implicit and do not appear in the fields list in
-the _root type_ of the query operation.
+the query _operation type_.
 
 **First Class Documentation**
 
