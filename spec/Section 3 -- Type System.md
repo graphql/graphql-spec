@@ -122,7 +122,7 @@ RootOperationTypeDefinition : OperationType : NamedType
 
 A GraphQL service's collective type system capabilities are referred to as that
 service's "schema". A schema is defined in terms of the types and directives it
-supports as well as the root operation types for each kind of operation: query,
+supports as well as the _root operation type_ for each kind of operation: query,
 mutation, and subscription; this determines the place in the type system where
 those operations begin.
 
@@ -141,24 +141,24 @@ introspection system.
 
 ### Root Operation Types
 
-A schema defines the initial root operation type for each kind of operation it
-supports: query, mutation, and subscription; this determines the place in the
+:: A schema defines the initial _root operation type_ for each kind of operation
+it supports: query, mutation, and subscription; this determines the place in the
 type system where those operations begin.
 
-The {`query`} root operation type must be provided and must be an Object type.
+The {`query`} _root operation type_ must be provided and must be an Object type.
 
-The {`mutation`} root operation type is optional; if it is not provided, the
+The {`mutation`} _root operation type_ is optional; if it is not provided, the
 service does not support mutations. If it is provided, it must be an Object
 type.
 
-Similarly, the {`subscription`} root operation type is also optional; if it is
+Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
 must be an Object type.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
 
-The fields on the {`query`} root operation type indicate what fields are
+The fields on the {`query`} _root operation type_ indicate what fields are
 available at the top level of a GraphQL query operation.
 
 For example, this example operation:
@@ -169,7 +169,8 @@ query {
 }
 ```
 
-is only valid when the {`query`} root operation type has a field named "myName":
+is only valid when the {`query`} _root operation type_ has a field named
+"myName":
 
 ```graphql example
 type Query {
@@ -177,8 +178,8 @@ type Query {
 }
 ```
 
-Similarly, the following mutation is only valid if the {`mutation`} root
-operation type has a field named "setName".
+Similarly, the following mutation is only valid if the {`mutation`} _root
+operation type_ has a field named "setName".
 
 ```graphql example
 mutation {
@@ -191,8 +192,8 @@ mutation {
 When using the type system definition language, a document must include at most
 one {`schema`} definition.
 
-In this example, a GraphQL schema is defined with both query and mutation root
-operation types:
+In this example, a GraphQL schema is defined with both a query and mutation
+_root operation type_:
 
 ```graphql example
 schema {
@@ -211,26 +212,50 @@ type MyMutationRootType {
 
 **Default Root Operation Type Names**
 
-:: While any type can be the root operation type for a GraphQL operation, the
-_default root type name_ for the {`query`}, {`mutation`}, and {`subscription`}
-root types are {"Query"}, {"Mutation"}, and {"Subscription"} respectively.
+:: The _default root type name_ for each {`query`}, {`mutation`}, and
+{`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
+{"Subscription"} respectively.
 
 The type system definition language can omit the schema definition when each
-root type present uses its respective _default root type name_ and no other type
-uses a default root type name.
+_root operation type_ uses its respective _default root type name_ and no other
+type uses any _default root type name_.
 
 Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if each root type present uses
-its respective _default root type name_ and no other type uses a default root
-type name.
+language, a schema definition should be omitted if each _root operation type_
+uses its respective _default root type name_ and no other type uses any _default
+root type name_.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
-{`query`} root operation type of the schema.
+{`query`} _root operation type_ of the schema.
 
 ```graphql example
 type Query {
   someField: String
+}
+```
+
+This example describes a valid GraphQL schema without a {`mutation`} _root
+operation type_, even though it contains a type named {"Mutation"}. The schema
+definition must be included, otherwise the {"Mutation"} type would be
+incorrectly presumed to be the {`mutation`} _root operation type_ of the schema.
+
+```graphql example
+schema {
+  query: Query
+}
+
+type Query {
+  latestVirus: Virus
+}
+
+type Virus {
+  name: String
+  mutations: [Mutation]
+}
+
+type Mutation {
+  name: String
 }
 ```
 
