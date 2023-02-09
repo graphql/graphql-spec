@@ -279,19 +279,21 @@ be executed must also be provided.
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- OperationKind Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
-OperationType : one of `query` `mutation` `subscription`
+OperationKind : one of `query` `mutation` `subscription`
 
-There are three types of operations that GraphQL models:
+There are three kinds of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
 - subscription - a long-lived request that fetches data in response to source
   events.
 
-Each operation is represented by an optional operation name and a selection set.
+:: Each operation is represented by an optional operation name and a _root
+selection set_ which describes the initial set of fields to request from that
+_operation type_.
 
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
@@ -643,10 +645,10 @@ fragment pageFragment on Page {
 }
 ```
 
-The `profiles` root field returns a list where each element could be a `Page` or
-a `User`. When the object in the `profiles` result is a `User`, `friends` will
-be present and `likers` will not. Conversely when the result is a `Page`,
-`likers` will be present and `friends` will not.
+The `profiles` field returns a list where each element could be a `Page` or a
+`User`. When the object in the `profiles` result is a `User`, `friends` will be
+present and `likers` will not. Conversely when the result is a `Page`, `likers`
+will be present and `friends` will not.
 
 ```json example
 {
