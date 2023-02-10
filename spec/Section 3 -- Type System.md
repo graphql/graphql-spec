@@ -1624,7 +1624,7 @@ The value for an input object should be an input object literal or an unordered
 map supplied by a variable, otherwise a _request error_ must be raised. In
 either case, the input object literal or unordered map must not contain any
 entries with names not defined by a field of this input object type, otherwise a
-response error must be raised.
+request error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
