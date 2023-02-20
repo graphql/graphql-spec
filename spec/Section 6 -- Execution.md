@@ -131,12 +131,37 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
+- Let {currentPhase} be a new "phase" object. (TODO: define.)
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
+  queryType, initialValue, variableValues, currentPhase)} _normally_ (allowing
   parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {currentPhase} has children:
+  - Create stream {stream}.
+  - Let {pending} be a list of the ids of {currentPhase}'s children.
+  - Add an unordered map containing {data}, {errors} and {pending} to {stream}.
+  - For each {nextPhase} in {currentPhase}'s children, in parallel:
+    - {ExecutePhase(variableValues, stream, nextPhase)}.
+- Else:
+  - Return an unordered map containing {data} and {errors}.
+
+ExecutePhase(variableValues, stream, currentPhase):
+
+- For each {path} in {currentPhase}'s paths:
+  - Let {objectType}, {objectValue}, {fields} be the relevant values for {path}
+    in {currentPhase}.
+  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
+  - Let {data} be {ExecuteSelectionSet(subSelectionSet, objectType, objectValue,
+    variableValues, currentPhase)}.
+  - Let {errors} be the list of all _field error_ raised during the above.
+  - If {data} is not an empty map:
+    - Add an unordered map containing {path}, {data} and {errors} to {stream}.
+- Let {completed} be a list containing {currentPhase}'s id.
+- Add an unordered map containing {completed} to {stream}.
+- If {currentPhase} has children:
+  - For each {nextPhase} in {currentPhase}'s children, in parallel:
+    - {ExecutePhase(variableValues, stream, nextPhase)}.
 
 ### Mutation
 
@@ -332,21 +357,43 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
 map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues,
+currentPhase):
 
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+  selectionSet, variableValues, currentPhase)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
-  - Let {fieldType} be the return type defined for the field {fieldName} of
-    {objectType}.
-  - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
+  - If no entry in {fields} belongs to {currentPhase} and
+    {ShouldDefer(objectType, objectValue, fieldName)} is {true}:
+    - For each entry {field} in {fields}:
+      - Let {fieldPhase} be the phase of {field}.
+      - Store {objectValue} as the parent object field for path {path} in
+        {fieldPhase}. (TODO: this is really where the field should be enqueued
+        to {fieldPhase}.)
+  - Else:
+    - For every entry {field} in {fields}:
+      - Record into {field} that it belongs to {currentPhase} (overwriting
+        previous phase). (NOT VALID SPEC TEXT!)
+    - Let {fieldName} be the name of the first entry in {fields}. Note: This
+      value is unaffected if an alias is used.
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - If {fieldType} is defined:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fields, variableValues, currentPhase)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+      - For every entry {field} in {fields}, mark {field} as complete. (NOT
+        VALID SPEC TEXT.)
 - Return {resultMap}.
+
+ShouldDefer(objectType, objectValue, fieldName):
+
+- Let {deferrer} be the internal function provided by {objectType} for
+  determining if {fieldName} should be deferred if requested.
+- If {deferrer} does not exist:
+  - Return {true}.
+- Return the result of calling {resolver}, providing {objectValue}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -490,7 +537,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, visitedFragments,
+currentPhase):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -510,6 +558,17 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       defined, otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
+    - If {currentPhase}:
+      - TODO: the following is not viable for the spec because the mutation will
+        escape the error handling, and we cannot have that. Instead we must make
+        the code immutable and return additional information from
+        {CollectFields()}. I've left it using mutability only to make edits
+        smaller and discussion easier.
+      - Record into {currentPhase} that {selection} is required at {path}.
+        (TODO: pull {path} into Chapter 6.)
+      - Record into {selection} that it belongs to {currentPhase}.
+      - Note: though these are reciprocal now, they may not be after the
+        algorithm completes.
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
@@ -524,9 +583,17 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentDefer} be {currentPhase}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} or is a variable in
+        {variableValues} and does not have the value {false}:
+        - Let {newPhase} be a new phase object.
+        - Add {newPhase} as a child of {currentPhase}.
+        - Let {fragmentDefer} be {newPhase}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, fragmentDefer)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -539,9 +606,17 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - Let {fragmentDefer} be {currentPhase}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} or is a variable in
+        {variableValues} and does not have the value {false}:
+        - Let {newPhase} be a new phase object.
+        - Add {newPhase} as a child of {currentPhase}.
+        - Let {fragmentDefer} be {newPhase}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, fragmentDefer)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -573,7 +648,8 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+currentPhase):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
@@ -582,7 +658,7 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+  variableValues, currentPhase)}.
 
 ### Coercing Field Arguments
 
@@ -669,7 +745,7 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fields, result, variableValues, currentPhase):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
@@ -694,7 +770,7 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
   - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues)} _normally_ (allowing for
+    objectType, result, variableValues, currentPhase)} _normally_ (allowing for
     parallelization).
 
 **Coercing Results**
