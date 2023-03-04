@@ -17,6 +17,10 @@ key `errors`. The value of this entry is described in the "Errors" section. If
 the request completed without raising any errors, this entry must not be
 present.
 
+TODO: add stuff about incremental into section 7. Also, just like `errors`
+should not be present if there were no errors, similarly `incremental`,
+`pending` and `completed` follow the same rule.
+
 If the request included execution, the response map must contain an entry with
 key `data`. The value of this entry is described in the "Data" section. If the
 request failed before execution, due to a syntax error, missing information, or

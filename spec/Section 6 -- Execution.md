@@ -131,12 +131,66 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+- Let {data}, {pendings} be the result of running
+  {ExecuteSelectionSet(selectionSet, queryType, initialValue, variableValues)}
+  _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {pendings} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Else:
+  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
+
+IncrementalStream(data, errors, pendings, variableValues):
+
+- Let {responseStream} be a new event stream {responseStream}.
+- Let {hasNext} be {true}.
+- Yield to {responseStream} an unordered map containing {data}, {errors}, and
+  {hasNext}.
+- Let {remainingPendings} be an empty list.
+- Let {nextPayloads} be an empty list.
+- Let {nextPendings} be an empty list.
+- Let {nextCompleteds} be an empty list.
+- In parallel, for each new entry {pending} added to {remainingPendings}:
+  - Let {id} be the unique identifier for {pending}.
+  - Let {path} be the root path for {pending}.
+  - Let {nextPending} be an unordered map containing {id}, {path}.
+  - Add {nextPending} to {nextPendings}.
+  - Let {moreIncrementalPayloads}, {morePendings} be the result of running
+    {ExecutePending(pending, variableValues)}.
+  - For each entry {payload} in {moreIncrementalPayloads}:
+    - Add {payload} to {nextPayloads}.
+  - For each {newPending} in {morePendings}:
+    - Add {newPending} to {remainingPendings}.
+  - Let {nextCompleted} be an unordered map containing {id}.
+  - Add {nextCompleted} to {nextCompleteds}.
+  - Remove {pending} from {remainingPendings}.
+  - Call {FlushIncremental(responseStream, nextPayloads, nextPendings,
+    nextCompleteds)}, and reset {nextPayloads}, {nextPendings}, {nextCompleteds}
+    to empty lists.
+    - TODO: allow this to be batched more - we can group the results from
+      multiple {pending} executions into a single incremental response.
+- For each {pending} in {pendings}:
+  - Add {pending} tp {remainingPendings}.
+- When {remainingPendings} is empty:
+  - Call {FlushIncremental(stream, nextPayloads, newPending, nextCompleteds,
+    false)}.
+  - Complete {responseStream}.
+- Return {responseStream}.
+
+FlushIncremental(responseStream, nextPayloads, nextPendings, nextCompleteds,
+hasNext):
+
+- If {hasNext} is not provided, initialize it to {true}.
+- If {nextPayloads} is not empty:
+  - Let {incremental} be {nextPayloads}.
+- If {nextPendings} is not empty:
+  - Let {pending} be {nextPendings}.
+- If {nextCompleteds} is not empty:
+  - Let {completed} be {nextCompleteds}.
+- Let {payload} be an unordered map containing {incremental}, {pending},
+  {completed} and {hasNext}.
+- Yield an event to {responseStream} containing {payload}.
 
 ### Mutation
 
@@ -153,11 +207,17 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
+- Let {data}, {pendings} be the result of running
+  {ExecuteSelectionSet(selectionSet, mutationType, initialValue,
+  variableValues)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {pendings} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Else:
+  - Note: this places the defers after _all_ the mutations. This may not be
+    desired; we should discuss.
+  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
 
 ### Subscription
 
@@ -293,7 +353,11 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - For each {event} on {sourceStream}:
   - Let {response} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
+  - If {response} is an event stream:
+    - For each event {event} in {response}:
+      - Yield an event containing {event}.
+  - Else:
+    - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
@@ -301,12 +365,17 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+- Let {data}, {pendings} be the result of running
+  {ExecuteSelectionSet(selectionSet, subscriptionType, initialValue,
+  variableValues)} _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {pendings} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Else:
+  - Note: this places the defers after _all_ the mutations. This may not be
+    desired; we should discuss.
+  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
