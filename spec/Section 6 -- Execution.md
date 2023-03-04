@@ -417,16 +417,30 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - If {fieldType} is a list type and {field} provides the directive
-      `@stream`, let {streamDirective} be that directive.
-      - TODO: `@stream(if:)`
-      - Add {fieldDetails} to {streams}.
-    - Else if every entry in {fieldDetails} has {isDeferred} set to {true}:
+    - If every entry in {fieldDetails} has {isDeferred} set to {true}:
       - Add {fieldDetails} to {deferred}.
     - Else:
       - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
         fieldDetails, variableValues)}.
-      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+      - If {responseValue} is not null and {fieldType} is a list type and
+        {field} provides the directive `@stream`, let {streamDirective} be that
+        directive. If {streamDirective}'s {if} argument is not {false} and is
+        not a variable in {variableValues} with the value {false}:
+        - If {streamDirective}'s {initialCount} argument is a variable:
+          - Let {initialCount} be the value of that variable in
+            {variableValues}.
+        - Else
+          - Let {initialCount} be the value of {streamDirective}'s
+            {initialCount} argument.
+        - If {initialCount} is {null}, not provided, or less than {0} then let
+          {initialCount} be {0}.
+        - Let {initialValues} be the first {initialCount} entires in
+          {responesValue}, and {remainingValues} be the remainder.
+        - Set {initialValues} as the value for {responseKey} in {resultMap}.
+        - If there are (or may be) values in {remainingValues}:
+          - TODO: add {remainingValues} to {streams} via some mechanism...
+      - Else:
+        - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Let {pendings} be an empty list.
 - If {deferred} is not empty:
   - Add a single entry to {pendings}.
