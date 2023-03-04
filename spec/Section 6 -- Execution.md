@@ -319,10 +319,11 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
-  is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetails} be the value of the first entry in {groupedFieldSet}.
+- Let {fieldDetail} be the first entry in {fieldDetails}.
+- Let {field} be the value for the key {field} in {fieldDetail}.
+- Let {fieldName} be the name of {field}. Note: This value is unaffected if an
+  alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}
 - Let {fieldStream} be the result of running
@@ -406,16 +407,32 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
+- Let {deferred} be an empty list.
+- Let {streams} be an empty list.
+- For each {groupedFieldSet} as {responseKey} and {fieldDetails}:
+  - Let {fieldDetail} be the first entry in {fieldDetails}.
+  - Let {field} be the value for the key {field} in {fieldDetail}.
+  - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
+    alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Return {resultMap}.
+    - If {fieldType} is a list type and {field} provides the directive
+      `@stream`, let {streamDirective} be that directive.
+      - TODO: `@stream(if:)`
+      - Add {fieldDetails} to {streams}.
+    - Else if every entry in {fieldDetails} has {isDeferred} set to {true}:
+      - Add {fieldDetails} to {deferred}.
+    - Else:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fieldDetails, variableValues)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- Let {pendings} be an empty list.
+- If {deferred} is not empty:
+  - Add a single entry to {pendings}.
+- For each {stream} in {streams}:
+  - Add {something} to {pendings}.
+- Return {resultMap} and {pendings}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -559,8 +576,10 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, isDeferred,
+visitedFragments):
 
+- If {isDeferred} is not provided, initialize it to {false}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
@@ -575,11 +594,13 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       in {variableValues} with the value {true}, continue with the next
       {selection} in {selectionSet}.
   - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
-      defined, otherwise the field name).
+    - Let {field} be {selection}.
+    - Let {responseKey} be the response key of {field} (the alias if defined,
+      otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {fieldDetail} be an unordered map containing {field} and {isDeferred}.
+    - Append {fieldDetail} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -592,10 +613,16 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
+    - Let {fragmentIsDeferred} be {isDeferred}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {fragmentIsDeferred} be {true}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      fragmentIsDeferred, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -607,10 +634,16 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
+    - Let {fragmentIsDeferred} be {isDeferred}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {fragmentIsDeferred} be {true}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      fragmentIsDeferred, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -740,6 +773,7 @@ field execution process continues recursively.
 
 CompleteValue(fieldType, fields, result, variableValues):
 
+- TODO: overhaul for incremental!
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
