@@ -148,8 +148,8 @@ variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
 - Let {nextId} be {0}.
-- Let {remainingDefers} be an empty set.
-- Let {remainingStreams} be an empty set.
+- Let {remainingDefers} be an empty list.
+- Let {remainingStreams} be an empty list.
 - Let {pending} be an empty list.
 - If {initialDefers} is not an empty object:
   - Let {id} be {nextId} and increment {nextId} by one.
@@ -159,14 +159,14 @@ variableValues):
   - Add {pendingPayload} to {pending}.
   - Let {defers} be {initialDefers}.
   - Let {pendingDefer} be an unordered map containing {id}, {defers}.
-  - Add {pendingDefer} to {remainingDefers}.
+  - Append {pendingDefer} to {remainingDefers}.
 - For each entry {streamDetails} in {initialStreams}:
   - Let {id} be {nextId} and increment {nextId} by one.
   - Let {path} be the value for the key {path} in {streamDetails}.
   - Let {pendingPayload} be an unordered map containing {id}, {path}.
   - Add {pendingPayload} to {pending}.
   - Let {pendingStream} be an unordered map containing {id}, {streamDetails}.
-  - Add {pendingStream} to {remainingStreams}.
+  - Append {pendingStream} to {remainingStreams}.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
   {pending}, and the value {true} for key {hasNext}.
 - Yield an event containing {initialResponse}.
@@ -240,7 +240,7 @@ variableValues):
       - Add {pendingPayload} to {pending}.
       - Let {defers} be {batchDefers}.
       - Let {pendingDefer} be an unordered map containing {id}, {defers}.
-      - Add {pendingDefer} to {remainingDefers}.
+      - Append {pendingDefer} to {remainingDefers}.
     - For each entry {streamDetails} in {batchStreams}:
       - Let {id} be {nextId} and increment {nextId} by one.
       - Let {path} be the value for the key {path} in {streamDetails}.
@@ -248,7 +248,7 @@ variableValues):
       - Add {pendingPayload} to {pending}.
       - Let {pendingStream} be an unordered map containing {id},
         {streamDetails}.
-      - Add {pendingStream} to {remainingStreams}.
+      - Append {pendingStream} to {remainingStreams}.
     - Add to {completed} an unordered map containing key {id} with value
       {thisId}.
     - Optionally, {FlushStream()}.
@@ -286,7 +286,7 @@ variableValues):
         - Add {pendingPayload} to {pending}.
         - Let {defers} be {childDefers}.
         - Let {pendingDefer} be an unordered map containing {id}, {defers}.
-        - Add {pendingDefer} to {remainingDefers}.
+        - Append {pendingDefer} to {remainingDefers}.
       - For each entry {streamDetails} in {childStreams}:
         - Let {id} be {nextId} and increment {nextId} by one.
         - Let {path} be the value for the key {path} in {streamDetails}.
@@ -294,7 +294,7 @@ variableValues):
         - Add {pendingPayload} to {pending}.
         - Let {pendingStream} be an unordered map containing {id},
           {streamDetails}.
-        - Add {pendingStream} to {remainingStreams}.
+        - Append {pendingStream} to {remainingStreams}.
       - Add to {completed} an unordered map containing key {id} with value
         {thisId}.
       - Optionally, {FlushStream()}.
