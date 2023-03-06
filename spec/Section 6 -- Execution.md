@@ -174,7 +174,7 @@ variableValues):
 - Let {errors} be an empty list.
 - Let {pending} be an empty list.
 - Let {completed} be an empty list.
-- Define the subprocedure {FlushStream(hasNext)} with the following actions:
+- Define the sub-procedure {FlushStream(hasNext)} with the following actions:
   - If {hasNext} is not provided, initialize it to {true}.
   - Let {incrementalPayload} be an empty unordered map.
   - Add {hasNext} to {incrementalPayload}.
