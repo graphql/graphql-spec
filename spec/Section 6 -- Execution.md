@@ -186,8 +186,8 @@ initialStreams, variableValues):
     - Add {errors} to {incrementalPayload}.
   - If {pending} is not empty:
     - Add {pending} to {incrementalPayload}.
-  - If {pending} is not empty:
-    - Add {pending} to {incrementalPayload}.
+  - If {completed} is not empty:
+    - Add {completed} to {incrementalPayload}.
   - Yield to {responseStream} the value {incrementalPayload}.
   - Reset {incremental} to an empty list.
   - Reset {errors} to an empty list.
