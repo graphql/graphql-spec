@@ -196,6 +196,12 @@ variableValues):
     - Remove {pendingDefer} from {remainingDefers}.
     - Let {thisId} be the value for key {id} in {pendingDefer}.
     - Let {defers} be the value for key {defers} in {pendingDefer}.
+    - Note: A single `@defer` directive may output multiple incremental payloads
+      at different paths; it is essential that these multiple incremental
+      payloads are received by the client as part of a single event in order to
+      maintain consistency for the client. This is why these incremental
+      payloads are batched together rather than being flushed to the event
+      stream as early as possible.
     - Let {batchIncremental} be an empty list.
     - Let {batchErrors} be an empty list.
     - Let {batchDefers} be an empty unordered map.
