@@ -218,10 +218,10 @@ initialStreams, variableValues):
       - Let {data}, {childDefers} and {childStreams} be
         {ExecuteSelectionSet(selectionSet, objectType, objectValue,
         variableValues, path)}.
-      - Let {errors} be the list of all _field error_ raised while executing the
-        defer.
+      - Let {childErrors} be the list of all _field error_ raised while
+        executing the defer.
       - Let {incrementalPayload} be an unordered object containing {path},
-        {data}, {errors}.
+        {data}, and the key {errors} with value {childErrors}.
       - Append {incrementalPayload} to {batchIncremental}.
       - Add the entries of {childDefers} into {batchDefers}. Note: {childDefers}
         and {batchDefers} will never have keys in common.
@@ -248,6 +248,7 @@ initialStreams, variableValues):
         - Let {pendingStream} be an unordered map containing {id},
           {streamDetails}.
         - Add {pendingStream} to {remainingStreams}.
+    - Add to {completed} an unordered map containing {id}.
     - Optionally, {FlushStream()}.
   - Else
     - Assert: {remainingStreams} is not empty.
