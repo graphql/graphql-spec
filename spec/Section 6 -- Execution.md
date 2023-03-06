@@ -31,9 +31,10 @@ request is determined by the result of executing this operation according to the
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
-- Let {operation} be the result of {GetOperation(document, operationName)}.
-- Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
-  operation, variableValues)}.
+- Let {operation} be the result of running {GetOperation(document,
+  operationName)}.
+- Let {coercedVariableValues} be the result of running
+  {CoerceVariableValues(schema, operation, variableValues)}.
 - If {operation} is a query operation:
   - Return {ExecuteQuery(operation, schema, coercedVariableValues,
     initialValue)}.
@@ -152,7 +153,8 @@ variableValues):
 - Let {pending} be an empty list.
 - If {initialDefers} is not an empty object:
   - Let {id} be {nextId} and increment {nextId} by one.
-  - Let {path} be {LongestCommonPathPrefix(initialDefers)}.
+  - Let {path} be the result of running
+    {LongestCommonPathPrefix(initialDefers)}.
   - Let {pendingPayload} be an unordered map containing {id}, {path}.
   - Add {pendingPayload} to {pending}.
   - Let {defers} be {initialDefers}.
@@ -217,7 +219,7 @@ variableValues):
       - Let {fields} be a list of all the values of the {field} key in the
         entries of {fieldDetails}.
       - Let {selectionSet} be a new selection set consisting of {fields}.
-      - Let {data}, {childDefers} and {childStreams} be
+      - Let {data}, {childDefers} and {childStreams} be the result of running
         {ExecuteSelectionSet(selectionSet, objectType, objectValue,
         variableValues, path)}.
       - Let {childErrors} be the list of all _field error_ raised while
@@ -233,7 +235,8 @@ variableValues):
       {incrementalPayload} to {incremental}.
     - If {batchDefers} is not an empty object:
       - Let {id} be {nextId} and increment {nextId} by one.
-      - Let {path} be {LongestCommonPathPrefix(batchDefers)}.
+      - Let {path} be the result of running
+        {LongestCommonPathPrefix(batchDefers)}.
       - Let {pendingPayload} be an unordered map containing {id}, {path}.
       - Add {pendingPayload} to {pending}.
       - Let {defers} be {batchDefers}.
@@ -270,7 +273,7 @@ variableValues):
       - Let {index} be the result of adding {initialCount} to
         {remainingValueIndex}.
       - Let {path} be a copy of {parentPath} with {index} appended.
-      - Let {value}, {childDefers} and {childStreams} be the result of calling
+      - Let {value}, {childDefers} and {childStreams} be the result of running
         {CompleteValue(itemType, fields, remainingValue, variableValues, path)}.
       - Let {childErrors} be the list of all _field error_ raised while
         completing the value.
@@ -279,7 +282,8 @@ variableValues):
       - Append {incrementalPayload} to {incremental}.
       - If {childDefers} is not an empty object:
         - Let {id} be {nextId} and increment {nextId} by one.
-        - Let {path} be {LongestCommonPathPrefix(childDefers)}.
+        - Let {path} be the result of running
+          {LongestCommonPathPrefix(childDefers)}.
         - Let {pendingPayload} be an unordered map containing {id}, {path}.
         - Add {pendingPayload} to {pending}.
         - Let {defers} be {childDefers}.
@@ -445,16 +449,16 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
+- Let {groupedFieldSet} be the result of running
+  {CollectFields(subscriptionType, selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fieldDetails} be the value of the first entry in {groupedFieldSet}.
 - Let {fieldDetail} be the first entry in {fieldDetails}.
 - Let {field} be the value for the key {field} in {fieldDetail}.
 - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
   alias is used.
-- Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  field, variableValues)}
+- Let {argumentValues} be the result of running
+  {CoerceArgumentValues(subscriptionType, field, variableValues)}
 - Let {fieldStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
@@ -536,7 +540,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues,
 parentPath):
 
 - If {parentPath} is not provided, initialize it to an empty list.
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
+- Let {groupedFieldSet} be the result of running {CollectFields(objectType,
   selectionSet, variableValues, parentPath)}.
 - Initialize {resultMap} to an empty ordered map.
 - Let {defers} be an empty unordered map.
@@ -556,8 +560,8 @@ parentPath):
     - Otherwise:
       - Let {fields} be a list of all the values of the {field} key in the
         entries of {fieldDetails}.
-      - Let {resolvedValue} be {ExecuteField(objectType, objectValue, fieldType,
-        fields, variableValues, path)}.
+      - Let {resolvedValue} be the result of running {ExecuteField(objectType,
+        objectValue, fieldType, fields, variableValues, path)}.
       - Let {nullableFieldType} be the inner type of {fieldType} if {fieldType}
         is a non-nullable type, otherwise let {nullableFieldType} be
         {fieldType}.
@@ -578,7 +582,7 @@ parentPath):
         - Let {initialValues} be the first {initialCount} entries in
           {resolvedValue}, and {remainingValues} be the remainder.
         - Let {initialResponseValue}, {childDefers}, {childStreams} be the
-          result of calling {CompleteValue(nullableFieldType, fields,
+          result of running {CompleteValue(nullableFieldType, fields,
           initialValues, variableValues, path)}.
         - Add the entries of {childDefers} into {defers}. Note: {childDefers}
           and {defers} will never have keys in common.
@@ -592,8 +596,8 @@ parentPath):
           - Append {streamDetails} to {streams}.
       - Otherwise:
         - Let {responseValue}, {childDefers} and {childStreams} be the result of
-          {CompleteValue(fieldType, fields, resolvedValue, variableValues,
-          path)}.
+          running {CompleteValue(fieldType, fields, resolvedValue,
+          variableValues, path)}.
         - Add the entries of {childDefers} into {defers}. Note: {childDefers}
           and {defers} will never have keys in common.
         - For each entry {stream} in {childStreams}, append {stream} to
@@ -790,7 +794,7 @@ visitedFragments, parentPath):
         in {variableValues} with the value {false}:
         - Let {fragmentIsDeferred} be {true}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentGroupedFieldSet} be the result of running
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       fragmentIsDeferred, visitedFragments, parentPath)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
@@ -811,7 +815,7 @@ visitedFragments, parentPath):
         in {variableValues} with the value {false}:
         - Let {fragmentIsDeferred} be {true}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentGroupedFieldSet} be the result of running
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       fragmentIsDeferred, visitedFragments, parentPath)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
@@ -849,10 +853,10 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
-- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}.
+- Let {argumentValues} be the result of running
+  {CoerceArgumentValues(objectType, field, variableValues)}
+- Let {resolvedValue} be the result of running {ResolveFieldValue(objectType,
+  objectValue, fieldName, argumentValues)}.
 - Return {resolvedValue}.
 
 ### Coercing Field Arguments
@@ -944,7 +948,7 @@ CompleteValue(fieldType, fields, result, variableValues, path):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult}, {defers} and {streams} be the result of calling
+  - Let {completedResult}, {defers} and {streams} be the result of running
     {CompleteValue(innerType, fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult}, {defers} and {streams}.
@@ -963,7 +967,7 @@ CompleteValue(fieldType, fields, result, variableValues, path):
   - For each entry {resultItem} at zero-based index {resultIndex} in {result}:
     - Let {listItemPath} be a copy of {path} with {resultIndex} appended.
     - Let {completedItemResult}, {childDefers} and {childStreams} be the result
-      of calling {CompleteValue(innerType, fields, resultItem, variableValues,
+      of running {CompleteValue(innerType, fields, resultItem, variableValues,
       listItemPath)}.
     - Add the entries of {childDefers} into {defers}. Note: {childDefers} and
       {defers} will never have keys in common.
@@ -971,7 +975,8 @@ CompleteValue(fieldType, fields, result, variableValues, path):
     - Append {completedItemResult} to {completedResult}.
   - Return {completedResult}, {defers} and {streams}.
 - If {fieldType} is a Scalar or Enum type:
-  - Let {completedResult} be the result of {CoerceResult(fieldType, result)}.
+  - Let {completedResult} be the result of running {CoerceResult(fieldType,
+    result)}.
   - Let {defers} be an empty unordered map.
   - Let {streams} be an empty list.
   - Return {completedResult}, {defers} and {streams}.
@@ -979,9 +984,10 @@ CompleteValue(fieldType, fields, result, variableValues, path):
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
-    - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Let {completedResult}, {defers} and {streams} be the result of evaluating
+    - Let {objectType} be the result of running {ResolveAbstractType(fieldType,
+      result)}.
+  - Let {subSelectionSet} be the result of running {MergeSelectionSets(fields)}.
+  - Let {completedResult}, {defers} and {streams} be the result of running
     {ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues,
     path)} _normally_ (allowing for parallelization).
   - Return {completedResult}, {defers} and {streams}.
