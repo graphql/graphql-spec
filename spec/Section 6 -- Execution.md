@@ -152,9 +152,7 @@ variableValues):
 - Let {pending} be an empty list.
 - If {initialDefers} is not an empty object:
   - Let {id} be {nextId} and increment {nextId} by one.
-  - Let {path} be the longest common path prefix list for every path list key in
-    {initialDefers}, or the empty list if no such list exists.
-    - TODO: This really needs rewording!
+  - Let {path} be {LongestCommonPathPrefix(initialDefers)}.
   - Let {pendingPayload} be an unordered map containing {id}, {path}.
   - Add {pendingPayload} to {pending}.
   - Let {defers} be {initialDefers}.
@@ -229,9 +227,7 @@ variableValues):
       {incrementalPayload} to {incremental}.
     - If {batchDefers} is not an empty object:
       - Let {id} be {nextId} and increment {nextId} by one.
-      - Let {path} be the longest common path prefix list for every path list
-        key in {batchDefers}, or the empty list if no such list exists.
-        - TODO: This really needs rewording!
+      - Let {path} be {LongestCommonPathPrefix(batchDefers)}.
       - Let {pendingPayload} be an unordered map containing {id}, {path}.
       - Add {pendingPayload} to {pending}.
       - Let {defers} be {batchDefers}.
@@ -277,9 +273,7 @@ variableValues):
       - Append {incrementalPayload} to {incremental}.
       - If {childDefers} is not an empty object:
         - Let {id} be {nextId} and increment {nextId} by one.
-        - Let {path} be the longest common path prefix list for every path list
-          key in {childDefers}, or the empty list if no such list exists.
-          - TODO: This really needs rewording!
+        - Let {path} be {LongestCommonPathPrefix(childDefers)}.
         - Let {pendingPayload} be an unordered map containing {id}, {path}.
         - Add {pendingPayload} to {pending}.
         - Let {defers} be {childDefers}.
@@ -299,6 +293,26 @@ variableValues):
       - Optionally, {FlushStream()}.
 - {FlushStream(false)}.
 - Complete {responseStream}.
+
+LongestCommonPathPrefix(map):
+
+- Let {paths} be a list of the keys of {map}.
+- Let {longestCommonPathPrefix} be the first entry in {paths}.
+- For each {path} in paths:
+  - Let {commonPrefix} be an empty list.
+  - Let {length} be the least of the length of {path} and the length of
+    {longestCommonPathPrefix}.
+  - Let {index} be {0}.
+  - While {index} is less than {length} and the entries at position {index} in
+    both {path} and {longestCommonPathPrefix} are both equal, let {pathEntry} be
+    this value:
+    - Add {pathEntry} to {commonPrefix}.
+  - Let {longestCommonPathPrefix} be {commonPrefix}.
+- Return {longestCommonPathPrefix}.
+
+TODO: Consider rewording to something like: Let {longestCommonPathPrefix} be the
+longest list such that every entry in {paths} starts with
+{longestCommonPathPrefix}. Note: This may be the empty list.
 
 ### Mutation
 
