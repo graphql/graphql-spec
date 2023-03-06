@@ -160,14 +160,13 @@ variableValues):
   - Let {defers} be {initialDefers}.
   - Let {pendingDefer} be an unordered map containing {id}, {defers}.
   - Add {pendingDefer} to {remainingDefers}.
-- If {initialStreams} is not an empty list:
-  - For each entry {streamDetails} in {initialStreams}:
-    - Let {id} be {nextId} and increment {nextId} by one.
-    - Let {path} be the value for the key {path} in {streamDetails}.
-    - Let {pendingPayload} be an unordered map containing {id}, {path}.
-    - Add {pendingPayload} to {pending}.
-    - Let {pendingStream} be an unordered map containing {id}, {streamDetails}.
-    - Add {pendingStream} to {remainingStreams}.
+- For each entry {streamDetails} in {initialStreams}:
+  - Let {id} be {nextId} and increment {nextId} by one.
+  - Let {path} be the value for the key {path} in {streamDetails}.
+  - Let {pendingPayload} be an unordered map containing {id}, {path}.
+  - Add {pendingPayload} to {pending}.
+  - Let {pendingStream} be an unordered map containing {id}, {streamDetails}.
+  - Add {pendingStream} to {remainingStreams}.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
   {pending}, and the value {true} for key {hasNext}.
 - Yield an event containing {initialResponse}.
@@ -242,15 +241,14 @@ variableValues):
       - Let {defers} be {batchDefers}.
       - Let {pendingDefer} be an unordered map containing {id}, {defers}.
       - Add {pendingDefer} to {remainingDefers}.
-    - If {batchStreams} is not an empty list:
-      - For each entry {streamDetails} in {batchStreams}:
-        - Let {id} be {nextId} and increment {nextId} by one.
-        - Let {path} be the value for the key {path} in {streamDetails}.
-        - Let {pendingPayload} be an unordered map containing {id}, {path}.
-        - Add {pendingPayload} to {pending}.
-        - Let {pendingStream} be an unordered map containing {id},
-          {streamDetails}.
-        - Add {pendingStream} to {remainingStreams}.
+    - For each entry {streamDetails} in {batchStreams}:
+      - Let {id} be {nextId} and increment {nextId} by one.
+      - Let {path} be the value for the key {path} in {streamDetails}.
+      - Let {pendingPayload} be an unordered map containing {id}, {path}.
+      - Add {pendingPayload} to {pending}.
+      - Let {pendingStream} be an unordered map containing {id},
+        {streamDetails}.
+      - Add {pendingStream} to {remainingStreams}.
     - Add to {completed} an unordered map containing key {id} with value
       {thisId}.
     - Optionally, {FlushStream()}.
@@ -289,15 +287,14 @@ variableValues):
         - Let {defers} be {childDefers}.
         - Let {pendingDefer} be an unordered map containing {id}, {defers}.
         - Add {pendingDefer} to {remainingDefers}.
-      - If {childStreams} is not an empty list:
-        - For each entry {streamDetails} in {childStreams}:
-          - Let {id} be {nextId} and increment {nextId} by one.
-          - Let {path} be the value for the key {path} in {streamDetails}.
-          - Let {pendingPayload} be an unordered map containing {id}, {path}.
-          - Add {pendingPayload} to {pending}.
-          - Let {pendingStream} be an unordered map containing {id},
-            {streamDetails}.
-          - Add {pendingStream} to {remainingStreams}.
+      - For each entry {streamDetails} in {childStreams}:
+        - Let {id} be {nextId} and increment {nextId} by one.
+        - Let {path} be the value for the key {path} in {streamDetails}.
+        - Let {pendingPayload} be an unordered map containing {id}, {path}.
+        - Add {pendingPayload} to {pending}.
+        - Let {pendingStream} be an unordered map containing {id},
+          {streamDetails}.
+        - Add {pendingStream} to {remainingStreams}.
       - Add to {completed} an unordered map containing key {id} with value
         {thisId}.
       - Optionally, {FlushStream()}.
