@@ -139,9 +139,9 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Otherwise:
-  - Let {responseStream} be a new event stream {responseStream}.
+  - Let {responseStream} be a new event stream.
   - Call {IncrementalEventStream(responseStream, data, errors, defers, streams,
-    variableValues)}.
+    variableValues)} asynchronously.
   - Return {responseStream}.
 
 IncrementalEventStream(responseStream, data, errors, initialDefers,
@@ -150,7 +150,6 @@ initialStreams, variableValues):
 - Let {nextId} be {0}.
 - Let {remainingDefers} be an empty set.
 - Let {remainingStreams} be an empty set.
-- Let {hasNext} be {true}.
 - Let {pending} be an empty list.
 - If {initialDefers} is not an empty object:
   - Let {id} be {nextId} and increment {nextId} by one.
@@ -171,13 +170,13 @@ initialStreams, variableValues):
     - Let {pendingStream} be an unordered map containing {id}, {streamDetails}.
     - Add {pendingStream} to {remainingStreams}.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
-  {pending}, and {hasNext}.
+  {pending}, and the value {true} for key {hasNext}.
 - Yield to {responseStream} the value {initialResponse}.
 - Let {incremental} be an empty list.
 - Let {errors} be an empty list.
 - Let {pending} be an empty list.
 - Let {completed} be an empty list.
-- When you {FlushStream(hasNext)}:
+- Define the subprocedure {FlushStream(hasNext)} with the following actions:
   - If {hasNext} is not provided, initialize it to {true}.
   - Let {incrementalPayload} be an empty unordered map.
   - Add {hasNext} to {incrementalPayload}.
