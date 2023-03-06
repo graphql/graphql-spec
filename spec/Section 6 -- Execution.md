@@ -139,56 +139,175 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Else:
-  - Return {IncrementalEventStream(data, errors, defers, streams,
+  - Let {responseStream} be a new event stream {responseStream}.
+  - Call {IncrementalEventStream(responseStream, data, errors, defers, streams,
     variableValues)}.
+  - Return {responseStream}.
 
-IncrementalEventStream(data, errors, defers, streams, variableValues):
+IncrementalEventStream(responseStream, data, errors, initialDefers,
+initialStreams, variableValues):
 
-- Let {responseStream} be a new event stream {responseStream}.
+- Let {nextId} be {0}.
+- Let {remainingDefers} be an empty set.
+- Let {remainingStreams} be an empty set.
 - Let {hasNext} be {true}.
-- Yield to {responseStream} an unordered map containing {data}, {errors}, and
-  {hasNext}.
-- Let {remainingPendings} be an empty list.
-- Let {nextPayloads} be an empty list.
-- Let {nextPendings} be an empty list.
-- Let {nextCompleteds} be an empty list.
-- In parallel, for each new entry {pending} added to {remainingPendings}:
-  - Let {id} be the unique identifier for {pending}.
-  - Let {path} be the root path for {pending}.
-  - Let {nextPending} be an unordered map containing {id}, {path}.
-  - Add {nextPending} to {nextPendings}.
-  - Let {moreIncrementalPayloads}, {morePendings} be the result of running
-    {ExecutePending(pending, variableValues)}.
-  - For each entry {payload} in {moreIncrementalPayloads}:
-    - Add {payload} to {nextPayloads}.
-  - For each {newPending} in {morePendings}:
-    - Add {newPending} to {remainingPendings}.
-  - Let {nextCompleted} be an unordered map containing {id}.
-  - Add {nextCompleted} to {nextCompleteds}.
-  - Remove {pending} from {remainingPendings}.
-  - Call {FlushIncremental(responseStream, nextPayloads, nextPendings,
-    nextCompleteds)}, and reset {nextPayloads}, {nextPendings}, {nextCompleteds}
-    to empty lists.
-    - TODO: allow this to be batched more - we can group the results from
-      multiple {pending} executions into a single incremental response.
-- For each {pending} in {pendings}:
-  - Add {pending} tp {remainingPendings}.
-- When {remainingPendings} is empty:
-  - Call {FlushIncremental(stream, nextPayloads, newPending, nextCompleteds,
-    false)}.
-  - Complete {responseStream}.
-- Return {responseStream}.
+- Let {pending} be an empty list.
+- If {initialDefers} is not an empty object:
+  - Let {id} be {nextId} and increment {nextId} by one.
+  - Let {path} be the longest common path prefix list for every path list key in
+    {initialDefers}, or the empty list if no such list exists.
+    - TODO: This really needs rewording!
+  - Let {pendingPayload} be an unordered map containing {id}, {path}.
+  - Add {pendingPayload} to {pending}.
+  - Let {defers} be {initialDefers}.
+  - Let {pendingDefer} be an unordered map containing {id}, {defers}.
+  - Add {pendingDefer} to {remainingDefers}.
+- If {initialStreams} is not an empty list:
+  - For each entry {streamDetails} in {initialStreams}:
+    - Let {id} be {nextId} and increment {nextId} by one.
+    - Let {path} be the value for the key {path} in {streamDetails}.
+    - Let {pendingPayload} be an unordered map containing {id}, {path}.
+    - Add {pendingPayload} to {pending}.
+    - Let {pendingStream} be an unordered map containing {id}, {streamDetails}.
+    - Add {pendingStream} to {remainingStreams}.
+- Let {initialResponse} be an unordered map containing {data}, {errors},
+  {pending}, and {hasNext}.
+- Yield to {responseStream} the value {initialResponse}.
+- Let {incremental} be an empty list.
+- Let {errors} be an empty list.
+- Let {pending} be an empty list.
+- Let {completed} be an empty list.
+- When you {FlushStream(hasNext)}:
+  - If {hasNext} is not provided, initialize it to {true}.
+  - Let {incrementalPayload} be an empty unordered map.
+  - Add {hasNext} to {incrementalPayload}.
+  - If {incremental} is not empty:
+    - Add {incremental} to {incrementalPayload}.
+  - If {errors} is not empty:
+    - Add {errors} to {incrementalPayload}.
+  - If {pending} is not empty:
+    - Add {pending} to {incrementalPayload}.
+  - If {pending} is not empty:
+    - Add {pending} to {incrementalPayload}.
+  - Yield to {responseStream} the value {incrementalPayload}.
+  - Reset {incremental} to an empty list.
+  - Reset {errors} to an empty list.
+  - Reset {pending} to an empty list.
+  - Reset {completed} to an empty list.
+- While {remainingDefers} is not empty or {remainingStreams} is not empty:
+  - If {remainingDefers} is not empty:
+    - Let {pendingDefer} be the first entry in {remainingDefers}.
+    - Remove {pendingDefer} from {remainingDefers}.
+    - Let {id} be the value for key {id} in {pendingDefer}.
+    - Let {defers} be the value for key {defers} in {pendingDefer}.
+    - Let {batchIncremental} be an empty list.
+    - Let {batchErrors} be an empty list.
+    - Let {batchDefers} be an empty unordered map.
+    - Let {batchStreams} be an empty list.
+    - For each key {path} and value {deferredDetailsForPath} in {defers}, in
+      parallel:
+      - Let {objectType} be the value for key {objectType} in
+        {deferredDetailsForPath}.
+      - Let {objectValue} be the value for key {objectValue} in
+        {deferredDetailsForPath}.
+      - Let {allFieldDetails} be the value for key {allFieldDetails} in
+        {deferredDetailsForPath}.
+      - Let {fields} be a list of all the values of the {field} key in the
+        entries of {allFieldDetails}.
+      - Let {selectionSet} be a new selection set consisting of {fields}.
+      - Let {data}, {childDefers} and {childStreams} be
+        {ExecuteSelectionSet(selectionSet, objectType, objectValue,
+        variableValues, path)}.
+      - Let {errors} be the list of all _field error_ raised while executing the
+        defer.
+      - Let {incrementalPayload} be an unordered object containing {path},
+        {data}, {errors}.
+      - Append {incrementalPayload} to {batchIncremental}.
+      - Add the entries of {childDefers} into {batchDefers}. Note: {childDefers}
+        and {batchDefers} will never have keys in common.
+      - For each entry {stream} in {childStreams}, append {stream} to
+        {batchStreams}.
+    - For each entry {incrementalPayload} in {batchIncremental}, append
+      {incrementalPayload} to {incremental}.
+    - If {batchDefers} is not an empty object:
+      - Let {id} be {nextId} and increment {nextId} by one.
+      - Let {path} be the longest common path prefix list for every path list
+        key in {batchDefers}, or the empty list if no such list exists.
+        - TODO: This really needs rewording!
+      - Let {pendingPayload} be an unordered map containing {id}, {path}.
+      - Add {pendingPayload} to {pending}.
+      - Let {defers} be {batchDefers}.
+      - Let {pendingDefer} be an unordered map containing {id}, {defers}.
+      - Add {pendingDefer} to {remainingDefers}.
+    - If {batchStreams} is not an empty list:
+      - For each entry {streamDetails} in {batchStreams}:
+        - Let {id} be {nextId} and increment {nextId} by one.
+        - Let {path} be the value for the key {path} in {streamDetails}.
+        - Let {pendingPayload} be an unordered map containing {id}, {path}.
+        - Add {pendingPayload} to {pending}.
+        - Let {pendingStream} be an unordered map containing {id},
+          {streamDetails}.
+        - Add {pendingStream} to {remainingStreams}.
+    - Optionally, {FlushStream()}.
+  - Else
+    - Assert: {remainingStreams} is not empty.
+    - Let {stream} be the first entry in {remainingStreams}.
+    - Remove {stream} from {remainingStreams}.
+- {FlushStream(false)}.
+- Complete {responseStream}.
 
-FlushIncremental(responseStream, nextPayloads, nextPendings, nextCompleteds,
+- TODO: Delete this
+  - Let {nextCompleted} be an empty list.
+  - ...
+  - Add {defers} to {remainingDefers}.
+  - Add each entry in {streams} to {remainingStreams}.
+  - ...
+  - Yield to {responseStream} an unordered map containing {data}, {errors}, and
+    {hasNext}.
+  - ...
+  - Let {nextIncremental} be an empty list.
+  - Let {nextPending} be an empty list.
+  - Let {nextCompleted} be an empty list.
+  - In parallel, for each entry {defers} in {remainingDefers} (including new
+    entries added during this loop):
+    - Let {id} be {index}, then increment {index} by one.
+    - Let {path} be the longest common path prefix list for every path list key
+      in {defers}, or the empty list if no such list exists.
+      - TODO: This really needs rewording!
+    - Let {nextPending} be an unordered map containing {id}, {path}.
+    - Add {nextPending} to {nextPending}.
+    - Let {moreIncrementalPayloads}, {morePendings} be the result of running
+      {ExecutePending(pending, variableValues)}.
+    - For each entry {payload} in {moreIncrementalPayloads}:
+      - Add {payload} to {nextIncremental}.
+    - For each {newPending} in {morePendings}:
+      - Add {newPending} to {remainingPendings}.
+    - Let {nextCompleted} be an unordered map containing {id}.
+    - Add {nextCompleted} to {nextCompleted}.
+    - Remove {pending} from {remainingPendings}.
+    - Call {FlushIncremental(responseStream, nextIncremental, nextPending,
+      nextCompleted)}, and reset {nextIncremental}, {nextPending},
+      {nextCompleted} to empty lists.
+      - TODO: allow this to be batched more - we can group the results from
+        multiple {pending} executions into a single incremental response.
+  - For each {pending} in {pendings}:
+    - Add {pending} tp {remainingPendings}.
+  - When {remainingPendings} is empty:
+    - Call {FlushIncremental(stream, nextIncremental, newPending, nextCompleted,
+      false)}.
+    - Complete {responseStream}.
+  - Return {responseStream}.
+
+FlushIncremental(responseStream, nextIncremental, nextPending, nextCompleted,
 hasNext):
 
 - If {hasNext} is not provided, initialize it to {true}.
-- If {nextPayloads} is not empty:
-  - Let {incremental} be {nextPayloads}.
-- If {nextPendings} is not empty:
-  - Let {pending} be {nextPendings}.
-- If {nextCompleteds} is not empty:
-  - Let {completed} be {nextCompleteds}.
+- If {nextIncremental} is not empty:
+  - Let {incremental} be {nextIncremental}.
+- If {nextPending} is not empty:
+  - Let {pending} be {nextPending}.
+- If {nextCompleted} is not empty:
+  - Let {completed} be {nextCompleted}.
 - Let {payload} be an unordered map containing {incremental}, {pending},
   {completed} and {hasNext}.
 - Yield an event to {responseStream} containing {payload}.
@@ -424,9 +543,13 @@ parentPath):
     {objectType}.
   - If {fieldType} is defined:
     - If every entry in {fieldDetails} has {isDeferred} set to {true}:
-      - Let {deferredGroupForPath} be the list in {defers} for {path}; if no
-        such list exists, create it as an empty list.
-      - Append {fieldDetails} to {deferredGroupForPath}.
+      - Let {deferredDetailsForPath} be the object in {defers} for {path}; if no
+        such list exists, create it as an unordered map containing {objectType},
+        {objectValue} and {allFieldDetails}, where {allFieldDetails} is an empty
+        list.
+      - Let {group} be the value in {deferredDetailsForPath} for key
+        {allFieldDetails}.
+      - Append {fieldDetails} to {allFieldDetails}.
     - Else:
       - Let {responseValue}, {childDefers}, {childStreams} be
         {ExecuteField(objectType, objectValue, fieldType, fieldDetails,
@@ -451,7 +574,7 @@ parentPath):
         - Set {initialValues} as the value for {responseKey} in {resultMap}.
         - If there are (or may be) values in {remainingValues}:
           - Let {streamDetails} be an unordered map containing {path},
-            {remainingValues} and {fieldDetails}.
+            {remainingValues}, {initialCount} and {fieldDetails}.
           - Append {streamDetails} to {streams}.
       - Else:
         - Set {responseValue} as the value for {responseKey} in {resultMap}.
