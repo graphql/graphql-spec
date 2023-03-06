@@ -131,17 +131,18 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data}, {pendings} be the result of running
+- Let {data}, {defers}, {streams} be the result of running
   {ExecuteSelectionSet(selectionSet, queryType, initialValue, variableValues)}
   _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {pendings} is empty:
+- If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Else:
-  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
+  - Return {IncrementalEventStream(data, errors, defers, streams,
+    variableValues)}.
 
-IncrementalStream(data, errors, pendings, variableValues):
+IncrementalEventStream(data, errors, defers, streams, variableValues):
 
 - Let {responseStream} be a new event stream {responseStream}.
 - Let {hasNext} be {true}.
@@ -207,17 +208,18 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {data}, {pendings} be the result of running
+- Let {data}, {defers} and {streams} be the result of running
   {ExecuteSelectionSet(selectionSet, mutationType, initialValue,
   variableValues)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {pendings} is empty:
+- If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Else:
   - Note: this places the defers after _all_ the mutations. This may not be
     desired; we should discuss.
-  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
+  - Return {IncrementalEventStream(data, errors, defers, streams,
+    variableValues)}.
 
 ### Subscription
 
@@ -366,17 +368,18 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {data}, {pendings} be the result of running
+- Let {data}, {defers} and {streams} be the result of running
   {ExecuteSelectionSet(selectionSet, subscriptionType, initialValue,
   variableValues)} _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {pendings} is empty:
+- If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Else:
   - Note: this places the defers after _all_ the mutations. This may not be
     desired; we should discuss.
-  - Return {IncrementalStream(data, errors, pendings, variableValues)}.
+  - Return {IncrementalEventStream(data, errors, defers, streams,
+    variableValues)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -402,26 +405,35 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
 map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues,
+parentPath):
 
+- If {parentPath} is not provided, initialize it to an empty list.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+  selectionSet, variableValues, parentPath)}.
 - Initialize {resultMap} to an empty ordered map.
-- Let {deferred} be an empty list.
+- Let {defers} be an empty unordered map.
 - Let {streams} be an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fieldDetails}:
   - Let {fieldDetail} be the first entry in {fieldDetails}.
   - Let {field} be the value for the key {field} in {fieldDetail}.
+  - Let {path} be the value for the key {path} in {fieldDetail}.
   - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
     alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
     - If every entry in {fieldDetails} has {isDeferred} set to {true}:
-      - Add {fieldDetails} to {deferred}.
+      - Let {deferredGroupForPath} be the list in {defers} for {path}; if no
+        such list exists, create it as an empty list.
+      - Append {fieldDetails} to {deferredGroupForPath}.
     - Else:
-      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-        fieldDetails, variableValues)}.
+      - Let {responseValue}, {childDefers}, {childStreams} be
+        {ExecuteField(objectType, objectValue, fieldType, fieldDetails,
+        variableValues, path)}.
+      - Add the entries of {childDefers} into {defers}. Note: {childDefers} and
+        {defers} will never have keys in common.
+      - For each entry {stream} in {childStreams}, append {stream} to {streams}.
       - If {responseValue} is not null and {fieldType} is a list type and
         {field} provides the directive `@stream`, let {streamDirective} be that
         directive. If {streamDirective}'s {if} argument is not {false} and is
@@ -438,15 +450,12 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
           {responesValue}, and {remainingValues} be the remainder.
         - Set {initialValues} as the value for {responseKey} in {resultMap}.
         - If there are (or may be) values in {remainingValues}:
-          - TODO: add {remainingValues} to {streams} via some mechanism...
+          - Let {streamDetails} be an unordered map containing {path},
+            {remainingValues} and {fieldDetails}.
+          - Append {streamDetails} to {streams}.
       - Else:
         - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Let {pendings} be an empty list.
-- If {deferred} is not empty:
-  - Add a single entry to {pendings}.
-- For each {stream} in {streams}:
-  - Add {something} to {pendings}.
-- Return {resultMap} and {pendings}.
+- Return {resultMap}, {defers} and {streams}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -591,8 +600,9 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, isDeferred,
-visitedFragments):
+visitedFragments, parentPath):
 
+- If {parentPath} is not provided, initialize it to an empty list.
 - If {isDeferred} is not provided, initialize it to {false}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -611,9 +621,11 @@ visitedFragments):
     - Let {field} be {selection}.
     - Let {responseKey} be the response key of {field} (the alias if defined,
       otherwise the field name).
+    - Let {path} be a copy of {parentPath} with {responseKey} appended.
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Let {fieldDetail} be an unordered map containing {field} and {isDeferred}.
+    - Let {fieldDetail} be an unordered map containing {field}, {path} and
+      {isDeferred}.
     - Append {fieldDetail} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
@@ -636,7 +648,7 @@ visitedFragments):
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentIsDeferred, visitedFragments)}.
+      fragmentIsDeferred, visitedFragments, parentPath)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -657,7 +669,7 @@ visitedFragments):
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentIsDeferred, visitedFragments)}.
+      fragmentIsDeferred, visitedFragments, parentPath)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -689,7 +701,7 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
@@ -697,8 +709,9 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Let {responseValue}, {defers} and {streams} be the result of
+  {CompleteValue(fieldType, fields, resolvedValue, variableValues, path)}.
+- Return {responseValue}, {defers} and {streams}.
 
 ### Coercing Field Arguments
 
@@ -785,34 +798,51 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fields, result, variableValues, path):
 
-- TODO: overhaul for incremental!
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+  - Let {completedResult}, {defers} and {streams} be the result of calling
+    {CompleteValue(innerType, fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult}.
+  - Return {completedResult}, {defers} and {streams}.
 - If {result} is {null} (or another internal value similar to {null} such as
-  {undefined}), return {null}.
+  {undefined}):
+  - Let {completedResult} be {null}.
+  - Let {defers} be an empty unordered map.
+  - Let {streams} be an empty list.
+  - Return {completedResult}, {defers} and {streams}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - Let {defers} be an empty unordered map.
+  - Let {streams} be an empty list.
+  - Let {completedResult} be an empty list.
+  - For each entry {resultItem} at zero-based index {resultIndex} in {result}:
+    - Let {listItemPath} be a copy of {path} with {resultIndex} appended.
+    - Let {completedItemResult}, {childDefers} and {childStreams} be the result
+      of calling {CompleteValue(innerType, fields, resultItem, variableValues,
+      listItemPath)}.
+    - Add the entries of {childDefers} into {defers}. Note: {childDefers} and
+      {defers} will never have keys in common.
+    - For each entry {stream} in {childStreams}, append {stream} to {streams}.
+    - Append {completedItemResult} to {completedResult}.
+  - Return {completedResult}, {defers} and {streams}.
 - If {fieldType} is a Scalar or Enum type:
-  - Return the result of {CoerceResult(fieldType, result)}.
+  - Let {completedResult} be the result of {CoerceResult(fieldType, result)}.
+  - Let {defers} be an empty unordered map.
+  - Let {streams} be an empty list.
+  - Return {completedResult}, {defers} and {streams}.
 - If {fieldType} is an Object, Interface, or Union type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+  - Let {completedResult}, {defers} and {streams} be the result of evaluating
+    {ExecuteSelectionSet(subSelectionSet, objectType, result, variableValues,
+    path)} _normally_ (allowing for parallelization).
+  - Return {completedResult}, {defers} and {streams}.
 
 **Coercing Results**
 
