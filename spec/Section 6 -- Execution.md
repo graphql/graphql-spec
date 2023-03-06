@@ -198,7 +198,7 @@ initialStreams, variableValues):
   - If {remainingDefers} is not empty:
     - Let {pendingDefer} be the first entry in {remainingDefers}.
     - Remove {pendingDefer} from {remainingDefers}.
-    - Let {id} be the value for key {id} in {pendingDefer}.
+    - Let {thisId} be the value for key {id} in {pendingDefer}.
     - Let {defers} be the value for key {defers} in {pendingDefer}.
     - Let {batchIncremental} be an empty list.
     - Let {batchErrors} be an empty list.
@@ -248,13 +248,14 @@ initialStreams, variableValues):
         - Let {pendingStream} be an unordered map containing {id},
           {streamDetails}.
         - Add {pendingStream} to {remainingStreams}.
-    - Add to {completed} an unordered map containing {id}.
+    - Add to {completed} an unordered map containing key {id} with value
+      {thisId}.
     - Optionally, {FlushStream()}.
   - Else:
     - Assert: {remainingStreams} is not empty.
     - Let {pendingStream} be the first entry in {remainingStreams}.
     - Remove {pendingStream} from {remainingStreams}.
-    - Let {id} be the value for key {id} in {pendingStream}.
+    - Let {thisId} be the value for key {id} in {pendingStream}.
     - Let {streamDetails} be the value for key {streamDetails} in
       {pendingStream}.
     - Let {parentPath} be the value for key {path} in {streamDetails}.
@@ -295,7 +296,8 @@ initialStreams, variableValues):
           - Let {pendingStream} be an unordered map containing {id},
             {streamDetails}.
           - Add {pendingStream} to {remainingStreams}.
-      - Add to {completed} an unordered map containing {id}.
+      - Add to {completed} an unordered map containing key {id} with value
+        {thisId}.
       - Optionally, {FlushStream()}.
 - {FlushStream(false)}.
 - Complete {responseStream}.
