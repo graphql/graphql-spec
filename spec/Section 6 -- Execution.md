@@ -138,7 +138,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
   selection set.
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
-- Else:
+- Otherwise:
   - Let {responseStream} be a new event stream {responseStream}.
   - Call {IncrementalEventStream(responseStream, data, errors, defers, streams,
     variableValues)}.
@@ -251,7 +251,7 @@ initialStreams, variableValues):
     - Add to {completed} an unordered map containing key {id} with value
       {thisId}.
     - Optionally, {FlushStream()}.
-  - Else:
+  - Otherwise:
     - Assert: {remainingStreams} is not empty.
     - Let {pendingStream} be the first entry in {remainingStreams}.
     - Remove {pendingStream} from {remainingStreams}.
@@ -324,7 +324,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
   selection set.
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
-- Else:
+- Otherwise:
   - Note: this places the defers after _all_ the mutations. This may not be
     desired; we should discuss.
   - Return {IncrementalEventStream(data, errors, defers, streams,
@@ -468,7 +468,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - If {response} is an event stream:
     - For each event {event} in {response}:
       - Yield an event containing {event}.
-  - Else:
+  - Otherwise:
     - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
@@ -484,7 +484,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
   selection set.
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
-- Else:
+- Otherwise:
   - Note: this places the defers after _all_ the mutations. This may not be
     desired; we should discuss.
   - Return {IncrementalEventStream(data, errors, defers, streams,
@@ -535,7 +535,7 @@ parentPath):
     - If every entry in {fieldDetails} has {isDeferred} set to {true}:
       - Add an entry to {defers} with key {path} and value an unordered map
         containing {objectType}, {objectValue} and {fieldDetails}.
-    - Else:
+    - Otherwise:
       - Let {fields} be a list of all the values of the {field} key in the
         entries of {fieldDetails}.
       - Let {resolvedValue} be {ExecuteField(objectType, objectValue, fieldType,
@@ -552,7 +552,7 @@ parentPath):
         - If {streamDirective}'s {initialCount} argument is a variable:
           - Let {initialCount} be the value of that variable in
             {variableValues}.
-        - Else
+        - Otherwise
           - Let {initialCount} be the value of {streamDirective}'s
             {initialCount} argument.
         - If {initialCount} is {null}, not provided, or less than {0} then let
@@ -572,7 +572,7 @@ parentPath):
             {itemType}, {fields}, {remainingValues}, {initialCount} and
             {fieldDetails}.
           - Append {streamDetails} to {streams}.
-      - Else:
+      - Otherwise:
         - Let {responseValue}, {childDefers} and {childStreams} be the result of
           {CompleteValue(fieldType, fields, resolvedValue, variableValues,
           path)}.
