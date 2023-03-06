@@ -131,7 +131,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data}, {defers}, {streams} be the result of running
+- Let {data}, {defers} and {streams} be the result of running
   {ExecuteSelectionSet(selectionSet, queryType, initialValue, variableValues)}
   _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
@@ -270,7 +270,7 @@ initialStreams, variableValues):
       - Let {index} be the result of adding {initialCount} to
         {remainingValueIndex}.
       - Let {path} be a copy of {parentPath} with {index} appended.
-      - Let {value}, {childDefers}, {childStreams} be the result of calling
+      - Let {value}, {childDefers} and {childStreams} be the result of calling
         {CompleteValue(itemType, fields, remainingValue, variableValues, path)}.
       - Let {childErrors} be the list of all _field error_ raised while
         completing the value.
