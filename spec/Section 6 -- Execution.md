@@ -139,14 +139,13 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - If {defers} is an empty map and {streams} is an empty list:
   - Return an unordered map containing {data} and {errors}.
 - Otherwise:
-  - Let {responseStream} be a new event stream.
-  - Call {IncrementalEventStream(responseStream, data, errors, defers, streams,
-    variableValues)} asynchronously.
-  - Return {responseStream}.
+  - Return {IncrementalEventStream(data, errors, defers, streams,
+    variableValues)}.
 
-IncrementalEventStream(responseStream, data, errors, initialDefers,
-initialStreams, variableValues):
+IncrementalEventStream(data, errors, initialDefers, initialStreams,
+variableValues):
 
+- Return a new event stream {responseStream} which yields events as follows:
 - Let {nextId} be {0}.
 - Let {remainingDefers} be an empty set.
 - Let {remainingStreams} be an empty set.
@@ -171,7 +170,7 @@ initialStreams, variableValues):
     - Add {pendingStream} to {remainingStreams}.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
   {pending}, and the value {true} for key {hasNext}.
-- Yield to {responseStream} the value {initialResponse}.
+- Yield an event containing {initialResponse}.
 - Let {incremental} be an empty list.
 - Let {errors} be an empty list.
 - Let {pending} be an empty list.
@@ -188,7 +187,7 @@ initialStreams, variableValues):
     - Add {pending} to {incrementalPayload}.
   - If {completed} is not empty:
     - Add {completed} to {incrementalPayload}.
-  - Yield to {responseStream} the value {incrementalPayload}.
+  - Yield an event containing {incrementalPayload}.
   - Reset {incremental} to an empty list.
   - Reset {errors} to an empty list.
   - Reset {pending} to an empty list.
