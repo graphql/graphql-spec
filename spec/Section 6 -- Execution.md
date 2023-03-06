@@ -223,7 +223,7 @@ variableValues):
         {ExecuteSelectionSet(selectionSet, objectType, objectValue,
         variableValues, path)}.
       - Let {childErrors} be the list of all _field error_ raised while
-        executing the defer.
+        executing the selection set.
       - Let {incrementalPayload} be an unordered object containing {path},
         {data}, and the key {errors} with value {childErrors}.
       - Append {incrementalPayload} to {batchIncremental}.
