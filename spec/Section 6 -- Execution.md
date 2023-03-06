@@ -210,10 +210,10 @@ initialStreams, variableValues):
         {deferredDetailsForPath}.
       - Let {objectValue} be the value for key {objectValue} in
         {deferredDetailsForPath}.
-      - Let {allFieldDetails} be the value for key {allFieldDetails} in
+      - Let {fieldDetails} be the value for key {fieldDetails} in
         {deferredDetailsForPath}.
       - Let {fields} be a list of all the values of the {field} key in the
-        entries of {allFieldDetails}.
+        entries of {fieldDetails}.
       - Let {selectionSet} be a new selection set consisting of {fields}.
       - Let {data}, {childDefers} and {childStreams} be
         {ExecuteSelectionSet(selectionSet, objectType, objectValue,
@@ -250,10 +250,53 @@ initialStreams, variableValues):
         - Add {pendingStream} to {remainingStreams}.
     - Add to {completed} an unordered map containing {id}.
     - Optionally, {FlushStream()}.
-  - Else
+  - Else:
     - Assert: {remainingStreams} is not empty.
-    - Let {stream} be the first entry in {remainingStreams}.
-    - Remove {stream} from {remainingStreams}.
+    - Let {pendingStream} be the first entry in {remainingStreams}.
+    - Remove {pendingStream} from {remainingStreams}.
+    - Let {id} be the value for key {id} in {pendingStream}.
+    - Let {streamDetails} be the value for key {streamDetails} in
+      {pendingStream}.
+    - Let {parentPath} be the value for key {path} in {streamDetails}.
+    - Let {itemType} be the value for key {itemType} in {streamDetails}.
+    - Let {fields} be the value for key {fields} in {streamDetails}.
+    - Let {remainingValues} the the value for key {remainingValues} in
+      {streamDetails}.
+    - Let {initialCount} be the value for key {initialCount} in {streamDetails}.
+    - Let {fieldDetails} be the value for key {fieldDetails} in {streamDetails}.
+    - For each entry {remainingValue} with zero-based index
+      {remainingValueIndex} in {remainingValues}.
+      - Let {index} be the result of adding {initialCount} to
+        {remainingValueIndex}.
+      - Let {path} be a copy of {parentPath} with {index} appended.
+      - Let {value}, {childDefers}, {childStreams} be the result of calling
+        {CompleteValue(itemType, fields, remainingValue, variableValues, path)}.
+      - Let {childErrors} be the list of all _field error_ raised while
+        completing the value.
+      - Let {incrementalPayload} be an unordered object containing {path},
+        {value}, and the key {errors} with value {childErrors}.
+      - Append {incrementalPayload} to {incremental}.
+      - If {childDefers} is not an empty object:
+        - Let {id} be {nextId} and increment {nextId} by one.
+        - Let {path} be the longest common path prefix list for every path list
+          key in {childDefers}, or the empty list if no such list exists.
+          - TODO: This really needs rewording!
+        - Let {pendingPayload} be an unordered map containing {id}, {path}.
+        - Add {pendingPayload} to {pending}.
+        - Let {defers} be {childDefers}.
+        - Let {pendingDefer} be an unordered map containing {id}, {defers}.
+        - Add {pendingDefer} to {remainingDefers}.
+      - If {childStreams} is not an empty list:
+        - For each entry {streamDetails} in {childStreams}:
+          - Let {id} be {nextId} and increment {nextId} by one.
+          - Let {path} be the value for the key {path} in {streamDetails}.
+          - Let {pendingPayload} be an unordered map containing {id}, {path}.
+          - Add {pendingPayload} to {pending}.
+          - Let {pendingStream} be an unordered map containing {id},
+            {streamDetails}.
+          - Add {pendingStream} to {remainingStreams}.
+      - Add to {completed} an unordered map containing {id}.
+      - Optionally, {FlushStream()}.
 - {FlushStream(false)}.
 - Complete {responseStream}.
 
@@ -488,24 +531,22 @@ parentPath):
     {objectType}.
   - If {fieldType} is defined:
     - If every entry in {fieldDetails} has {isDeferred} set to {true}:
-      - Let {deferredDetailsForPath} be the object in {defers} for {path}; if no
-        such list exists, create it as an unordered map containing {objectType},
-        {objectValue} and {allFieldDetails}, where {allFieldDetails} is an empty
-        list.
-      - Let {group} be the value in {deferredDetailsForPath} for key
-        {allFieldDetails}.
-      - Append {fieldDetails} to {allFieldDetails}.
+      - Add an entry to {defers} with key {path} and value an unordered map
+        containing {objectType}, {objectValue} and {fieldDetails}.
     - Else:
-      - Let {responseValue}, {childDefers}, {childStreams} be
-        {ExecuteField(objectType, objectValue, fieldType, fieldDetails,
-        variableValues, path)}.
-      - Add the entries of {childDefers} into {defers}. Note: {childDefers} and
-        {defers} will never have keys in common.
-      - For each entry {stream} in {childStreams}, append {stream} to {streams}.
-      - If {responseValue} is not null and {fieldType} is a list type and
-        {field} provides the directive `@stream`, let {streamDirective} be that
-        directive. If {streamDirective}'s {if} argument is not {false} and is
-        not a variable in {variableValues} with the value {false}:
+      - Let {fields} be a list of all the values of the {field} key in the
+        entries of {fieldDetails}.
+      - Let {resolvedValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fields, variableValues, path)}.
+      - Let {nullableFieldType} be the inner type of {fieldType} if {fieldType}
+        is a non-nullable type, otherwise let {nullableFieldType} be
+        {fieldType}.
+      - If {nullableFieldType} is a list type and {responseValue} is a
+        collection of values and {field} provides the directive `@stream`, let
+        {streamDirective} be that directive. If {streamDirective}'s {if}
+        argument is not {false} and is not a variable in {variableValues} with
+        the value {false}:
+        - Let {itemType} be the inner type of {nullableFieldType}.
         - If {streamDirective}'s {initialCount} argument is a variable:
           - Let {initialCount} be the value of that variable in
             {variableValues}.
@@ -514,14 +555,29 @@ parentPath):
             {initialCount} argument.
         - If {initialCount} is {null}, not provided, or less than {0} then let
           {initialCount} be {0}.
-        - Let {initialValues} be the first {initialCount} entires in
-          {responesValue}, and {remainingValues} be the remainder.
+        - Let {initialValues} be the first {initialCount} entries in
+          {resolvedValue}, and {remainingValues} be the remainder.
+        - Let {initialResponseValue}, {childDefers}, {childStreams} be the
+          result of calling {CompleteValue(nullableFieldType, fields,
+          initialValues, variableValues, path)}.
+        - Add the entries of {childDefers} into {defers}. Note: {childDefers}
+          and {defers} will never have keys in common.
+        - For each entry {stream} in {childStreams}, append {stream} to
+          {streams}.
         - Set {initialValues} as the value for {responseKey} in {resultMap}.
         - If there are (or may be) values in {remainingValues}:
           - Let {streamDetails} be an unordered map containing {path},
-            {remainingValues}, {initialCount} and {fieldDetails}.
+            {itemType}, {fields}, {remainingValues}, {initialCount} and
+            {fieldDetails}.
           - Append {streamDetails} to {streams}.
       - Else:
+        - Let {responseValue}, {childDefers} and {childStreams} be the result of
+          {CompleteValue(fieldType, fields, resolvedValue, variableValues,
+          path)}.
+        - Add the entries of {childDefers} into {defers}. Note: {childDefers}
+          and {defers} will never have keys in common.
+        - For each entry {stream} in {childStreams}, append {stream} to
+          {streams}.
         - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Return {resultMap}, {defers} and {streams}.
 
@@ -780,6 +836,16 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
 - Let {responseValue}, {defers} and {streams} be the result of
   {CompleteValue(fieldType, fields, resolvedValue, variableValues, path)}.
 - Return {responseValue}, {defers} and {streams}.
+
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
+
+- Let {field} be the first entry in {fields}.
+- Let {fieldName} be the field name of {field}.
+- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
+  variableValues)}
+- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
+  argumentValues)}.
+- Return {resolvedValue}.
 
 ### Coercing Field Arguments
 
