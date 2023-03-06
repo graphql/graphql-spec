@@ -835,18 +835,6 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Let {responseValue}, {defers} and {streams} be the result of
-  {CompleteValue(fieldType, fields, resolvedValue, variableValues, path)}.
-- Return {responseValue}, {defers} and {streams}.
-
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
-
-- Let {field} be the first entry in {fields}.
-- Let {fieldName} be the field name of {field}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
-- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}.
 - Return {resolvedValue}.
 
 ### Coercing Field Arguments
