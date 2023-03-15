@@ -538,14 +538,14 @@ parentPath):
 
 - If {parentPath} is not provided, initialize it to an empty list.
 - Let {groupedFieldSet} be the result of running {CollectFields(objectType,
-  selectionSet, variableValues, parentPath)}.
+  selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - Let {defers} be an empty unordered map.
 - Let {streams} be an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fieldDetails}:
   - Let {fieldDetail} be the first entry in {fieldDetails}.
   - Let {field} be the value for the key {field} in {fieldDetail}.
-  - Let {path} be the value for the key {path} in {fieldDetail}.
+  - Let {path} be a copy of {parentPath} with {responseKey} appended.
   - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
     alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
@@ -745,9 +745,8 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, isDeferred,
-visitedFragments, parentPath):
+visitedFragments):
 
-- If {parentPath} is not provided, initialize it to an empty list.
 - If {isDeferred} is not provided, initialize it to {false}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -766,11 +765,9 @@ visitedFragments, parentPath):
     - Let {field} be {selection}.
     - Let {responseKey} be the response key of {field} (the alias if defined,
       otherwise the field name).
-    - Let {path} be a copy of {parentPath} with {responseKey} appended.
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Let {fieldDetail} be an unordered map containing {field}, {path} and
-      {isDeferred}.
+    - Let {fieldDetail} be an unordered map containing {field} and {isDeferred}.
     - Append {fieldDetail} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
@@ -793,7 +790,7 @@ visitedFragments, parentPath):
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of running
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentIsDeferred, visitedFragments, parentPath)}.
+      fragmentIsDeferred, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -814,7 +811,7 @@ visitedFragments, parentPath):
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of running
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentIsDeferred, visitedFragments, parentPath)}.
+      fragmentIsDeferred, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
