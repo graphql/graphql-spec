@@ -331,8 +331,8 @@ longest list such that every entry in {paths} starts with
 
 A Deferred Field Record is a structure containing:
 
-- {path} a list of field names and indices from root to the location of the
-  field in the response
+- {path} a list of field names and indices from root to the parent location of
+  the field in the response
 - {executionResult}: A structure that will only be available after asynchronous
   execution of this field is complete. Implementors are not required to
   immediately begin this execution. This structure contains:
@@ -344,10 +344,11 @@ A Deferred Field Record is a structure containing:
     field.
 
 ExecuteDeferredField(objectType, objectValue, fieldDetails, variableValues,
-path):
+responseKey, path):
 
 - Let {deferRecord} be a DeferredFieldRecord created from {path}.
-- Let {groupedFieldSet} be a new grouped field set consisting of {fieldDetails}.
+- Let {groupedFieldSet} be a map with key {responseKey} and value
+  {fieldDetails}.
 - Let {executionResult} be the asynchronous future value of:
   - Let {data}, {childDefers} and {childStreams} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
@@ -596,7 +597,7 @@ parentPath, deferPaths):
       in {deferPaths}:
       - Let {deferRecord} be the result of running
         {ExecuteDeferredField(objectType, objectValue, fields, variableValues,
-        path)}.
+        responseKey, parentPath)}.
       - For each {fieldDetail} in {fieldDetails}:
         - Let {deferForPath} be the map in {defers} for {path}; if no such map
           exists, create it as an empty unordered map.
