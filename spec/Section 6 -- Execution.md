@@ -593,8 +593,8 @@ parentPath, deferPaths):
   - Let {fields} be a list of all the values of the {field} key in the entries
     of {fieldDetails}.
   - If {fieldType} is defined:
-    - If every entry in {fieldDetails} has a {deferPath} which is not included
-      in {deferPaths}:
+    - If every entry in {fieldDetails} does not have a {deferPath}, or the list
+      of every {deferPath} in {fieldDetails} is the same list as {deferPaths}:
       - Let {deferRecord} be the result of running
         {ExecuteDeferredField(objectType, objectValue, fields, variableValues,
         responseKey, parentPath)}.
