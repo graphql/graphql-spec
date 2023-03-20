@@ -343,16 +343,14 @@ A Deferred Field Record is a structure containing:
   - {childStreams}: Any downstream streams discovered while executing this
     field.
 
-ExecuteDeferredField(objectType, objectValue, fieldDetails, variableValues,
-responseKey, path):
+ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues, path, deferPaths):
 
 - Let {deferRecord} be a DeferredFieldRecord created from {path}.
-- Let {groupedFieldSet} be a map with key {responseKey} and value
-  {fieldDetails}.
 - Let {executionResult} be the asynchronous future value of:
   - Let {data}, {childDefers} and {childStreams} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-    variableValues, path)}.
+    variableValues, path, deferPaths)}.
   - Let {childErrors} be the list of all _field error_ raised while executing
     the selection set.
   - Return {data}, {errors}, {childDefers}, {childStreams}.
@@ -580,6 +578,7 @@ parentPath, deferPaths):
 
 - If {parentPath} is not provided, initialize it to an empty list.
 - Initialize {resultMap} to an empty ordered map.
+- Let {deferredGroupedFieldSets} be an empty unordered map of unordered maps.
 - Let {defers} be an empty unordered map of unordered maps.
 - Let {streams} be an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fieldDetails}:
@@ -595,14 +594,11 @@ parentPath, deferPaths):
   - If {fieldType} is defined:
     - If every entry in {fieldDetails} does not have a {deferPath}, or the list
       of every {deferPath} in {fieldDetails} is the same list as {deferPaths}:
-      - Let {deferRecord} be the result of running
-        {ExecuteDeferredField(objectType, objectValue, fields, variableValues,
-        responseKey, parentPath)}.
-      - For each {fieldDetail} in {fieldDetails}:
-        - Let {deferForPath} be the map in {defers} for {path}; if no such map
-          exists, create it as an empty unordered map.
-        - Add an entry to {deferForPath} with key {path} and the value
-          {deferRecord}.
+      - Let {fieldDeferPaths} be the set of every {deferPath} in {fieldDetails}.
+      - Let {deferredFieldGroupSet} be the map in {deferredGroupedFieldSets} for
+        {fieldDeferPaths}; if no such map exists, create it as an empty
+        unordered map.
+      - Set {fieldDetails} on {deferredFieldGroupSet} at key {responseKey}.
     - Otherwise:
       - Let {resolvedValue} be the result of running {ExecuteField(objectType,
         objectValue, fieldType, fieldDetails, variableValues, path)}.
@@ -647,6 +643,16 @@ parentPath, deferPaths):
         - For each entry {stream} in {childStreams}, append {stream} to
           {streams}.
         - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- For each {fieldDeferPaths} and {deferredFieldGroupSet} in
+  {deferredGroupedFieldSets}:
+  - Let {deferRecord} be the result of running
+    {ExecuteDeferredField(deferredFieldGroupSet, objectType, objectValue,
+    variableValues, parentPath, fieldDeferPaths)}.
+  - For each {deferPath} in {fieldDeferPaths}:
+    - Let {deferForPath} be the map in {defers} for {deferPath}; if no such map
+      exists, create it as an empty unordered map.
+    - Add an entry to {deferForPath} with key {deferPath} and the value
+      {deferRecord}.
 - Return {resultMap}, {defers} and {streams}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
