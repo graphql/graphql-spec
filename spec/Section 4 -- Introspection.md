@@ -151,6 +151,8 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+  # references to other schemas/ontologies via URI/IRI
+  sameAs: [String!]
 }
 
 enum __TypeKind {
