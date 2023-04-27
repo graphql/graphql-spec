@@ -551,7 +551,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       - Let {groupForResponseKey} be the list in {groupedFieldSet} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields} and {visitedFragments}.
+- Return {groupedFields}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
