@@ -162,9 +162,14 @@ An execution group consists of:
 Note: {dependencies}, {groupedFieldSetByPath}, and {objectValueByPath} may be
 added to over time.
 
-ExecuteExecutionGroup(executionGroup, variableValues):
+ExecutionGroupPath(executionGroup):
 
-- TODO
+- Let {bestPath} be {null}.
+- Let {deliveryGroups} be that property of {executionGroup}.
+- For each {deliveryGroups} as {deliveryGroup}:
+- If {bestPath} is {null} or {bestPath} contains fewer entries than {path}:
+  - Let {bestPath} be {path}.
+- Return {bestPath}.
 
 ExecuteRootSelectionSet(selectionSet, objectType, initialValue, variableValues,
 serial):
@@ -249,6 +254,55 @@ variableValues):
       - Assert: {objectValue} exists and is not {null}.
       - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
         responseKey, fieldDigests)}.
+- Define the sub-procedure {ExecuteExecutionGroup(executionGroup)}:
+  - Set {state} of {executionGroup} to {EXECUTING}.
+  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
+  - Let {objectValueByPath} be that property of {executionGroup}.
+  - Let {deliveryGroups} be that property of {executionGroup}.
+  - Let {dependencies} be that property of {executionGroup}.
+  - For each {groupedFieldSetByPath} as {path} and {groupedFieldSet} (in
+    parallel):
+    - Let {objectValue} be the value for {path} in {objectValueByPath}.
+    - Assert: {objectValue} exists and is not {null}.
+    - TODO: we also need {objectType} - we should store that next to
+      {objectValue}.
+    - Let {data} and {incrementalFieldSetsByPath} be the result of running
+      {ExecuteFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
+      path, deliveryGroups)} _normally_ (allowing parallelization).
+    - TODO: collect {data} at {path} (relative to
+      {ExecutionGroupPath(executionGroup)}).
+    - TODO: collect {incrementalFieldSetsByPath}.
+  - If an error {error} bubbled past any of the grouped field sets above:
+    - Set {state} of {executionGroup} to {FAILED}.
+    - If {deliveryGroups} contains exactly one entry:
+      - Let {id} be {pendingId} of {executionGroup}.
+      - Let {completedPayload} be an unordered map containing {id}, {error}.
+      - Add {completedPayload} to {completed}.
+    - Otherwise:
+      - For each {deliveryGroups} as {deliveryGroup}:
+        - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
+        - Let {dependentExecutionGroup} be
+          {ExecutionGroupFor(deliveryGroupSet)}.
+        - Set {state} of {dependentExecutionGroup} to {FAILED}.
+        - Let {id} be {pendingId} of {dependentExecutionGroup}.
+        - Let {completedPayload} be an unordered map containing {id}, {error}.
+        - Add {completedPayload} to {completed}.
+        - Remove {dependentExecutionGroup} from {executionGroups}.
+    - Remove {executionGroup} from {executionGroups}.
+    - Optionally, {FlushStream()}.
+  - Otherwise:
+    - Set {state} of {executionGroup} to {COMPLETE}.
+    - If {deliveryGroups} contains exactly one entry:
+      - For each {dependencies} as {dependency}:
+        - TODO: send that stored data (see below).
+        - Remove {dependency} as a dependency from each execution group in
+          {executionGroups} for which it is a dependency.
+        - Remove {dependency} from {executionGroups}.
+      - TODO: push all the data into {incremental}.
+      - Remove {executionGroup} from {executionGroups}.
+      - Optionally, {FlushStream()}.
+    - Otherwise:
+      - TODO: store the data for later, send it with one of our dependents.
 - Call {HandleIncremental(initialIncrementalFieldSetsByPath)}.
 - Assert: {pending} is not empty.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
@@ -257,8 +311,8 @@ variableValues):
 - Let {incremental} be an empty list.
 - Let {pending} be an empty list.
 - Let {completed} be an empty list.
-- Define the sub-procedure {FlushStream(hasNext)} with the following actions:
-  - If {hasNext} is not provided, initialize it to {true}.
+- Define the sub-procedure {FlushStream()} with the following actions:
+  - Let {hasNext} be true if {executionGroups} is not empty, {false} otherwise.
   - Let {incrementalPayload} be an empty unordered map.
   - Add {hasNext} to {incrementalPayload}.
   - If {incremental} is not empty:
@@ -271,115 +325,13 @@ variableValues):
   - Reset {incremental} to an empty list.
   - Reset {pending} to an empty list.
   - Reset {completed} to an empty list.
-- While {remainingDefers} is not empty or {remainingStreams} is not empty:
-  - If {remainingDefers} is not empty:
-    - Let {pendingDefer} be the first entry in {remainingDefers}.
-    - Remove {pendingDefer} from {remainingDefers}.
-    - Let {thisId} be the value for key {id} in {pendingDefer}.
-    - Let {defers} be the value for key {defers} in {pendingDefer}.
-    - Note: A single `@defer` directive may output multiple incremental payloads
-      at different paths; it is essential that these multiple incremental
-      payloads are received by the client as part of a single event in order to
-      maintain consistency for the client. This is why these incremental
-      payloads are batched together rather than being flushed to the event
-      stream as early as possible.
-    - Let {batchIncremental} be an empty list.
-    - Let {batchErrors} be an empty list.
-    - Let {batchDefers} be an empty unordered map.
-    - Let {batchStreams} be an empty list.
-    - For each key {path} and value {deferredDetailsForPath} in {defers}, in
-      parallel:
-      - Let {objectType} be the value for key {objectType} in
-        {deferredDetailsForPath}.
-      - Let {objectValue} be the value for key {objectValue} in
-        {deferredDetailsForPath}.
-      - Let {fieldDetails} be the value for key {fieldDetails} in
-        {deferredDetailsForPath}.
-      - Let {fields} be a list of all the values of the {field} key in the
-        entries of {fieldDetails}.
-      - Let {selectionSet} be a new selection set consisting of {fields}.
-      - Let {data}, {childDefers} and {childStreams} be the result of running
-        {ExecuteSelectionSet(selectionSet, objectType, objectValue,
-        variableValues, path)}.
-      - Let {childErrors} be the list of all _field error_ raised while
-        executing the selection set.
-      - Let {incrementalPayload} be an unordered object containing {path},
-        {data}, and the key {errors} with value {childErrors}.
-      - Append {incrementalPayload} to {batchIncremental}.
-      - Add the entries of {childDefers} into {batchDefers}. Note: {childDefers}
-        and {batchDefers} will never have keys in common.
-      - For each entry {stream} in {childStreams}, append {stream} to
-        {batchStreams}.
-    - For each entry {incrementalPayload} in {batchIncremental}, append
-      {incrementalPayload} to {incremental}.
-    - If {batchDefers} is not an empty object:
-      - Let {id} be {nextId} and increment {nextId} by one.
-      - Let {path} be the result of running
-        {LongestCommonPathPrefix(batchDefers)}.
-      - Let {pendingPayload} be an unordered map containing {id}, {path}.
-      - Add {pendingPayload} to {pending}.
-      - Let {defers} be {batchDefers}.
-      - Let {pendingDefer} be an unordered map containing {id}, {defers}.
-      - Append {pendingDefer} to {remainingDefers}.
-    - For each entry {streamDetails} in {batchStreams}:
-      - Let {id} be {nextId} and increment {nextId} by one.
-      - Let {path} be the value for the key {path} in {streamDetails}.
-      - Let {pendingPayload} be an unordered map containing {id}, {path}.
-      - Add {pendingPayload} to {pending}.
-      - Let {pendingStream} be an unordered map containing {id},
-        {streamDetails}.
-      - Append {pendingStream} to {remainingStreams}.
-    - Add to {completed} an unordered map containing key {id} with value
-      {thisId}.
-    - Optionally, {FlushStream()}.
-  - Otherwise:
-    - Assert: {remainingStreams} is not empty.
-    - Let {pendingStream} be the first entry in {remainingStreams}.
-    - Remove {pendingStream} from {remainingStreams}.
-    - Let {thisId} be the value for key {id} in {pendingStream}.
-    - Let {streamDetails} be the value for key {streamDetails} in
-      {pendingStream}.
-    - Let {parentPath} be the value for key {path} in {streamDetails}.
-    - Let {itemType} be the value for key {itemType} in {streamDetails}.
-    - Let {fields} be the value for key {fields} in {streamDetails}.
-    - Let {remainingValues} the the value for key {remainingValues} in
-      {streamDetails}.
-    - Let {initialCount} be the value for key {initialCount} in {streamDetails}.
-    - Let {fieldDetails} be the value for key {fieldDetails} in {streamDetails}.
-    - For each entry {remainingValue} with zero-based index
-      {remainingValueIndex} in {remainingValues}.
-      - Let {index} be the result of adding {initialCount} to
-        {remainingValueIndex}.
-      - Let {path} be a copy of {parentPath} with {index} appended.
-      - Let {value} and {incrementalFieldSetsByPath} be the result of running
-        {CompleteValue(itemType, fields, remainingValue, variableValues, path)}.
-      - Let {childErrors} be the list of all _field error_ raised while
-        completing the value.
-      - Let {incrementalPayload} be an unordered object containing {path},
-        {value}, and the key {errors} with value {childErrors}.
-      - Append {incrementalPayload} to {incremental}.
-      - If {childDefers} is not an empty object:
-        - Let {id} be {nextId} and increment {nextId} by one.
-        - Let {path} be the result of running
-          {LongestCommonPathPrefix(childDefers)}.
-        - Let {pendingPayload} be an unordered map containing {id}, {path}.
-        - Add {pendingPayload} to {pending}.
-        - Let {defers} be {childDefers}.
-        - Let {pendingDefer} be an unordered map containing {id}, {defers}.
-        - Append {pendingDefer} to {remainingDefers}.
-      - For each entry {streamDetails} in {childStreams}:
-        - Let {id} be {nextId} and increment {nextId} by one.
-        - Let {path} be the value for the key {path} in {streamDetails}.
-        - Let {pendingPayload} be an unordered map containing {id}, {path}.
-        - Add {pendingPayload} to {pending}.
-        - Let {pendingStream} be an unordered map containing {id},
-          {streamDetails}.
-        - Append {pendingStream} to {remainingStreams}.
-      - Add to {completed} an unordered map containing key {id} with value
-        {thisId}.
-      - Optionally, {FlushStream()}.
-- {FlushStream(false)}.
-- Complete {responseStream}.
+  - If {hasNext} is {false}, complete {responseStream}.
+- While {executionGroups} is not empty:
+  - Let {readyToExecute} be the list of {PENDING} execution groups in
+    {executionGroups} whose {dependencies} are all {COMPLETE}.
+  - For each {readyToExecute} as {executionGroup} (in parallel):
+    - Call {ExecuteExecutionGroup(executionGroup)}.
+- Call {FlushStream()}.
 
 ### Query
 
