@@ -118,6 +118,201 @@ provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
 
+### Delivery group
+
+::: A _delivery group_ represents either the root selection set or a particular
+`@stream` or `@defer` directive at a particular {path} in the response.
+
+::: The _root delivery group_ is the _delivery group_ that represents the root
+selection set in the operation.
+
+Each _delivery group_ belongs to a {parent} delivery group, except for the _root
+delivery group_. During field collection, the delivery group of each field is
+tracked, and this is used when determining when to execute and deliver defered
+fields and streamed list items.
+
+In an operation that does not utilise the `@stream` and `@defer` directives,
+there will only be a single delivery group, the _root delivery group_, and all
+fields will belong to it.
+
+### Execution group
+
+::: An _execution group_ represents a number of fields at a number of given
+paths in the operation that all belong to the same _delivery group_ or groups.
+An execution group may depend on other execution groups, such that it cannot be
+delivered until they also have been delivered.
+
+::: A _shared execution group_ is an _execution group_ that applies to more than
+one _delivery group_. Shared execution groups cannot be delivered on their own,
+they must only be delivered along with at least one completed _execution group_
+that depends on them.
+
+An execution group consists of:
+
+- {deliveryGroups}: a set of the delivery groups to which it applies,
+- {pendingId}: a numeric id used in the response stream to identify where to
+  write the data,
+- {status}: {PENDING}, {EXECUTING}, {COMPLETE} or {FAILED},
+- {dependencies}: a list of execution groups on which it is dependent, and
+- {groupedFieldSetByPath}: a map of response path to grouped field set that it
+  is responsible for executing.
+- {objectValueByPath}: a map of response path to the object value for that path,
+  to be used when executing field sets against that object value.
+
+Note: {dependencies}, {groupedFieldSetByPath}, and {objectValueByPath} may be
+added to over time.
+
+ExecutionGroupPath(executionGroup):
+
+- Let {bestPath} be {null}.
+- Let {deliveryGroups} be that property of {executionGroup}.
+- For each {deliveryGroups} as {deliveryGroup}:
+- If {bestPath} is {null} or {bestPath} contains fewer entries than {path}:
+  - Let {bestPath} be {path}.
+- Return {bestPath}.
+
+IncrementalEventStream(data, errors, initialIncrementalFieldSetsByPath,
+variableValues):
+
+- Return a new event stream {responseStream} which yields events as follows:
+- Let {nextId} be {0}.
+- Let {executionGroups} be an empty set.
+- Let {pending} be an empty list.
+- Define the sub-procedure {CreateExecutionGroup(deliveryGroups)} with the
+  following actions:
+  - Let {executionGroup} be a new execution group that relates to
+    {deliveryGroups} with no dependencies and an empty {groupedFieldSetByPath}
+    and {objectValueByPath}.
+  - If {deliveryGroups} contains more than one entry:
+    - Let {id} be {null}.
+    - Let {bestPath} be {null}.
+    - For each {deliveryGroups} as {deliveryGroup}:
+      - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
+      - Let {childExecutionGroup} be the result of
+        {ExecutionGroupFor(deliveryGroupSet)}.
+      - Add {executionGroup} as a dependency of {childExecutionGroup}.
+      - Let {path} be the path of {deliveryGroup}.
+      - If {bestPath} is {null} or {bestPath} contains fewer entries than
+        {path}:
+        - Let {bestPath} be {path}.
+        - Let {id} be the {pendingId} of {childExecutionGroup}.
+  - Otherwise:
+    - Let {id} be {nextId} and increment {nextId} by one.
+    - Let {deliveryGroup} be the only entry in {deliveryGroups}.
+    - Let {path} be the path of {deliveryGroup}.
+    - Let {label} be the label of {deliveryGroup} (if any).
+    - Let {pendingPayload} be an unordered map containing {id}, {path}, {label}.
+    - Add {pendingPayload} to {pending}.
+  - Assert: {id} is not null.
+  - Set {id} as the value for {pendingId} in {executionGroup}.
+  - Add {executionGroup} to {executionGroups}.
+  - Return {executionGroup}.
+- Define the sub-procedure {ExecutionGroupFor(deliveryGroups)} with the
+  following actions:
+  - Let {executionGroup} be the execution group for the current operation that
+    relates to the delivery groups {deliveryGroups} and only those delivery
+    groups. If no such execution group exists then let {executionGroup} be the
+    result of {CreateExecutionGroup(deliveryGroups)}.
+  - Return {executionGroup}.
+- Define the sub-procedure {AddFieldDigestsToExecutionGroup(executionGroup,
+  path, objectValue, responseKey, fieldDigests)} with the following actions:
+  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
+  - Let {objectValueByPath} be that property of {executionGroup}.
+  - Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if
+    no such list exists, create it as an empty map and set {objectValue} as the
+    value for {path} in {objectValueByPath}.
+  - Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
+- Define the sub-procedure {HandleIncremental(fieldSetsByPath)} with the
+  following actions:
+  - For each {fieldSetsByPath} as {path} and {fieldSets}:
+    - For each {fieldSets} as {responseKey} and {fieldDigests}:
+      - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
+      - Let {executionGroup} be {ExecutionGroupFor(deliveryGroups)}.
+      - Let {objectValueByPath} be that property of {executionGroup}.
+      - Let {objectValue} be the value for {path} in {objectValueByPath}.
+      - Assert: {objectValue} exists and is not {null}.
+      - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
+        responseKey, fieldDigests)}.
+- Define the sub-procedure {ExecuteExecutionGroup(executionGroup)}:
+  - Set {state} of {executionGroup} to {EXECUTING}.
+  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
+  - Let {objectValueByPath} be that property of {executionGroup}.
+  - Let {deliveryGroups} be that property of {executionGroup}.
+  - Let {dependencies} be that property of {executionGroup}.
+  - For each {groupedFieldSetByPath} as {path} and {groupedFieldSet} (in
+    parallel):
+    - Let {objectValue} be the value for {path} in {objectValueByPath}.
+    - Assert: {objectValue} exists and is not {null}.
+    - TODO: we also need {objectType} - we should store that next to
+      {objectValue}.
+    - Let {data} and {incrementalFieldSetsByPath} be the result of running
+      {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+      variableValues, path, deliveryGroups)} _normally_ (allowing
+      parallelization).
+    - TODO: collect {data} at {path} (relative to
+      {ExecutionGroupPath(executionGroup)}).
+    - TODO: collect {incrementalFieldSetsByPath}.
+  - If an error {error} bubbled past any of the grouped field sets above:
+    - Set {state} of {executionGroup} to {FAILED}.
+    - If {deliveryGroups} contains exactly one entry:
+      - Let {id} be {pendingId} of {executionGroup}.
+      - Let {completedPayload} be an unordered map containing {id}, {error}.
+      - Add {completedPayload} to {completed}.
+    - Otherwise:
+      - For each {deliveryGroups} as {deliveryGroup}:
+        - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
+        - Let {dependentExecutionGroup} be
+          {ExecutionGroupFor(deliveryGroupSet)}.
+        - Set {state} of {dependentExecutionGroup} to {FAILED}.
+        - Let {id} be {pendingId} of {dependentExecutionGroup}.
+        - Let {completedPayload} be an unordered map containing {id}, {error}.
+        - Add {completedPayload} to {completed}.
+        - Remove {dependentExecutionGroup} from {executionGroups}.
+    - Remove {executionGroup} from {executionGroups}.
+    - Optionally, {FlushStream()}.
+  - Otherwise:
+    - Set {state} of {executionGroup} to {COMPLETE}.
+    - If {deliveryGroups} contains exactly one entry:
+      - For each {dependencies} as {dependency}:
+        - TODO: send that stored data (see below).
+        - Remove {dependency} as a dependency from each execution group in
+          {executionGroups} for which it is a dependency.
+        - Remove {dependency} from {executionGroups}.
+      - TODO: push all the data into {incremental}.
+      - Remove {executionGroup} from {executionGroups}.
+      - Optionally, {FlushStream()}.
+    - Otherwise:
+      - TODO: store the data for later, send it with one of our dependents.
+- Call {HandleIncremental(initialIncrementalFieldSetsByPath)}.
+- Assert: {pending} is not empty.
+- Let {initialResponse} be an unordered map containing {data}, {errors},
+  {pending}, and the value {true} for key {hasNext}.
+- Yield an event containing {initialResponse}.
+- Let {incremental} be an empty list.
+- Let {pending} be an empty list.
+- Let {completed} be an empty list.
+- Define the sub-procedure {FlushStream()} with the following actions:
+  - Let {hasNext} be true if {executionGroups} is not empty, {false} otherwise.
+  - Let {incrementalPayload} be an empty unordered map.
+  - Add {hasNext} to {incrementalPayload}.
+  - If {incremental} is not empty:
+    - Add {incremental} to {incrementalPayload}.
+  - If {pending} is not empty:
+    - Add {pending} to {incrementalPayload}.
+  - If {completed} is not empty:
+    - Add {completed} to {incrementalPayload}.
+  - Yield an event containing {incrementalPayload}.
+  - Reset {incremental} to an empty list.
+  - Reset {pending} to an empty list.
+  - Reset {completed} to an empty list.
+  - If {hasNext} is {false}, complete {responseStream}.
+- While {executionGroups} is not empty:
+  - Let {readyToExecute} be the list of {PENDING} execution groups in
+    {executionGroups} whose {dependencies} are all {COMPLETE}.
+  - For each {readyToExecute} as {executionGroup} (in parallel):
+    - Call {ExecuteExecutionGroup(executionGroup)}.
+- Call {FlushStream()}.
+
 ### Query
 
 If the operation is a query, the result of the operation is the result of
@@ -285,7 +480,11 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - For each {event} on {sourceStream}:
   - Let {response} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
+  - If {response} is an event stream:
+    - For each {childEvent} on {response}:
+      - Yield {childEvent}.
+  - Otherwise:
+    - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
@@ -327,14 +526,22 @@ ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
 
 - If {serial} is not provided, initialize it to {false}.
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
-- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
-  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
+  selectionSet, variableValues, path, rootDeliveryGroup)}.
+- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
+- Let {data} and {incrementalFieldSetsByPath} be the result of running
+  {ExecuteGroupedFieldSet(groupedFieldSet, objectType, initialValue,
+  variableValues, path, currentDeliveryGroups)} _serially_ if {serial} is true,
   _normally_ (allowing parallelization) otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {incrementalFieldSetsByPath} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Otherwise:
+  - Return {IncrementalEventStream(data, errors, incrementalFieldSetsByPath,
+    variableValues)}.
 
 ## Executing a Grouped Field Set
 
@@ -348,17 +555,31 @@ response map.
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
 variableValues):
 
+- Let {incrementalFieldSetsByPath} be an empty map.
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
-  - Let {fieldType} be the return type defined for the field {fieldName} of
-    {objectType}.
-  - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Return {resultMap}.
+- For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+  - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
+  - If {deliveryGroups} contains every delivery group in
+    {currentDeliveryGroups}:
+    - Let {fieldName} be the name of the field of the first entry in
+      {fieldDigests}. Note: This value is unaffected if an alias is used.
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - If {fieldType} is defined:
+      - Let {childPath} be the result of appending {responseKey} to {path}.
+      - Let {responseValue} and {childFieldSetsByPath} be
+        {ExecuteField(objectType, objectValue, fieldType, fieldDigests,
+        variableValues, childPath, currentDeliveryGroups)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+      - For each {childFieldSetsByPath} as {childPath} and {fieldSets}:
+        - Set {fieldSets} as the value for {childPath} in
+          {incrementalFieldSetsByPath}.
+  - Otherwise:
+    - Let {incrementalFieldSets} be the map in {incrementalFieldSetsByPath} for
+      {path}; if no such map exists, create it as an empty map.
+    - Set {fieldDigests} as the value for {responseKey} in
+      {incrementalFieldSets}.
+- Return {resultMap} and {incrementalFieldSetsByPath}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -374,6 +595,8 @@ yielded a value may be cancelled to avoid unnecessary work.
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
+
+Further, if this occurs, the {incrementalFieldSetsByPath} must be made empty.
 
 ### Normal and Serial Execution
 
@@ -502,8 +725,12 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, path, deliveryGroup,
+visitedFragments):
 
+- If {path} is not provided, initialize it to an empty list.
+- If {deliveryGroup} is not provided, initialize it to be a new delivery group
+  with path {path}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
@@ -522,8 +749,19 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       defined, otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {fieldDigest} be a new field digest containing {selection} and
+      {deliveryGroup}.
+    - Append {fieldDigest} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
+    - Let {fragmentDeliveryGroup} be {deliveryGroup}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {label} be the value of {deferDirective}'s {label} argument (or
+          the value of the associated variable) if any.
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path},
+          parent {deliveryGroup} and label {label}.
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
       {selection} in {selectionSet}.
@@ -537,8 +775,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      fragmentDeliveryGroup, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -546,14 +784,23 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
   - If {selection} is an {InlineFragment}:
+    - Let {fragmentDeliveryGroup} be {deliveryGroup}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {label} be the value of {deferDirective}'s {label} argument (or
+          the value of the associated variable) if any.
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path},
+          parent {deliveryGroup} and label {label}.
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      fragmentDeliveryGroup, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -585,16 +832,17 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fieldDigests, variableValues,
+path, currentDeliveryGroups):
 
-- Let {field} be the first entry in {fields}.
+- Let {field} be the first entry in {fieldDigests}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Return the result of {CompleteValue(fieldType, fieldDigests, resolvedValue,
+  variableValues, path, currentDeliveryGroups)}.
 
 ### Coercing Field Arguments
 
@@ -681,34 +929,49 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fieldDigests, result, variableValues, path,
+currentDeliveryGroups):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+  - Let {completedResult} and {incrementalFieldSetsByPath} be the result of
+    calling {CompleteValue(innerType, fieldDigests, result, variableValues,
+    path, currentDeliveryGroups)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult}.
+  - Return {completedResult} and {incrementalFieldSetsByPath}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - Let {incrementalFieldSetsByPath} be an empty map.
+  - Let {list} be an empty list.
+    - For each list item {resultItem} at 0-indexed index {resultIndex} in
+      {result}:
+      - Let {subpath} be the result of appending {resultIndex} to {path}.
+      - Let {listValue} and {itemIncrementalFieldSetsByPath} be the result of
+        calling {CompleteValue(innerType, fieldDigests, resultItem,
+        variableValues, subpath, currentDeliveryGroups)}.
+      - Append {listValue} to {list}.
+      - If {listValue} is not {null}:
+        - For each {itemIncrementalFieldSetsByPath} as {childPath} and
+          {childFieldSets}:
+          - Set {childFieldSets} as the value for {childPath} in
+            {incrementalFieldSetsByPath}.
+  - Return {list} and {incrementalFieldSetsByPath}.
 - If {fieldType} is a Scalar or Enum type:
-  - Return the result of {CoerceResult(fieldType, result)}.
+  - Let {completedResult} be the result of {CoerceResult(fieldType, result)}.
+  - Return {completedResult} and an empty map.
 - If {fieldType} is an Object, Interface, or Union type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fields, variableValues)}.
+  - Let {groupedFieldSet} be the result of calling
+    {CollectSubfields(objectType, fieldDigests, variableValues, path)}.
   - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+    objectType, result, variableValues, path, currentDeliveryGroups)} _normally_
+    (allowing for parallelization).
 
 **Coercing Results**
 
@@ -774,18 +1037,20 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-CollectSubfields(objectType, fields, variableValues):
+CollectSubfields(objectType, fieldDigests, variableValues, path):
 
 - Let {groupedFieldSet} be an empty map.
-- For each {field} in {fields}:
+- For each {fieldDigest} in {fieldDigests}:
+  - Let {field} be the field of {fieldDigest}.
+  - Let {deliveryGroup} be the delivery group of {fieldDigest}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
-  - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
+    fieldSelectionSet, variableValues, path, deliveryGroup)}.
+  - For each {subGroupedFieldSet} as {responseKey} and {subfieldDigests}:
     - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {groupForResponseKey}.
+    - Append all field digests in {subfieldDigests} to {groupForResponseKey}.
 - Return {groupedFieldSet}.
 
 ### Handling Field Errors
