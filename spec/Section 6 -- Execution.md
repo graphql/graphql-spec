@@ -140,11 +140,12 @@ fields will belong to it.
 ::: An _execution group_ represents a number of fields at a number of given
 paths in the operation that all belong to the same _delivery group_ or groups.
 An execution group may depend on other execution groups, such that it cannot be
-delivered until they also have been delivered. There are two types of execution
-groups: normal groups (which relate to a single delivery group), and shared
-groups (which relate to multiple delivery groups). Shared groups cannot be
-delivered on their own, they must only be delivered when at least one normal
-group that depends on them is also delivered.
+delivered until they also have been delivered.
+
+::: A _shared execution group_ is an _execution group_ that applies to more than
+one _delivery group_. Shared execution groups cannot be delivered on their own,
+they must only be delivered along with at least one completed _execution group_
+that depends on them.
 
 An execution group consists of:
 
@@ -152,14 +153,18 @@ An execution group consists of:
 - {dependencies}: a list of execution groups on which it is dependent, and
 - {groupedFieldSetByPath}: a map of response path to grouped field set that it
   is responsible for executing.
+- {objectValueByPath}: a map of response path to the object value for that path,
+  to be used when executing field sets against that object value.
 
-Note: {dependencies} and {groupedFieldSetByPath} may be added to over time.
+Note: {dependencies}, {groupedFieldSetByPath}, and {objectValueByPath} may be
+added to over time.
 
 CreateExecutionGroup(deliveryGroups):
 
 - Assert: no execution group exists for {deliveryGroups}.
 - Let {executionGroup} be a new execution group that relates to {deliveryGroups}
-  with no dependencies and an empty {groupedFieldSetByPath}.
+  with no dependencies and an empty {groupedFieldSetByPath} and
+  {objectValueByPath}.
 - If {deliveryGroups} contains more than one entry:
   - For each {deliveryGroups} as {deliveryGroup}:
     - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
@@ -176,13 +181,45 @@ ExecutionGroupFor(deliveryGroups):
   result of {CreateExecutionGroup(deliveryGroups)}.
 - Return {executionGroup}.
 
-AddFieldDigestsToExecutionGroup(executionGroup, path, responseKey,
+AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue, responseKey,
 fieldDigests):
 
 - Let {groupedFieldSetByPath} be that property of {executionGroup}.
+- Let {objectValueByPath} be that property of {executionGroup}.
 - Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if no
-  such list exists, create it as an empty map.
+  such list exists, create it as an empty map and set {objectValue} as the value
+  for {path} in {objectValueByPath}.
 - Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
+
+ExecuteExecutionGroup(executionGroup, variableValues):
+
+- TODO
+
+ExecuteRootSelectionSet(selectionSet, objectType, initialValue, variableValues,
+serial):
+
+- If {serial} is not provided, initialize it to {false}.
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
+  parent.
+- Let {groupedFieldSet} be the result of {CollectFields(objectType,
+  selectionSet, variableValues, path, rootDeliveryGroup)}.
+- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
+- If {serial} is {true}:
+  - Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+    objectType, initialValue, variableValues, path, currentDeliveryGroups)}
+    _serially_.
+- Otherwise:
+  - Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+    objectType, initialValue, variableValues, path, currentDeliveryGroups)}
+    _normally_ (allowing parallelization).
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
+- If {selectionDetailsByPathByDeliveryGroup} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Otherwise:
+  - TODO: make a stream, send the above, then derive and race the execution
+    groups and send them.
 
 ### Query
 
@@ -197,22 +234,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {path} be an empty list.
-- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
-  parent.
-- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- Let {groupedFieldSet} be the result of {CollectFields(queryType, selectionSet,
-  variableValues, path, currentDeliveryGroups)}.
-- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-  queryType, initialValue, variableValues, path, rootDeliveryGroups)} _normally_
-  (allowing parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- If {selectionDetailsByPathByDeliveryGroup} is empty:
-  - Return an unordered map containing {data} and {errors}.
-- Otherwise:
-  - TODO: make a stream, send the above, then derive and race the execution
-    groups and send them.
+- Return the result of running {ExecuteRootSelectionSet(selectionSet, queryType,
+  initialValue, variableValues)}.
 
 ### Mutation
 
@@ -229,18 +252,8 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {path} be an empty list.
-- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
-  parent.
-- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- Let {groupedFieldSet} be the result of {CollectFields(mutationType,
-  selectionSet, variableValues, path, rootDeliveryGroup)}.
-- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-  mutationType, initialValue, variableValues, path, currentDeliveryGroups)}
-  _serially_.
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return the result of running {ExecuteRootSelectionSet(selectionSet, queryType,
+  initialValue, variableValues, true)}.
 
 ### Subscription
 
@@ -338,12 +351,9 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {path} be an empty list.
-- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
-  parent.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues, path, rootDeliveryGroup)}.
+  selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fields} be the value of the first entry in {groupedFieldSet}.
 - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -379,7 +389,11 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - For each {event} on {sourceStream}:
   - Let {response} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
+  - If {response} is an event stream:
+    - For each {childEvent} on {response}:
+      - Yield {childEvent}.
+  - Otherwise:
+    - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
@@ -387,18 +401,8 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {path} be an empty list.
-- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
-  parent.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues, path, rootDeliveryGroup)}.
-- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-  subscriptionType, initialValue, variableValues, path, currentDeliveryGroups)}
-  _normally_ (allowing parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return the result of running {ExecuteRootSelectionSet(selectionSet,
+  subscriptionType, initialValue, variableValues)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -443,8 +447,8 @@ currentDeliveryGroups):
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
   - Otherwise:
     - Let {executionGroup} be the result of {ExecutionGroupFor(deliveryGroups)}.
-    - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, responseKey,
-      fieldDigests)}.
+    - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
+      responseKey, fieldDigests)}.
 - Return {resultMap}.
 
 - Otherwise:
@@ -602,6 +606,9 @@ response in a stable and predictable order.
 CollectFields(objectType, selectionSet, variableValues, path, deliveryGroup,
 visitedFragments):
 
+- If {path} is not provided, initialize it to an empty list.
+- If {deliveryGroup} is not provided, initialize it to be a new delivery group
+  with path {path} and no parent.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
