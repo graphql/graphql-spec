@@ -205,10 +205,10 @@ serial):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues, path, rootDeliveryGroup)}.
 - Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-  objectType, initialValue, variableValues, path, currentDeliveryGroups)}
-  _serially_ if {serial} is true, or _normally_ (allowing parallelization)
-  otherwise.
+- Let {data} and {incrementalFieldSetsByPath} be the result of running
+  {ExecuteFieldSet(groupedFieldSet, objectType, initialValue, variableValues,
+  path, currentDeliveryGroups)} _serially_ if {serial} is true, or _normally_
+  (allowing parallelization) otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
 - Let {executionGroups} be the list of all _execution group_ created while
@@ -341,7 +341,7 @@ IncrementalEventStream(data, errors, initialExecutionGroups, variableValues):
       - Let {index} be the result of adding {initialCount} to
         {remainingValueIndex}.
       - Let {path} be a copy of {parentPath} with {index} appended.
-      - Let {value}, {childDefers} and {childStreams} be the result of running
+      - Let {value} and {incrementalFieldSetsByPath} be the result of running
         {CompleteValue(itemType, fields, remainingValue, variableValues, path)}.
       - Let {childErrors} be the list of all _field error_ raised while
         completing the value.
@@ -581,7 +581,7 @@ map.
 ExecuteFieldSet(groupedFieldSet, objectType, objectValue, variableValues, path,
 currentDeliveryGroups):
 
-- Let {incrementalSelections} be an empty list.
+- Let {incrementalFieldSetsByPath} be an empty map.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
   - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
@@ -592,14 +592,20 @@ currentDeliveryGroups):
     - Let {fieldType} be the return type defined for the field {fieldName} of
       {objectType}.
     - If {fieldType} is defined:
-      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-        fieldDigests, variableValues, path, currentDeliveryGroups)}.
+      - Let {childPath} be the result of appending {responseKey} to {path}.
+      - Let {responseValue} and {childFieldSetsByPath} be
+        {ExecuteField(objectType, objectValue, fieldType, fieldDigests,
+        variableValues, childPath, currentDeliveryGroups)}.
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
+      - For each {childFieldSetsByPath} as {childPath} and {fieldSets}:
+        - Set {fieldSets} as the value for {childPath} in
+          {incrementalFieldSetsByPath}.
   - Otherwise:
-    - Let {executionGroup} be the result of {ExecutionGroupFor(deliveryGroups)}.
-    - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
-      responseKey, fieldDigests)}.
-- Return {resultMap}.
+    - Let {incrementalFieldSets} be the map in {incrementalFieldSetsByPath} for
+      {path}; if no such map exists, create it as an empty map.
+    - Set {fieldDigests} as the value for {responseKey} in
+      {incrementalFieldSets}.
+- Return {resultMap} and {incrementalFieldSetsByPath}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -948,21 +954,34 @@ currentDeliveryGroups):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fieldDigests, result, variableValues, path, currentDeliveryGroups)}.
+  - Let {completedResult} and {incrementalFieldSetsByPath} be the result of
+    calling {CompleteValue(innerType, fieldDigests, result, variableValues,
+    path, currentDeliveryGroups)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult}.
+  - Return {completedResult} and {incrementalFieldSetsByPath}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fieldDigests, resultItem, variableValues, subpath,
-    currentDeliveryGroups)}, where {resultItem} is each item in {result} and
-    {subpath} is {path} with the item index (0-indexed) appended.
+  - Let {incrementalFieldSetsByPath} be an empty map.
+  - Let {list} be an empty list.
+    - For each list item {resultItem} at 0-indexed index {resultIndex} in
+      {result}:
+      - Let {subpath} be the result of appending {resultIndex} to {path}.
+      - Let {listValue} and {itemIncrementalFieldSetsByPath} be the result of
+        calling {CompleteValue(innerType, fieldDigests, resultItem,
+        variableValues, subpath, currentDeliveryGroups)}.
+      - Append {listValue} to {list}.
+      - If {listValue} is not {null}:
+        - For each {itemIncrementalFieldSetsByPath} as {childPath} and
+          {childFieldSets}:
+          - Set {childFieldSets} as the value for {childPath} in
+            {incrementalFieldSetsByPath}.
+  - Return {list} and {incrementalFieldSetsByPath}.
 - If {fieldType} is a Scalar or Enum type:
-  - Return the result of {CoerceResult(fieldType, result)}.
+  - Let {completedResult} be the result of {CoerceResult(fieldType, result)}.
+  - Return {completedResult} and an empty map.
 - If {fieldType} is an Object, Interface, or Union type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
