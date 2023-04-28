@@ -118,6 +118,72 @@ provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
 
+### Delivery group
+
+::: A _delivery group_ represents either the root selection set or a particular
+`@stream` or `@defer` directive at a particular {path} in the response.
+
+::: The _root delivery group_ is the _delivery group_ that represents the root
+selection set in the operation.
+
+Each _delivery group_ belongs to a {parent} delivery group, except for the _root
+delivery group_. During field collection, the delivery group of each field is
+tracked, and this is used when determining when to execute and deliver defered
+fields and streamed list items.
+
+In an operation that does not utilise the `@stream` and `@defer` directives,
+there will only be a single delivery group, the _root delivery group_, and all
+fields will belong to it.
+
+### Execution group
+
+::: An _execution group_ represents a number of fields at a number of given
+paths in the operation that all belong to the same _delivery group_ or groups.
+An execution group may depend on other execution groups, such that it cannot be
+delivered until they also have been delivered. There are two types of execution
+groups: normal groups (which relate to a single delivery group), and shared
+groups (which relate to multiple delivery groups). Shared groups cannot be
+delivered on their own, they must only be delivered when at least one normal
+group that depends on them is also delivered.
+
+An execution group consists of:
+
+- {deliveryGroups}: a set of the delivery groups to which it applies,
+- {dependencies}: a list of execution groups on which it is dependent, and
+- {groupedFieldSetByPath}: a map of response path to grouped field set that it
+  is responsible for executing.
+
+Note: {dependencies} and {groupedFieldSetByPath} may be added to over time.
+
+CreateExecutionGroup(deliveryGroups):
+
+- Assert: no execution group exists for {deliveryGroups}.
+- Let {executionGroup} be a new execution group that relates to {deliveryGroups}
+  with no dependencies and an empty {groupedFieldSetByPath}.
+- If {deliveryGroups} contains more than one entry:
+  - For each {deliveryGroups} as {deliveryGroup}:
+    - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
+    - Let {childExecutionGroup} be the result of
+      {ExecutionGroupFor(deliveryGroupSet)}.
+    - Add {executionGroup} as a dependency of {childExecutionGroup}.
+- Return {executionGroup}.
+
+ExecutionGroupFor(deliveryGroups):
+
+- Let {executionGroup} be the execution group for the current operation that
+  relates to the delivery groups {deliveryGroups} and only those delivery
+  groups. If no such execution group exists then let {executionGroup} be the
+  result of {CreateExecutionGroup(deliveryGroups)}.
+- Return {executionGroup}.
+
+AddFieldDigestsToExecutionGroup(executionGroup, path, responseKey,
+fieldDigests):
+
+- Let {groupedFieldSetByPath} be that property of {executionGroup}.
+- Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if no
+  such list exists, create it as an empty map.
+- Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
+
 ### Query
 
 If the operation is a query, the result of the operation is the result of
@@ -131,12 +197,22 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
+  parent.
+- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
+- Let {groupedFieldSet} be the result of {CollectFields(queryType, selectionSet,
+  variableValues, path, currentDeliveryGroups)}.
+- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+  queryType, initialValue, variableValues, path, rootDeliveryGroups)} _normally_
+  (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {selectionDetailsByPathByDeliveryGroup} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- Otherwise:
+  - TODO: make a stream, send the above, then derive and race the execution
+    groups and send them.
 
 ### Mutation
 
@@ -153,8 +229,15 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
+  parent.
+- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
+- Let {groupedFieldSet} be the result of {CollectFields(mutationType,
+  selectionSet, variableValues, path, rootDeliveryGroup)}.
+- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+  mutationType, initialValue, variableValues, path, currentDeliveryGroups)}
+  _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
@@ -255,9 +338,12 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
+  parent.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
+  selectionSet, variableValues, path, rootDeliveryGroup)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fields} be the value of the first entry in {groupedFieldSet}.
 - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -301,9 +387,15 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+- Let {path} be an empty list.
+- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
+  parent.
+- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
+  selectionSet, variableValues, path, rootDeliveryGroup)}.
+- Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
+- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+  subscriptionType, initialValue, variableValues, path, currentDeliveryGroups)}
+  _normally_ (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
@@ -332,28 +424,45 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
 map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteFieldSet(groupedFieldSet, objectType, objectValue, variableValues, path,
+currentDeliveryGroups):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+- Let {incrementalSelections} be an empty list.
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
-  - Let {fieldType} be the return type defined for the field {fieldName} of
-    {objectType}.
-  - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+  - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
+  - If {deliveryGroups} contains every delivery group in
+    {currentDeliveryGroups}:
+    - Let {fieldName} be the name of the field of the first entry in
+      {fieldDigests}. Note: This value is unaffected if an alias is used.
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - If {fieldType} is defined:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fieldDigests, variableValues, path, currentDeliveryGroups)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+  - Otherwise:
+    - Let {executionGroup} be the result of {ExecutionGroupFor(deliveryGroups)}.
+    - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, responseKey,
+      fieldDigests)}.
 - Return {resultMap}.
+
+- Otherwise:
+  - Let {selectionDetailsByPath} be the map in
+    {selectionDetailsByPathByDeliveryGroup} for {deliveryGroup}; if no such map
+    exists, create it as an empty map.
+  - Let {selectionDetails} be the list in {selectionDetailsByPath} for {path};
+    if no such list exists, create it as an empty map.
+  - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+    - Let {g} be the list in {f} for {path}; if no such list exists, create it
+      as an empty map.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
+If during {ExecuteFieldSet()} a field with a non-null {fieldType} raises a
 _field error_ then that error must propagate to this entire selection set,
 either resolving to {null} if allowed or further propagated to a parent field.
 
@@ -490,7 +599,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, path, deliveryGroup,
+visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -510,8 +620,17 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       defined, otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {fieldDigest} be a new field digest containing {selection} and
+      {deliveryGroup}.
+    - Append {fieldDigest} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
+    - Let {fragmentDeliveryGroup} be {deliveryGroup}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path}
+          and parent {deliveryGroup}.
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
       {selection} in {selectionSet}.
@@ -525,8 +644,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      fragmentDeliveryGroup, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -534,14 +653,21 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
   - If {selection} is an {InlineFragment}:
+    - Let {fragmentDeliveryGroup} be {deliveryGroup}.
+    - If {selection} provides the directive `@defer`, let {deferDirective} be
+      that directive.
+      - If {deferDirective}'s {if} argument is not {false} and is not a variable
+        in {variableValues} with the value {false}:
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path}
+          and parent {deliveryGroup}.
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      {CollectFields(objectType, fragmentSelectionSet, variableValues, path,
+      fragmentDeliveryGroup, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -573,16 +699,17 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fieldDigests, variableValues,
+path, currentDeliveryGroups):
 
-- Let {field} be the first entry in {fields}.
+- Let {field} be the first entry in {fieldDigests}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Return the result of {CompleteValue(fieldType, fieldDigests, resolvedValue,
+  variableValues, path, currentDeliveryGroups)}.
 
 ### Coercing Field Arguments
 
@@ -669,12 +796,13 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fieldDigests, result, variableValues, path,
+currentDeliveryGroups):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+    fieldDigests, result, variableValues, path, currentDeliveryGroups)}.
   - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
@@ -683,8 +811,9 @@ CompleteValue(fieldType, fields, result, variableValues):
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+    {CompleteValue(innerType, fieldDigests, resultItem, variableValues, subpath,
+    currentDeliveryGroups)}, where {resultItem} is each item in {result} and
+    {subpath} is {path} with the item index (0-indexed) appended.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -692,10 +821,11 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+  - Let {groupedFieldSet} be the result of calling
+    {CollectSubfields(fieldDigests, objectType, variableValues, path)}.
+  - Return the result of evaluating {ExecuteFieldSet(groupedFieldSet,
+    objectType, result, variableValues, path, currentDeliveryGroups)} _normally_
+    (allowing for parallelization).
 
 **Coercing Results**
 
@@ -761,14 +891,21 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-MergeSelectionSets(fields):
+CollectSubfields(fields, objectType, variableValues, path):
 
-- Let {selectionSet} be an empty list.
-- For each {field} in {fields}:
+- Let {finalGroupedFieldSet} be an empty list.
+- For each {fieldDigest} in {fields}:
+  - Let {field} be the field of {fieldDigest}.
+  - Let {deliveryGroup} be the delivery group of {fieldDigest}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Append all selections in {fieldSelectionSet} to {selectionSet}.
-- Return {selectionSet}.
+  - Let {groupedFieldSet} be the result of {CollectFields(objectType,
+    selectionSet, variableValues, path, deliveryGroup)}.
+  - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+    - Let {groupForResponseKey} be the list in {finalGroupedFieldSet} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append all field digests in {fieldDigests} to the {groupForResponseKey}.
+- Return {finalGroupedFieldSet}.
 
 ### Handling Field Errors
 
