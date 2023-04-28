@@ -150,6 +150,9 @@ that depends on them.
 An execution group consists of:
 
 - {deliveryGroups}: a set of the delivery groups to which it applies,
+- {pendingId}: a numeric id used in the response stream to identify where to
+  write the data,
+- {status}: {PENDING}, {EXECUTING}, {COMPLETE} or {FAILED},
 - {dependencies}: a list of execution groups on which it is dependent, and
 - {groupedFieldSetByPath}: a map of response path to grouped field set that it
   is responsible for executing.
@@ -158,38 +161,6 @@ An execution group consists of:
 
 Note: {dependencies}, {groupedFieldSetByPath}, and {objectValueByPath} may be
 added to over time.
-
-CreateExecutionGroup(deliveryGroups):
-
-- Assert: no execution group exists for {deliveryGroups}.
-- Let {executionGroup} be a new execution group that relates to {deliveryGroups}
-  with no dependencies and an empty {groupedFieldSetByPath} and
-  {objectValueByPath}.
-- If {deliveryGroups} contains more than one entry:
-  - For each {deliveryGroups} as {deliveryGroup}:
-    - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
-    - Let {childExecutionGroup} be the result of
-      {ExecutionGroupFor(deliveryGroupSet)}.
-    - Add {executionGroup} as a dependency of {childExecutionGroup}.
-- Return {executionGroup}.
-
-ExecutionGroupFor(deliveryGroups):
-
-- Let {executionGroup} be the execution group for the current operation that
-  relates to the delivery groups {deliveryGroups} and only those delivery
-  groups. If no such execution group exists then let {executionGroup} be the
-  result of {CreateExecutionGroup(deliveryGroups)}.
-- Return {executionGroup}.
-
-AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue, responseKey,
-fieldDigests):
-
-- Let {groupedFieldSetByPath} be that property of {executionGroup}.
-- Let {objectValueByPath} be that property of {executionGroup}.
-- Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if no
-  such list exists, create it as an empty map and set {objectValue} as the value
-  for {path} in {objectValueByPath}.
-- Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
 
 ExecuteExecutionGroup(executionGroup, variableValues):
 
@@ -200,8 +171,7 @@ serial):
 
 - If {serial} is not provided, initialize it to {false}.
 - Let {path} be an empty list.
-- Let {rootDeliveryGroup} be a new delivery group with path {path} and no
-  parent.
+- Let {rootDeliveryGroup} be a new delivery group with path {path}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues, path, rootDeliveryGroup)}.
 - Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
@@ -211,37 +181,80 @@ serial):
   (allowing parallelization) otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Let {executionGroups} be the list of all _execution group_ created while
-  executing the field set.
-- If {executionGroups} is empty:
+- If {incrementalFieldSetsByPath} is empty:
   - Return an unordered map containing {data} and {errors}.
 - Otherwise:
-  - Return {IncrementalEventStream(data, errors, executionGroups,
+  - Return {IncrementalEventStream(data, errors, incrementalFieldSetsByPath,
     variableValues)}.
 
-IncrementalEventStream(data, errors, initialExecutionGroups, variableValues):
+IncrementalEventStream(data, errors, initialIncrementalFieldSetsByPath,
+variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
 - Let {nextId} be {0}.
-- Let {remainingExecutionGroups} be an empty list.
+- Let {executionGroups} be an empty set.
 - Let {pending} be an empty list.
-- Define the sub-procedure {HandleExecutionGroup(executionGroup)} with the
+- Define the sub-procedure {CreateExecutionGroup(deliveryGroups)} with the
   following actions:
-  - Add {executionGroup} to {remainingExecutionGroups}.
-  - If {executionGroup} relates to more than one delivery group, continue to the
-    next execution group.
-  - Let {deliveryGroup} be the only delivery group in {executionGroup}.
-  - Let {id} be {nextId} and increment {nextId} by one.
-  - Let {path} be the path of {deliveryGroup}.
-  - Let {pendingPayload} be an unordered map containing {id}, {path}.
-  - Add {pendingPayload} to {pending}.
-- For each execution group {executionGroup} in {initialExecutionGroups}:
-  - Call {HandleExecutionGroup(executionGroup)}.
+  - Let {executionGroup} be a new execution group that relates to
+    {deliveryGroups} with no dependencies and an empty {groupedFieldSetByPath}
+    and {objectValueByPath}.
+  - If {deliveryGroups} contains more than one entry:
+    - Let {id} be {null}.
+    - Let {bestPath} be {null}.
+    - For each {deliveryGroups} as {deliveryGroup}:
+      - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
+      - Let {childExecutionGroup} be the result of
+        {ExecutionGroupFor(deliveryGroupSet)}.
+      - Add {executionGroup} as a dependency of {childExecutionGroup}.
+      - Let {path} be the path of {deliveryGroup}.
+      - If {bestPath} is {null} or {bestPath} contains fewer entries than
+        {path}:
+        - Let {bestPath} be {path}.
+        - Let {id} be the {pendingId} of {childExecutionGroup}.
+  - Otherwise:
+    - Let {id} be {nextId} and increment {nextId} by one.
+    - Let {deliveryGroup} be the only entry in {deliveryGroups}.
+    - Let {path} be the path of {deliveryGroup}.
+    - Let {label} be the label of {deliveryGroup} (if any).
+    - Let {pendingPayload} be an unordered map containing {id}, {path}, {label}.
+    - Add {pendingPayload} to {pending}.
+  - Assert: {id} is not null.
+  - Set {id} as the value for {pendingId} in {executionGroup}.
+  - Add {executionGroup} to {executionGroups}.
+  - Return {executionGroup}.
+- Define the sub-procedure {ExecutionGroupFor(deliveryGroups)} with the
+  following actions:
+  - Let {executionGroup} be the execution group for the current operation that
+    relates to the delivery groups {deliveryGroups} and only those delivery
+    groups. If no such execution group exists then let {executionGroup} be the
+    result of {CreateExecutionGroup(deliveryGroups)}.
+  - Return {executionGroup}.
+- Define the sub-procedure {AddFieldDigestsToExecutionGroup(executionGroup,
+  path, objectValue, responseKey, fieldDigests)} with the following actions:
+  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
+  - Let {objectValueByPath} be that property of {executionGroup}.
+  - Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if
+    no such list exists, create it as an empty map and set {objectValue} as the
+    value for {path} in {objectValueByPath}.
+  - Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
+- Define the sub-procedure {HandleIncremental(fieldSetsByPath)} with the
+  following actions:
+  - For each {fieldSetsByPath} as {path} and {fieldSets}:
+    - For each {fieldSets} as {responseKey} and {fieldDigests}:
+      - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
+      - Let {executionGroup} be {ExecutionGroupFor(deliveryGroups)}.
+      - Let {objectValueByPath} be that property of {executionGroup}.
+      - Let {objectValue} be the value for {path} in {objectValueByPath}.
+      - Assert: {objectValue} exists and is not {null}.
+      - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
+        responseKey, fieldDigests)}.
+- Call {HandleIncremental(initialIncrementalFieldSetsByPath)}.
+- Assert: {pending} is not empty.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
   {pending}, and the value {true} for key {hasNext}.
 - Yield an event containing {initialResponse}.
 - Let {incremental} be an empty list.
-- Let {errors} be an empty list.
 - Let {pending} be an empty list.
 - Let {completed} be an empty list.
 - Define the sub-procedure {FlushStream(hasNext)} with the following actions:
@@ -250,15 +263,12 @@ IncrementalEventStream(data, errors, initialExecutionGroups, variableValues):
   - Add {hasNext} to {incrementalPayload}.
   - If {incremental} is not empty:
     - Add {incremental} to {incrementalPayload}.
-  - If {errors} is not empty:
-    - Add {errors} to {incrementalPayload}.
   - If {pending} is not empty:
     - Add {pending} to {incrementalPayload}.
   - If {completed} is not empty:
     - Add {completed} to {incrementalPayload}.
   - Yield an event containing {incrementalPayload}.
   - Reset {incremental} to an empty list.
-  - Reset {errors} to an empty list.
   - Reset {pending} to an empty list.
   - Reset {completed} to an empty list.
 - While {remainingDefers} is not empty or {remainingStreams} is not empty:
@@ -622,6 +632,8 @@ yielded a value may be cancelled to avoid unnecessary work.
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
 
+Further, if this occurs, the {incrementalFieldSetsByPath} must be made empty.
+
 ### Normal and Serial Execution
 
 Normally the executor can execute the entries in a grouped field set in whatever
@@ -754,7 +766,7 @@ visitedFragments):
 
 - If {path} is not provided, initialize it to an empty list.
 - If {deliveryGroup} is not provided, initialize it to be a new delivery group
-  with path {path} and no parent.
+  with path {path}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
@@ -782,8 +794,10 @@ visitedFragments):
       that directive.
       - If {deferDirective}'s {if} argument is not {false} and is not a variable
         in {variableValues} with the value {false}:
-        - Let {fragmentDeliveryGroup} be a new delivery group with path {path}
-          and parent {deliveryGroup}.
+        - Let {label} be the value of {deferDirective}'s {label} argument (or
+          the value of the associated variable) if any.
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path},
+          parent {deliveryGroup} and label {label}.
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
       {selection} in {selectionSet}.
@@ -811,8 +825,10 @@ visitedFragments):
       that directive.
       - If {deferDirective}'s {if} argument is not {false} and is not a variable
         in {variableValues} with the value {false}:
-        - Let {fragmentDeliveryGroup} be a new delivery group with path {path}
-          and parent {deliveryGroup}.
+        - Let {label} be the value of {deferDirective}'s {label} argument (or
+          the value of the associated variable) if any.
+        - Let {fragmentDeliveryGroup} be a new delivery group with path {path},
+          parent {deliveryGroup} and label {label}.
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is false, continue with the next {selection} in
