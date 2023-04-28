@@ -336,16 +336,16 @@ serial):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues, path, rootDeliveryGroup)}.
 - Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- Let {data} and {incrementalFieldSetsByPath} be the result of running
+- Let {data} and {incrementalDetailsByPath} be the result of running
   {ExecuteGroupedFieldSet(groupedFieldSet, objectType, initialValue,
   variableValues, path, currentDeliveryGroups)} _serially_ if {serial} is true,
   _normally_ (allowing parallelization) otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- If {incrementalFieldSetsByPath} is empty:
+- If {incrementalDetailsByPath} is empty:
   - Return an unordered map containing {data} and {errors}.
 - Otherwise:
-  - Return {IncrementalEventStream(data, errors, incrementalFieldSetsByPath,
+  - Return {IncrementalEventStream(data, errors, incrementalDetailsByPath,
     variableValues)}.
 
 ## Executing a Grouped Field Set
@@ -360,7 +360,7 @@ response map.
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
 variableValues):
 
-- Let {incrementalFieldSetsByPath} be an empty map.
+- Let {incrementalDetailsByPath} be an empty map.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
   - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
@@ -376,15 +376,19 @@ variableValues):
         {ExecuteField(objectType, objectValue, fieldType, fieldDigests,
         variableValues, childPath, currentDeliveryGroups)}.
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
-      - For each {childFieldSetsByPath} as {childPath} and {fieldSets}:
-        - Set {fieldSets} as the value for {childPath} in
-          {incrementalFieldSetsByPath}.
+      - For each {childFieldSetsByPath} as {childPath} and {fieldSet}:
+        - Set {fieldSet} as the value for {childPath} in
+          {incrementalDetailsByPath}.
   - Otherwise:
-    - Let {incrementalFieldSets} be the map in {incrementalFieldSetsByPath} for
-      {path}; if no such map exists, create it as an empty map.
+    - Let {details} be the details object in {incrementalDetailsByPath} for
+      {path}; if no such details object exists, create it as a details object
+      containing {groupedFieldSet} as an empty map, {objectType} and
+      {objectValue}.
+    - Let {incrementalFieldSet} be the value for property {groupedFieldSet} in
+      {details}.
     - Set {fieldDigests} as the value for {responseKey} in
-      {incrementalFieldSets}.
-- Return {resultMap} and {incrementalFieldSetsByPath}.
+      {incrementalFieldSet}.
+- Return {resultMap} and {incrementalDetailsByPath}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
@@ -401,7 +405,7 @@ yielded a value may be cancelled to avoid unnecessary work.
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
 
-Further, if this occurs, the {incrementalFieldSetsByPath} must be made empty.
+Further, if this occurs, the {incrementalDetailsByPath} must be made empty.
 
 ### Normal and Serial Execution
 
@@ -739,17 +743,17 @@ currentDeliveryGroups):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} and {incrementalFieldSetsByPath} be the result of
+  - Let {completedResult} and {incrementalDetailsByPath} be the result of
     calling {CompleteValue(innerType, fieldDigests, result, variableValues,
     path, currentDeliveryGroups)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult} and {incrementalFieldSetsByPath}.
+  - Return {completedResult} and {incrementalDetailsByPath}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {incrementalFieldSetsByPath} be an empty map.
+  - Let {incrementalDetailsByPath} be an empty map.
   - Let {list} be an empty list.
     - For each list item {resultItem} at 0-indexed index {resultIndex} in
       {result}:
@@ -762,8 +766,8 @@ currentDeliveryGroups):
         - For each {itemIncrementalFieldSetsByPath} as {childPath} and
           {childFieldSets}:
           - Set {childFieldSets} as the value for {childPath} in
-            {incrementalFieldSetsByPath}.
-  - Return {list} and {incrementalFieldSetsByPath}.
+            {incrementalDetailsByPath}.
+  - Return {list} and {incrementalDetailsByPath}.
 - If {fieldType} is a Scalar or Enum type:
   - Let {completedResult} be the result of {CoerceResult(fieldType, result)}.
   - Return {completedResult} and an empty map.
@@ -933,13 +937,10 @@ An execution group consists of:
   write the data,
 - {status}: {PENDING}, {EXECUTING}, {COMPLETE} or {FAILED},
 - {dependencies}: a list of execution groups on which it is dependent, and
-- {groupedFieldSetByPath}: a map of response path to grouped field set that it
-  is responsible for executing.
-- {objectValueByPath}: a map of response path to the object value for that path,
-  to be used when executing field sets against that object value.
+- {detailsByPath}: a map of response path to a details object containing
+  {groupedFieldSet}, {objectType} and {objectValue}.
 
-Note: {dependencies}, {groupedFieldSetByPath}, and {objectValueByPath} may be
-added to over time.
+Note: {dependencies} and {detailsByPath} may be added to over time.
 
 ExecutionGroupPath(executionGroup):
 
@@ -952,7 +953,7 @@ ExecutionGroupPath(executionGroup):
 
 ### Incremental Event Stream
 
-IncrementalEventStream(data, errors, initialIncrementalFieldSetsByPath,
+IncrementalEventStream(data, errors, initialIncrementalDetailsByPath,
 variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
@@ -962,8 +963,7 @@ variableValues):
 - Define the sub-procedure {CreateExecutionGroup(deliveryGroups)} with the
   following actions:
   - Let {executionGroup} be a new execution group that relates to
-    {deliveryGroups} with no dependencies and an empty {groupedFieldSetByPath}
-    and {objectValueByPath}.
+    {deliveryGroups} with no dependencies and an empty {detailsByPath}.
   - If {deliveryGroups} contains more than one entry:
     - Let {id} be {null}.
     - Let {bestPath} be {null}.
@@ -996,43 +996,43 @@ variableValues):
     result of {CreateExecutionGroup(deliveryGroups)}.
   - Return {executionGroup}.
 - Define the sub-procedure {AddFieldDigestsToExecutionGroup(executionGroup,
-  path, objectValue, responseKey, fieldDigests)} with the following actions:
-  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
-  - Let {objectValueByPath} be that property of {executionGroup}.
-  - Let {groupedFieldSet} be the map in {groupedFieldSetByPath} for {path}; if
-    no such list exists, create it as an empty map and set {objectValue} as the
-    value for {path} in {objectValueByPath}.
+  path, objectType, objectValue, responseKey, fieldDigests)} with the following
+  actions:
+  - Let {detailsByPath} be that property of {executionGroup}.
+  - Let {details} be the details object in {detailsByPath} for {path}; if no
+    such details object exists, create it as a details object containing
+    {groupedFieldSet} as an empty map, {objectType} and {objectValue}.
+  - Let {groupedFieldSet} be that property in {details}.
   - Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
-- Define the sub-procedure {HandleIncremental(fieldSetsByPath)} with the
-  following actions:
-  - For each {fieldSetsByPath} as {path} and {fieldSets}:
-    - For each {fieldSets} as {responseKey} and {fieldDigests}:
-      - Let {deliveryGroups} be the set of delivery groups in {fieldDigests}.
+- Define the sub-procedure {HandleIncremental(incrementalDetailsByPath)} with
+  the following actions:
+  - For each {incrementalDetailsByPath} as {path} and {details}:
+    - Let {objectType} be that property in {details}.
+    - Let {objectValue} be that property in {details}.
+    - Let {groupedFieldSet} be that property in {details}.
+    - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+      - Let {deliveryGroups} be the set containing each unique delivery group
+        for each digest in {fieldDigests}.
       - Let {executionGroup} be {ExecutionGroupFor(deliveryGroups)}.
-      - Let {objectValueByPath} be that property of {executionGroup}.
-      - Let {objectValue} be the value for {path} in {objectValueByPath}.
-      - Assert: {objectValue} exists and is not {null}.
-      - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectValue,
-        responseKey, fieldDigests)}.
+      - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectType,
+        objectValue, responseKey, fieldDigests)}.
 - Define the sub-procedure {ExecuteExecutionGroup(executionGroup)}:
   - Set {state} of {executionGroup} to {EXECUTING}.
-  - Let {groupedFieldSetByPath} be that property of {executionGroup}.
-  - Let {objectValueByPath} be that property of {executionGroup}.
+  - Let {detailsByPath} be that property of {executionGroup}.
   - Let {deliveryGroups} be that property of {executionGroup}.
   - Let {dependencies} be that property of {executionGroup}.
-  - For each {groupedFieldSetByPath} as {path} and {groupedFieldSet} (in
-    parallel):
-    - Let {objectValue} be the value for {path} in {objectValueByPath}.
+  - For each {detailsByPath} as {path} and {details} (in parallel):
+    - Let {groupedFieldSet} be that property in {details}.
+    - Let {objectType} be that property in {details}.
+    - Let {objectValue} be that property in {details}.
     - Assert: {objectValue} exists and is not {null}.
-    - TODO: we also need {objectType} - we should store that next to
-      {objectValue}.
-    - Let {data} and {incrementalFieldSetsByPath} be the result of running
+    - Let {data} and {incrementalDetailsByPath} be the result of running
       {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
       variableValues, path, deliveryGroups)} _normally_ (allowing
       parallelization).
     - TODO: collect {data} at {path} (relative to
       {ExecutionGroupPath(executionGroup)}).
-    - TODO: collect {incrementalFieldSetsByPath}.
+    - TODO: collect {incrementalDetailsByPath}.
   - If an error {error} bubbled past any of the grouped field sets above:
     - Set {state} of {executionGroup} to {FAILED}.
     - If {deliveryGroups} contains exactly one entry:
@@ -1064,7 +1064,7 @@ variableValues):
       - Optionally, {FlushStream()}.
     - Otherwise:
       - TODO: store the data for later, send it with one of our dependents.
-- Call {HandleIncremental(initialIncrementalFieldSetsByPath)}.
+- Call {HandleIncremental(initialIncrementalDetailsByPath)}.
 - Assert: {pending} is not empty.
 - Let {initialResponse} be an unordered map containing {data}, {errors},
   {pending}, and the value {true} for key {hasNext}.
