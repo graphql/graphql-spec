@@ -205,14 +205,10 @@ serial):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues, path, rootDeliveryGroup)}.
 - Let {currentDeliveryGroups} be a set containing {rootDeliveryGroup}.
-- If {serial} is {true}:
-  - Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-    objectType, initialValue, variableValues, path, currentDeliveryGroups)}
-    _serially_.
-- Otherwise:
-  - Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
-    objectType, initialValue, variableValues, path, currentDeliveryGroups)}
-    _normally_ (allowing parallelization).
+- Let {data} be the result of running {ExecuteFieldSet(groupedFieldSet,
+  objectType, initialValue, variableValues, path, currentDeliveryGroups)}
+  _serially_ if {serial} is true, or _normally_ (allowing parallelization)
+  otherwise.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
 - If {selectionDetailsByPathByDeliveryGroup} is empty:
