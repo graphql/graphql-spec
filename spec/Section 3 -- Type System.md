@@ -1796,8 +1796,9 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 **Nullable vs. Optional**
 
 Fields are _always_ optional within the context of a selection set, a field may
-be omitted and the selection set is still valid. However fields that return
-Non-Null types will never return the value {null} if queried.
+be omitted and the selection set is still valid (so long as the selection set
+does not become empty). However fields that return Non-Null types will never
+return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},
