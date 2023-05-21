@@ -264,11 +264,19 @@ discouraged.
 }
 ```
 
-### Incremental
+### Incremental Delivery
 
-The `incremental` entry in the response is a non-empty list of Defer or Stream
-payloads. If the response of the GraphQL operation is a response stream, this
-field may appear on both the initial and subsequent values.
+The `pending` entry in the response is a non-empty list of references to pending
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field should appear on the initial and possibly subsequent
+payloads.
+
+The `incremental` entry in the response is a non-empty list of data fulfilling
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field may appear on the subsequent payloads.
+
+The `completed` entry in the response is a non-empty list of references to
+completed Defer or Stream results. If errors are
 
 For example, a query containing both defer and stream:
 
@@ -302,6 +310,10 @@ results.
       "films": [{ "title": "A New Hope" }]
     }
   },
+  "pending": [
+    { "path": ["person"], "label": "homeWorldDefer" },
+    { "path": ["person", "films"], "label": "filmStream" }
+  ],
   "hasNext": true
 }
 ```
@@ -312,16 +324,15 @@ Response 2, contains the defer payload and the first stream payload.
 {
   "incremental": [
     {
-      "label": "homeWorldDefer",
       "path": ["person"],
       "data": { "homeWorld": { "name": "Tatooine" } }
     },
     {
-      "label": "filmsStream",
-      "path": ["person", "films", 1],
+      "path": ["person", "films"],
       "items": [{ "title": "The Empire Strikes Back" }]
     }
   ],
+  "completed": [{ "path": ["person"], "label": "homeWorldDefer" }],
   "hasNext": true
 }
 ```
@@ -335,8 +346,7 @@ would be the final response.
 {
   "incremental": [
     {
-      "label": "filmsStream",
-      "path": ["person", "films", 2],
+      "path": ["person", "films"],
       "items": [{ "title": "Return of the Jedi" }]
     }
   ],
@@ -350,39 +360,40 @@ iterator of the `films` field closes.
 
 ```json example
 {
+  "completed": [{ "path": ["person", "films"], "label": "filmStream" }],
   "hasNext": false
 }
 ```
 
-#### Stream payload
+#### Streamed data
 
-A stream payload is a map that may appear as an item in the `incremental` entry
-of a response. A stream payload is the result of an associated `@stream`
-directive in the operation. A stream payload must contain `items` and `path`
-entries and may contain `label`, `errors`, and `extensions` entries.
+Streamed data may appear as an item in the `incremental` entry of a response.
+Streamed data is the result of an associated `@stream` directive in the
+operation. A stream payload must contain `items` and `path` entries and may
+contain `errors`, and `extensions` entries.
 
 ##### Items
 
 The `items` entry in a stream payload is a list of results from the execution of
 the associated @stream directive. This output will be a list of the same type of
-the field with the associated `@stream` directive. If `items` is set to `null`,
-it indicates that an error has caused a `null` to bubble up to a field higher
-than the list field with the associated `@stream` directive.
+the field with the associated `@stream` directive. If an error has caused a
+`null` to bubble up to a field higher than the list field with the associated
+`@stream` directive, then the stream will complete with errors.
 
-#### Defer payload
+#### Deferred data
 
-A defer payload is a map that may appear as an item in the `incremental` entry
-of a response. A defer payload is the result of an associated `@defer` directive
-in the operation. A defer payload must contain `data` and `path` entries and may
-contain `label`, `errors`, and `extensions` entries.
+Deferred data is a map that may appear as an item in the `incremental` entry of
+a response. Deferred data is the result of an associated `@defer` directive in
+the operation. A defer payload must contain `data` and `path` entries and may
+contain `errors`, and `extensions` entries.
 
 ##### Data
 
 The `data` entry in a Defer payload will be of the type of a particular field in
 the GraphQL result. The adjacent `path` field will contain the path segments of
-the field this data is associated with. If `data` is set to `null`, it indicates
-that an error has caused a `null` to bubble up to a field higher than the field
-that contains the fragment with the associated `@defer` directive.
+the field this data is associated with. If an error has caused a `null` to
+bubble up to a field higher than the field that contains the fragment with the
+associated `@defer` directive, then the fragment will complete with errors.
 
 #### Path
 
