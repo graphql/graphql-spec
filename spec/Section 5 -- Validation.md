@@ -474,7 +474,7 @@ unambiguous. Therefore any two field selections which might both be encountered
 for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+name is accomplished by {CollectFields()}.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
