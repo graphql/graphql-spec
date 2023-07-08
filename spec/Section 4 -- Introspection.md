@@ -68,7 +68,7 @@ underscores {"\_\_"}.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection within any selection set in an
+GraphQL supports type name introspection within any _selection set_ in an
 operation, with the single exception of selections at the root of a subscription
 operation. Type name introspection is accomplished via the meta-field
 `__typename: String!` on any Object, Interface, or Union. It returns the name of
