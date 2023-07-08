@@ -130,7 +130,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {query}.
+- Let {selectionSet} be the top level selection set in {query}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
@@ -152,7 +152,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {mutation}.
+- Let {selectionSet} be the top level selection set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   mutationType, initialValue, variableValues)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
@@ -255,7 +255,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {subscription}.
+- Let {selectionSet} be the top level selection set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
@@ -300,7 +300,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {subscription}.
+- Let {selectionSet} be the top level selection set in {subscription}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
