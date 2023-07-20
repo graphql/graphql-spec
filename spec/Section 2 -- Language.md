@@ -1287,9 +1287,13 @@ any additional _custom directive_ beyond those described here.
 Directives may be provided in a specific syntactic order which may have semantic
 interpretation.
 
-These two type definitions may have different semantic meaning:
+These two queries may have different semantic meaning:
 
 ```graphql example
+
+# Need example for query or mutation with dirs like @skip or @include
+# not type system language 
+ 
 type Person
   @addExternalFields(source: "profiles")
   @excludeField(name: "photo") {
