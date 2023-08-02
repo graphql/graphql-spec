@@ -220,6 +220,12 @@ enum __DirectiveLocation {
 }
 ```
 
+When representing a GraphQL schema using the type system definition language the
+_introspection type system definitions_ may be omitted for brevity.
+
+When introspecting a GraphQL service all provided _introspection type system
+definitions_, must be included in the set of returned directives.
+
 ### The \_\_Schema Type
 
 The `__Schema` type is returned from the `__schema` meta-field and provides all
