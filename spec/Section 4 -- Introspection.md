@@ -224,7 +224,7 @@ When representing a GraphQL schema using the type system definition language the
 _introspection type system definitions_ may be omitted for brevity.
 
 When introspecting a GraphQL service all provided _introspection type system
-definitions_ must be included in the set of returned directives.
+definitions_ must be included in the set of returned types.
 
 ### The \_\_Schema Type
 
