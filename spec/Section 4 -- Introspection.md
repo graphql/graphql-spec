@@ -121,7 +121,8 @@ warnings.
 
 The schema introspection system is itself represented as a GraphQL schema.
 
-See [Appendix C](#sec-Introspection-types) for more details about the schema type definitions.
+See [Appendix C](#sec-Introspection-types) for more details about the schema
+type definitions.
 
 ### The \_\_Schema Type
 

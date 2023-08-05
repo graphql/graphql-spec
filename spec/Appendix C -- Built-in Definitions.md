@@ -69,11 +69,11 @@ directive @deprecated(
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
 """
-Exposes a URL that specifies the behaviour of this scalar.
+Exposes a URL that specifies the behavior of this scalar.
 """
 directive @specifiedBy(
   """
-  The URL that specifies the behaviour of this scalar.
+  The URL that specifies the behavior of this scalar.
   """
   url: String!
 ) on SCALAR
