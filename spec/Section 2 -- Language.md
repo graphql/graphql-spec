@@ -1011,6 +1011,8 @@ StringCharacter :: `\` EscapedCharacter
 
 StringValue :: BlockString
 
+- Return the _Unicode text_ by evaluating the {BlockString}.
+
 BlockString :: `"""` BlockStringCharacter\* `"""`
 
 - Let {rawValue} be the _Unicode text_ by concatenating the evaluation of all
