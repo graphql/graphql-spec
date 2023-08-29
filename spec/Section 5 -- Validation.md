@@ -2057,7 +2057,7 @@ However, it's important to note that this coercion rule doesn't allow a nullable
 non-list type like `String` to be used in a non-null list context, such as
 `[String]!`. For instance, the following query would result in a validation error:
 
-```graphql
+```graphql counter-example
 query singleStringToNonNullList($singleString: String) {
   anotherField(nonNullListArg: $singleString)
 }
