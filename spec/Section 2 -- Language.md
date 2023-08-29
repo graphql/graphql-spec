@@ -806,7 +806,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -826,6 +826,8 @@ HexDigit :: one of
 - `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 BlockStringCharacter ::
 
@@ -1007,7 +1009,9 @@ StringCharacter :: `\` EscapedCharacter
 | {`r`}             | U+000D       | carriage return              |
 | {`t`}             | U+0009       | horizontal tab               |
 
-StringValue :: `"""` BlockStringCharacter\* `"""`
+StringValue :: BlockString
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 - Let {rawValue} be the _Unicode text_ by concatenating the evaluation of all
   {BlockStringCharacter} (which may be an empty sequence).
