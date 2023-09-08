@@ -388,10 +388,9 @@ Scalar types represent primitive leaf values in a GraphQL type system. GraphQL
 responses take the form of a hierarchical tree; the leaves of this tree are
 typically GraphQL Scalar types (but may also be Enum types or {null} values).
 
-GraphQL provides a number of
-[built-in scalars](#sec-Appendix-Built-in-Definitions.Scalars) which are fully
-defined in the sections below, however type systems may also add additional
-custom scalars to introduce additional semantic meaning.
+GraphQL provides a number of built-in scalars which are fully defined in the
+sections below, however type systems may also add additional custom scalars to
+introduce additional semantic meaning.
 
 **Built-in Scalars**
 
@@ -1951,12 +1950,10 @@ GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
 When representing a GraphQL schema using the type system definition language any
-[built-in directive](#sec-Appendix-Built-in-Definitions.Directives) may be
-omitted for brevity.
+_built-in directive_ may be omitted for brevity.
 
 When introspecting a GraphQL service all provided directives, including any
-[built-in directive](#sec-Appendix-Built-in-Definitions.Directives), must be
-included in the set of returned directives.
+_built-in directive_, must be included in the set of returned directives.
 
 **Custom Directives**
 
