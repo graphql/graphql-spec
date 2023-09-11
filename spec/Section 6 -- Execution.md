@@ -532,6 +532,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Remove {fragmentSpreadName} from {visitedFragments}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
