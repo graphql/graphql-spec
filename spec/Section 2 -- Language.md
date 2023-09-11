@@ -516,7 +516,7 @@ which returns the result:
 
 ## Fragments
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : ... Reference? FragmentName Directives?
 
 FragmentDefinition : fragment FragmentName TypeCondition Directives?
 SelectionSet
@@ -663,9 +663,80 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 }
 ```
 
+## Fragment Spread References
+
+Reference : Name : SignalSet
+
+SignalSet: { Signal+ }
+
+Signal : `selected`
+
+Note: Additional signal types may be added to facilitate incremental delivery or
+other functionality.
+
+By default, utilizing fragment spreads does not alter the response shape. It may
+sometimes be convenient, however, to include a reference within the response
+signalling referring to a fragment containing information about its execution,
+e.g. whether its selections were collected and spread. In particular, this may
+be useful when fragments are included conditionally, such as with
+[type conditions](#sec-type-conditions), especially in the presence of
+potentially complex type hierarchies.
+
+For example:
+
+```graphql example
+query FragmentReferences {
+  nodes(ids: [1, 42]) {
+    id
+    UserFields { selected }: ...userFragment
+    SuperUserFields { selected }: ...superUserFragment
+  }
+}
+
+fragment userFragment on User {
+  friends {
+    count
+  }
+}
+
+fragment superUserFragment on SuperUser {
+  privilegeLevel
+}
+```
+
+The `nodes` root field returns a list where each element could potentially be of
+many types. When the object in the `nodes` result is a `User`,
+`UserFields.selected` will be present. If the result is also a `SuperUser`,
+`SuperUserFields.selected` will be present.
+
+```json example
+{
+  "nodes": [
+    {
+      "id": 1,
+      "UserFields": { "selected": null },
+      "friends": { "count": 1234 }
+    },
+    {
+      "id": 42,
+      "UserFields": { "selected": null },
+      "friends": { "count": 5678 },
+      "SuperUserFields": { "selected": null },
+      "privilegeLevel": 20
+    }
+  ]
+}
+```
+
+Note: The value corresponding to the `selected` signal within a reference is not
+specified.
+
+Note: References may not be included for fragments whose parent type is the root
+subscription type.
+
 ### Inline Fragments
 
-InlineFragment : ... TypeCondition? Directives? SelectionSet
+InlineFragment : Reference? ... TypeCondition? Directives? SelectionSet
 
 Fragments can also be defined inline within a selection set. This is useful for
 conditionally including fields based on a type condition or applying a directive
