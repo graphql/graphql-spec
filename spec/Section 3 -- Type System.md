@@ -1787,11 +1787,16 @@ Following are examples of input coercion with various list types and values:
 ## Non-Null
 
 By default, all types in GraphQL are nullable; the {null} value is a valid
-response for all of the above types. To declare a type that disallows null, the
-GraphQL Non-Null type can be used. This type wraps an underlying type, and this
-type acts identically to that wrapped type, with the exception that {null} is
-not a valid response for the wrapping type. A trailing exclamation mark is used
-to denote a field that uses a Non-Null type like this: `name: String!`.
+response for all of the above types. To declare a type that is not expected to
+be null, the GraphQL Non-Null type can be used. This type wraps an underlying
+type, and this type acts identically to that wrapped type, with the exception
+that {null} is not an expected response for the wrapping type. A Non-Null type
+may be an error-boundary in which case the response is allowed to be {null}, but
+only with an associated error in the errors array; otherwise {null} is not a
+valid value. A trailing exclamation mark is used to denote a field that uses a
+Non-Null type like this: `name: String!`, and an additional `?` is used to
+indicate that this Non-Null type is an error boundary, like this:
+`name: String!?`.
 
 **Nullable vs. Optional**
 
@@ -1810,8 +1815,10 @@ always optional and non-null types are always required.
 In all of the above result coercions, {null} was considered a valid value. To
 coerce the result of a Non-Null type, the coercion of the wrapped type should be
 performed. If that result was not {null}, then the result of coercing the
-Non-Null type is that result. If that result was {null}, then a _field error_
-must be raised.
+Non-Null type is that result. If that result was {null}, then: if the Non-Null
+is an error boundary then the result of coercing the Non-Null type is {null} but
+a _field error_ must be collected; otherwise if the Non-Null is not an error
+boundary then a _field error_ must be raised.
 
 Note: When a _field error_ is raised on a non-null value, the error propagates
 to the parent field. For more information on this process, see

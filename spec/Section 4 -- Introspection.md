@@ -151,6 +151,8 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+  # must be non-null for NON_NULL, otherwise null.
+  isErrorBoundary: Boolean
 }
 
 enum __TypeKind {
@@ -168,7 +170,7 @@ type __Field {
   name: String!
   description: String
   args(includeDeprecated: Boolean = false): [__InputValue!]!
-  type: __Type!
+  type(includeErrorBoundaries: Boolean! = false): __Type!
   isDeprecated: Boolean!
   deprecationReason: String
 }
@@ -395,8 +397,13 @@ Fields\:
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
 A Non-Null type is a type modifier: it wraps another type instance in the
-`ofType` field. Non-null types do not allow {null} as a response, and indicate
-required inputs for arguments and input object fields.
+`ofType` field. A Non-Null type may opt to be an error boundary, in which case
+it indicates that the value is not expected to be null: it will only be null in
+the case of an error (either it's own, or one of its children). For error
+boundary non-null types, the `null` value will not "bubble". Error boundary
+non-null types are only allowed in output positions. Non-null types that are not
+error boundaries do not allow {null} as a response, and indicate required inputs
+for arguments and input object fields.
 
 The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Non-Null of Lists. However it must not be a
@@ -406,6 +413,8 @@ Fields\:
 
 - `kind` must return `__TypeKind.NON_NULL`.
 - `ofType` must return a type of any kind except Non-Null.
+- `isErrorBoundary` must return true if this Non-Null is an error boundary,
+  false otherwise.
 - All other fields must return {null}.
 
 ### The \_\_Field Type
@@ -422,6 +431,10 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
+  - Accepts the argument `includeErrorBoundaries` which defaults to {false}. If
+    {false} then the field will instead return a `__Type` that represents the
+    type of value returned by this field with all error-boundary non-null type
+    modifiers removed. This is for backwards compatibility.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this field is deprecated.

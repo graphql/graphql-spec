@@ -674,7 +674,10 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
     fields, result, variableValues)}.
-  - If {completedResult} is {null}, raise a _field error_.
+  - If {completedResult} is {null}:
+    - If {fieldType} is an error boundary, collect a _field error_ and return
+      {null}.
+    - Otherwise, raise a _field error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
