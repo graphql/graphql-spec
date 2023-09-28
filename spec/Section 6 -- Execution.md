@@ -343,10 +343,8 @@ Results that preclude their data from being sent.
 The Incremental Publisher provides an asynchronous iterator that resolves to the
 Subsequent Result stream.
 
-Both the Execution algorithms and the Incremental Publisher service utilize
-Incremental Result and Data Records to store required information. The records
-are detailed below, including which entries are required for Execution itself
-and which are required by the Incremental Publisher.
+The Incremental Publisher service utilizes Incremental Result and Data Records
+to store required information. The records are described in detail below.
 
 ### Incremental Delivery Records
 
@@ -382,16 +380,11 @@ or a Stream Items Record.
 
 An Initial Result Record is a structure containing:
 
-- {id}: an implementation-specific value uniquely identifying this record,
-  created if not provided.
+- {id}: an implementation-specific value uniquely identifying this record.
 
 A Deferred Fragment Record is a structure that always contains:
 
-- {id}: an implementation-specific value uniquely identifying this record,
-  created if not provided.
-
-Within the Incremental Publisher context, records of this type also include:
-
+- {id}: an implementation-specific value uniquely identifying this record.
 - {label}: value derived from the corresponding `@defer` directive.
 - {path}: a list of field names and indices from root to the location of the
   corresponding `@defer` directive.
@@ -404,11 +397,7 @@ Within the Incremental Publisher context, records of this type also include:
 
 A Stream Items Record is a structure that always contains:
 
-- {id}: an implementation-specific value uniquely identifying this record,
-  created if not provided.
-
-Within the Incremental Publisher context, records of this type also include:
-
+- {id}: an implementation-specific value uniquely identifying this record.
 - {path}: a list of field names and indices from root to the location of the
   corresponding list item contained by this Stream Items Record.
 - {stream}: the Stream Record which this Stream Items Record partially fulfills.
@@ -423,11 +412,7 @@ Within the Incremental Publisher context, records of this type also include:
 
 A Stream Record is a structure that always contains:
 
-- {id}: an implementation-specific value uniquely identifying this record,
-  created if not provided.
-
-Within the Incremental Publisher context, records of this type also include:
-
+- {id}: an implementation-specific value uniquely identifying this record.
 - {label}: value derived from the corresponding `@stream` directive.
 - {path}: a list of field names and indices from root to the location of the
   corresponding `@stream` directive.
@@ -445,11 +430,7 @@ Grouped Field Set Record or a Stream Items Record.
 
 A Deferred Grouped Field Set Record is a structure that always contains:
 
-- {id}: an implementation-specific value uniquely identifying this record,
-  created if not provided.
-
-Within the Incremental Publisher context, records of this type also include:
-
+- {id}: an implementation-specific value uniquely identifying this record.
 - {path}: a list of field names and indices from root to the location of this
   deferred grouped field set.
 - {deferredFragments}: a set of Deferred Fragment Records containing this
@@ -918,7 +899,7 @@ CreateIncrementalPublisher():
     - Remove the event from the queue.
     - Call {HandleExecutionEvent(eventType, eventDetails)}.
     - Wait for the next event or for {allResultsCompleted} to be set to {true}.
-      - If {allResultsCompleted} is {true}, return.
+    - If {allResultsCompleted} is {true}, return.
   - In parallel, set {subsequentResults} on {incrementalPublisher} to the result
     of lazily executing {YieldSubsequentResults()}.
 
@@ -1023,19 +1004,19 @@ serial):
 - Let {groupedFieldSet} and {groupDetailsMap} be the result of calling
   {BuildGroupedFieldSets(fieldsByTarget, targetsByKey)}.
 - Let {incrementalPublisher} be the result of {CreateIncrementalPublisher()}.
-- Let {initialResultRecord} be a new Initial Result Record.
+- Initialize {initialResultId} to an identifier unique to this execution.
 - Let {newDeferMap} be the result of {AddNewDeferFragments(incrementalPublisher,
-  newDeferUsages, initialResultRecord)}.
+  newDeferUsages, initialResultId)}.
 - Let {detailsList} be the result of
   {AddNewDeferredGroupedFieldSets(incrementalPublisher, groupDetailsMap,
   newDeferMap)}.
 - Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
   queryType, initialValue, variableValues, incrementalPublisher,
-  initialResultRecord)} _serially_ if {serial} is {true}, _normally_ (allowing
+  initialResultId)} _serially_ if {serial} is {true}, _normally_ (allowing
   parallelization) otherwise.
 - In parallel, call {ExecuteDeferredGroupedFieldSets(queryType, initialValues,
   variableValues, incrementalPublisher, detailsList, newDeferMap)}.
-- Let {id} be the corresponding entry on {initialResultRecord}.
+- Let {id} be the corresponding entry on {initialResultId}.
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
 - Initialize {initialResult} to an empty unordered map.
@@ -1052,8 +1033,8 @@ serial):
 - Let {subsequentResults} be the corresponding entry on {incrementalPublisher}.
 - Return {initialResult} and {subsequentResults}.
 
-AddNewDeferFragments(incrementalPublisher, newDeferUsages,
-incrementalDataRecord, deferMap, path):
+AddNewDeferFragments(incrementalPublisher, newDeferUsages, incrementalDataId,
+deferMap, path):
 
 - Initialize {newDeferredGroupedFieldSets} to an empty list.
 - If {newDeferUsages} is empty:
@@ -1065,21 +1046,20 @@ incrementalDataRecord, deferMap, path):
     - Set the entry for {deferUsage} in {newDeferMap} to {deferredFragment}.
 - Let {eventQueue} be the corresponding entry on {incrementalPublisher}.
 - For each {deferUsage} in {newDeferUsages}:
+  - Let {id} be a unique identifier for this execution.
   - Let {label} be the corresponding entry on {deferUsage}.
-  - Let {parent} be (GetParent(deferUsage, deferMap, incrementalDataRecord)).
+  - Let {parent} be (GetParent(deferUsage, deferMap, incrementalDataId)).
   - Let {parentId} be the entry for {id} on {parent}.
-  - Let {deferredFragment} be a new Deferred Fragment Record.
-  - Let {id} be the corresponding entry on {deferredFragment}.
-  - Enqueue a New Deferred Fragment Event on {eventQueue} with details {label},
-    {path}, and {parentId}.
-  - Set the entry for {deferUsage} in {newDeferMap} to {deferredFragment}.
+  - Enqueue a New Deferred Fragment Event on {eventQueue} with details {id},
+    {label}, {path}, and {parentId}.
+  - Set the entry for {deferUsage} in {newDeferMap} to {id}.
   - Return {newDeferMap}.
 
-GetParent(deferUsage, deferMap, incrementalDataRecord):
+GetParent(deferUsage, deferMap, incrementalDataId):
 
 - Let {ancestors} be the corresponding entry on {deferUsage}.
 - Let {parentDeferUsage} be the first member of {ancestors}.
-- If {parentDeferUsage} is not defined, return {incrementalDataRecord}.
+- If {parentDeferUsage} is not defined, return {incrementalDataId}.
 - Let {parent} be the corresponding entry in {deferMap} for {parentDeferUsage}.
 - Return {parent}.
 
@@ -1087,14 +1067,12 @@ AddNewDeferredGroupedFieldSets(incrementalPublisher, groupDetailsMap, deferMap,
 path):
 
 - Initialize {detailsList} to an empty list.
-- For each {deferUsageSet} and {details} in {groupDetailsMap}:
+- For each {deferUsageSet} and {groupDetails} in {groupDetailsMap}:
   - Let {groupedFieldSet} and {shouldInitiateDefer} be the corresponding entries
-    on {details}.
-  - Let {deferredGroupedFieldSetRecord} be a new Deferred Grouped Field Set
-    Record.
-  - Initialize {recordDetails} to an empty unordered map.
-  - Set the corresponding entries on {recordDetails} to
-    {deferredGroupedFieldSetRecord}, {groupedFieldSet}, and
+    on {groupDetails}.
+  - Let {id} be an identifier unique to this execution.
+  - Initialize {details} to an empty unordered map.
+  - Set the corresponding entries on {details} to {id}, {groupedFieldSet}, and
     {shouldInitiateDefer}.
   - Let {deferredFragments} be the result of
     {GetDeferredFragments(deferUsageSet, newDeferMap)}.
@@ -1106,7 +1084,7 @@ path):
   - Let {eventQueue} be the corresponding entry on {incrementalPublisher}.
   - Enqueue a New Deferred Grouped Field Set Event on {eventQueue} with details
     {id}, {path}, and {fragmentIds}.
-  - Append {recordDetails} to {detailsList}.
+  - Append {details} to {detailsList}.
 - Return {detailsList}.
 
 GetDeferredFragments(deferUsageSet, deferMap):
@@ -1124,7 +1102,7 @@ type need to be known, as well as whether it must be executed serially, or may
 be executed in parallel.
 
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
-path, deferMap, incrementalPublisher, incrementalDataRecord):
+path, deferMap, incrementalPublisher, incrementalDataId):
 
 - If {path} is not provided, initialize it to an empty list.
 - Initialize {resultMap} to an empty ordered map.
@@ -1138,7 +1116,7 @@ path, deferMap, incrementalPublisher, incrementalDataRecord):
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fieldGroup, variableValues, path, incrementalPublisher,
-      incrementalDataRecord)}.
+      incrementalDataId)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
 - Return {resultMap}.
 
@@ -1564,9 +1542,10 @@ BuildGroupedFieldSets(fieldsByTarget, targetsByKey, parentTargets)
         - Append {fieldDetails} to the {fields} entry on {fieldGroup}.
   - Let {shouldInitiateDefer} be the corresponding entry on {targetSetDetails}.
   - Initialize {details} to an empty unordered map.
-  - Set the entry for {groupedFieldSet} in {details} to {newGroupedFieldSet}.
-  - Set the corresponding entry in {details} to {shouldInitiateDefer}.
-  - Set the entry for {maskingTargets} in {groupDetailsMap} to {details}.
+  - Set the entry for {groupedFieldSet} in {groupDetails} to
+    {newGroupedFieldSet}.
+  - Set the corresponding entry in {groupDetails} to {shouldInitiateDefer}.
+  - Set the entry for {maskingTargets} in {groupDetailsMap} to {groupDetails}.
 - Return {groupedFieldSet} and {groupDetailsMap}.
 
 Note: entries are always added to Grouped Field Set records in the order in
@@ -1633,9 +1612,9 @@ IsSameSet(setA, setB):
 ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
 incrementalPublisher, path, detailsList, deferMap)
 
-- For each {recordDetails} in {detailsList}, allowing for parallelization:
-  - Let {deferredGroupedFieldSetRecord}, {groupedFieldSet}, and
-    {shouldInitiateDefer} be the corresponding entries on {recordDetails}.
+- For each {details} in {detailsList}, allowing for parallelization:
+  - Let {id}, {groupedFieldSet}, and {shouldInitiateDefer} be the corresponding
+    entries on {details}.
   - If {shouldInitiateDefer} is {true}:
     - Initiate implementation specific deferral of further execution, resuming
       execution as defined.
@@ -1643,7 +1622,6 @@ incrementalPublisher, path, detailsList, deferMap)
     objectType, objectValue, variableValues, path, deferMap,
     incrementalPublisher, deferredGroupedFieldSet)}.
   - Let {eventQueue} be the corresponding entry on {incrementalPublisher}.
-  - Let {id} be the corresponding entry on {deferredGroupedFieldSetRecord}.
   - If _field error_ were raised, causing a {null} to be propagated to {data}:
     - Let {incrementalErrors} be the list of such field errors.
     - Enqueue an Errored Deferred Grouped Field Set event with details {id} and
@@ -1663,7 +1641,7 @@ finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fieldGroup, variableValues,
-path, deferMap, incrementalPublisher, incrementalDataRecord):
+path, deferMap, incrementalPublisher, incrementalDataId):
 
 - Let {fieldDetails} be the first entry in {fieldGroup}.
 - Let {node} be the corresponding entry on {fieldDetails}.
@@ -1674,7 +1652,7 @@ path, deferMap, incrementalPublisher, incrementalDataRecord):
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues, path, deferMap, incrementalPublisher, incrementalDataRecord)}.
+  variableValues, path, deferMap, incrementalPublisher, incrementalDataId)}.
 
 ### Coercing Field Arguments
 
@@ -1788,8 +1766,7 @@ variableValues, incrementalPublisher, parentIncrementalDataRecord):
 - Let {streamFieldGroup} be the result of {GetStreamFieldGroup(fieldGroup)}.
 - Repeat the following steps:
   - Let {itemPath} be {path} with {currentIndex} appended.
-  - Let {streamItems} be a new Stream Items Record.
-  - Let {id} be the corresponding entry on {streamItems}.
+  - Let {id} be an identifier unique to this execution.
   - Let {parentIds} be an empty list.
   - If {currentParent} is a Deferred Grouped Field Set Record.
     - Let {deferredFragments} be the corresponding entry on {currentParent}.
@@ -1812,7 +1789,6 @@ variableValues, incrementalPublisher, parentIncrementalDataRecord):
       and {incrementalErrors}.
     - Return.
   - If an item is not retrieved because {iterator} has completed:
-    - Let {id} be the corresponding entry on {streamItems}
     - Enqueue a Completed Empty Stream Items Event on {eventQueue} with details
       {id}.
     - Return.
@@ -1825,14 +1801,12 @@ variableValues, incrementalPublisher, parentIncrementalDataRecord):
     {innerType} is a Non-Nullable type, let {incrementalErrors} be the list of
     those errors:
     - Set {errored} to {true}.
-    - Let {id} be the corresponding entry on {streamItems}
     - Enqueue an Errored Stream Items Event on {eventQueue} with details {id}
       and {incrementalErrors}.
     - Return.
   - Let {errors} be the list of all _field error_ raised while completing this
     item.
   - Initialize {items} to an list containing the single item {data}.
-  - Let {id} be the corresponding entry on {streamItems}
   - Enqueue a Completed Stream Items Event on {eventQueue} with details {id},
     {items}, and {errors}.
   - Increment {currentIndex}.
@@ -1840,7 +1814,7 @@ variableValues, incrementalPublisher, parentIncrementalDataRecord):
   - Increment {index}.
 
 CompleteValue(fieldType, fieldGroup, result, variableValues, path, deferMap,
-incrementalPublisher, incrementalDataRecord):
+incrementalPublisher, incrementalDataId):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
@@ -1872,15 +1846,13 @@ incrementalPublisher, incrementalDataRecord):
   - While {result} is not closed:
     - If {streamDirective} is defined and {index} is greater than or equal to
       {initialCount}:
-      - Let {stream} be a new Stream Record.
-      - Let {id} be the corresponding entry on {stream}.
+      - Let {id} be an identifier unique to this execution.
       - Let {earlyReturn} be the implementation-specific value denoting how to
         notify {iterator} that no additional items will be requested.
       - Enqueue a New Stream Event on {eventQueue} with details {id}, {label},
         {path}, and {earlyReturn}.
       - Call {ExecuteStreamField(stream, path, iterator, fieldGroup, index,
-        innerType, variableValues, incrementalPublisher,
-        incrementalDataRecord)}.
+        innerType, variableValues, incrementalPublisher, incrementalDataId)}.
       - Return {items}.
     - Otherwise:
       - Wait for the next item from {result} via the {iterator}.
@@ -1889,7 +1861,7 @@ incrementalPublisher, incrementalDataRecord):
       - Let {itemPath} be {path} with {index} appended.
       - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
         fields, resultItem, variableValues, itemPath, deferMap,
-        incrementalPublisher, incrementalDataRecord)}.
+        incrementalPublisher, incrementalDataId)}.
       - Append {resolvedItem} to {items}.
       - Increment {index}.
   - Return {items}.
@@ -1904,13 +1876,13 @@ incrementalPublisher, incrementalDataRecord):
     {ProcessSubSelectionSets(objectType, fieldGroup, variableValues)}.
   - Let {newDeferMap} be the result of
     {AddNewDeferFragments(incrementalPublisher, newDeferUsages,
-    incrementalDataRecord, deferMap, path)}.
+    incrementalDataId, deferMap, path)}.
   - Let {detailsList} be the result of
     {AddNewDeferredGroupedFieldSets(incrementalPublisher, groupDetailsMap,
     newDeferMap, path)}.
   - Let {completed} be the result of evaluating
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, result, variableValues,
-    path, newDeferMap, incrementalPublisher, incrementalDataRecord)} _normally_
+    path, newDeferMap, incrementalPublisher, incrementalDataId)} _normally_
     (allowing for parallelization).
   - In parallel, call {ExecuteDeferredGroupedFieldSets(objectType, result,
     variableValues, incrementalPublisher, detailsList, newDeferMap)}.
