@@ -1949,10 +1949,6 @@ Following are examples of result coercion with various types and values:
 
 | Expected Type | Internal Value  | Coerced Result                              |
 | ------------- | --------------- | ------------------------------------------- |
-| `[Int]`       | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int]`       | `null`          | `null`                                      |
-| `[Int]`       | `[1, 2, null]`  | `[1, 2, null]`                              |
-| `[Int]`       | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
 | `[Int]*`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
 | `[Int]*`      | `null`          | `null` (With logged coercion error)         |
 | `[Int]*`      | `[1, 2, null]`  | `[1, 2, null]`                              |
