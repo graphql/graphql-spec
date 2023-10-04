@@ -238,7 +238,12 @@ Directives[Const] : Directive[?Const]+
 
 Directive[Const] : @ Name Arguments[?Const]?
 
-TypeSystemDocument : TypeSystemDefinition+
+SourceSchemaDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+
+- TypeSystemDefinition
+- TypeSystemExtension
 
 TypeSystemDefinition :
 
@@ -246,17 +251,12 @@ TypeSystemDefinition :
 - TypeDefinition
 - DirectiveDefinition
 
-TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
-
-TypeSystemDefinitionOrExtension :
-
-- TypeSystemDefinition
-- TypeSystemExtension
-
 TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+
+FullSchemaDocument : TypeSystemDefinition+
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }

@@ -242,16 +242,18 @@ Definition :
 - ExecutableDefinition
 - TypeSystemDefinitionOrExtension
 
+A GraphQL Document describes a complete file or request string operated on by a
+GraphQL service or client. A document contains multiple definitions, either
+executable or representative of a GraphQL type system.
+
+### Executable document
+
 ExecutableDocument : ExecutableDefinition+
 
 ExecutableDefinition :
 
 - OperationDefinition
 - FragmentDefinition
-
-A GraphQL Document describes a complete file or request string operated on by a
-GraphQL service or client. A document contains multiple definitions, either
-executable or representative of a GraphQL type system.
 
 Documents are only executable by a GraphQL service if they are
 {ExecutableDocument} and contain at least one {OperationDefinition}. A Document
@@ -274,6 +276,90 @@ as the operation name. Otherwise, if a GraphQL Document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
+
+### Source schema document
+
+SourceSchemaDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+
+- TypeSystemDefinition
+- TypeSystemExtension
+
+TypeSystemDefinition :
+
+- SchemaDefinition
+- TypeDefinition
+- DirectiveDefinition
+
+A {SourceSchemaDocument} describes the user types of a schema. A GraphQL
+implementation may use a {SourceSchemaDocument} as input to represent the schema
+and execute operations.
+
+For brevity, and to avoid conflicting with the implementation, all _built-in
+definitions_ must be omitted in a {SourceSchemaDocument}.
+
+**Default Root Operation Type Names**
+
+:: The _default root type name_ for each {`query`}, {`mutation`}, and
+{`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
+{"Subscription"} respectively.
+
+The type system definition language can omit the schema definition when each
+_root operation type_ uses its respective _default root type name_ and no other
+type uses any _default root type name_.
+
+Likewise, when part of a {SourceSchemaDocument}, a schema definition should be
+omitted if each _root operation type_ uses its respective _default root type
+name_ and no other type uses any _default root type name_.
+
+This example describes a valid complete GraphQL schema, despite not explicitly
+including a {`schema`} definition. The {"Query"} type is presumed to be the
+{`query`} _root operation type_ of the schema.
+
+```graphql example
+type Query {
+  someField: String
+}
+```
+
+This example describes a valid GraphQL schema without a {`mutation`} _root
+operation type_, even though it contains a type named {"Mutation"}. The schema
+definition must be included, otherwise the {"Mutation"} type would be
+incorrectly presumed to be the {`mutation`} _root operation type_ of the schema.
+
+```graphql example
+schema {
+  query: Query
+}
+
+type Query {
+  latestVirus: Virus
+}
+
+type Virus {
+  name: String
+  mutations: [Mutation]
+}
+
+type Mutation {
+  name: String
+}
+```
+
+### Full schema document
+
+FullSchemaDocument : TypeSystemDefinition+
+
+A {FullSchemaDocument} describes all the types in the schema, including the
+built-in ones. Tools that are not implementations may use a {FullSchemaDocument}
+to validate an operation.
+
+All _built-in definitions_ must be included in a {SourceSchemaDocument}.
+
+A {SourceSchemaDocument} must exactly one {SchemaDefinition}. That
+{SchemaDefinition} must include a _root operation type definition_ for each
+supported operation.
 
 ## Operations
 
