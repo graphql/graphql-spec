@@ -238,18 +238,22 @@ Directives[Const] : Directive[?Const]+
 
 Directive[Const] : @ Name Arguments[?Const]?
 
-SourceSchemaDocument : TypeSystemDefinitionOrExtension+
-
-TypeSystemDefinitionOrExtension :
-
-- TypeSystemDefinition
-- TypeSystemExtension
+TypeSystemDocument : TypeSystemDefinition+
 
 TypeSystemDefinition :
 
 - SchemaDefinition
 - TypeDefinition
 - DirectiveDefinition
+
+TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
+
+SourceSchemaDocument : TypeSystemDefinitionOrExtension+
+
+TypeSystemDefinitionOrExtension :
+
+- TypeSystemDefinition
+- TypeSystemExtension
 
 TypeSystemExtension :
 
