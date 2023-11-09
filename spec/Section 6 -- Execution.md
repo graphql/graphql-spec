@@ -645,6 +645,13 @@ Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid operations
 must only allow usage of variables of appropriate types.
 
+Note: When a default value exists for a variable definition, the type of the
+variable is allowed to be nullable even if it is used in a non-nullable
+position, see
+[Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist)
+in Validation. If the value for a variable is explicitly {null} and is used in a
+non-nullable position, a _field error_ will be raised.
+
 ### Value Resolution
 
 While nearly all of GraphQL execution can be described generically, ultimately
