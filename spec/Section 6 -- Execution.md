@@ -609,17 +609,17 @@ CoerceArgumentValues(objectType, field, variableValues):
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.
   - Let {defaultValue} be the default value for {argumentDefinition}.
-  - Let {hasValue} be {true} if {argumentValues} provides a value for the name
-    {argumentName}.
   - Let {argumentValue} be the value provided in {argumentValues} for the name
     {argumentName}.
   - If {argumentValue} is a {Variable}:
     - Let {variableName} be the name of {argumentValue}.
-    - Let {hasValue} be {true} if {variableValues} provides a value for the name
-      {variableName}.
-    - Let {value} be the value provided in {variableValues} for the name
-      {variableName}.
-  - Otherwise, let {value} be {argumentValue}.
+    - If {variableValues} provides a value for the name {variableName}:
+      - Let {hasValue} be {true}.
+      - Let {value} be the value provided in {variableValues} for the name
+        {variableName}.
+  - Otherwise if {argumentValues} provides a value for the name {argumentName}.
+    - Let {hasValue} be {true}
+    - Let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
     - Add an entry to {coercedValues} named {argumentName} with the value
       {defaultValue}.
