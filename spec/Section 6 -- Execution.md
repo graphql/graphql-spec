@@ -1076,6 +1076,44 @@ BuildGroupedFieldSets(fieldsByTarget, targetsByKey, parentTargets)
   - Initialize {details} to an empty unordered map.
   - Set the entry for {groupedFieldSet} in {details} to {newGroupedFieldSet}.
   - Set the corresponding entry in {details} to {shouldInitiateDefer}.
+  - Set the entry for {targets} in {groupDetailsMap} to {details}.
+- Return {groupedFieldSet} and {groupDetailsMap}.
+
+Note: entries are always added to Grouped Field Set records in the order in
+which they appear for the first target. Field order for deferred grouped field
+sets never alters the field order for the parent.
+
+GetTargetSetDetails(targetsByKey, parentTargets):
+
+- Initialize {keysWithParentTargets} to the empty set.
+- Initialize {targetSetDetailsMap} to an empty unordered map.
+- For each {responseKey} and {targets} in {targetsByKey}:
+  - If {IsSameSet(targets, parentTargets)} is {true}:
+    - Append {responseKey} to {keysWithParentTargets}.
+    - Continue to the next entry in {targetsByKey}.
+  - For each {key} in {targetSetDetailsMap}:
+    - If {IsSameSet(targets, key)} is {true}, let {targetSetDetails} be the map
+      in {targetSetDetailsMap} for {targets}.
+  - If {targetSetDetails} is defined:
+    - Let {keys} be the corresponding entry on {targetSetDetails}.
+    - Add {responseKey} to {keys}.
+  - Otherwise:
+    - Initialize {keys} to the empty set.
+    - Add {responseKey} to {keys}.
+    - Let {shouldInitiateDefer} be {false}.
+    - For each {target} in {targets}:
+      - Let {remainingFieldsForTarget} be the entry in {remainingFieldsByTarget}
+        for {target}.
+      - Let {nodes} be the list in {remainingFieldsByTarget} for {responseKey}.
+      - Remove the entry for {responseKey} from {remainingFieldsByTarget}.
+      - For each {node} of {nodes}:
+        - Let {fieldDetails} be a new Field Details record created from {node}
+          and {target}.
+        - Append {fieldDetails} to the {fields} entry on {fieldGroup}.
+  - Let {shouldInitiateDefer} be the corresponding entry on {targetSetDetails}.
+  - Initialize {details} to an empty unordered map.
+  - Set the entry for {groupedFieldSet} in {details} to {newGroupedFieldSet}.
+  - Set the corresponding entry in {details} to {shouldInitiateDefer}.
   - Set the entry for {maskingTargets} in {groupDetailsMap} to {details}.
 - Return {groupedFieldSet} and {groupDetailsMap}.
 
@@ -1116,7 +1154,7 @@ GetTargetSetDetails(targetsByKey, parentTargets):
         - Set {shouldInitiateDefer} equal to {true}.
     - Create {newTargetSetDetails} as an map containing {keys} and
       {shouldInitiateDefer}.
-    - Set the entry in {targetSetDetailsMap} for {maskingTargets} to
+    - Set the entry in {targetSetDetailsMap} for {targets} to
       {newTargetSetDetails}.
 - Return {keysWithParentTargets} and {targetSetDetailsMap}.
 
@@ -1128,6 +1166,15 @@ IsSameSet(setA, setB):
   - If {setB} does not contain {item}:
     - Return {false}.
 - Return {true}.
+
+GetOrderedResponseKeys(targets, fieldsByTarget):
+
+- Let {firstTarget} be the first entry in {targets}.
+- Assert that {firstTarget} is defined.
+- Let {firstFields} be the entry for {firstTarget} in {fieldsByTarget}.
+- Assert that {firstFields} is defined.
+- Let {responseKeys} be the keys of {firstFields}.
+- Return {responseKeys}.
 
 ## Executing Deferred Grouped Field Sets
 
