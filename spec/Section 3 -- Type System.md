@@ -1773,18 +1773,18 @@ constructing the list.
 
 Following are examples of input coercion with various list types and values:
 
-| Expected Type | Provided Value   | Coerced Value               |
-| ------------- | ---------------- | --------------------------- |
-| `[Int]`       | `[1, 2, 3]`      | `[1, 2, 3]`                 |
-| `[Int]`       | `[1, "b", true]` | Error: Incorrect item value |
-| `[Int]`       | `1`              | `[1]`                       |
-| `[Int]`       | `null`           | `null`                      |
-| `[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`             |
-| `[[Int]]`     | `[1, 2, 3]`      | `[[1], [2], [3]]`           |
-| `[[Int]]`     | `[1, null, 3]`   | `[[1], null, [3]]`          |
-| `[[Int]]`     | `[[1], ["b"]]`   | Error: Incorrect item value |
-| `[[Int]]`     | `1`              | `[[1]]`                     |
-| `[[Int]]`     | `null`           | `null`                      |
+| Expected Type | Literal Value    | Variable Values | Coerced Value               |
+| ------------- | ---------------- | --------------- | --------------------------- |
+| `[Int]`       | `[1, 2, 3]`      | `{}`            | `[1, 2, 3]`                 |
+| `[Int]`       | `[1, "b", true]` | `{}`            | Error: Incorrect item value |
+| `[Int]`       | `1`              | `{}`            | `[1]`                       |
+| `[Int]`       | `null`           | `{}`            | `null`                      |
+| `[[Int]]`     | `[[1], [2, 3]]`  | `{}`            | `[[1], [2, 3]]`             |
+| `[[Int]]`     | `[1, 2, 3]`      | `{}`            | `[[1], [2], [3]]`           |
+| `[[Int]]`     | `[1, null, 3]`   | `{}`            | `[[1], null, [3]]`          |
+| `[[Int]]`     | `[[1], ["b"]]`   | `{}`            | Error: Incorrect item value |
+| `[[Int]]`     | `1`              | `{}`            | `[[1]]`                     |
+| `[[Int]]`     | `null`           | `{}`            | `null`                      |
 
 ## Non-Null
 
