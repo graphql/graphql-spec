@@ -1792,13 +1792,25 @@ CoerceListItemValue(itemValue, itemType):
 
 - If {itemValue} is {null}, return {null}.
 - Otherwise, if {itemValue} is a Variable:
-  - Let {runtimeValue} be the runtime value of that variable, or {null} if no
-    runtime value is provided.
-  - If {runtimeValue} is {null} and {itemType} is a non-null type, a _field
+  - If the variable provides a runtime value:
+    - Let {coercedItemValue} be the runtime value of the variable.
+  - Otherwise, if the variable definition provides a default value:
+    - Let {coercedItemValue} be this default value.
+  - Otherwise:
+    - Let {coercedItemValue} be {null}.
+  - If {coercedItemValue} is {null} and {itemType} is a non-null type, a _field
     error_ must be raised.
-  - Return {runtimeValue}.
+  - Return {coercedItemValue}.
 - Otherwise, return the result of coercing {itemValue} according to the input
   coercion rules for {itemType}.
+
+Note: When a default value exists for a variable definition, the type of the
+variable is allowed to be nullable even if it is used in a non-nullable
+position, see
+[Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist)
+in Validation. If the value for such a variable is explicitly {null} and is used
+as the value for a list item of non-nullable type then a _field error_ will be
+raised.
 
 Following are examples of input coercion with various list types and values:
 
