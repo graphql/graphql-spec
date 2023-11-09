@@ -104,29 +104,30 @@ CoerceVariableValues(schema, operation, variableValues):
   - Let {variableName} be the name of {variableDefinition}.
   - Let {variableType} be the expected type of {variableDefinition}.
   - Assert: {IsInputType(variableType)} must be {true}.
-  - Let {defaultValue} be the default value for {variableDefinition}.
-  - Let {hasValue} be {true} if {variableValues} provides a value for the name
-    {variableName}.
-  - Let {value} be the value provided in {variableValues} for the name
-    {variableName}.
-  - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
-    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
-      according to the input coercion rules of {variableType}.
-    - Add an entry to {coercedValues} named {variableName} with the value
-      {coercedDefaultValue}.
-  - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a _request error_.
-  - Otherwise if {hasValue} is {true}:
+  - If {variableValues} has an entry named {variableName}, let {value} be its
+    value:
     - If {value} is {null}:
+      - If {variableType} is a Non-Nullable type, raise a _request error_.
       - Add an entry to {coercedValues} named {variableName} with the value
         {null}.
     - Otherwise:
-      - If {value} cannot be coerced according to the input coercion rules of
-        {variableType}, raise a _request error_.
       - Let {coercedValue} be the result of coercing {value} according to the
-        input coercion rules of {variableType}.
+        input coercion rules of {variableType}, or raise a _request error_.
       - Add an entry to {coercedValues} named {variableName} with the value
         {coercedValue}.
+  - Otherwise if {variableDefinition} has a default value, let it be
+    {defaultValue}:
+    - If {defaultValue} is {null}:
+      - Assert: {variableType} is not a Non-Nullable type.
+      - Add an entry to {coercedValues} named {variableName} with the value
+        {null}.
+    - Otherwise:
+      - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+        according to the input coercion rules of {variableType}, or raise a
+        _request error_.
+      - Add an entry to {coercedValues} named {variableName} with the value
+        {coercedDefaultValue}.
+  - Otherwise if {variableType} is a Non-Nullable type, raise a _request error_.
 - Return {coercedValues}.
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
@@ -742,46 +743,50 @@ At each argument position in an operation may be a literal {Value}, or a
 CoerceArgumentValues(objectType, field, variableValues):
 
 - Let {coercedValues} be an empty unordered Map.
-- Let {argumentValues} be the argument values provided in {field}.
+- Let {arguments} be the {Arguments} provided in {field}.
 - Let {fieldName} be the name of {field}.
 - Let {argumentDefinitions} be the arguments defined by {objectType} for the
   field named {fieldName}.
 - For each {argumentDefinition} in {argumentDefinitions}:
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.
-  - Let {defaultValue} be the default value for {argumentDefinition}.
-  - Let {hasValue} be {true} if {argumentValues} provides a value for the name
-    {argumentName}.
-  - Let {argumentValue} be the value provided in {argumentValues} for the name
-    {argumentName}.
-  - If {argumentValue} is a {Variable}:
-    - Let {variableName} be the name of {argumentValue}.
-    - Let {hasValue} be {true} if {variableValues} provides a value for the name
-      {variableName}.
-    - Let {value} be the value provided in {variableValues} for the name
-      {variableName}.
-  - Otherwise, let {value} be {argumentValue}.
-  - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
-    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
-      according to the input coercion rules of {argumentType}.
-    - Add an entry to {coercedValues} named {argumentName} with the value
-      {coercedDefaultValue}.
-  - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise an _execution error_.
-  - Otherwise if {hasValue} is {true}:
-    - If {value} is {null}:
+  - Assert: {IsInputType(argumentType)} must be {true}.
+  - If {arguments} has an {Argument} with name {argumentName}, let
+    {argumentValue} be its {Value}:
+    - If {argumentValue} is a {Variable}, let {variableName} be its name:
+      - If {variableValues} has an entry named {variableName}, let
+        {variableValue} be its value:
+        - If {argumentType} is a Non-Nullable type and {variableValue} is
+          {null}, raise an _execution error_ (see [note](#note-0aed8)).
+        - Add an entry to {coercedValues} named {argumentName} with the value
+          {variableValue}.
+      - Otherwise if {argumentType} is a Non-Nullable type, raise an _execution
+        error_.
+    - Otherwise:
+      - If {argumentValue} is {null} type:
+        - If {argumentType} is a Non-Nullable type, raise an _execution error_.
+        - Add an entry to {coercedValues} named {variableName} with the value
+          {null}.
+      - Otherwise:
+        - Let {coercedValue} be the result of coercing {argumentValue} according
+          to the input coercion rules of {argumentType}, or raise an _execution
+          error_.
+        - Add an entry to {coercedValues} named {argumentName} with the value
+          {coercedValue}.
+  - Otherwise if {argumentDefinition} has a default value, let it be
+    {defaultValue}:
+    - If {defaultValue} is {null}:
+      - Assert: {argumentType} is not a Non-Nullable type.
       - Add an entry to {coercedValues} named {argumentName} with the value
         {null}.
-    - Otherwise, if {argumentValue} is a {Variable}:
-      - Add an entry to {coercedValues} named {argumentName} with the value
-        {value}.
     - Otherwise:
-      - If {value} cannot be coerced according to the input coercion rules of
-        {argumentType}, raise an _execution error_.
-      - Let {coercedValue} be the result of coercing {value} according to the
-        input coercion rules of {argumentType}.
+      - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+        according to the input coercion rules of {argumentType}, or raise an
+        _execution error_.
       - Add an entry to {coercedValues} named {argumentName} with the value
-        {coercedValue}.
+        {coercedDefaultValue}.
+  - Otherwise if {argumentType} is a Non-Nullable type, raise an _execution
+    error_.
 - Return {coercedValues}.
 
 Any _request error_ raised as a result of input coercion during
