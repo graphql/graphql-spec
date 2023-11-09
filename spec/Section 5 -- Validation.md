@@ -739,7 +739,7 @@ invalid.
     which contains {argument}.
   - {arguments} must be the set containing only {argument}.
 
-#### Required Arguments
+### Required Arguments
 
 - For each Field or Directive in the document:
   - Let {arguments} be the arguments provided by the Field or Directive.
