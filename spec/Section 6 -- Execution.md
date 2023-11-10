@@ -396,10 +396,11 @@ entry from the grouped field set in the order provided in the grouped field set.
 It must determine the corresponding entry in the result map for each item to
 completion before it continues on to the next item in the grouped field set:
 
-For example, given the following _selection set_ to be executed serially:
+For example, given the following mutation operation, the root _selection set_
+must be executed serially:
 
 ```graphql example
-{
+mutation {
   changeBirthday(birthday: $newBirthday) {
     month
   }
@@ -409,7 +410,7 @@ For example, given the following _selection set_ to be executed serially:
 }
 ```
 
-The executor must, in serial:
+Therefore the executor must, in serial:
 
 - Run {ExecuteField()} for `changeBirthday`, which during {CompleteValue()} will
   execute the `{ month }` sub-selection set normally.
@@ -421,6 +422,7 @@ As an illustrative example, let's assume we have a mutation field
 we execute the following _selection set_ serially:
 
 ```graphql example
+# Note: This is a selection set, not a full document using the query shorthand.
 {
   first: changeTheNumber(newNumber: 1) {
     theNumber
@@ -443,7 +445,7 @@ The executor will execute the following serially:
 - Resolve the `changeTheNumber(newNumber: 2)` field
 - Execute the `{ theNumber }` sub-selection set of `third` normally
 
-A correct executor must generate the following result for that selection set:
+A correct executor must generate the following result for that _selection set_:
 
 ```json example
 {
