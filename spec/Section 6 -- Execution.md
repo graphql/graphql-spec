@@ -1,8 +1,8 @@
 # Execution
 
-GraphQL generates a response from a request via execution.
+A GraphQL service generates a response from a request via execution.
 
-A request for execution consists of a few pieces of information:
+:: A _request_ for execution consists of a few pieces of information:
 
 - The schema to use, typically solely provided by the GraphQL service.
 - A {Document} which must contain GraphQL {OperationDefinition} and may contain
@@ -16,6 +16,10 @@ A request for execution consists of a few pieces of information:
 
 Given this information, the result of {ExecuteRequest()} produces the response,
 to be formatted according to the Response section below.
+
+Note: GraphQL requests do not require any specific serialization format or
+transport mechanism. Message serialization and transport mechanisms should be
+chosen by the implementing service.
 
 ## Executing Requests
 
@@ -44,10 +48,10 @@ GetOperation(document, operationName):
 - If {operationName} is {null}:
   - If {document} contains exactly one operation.
     - Return the Operation contained in the {document}.
-  - Otherwise raise a request error requiring {operationName}.
+  - Otherwise raise a _request error_ requiring {operationName}.
 - Otherwise:
   - Let {operation} be the Operation named {operationName} in {document}.
-  - If {operation} was not found, raise a request error.
+  - If {operation} was not found, raise a _request error_.
   - Return {operation}.
 
 ### Validating Requests
@@ -71,14 +75,14 @@ result to avoid validating the same request again in the future.
 
 If the operation has defined any variables, then the values for those variables
 need to be coerced using the input coercion rules of variable's declared type.
-If a request error is encountered during input coercion of variable values, then
-the operation fails without execution.
+If a _request error_ is encountered during input coercion of variable values,
+then the operation fails without execution.
 
 CoerceVariableValues(schema, operation, variableValues):
 
 - Let {coercedValues} be an empty unordered Map.
-- Let {variableDefinitions} be the variables defined by {operation}.
-- For each {variableDefinition} in {variableDefinitions}:
+- Let {variablesDefinition} be the variables defined by {operation}.
+- For each {variableDefinition} in {variablesDefinition}:
   - Let {variableName} be the name of {variableDefinition}.
   - Let {variableType} be the expected type of {variableDefinition}.
   - Assert: {IsInputType(variableType)} must be {true}.
@@ -91,14 +95,14 @@ CoerceVariableValues(schema, operation, variableValues):
     - Add an entry to {coercedValues} named {variableName} with the value
       {defaultValue}.
   - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a request error.
+    not {true} or {value} is {null}, raise a _request error_.
   - Otherwise if {hasValue} is true:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {variableName} with the value
         {null}.
     - Otherwise:
       - If {value} cannot be coerced according to the input coercion rules of
-        {variableType}, raise a request error.
+        {variableType}, raise a _request error_.
       - Let {coercedValue} be the result of coercing {value} according to the
         input coercion rules of {variableType}.
       - Add an entry to {coercedValues} named {variableName} with the value
@@ -130,7 +134,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be any _field errors_ produced while executing the selection set.
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
 - Return an unordered map containing {data} and {errors}.
 
 ### Mutation
@@ -150,7 +155,8 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {selectionSet} be the top level Selection Set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   mutationType, initialValue, variableValues)} _serially_.
-- Let {errors} be any _field errors_ produced while executing the selection set.
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
 - Return an unordered map containing {data} and {errors}.
 
 ### Subscription
@@ -170,7 +176,7 @@ Subscribe(subscription, schema, variableValues, initialValue):
   {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
 - Return {responseStream}.
 
-Note: In large scale subscription systems, the {Subscribe()} and
+Note: In a large-scale subscription system, the {Subscribe()} and
 {ExecuteSubscriptionEvent()} algorithms may be run on separate services to
 maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
@@ -218,9 +224,8 @@ must receive no more events from that event stream.
 
 **Supporting Subscriptions at Scale**
 
-Supporting subscriptions is a significant change for any GraphQL service. Query
-and mutation operations are stateless, allowing scaling via cloning of GraphQL
-service instances. Subscriptions, by contrast, are stateful and require
+Query and mutation operations are stateless, allowing scaling via cloning of
+GraphQL service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
 
@@ -232,12 +237,12 @@ connectivity.
 **Delivery Agnostic**
 
 GraphQL subscriptions do not require any specific serialization format or
-transport mechanism. Subscriptions specifies algorithms for the creation of a
-stream, the content of each payload on that stream, and the closing of that
-stream. There are intentionally no specifications for message acknowledgement,
-buffering, resend requests, or any other quality of service (QoS) details.
-Message serialization, transport mechanisms, and quality of service details
-should be chosen by the implementing service.
+transport mechanism. GraphQL specifies algorithms for the creation of the
+response stream, the content of each payload on that stream, and the closing of
+that stream. There are intentionally no specifications for message
+acknowledgement, buffering, resend requests, or any other quality of service
+(QoS) details. Message serialization, transport mechanisms, and quality of
+service details should be chosen by the implementing service.
 
 #### Source Stream
 
@@ -252,7 +257,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
-- If {groupedFieldSet} does not have exactly one entry, raise a request error.
+- If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fields} be the value of the first entry in {groupedFieldSet}.
 - Let {fieldName} be the name of the first entry in {fields}. Note: This value
   is unaffected if an alias is used.
@@ -298,7 +303,8 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be any _field errors_ produced while executing the selection set.
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
 - Return an unordered map containing {data} and {errors}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
@@ -347,8 +353,8 @@ is explained in greater detail in the Field Collection section below.
 **Errors and Non-Null Fields**
 
 If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
-field error then that error must propagate to this entire selection set, either
-resolving to {null} if allowed or further propagated to a parent field.
+_field error_ then that error must propagate to this entire selection set,
+either resolving to {null} if allowed or further propagated to a parent field.
 
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
@@ -612,7 +618,7 @@ CoerceArgumentValues(objectType, field, variableValues):
     - Add an entry to {coercedValues} named {argumentName} with the value
       {defaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a field error.
+    not {true} or {value} is {null}, raise a _field error_.
   - Otherwise if {hasValue} is true:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {argumentName} with the value
@@ -622,7 +628,7 @@ CoerceArgumentValues(objectType, field, variableValues):
         {value}.
     - Otherwise:
       - If {value} cannot be coerced according to the input coercion rules of
-        {argumentType}, raise a field error.
+        {argumentType}, raise a _field error_.
       - Let {coercedValue} be the result of coercing {value} according to the
         input coercion rules of {argumentType}.
       - Add an entry to {coercedValues} named {argumentName} with the value
@@ -668,12 +674,12 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
     fields, result, variableValues)}.
-  - If {completedResult} is {null}, raise a field error.
+  - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
-  - If {result} is not a collection of values, raise a field error.
+  - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
     {CompleteValue(innerType, fields, resultItem, variableValues)}, where
@@ -708,7 +714,7 @@ CoerceResult(leafType, value):
 - Return the result of calling the internal method provided by the type system
   for determining the "result coercion" of {leafType} given the value {value}.
   This internal method must return a valid value for the type and not {null}.
-  Otherwise throw a field error.
+  Otherwise raise a _field error_.
 
 Note: If a field resolver returns {null} then it is handled within
 {CompleteValue()} before {CoerceResult()} is called. Therefore both the input
@@ -765,13 +771,12 @@ MergeSelectionSets(fields):
 
 ### Handling Field Errors
 
-["Field errors"](#sec-Errors.Field-errors) are raised from a particular field
-during value resolution or coercion. While these errors should be reported in
-the response, they are "handled" by producing a partial response.
+A _field error_ is an error raised from a particular field during value
+resolution or coercion. While these errors should be reported in the response,
+they are "handled" by producing a partial response.
 
-Note: This is distinct from ["request errors"](#sec-Errors.Request-errors) which
-are raised before execution begins. If a request error is encountered, execution
-does not begin and no data is returned in the response.
+Note: This is distinct from a _request error_ which results in a response with
+no data.
 
 If a field error is raised while resolving a field, it is handled as though the
 field returned {null}, and the error must be added to the {"errors"} list in the

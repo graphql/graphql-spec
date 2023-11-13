@@ -108,9 +108,10 @@ CommonMark-compliant Markdown renderer.
 
 **Deprecation**
 
-To support the management of backwards compatibility, GraphQL fields and enum
-values can indicate whether or not they are deprecated (`isDeprecated: Boolean`)
-and a description of why it is deprecated (`deprecationReason: String`).
+To support the management of backwards compatibility, GraphQL fields, arguments,
+input fields, and enum values can indicate whether or not they are deprecated
+(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
@@ -145,7 +146,7 @@ type __Type {
   # must be non-null for ENUM, otherwise null.
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
   # must be non-null for INPUT_OBJECT, otherwise null.
-  inputFields: [__InputValue!]
+  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
@@ -168,7 +169,7 @@ enum __TypeKind {
 type __Field {
   name: String!
   description: String
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -179,6 +180,8 @@ type __InputValue {
   description: String
   type: __Type!
   defaultValue: String
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 type __EnumValue {
@@ -192,7 +195,7 @@ type __Directive {
   name: String!
   description: String
   locations: [__DirectiveLocation!]!
-  args: [__InputValue!]!
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
   isRepeatable: Boolean!
 }
 
@@ -315,9 +318,10 @@ Fields\:
 **Interface**
 
 Interfaces are an abstract type where there are common fields declared. Any type
-that implements an interface must define all the fields with names and types
-exactly matching. The implementations of this interface are explicitly listed
-out in `possibleTypes`.
+that implements an interface must define all the named fields where each
+implementing field type is equal to or a sub-type of (covariant) the interface
+type. The implementations of this interface are explicitly listed out in
+`possibleTypes`.
 
 Fields\:
 
@@ -327,8 +331,8 @@ Fields\:
 - `fields` must return the set of fields required by this interface.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-- `interfaces` must return the set of interfaces that an object implements (if
-  none, `interfaces` must return the empty set).
+- `interfaces` must return the set of interfaces that an interface implements
+  (if none, `interfaces` must return the empty set).
 - `possibleTypes` returns the list of types that implement this interface. They
   must be object types.
 - All other fields must return {null}.
@@ -369,6 +373,8 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated input fields are also returned.
 - `isOneOf` must return {true} when representing a OneOf Input Object, {false}
   otherwise.
 - All other fields must return {null}.
@@ -416,6 +422,8 @@ Fields\:
 - `description` may return a String or {null}
 - `args` returns a List of `__InputValue` representing the arguments this field
   accepts.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated arguments are also returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
@@ -436,6 +444,10 @@ Fields\:
 - `defaultValue` may return a String encoding (using the GraphQL language) of
   the default value used by this input value in the condition a value is not
   provided at runtime. If this input value has no default value, returns {null}.
+- `isDeprecated` returns {true} if this input field or argument should no longer
+  be used, otherwise {false}.
+- `deprecationReason` optionally provides a reason why this input field or
+  argument is deprecated.
 
 ### The \_\_EnumValue Type
 
@@ -487,5 +499,7 @@ Fields\:
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated arguments are also returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.

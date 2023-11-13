@@ -122,7 +122,7 @@ RootOperationTypeDefinition : OperationType : NamedType
 
 A GraphQL service's collective type system capabilities are referred to as that
 service's "schema". A schema is defined in terms of the types and directives it
-supports as well as the root operation types for each kind of operation: query,
+supports as well as the _root operation type_ for each kind of operation: query,
 mutation, and subscription; this determines the place in the type system where
 those operations begin.
 
@@ -141,24 +141,24 @@ introspection system.
 
 ### Root Operation Types
 
-A schema defines the initial root operation type for each kind of operation it
-supports: query, mutation, and subscription; this determines the place in the
+:: A schema defines the initial _root operation type_ for each kind of operation
+it supports: query, mutation, and subscription; this determines the place in the
 type system where those operations begin.
 
-The {`query`} root operation type must be provided and must be an Object type.
+The {`query`} _root operation type_ must be provided and must be an Object type.
 
-The {`mutation`} root operation type is optional; if it is not provided, the
+The {`mutation`} _root operation type_ is optional; if it is not provided, the
 service does not support mutations. If it is provided, it must be an Object
 type.
 
-Similarly, the {`subscription`} root operation type is also optional; if it is
+Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
 must be an Object type.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
 
-The fields on the {`query`} root operation type indicate what fields are
+The fields on the {`query`} _root operation type_ indicate what fields are
 available at the top level of a GraphQL query operation.
 
 For example, this example operation:
@@ -169,7 +169,8 @@ query {
 }
 ```
 
-is only valid when the {`query`} root operation type has a field named "myName":
+is only valid when the {`query`} _root operation type_ has a field named
+"myName":
 
 ```graphql example
 type Query {
@@ -177,8 +178,8 @@ type Query {
 }
 ```
 
-Similarly, the following mutation is only valid if the {`mutation`} root
-operation type has a field named "setName".
+Similarly, the following mutation is only valid if the {`mutation`} _root
+operation type_ has a field named "setName".
 
 ```graphql example
 mutation {
@@ -191,8 +192,8 @@ mutation {
 When using the type system definition language, a document must include at most
 one {`schema`} definition.
 
-In this example, a GraphQL schema is defined with both query and mutation root
-operation types:
+In this example, a GraphQL schema is defined with both a query and mutation
+_root operation type_:
 
 ```graphql example
 schema {
@@ -211,22 +212,50 @@ type MyMutationRootType {
 
 **Default Root Operation Type Names**
 
-While any type can be the root operation type for a GraphQL operation, the type
-system definition language can omit the schema definition when the {`query`},
-{`mutation`}, and {`subscription`} root types are named {"Query"}, {"Mutation"},
-and {"Subscription"} respectively.
+:: The _default root type name_ for each {`query`}, {`mutation`}, and
+{`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
+{"Subscription"} respectively.
+
+The type system definition language can omit the schema definition when each
+_root operation type_ uses its respective _default root type name_ and no other
+type uses any _default root type name_.
 
 Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if it only uses the default root
-operation type names.
+language, a schema definition should be omitted if each _root operation type_
+uses its respective _default root type name_ and no other type uses any _default
+root type name_.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
-{`query`} root operation type of the schema.
+{`query`} _root operation type_ of the schema.
 
 ```graphql example
 type Query {
   someField: String
+}
+```
+
+This example describes a valid GraphQL schema without a {`mutation`} _root
+operation type_, even though it contains a type named {"Mutation"}. The schema
+definition must be included, otherwise the {"Mutation"} type would be
+incorrectly presumed to be the {`mutation`} _root operation type_ of the schema.
+
+```graphql example
+schema {
+  query: Query
+}
+
+type Query {
+  latestVirus: Virus
+}
+
+type Virus {
+  name: String
+  mutations: [Mutation]
+}
+
+type Mutation {
+  name: String
 }
 ```
 
@@ -300,8 +329,8 @@ A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
 Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be {null} (and that a field error cannot result in a
-{null} value).
+resulting value will never be {null} (and that a _field error_ cannot result in
+a {null} value).
 
 These two types are referred to as "wrapping types"; non-wrapping types are
 referred to as "named types". A wrapping type has an underlying named type,
@@ -389,7 +418,7 @@ which, while serialized as a string, conforms to
 [RFC 4122](https://tools.ietf.org/html/rfc4122). When querying a field of type
 `UUID`, you can then rely on the ability to parse the result with a RFC 4122
 compliant parser. Another example of a potentially useful custom scalar is
-`URL`, which serializes as a string, but is guaranteed by the server to be a
+`URL`, which serializes as a string, but is guaranteed by the service to be a
 valid URL.
 
 :: When defining a custom scalar, GraphQL services should provide a _scalar
@@ -405,11 +434,16 @@ conform to its described rules.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
+scalar DateTime
+  @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time")
 ```
 
 Custom *scalar specification URL*s should provide a single, stable format to
 avoid ambiguity. If the linked specification is in flux, the service should link
 to a fixed version rather than to a resource which might change.
+
+Note: Some community-maintained custom scalar specifications are hosted at
+[scalars.graphql.org](https://scalars.graphql.org/).
 
 Custom *scalar specification URL*s should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
@@ -419,20 +453,22 @@ Built-in scalar types must not provide a _scalar specification URL_ as they are
 specified by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
-examples in their description.
+examples in their description; see the GraphQL scalars
+[implementation guide](https://scalars.graphql.org/implementation-guide) for
+more guidance.
 
 **Result Coercion and Serialization**
 
 A GraphQL service, when preparing a field of a given scalar type, must uphold
 the contract the scalar type describes, either by coercing the value or
-producing a [field error](#sec-Errors.Field-errors) if a value cannot be coerced
-or if coercion may result in data loss.
+producing a _field error_ if a value cannot be coerced or if coercion may result
+in data loss.
 
 A GraphQL service may decide to allow coercing different internal types to the
 expected return type. For example when coercing a field of type {Int} a boolean
 {true} value may produce {1} or a string value {"123"} may be parsed as base-10
 {123}. However if internal type coercion cannot be reasonably performed without
-losing information, then it must raise a field error.
+losing information, then it must raise a _field error_.
 
 Since this coercion behavior is not observable to clients of the GraphQL
 service, the precise rules of coercion are left to the implementation. The only
@@ -450,8 +486,8 @@ information on the serialization of scalars in common JSON and other formats.
 
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
-a coercion rule, a [request error](#sec-Errors.Request-errors) must be raised
-(input values are validated before execution begins).
+a coercion rule, a _request error_ must be raised (input values are validated
+before execution begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -477,14 +513,15 @@ Fields returning the type {Int} expect to encounter 32-bit integer internal
 values.
 
 GraphQL services may coerce non-integer internal values to integers when
-reasonable without losing information, otherwise they must raise a field error.
-Examples of this may include returning `1` for the floating-point number `1.0`,
-or returning `123` for the string `"123"`. In scenarios where coercion may lose
-data, raising a field error is more appropriate. For example, a floating-point
-number `1.2` should raise a field error instead of being truncated to `1`.
+reasonable without losing information, otherwise they must raise a _field
+error_. Examples of this may include returning `1` for the floating-point number
+`1.0`, or returning `123` for the string `"123"`. In scenarios where coercion
+may lose data, raising a field error is more appropriate. For example, a
+floating-point number `1.2` should raise a field error instead of being
+truncated to `1`.
 
 If the integer internal value represents a value less than -2<sup>31</sup> or
-greater than or equal to 2<sup>31</sup>, a field error should be raised.
+greater than or equal to 2<sup>31</sup>, a _field error_ should be raised.
 
 **Input Coercion**
 
@@ -492,7 +529,7 @@ When expected as an input type, only integer input values are accepted. All
 other input values, including strings with numeric content, must raise a request
 error indicating an incorrect type. If the integer input value represents a
 value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a
-request error should be raised.
+_request error_ should be raised.
 
 Note: Numeric integer values larger than 32-bit should either use String or a
 custom-defined Scalar type, as not all platforms and transports support encoding
@@ -511,22 +548,22 @@ Fields returning the type {Float} expect to encounter double-precision
 floating-point internal values.
 
 GraphQL services may coerce non-floating-point internal values to {Float} when
-reasonable without losing information, otherwise they must raise a field error.
-Examples of this may include returning `1.0` for the integer number `1`, or
-`123.0` for the string `"123"`.
+reasonable without losing information, otherwise they must raise a _field
+error_. Examples of this may include returning `1.0` for the integer number `1`,
+or `123.0` for the string `"123"`.
 
 Non-finite floating-point internal values ({NaN} and {Infinity}) cannot be
-coerced to {Float} and must raise a field error.
+coerced to {Float} and must raise a _field error_.
 
 **Input Coercion**
 
 When expected as an input type, both integer and float input values are
 accepted. Integer input values are coerced to Float by adding an empty
 fractional part, for example `1.0` for the integer input value `1`. All other
-input values, including strings with numeric content, must raise a request error
-indicating an incorrect type. If the input value otherwise represents a value
-not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value outside
-the available precision), a request error must be raised.
+input values, including strings with numeric content, must raise a _request
+error_ indicating an incorrect type. If the input value otherwise represents a
+value not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value
+outside the available precision), a _request error_ must be raised.
 
 ### String
 
@@ -542,14 +579,14 @@ that representation must be used to serialize this type.
 Fields returning the type {String} expect to encounter Unicode string values.
 
 GraphQL services may coerce non-string raw values to {String} when reasonable
-without losing information, otherwise they must raise a field error. Examples of
-this may include returning the string `"true"` for a boolean true value, or the
-string `"1"` for the integer `1`.
+without losing information, otherwise they must raise a _field error_. Examples
+of this may include returning the string `"true"` for a boolean true value, or
+the string `"1"` for the integer `1`.
 
 **Input Coercion**
 
 When expected as an input type, only valid Unicode string input values are
-accepted. All other input values must raise a request error indicating an
+accepted. All other input values must raise a _request error_ indicating an
 incorrect type.
 
 ### Boolean
@@ -563,13 +600,13 @@ representation of the integers `1` and `0`.
 Fields returning the type {Boolean} expect to encounter boolean internal values.
 
 GraphQL services may coerce non-boolean raw values to {Boolean} when reasonable
-without losing information, otherwise they must raise a field error. Examples of
-this may include returning `true` for non-zero numbers.
+without losing information, otherwise they must raise a _field error_. Examples
+of this may include returning `true` for non-zero numbers.
 
 **Input Coercion**
 
 When expected as an input type, only boolean input values are accepted. All
-other input values must raise a request error indicating an incorrect type.
+other input values must raise a _request error_ indicating an incorrect type.
 
 ### ID
 
@@ -586,15 +623,15 @@ large 128-bit random numbers, to base64 encoded values, or string values of a
 format like [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier).
 
 GraphQL services should coerce as appropriate given the ID formats they expect.
-When coercion is not possible they must raise a field error.
+When coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
 
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
 formats a given GraphQL service expects. Any other input value, including float
-input values (such as `4.0`), must raise a request error indicating an incorrect
-type.
+input values (such as `4.0`), must raise a _request error_ indicating an
+incorrect type.
 
 ### Scalar Extensions
 
@@ -855,7 +892,7 @@ Produces the ordered result:
 **Result Coercion**
 
 Determining the result of coercing an object is the heart of the GraphQL
-executor, so this is covered in that section of the spec.
+executor, see [Value Completion](#sec-Value-Completion).
 
 **Input Coercion**
 
@@ -877,8 +914,12 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    4. For each argument of the field:
       1. The argument must not have a name which begins with the characters
          {"\_\_"} (two underscores).
-      2. The argument must accept a type where {IsInputType(argumentType)}
+      2. The argument must have a unique name within that field; no two
+         arguments may share the same name.
+      3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      4. If argument type is Non-Null and a default value is not defined:
+         - The `@deprecated` directive must not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -921,14 +962,17 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
    2. Let {implementedItemType} be the unwrapped item type of
       {implementedFieldType}.
    3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
-3. If {fieldType} is the same type as {implementedFieldType} then return {true}.
-4. If {fieldType} is an Object type and {implementedFieldType} is a Union type
-   and {fieldType} is a possible type of {implementedFieldType} then return
-   {true}.
-5. If {fieldType} is an Object or Interface type and {implementedFieldType} is
-   an Interface type and {fieldType} declares it implements
-   {implementedFieldType} then return {true}.
-6. Otherwise return {false}.
+3. Return {IsSubType(fieldType, implementedFieldType)}.
+
+IsSubType(possibleSubType, superType):
+
+1. If {possibleSubType} is the same type as {superType} then return {true}.
+2. If {possibleSubType} is an Object type and {superType} is a Union type and
+   {possibleSubType} is a possible type of {superType} then return {true}.
+3. If {possibleSubType} is an Object or Interface type and {superType} is an
+   Interface type and {possibleSubType} declares it implements {superType} then
+   return {true}.
+4. Otherwise return {false}.
 
 ### Field Arguments
 
@@ -1222,7 +1266,9 @@ Interface types have the potential to be invalid if incorrectly defined.
    4. For each argument of the field:
       1. The argument must not have a name which begins with the characters
          {"\_\_"} (two underscores).
-      2. The argument must accept a type where {IsInputType(argumentType)}
+      2. The argument must have a unique name within that field; no two
+         arguments may share the same name.
+      3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
@@ -1446,7 +1492,7 @@ enum Direction {
 **Result Coercion**
 
 GraphQL services must return one of the defined set of possible values. If a
-reasonable coercion is not possible they must raise a field error.
+reasonable coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
 
@@ -1604,9 +1650,9 @@ type of an Object or Interface field.
 **Input Coercion**
 
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise a request error must be raised. In either
-case, the input object literal or unordered map must not contain any entries
-with names not defined by a field of this input object type, otherwise a
+map supplied by a variable, otherwise a _request error_ must be raised. In
+either case, the input object literal or unordered map must not contain any
+entries with names not defined by a field of this input object type, otherwise a
 response error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
@@ -1630,7 +1676,7 @@ is constructed with the following rules:
 
 - If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type is
-  non-null, a field error must be raised. If no runtime value is provided, the
+  non-null, a _field error_ must be raised. If no runtime value is provided, the
   variable definition's default value should be used. If the variable definition
   does not provide a default value, the input object field definition's default
   value should be used.
@@ -1721,7 +1767,9 @@ input ExampleInputTagged @oneOf {
       {"\_\_"} (two underscores).
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
-   4. If the Input Object is a OneOf Input Object then:
+   4. If input field type is Non-Null and a default value is not defined:
+      - The `@deprecated` directive must not be applied to this input field.
+   5. If the Input Object is a OneOf Input Object then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
@@ -1772,13 +1820,14 @@ brackets like this: `pets: [Pet]`. Nesting lists is allowed: `matrix: [[Int]]`.
 
 GraphQL services must return an ordered list as the result of a list type. Each
 item in the list must be the result of a result coercion of the item type. If a
-reasonable coercion is not possible it must raise a field error. In particular,
-if a non-list is returned, the coercion should fail, as this indicates a
-mismatch in expectations between the type system and the implementation.
+reasonable coercion is not possible it must raise a _field error_. In
+particular, if a non-list is returned, the coercion should fail, as this
+indicates a mismatch in expectations between the type system and the
+implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
 coercion of an individual item in the list must result in a the value {null} at
-that position in the list along with a field error added to the response. If a
+that position in the list along with a _field error_ added to the response. If a
 list's item type is non-null, a field error occurring at an individual item in
 the list must result in a field error for the entire list.
 
@@ -1825,8 +1874,9 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 **Nullable vs. Optional**
 
 Fields are _always_ optional within the context of a selection set, a field may
-be omitted and the selection set is still valid. However fields that return
-Non-Null types will never return the value {null} if queried.
+be omitted and the selection set is still valid (so long as the selection set
+does not become empty). However fields that return Non-Null types will never
+return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},
@@ -1838,19 +1888,20 @@ always optional and non-null types are always required.
 In all of the above result coercions, {null} was considered a valid value. To
 coerce the result of a Non-Null type, the coercion of the wrapped type should be
 performed. If that result was not {null}, then the result of coercing the
-Non-Null type is that result. If that result was {null}, then a field error must
-be raised.
+Non-Null type is that result. If that result was {null}, then a _field error_
+must be raised.
 
-Note: When a field error is raised on a non-null value, the error propagates to
-the parent field. For more information on this process, see "Errors and
-Non-Nullability" within the Execution section.
+Note: When a _field error_ is raised on a non-null value, the error propagates
+to the parent field. For more information on this process, see
+[Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields)
+within the Execution section.
 
 **Input Coercion**
 
 If an argument or input-object field of a Non-Null type is not provided, is
 provided with the literal value {null}, or is provided with a variable that was
 either not provided a value at runtime, or was provided the value {null}, then a
-request error must be raised.
+_request error_ must be raised.
 
 If the value provided to the Non-Null type is provided with a literal value
 other than {null}, or a Non-Null variable value, it is coerced using the input
@@ -2075,7 +2126,9 @@ repeatable directives.
 4. For each argument of the directive:
    1. The argument must not have a name which begins with the characters
       {"\_\_"} (two underscores).
-   2. The argument must accept a type where {IsInputType(argumentType)} returns
+   2. The argument must have a unique name within that directive; no two
+      arguments may share the same name.
+   3. The argument must accept a type where {IsInputType(argumentType)} returns
       {true}.
 
 ### @skip
@@ -2128,25 +2181,46 @@ condition is false.
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
 The `@deprecated` _built-in directive_ is used within the type system definition
 language to indicate deprecated portions of a GraphQL service's schema, such as
-deprecated fields on a type or deprecated enum values.
+deprecated fields on a type, arguments on a field, input fields on an input
+type, or values of an enum type.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
 
 In this example type definition, `oldField` is deprecated in favor of using
-`newField`.
+`newField` and `oldArg` is deprecated in favor of using `newArg`.
 
 ```graphql example
 type ExampleType {
   newField: String
   oldField: String @deprecated(reason: "Use `newField`.")
+
+  anotherField(
+    newArg: String
+    oldArg: String @deprecated(reason: "Use `newArg`.")
+  ): String
 }
 ```
+
+The `@deprecated` directive must not appear on required (non-null without a
+default) arguments or input object field definitions.
+
+```graphql counter-example
+type ExampleType {
+  invalidField(
+    newArg: String
+    oldArg: String! @deprecated(reason: "Use `newArg`.")
+  ): String
+}
+```
+
+To deprecate a required argument or input field, it must first be made optional
+by either changing the type to nullable or adding a default value.
 
 ### @specifiedBy
 
@@ -2159,6 +2233,9 @@ definition language to provide a _scalar specification URL_ for specifying the
 behavior of [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should
 point to a human-readable specification of the data format, serialization, and
 coercion rules. It must not appear on built-in scalar types.
+
+Note: Details on implementing a GraphQL scalar specification can be found in the
+[scalars.graphql.org implementation guide](https://scalars.graphql.org/implementation-guide).
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.
