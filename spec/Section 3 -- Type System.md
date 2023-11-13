@@ -1836,6 +1836,7 @@ Following are examples of input coercion with various list types and values:
 | `[Int!]`      | `[1, $b]`        | `{"b": null}`   | Error: Item must be non-null |
 | `[[Int]]`     | `[[1], [2, 3]]`  | `{}`            | `[[1], [2, 3]]`              |
 | `[[Int]]`     | `[1, 2, 3]`      | `{}`            | `[[1], [2], [3]]`            |
+| `[[Int]]`     | `[1, [2], 3]`    | `{}`            | `[[1], [2], [3]]`            |
 | `[[Int]]`     | `[1, null, 3]`   | `{}`            | `[[1], null, [3]]`           |
 | `[[Int]]`     | `[[1], ["b"]]`   | `{}`            | Error: Incorrect item value  |
 | `[[Int]]`     | `1`              | `{}`            | `[[1]]`                      |
