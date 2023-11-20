@@ -130,7 +130,7 @@ All types and directives defined within a schema must not have a name which
 begins with {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
-A document must include at most one {SchemaDefinition}.
+A document may include at most one {SchemaDefinition}.
 
 ### Root Operation Types
 
