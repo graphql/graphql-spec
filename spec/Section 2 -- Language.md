@@ -353,11 +353,11 @@ FullSchemaDocument : TypeSystemDefinition+
 
 A {FullSchemaDocument} describes all the types in the schema, including the
 built-in ones. Tools that are not implementations may use a {FullSchemaDocument}
-to validate an operation.
+to validate an operation, generate code, provide IDE features and other tooling.
 
-All _built-in definitions_ must be included in a {SourceSchemaDocument}.
+All _built-in definitions_ must be included in a {FullSchemaDocument}.
 
-A {SourceSchemaDocument} must exactly one {SchemaDefinition}. That
+A {FullSchemaDocument} must exactly include one {SchemaDefinition}. That
 {SchemaDefinition} must include a _root operation type definition_ for each
 supported operation.
 
