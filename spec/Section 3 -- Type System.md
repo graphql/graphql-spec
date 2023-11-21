@@ -920,7 +920,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          - The `@deprecated` directive must not be applied to this argument.
-3. An object type may declare that it implements one or more unique interfaces.
+3. An object type may declare that it implements a list of one or more unique
+   interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
@@ -1473,7 +1474,7 @@ EnumValuesDefinition : { EnumValueDefinition+ }
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 GraphQL Enum types, like Scalar types, also represent leaf values in a GraphQL
-type system. However Enum types describe the set of possible values.
+type system. However Enum types describe the list of possible values.
 
 Enums are not references for a numeric value, but are unique values in their own
 right. They may serialize as a string: the name of the represented value.
@@ -1491,7 +1492,7 @@ enum Direction {
 
 **Result Coercion**
 
-GraphQL services must return one of the defined set of possible values. If a
+GraphQL services must return one of the defined list of possible values. If a
 reasonable coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
@@ -1547,9 +1548,9 @@ InputFieldsDefinition : { InputValueDefinition+ }
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
-A GraphQL Input Object defines a set of input fields; the input fields are
-either scalars, enums, or other input objects. This allows arguments to accept
-arbitrarily complex structs.
+A GraphQL Input Object defines a list of named input fields; the input fields
+are either scalars, enums, or other input objects. This allows arguments to
+accept arbitrarily complex structs.
 
 In this example, an Input Object called `Point2D` describes `x` and `y` inputs:
 
@@ -1935,6 +1936,10 @@ TypeSystemDirectiveLocation : one of
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
+
+Directives can accept arguments to further specify their behavior. Directive
+arguments are defined as a list of all possible argument names and their
+expected input types.
 
 **Built-in Directives**
 
