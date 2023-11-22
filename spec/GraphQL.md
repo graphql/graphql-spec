@@ -122,6 +122,11 @@ explicitly in prose (e.g. "Note: ") or are set apart in a note block, like this:
 
 Note: This is an example of a non-normative note.
 
+**Lists Are Ordered**
+
+Unless otherwise stated (for example, "an unordered list"), any mention of the
+term "list" in this document indicates an ordered collection.
+
 # [Overview](Section%201%20--%20Overview.md)
 
 # [Language](Section%202%20--%20Language.md)
