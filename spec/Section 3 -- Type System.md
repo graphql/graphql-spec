@@ -1859,7 +1859,7 @@ non-null input type as invalid.
 **Type Validation**
 
 1. A Non-Null type must not wrap another Non-Null type.
-1. A Non-Null type must not wrap a Null-Only-On-Error type.
+1. A Non-Null type must not wrap a Semantic-Non-Null type.
 
 ### Combining List and Non-Null
 
@@ -1893,31 +1893,31 @@ Following are examples of result coercion with various types and values:
 | `[Int!]!`     | `[1, 2, null]`  | Error: Item cannot be null          |
 | `[Int!]!`     | `[1, 2, Error]` | Error: Error occurred in item       |
 
-## Null-Only-On-Error
+## Semantic-Non-Null
 
-The GraphQL Null-Only-On-Error type is an alternative to the GraphQL Non-Null
+The GraphQL Semantic-Non-Null type is an alternative to the GraphQL Non-Null
 type to disallow null unless accompanied by a field error. This type wraps an
 underlying type, and this type acts identically to that wrapped type, with the
-exception that {null} will result in a field error being raised. A trailing
-asterisk is used to denote a field that uses a Null-Only-On-Error type like
-this: `name: String*`.
+exception that {null} will result in a field error being raised. A leading
+exclamation mark is used to denote a field that uses a Semantic-Non-Null type
+like this: `name: !String`.
 
-Null-Only-On-Error types are only valid for use as an _output type_; they must
+Semantic-Non-Null types are only valid for use as an _output type_; they must
 not be used as an _input type_.
 
 **Nullable vs. Optional**
 
-Fields that return Null-Only-On-Error types will never return the value {null}
-if queried _unless_ an error has been logged for that field.
+Fields that return Semantic-Non-Null types will never return the value {null} if
+queried _unless_ an error has been logged for that field.
 
 **Result Coercion**
 
-To coerce the result of a Null-Only-On-Error type, the coercion of the wrapped
+To coerce the result of a Semantic-Non-Null type, the coercion of the wrapped
 type should be performed. If that result was not {null}, then the result of
-coercing the Null-Only-On-Error type is that result. If that result was {null},
+coercing the Semantic-Non-Null type is that result. If that result was {null},
 then a _field error_ must be raised.
 
-Note: When a _field error_ is raised on a Null-Only-On-Error value, the error
+Note: When a _field error_ is raised on a Semantic-Non-Null value, the error
 does not propagate to the parent field, instead {null} is used for the value.
 For more information on this process, see
 [Handling Field Errors](#sec-Handling-Field-Errors) within the Execution
@@ -1925,50 +1925,50 @@ section.
 
 **Input Coercion**
 
-Null-Only-On-Error types are never valid inputs.
+Semantic-Non-Null types are never valid inputs.
 
 **Type Validation**
 
-1. A Null-Only-On-Error type must wrap an _output type_.
-1. A Null-Only-On-Error type must not wrap another Null-Only-On-Error type.
-1. A Null-Only-On-Error type must not wrap a Non-Null type.
+1. A Semantic-Non-Null type must wrap an _output type_.
+1. A Semantic-Non-Null type must not wrap another Semantic-Non-Null type.
+1. A Semantic-Non-Null type must not wrap a Non-Null type.
 
-### Combining List and Null-Only-On-Error
+### Combining List and Semantic-Non-Null
 
-The List and Null-Only-On-Error wrapping types can compose, representing more
-complex types. The rules for result coercion of Lists and Null-Only-On-Error
+The List and Semantic-Non-Null wrapping types can compose, representing more
+complex types. The rules for result coercion of Lists and Semantic-Non-Null
 types apply in a recursive fashion.
 
-For example if the inner item type of a List is Null-Only-On-Error (e.g.
-`[T*]`), then that List may not contain any {null} items unless associated field
-errors were raised. However if the inner type of a Null-Only-On-Error is a List
-(e.g. `[T]*`), then {null} is not accepted without an accompanying field error
-being raised, however an empty list is accepted.
+For example if the inner item type of a List is Semantic-Non-Null (e.g. `[!T]`),
+then that List may not contain any {null} items unless associated field errors
+were raised. However if the inner type of a Semantic-Non-Null is a List (e.g.
+`![T]`), then {null} is not accepted without an accompanying field error being
+raised, however an empty list is accepted.
 
 Following are examples of result coercion with various types and values:
 
 | Expected Type | Internal Value  | Coerced Result                              |
 | ------------- | --------------- | ------------------------------------------- |
-| `[Int]*`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int]*`      | `null`          | `null` (With logged coercion error)         |
-| `[Int]*`      | `[1, 2, null]`  | `[1, 2, null]`                              |
-| `[Int]*`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `[Int!]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int!]*`     | `null`          | `null` (With logged coercion error)         |
-| `[Int!]*`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
-| `[Int!]*`     | `[1, 2, Error]` | `null` (With logged error)                  |
-| `[Int*]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int*]`      | `null`          | `null`                                      |
-| `[Int*]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[Int*]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `[Int*]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int*]!`     | `null`          | Error: Value cannot be null                 |
-| `[Int*]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[Int*]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `[Int*]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[Int*]*`     | `null`          | `null` (With logged coercion error)         |
-| `[Int*]*`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[Int*]*`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `![Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `![Int]`      | `null`          | `null` (With logged coercion error)         |
+| `![Int]`      | `[1, 2, null]`  | `[1, 2, null]`                              |
+| `![Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `![Int!]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `![Int!]`     | `null`          | `null` (With logged coercion error)         |
+| `![Int!]`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
+| `![Int!]`     | `[1, 2, Error]` | `null` (With logged error)                  |
+| `[!Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[!Int]`      | `null`          | `null`                                      |
+| `[!Int]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[!Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[!Int]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[!Int]!`     | `null`          | Error: Value cannot be null                 |
+| `[!Int]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[!Int]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `![!Int]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `![!Int]`     | `null`          | `null` (With logged coercion error)         |
+| `![!Int]`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `![!Int]`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
 
 ## Directives
 

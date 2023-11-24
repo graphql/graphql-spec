@@ -162,14 +162,14 @@ enum __TypeKind {
   INPUT_OBJECT
   LIST
   NON_NULL
-  NULL_ONLY_ON_ERROR
+  SEMANTIC_NON_NULL
 }
 
 type __Field {
   name: String!
   description: String
   args(includeDeprecated: Boolean = false): [__InputValue!]!
-  type(includeNullOnlyOnError: Boolean! = false): __Type!
+  type(includeSemanticNonNull: Boolean! = false): __Type!
   isDeprecated: Boolean!
   deprecationReason: String
 }
@@ -264,7 +264,7 @@ possible value of the `__TypeKind` enum:
 - {"INPUT_OBJECT"}
 - {"LIST"}
 - {"NON_NULL"}
-- {"NULL_ONLY_ON_ERROR"}
+- {"SEMANTIC_NON_NULL"}
 
 **Scalar**
 
@@ -403,34 +403,32 @@ required inputs for arguments and input object fields.
 The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Non-Null of Lists. However it must not be a
 modified Non-Null type to avoid a redundant Non-Null of Non-Null; nor may it be
-a modified Null-Only-On-Error type since these types are mutually exclusive.
+a modified Semantic-Non-Null type since these types are mutually exclusive.
 
 Fields\:
 
 - `kind` must return `__TypeKind.NON_NULL`.
-- `ofType` must return a type of any kind except Non-Null and
-  Null-Only-On-Error.
+- `ofType` must return a type of any kind except Non-Null and Semantic-Non-Null.
 - All other fields must return {null}.
 
-**Null-Only-On-Error**
+**Semantic-Non-Null**
 
 GraphQL types are nullable. The value {null} is a valid response for field type.
 
-A Null-Only-On-Error type is a type modifier: it wraps another _output type_
-instance in the `ofType` field. Null-Only-On-Error types do not allow {null} as
-a response _unless_ an associated _field error_ has been raised.
+A Semantic-Non-Null type is a type modifier: it wraps another _output type_
+instance in the `ofType` field. Semantic-Non-Null types do not allow {null} as a
+response _unless_ an associated _field error_ has been raised.
 
 The modified type in the `ofType` field may itself be a modified List type,
-allowing the representation of Null-Only-On-Error of Lists. However it must not
-be a modified Null-Only-On-Error type to avoid a redundant Null-Only-On-Error of
-Null-Only-On-Error; nor may it be a modified Non-Null type since these types are
+allowing the representation of Semantic-Non-Null of Lists. However it must not
+be a modified Semantic-Non-Null type to avoid a redundant Null-Only-On-Error of
+Semantic-Non-Null; nor may it be a modified Non-Null type since these types are
 mutually exclusive.
 
 Fields\:
 
-- `kind` must return `__TypeKind.NULL_ONLY_ON_ERROR`.
-- `ofType` must return a type of any kind except Non-Null and
-  Null-Only-On-Error.
+- `kind` must return `__TypeKind.SEMANTIC_NON_NULL`.
+- `ofType` must return a type of any kind except Non-Null and Semantic-Non-Null.
 - All other fields must return {null}.
 
 ### The \_\_Field Type
@@ -447,24 +445,24 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
-  - Accepts the argument `includeNullOnlyOnError` which defaults to {false}. If
+  - Accepts the argument `includeSemanticNonNull` which defaults to {false}. If
     {false}, let {fieldType} be the type of value returned by this field and
     instead return a `__Type` that represents
-    {RecursivelyStripNullOnlyOnErrorTypes(fieldType)}.
+    {RecursivelyStripSemanticNonNullTypes(fieldType)}.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this field is deprecated.
 
-RecursivelyStripNullOnlyOnErrorTypes(type):
+RecursivelyStripSemanticNonNullTypes(type):
 
-- If {type} is a Null-Only-On-Error type:
+- If {type} is a Semantic-Non-Null type:
   - Let {innerType} be the inner type of {type}.
-  - Return {RecursivelyStripNullOnlyOnErrorTypes(innerType)}.
+  - Return {RecursivelyStripSemanticNonNullTypes(innerType)}.
 - Otherwise, return {type}.
 
-Note: This algorithm recursively removes all Null-Only-On-Error type wrappers
-(e.g. `[[Int*]!]*` would become `[[Int]!]`). This is to support legacy clients:
-they can safely treat a Null-Only-On-Error type as the underlying nullable type.
+Note: This algorithm recursively removes all Semantic-Non-Null type wrappers
+(e.g. `![[!Int]!]` would become `[[Int]!]`). This is to support legacy clients:
+they can safely treat a Semantic-Non-Null type as the underlying nullable type.
 
 ### The \_\_InputValue Type
 
