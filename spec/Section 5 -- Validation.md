@@ -422,6 +422,7 @@ FieldsInSetCanMerge(set):
   {set} including visiting fragments and inline fragments.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
+  - {SameStreamDirective(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
     - {fieldA} and {fieldB} must have identical field names.
@@ -455,6 +456,16 @@ SameResponseShape(fieldA, fieldB):
   - If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
 - Return true.
 
+SameStreamDirective(fieldA, fieldB):
+
+- If neither {fieldA} nor {fieldB} has a directive named `stream`.
+  - Return true.
+- If both {fieldA} and {fieldB} have a directive named `stream`.
+  - Let {streamA} be the directive named `stream` on {fieldA}.
+  - Let {streamB} be the directive named `stream` on {fieldB}.
+  - If {streamA} and {streamB} have identical sets of arguments, return true.
+- Return false.
+
 **Explanatory Text**
 
 If multiple field selections with the same response names are encountered during
@@ -463,7 +474,7 @@ unambiguous. Therefore any two field selections which might both be encountered
 for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+name is accomplished by {AnalyzeSelectionSet()} and {ProcessSubSelectionSets()}.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
@@ -1514,6 +1525,174 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $bar) {
     subfieldB
   }
+}
+```
+
+### Defer And Stream Directives Are Used On Valid Root Field
+
+**Formal Specification**
+
+- For every {directive} in a document.
+- Let {directiveName} be the name of {directive}.
+- Let {mutationType} be the root Mutation type in {schema}.
+- Let {subscriptionType} be the root Subscription type in {schema}.
+- If {directiveName} is "defer" or "stream":
+  - The parent type of {directive} must not be {mutationType} or
+    {subscriptionType}.
+
+**Explanatory Text**
+
+The defer and stream directives are not allowed to be used on root fields of the
+mutation or subscription type.
+
+For example, the following document will not pass validation because `@defer`
+has been used on a root mutation field:
+
+```raw graphql counter-example
+mutation {
+  ... @defer {
+    mutationField
+  }
+}
+```
+
+### Defer And Stream Directives Are Used On Valid Operations
+
+**Formal Specification**
+
+- Let {subscriptionFragments} be the empty set.
+- For each {operation} in a document:
+  - If {operation} is a subscription operation:
+    - Let {fragments} be every fragment referenced by that {operation}
+      transitively.
+    - For each {fragment} in {fragments}:
+      - Let {fragmentName} be the name of {fragment}.
+      - Add {fragmentName} to {subscriptionFragments}.
+- For every {directive} in a document:
+  - If {directiveName} is not "defer" or "stream":
+    - Continue to the next {directive}.
+  - Let {ancestor} be the ancestor operation or fragment definition of
+    {directive}.
+  - If {ancestor} is a fragment definition:
+    - If the fragment name of {ancestor} is not present in
+      {subscriptionFragments}:
+      - Continue to the next {directive}.
+  - If {ancestor} is not a subscription operation:
+    - Continue to the next {directive}.
+  - Let {if} be the argument named "if" on {directive}.
+  - {if} must be defined.
+  - Let {argumentValue} be the value passed to {if}.
+  - {argumentValue} must be a variable, or the boolean value "false".
+
+**Explanatory Text**
+
+The defer and stream directives can not be used to defer or stream data in
+subscription operations. If these directives appear in a subscription operation
+they must be disabled using the "if" argument. This rule will not permit any
+defer or stream directives on a subscription operation that cannot be disabled
+using the "if" argument.
+
+For example, the following document will not pass validation because `@defer`
+has been used in a subscription operation with no "if" argument defined:
+
+```raw graphql counter-example
+subscription sub {
+  newMessage {
+    ... @defer {
+      body
+    }
+  }
+}
+```
+
+### Defer And Stream Directive Labels Are Unique
+
+**Formal Specification**
+
+- Let {labelValues} be an empty set.
+- For every {directive} in the document:
+  - Let {directiveName} be the name of {directive}.
+  - If {directiveName} is "defer" or "stream":
+    - For every {argument} in {directive}:
+      - Let {argumentName} be the name of {argument}.
+      - Let {argumentValue} be the value passed to {argument}.
+      - If {argumentName} is "label":
+        - {argumentValue} must not be a variable.
+        - {argumentValue} must not be present in {labelValues}.
+        - Append {argumentValue} to {labelValues}.
+
+**Explanatory Text**
+
+The `@defer` and `@stream` directives each accept an argument "label". This
+label may be used by GraphQL clients to uniquely identify response payloads. If
+a label is passed, it must not be a variable and it must be unique within all
+other `@defer` and `@stream` directives in the document.
+
+For example the following document is valid:
+
+```graphql example
+{
+  dog {
+    ...fragmentOne
+    ...fragmentTwo @defer(label: "dogDefer")
+  }
+  pets @stream(label: "petStream") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentTwo on Dog {
+  owner {
+    name
+  }
+}
+```
+
+For example, the following document will not pass validation because the same
+label is used in different `@defer` and `@stream` directives.:
+
+```raw graphql counter-example
+{
+  dog {
+    ...fragmentOne @defer(label: "MyLabel")
+  }
+  pets @stream(label: "MyLabel") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+```
+
+### Stream Directives Are Used On List Fields
+
+**Formal Specification**
+
+- For every {directive} in a document.
+- Let {directiveName} be the name of {directive}.
+- If {directiveName} is "stream":
+  - Let {adjacent} be the AST node the directive affects.
+  - {adjacent} must be a List type.
+
+**Explanatory Text**
+
+GraphQL directive locations do not provide enough granularity to distinguish the
+type of fields used in a GraphQL document. Since the stream directive is only
+valid on list fields, an additional validation rule must be used to ensure it is
+used correctly.
+
+For example, the following document will only pass validation if `field` is
+defined as a List type in the associated schema.
+
+```graphql counter-example
+query {
+  field @stream(initialCount: 0)
 }
 ```
 

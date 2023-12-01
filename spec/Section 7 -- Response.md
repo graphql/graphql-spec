@@ -10,7 +10,7 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A response to a GraphQL request must be a map.
+A response to a GraphQL request must be a map or a response stream of maps.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -22,14 +22,40 @@ key `data`. The value of this entry is described in the "Data" section. If the
 request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
+When the response of the GraphQL operation is a response stream, the first value
+will be the initial response. All subsequent values may contain an `incremental`
+entry, containing a list of Defer or Stream payloads.
+
+The `label` and `path` entries on Defer and Stream payloads are used by clients
+to identify the `@defer` or `@stream` directive from the GraphQL operation that
+triggered this response to be included in an `incremental` entry on a value
+returned by the response stream. When a label is provided, the combination of
+these two entries will be unique across all Defer and Stream payloads returned
+in the response stream.
+
+If the response of the GraphQL operation is a response stream, each response map
+must contain an entry with key `hasNext`. The value of this entry is `true` for
+all but the last response in the stream. The value of this entry is `false` for
+the last response of the stream. This entry must not be present for GraphQL
+operations that return a single response map.
+
+The GraphQL service may determine there are no more values in the response
+stream after a previous value with `hasNext` equal to `true` has been emitted.
+In this case the last value in the response stream should be a map without
+`data` and `incremental` entries, and a `hasNext` entry with a value of `false`.
+
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
-restrictions on its contents.
+restrictions on its contents. When the response of the GraphQL operation is a
+response stream, implementors may send subsequent response maps containing only
+`hasNext` and `extensions` entries. Defer and Stream payloads may also contain
+an entry with the key `extensions`, also reserved for implementors to extend the
+protocol however they see fit.
 
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
-three described above.
+five described above.
 
 Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present in a
@@ -107,14 +133,8 @@ syntax element.
 If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
-`null` result is intentional or caused by a runtime error.
-
-This field should be a list of path segments starting at the root of the
-response and ending with the field associated with the error. Path segments that
-represent fields should be strings, and path segments that represent list
-indices should be 0-indexed integers. If the error happens in an aliased field,
-the path to the error should use the aliased name, since it represents a path in
-the response, not in the request.
+`null` result is intentional or caused by a runtime error. The value of this
+field is described in the [Path](#sec-Path) section.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
@@ -243,6 +263,172 @@ discouraged.
   ]
 }
 ```
+
+### Incremental Delivery
+
+The `pending` entry in the response is a non-empty list of references to pending
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field should appear on the initial and possibly subsequent
+payloads.
+
+The `incremental` entry in the response is a non-empty list of data fulfilling
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field may appear on the subsequent payloads.
+
+The `completed` entry in the response is a non-empty list of references to
+completed Defer or Stream results. If errors are
+
+For example, a query containing both defer and stream:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    name
+    films @stream(initialCount: 1, label: "filmsStream") {
+      title
+    }
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Response 1, the initial response does not contain any deferred or streamed
+results.
+
+```json example
+{
+  "data": {
+    "person": {
+      "name": "Luke Skywalker",
+      "films": [{ "title": "A New Hope" }]
+    }
+  },
+  "pending": [
+    { "path": ["person"], "label": "homeWorldDefer" },
+    { "path": ["person", "films"], "label": "filmStream" }
+  ],
+  "hasNext": true
+}
+```
+
+Response 2, contains the defer payload and the first stream payload.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["person"],
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "path": ["person", "films"],
+      "items": [{ "title": "The Empire Strikes Back" }]
+    }
+  ],
+  "completed": [{ "path": ["person"], "label": "homeWorldDefer" }],
+  "hasNext": true
+}
+```
+
+Response 3, contains the final stream payload. In this example, the underlying
+iterator does not close synchronously so {hasNext} is set to {true}. If this
+iterator did close synchronously, {hasNext} would be set to {false} and this
+would be the final response.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["person", "films"],
+      "items": [{ "title": "Return of the Jedi" }]
+    }
+  ],
+  "hasNext": true
+}
+```
+
+Response 4, contains no incremental payloads. {hasNext} set to {false} indicates
+the end of the response stream. This response is sent when the underlying
+iterator of the `films` field closes.
+
+```json example
+{
+  "completed": [{ "path": ["person", "films"], "label": "filmStream" }],
+  "hasNext": false
+}
+```
+
+#### Streamed data
+
+Streamed data may appear as an item in the `incremental` entry of a response.
+Streamed data is the result of an associated `@stream` directive in the
+operation. A stream payload must contain `items` and `path` entries and may
+contain `errors`, and `extensions` entries.
+
+##### Items
+
+The `items` entry in a stream payload is a list of results from the execution of
+the associated @stream directive. This output will be a list of the same type of
+the field with the associated `@stream` directive. If an error has caused a
+`null` to bubble up to a field higher than the list field with the associated
+`@stream` directive, then the stream will complete with errors.
+
+#### Deferred data
+
+Deferred data is a map that may appear as an item in the `incremental` entry of
+a response. Deferred data is the result of an associated `@defer` directive in
+the operation. A defer payload must contain `data` and `path` entries and may
+contain `errors`, and `extensions` entries.
+
+##### Data
+
+The `data` entry in a Defer payload will be of the type of a particular field in
+the GraphQL result. The adjacent `path` field will contain the path segments of
+the field this data is associated with. If an error has caused a `null` to
+bubble up to a field higher than the field that contains the fragment with the
+associated `@defer` directive, then the fragment will complete with errors.
+
+#### Path
+
+A `path` field allows for the association to a particular field in a GraphQL
+result. This field should be a list of path segments starting at the root of the
+response and ending with the field to be associated with. Path segments that
+represent fields should be strings, and path segments that represent list
+indices should be 0-indexed integers. If the path is associated to an aliased
+field, the path should use the aliased name, since it represents a path in the
+response, not in the request.
+
+When the `path` field is present on a Stream payload, it indicates that the
+`items` field represents the partial result of the list field containing the
+corresponding `@stream` directive. All but the non-final path segments must
+refer to the location of the list field containing the corresponding `@stream`
+directive. The final segment of the path list must be a 0-indexed integer. This
+integer indicates that this result is set at a range, where the beginning of the
+range is at the index of this integer, and the length of the range is the length
+of the data.
+
+When the `path` field is present on a Defer payload, it indicates that the
+`data` field represents the result of the fragment containing the corresponding
+`@defer` directive. The path segments must point to the location of the result
+of the field containing the associated `@defer` directive.
+
+When the `path` field is present on an "Error result", it indicates the response
+field which experienced the error.
+
+#### Label
+
+Stream and Defer payloads may contain a string field `label`. This `label` is
+the same label passed to the `@defer` or `@stream` directive associated with the
+response. This allows clients to identify which `@defer` or `@stream` directive
+is associated with this value. `label` will not be present if the corresponding
+`@defer` or `@stream` directive is not passed a `label` argument.
 
 ## Serialization Format
 
