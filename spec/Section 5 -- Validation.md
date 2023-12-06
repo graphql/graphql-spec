@@ -1528,7 +1528,7 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 }
 ```
 
-### Stream Directives Are Used On Valid Root Field
+### Defer And Stream Directives Are Used On Valid Root Field
 
 **Formal Specification**
 
@@ -1536,25 +1536,27 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 - Let {directiveName} be the name of {directive}.
 - Let {mutationType} be the root Mutation type in {schema}.
 - Let {subscriptionType} be the root Subscription type in {schema}.
-- If {directiveName} is "stream":
+- If {directiveName} is "defer" or "stream":
   - The parent type of {directive} must not be {mutationType} or
     {subscriptionType}.
 
 **Explanatory Text**
 
-The stream directives is not allowed to be used on root fields of the mutation
-or subscription type.
+The defer and stream directives are not allowed to be used on root fields of the
+mutation or subscription type.
 
-For example, the following document will not pass validation because `@stream`
+For example, the following document will not pass validation because `@defer`
 has been used on a root mutation field:
 
 ```raw graphql counter-example
 mutation {
-  mutationField @stream
+  ... @defer {
+    mutationField
+  }
 }
 ```
 
-### Stream Directives Are Used On Valid Operations
+### Defer And Stream Directives Are Used On Valid Operations
 
 **Formal Specification**
 
@@ -1567,7 +1569,7 @@ mutation {
       - Let {fragmentName} be the name of {fragment}.
       - Add {fragmentName} to {subscriptionFragments}.
 - For every {directive} in a document:
-  - If {directiveName} is not "stream":
+  - If {directiveName} is not "defer" or "stream":
     - Continue to the next {directive}.
   - Let {ancestor} be the ancestor operation or fragment definition of
     {directive}.
@@ -1584,30 +1586,33 @@ mutation {
 
 **Explanatory Text**
 
-The stream directives can not be used to stream data in subscription operations.
-If these directives appear in a subscription operation they must be disabled
-using the "if" argument. This rule will not permit any stream directives on a
-subscription operation that cannot be disabled using the "if" argument.
+The defer and stream directives can not be used to defer or stream data in
+subscription operations. If these directives appear in a subscription operation
+they must be disabled using the "if" argument. This rule will not permit any
+defer or stream directives on a subscription operation that cannot be disabled
+using the "if" argument.
 
-For example, the following document will not pass validation because `@stream`
+For example, the following document will not pass validation because `@defer`
 has been used in a subscription operation with no "if" argument defined:
 
 ```raw graphql counter-example
 subscription sub {
-  newMessage @stream {
-    body
+  newMessage {
+    ... @defer {
+      body
+    }
   }
 }
 ```
 
-### Stream Directive Labels Are Unique
+### Defer And Stream Directive Labels Are Unique
 
 **Formal Specification**
 
 - Let {labelValues} be an empty set.
 - For every {directive} in the document:
   - Let {directiveName} be the name of {directive}.
-  - If {directiveName} is "stream":
+  - If {directiveName} is "defer" or "stream":
     - For every {argument} in {directive}:
       - Let {argumentName} be the name of {argument}.
       - Let {argumentValue} be the value passed to {argument}.
@@ -1618,39 +1623,50 @@ subscription sub {
 
 **Explanatory Text**
 
-The `@stream` directive accepts an argument "label". This label may be used by
-GraphQL clients to uniquely identify response payloads. If a label is passed, it
-must not be a variable and it must be unique within all other `@stream`
-directives in the document.
+The `@defer` and `@stream` directives each accept an argument "label". This
+label may be used by GraphQL clients to uniquely identify response payloads. If
+a label is passed, it must not be a variable and it must be unique within all
+other `@defer` and `@stream` directives in the document.
 
 For example the following document is valid:
 
 ```graphql example
 {
-  pets @stream {
-    name
+  dog {
+    ...fragmentOne
+    ...fragmentTwo @defer(label: "dogDefer")
   }
   pets @stream(label: "petStream") {
-    owner {
-      name
-    }
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentTwo on Dog {
+  owner {
+    name
   }
 }
 ```
 
 For example, the following document will not pass validation because the same
-label is used in different `@stream` directives.:
+label is used in different `@defer` and `@stream` directives.:
 
 ```raw graphql counter-example
 {
+  dog {
+    ...fragmentOne @defer(label: "MyLabel")
+  }
   pets @stream(label: "MyLabel") {
     name
   }
-  pets @stream(label: "MyLabel") {
-    owner {
-      name
-    }
-  }
+}
+
+fragment fragmentOne on Dog {
+  name
 }
 ```
 

@@ -256,10 +256,11 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
-  is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetailsList} be the value of the first entry in {groupedFieldSet}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
+- Let {node} be the corresponding entry on {fieldDetails}.
+- Let {fieldName} be the name of {node}. Note: This value is unaffected if an
+  alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}
 - Let {fieldStream} be the result of running
@@ -327,13 +328,13 @@ Executing the root selection set works similarly for queries (parallel),
 mutations (serial), and subscriptions (where it is executed for each event in
 the underlying Source Stream).
 
-First, the selection set is turned into a grouped field set; then, we execute
-this grouped field set and return the resulting {data} and {errors}.
+First, the selection set is turned into a field plan; then, we execute this
+field plan and return the resulting {data} and {errors}.
 
-If an operation contains `@stream` directives, execution may also result in an
-Subsequent Result stream in addition to the initial response. The procedure for
-yielding subsequent results is specified by the {YieldSubsequentResults()}
-algorithm.
+If an operation contains `@defer` or `@stream` directives, execution may also
+result in an Subsequent Result stream in addition to the initial response. The
+procedure for yielding subsequent results is specified by the
+{YieldSubsequentResults()} algorithm.
 
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
@@ -341,13 +342,13 @@ serial):
 - If {serial} is not provided, initialize it to {false}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
+- Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
 - Let {data} and {incrementalDigests} be the result of
-  {ExecuteGroupedFieldSet(groupedFieldSet, queryType, initialValue,
-  variableValues)} _serially_ if {serial} is {true}, _normally_ (allowing
-  parallelization) otherwise.
+  {ExecuteFieldPlan(fieldPlan, objectType, initialValue, variableValues,
+  serial)}.
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
-- Let {newPendingResults} and {futures} be the results of
+- Let {newPendingResults}, {futures}, and {deferStates} be the result of
   {ProcessIncrementalDigests(incrementalDigests)}.
 - Let {ids} and {initialPayload} be the result of
   {GetIncrementalPayload(newPendingResults)}.
@@ -355,19 +356,32 @@ serial):
   {errors}.
 - Set the corresponding entries on {initialPayload} to {data} and {errors}.
 - Let {subsequentResults} be the result of {YieldSubsequentResults(ids,
-  futures)}.
+  deferStates, futures)}.
 - Return {initialPayload} and {subsequentResults}.
 
 ### Field Collection
 
-Before execution, the selection set is converted to a grouped field set by
-calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+Before execution, selection set(s) are converted to a field plan via a two-step
+process. In the first step, selections are converted into a grouped field set by
+calling {CollectFields()}. Each entry in a grouped field set is a list of Field
+Details records describing all fields that share a response key (the alias if
+defined, otherwise the field name). This ensures all fields with the same
+response key (including those in referenced fragments) are executed at the same
+time.
 
-As an example, collecting the fields of this selection set would collect two
-instances of the field `a` and one of field `b`:
+A Field Details record is a structure containing:
+
+- {node}: the field node itself.
+- {deferUsage}: the Defer Usage record corresponding to the deferred fragment
+  enclosing this field, not defined if the field was not deferred.
+
+Defer Usage records contain information derived from the presence of a `@defer`
+directive on a fragment and are structures containing:
+
+- {label}: value of the corresponding argument to the `@defer` directive.
+
+As an example, collecting the fields of this selection set would return field
+details related to two instances of the field `a` and one of field `b`:
 
 ```graphql example
 {
@@ -389,7 +403,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, parentDeferUsage,
+deferUsage, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -407,14 +422,25 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
+    - Let {fieldDeferUsage} be {deferUsage} if {deferUsage} is defined;
+      otherwise, let {fieldDeferUsage} be {parentDeferUsage}.
+    - Let {fieldDetails} be a new Field Details record created from {selection}
+      and {fieldDeferUsage}.
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Append {fieldDetails} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
+    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
+      argument is not {false} and is not a variable in {variableValues} with the
+      value {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is not defined:
+      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
@@ -423,9 +449,16 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - If {deferDirective} is defined:
+      - Let {label} be the value or the variable to {deferDirective}'s {label}
+        argument.
+      - Let {fragmentDeferUsage} be a new Defer Usage record created from
+        {label}.
+    - Otherwise:
+      - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      parentDeferUsage, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -438,9 +471,22 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is false, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - If {InlineFragment} provides the directive `@defer` and its {if} argument
+      is not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is defined:
+      - Let {label} be the value or the variable to {deferDirective}'s {label}
+        argument.
+      - Let {fragmentDeferUsage} be a new Defer Usage record created from
+        {label}.
+    - Otherwise:
+      - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      parentDeferUsage, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -464,6 +510,116 @@ DoesFragmentTypeApply(objectType, fragmentType):
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
 
+### Field Plan Generation
+
+In the second step, the original grouped field set is converted into a field
+plan via analysis of the Field Details.
+
+A Field Plan record is a structure containing:
+
+- {groupedFieldSet}: the grouped field set for the current result.
+- {newGroupedFieldSets}: an unordered map containing additional grouped field
+  sets for related to previously encountered Defer Usage records. The map is
+  keyed by the unique set of Defer Usage records to which these new grouped
+  field sets belong. (See below for an explanation of why these additional
+  grouped field sets may be required.)
+- {newDeferUsages}: a list of Defer Usages records newly encountered when
+  processing these fields, i.e. directly enclosing them.
+- {newGroupedFieldSetsRequiringDeferral}: a map containing additional grouped
+  field sets for new incremental results relating to the newly encountered
+  deferred fragments. The map is keyed by the set of Defer Usage records to
+  which these new grouped field sets belong.
+
+Additional grouped field sets are constructed carefully so as to ensure that
+each field is executed exactly once and so that fields are grouped according to
+the set of deferred fragments that include them.
+
+Deferred grouped field sets do not always require initiating deferral. For
+example, when a parent field is deferred by multiple fragments, deferral is
+initiated on the parent field. New grouped field sets for child fields will be
+created if the child fields are not all present in all of the deferred
+fragments, but these new grouped field sets, while representing deferred fields,
+do not require additional deferral. The produced field plan will also retain
+this information.
+
+BuildFieldPlan(groupedFieldSet, parentDeferUsages, knownDeferUsages):
+
+- If {parentDeferUsages} is not provided, initialize it to the empty set.
+- If {knownDeferUsages} is not provided, initialize it to the empty set.
+- Initialize {originalGroupedFieldSet} to an empty ordered map.
+- Initialize {newDeferUsages} to the empty set.
+- Initialize {newGroupedFieldSets} to an empty unordered map.
+- Initialize {newGroupedFieldSetsRequiringDeferral} to an empty unordered map.
+- For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
+  - Let {deferUsageSet} and {keyNewDeferUsages} be the result of
+    {GetDeferUsageSet(groupForResponseKey, parentDeferUsages,
+    knownDeferUsages)}.
+  - Append all items in {keyNewDeferUsages} to {newDeferUsages}.
+  - If {IsSameSet(deferUsageSet, parentDeferUsages)} is {true}:
+    - Let {groupedFieldSet} be {originalGroupedFieldSet}.
+  - Otherwise:
+    - Let {groupedFieldSets} be {newGroupedFieldSetsRequiringDeferral} if
+      {ShouldInitiateDefer(deferUsageSet, parentDeferUsages)} is {true},
+      otherwise let it be {newGroupedFieldSets}:
+    - For each {key} in {groupedFieldSets}:
+      - If {IsSameSet(key, deferUsageSet)} is {true}:
+        - Let {groupedFieldSet} be the map in {groupedFieldSets} for {key}.
+    - If {groupedFieldSet} is not defined:
+      - Initialize {groupedFieldSet} to an empty ordered map.
+      - Set the entry for {deferUsageSet} in {groupedFieldSets} to
+        {groupedFieldSet}.
+  - Set the entry for {responseKey} in {originalGroupedFieldSet} to
+    {groupForResponseKey}.
+- Let {fieldPlan} be a new Field Plan record created from
+  {originalGroupedFieldSet}, {newGroupedFieldSets}, {newDeferUsages}, and
+  {newGroupedFieldSetsRequiringDeferral}.
+- Return {fieldPlan}.
+
+GetDeferUsageSet(fieldDetailsList, parentDeferUsages, knownDeferUsages):
+
+- Initialize {newDeferUsages} to the empty set.
+- Initialize {deferUsageSet} to the empty set.
+- Let {inInitialResult} be {false}.
+- Let {inParentResult} be {false}.
+- For each {fieldDetails} in {fieldDetailsList}:
+  - Let {deferUsage} be the corresponding entry on {fieldDetails}.
+  - If {deferUsage} is not defined:
+    - Let {inInitialResult} be {true}.
+    - Continue to the next {fieldDetails} in {fieldDetailsList}.
+  - Otherwise, if {deferUsage} is in {parentDeferUsages}:
+    - Let {inParentResult} be {true}.
+  - Add {deferUsage} to {deferUsageSet}.
+  - If {deferUsage} is not in {knownDeferUsages}:
+    - Add {deferUsage} to {newDeferUsages}.
+- If {inInitialResult} is true, reset {deferUsageSet} to the empty set;
+  otherwise, if {inParentResult} is {true}, let {deferUsageSet} be the result of
+  {FilterDeferUsages(deferUsageSet)}.
+- Return {deferUsageSet} and {newDeferUsages}.
+
+FilterDeferUsages(deferUsages, parentDeferUsages):
+
+- Initialize {filteredDeferUsages} to the empty set.
+- For each {deferUsage} in {deferUsages}:
+  - If {deferUsage} is in {parentDeferUsages}:
+    - Add {deferUsage} to {filteredDeferUsages}.
+- Return {filteredDeferUsages}.
+
+ShouldInitiateDefer(deferUsageSet, parentDeferUsageSet):
+
+- For each {deferUsage} in {deferUsageSet}:
+  - If {parentDeferUsageSet} does not contain {deferUsage}:
+    - Return {true}.
+- Return {false}.
+
+IsSameSet(setA, setB):
+
+- If the size of setA is not equal to the size of setB:
+  - Return {false}.
+- For each {item} in {setA}:
+  - If {setB} does not contain {item}:
+    - Return {false}.
+- Return {true}.
+
 ### Processing Incremental Digests
 
 An Incremental Digest is a structure containing:
@@ -475,11 +631,28 @@ An Incremental Digest is a structure containing:
   contain additional Incremental Digests that will immediately or eventually
   complete those results.
 
-ProcessIncrementalDigests(incrementalDigests):
+Given the current state of any pending results, if any, the
+{ProcessIncrementalDigests()} algorithm describes how incremental digests are
+processed to update that state as incremental digests are encountered.
 
+ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
+
+- Let {deferStates} be a new unordered map containing all entries in
+  {originalDeferStates}.
 - Let {newPendingResults} and {futures} be lists containing all of the items
   from the corresponding lists within each item of {incrementalDigests}.
-- Return {newPendingResults} and {futures}.
+- For each {future} in {futures}:
+  - Let {deferredFragments} be the list of deferred fragments completed by
+    {future}.
+  - For each {deferredFragment} of {deferredFragments}:
+    - Let {deferState} be the entry in {deferStates} for {deferredFragment}.
+    - Let {newDeferState} be a new unordered map containing all of the entries
+      in {deferState}.
+    - Let {count} be the corresponding entry on {newDeferState} for
+      {deferredFragment}.
+    - Let {newCount} be {count} + 1 if {count} is defined, otherwise {0}.
+    - Set the entry for {deferredFragment} in {deferStates} to {deferState}.
+- Return {newPendingResults}, {futures}, and {deferStates}.
 
 ### Yielding Subsequent Results
 
@@ -489,21 +662,23 @@ initiated. Then, any completed future executions are processed to determine the
 payload to be yielded. Finally, if any pending results remain, the procedure is
 repeated recursively.
 
-YieldSubsequentResults(originalIds, newFutures, initiatedFutures):
+YieldSubsequentResults(originalIds, originalDeferStates, newFutures,
+initiatedFutures):
 
 - Initialize {futures} to a list containing all items in {initiatedFutures}.
 - For each {future} in {newFutures}:
   - If {future} has not been initiated, initiate it.
   - Append {future} to {futures}.
 - Wait for any future execution contained in {futures} to complete.
-- Let {updates}, {newPendingResults}, {newestFutures}, and {remainingFutures} be
-  the result of {ProcessCompletedFutures(futures)}.
+- Let {deferStates}, {updates}, {newPendingResults}, {newestFutures}, and
+  {remainingFutures} be the result of {ProcessCompletedFutures(futures,
+  originalDeferStates)}.
 - Let {ids} and {payload} be the result of
   {GetIncrementalPayload(newPendingResults, originalIds, updates)}.
-- Yield {payload}.
+- If {hasNext} is not the only entry on {payload}, yield {payload}.
 - If {hasNext} on {payload} is {false}:
   - Complete this subsequent result stream and return.
-- Yield the results of {YieldSubsequentResults(ids, newestFutures,
+- Yield the results of {YieldSubsequentResults(ids, deferStates, newestFutures,
   remainingFutures)}.
 
 GetIncrementalPayload(newPendingResults, originalIds, updates):
@@ -530,14 +705,25 @@ GetIncrementalPayload(newPendingResults, originalIds, updates):
       {errors}.
     - Append {completedEntry} to {completed}.
   - For each {incrementalResult} in {incremental}:
-    - Let {stream} be the corresponding entry on {incrementalResult}.
-    - Let {id} be the corresponding entry on {ids} for {stream}.
-    - If {id} is not defined, continue to the next {incrementalResult} in
-      {incremental}.
-    - Let {items} and {errors} be the corresponding entries on
-      {incrementalResult}.
-    - Let {incrementalEntry} be an unordered map containing {id}, {items}, and
-      {errors}.
+    - If {incrementalResult} represents completion of Stream Items:
+      - Let {stream} be the corresponding entry on {incrementalResult}.
+      - Let {id} be the corresponding entry on {ids} for {stream}.
+      - If {id} is not defined, continue to the next {incrementalResult} in
+        {incremental}.
+      - Let {items} and {errors} be the corresponding entries on
+        {incrementalResult}.
+      - Let {incrementalEntry} be an unordered map containing {id}, {items}, and
+        {errors}.
+    - Otherwise:
+      - Let {id} and {subPath} be the result of calling
+        {GetIdAndSubPath(incrementalResult, ids)}.
+      - If {id} is not defined, continue to the next {incrementalResult} in
+        {incremental}.
+      - Let {data} and {errors} be the corresponding entries on
+        {incrementalResult}.
+      - Let {incrementalEntry} be an unordered map containing {id}, {data}, and
+        {errors}.
+    - Append {incrementalEntry} to {incremental}.
 - Let {hasNext} be {false} if {ids} is empty, otherwise {true}.
 - Let {payload} be an unordered map containing {hasNext}.
 - If {pending} is not empty:
@@ -547,6 +733,29 @@ GetIncrementalPayload(newPendingResults, originalIds, updates):
 - If {completed} is not empty:
   - Set the corresponding entry on {payload} to {completed}.
 - Return {ids} and {payload}.
+
+GetIdAndSubPath(deferredResult, ids):
+
+- Initialize {releasedFragments} to an empty list.
+- Let {deferredFragments} be the corresponding entry on {deferredResult}.
+- For each {deferredFragment} in {deferredFragments}:
+  - Let {id} be the entry for {deferredFragment} on {ids}.
+  - If {id} is defined, append {deferredFragment} to {releasedFragments}.
+- Let {currentFragment} be the first member of {releasedFragments}.
+- Let {currentPath} be the entry for {path} on {firstDeferredFragment}.
+- Let {currentPathLength} be the length of {currentPath}.
+- For each remaining {deferredFragment} within {deferredFragments}.
+  - Let {path} be the corresponding entry on {deferredFragment}.
+  - Let {pathLength} be the length of {path}.
+  - If {pathLength} is larger than {currentPathLength}:
+    - Set {currentPathLength} to {pathLength}.
+    - Set {currentFragment} to {deferredFragment}.
+- Let {id} be the entry on {ids} for {currentFragment}.
+- If {id} is not defined, return.
+- Let {path} be the corresponding entry on {currentFragment}.
+- Let {subPath} be the subset of {path}, omitting the first {currentPathLength}
+  entries.
+- Return {id} and {subPath}.
 
 ### Processing Completed Futures
 
@@ -565,18 +774,23 @@ for any completed futures, as long as the new Incremental Digests do not contain
 any new pending results. If they do, first a new payload is yielded, notifying
 the client that new pending results have been encountered.
 
-ProcessCompletedFutures(maybeCompletedFutures, updates, pending,
-incrementalDigests, remainingFutures):
+ProcessCompletedFutures(maybeCompletedFutures, originalDeferStates, updates,
+pending, incrementalDigests, remainingFutures):
 
 - If {updates}, {pending}, {incrementalDigests}, or {remainingFutures} are not
   provided, initialize them to empty lists.
 - Let {completedFutures} be a list containing all completed futures from
   {maybeCompletedFutures}; append the remaining futures to {remainingFutures}.
+- Let {deferStates} be {originalDeferStates}.
 - Initialize {supplementalIncrementalDigests} to an empty list.
 - For each {completedFuture} in {completedFutures}:
   - Let {result} be the result of {completedFuture}.
-  - Let {update} and {resultIncrementalDigests} be the result of calling
-    {GetUpdatesForStreamItems(result)}.
+  - If {result} represents completion of Stream Items:
+    - Let {update} and {resultIncrementalDigests} be the result of calling
+      {GetUpdatesForStreamItems(result)}.
+  - Otherwise:
+    - Let {deferStates}, {update}, and {resultIncrementalDigests} be the result
+      of calling {GetUpdatesForDeferredResult(deferStates, result)}.
   - Append {update} to {updates}.
   - For each {resultIncrementalDigest} in {resultIncrementalDigests}:
     - If {resultIncrementalDigest} contains a {newPendingResults} entry:
@@ -584,15 +798,16 @@ incrementalDigests, remainingFutures):
     - Otherwise:
       - Append {resultIncrementalDigest} to {supplementalIncrementalDigests}.
 - If {supplementalIncrementalDigests} is empty:
-  - Let {newPendingResults} and {futures} be the result of
-    {ProcessIncrementalDigests(incrementalDigests)}.
+  - Let {newPendingResults}, {futures}, and {deferStates} be the result of
+    {ProcessIncrementalDigests(incrementalDigests, originalDeferStates)}.
   - Append all items in {newPendingResults} to {pending}.
-  - Return {updates}, {pending}, {newFutures}, and {remainingFutures}.
-- Let {newPendingResults} and {futures} be the result of
-  {ProcessIncrementalDigests(supplementalIncrementalDigests)}.
+  - Return {deferStates}, {updates}, {pending}, {newFutures}, and
+    {remainingFutures}.
+- Let {newPendingResults}, {futures}, and {deferStates} be the result of
+  {ProcessIncrementalDigests(supplementalIncrementalDigests, deferStates)}.
 - Append all items in {newPendingResults} to {pending}.
-- Return the result of {ProcessCompletedFutures(futures, updates, pending,
-  incrementalDigests, remainingFutures)}.
+- Return the result of {ProcessCompletedFutures(futures, deferStates, updates,
+  pending, incrementalDigests, remainingFutures)}.
 
 GetUpdatesForStreamItems(streamItems):
 
@@ -609,8 +824,105 @@ GetUpdatesForStreamItems(streamItems):
   - Let {incremental} be a list containing {streamItems}.
   - Let {update} be an unordered map containing {incremental}.
   - Let {incrementalDigests} be the corresponding entry on {streamItems}.
-- Let {updates} be a list containing {update}.
-- Return {updates} and {incrementalDigests}.
+- Return {update} and {incrementalDigests}.
+
+GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
+
+- Let {deferStates} be a new unordered map containing all of the entries in
+  {originalDeferStates}.
+- Initialize {incrementalDigests} to an empty list.
+- Let {deferredFragments}, {data}, and {errors} be the corresponding entries on
+  {deferredResult}.
+- Initialize {completed} to an empty list.
+- If {data} is {null}:
+  - For each {deferredFragment} of {deferredFragments}:
+    - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
+    - If {deferState} is not defined, continue to the next {deferredFragment} of
+      {deferredFragments}.
+    - Remove the entry for {deferredFragment} on {completed}.
+    - Append {deferredFragment} to {completed}.
+  - Let {update} be an unordered map containing {completed} and {errors}.
+  - Return {update} and {incrementalDigests}.
+- Initialize {incremental} to an empty list.
+- For each {deferredFragment} of {deferredFragments}:
+  - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
+  - If {deferState} is not defined, continue to the next {deferredFragment} of
+    {deferredFragments}.
+  - Let {newDeferState} be a new unordered map containing all entries on
+    {deferState}.
+  - Set the entry for {deferredFragment} on {deferStates} to {newDeferState}.
+  - Decrement {count} on {newDeferState}.
+  - Let {pending} be a new set containing all of the members of {pending} on
+    {newDeferState}.
+  - Set the corresponding entry on {newDeferState} to {pending}.
+  - Add {deferredResult} to {pending}.
+  - If {count} on {newDeferState} is equal to {0}:
+    - Remove the entry for {deferredFragment} on {deferStates}.
+    - Append {deferredFragment} to {completed}.
+    - Append all items in {pending} on {newDeferState} to {incremental}.
+- For each {deferredResult} in {completed}:
+  - Let {deferredFragments} be the corresponding entry on {deferredResult}.
+  - For each {deferredFragment} in {deferredFragments}:
+    - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
+    - If {deferState} is not defined, continue to the next {deferredFragment} of
+      {deferredFragments}.
+    - Let {pending} be the corresponding entry on {deferState}.
+    - If {pending} contains {deferredResult}:
+      - Let {newDeferState} be a new unordered map containing all entries on
+        {deferState}.
+      - Set the entry for {deferredFragment} on {deferStates} to {deferState}.
+      - Let {pending} be a new set containing all of the members of {pending} on
+        {newDeferState}.
+      - Set the corresponding entry on {newDeferState} to {pending}.
+      - Remove {deferredResult} from {pending}.
+- Let {update} be an unordered map containing {incremental} and {completed}.
+- Return {deferStates}, {update}, and {incrementalDigests}.
+
+## Executing a Field Plan
+
+To execute a field plan, the object value being evaluated and the object type
+need to be known, as well as whether the non-deferred grouped field set must be
+executed serially, or may be executed in parallel.
+
+ExecuteFieldPlan(fieldPlan, objectType, objectValue, variableValues, serial,
+path, deferUsageSet, deferMap):
+
+- If {path} is not provided, initialize it to an empty list.
+- Let {groupedFieldSet}, {newGroupedFieldSets}, {newDeferUsages}, and
+  {newGroupedFieldSetsRequiringDeferral} be the corresponding entries on
+  {fieldPlan}.
+- Let {newDeferMap} and {newPendingResults} be the result of
+  {GetNewDeferredFragments(newDeferUsages, path, deferMap)}.
+- Allowing for parallelization, perform the following steps:
+  - Let {data} and {nestedIncrementalDigests} be the result of running
+    {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+    variableValues, path, deferUsageSet, newDeferMap)} _serially_ if {serial} is
+    {true}, _normally_ (allowing parallelization) otherwise.
+  - Let {incrementalDigest} be the result of
+    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    newGroupedFieldSets, false, path, newDeferMap)}.
+  - Let {deferredIncrementalDigest} be the result of
+    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    newGroupedFieldSetsRequiringDeferral, true, path, newDeferMap)}.
+- Set the corresponding entry on {deferredIncrementalDigest} to
+  {newPendingResults}.
+- Let {incrementalDigests} be a list containing {incrementalDigest},
+  {deferredIncrementalDigest}, and all items in {nestedIncrementalDigests}.
+- Return {data} and {incrementalDigests}.
+
+GetNewDeferredFragments(newDeferUsages, path, deferMap):
+
+- Initialize {newDeferredFragments} to an empty list.
+- If {newDeferUsages} is empty:
+  - Return {deferMap} and {newDeferredFragments}.
+- Let {newDeferMap} be a new unordered map of Defer Usage records to Deferred
+  Fragment records containing all of the entries in {deferMap}.
+- For each {deferUsage} in {newDeferUsages}:
+  - Let {label} be the corresponding entry on {deferUsage}.
+  - Let {newDeferredFragment} be an unordered map containing {path} and {label}.
+  - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
+  - Append {newDeferredFragment} to {newDeferredFragments}.
+- Return {newDeferMap} and {newDeferredFragments}.
 
 ## Executing a Grouped Field Set
 
@@ -622,9 +934,8 @@ Each represented field in the grouped field set produces an entry into a
 response map.
 
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
-path):
+path, deferUsageSet, deferMap):
 
-- If {path} is not provided, initialize it to an empty list.
 - Initialize {resultMap} to an empty ordered map.
 - Initialize {incrementalDigests} to an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
@@ -658,19 +969,23 @@ to a location that has resolved to {null} due to propagation of a field error.
 If these subsequent results have not yet executed or have not yet yielded a
 value they may also be cancelled to avoid unnecessary work.
 
-For example, assume the field `alwaysThrows` is a list of `Non-Null` type where
-completion of the list item always raises a field error:
+For example, assume the field `alwaysThrows` is a `Non-Null` type that always
+raises a field error:
 
 ```graphql example
 {
-  myObject(initialCount: 1) @stream {
+  myObject {
+    ... @defer {
+      name
+    }
     alwaysThrows
   }
 }
 ```
 
-In this case, only one response should be sent. Subsequent items from the stream
-should be ignored and their completion, if initiated, may be cancelled.
+In this case, only one response should be sent. The result of the fragment
+tagged with the `@defer` directive should be ignored and its execution, if
+initiated, may be cancelled.
 
 ```json example
 {
@@ -777,9 +1092,48 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
-When subsections contain a `@stream` directive, these subsections are no longer
-required to execute serially. Execution of the streamed sections of the
-subsection may be executed in parallel, as defined in {ExecuteStreamField}.
+When subsections contain a `@stream` or `@defer` directive, these subsections
+are no longer required to execute serially. Execution of the deferred or
+streamed sections of the subsection may be executed in parallel, as defined in
+{ExecuteDeferredGroupedFieldSets} and {ExecuteStreamField}.
+
+## Executing Deferred Grouped Field Sets
+
+ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+newGroupedFieldSets, shouldInitiateDefer, path, deferMap):
+
+- Initialize {futures} to an empty list.
+- For each {deferUsageSet} and {newGroupedFieldSet} in {newGroupedFieldSets}:
+  - Let {deferredFragments} be an empty list.
+  - For each {deferUsage} in {deferUsageSet}:
+    - Let {deferredFragment} be the entry for {deferUsage} in {deferMap}.
+    - Append {deferredFragment} to {deferredFragments}.
+  - Let {groupedFieldSet} be the corresponding entries on {newGroupedFieldSet}.
+  - Let {future} represent the future execution of
+    {ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+    variableValues, deferredFragments, path, deferUsageSet, deferMap)},
+    incrementally completing {deferredFragments}.
+  - If {shouldInitiateDefer} is {false}:
+    - Initiate {future}.
+  - Otherwise, if early execution of deferred fields is desired:
+    - Following any implementation specific deferral of further execution,
+      initiate {future}.
+  - Append {future} to {futures}.
+- Let {incrementalDigest} be a new Incremental Digest created from {futures}.
+- Return {incrementalDigest}.
+
+ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues, path, deferUsageSet, deferMap):
+
+- Let {data} and {incrementalDigests} be the result of running
+  {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+  variableValues, path, deferUsageSet, deferMap)} _normally_ (allowing
+  parallelization).
+- Let {errors} be the list of all _field error_ raised while executing the
+  {groupedFieldSet}.
+- Let {deferredResult} be an unordered map containing {path},
+  {deferredFragments}, {data}, {errors}, and {incrementalDigests}.
+- Return {deferredResult}.
 
 ## Executing Fields
 
@@ -789,17 +1143,19 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path):
+ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
+variableValues, path, deferUsageSet, deferMap):
 
-- Let {field} be the first entry in {fields}.
-- Let {fieldName} be the field name of {field}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
+- Let {node} be the corresponding entry on {fieldDetails}.
+- Let {fieldName} be the field name of {node}.
 - Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues, path)}.
+  variableValues, path, deferUsageSet, deferMap)}.
 
 ### Coercing Field Arguments
 
@@ -899,7 +1255,8 @@ completion process. In the case where `@stream` is specified on a field of list
 type, value completion iterates over the collection until the number of items
 yielded items satisfies `initialCount` specified on the `@stream` directive.
 
-CompleteValue(fieldType, fields, result, variableValues, path):
+CompleteValue(fieldType, fieldDetailsList, result, variableValues, path,
+deferUsageSet, deferMap):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
@@ -932,6 +1289,8 @@ CompleteValue(fieldType, fields, result, variableValues, path):
     - If {streamDirective} is defined and {index} is greater than or equal to
       {initialCount}:
       - Let {stream} be an unordered map containing {path} and {label}.
+      - Let {streamFieldDetails} be the result of
+        {GetStreamFieldDetailsList(fieldDetailsList)}.
       - Let {future} represent the future execution of
         {ExecuteStreamField(stream, iterator, streamFieldDetailsList, index,
         innerType, variableValues)}.
@@ -962,14 +1321,26 @@ CompleteValue(fieldType, fields, result, variableValues, path):
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fields, variableValues)}.
-  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+    fieldDetailsList, variableValues)}.
+  - Let {knownDeferUsages} be the set of keys of {deferMap}.
+  - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet,
+    deferUsageSet, knownDeferUsages)}.
+  - Return the result of {ExecuteFieldPlan(fieldPlan, objectType, result,
+    variableValues, false, path, deferUsageSet, deferMap)}.
+
+GetStreamFieldDetailsList(fieldDetailsList):
+
+- Let {streamFields} be an empty list.
+- For each {fieldDetails} in {fieldDetailsList}:
+  - Let {node} be the corresponding entry on {fieldDetails}.
+  - Let {newFieldDetails} be a new Field Details record created from {node}.
+  - Append {newFieldDetails} to {streamFields}.
+- Return {streamFields}.
 
 #### Execute Stream Field
 
-ExecuteStreamField(stream, iterator, fields, index, innerType, variableValues):
+ExecuteStreamField(stream, iterator, fieldDetailsList, index, innerType,
+variableValues):
 
 - Let {path} be the corresponding entry on {stream}.
 - Let {itemPath} be {path} with {index} appended.
@@ -984,7 +1355,7 @@ ExecuteStreamField(stream, iterator, fields, index, innerType, variableValues):
 - Let {errors} be the list of all _field error_ raised while completing the
   item.
 - Let {future} represent the future execution of {ExecuteStreamField(stream,
-  path, iterator, fields, nextIndex, innerType, variableValues)}.
+  path, iterator, fieldDetailsList, nextIndex, innerType, variableValues)}.
 - If early execution of streamed fields is desired:
   - Following any implementation specific deferral of further execution,
     initiate {future}.
@@ -1060,14 +1431,15 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-CollectSubfields(objectType, fields, variableValues):
+CollectSubfields(objectType, fieldDetailsList, variableValues):
 
 - Let {groupedFieldSet} be an empty map.
-- For each {field} in {fields}:
+- For each {fieldDetails} in {fieldDetailsList}:
+  - Let {field} and {deferUsage} be the corresponding entries on {fieldDetails}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
+    fieldSelectionSet, variableValues, deferUsage)}.
   - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
     - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
@@ -1107,9 +1479,83 @@ resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
 
-When a field error is raised inside `ExecuteStreamField`, the stream payloads
-act as error boundaries. That is, the null resulting from a `Non-Null` type
-cannot propagate outside of the boundary of the stream payload.
+When a field error is raised inside `ExecuteDeferredGroupedFieldSets` or
+`ExecuteStreamField`, the defer and stream payloads act as error boundaries.
+That is, the null resulting from a `Non-Null` type cannot propagate outside of
+the boundary of the defer or stream payload.
+
+If a field error is raised while executing the selection set of a fragment with
+the `defer` directive, causing a {null} to propagate to the object containing
+this fragment, the {null} should not be sent to the client, as this will
+overwrite existing data. In this case, the associated Defer Payload's
+`completed` entry must include the causative errors, whose presence indicated
+the failure of the payload to be included within the final reconcilable object.
+
+For example, assume the `month` field is a `Non-Null` type that raises a field
+error:
+
+```graphql example
+{
+  birthday {
+    ... @defer(label: "monthDefer") {
+      month
+    }
+    ... @defer(label: "yearDefer") {
+      year
+    }
+  }
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "birthday": {} },
+  "pending": [
+    { "path": ["birthday"], "label": "monthDefer" }
+    { "path": ["birthday"], "label": "yearDefer" }
+  ],
+  "hasNext": true
+}
+```
+
+Response 2, the defer payload for label "monthDefer" is completed with errors.
+Incremental data cannot be sent, as this would overwrite previously sent values.
+
+```json example
+{
+  "completed": [
+    {
+      "path": ["birthday"],
+      "label": "monthDefer",
+      "errors": [...]
+    }
+  ],
+  "hasNext": false
+}
+```
+
+Response 3, the defer payload for label "yearDefer" is sent. The data in this
+payload is unaffected by the previous null error.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["birthday"],
+      "data": { "year": "2022" }
+    }
+  ],
+  "completed": [
+    {
+      "path": ["birthday"],
+      "label": "yearDefer"
+    }
+  ],
+  "hasNext": false
+}
+```
 
 If the `stream` directive is present on a list field with a Non-Nullable inner
 type, and a field error has caused a {null} to propagate to the list item, the
