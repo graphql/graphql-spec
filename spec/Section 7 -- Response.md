@@ -24,13 +24,14 @@ validation error, this entry must not be present.
 
 When the response of the GraphQL operation is a response stream, the first value
 will be the initial response. All subsequent values may contain an `incremental`
-entry, containing a list of Stream payloads.
+entry, containing a list of Defer or Stream payloads.
 
-The `label` and `path` entries on Stream payloads are used by clients to
-identify the `@stream` directive from the GraphQL operation that triggered this
-response to be included in an `incremental` entry on a value returned by the
-response stream. When a label is provided, the combination of these two entries
-will be unique across all Stream payloads returned in the response stream.
+The `label` and `path` entries on Defer and Stream payloads are used by clients
+to identify the `@defer` or `@stream` directive from the GraphQL operation that
+triggered this response to be included in an `incremental` entry on a value
+returned by the response stream. When a label is provided, the combination of
+these two entries will be unique across all Defer and Stream payloads returned
+in the response stream.
 
 If the response of the GraphQL operation is a response stream, each response map
 must contain an entry with key `hasNext`. The value of this entry is `true` for
@@ -48,9 +49,9 @@ set, must have a map as its value. This entry is reserved for implementors to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents. When the response of the GraphQL operation is a
 response stream, implementors may send subsequent response maps containing only
-`hasNext` and `extensions` entries. Stream payloads may also contain an entry
-with the key `extensions`, also reserved for implementors to extend the protocol
-however they see fit.
+`hasNext` and `extensions` entries. Defer and Stream payloads may also contain
+an entry with the key `extensions`, also reserved for implementors to extend the
+protocol however they see fit.
 
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
@@ -266,32 +267,40 @@ discouraged.
 ### Incremental Delivery
 
 The `pending` entry in the response is a non-empty list of references to pending
-Stream results. If the response of the GraphQL operation is a response stream,
-this field should appear on the initial and possibly subsequent payloads.
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field should appear on the initial and possibly subsequent
+payloads.
 
 The `incremental` entry in the response is a non-empty list of data fulfilling
-Stream results. If the response of the GraphQL operation is a response stream,
-this field may appear on the subsequent payloads.
+Defer or Stream results. If the response of the GraphQL operation is a response
+stream, this field may appear on the subsequent payloads.
 
 The `completed` entry in the response is a non-empty list of references to
-completed Stream results.
+completed Defer or Stream results.
 
-For example:
+For example, a query containing both defer and stream:
 
 ```graphql example
 query {
   person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
     name
     films @stream(initialCount: 1, label: "filmsStream") {
       title
     }
   }
 }
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+  }
+}
 ```
 
 The response stream might look like:
 
-Response 1, the initial response does not contain any streamed results.
+Response 1, the initial response does not contain any deferred or streamed
+results.
 
 ```json example
 {
@@ -301,21 +310,29 @@ Response 1, the initial response does not contain any streamed results.
       "films": [{ "title": "A New Hope" }]
     }
   },
-  "pending": [{ "path": ["person", "films"], "label": "filmStream" }],
+  "pending": [
+    { "path": ["person"], "label": "homeWorldDefer" },
+    { "path": ["person", "films"], "label": "filmStream" }
+  ],
   "hasNext": true
 }
 ```
 
-Response 2, contains the first stream payload.
+Response 2, contains the defer payload and the first stream payload.
 
 ```json example
 {
   "incremental": [
     {
+      "path": ["person"],
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
       "path": ["person", "films"],
       "items": [{ "title": "The Empire Strikes Back" }]
     }
   ],
+  "completed": [{ "path": ["person"], "label": "homeWorldDefer" }],
   "hasNext": true
 }
 ```
@@ -363,6 +380,21 @@ the field with the associated `@stream` directive. If an error has caused a
 `null` to bubble up to a field higher than the list field with the associated
 `@stream` directive, then the stream will complete with errors.
 
+#### Deferred data
+
+Deferred data is a map that may appear as an item in the `incremental` entry of
+a response. Deferred data is the result of an associated `@defer` directive in
+the operation. A defer payload must contain `data` and `path` entries and may
+contain `errors`, and `extensions` entries.
+
+##### Data
+
+The `data` entry in a Defer payload will be of the type of a particular field in
+the GraphQL result. The adjacent `path` field will contain the path segments of
+the field this data is associated with. If an error has caused a `null` to
+bubble up to a field higher than the field that contains the fragment with the
+associated `@defer` directive, then the fragment will complete with errors.
+
 #### Path
 
 A `path` field allows for the association to a particular field in a GraphQL
@@ -382,16 +414,21 @@ integer indicates that this result is set at a range, where the beginning of the
 range is at the index of this integer, and the length of the range is the length
 of the data.
 
+When the `path` field is present on a Defer payload, it indicates that the
+`data` field represents the result of the fragment containing the corresponding
+`@defer` directive. The path segments must point to the location of the result
+of the field containing the associated `@defer` directive.
+
 When the `path` field is present on an "Error result", it indicates the response
 field which experienced the error.
 
 #### Label
 
-Stream may contain a string field `label`. This `label` is the same label passed
-to the `@stream` directive associated with the response. This allows clients to
-identify which `@stream` directive is associated with this value. `label` will
-not be present if the corresponding `@stream` directive is not passed a `label`
-argument.
+Stream and Defer payloads may contain a string field `label`. This `label` is
+the same label passed to the `@defer` or `@stream` directive associated with the
+response. This allows clients to identify which `@defer` or `@stream` directive
+is associated with this value. `label` will not be present if the corresponding
+`@defer` or `@stream` directive is not passed a `label` argument.
 
 ## Serialization Format
 
@@ -452,10 +489,10 @@ enables more efficient parsing of responses if the order of properties can be
 anticipated.
 
 Serialization formats which represent an ordered map should preserve the order
-of requested fields as defined by {AnalyzeSelectionSet()} in the Execution
-section. Serialization formats which only represent unordered maps but where
-order is still implicit in the serialization's textual order (such as JSON)
-should preserve the order of requested fields textually.
+of requested fields as defined by {CollectFields()} in the Execution section.
+Serialization formats which only represent unordered maps but where order is
+still implicit in the serialization's textual order (such as JSON) should
+preserve the order of requested fields textually.
 
 For example, if the request was `{ name, age }`, a GraphQL service responding in
 JSON should respond with `{ "name": "Mark", "age": 30 }` and should not respond
