@@ -55,3 +55,8 @@ hyphens) should be capitalized, with the following exceptions:
 All elements in hyphenated words follow the same rules, e.g. headings may
 contain `Non-Null`, `Context-Free`, `Built-in` (`in` is a preposition, so is not
 capitalized).
+
+## Lists
+
+Lists can be written as full sentences or as fragments. Algorithms that appear
+as lists, however, should be written in full sentences with proper punctuation.

@@ -1014,7 +1014,7 @@ is a validation error if the target of a spread is not defined.
 
 - For each {fragmentDefinition} in the document:
   - Let {visited} be the empty set.
-  - {DetectFragmentCycles(fragmentDefinition, visited)}
+  - {DetectFragmentCycles(fragmentDefinition, visited)}.
 
 DetectFragmentCycles(fragmentDefinition, visited):
 
@@ -1023,7 +1023,7 @@ DetectFragmentCycles(fragmentDefinition, visited):
   - {visited} must not contain {spread}.
   - Let {nextVisited} be the set including {spread} and members of {visited}.
   - Let {nextFragmentDefinition} be the target of {spread}.
-  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}
+  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}.
 
 **Explanatory Text**
 

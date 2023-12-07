@@ -1120,7 +1120,7 @@ ListValue : [ Value+ ]
 - For each {Value+}
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1168,7 +1168,7 @@ ObjectValue : { ObjectField+ }
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
