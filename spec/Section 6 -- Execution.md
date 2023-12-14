@@ -263,7 +263,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   is unaffected if an alias is used.
 - Let {field} be the first entry in {fields}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  field, variableValues)}
+  field, variableValues)}.
 - Let {fieldStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.

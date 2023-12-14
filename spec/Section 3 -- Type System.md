@@ -354,7 +354,7 @@ IsInputType(type) :
   - Return IsInputType({unwrappedType})
 - If {type} is a Scalar, Enum, or Input Object type:
   - Return {true}
-- Return {false}
+- Return {false}.
 
 IsOutputType(type) :
 
@@ -363,7 +363,7 @@ IsOutputType(type) :
   - Return IsOutputType({unwrappedType})
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
   - Return {true}
-- Return {false}
+- Return {false}.
 
 ### Type Extensions
 
