@@ -290,11 +290,11 @@ subscription selection set using that event as a root value.
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
-- For each {event} on {sourceStream}:
-  - Let {response} be the result of running
-    {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
-- When {responseStream} completes: complete this event stream.
+  - For each {event} on {sourceStream}:
+    - Let {response} be the result of running
+      {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
+    - Yield an event containing {response}.
+  - If and when {sourceStream} completes: complete {responseStream}.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 

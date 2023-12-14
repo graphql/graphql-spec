@@ -100,7 +100,7 @@ for (const filename of filenames) {
           console.dir(line);
           console.dir(nextLine);
           console.log();
-          // TODO: process.exitCode = 1;
+          process.exitCode = 1;
         }
       }
     }
