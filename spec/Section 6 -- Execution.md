@@ -96,7 +96,7 @@ CoerceVariableValues(schema, operation, variableValues):
       {defaultValue}.
   - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _request error_.
-  - Otherwise if {hasValue} is true:
+  - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {variableName} with the value
         {null}.
@@ -521,7 +521,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -536,7 +536,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
-      fragmentType)} is false, continue with the next {selection} in
+      fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
