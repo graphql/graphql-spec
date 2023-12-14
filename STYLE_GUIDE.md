@@ -58,17 +58,16 @@ capitalized).
 
 ## Algorithms
 
-Each step in an algorithm that appears as a list should either end in a colon
-(`:`) with an indented step on the next line, or a fullstop (`.`). (The step
-after a step ending in a full stop may or may not be indented, use your
-discretion.)
+A named algorithm definition starts with the name of the algorithm in
+`PascalCase`, an open parenthesis, a comma-and-space separated list of
+arguments, a close parenthesis and then a colon. It is followed by a blank
+newline and a list of steps in the algorithm which may be numbered or bulleted.
 
-Indentation in algorithms is significant, pay close attention.
+Each step in an algorithm should either end in a colon (`:`) with an indented
+step on the next line, or a fullstop (`.`). (A step after a step ending in a
+full stop may or may not be indented, use your discretion.)
 
-A named algorithm definition starts with the name of the algorithm, an open
-parenthesis, a comma-and-space separated list of arguments, a close parenthesis
-and then a colon. It is followed by a blank newline and a list of steps in the
-algorithm which may be numbered or bulleted.
+Indentation in algorithms is significant.
 
 Every step in an algorithm should start with a capital letter.
 
