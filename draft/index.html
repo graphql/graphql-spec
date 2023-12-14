@@ -1276,7 +1276,7 @@ The same two methods of representing the lack of a value are possible via variab
 <li data-source="spec/Section%202%20--%20Language.md#L1122">Append <var data-name="value">value</var> to <var data-name="inputList">inputList</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1123">Return <var data-name="inputList">inputList</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1123">Return <var data-name="inputList">inputList</var>.</li>
 </ol>
 </div>
 </section>
@@ -1322,7 +1322,7 @@ The same two methods of representing the lack of a value are possible via variab
 <li data-source="spec/Section%202%20--%20Language.md#L1170">Add a field to <var data-name="inputObject">inputObject</var> of name <var data-name="name">name</var> containing value <var data-name="value">value</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%202%20--%20Language.md#L1171">Return <var data-name="inputObject">inputObject</var></li>
+<li data-source="spec/Section%202%20--%20Language.md#L1171">Return <var data-name="inputObject">inputObject</var>.</li>
 </ol>
 </div>
 </section>
@@ -1666,7 +1666,7 @@ Schema extensions without additional operation type definitions must not be foll
 <li data-source="spec/Section%203%20--%20Type%20System.md#L356">Return <span class="spec-keyword">true</span></li>
 </ol>
 </li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L357">Return <span class="spec-keyword">false</span></li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L357">Return <span class="spec-keyword">false</span>.</li>
 </ol>
 </div>
 <div class="spec-algo" id="IsOutputType()" data-source="spec/Section%203%20--%20Type%20System.md#L359-L366">
@@ -1680,7 +1680,7 @@ Schema extensions without additional operation type definitions must not be foll
 <li data-source="spec/Section%203%20--%20Type%20System.md#L365">Return <span class="spec-keyword">true</span></li>
 </ol>
 </li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L366">Return <span class="spec-keyword">false</span></li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L366">Return <span class="spec-keyword">false</span>.</li>
 </ol>
 </div>
 </section>
@@ -4358,7 +4358,7 @@ While each subscription must have exactly one root field, a document may contain
 <ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1015-L1017">For each <var data-name="fragmentDefinition">fragmentDefinition</var> in the document:<ul>
 <li data-source="spec/Section%205%20--%20Validation.md#L1016">Let <var data-name="visited">visited</var> be the empty set.</li>
-<li data-source="spec/Section%205%20--%20Validation.md#L1017"><span class="spec-call"><a href="#DetectFragmentCycles()" data-name="DetectFragmentCycles">DetectFragmentCycles</a>(<var data-name="fragmentDefinition">fragmentDefinition</var>, <var data-name="visited">visited</var>)</span></li>
+<li data-source="spec/Section%205%20--%20Validation.md#L1017"><span class="spec-call"><a href="#DetectFragmentCycles()" data-name="DetectFragmentCycles">DetectFragmentCycles</a>(<var data-name="fragmentDefinition">fragmentDefinition</var>, <var data-name="visited">visited</var>)</span>.</li>
 </ul>
 </li>
 </ul>
@@ -4369,7 +4369,7 @@ While each subscription must have exactly one root field, a document may contain
 <li data-source="spec/Section%205%20--%20Validation.md#L1023"><var data-name="visited">visited</var> must not contain <var data-name="spread">spread</var>.</li>
 <li data-source="spec/Section%205%20--%20Validation.md#L1024">Let <var data-name="nextVisited">nextVisited</var> be the set including <var data-name="spread">spread</var> and members of <var data-name="visited">visited</var>.</li>
 <li data-source="spec/Section%205%20--%20Validation.md#L1025">Let <var data-name="nextFragmentDefinition">nextFragmentDefinition</var> be the target of <var data-name="spread">spread</var>.</li>
-<li data-source="spec/Section%205%20--%20Validation.md#L1026"><span class="spec-call"><a href="#DetectFragmentCycles()" data-name="DetectFragmentCycles">DetectFragmentCycles</a>(<var data-name="nextFragmentDefinition">nextFragmentDefinition</var>, <var data-name="nextVisited">nextVisited</var>)</span></li>
+<li data-source="spec/Section%205%20--%20Validation.md#L1026"><span class="spec-call"><a href="#DetectFragmentCycles()" data-name="DetectFragmentCycles">DetectFragmentCycles</a>(<var data-name="nextFragmentDefinition">nextFragmentDefinition</var>, <var data-name="nextVisited">nextVisited</var>)</span>.</li>
 </ol>
 </li>
 </ol>
@@ -5403,7 +5403,7 @@ In a large-scale subscription system, the <span class="spec-call"><a href="#Subs
 <li data-source="spec/Section%206%20--%20Execution.md#L261">Let <var data-name="fields">fields</var> be the value of the first entry in <var data-name="groupedFieldSet">groupedFieldSet</var>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L262-L263">Let <var data-name="fieldName">fieldName</var> be the name of the first entry in <var data-name="fields">fields</var>. Note: This value is unaffected if an alias is used.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L264">Let <var data-name="field">field</var> be the first entry in <var data-name="fields">fields</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L265-L266">Let <var data-name="argumentValues">argumentValues</var> be the result of <span class="spec-call"><a href="#CoerceArgumentValues()" data-name="CoerceArgumentValues">CoerceArgumentValues</a>(<var data-name="subscriptionType">subscriptionType</var>, <var data-name="field">field</var>, <var data-name="variableValues">variableValues</var>)</span></li>
+<li data-source="spec/Section%206%20--%20Execution.md#L265-L266">Let <var data-name="argumentValues">argumentValues</var> be the result of <span class="spec-call"><a href="#CoerceArgumentValues()" data-name="CoerceArgumentValues">CoerceArgumentValues</a>(<var data-name="subscriptionType">subscriptionType</var>, <var data-name="field">field</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L267-L269">Let <var data-name="fieldStream">fieldStream</var> be the result of running <span class="spec-call"><a href="#ResolveFieldEventStream()" data-name="ResolveFieldEventStream">ResolveFieldEventStream</a>(<var data-name="subscriptionType">subscriptionType</var>, <var data-name="initialValue">initialValue</var>, <var data-name="fieldName">fieldName</var>, <var data-name="argumentValues">argumentValues</var>)</span>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L270">Return <var data-name="fieldStream">fieldStream</var>.</li>
 </ol>
