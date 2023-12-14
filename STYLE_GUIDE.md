@@ -56,7 +56,30 @@ All elements in hyphenated words follow the same rules, e.g. headings may
 contain `Non-Null`, `Context-Free`, `Built-in` (`in` is a preposition, so is not
 capitalized).
 
-## Lists
+## Algorithms
 
-Lists can be written as full sentences or as fragments. Algorithms that appear
-as lists, however, should be written in full sentences with proper punctuation.
+Each step in an algorithm that appears as a list should either end in a colon
+(`:`) with an indented step on the next line, or a fullstop (`.`). (The step
+after a step ending in a full stop may or may not be indented, use your
+discretion.)
+
+Indentation in algorithms is significant, pay close attention.
+
+A named algorithm definition starts with the name of the algorithm, an open
+parenthesis, a comma-and-space separated list of arguments, a close parenthesis
+and then a colon. It is followed by a blank newline and a list of steps in the
+algorithm which may be numbered or bulleted.
+
+Every step in an algorithm should start with a capital letter.
+
+```
+MyAlgorithm(argOne, argTwo):
+
+- Let {something} be {true}.
+- For each {arg} in {argOne}:
+  - If {arg} is greater than {argTwo}:
+    - Let {something} be {false}.
+  - Otherwise if {arg} is less than {argTwo}:
+    - Let {something} be {true}.
+- Return {something}.
+```

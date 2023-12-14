@@ -173,7 +173,8 @@ Subscribe(subscription, schema, variableValues, initialValue):
 - Let {sourceStream} be the result of running
   {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
 - Let {responseStream} be the result of running
-  {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
+  {MapSourceToResponseEvent(sourceStream, subscription, schema,
+  variableValues)}.
 - Return {responseStream}.
 
 Note: In a large-scale subscription system, the {Subscribe()} and
@@ -319,7 +320,7 @@ the subscription.
 
 Unsubscribe(responseStream):
 
-- Cancel {responseStream}
+- Cancel {responseStream}.
 
 ## Executing Selection Sets
 
@@ -552,13 +553,13 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 DoesFragmentTypeApply(objectType, fragmentType):
 
 - If {fragmentType} is an Object Type:
-  - if {objectType} and {fragmentType} are the same type, return {true},
+  - If {objectType} and {fragmentType} are the same type, return {true},
     otherwise return {false}.
 - If {fragmentType} is an Interface Type:
-  - if {objectType} is an implementation of {fragmentType}, return {true}
+  - If {objectType} is an implementation of {fragmentType}, return {true}
     otherwise return {false}.
 - If {fragmentType} is a Union:
-  - if {objectType} is a possible type of {fragmentType}, return {true}
+  - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
@@ -577,7 +578,7 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
+  variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
@@ -619,7 +620,7 @@ CoerceArgumentValues(objectType, field, variableValues):
       {defaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _field error_.
-  - Otherwise if {hasValue} is true:
+  - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {argumentName} with the value
         {null}.
