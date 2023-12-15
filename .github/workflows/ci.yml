@@ -21,6 +21,7 @@ jobs:
       - uses: actions/setup-node@v3
       - run: npm ci
       - run: npm run test:format
+      - run: npm run test:algorithm-format
   test-build:
     runs-on: ubuntu-latest
     steps:

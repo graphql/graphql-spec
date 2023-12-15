@@ -17,6 +17,7 @@
     "test:spelling": "cspell \"spec/**/*.md\" README.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
     "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || npm run suggest:format",
+    "test:algorithm-format": "node .github/algorithm-format-check.mjs",
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "build": "./build.sh",
     "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
