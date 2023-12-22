@@ -251,11 +251,11 @@ query getName {
 
 ### Subscription Operation Definitions
 
-#### Single Root Field
+#### Single collected root field
 
 **Formal Specification**
 
-- Let {subscriptionType} be the root Subscription type in {schema}.
+- Let {subscriptionType} be the subscription _operation type_ in {schema}.
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
   - Let {variableValues} be the empty set.
@@ -266,7 +266,8 @@ query getName {
 
 **Explanatory Text**
 
-Subscription operations must have exactly one root field.
+Subscription operations must have exactly one field collected from its _root
+selection set_.
 
 Valid examples:
 
@@ -300,7 +301,7 @@ subscription sub {
     body
     sender
   }
-  disallowedSecondRootField
+  disallowedSecondField
 }
 ```
 
@@ -314,12 +315,12 @@ fragment multipleSubscriptions on Subscription {
     body
     sender
   }
-  disallowedSecondRootField
+  disallowedSecondField
 }
 ```
 
-The root field of a subscription operation must not be an introspection field.
-The following example is also invalid:
+The single field collected from the _root selection set_ of a subscription must
+not be an introspection field. The following example is invalid:
 
 ```graphql counter-example
 subscription sub {
@@ -327,10 +328,11 @@ subscription sub {
 }
 ```
 
-Note: While each subscription must have exactly one root field, a document may
-contain any number of operations, each of which may contain different root
-fields. When executed, a document containing multiple subscription operations
-must provide the operation name as described in {GetOperation()}.
+Note: While each subscription must have exactly one field collected from the
+_root selection set_, a document may contain any number of subscription
+operations, each of which may contain different fields. When executed, a
+document containing multiple subscription operations must provide the operation
+name as described in {GetOperation()}.
 
 ## Fields
 
@@ -607,8 +609,8 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 Conversely, non-leaf fields must have a field subselection. A non-leaf field is
 any field with an object, interface, or union unwrapped type.
 
-Let's assume the following additions to the query root operation type of the
-schema:
+Let's assume the following additions to the query _operation type_ of the
+_schema_:
 
 ```graphql example
 extend type Query {

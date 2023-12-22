@@ -149,10 +149,10 @@ ExecutableDefinition :
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- OperationKind Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
-OperationType : one of `query` `mutation` `subscription`
+OperationKind : one of `query` `mutation` `subscription`
 
 SelectionSet : { Selection+ }
 
@@ -259,14 +259,14 @@ TypeSystemExtension :
 - TypeExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
-RootOperationTypeDefinition+ }
+OperationTypeDefinition\* }
 
 SchemaExtension :
 
-- extend schema Directives[Const]? { RootOperationTypeDefinition+ }
+- extend schema Directives[Const]? { OperationTypeDefinition+ }
 - extend schema Directives[Const] [lookahead != `{`]
 
-RootOperationTypeDefinition : OperationType : NamedType
+OperationTypeDefinition : OperationKind : NamedType
 
 Description : StringValue
 

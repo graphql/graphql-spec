@@ -69,8 +69,8 @@ underscores {"\_\_"}.
 ## Type Name Introspection
 
 GraphQL supports type name introspection within any selection set in an
-operation, with the single exception of selections at the root of a subscription
-operation. Type name introspection is accomplished via the meta-field
+operation, with the exception of those collected from a subscription _root
+selection set_. Type name introspection is accomplished via the meta-field
 `__typename: String!` on any Object, Interface, or Union. It returns the name of
 the concrete Object type at that point during execution.
 
@@ -80,14 +80,13 @@ identify which actual Object type of the possible types has been returned.
 As a meta-field, `__typename` is implicit and does not appear in the fields list
 in any defined type.
 
-Note: `__typename` may not be included as a root field in a subscription
-operation.
+Note: `__typename` may not be included as a collected field from a subscription
+_root selection set_.
 
 ## Schema Introspection
 
 The schema introspection system is accessible from the meta-fields `__schema`
-and `__type` which are accessible from the type of the root of a query
-operation.
+and `__type` which are accessible from the query _root selection set_.
 
 ```graphql
 __schema: __Schema!
@@ -95,7 +94,7 @@ __type(name: String!): __Type
 ```
 
 Like all meta-fields, these are implicit and do not appear in the fields list in
-the root type of the query operation.
+the query _operation type_.
 
 **First Class Documentation**
 
@@ -228,10 +227,10 @@ information about the schema of a GraphQL service.
 Fields\:
 
 - `description` may return a String or {null}.
-- `queryType` is the root type of a query operation.
-- `mutationType` is the root type of a mutation operation, if supported.
-  Otherwise {null}.
-- `subscriptionType` is the root type of a subscription operation, if supported.
+- `queryType` is the query _operation type_.
+- `mutationType` is the mutation _operation type_, if supported. Otherwise
+  {null}.
+- `subscriptionType` is the subscription _operation type_, if supported.
   Otherwise {null}.
 - `types` must return the set of all named types contained within this schema.
   Any named type which can be found through a field of any introspection type

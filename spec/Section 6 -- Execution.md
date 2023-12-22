@@ -9,10 +9,10 @@ A GraphQL service generates a response from a request via execution.
   {FragmentDefinition}.
 - Optionally: The name of the Operation in the Document to execute.
 - Optionally: Values for any Variables defined by the Operation.
-- An initial value corresponding to the root type being executed. Conceptually,
-  an initial value represents the "universe" of data available via a GraphQL
-  Service. It is common for a GraphQL Service to always use the same initial
-  value for every request.
+- An initial value corresponding to the _root selection set_ being executed for
+  that _operation type_. Conceptually, an initial value represents the
+  "universe" of data available via a GraphQL Service. It is common for a GraphQL
+  Service to always use the same initial value for every request.
 
 Given this information, the result of {ExecuteRequest()} produces the response,
 to be formatted according to the Response section below.
@@ -113,22 +113,21 @@ Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
 ## Executing Operations
 
-The type system, as described in the "Type System" section of the spec, must
-provide a query root operation type. If mutations or subscriptions are
-supported, it must also provide a mutation or subscription root operation type,
-respectively.
+The _schema_, as described in the "Type System" section of the spec, must
+provide a query _operation type_. If mutations or subscriptions are supported,
+it respectively must also provide a mutation or subscription _operation type_.
 
 ### Query
 
-If the operation is a query, the result of the operation is the result of
-executing the operation’s top level selection set with the query root operation
-type.
+If the kind of operation is a query, the result of the operation is the result
+of executing the operation’s top level selection set with the query _operation
+type_.
 
 An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
-- Let {queryType} be the root Query type in {schema}.
+- Let {queryType} be the query _operation type_ in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
@@ -140,9 +139,9 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 
 ### Mutation
 
-If the operation is a mutation, the result of the operation is the result of
-executing the operation’s top level selection set on the mutation root object
-type. This selection set should be executed serially.
+If the kind of operation is a mutation, the result of the operation is the
+result of executing the operation’s top level selection set on the mutation
+_operation type_. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
 side-effects on the underlying data system. Serial execution of the provided
@@ -150,7 +149,7 @@ mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
-- Let {mutationType} be the root Mutation type in {schema}.
+- Let {mutationType} be the mutation _operation type_ in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
@@ -161,8 +160,8 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 ### Subscription
 
-If the operation is a subscription, the result is an event stream called the
-"Response Stream" where each event in the event stream is the result of
+If the kind of operation is a subscription, the result is an event stream called
+the "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
 Executing a subscription operation creates a persistent function on the service
@@ -252,7 +251,7 @@ logic to create a Source Stream is application-specific.
 
 CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
-- Let {subscriptionType} be the root Subscription type in {schema}.
+- Let {subscriptionType} be the subscription _operation type_ in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
@@ -269,12 +268,13 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   argumentValues)}.
 - Return {fieldStream}.
 
-ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
+ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
+argumentValues):
 
 - Let {resolver} be the internal function provided by {subscriptionType} for
   determining the resolved event stream of a subscription field named
   {fieldName}.
-- Return the result of calling {resolver}, providing {rootValue} and
+- Return the result of calling {resolver}, providing {initialValue} and
   {argumentValues}.
 
 Note: This {ResolveFieldEventStream()} algorithm is intentionally similar to
@@ -297,7 +297,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
-- Let {subscriptionType} be the root Subscription type in {schema}.
+- Let {subscriptionType} be the subscription _operation type_ in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
@@ -802,6 +802,6 @@ resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
 
-If all fields from the root of the request to the source of the field error
-return `Non-Null` types, then the {"data"} entry in the response should be
-{null}.
+If all fields from the source of the field error up to the _root selection set_
+of the operation return `Non-Null` types, then the {"data"} entry in the
+response should be {null}.
