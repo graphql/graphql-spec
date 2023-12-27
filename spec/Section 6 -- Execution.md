@@ -379,6 +379,9 @@ Defer Usage records contain information derived from the presence of a `@defer`
 directive on a fragment and are structures containing:
 
 - {label}: value of the corresponding argument to the `@defer` directive.
+- {parentDeferUsage}: the parent Defer Usage record corresponding to the
+  deferred fragment enclosing this deferred fragment, not defined if this Defer
+  Usage record is deferred directly by the initial result.
 
 As an example, collecting the fields of this selection set would return field
 details related to two instances of the field `a` and one of field `b`:
@@ -422,10 +425,8 @@ deferUsage, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {fieldDeferUsage} be {deferUsage} if {deferUsage} is defined;
-      otherwise, let {fieldDeferUsage} be {parentDeferUsage}.
     - Let {fieldDetails} be a new Field Details record created from {selection}
-      and {fieldDeferUsage}.
+      and {deferUsage}.
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
     - Append {fieldDetails} to the {groupForResponseKey}.
@@ -453,7 +454,7 @@ deferUsage, visitedFragments):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {fragmentDeferUsage} be a new Defer Usage record created from
-        {label}.
+        {label} and {parentDeferUsage}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -481,7 +482,7 @@ deferUsage, visitedFragments):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {fragmentDeferUsage} be a new Defer Usage record created from
-        {label}.
+        {label} and {parentDeferUsage}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -523,8 +524,6 @@ A Field Plan record is a structure containing:
   keyed by the unique set of Defer Usage records to which these new grouped
   field sets belong. (See below for an explanation of why these additional
   grouped field sets may be required.)
-- {newDeferUsages}: a list of Defer Usages records newly encountered when
-  processing these fields, i.e. directly enclosing them.
 - {newGroupedFieldSetsRequiringDeferral}: a map containing additional grouped
   field sets for new incremental results relating to the newly encountered
   deferred fragments. The map is keyed by the set of Defer Usage records to
@@ -552,8 +551,7 @@ BuildFieldPlan(groupedFieldSet, parentDeferUsages, knownDeferUsages):
 - Initialize {newGroupedFieldSetsRequiringDeferral} to an empty unordered map.
 - For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
   - Let {deferUsageSet} and {keyNewDeferUsages} be the result of
-    {GetDeferUsageSet(groupForResponseKey, parentDeferUsages,
-    knownDeferUsages)}.
+    {GetDeferUsageSet(groupForResponseKey, knownDeferUsages)}.
   - Append all items in {keyNewDeferUsages} to {newDeferUsages}.
   - If {IsSameSet(deferUsageSet, parentDeferUsages)} is {true}:
     - Let {groupedFieldSet} be {originalGroupedFieldSet}.
@@ -575,34 +573,43 @@ BuildFieldPlan(groupedFieldSet, parentDeferUsages, knownDeferUsages):
   {newGroupedFieldSetsRequiringDeferral}.
 - Return {fieldPlan}.
 
-GetDeferUsageSet(fieldDetailsList, parentDeferUsages, knownDeferUsages):
+GetDeferUsageSet(fieldDetailsList, knownDeferUsages):
 
 - Initialize {newDeferUsages} to the empty set.
 - Initialize {deferUsageSet} to the empty set.
 - Let {inInitialResult} be {false}.
-- Let {inParentResult} be {false}.
 - For each {fieldDetails} in {fieldDetailsList}:
   - Let {deferUsage} be the corresponding entry on {fieldDetails}.
   - If {deferUsage} is not defined:
     - Let {inInitialResult} be {true}.
     - Continue to the next {fieldDetails} in {fieldDetailsList}.
-  - Otherwise, if {deferUsage} is in {parentDeferUsages}:
-    - Let {inParentResult} be {true}.
   - Add {deferUsage} to {deferUsageSet}.
   - If {deferUsage} is not in {knownDeferUsages}:
     - Add {deferUsage} to {newDeferUsages}.
 - If {inInitialResult} is true, reset {deferUsageSet} to the empty set;
-  otherwise, if {inParentResult} is {true}, let {deferUsageSet} be the result of
+  otherwise, let {deferUsageSet} be the result of
   {FilterDeferUsages(deferUsageSet)}.
 - Return {deferUsageSet} and {newDeferUsages}.
 
-FilterDeferUsages(deferUsages, parentDeferUsages):
+FilterDeferUsages(deferUsages):
 
 - Initialize {filteredDeferUsages} to the empty set.
 - For each {deferUsage} in {deferUsages}:
-  - If {deferUsage} is in {parentDeferUsages}:
-    - Add {deferUsage} to {filteredDeferUsages}.
+  - Let {ancestors} be the result of {GetAncestors(deferUsage)}.
+  - For each {ancestor} of {ancestors}:
+    - If {ancestor} is in {deferUsages}.
+    - Continue to the next {deferUsage} in {deferUsages}.
+  - Add {deferUsage} to {filteredDeferUsages}.
 - Return {filteredDeferUsages}.
+
+GetAncestors(deferUsage):
+
+- Initialize {ancestors} to an empty list.
+- Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
+- If {parentDeferUsage} is not defined, return {ancestors}.
+- Append {parentDeferUsage} to {ancestors}.
+- Append all the items in {GetAncestors(parentDeferUsage)} to {ancestors}.
+- Return {ancestors}.
 
 ShouldInitiateDefer(deferUsageSet, parentDeferUsageSet):
 
@@ -652,7 +659,32 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
       {deferredFragment}.
     - Let {newCount} be {count} + 1 if {count} is defined, otherwise {0}.
     - Set the entry for {deferredFragment} in {deferStates} to {deferState}.
-- Return {newPendingResults}, {futures}, and {deferStates}.
+- Initialize {pending} to an empty list.
+- For each {newPendingResult} in {newPendingResults}:
+  - If {newPendingResult} is a deferred fragment:
+    - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
+    - Let {parent} and {parentDeferState} be the result of
+      {GetParentAndParentDeferState(deferState, deferStates)}.
+    - If {parent} is not defined:
+      - Append {newPendingResult} to {pending}.
+    - Otherwise:
+      - Let {newParentDeferState} be an unordered map containing all of the
+        entries on {parentDeferState}.
+      - Let {children} be a new list containing all of the entries on {children}
+        on {newParentDeferState}.
+      - Append {newPendingResult} to {children}.
+      - Set the corresponding entry on {newParentDeferState} to {children}.
+      - Set the entry for {parent} in {deferStates} to {newDeferState}.
+- Return {pending}, {futures}, and {deferStates}.
+
+GetParentAndPendingInfo(pendingInfo, pendingMap):
+
+- Let {ancestors} be the corresponding entry on {pendingInfo}.
+- For each {ancestor} of {ancestors}:
+  - Let {ancestorPendingInfo} be the entry in {pendingMap} for {ancestor}.
+  - If {ancestorPendingInfo} is defined, return {ancestor} and
+    {ancestorPendingInfo}.
+- Return.
 
 ### Yielding Subsequent Results
 
@@ -663,23 +695,28 @@ payload to be yielded. Finally, if any pending results remain, the procedure is
 repeated recursively.
 
 YieldSubsequentResults(originalIds, originalDeferStates, newFutures,
-initiatedFutures):
+initiatedFutures, pendingFutures):
 
 - Initialize {futures} to a list containing all items in {initiatedFutures}.
+- If {pendingFutures} is not provided, initialize it to an empty list.
 - For each {future} in {newFutures}:
-  - If {future} has not been initiated, initiate it.
-  - Append {future} to {futures}.
-- Wait for any future execution contained in {futures} to complete.
-- Let {deferStates}, {updates}, {newPendingResults}, {newestFutures}, and
-  {remainingFutures} be the result of {ProcessCompletedFutures(futures,
-  originalDeferStates)}.
+  - If {future} contributes to a pending result that has been sent:
+    - If {future} has not been initiated, initiate it.
+    - Append {future} to {futures}.
+  - Otherwise:
+    - Append {future} to {pendingFutures}.
+- Wait for any future execution contained in {maybeCompletedFutures} to
+  complete.
+- Let {deferStates}, {updates}, {newPendingResults}, {newestFutures},
+  {remainingFutures}, and {pendingFutures} be the result of
+  {ProcessCompletedFutures(futures, originalDeferStates)}.
 - Let {ids} and {payload} be the result of
   {GetIncrementalPayload(newPendingResults, originalIds, updates)}.
 - If {hasNext} is not the only entry on {payload}, yield {payload}.
 - If {hasNext} on {payload} is {false}:
   - Complete this subsequent result stream and return.
 - Yield the results of {YieldSubsequentResults(ids, deferStates, newestFutures,
-  remainingFutures)}.
+  remainingFutures, pendingFutures)}.
 
 GetIncrementalPayload(newPendingResults, originalIds, updates):
 
@@ -775,10 +812,10 @@ any new pending results. If they do, first a new payload is yielded, notifying
 the client that new pending results have been encountered.
 
 ProcessCompletedFutures(maybeCompletedFutures, originalDeferStates, updates,
-pending, incrementalDigests, remainingFutures):
+pending, incrementalDigests, remainingFutures, pendingFutures):
 
-- If {updates}, {pending}, {incrementalDigests}, or {remainingFutures} are not
-  provided, initialize them to empty lists.
+- If {updates}, {pending}, {incrementalDigests}, {remainingFutures}, or
+  {pendingFutures} are not provided, initialize them to empty lists.
 - Let {completedFutures} be a list containing all completed futures from
   {maybeCompletedFutures}; append the remaining futures to {remainingFutures}.
 - Let {deferStates} be {originalDeferStates}.
@@ -788,9 +825,20 @@ pending, incrementalDigests, remainingFutures):
   - If {result} represents completion of Stream Items:
     - Let {update} and {resultIncrementalDigests} be the result of calling
       {GetUpdatesForStreamItems(result)}.
+    - Let {remainingPendingFutures} be {pendingFutures}.
   - Otherwise:
-    - Let {deferStates}, {update}, and {resultIncrementalDigests} be the result
-      of calling {GetUpdatesForDeferredResult(deferStates, result)}.
+    - Let {deferStates}, {update}, {resultPending}, and
+      {resultIncrementalDigests} be the result of calling
+      {GetUpdatesForDeferredResult(deferStates, result)}.
+    - Append all items in {resultPending} to {pending}.
+    - Initialize {releasedFutures} and {remainingPendingFutures} to empty lists.
+    - For each {future} in {pendingFutures}:
+      - Let {deferredFragments} be the Deferred Fragments completed by {future}.
+      - For each {deferredFragment} of {deferredFragments}:
+        - If {deferredFragment} is in {resultPending}, append {future} to
+          {releasedFutures}.
+        - Continue to the next {future} in {pendingFutures}.
+      - Append {future} to {remainingPendingFutures}.
   - Append {update} to {updates}.
   - For each {resultIncrementalDigest} in {resultIncrementalDigests}:
     - If {resultIncrementalDigest} contains a {newPendingResults} entry:
@@ -801,13 +849,13 @@ pending, incrementalDigests, remainingFutures):
   - Let {newPendingResults}, {futures}, and {deferStates} be the result of
     {ProcessIncrementalDigests(incrementalDigests, originalDeferStates)}.
   - Append all items in {newPendingResults} to {pending}.
-  - Return {deferStates}, {updates}, {pending}, {newFutures}, and
-    {remainingFutures}.
-- Let {newPendingResults}, {futures}, and {deferStates} be the result of
+  - Return {deferStates}, {updates}, {pending}, {newFutures},
+    {remainingFutures}, and {remainingPendingFutures}.
+- Let {newPendingResults}, {futures}, and {deferStates} be the results of
   {ProcessIncrementalDigests(supplementalIncrementalDigests, deferStates)}.
 - Append all items in {newPendingResults} to {pending}.
 - Return the result of {ProcessCompletedFutures(futures, deferStates, updates,
-  pending, incrementalDigests, remainingFutures)}.
+  pending, incrementalDigests, remainingFutures, remainingPendingFutures)}.
 
 GetUpdatesForStreamItems(streamItems):
 
@@ -844,6 +892,7 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
   - Let {update} be an unordered map containing {completed} and {errors}.
   - Return {update} and {incrementalDigests}.
 - Initialize {incremental} to an empty list.
+- Initialize {newPending} to the empty set.
 - For each {deferredFragment} of {deferredFragments}:
   - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
   - If {deferState} is not defined, continue to the next {deferredFragment} of
@@ -857,6 +906,8 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
   - Set the corresponding entry on {newDeferState} to {pending}.
   - Add {deferredResult} to {pending}.
   - If {count} on {newDeferState} is equal to {0}:
+    - Let {children} be the corresponding entry on {newDeferState}.
+    - Add all items in {children} to {newPending}.
     - Remove the entry for {deferredFragment} on {deferStates}.
     - Append {deferredFragment} to {completed}.
     - Append all items in {pending} on {newDeferState} to {incremental}.
@@ -876,7 +927,7 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
       - Set the corresponding entry on {newDeferState} to {pending}.
       - Remove {deferredResult} from {pending}.
 - Let {update} be an unordered map containing {incremental} and {completed}.
-- Return {deferStates}, {update}, and {incrementalDigests}.
+- Return {deferStates}, {update}, {newPending}, and {incrementalDigests}.
 
 ## Executing a Field Plan
 
@@ -918,8 +969,14 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
 - Let {newDeferMap} be a new unordered map of Defer Usage records to Deferred
   Fragment records containing all of the entries in {deferMap}.
 - For each {deferUsage} in {newDeferUsages}:
+  - Initialize {ancestors} to an empty list.
+  - Let {deferUsageAncestors} be the result of {GetAncestors(deferUsage)}.
+  - For each {deferUsageAncestor} of {deferUsageAncestors}:
+    - Let {ancestor} be the entry in {deferMap} for {deferUsageAncestor}.
+    - Append {ancestor} to {ancestors}.
   - Let {label} be the corresponding entry on {deferUsage}.
-  - Let {newDeferredFragment} be an unordered map containing {path} and {label}.
+  - Let {newDeferredFragment} be an unordered map containing {ancestors}, {path}
+    and {label}.
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
   - Append {newDeferredFragment} to {newDeferredFragments}.
 - Return {newDeferMap} and {newDeferredFragments}.
