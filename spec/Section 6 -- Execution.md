@@ -340,12 +340,12 @@ ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
 
 - If {serial} is not provided, initialize it to {false}.
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+- Let {groupedFieldSet} and {newDeferUsages} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
 - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
 - Let {data} and {incrementalDigests} be the result of
-  {ExecuteFieldPlan(fieldPlan, objectType, initialValue, variableValues,
-  serial)}.
+  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
+  variableValues, serial)}.
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
 - Let {newPendingResults}, {futures}, and {deferStates} be the result of
@@ -406,10 +406,11 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, parentDeferUsage,
-deferUsage, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, deferUsage,
+newDeferUsages, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
+- If {newDeferUsages} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
@@ -454,12 +455,13 @@ deferUsage, visitedFragments):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {fragmentDeferUsage} be a new Defer Usage record created from
-        {label} and {parentDeferUsage}.
+        {label} and {deferUsage}.
+      - Add {fragmentDeferUsage} to {newDeferUsages}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      parentDeferUsage, fragmentDeferUsage, visitedFragments)}.
+      fragmentDeferUsage, newDeferUsages, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -482,19 +484,20 @@ deferUsage, visitedFragments):
       - Let {label} be the value or the variable to {deferDirective}'s {label}
         argument.
       - Let {fragmentDeferUsage} be a new Defer Usage record created from
-        {label} and {parentDeferUsage}.
+        {label} and {deferUsage}.
+      - Add {fragmentDeferUsage} to {newDeferUsages}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      parentDeferUsage, fragmentDeferUsage, visitedFragments)}.
+      fragmentDeferUsage, newDeferUsages, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+- Return {groupedFields} and {newDeferUsages}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -541,18 +544,15 @@ fragments, but these new grouped field sets, while representing deferred fields,
 do not require additional deferral. The produced field plan will also retain
 this information.
 
-BuildFieldPlan(groupedFieldSet, parentDeferUsages, knownDeferUsages):
+BuildFieldPlan(groupedFieldSet, parentDeferUsages):
 
 - If {parentDeferUsages} is not provided, initialize it to the empty set.
-- If {knownDeferUsages} is not provided, initialize it to the empty set.
 - Initialize {originalGroupedFieldSet} to an empty ordered map.
-- Initialize {newDeferUsages} to the empty set.
 - Initialize {newGroupedFieldSets} to an empty unordered map.
 - Initialize {newGroupedFieldSetsRequiringDeferral} to an empty unordered map.
 - For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
-  - Let {deferUsageSet} and {keyNewDeferUsages} be the result of
-    {GetDeferUsageSet(groupForResponseKey, knownDeferUsages)}.
-  - Append all items in {keyNewDeferUsages} to {newDeferUsages}.
+  - Let {deferUsageSet} be the result of
+    {GetDeferUsageSet(groupForResponseKey)}.
   - If {IsSameSet(deferUsageSet, parentDeferUsages)} is {true}:
     - Let {groupedFieldSet} be {originalGroupedFieldSet}.
   - Otherwise:
@@ -569,13 +569,12 @@ BuildFieldPlan(groupedFieldSet, parentDeferUsages, knownDeferUsages):
   - Set the entry for {responseKey} in {originalGroupedFieldSet} to
     {groupForResponseKey}.
 - Let {fieldPlan} be a new Field Plan record created from
-  {originalGroupedFieldSet}, {newGroupedFieldSets}, {newDeferUsages}, and
+  {originalGroupedFieldSet}, {newGroupedFieldSets}, and
   {newGroupedFieldSetsRequiringDeferral}.
 - Return {fieldPlan}.
 
-GetDeferUsageSet(fieldDetailsList, knownDeferUsages):
+GetDeferUsageSet(fieldDetailsList):
 
-- Initialize {newDeferUsages} to the empty set.
 - Initialize {deferUsageSet} to the empty set.
 - Let {inInitialResult} be {false}.
 - For each {fieldDetails} in {fieldDetailsList}:
@@ -584,12 +583,10 @@ GetDeferUsageSet(fieldDetailsList, knownDeferUsages):
     - Let {inInitialResult} be {true}.
     - Continue to the next {fieldDetails} in {fieldDetailsList}.
   - Add {deferUsage} to {deferUsageSet}.
-  - If {deferUsage} is not in {knownDeferUsages}:
-    - Add {deferUsage} to {newDeferUsages}.
 - If {inInitialResult} is true, reset {deferUsageSet} to the empty set;
   otherwise, let {deferUsageSet} be the result of
   {FilterDeferUsages(deferUsageSet)}.
-- Return {deferUsageSet} and {newDeferUsages}.
+- Return {deferUsageSet}.
 
 FilterDeferUsages(deferUsages):
 
@@ -935,8 +932,8 @@ To execute a field plan, the object value being evaluated and the object type
 need to be known, as well as whether the non-deferred grouped field set must be
 executed serially, or may be executed in parallel.
 
-ExecuteFieldPlan(fieldPlan, objectType, objectValue, variableValues, serial,
-path, deferUsageSet, deferMap):
+ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, objectValue,
+variableValues, serial, path, deferUsageSet, deferMap):
 
 - If {path} is not provided, initialize it to an empty list.
 - Let {groupedFieldSet}, {newGroupedFieldSets}, {newDeferUsages}, and
@@ -1377,13 +1374,12 @@ deferUsageSet, deferMap):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fieldDetailsList, variableValues)}.
-  - Let {knownDeferUsages} be the set of keys of {deferMap}.
+  - Let {groupedFieldSet} and {newDeferUsages} be the result of calling
+    {CollectSubfields(objectType, fieldDetailsList, variableValues)}.
   - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet,
-    deferUsageSet, knownDeferUsages)}.
-  - Return the result of {ExecuteFieldPlan(fieldPlan, objectType, result,
-    variableValues, false, path, deferUsageSet, deferMap)}.
+    deferUsageSet)}.
+  - Return the result of {ExecuteFieldPlan(newDeferUsages, fieldPlan,
+    objectType, result, variableValues, false, path, deferUsageSet, deferMap)}.
 
 GetStreamFieldDetailsList(fieldDetailsList):
 
