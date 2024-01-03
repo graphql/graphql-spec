@@ -953,16 +953,23 @@ IsValidImplementationFieldType(fieldType, implementedFieldType):
 1. If {fieldType} is a Non-Null type:
    1. Let {nullableType} be the unwrapped nullable type of {fieldType}.
    2. Let {implementedNullableType} be the unwrapped nullable type of
-      {implementedFieldType} if it is a Non-Null type, otherwise let it be
-      {implementedFieldType} directly.
+      {implementedFieldType} if it is a Non-Null type or Semantic-Non-Null type,
+      otherwise let it be {implementedFieldType} directly.
    3. Return {IsValidImplementationFieldType(nullableType,
       implementedNullableType)}.
-2. If {fieldType} is a List type and {implementedFieldType} is also a List type:
+2. If {fieldType} is a Semantic-Non-Null type:
+   1. Let {nullableType} be the unwrapped nullable type of {fieldType}.
+   2. Let {implementedNullableType} be the unwrapped nullable type of
+      {implementedFieldType} if it is a Semantic-Non-Null type, otherwise let it
+      be {implementedFieldType} directly.
+   3. Return {IsValidImplementationFieldType(nullableType,
+      implementedNullableType)}.
+3. If {fieldType} is a List type and {implementedFieldType} is also a List type:
    1. Let {itemType} be the unwrapped item type of {fieldType}.
    2. Let {implementedItemType} be the unwrapped item type of
       {implementedFieldType}.
    3. Return {IsValidImplementationFieldType(itemType, implementedItemType)}.
-3. Return {IsSubType(fieldType, implementedFieldType)}.
+4. Return {IsSubType(fieldType, implementedFieldType)}.
 
 IsSubType(possibleSubType, superType):
 
