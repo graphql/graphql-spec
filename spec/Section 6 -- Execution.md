@@ -861,16 +861,17 @@ pending, incrementalDigests, remainingFutures, pendingFutures):
     - Otherwise:
       - Append {resultIncrementalDigest} to {supplementalIncrementalDigests}.
 - If {supplementalIncrementalDigests} is empty:
-  - Let {newPendingResults}, {futures}, and {deferStates} be the result of
+  - Let {newPendingResults}, {newFutures}, and {deferStates} be the result of
     {ProcessIncrementalDigests(incrementalDigests, originalDeferStates)}.
   - Append all items in {newPendingResults} to {pending}.
   - Return {deferStates}, {updates}, {pending}, {newFutures},
     {remainingFutures}, and {remainingPendingFutures}.
-- Let {newPendingResults}, {futures}, and {deferStates} be the results of
+- Let {newPendingResults}, {newFutures}, and {deferStates} be the results of
   {ProcessIncrementalDigests(supplementalIncrementalDigests, deferStates)}.
 - Append all items in {newPendingResults} to {pending}.
-- Return the result of {ProcessCompletedFutures(futures, deferStates, updates,
-  pending, incrementalDigests, remainingFutures, remainingPendingFutures)}.
+- Return the result of {ProcessCompletedFutures(newFutures, deferStates,
+  updates, pending, incrementalDigests, remainingFutures,
+  remainingPendingFutures)}.
 
 GetUpdatesForStreamItems(streamItems):
 
