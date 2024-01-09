@@ -687,13 +687,13 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
       - Set the entry for {parent} in {deferStates} to {newDeferState}.
 - Return {pending}, {futures}, and {deferStates}.
 
-GetParentAndPendingInfo(pendingInfo, pendingMap):
+GetParentAndParentDeferState(deferState, deferStates):
 
-- Let {ancestors} be the corresponding entry on {pendingInfo}.
+- Let {ancestors} be the corresponding entry on {deferState}.
 - For each {ancestor} of {ancestors}:
-  - Let {ancestorPendingInfo} be the entry in {pendingMap} for {ancestor}.
-  - If {ancestorPendingInfo} is defined, return {ancestor} and
-    {ancestorPendingInfo}.
+  - Let {ancestorDeferState} be the entry in {deferStates} for {ancestor}.
+  - If {ancestorDeferState} is defined, return {ancestor} and
+    {ancestorDeferState}.
 - Return.
 
 ### Yielding Subsequent Results
