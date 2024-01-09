@@ -674,7 +674,7 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
     - Set the entry for {deferredFragment} in {deferStates} to {deferState}.
 - Initialize {pending} to an empty list.
 - For each {newPendingResult} in {newPendingResults}:
-  - If {newPendingResult} is a deferred fragment:
+  - If {newPendingResult} is a Deferred Fragment:
     - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
     - Let {parent} and {parentDeferState} be the result of
       {GetParentAndParentDeferState(deferState, deferStates)}.
