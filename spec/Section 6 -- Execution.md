@@ -648,9 +648,12 @@ An Incremental Digest is a structure containing:
   contain additional Incremental Digests that will immediately or eventually
   complete those results.
 
-Given the current state of any pending results, if any, the
-{ProcessIncrementalDigests()} algorithm describes how incremental digests are
-processed to update that state as incremental digests are encountered.
+Incremental digests must be processed carefully because pending results must be
+delivered to the client in the appropriate order. In particular, nested deferred
+fragments may complete in any order, and the results of those fragments must be
+delivered to the client in the order in which they were specified in the
+operation. The {ProcessIncrementalDigests()} algorithm manages the tree that
+maintains the correct delivery order.
 
 ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
 
