@@ -350,14 +350,27 @@ serial):
   {groupedFieldSet}.
 - Let {newPendingResults}, {futures}, and {deferStates} be the result of
   {ProcessIncrementalDigests(incrementalDigests)}.
-- Let {ids} and {initialPayload} be the result of
-  {GetIncrementalPayload(newPendingResults)}.
-- If {ids} is empty, return an empty unordered map consisting of {data} and
+- Let {pending} and {ids} be the result of {GetPending(newPendingResults)}.
+- If {pending} is empty, return an unordered map consisting of {data} and
   {errors}.
-- Set the corresponding entries on {initialPayload} to {data} and {errors}.
+- Let {hasNext} be {true}.
+- Let {initialResult} be an unordered map consisting of {data}, {errors},
+  {pending}, and {hasNext}.
 - Let {subsequentResults} be the result of {YieldSubsequentResults(ids,
   deferStates, futures)}.
-- Return {initialPayload} and {subsequentResults}.
+- Return {initialResult} and {subsequentResults}.
+
+GetPending(newPendingResults):
+
+- Initialize {pending} to an empty list.
+- Initialize {ids} to a new unordered map of pending results to identifiers.
+- For each {newPendingResult} in {newPendingResults}:
+  - Let {path} and {label} be the corresponding entries on {newPendingResult}.
+  - Let {id} be a unique identifier for this {newPendingResult}.
+  - Set the entry for {newPendingResult} in {ids} to {id}.
+  - Let {pendingEntry} be an unordered map containing {path}, {label}, and {id}.
+  - Append {pendingEntry} to {pending}.
+- Return {pending} and {ids}.
 
 ### Field Collection
 
