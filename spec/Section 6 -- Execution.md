@@ -846,12 +846,12 @@ pending, incrementalDigests, remainingFutures, pendingFutures):
       {resultIncrementalDigests} be the result of calling
       {GetUpdatesForDeferredResult(deferStates, result)}.
     - Append all items in {resultPending} to {pending}.
-    - Initialize {releasedFutures} and {remainingPendingFutures} to empty lists.
+    - Initialize {remainingPendingFutures} to empty lists.
     - For each {future} in {pendingFutures}:
       - Let {deferredFragments} be the Deferred Fragments completed by {future}.
       - For each {deferredFragment} of {deferredFragments}:
         - If {deferredFragment} is in {resultPending}, append {future} to
-          {releasedFutures}.
+          {remainingFutures}.
         - Continue to the next {future} in {pendingFutures}.
       - Append {future} to {remainingPendingFutures}.
   - Append {update} to {updates}.
