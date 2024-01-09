@@ -688,6 +688,8 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
       - Append {newPendingResult} to {children}.
       - Set the corresponding entry on {newParentDeferState} to {children}.
       - Set the entry for {parent} in {deferStates} to {newDeferState}.
+  - Otherwise:
+    - Append {newPendingResult} to {pending}.
 - Return {pending}, {futures}, and {deferStates}.
 
 GetParentAndParentDeferState(deferState, deferStates):
