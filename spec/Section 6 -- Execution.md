@@ -927,7 +927,7 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
     - Remove the entry for {deferredFragment} on {deferStates}.
     - Append {deferredFragment} to {completed}.
     - Append all items in {pending} on {newDeferState} to {incremental}.
-- For each {deferredResult} in {completed}:
+- For each {deferredResult} in {incremental}:
   - Let {deferredFragments} be the corresponding entry on {deferredResult}.
   - For each {deferredFragment} in {deferredFragments}:
     - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
@@ -937,7 +937,8 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
     - If {pending} contains {deferredResult}:
       - Let {newDeferState} be a new unordered map containing all entries on
         {deferState}.
-      - Set the entry for {deferredFragment} on {deferStates} to {deferState}.
+      - Set the entry for {deferredFragment} on {deferStates} to
+        {newDeferState}.
       - Let {pending} be a new set containing all of the members of {pending} on
         {newDeferState}.
       - Set the corresponding entry on {newDeferState} to {pending}.
