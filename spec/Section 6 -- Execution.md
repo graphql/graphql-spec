@@ -347,7 +347,7 @@ serial):
   fieldPlan, objectType, initialValue, variableValues, serial)}.
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
-- Let {pendingResults}, {futures}, and {deferStates} be the result of
+- Let {pendingResults} and {deferStates} be the result of
   {ProcessNewFutures(futures)}.
 - Let {pending} and {ids} be the result of {GetPending(newPendingResults)}.
 - If {pending} is empty, return an unordered map consisting of {data} and
@@ -688,7 +688,7 @@ ProcessNewFutures(futures, originalDeferStates):
     - Append {newPendingResult} to {children}.
     - Set the corresponding entry on {newParentDeferState} to {children}.
     - Set the entry for {parent} in {deferStates} to {newDeferState}.
-- Return {pending}, {futures}, and {deferStates}.
+- Return {pending} and {deferStates}.
 
 GetNonEmptyParent(deferredFragment, deferStates):
 
@@ -720,15 +720,18 @@ initiatedFutures, pendingFutures):
     - Append {future} to {pendingFutures}.
 - Wait for any future execution contained in {maybeCompletedFutures} to
   complete.
-- Let {deferStates}, {pendingResults}, {updates}, {newestFutures},
-  {remainingFutures}, and {pendingFutures} be the result of
-  {ProcessCompletedFutures(futures, originalDeferStates)}.
+- Let {completedFutures} be a list containing all completed futures from
+  {maybeCompletedFutures}; let the remaining futures be {remainingFutures}.
+- Let {deferStates}, {pendingResults}, {updates}, {newFutures},
+  {supplementalFutures} and {pendingFutures} be the result of
+  {ProcessCompletedFutures(completedFutures, originalDeferStates)}.
+- Append all futures in {supplementalFutures} to {remainingFutures}.
 - Let {ids} and {payload} be the result of
   {GetIncrementalPayload(pendingResults, originalIds, updates)}.
 - If {hasNext} is not the only entry on {payload}, yield {payload}.
 - If {hasNext} on {payload} is {false}:
   - Complete this subsequent result stream and return.
-- Yield the results of {YieldSubsequentResults(ids, deferStates, newestFutures,
+- Yield the results of {YieldSubsequentResults(ids, deferStates, newFutures,
   remainingFutures, pendingFutures)}.
 
 GetIncrementalPayload(pendingResults, originalIds, updates):
@@ -821,18 +824,17 @@ possibly:
 - Containing additional futures.
 
 When encountering completed futures, {ProcessCompletedFutures()} calls itself
-recursively on any futures for existing Deferred Fragments.
+recursively on any new futures in case they have been completed.
 
-ProcessCompletedFutures(maybeCompletedFutures, originalDeferStates, pending,
-updates, futures, remainingFutures, pendingFutures):
+ProcessCompletedFutures(completedFutures, originalDeferStates, pending, updates,
+newFutures, supplementalFutures, pendingFutures):
 
 - If {pending} is not provided, initialize it to the empty set.
-- If {updates}, {futures}, {remainingFutures}, or {pendingFutures} are not
+- If {updates}, {newFutures}, {supplementalFutures}, or {pendingFutures} are not
   provided, initialize them to empty lists.
-- Let {completedFutures} be a list containing all completed futures from
-  {maybeCompletedFutures}; append the remaining futures to {remainingFutures}.
 - Let {deferStates} be {originalDeferStates}.
-- Initialize {supplementalFutures} to an empty list.
+- Initialize {maybeCompletedNewFutures} and {maybeCompletedSupplementalFutures}
+  to empty lists.
 - For each {completedFuture} in {completedFutures}:
   - Let {result} be the result of {completedFuture}.
   - If {result} represents completion of Stream Items:
@@ -843,12 +845,12 @@ updates, futures, remainingFutures, pendingFutures):
     - Let {deferStates}, {update}, {resultPending}, and {resultFutures} be the
       result of calling {GetUpdatesForDeferredResult(deferStates, result)}.
     - Append all items in {resultPending} to {pending}.
-    - Initialize {remainingPendingFutures} to empty lists.
+    - Initialize {remainingPendingFutures} an empty list.
     - For each {future} in {pendingFutures}:
       - Let {deferredFragments} be the Deferred Fragments completed by {future}.
       - For each {deferredFragment} of {deferredFragments}:
         - If {deferredFragment} is in {resultPending}, append {future} to
-          {remainingFutures}.
+          {maybeCompletedNewFutures}.
         - Continue to the next {future} in {pendingFutures}.
       - Append {future} to {remainingPendingFutures}.
   - Append {update} to {updates}.
@@ -858,21 +860,24 @@ updates, futures, remainingFutures, pendingFutures):
     - For each {deferredFragment} of {deferredFragments}:
       - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
       - If {deferState} is defined:
-        - Append {resultFuture} to {supplementalFutures}.
+        - Append {resultFuture} to {maybeCompletedSupplementalFutures}.
         - Continue to the next {resultFuture} in {resultFutures}.
     - Otherwise:
-      - Append {resultFuture} to {futures}.
-- If {supplementalFutures} is empty:
-  - Let {pendingResults}, {newFutures}, and {deferStates} be the result of
-    {ProcessNewFutures(futures, originalDeferStates)}.
+      - Append {resultFuture} to {maybeCompletedNewFutures}.
+- Let {completedFutures} be a list containing all completed futures from
+  {maybeCompletedNewFutures} and {maybeCompletedSupplementalFutures}; append the
+  remaining futures to {newFutures} and {supplementalFutures}, respectively.
+- If {completedFutures} is empty:
+  - Let {pendingResults} and {deferStates} be the result of
+    {ProcessNewFutures(newFutures, originalDeferStates)}.
   - Add all items in {pendingResults} to {pending}.
-  - Return {deferStates}, {pending}, {updates}, {newFutures},
-    {remainingFutures}, and {remainingPendingFutures}.
-- Let {pendingResults}, {newFutures}, and {deferStates} be the results of
+  - Return {deferStates}, {pending}, {updates}, {newFutures}, and
+    {supplementalFutures}, {remainingPendingFutures}.
+- Let {pendingResults} and {deferStates} be the results of
   {ProcessNewFutures(supplementalFutures, deferStates)}.
 - Add all items in {pendingResults} to {pending}.
 - Return the result of {ProcessCompletedFutures(newFutures, deferStates,
-  pending, updates, futures, remainingFutures, remainingPendingFutures)}.
+  pending, updates, newFutures, supplementalFutures, remainingPendingFutures)}.
 
 GetUpdatesForStreamItems(streamItems):
 
