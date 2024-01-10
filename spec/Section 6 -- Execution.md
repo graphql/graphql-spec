@@ -343,13 +343,12 @@ serial):
 - Let {groupedFieldSet} and {newDeferUsages} be the result of
   {CollectFields(objectType, selectionSet, variableValues)}.
 - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
-- Let {data} and {incrementalDigests} be the result of
-  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
-  variableValues, serial)}.
+- Let {data} and {futures} be the result of {ExecuteFieldPlan(newDeferUsages,
+  fieldPlan, objectType, initialValue, variableValues, serial)}.
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
-- Let {newPendingResults}, {futures}, and {deferStates} be the result of
-  {ProcessIncrementalDigests(incrementalDigests)}.
+- Let {pendingResults}, {futures}, and {deferStates} be the result of
+  {ProcessNewFutures(futures)}.
 - Let {pending} and {ids} be the result of {GetPending(newPendingResults)}.
 - If {pending} is empty, return an unordered map consisting of {data} and
   {errors}.
@@ -637,59 +636,58 @@ IsSameSet(setA, setB):
     - Return {false}.
 - Return {true}.
 
-### Processing Incremental Digests
+### Processing New Futures
 
-An Incremental Digest is a structure containing:
+Futures must be processed carefully because pending results must be delivered to
+the client in the appropriate order. In particular, nested deferred fragments
+may complete in any order, but the results of those fragments must be delivered
+to the client in the order in which they were specified in the operation. The
+{ProcessNewFutures()} algorithm manages the tree that maintains the correct
+delivery order.
 
-- {newPendingResults}: a list of new pending results to publish.
-- {futures}: a list of future executions whose results will complete pending
-  results. The results of these future execution may immediately complete the
-  pending results, or may incrementally complete the pending results, and
-  contain additional Incremental Digests that will immediately or eventually
-  complete those results.
-
-Incremental digests must be processed carefully because pending results must be
-delivered to the client in the appropriate order. In particular, nested deferred
-fragments may complete in any order, and the results of those fragments must be
-delivered to the client in the order in which they were specified in the
-operation. The {ProcessIncrementalDigests()} algorithm manages the tree that
-maintains the correct delivery order.
-
-ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
+ProcessNewFutures(futures, originalDeferStates):
 
 - Let {deferStates} be a new unordered map containing all entries in
   {originalDeferStates}.
-- Let {newPendingResults} and {futures} be lists containing all of the items
-  from the corresponding lists within each item of {incrementalDigests}.
-- For each {future} in {futures}:
-  - Let {deferredFragments} be the list of deferred fragments completed by
-    {future}.
-  - For each {deferredFragment} of {deferredFragments}:
-    - Let {deferState} be the entry in {deferStates} for {deferredFragment}.
-    - Let {newDeferState} be a new unordered map containing all of the entries
-      in {deferState}.
-    - Let {count} be the corresponding entry on {newDeferState} for
-      {deferredFragment}.
-    - Let {newCount} be {count} + 1 if {count} is defined, otherwise {0}.
-    - Set the entry for {deferredFragment} in {deferStates} to {deferState}.
 - Initialize {pending} to an empty list.
-- For each {newPendingResult} in {newPendingResults}:
-  - If {newPendingResult} is a Deferred Fragment:
-    - Let {parent} be the result of {GetNonEmptyParent(newPendingResult,
-      deferStates)}.
-    - Let {parentDeferState} be the entry for {parent} on {deferStates}.
-    - If {parentDeferState} is not defined:
-      - Append {newPendingResult} to {pending}.
-    - Otherwise:
-      - Let {newParentDeferState} be an unordered map containing all of the
-        entries on {parentDeferState}.
-      - Let {children} be a new list containing all of the entries on {children}
-        on {newParentDeferState}.
-      - Append {newPendingResult} to {children}.
-      - Set the corresponding entry on {newParentDeferState} to {children}.
-      - Set the entry for {parent} in {deferStates} to {newDeferState}.
+- Initialize {collectedDeferredFragments} to the empty set.
+- For each {future} in {futures}:
+  - If {future} will incrementally complete a Stream:
+    - Let {stream} be that Stream.
+    - Append {stream} to {pendingResults}.
   - Otherwise:
-    - Append {newPendingResult} to {pending}.
+    - Let {deferredFragments} be the list of deferred fragments completed by
+      {future}.
+    - For each {deferredFragment} of {deferredFragments}:
+      - Add {deferredFragment} to {collectedDeferredFragments}.
+      - Let {deferState} be the entry in {deferStates} for {deferredFragment}.
+      - If {deferState} is not defined:
+        - Let {count} be {0}.
+        - Let {deferState} be a new unordered map containing {count}.
+        - Set the entry for {deferredFragment} in {deferStates} to {deferState}.
+      - Otherwise:
+        - Let {newDeferState} be a new unordered map containing all of the
+          entries in {deferState}.
+        - Let {count} be the corresponding entry on {newDeferState} for
+          {deferredFragment}.
+        - Let {newCount} be {count} + 1.
+        - Set the entry for {count} on {newDeferState} to {newCount}.
+        - Set the entry for {deferredFragment} in {deferStates} to
+          {newDeferState}.
+- For each {deferredFragment} in {collectedDeferredFragments}:
+  - Let {parent} be the result of {GetNonEmptyParent(deferredFragment,
+    deferStates)}.
+  - Let {parentDeferState} be the entry for {parent} on {deferStates}.
+  - If {parentDeferState} is not defined:
+    - Append {deferredFragment} to {pending}.
+  - Otherwise:
+    - Let {newParentDeferState} be an unordered map containing all of the
+      entries on {parentDeferState}.
+    - Let {children} be a new list containing all of the entries on {children}
+      on {newParentDeferState}.
+    - Append {newPendingResult} to {children}.
+    - Set the corresponding entry on {newParentDeferState} to {children}.
+    - Set the entry for {parent} in {deferStates} to {newDeferState}.
 - Return {pending}, {futures}, and {deferStates}.
 
 GetNonEmptyParent(deferredFragment, deferStates):
@@ -722,26 +720,28 @@ initiatedFutures, pendingFutures):
     - Append {future} to {pendingFutures}.
 - Wait for any future execution contained in {maybeCompletedFutures} to
   complete.
-- Let {deferStates}, {updates}, {newPendingResults}, {newestFutures},
+- Let {deferStates}, {pendingResults}, {updates}, {newestFutures},
   {remainingFutures}, and {pendingFutures} be the result of
   {ProcessCompletedFutures(futures, originalDeferStates)}.
 - Let {ids} and {payload} be the result of
-  {GetIncrementalPayload(newPendingResults, originalIds, updates)}.
+  {GetIncrementalPayload(pendingResults, originalIds, updates)}.
 - If {hasNext} is not the only entry on {payload}, yield {payload}.
 - If {hasNext} on {payload} is {false}:
   - Complete this subsequent result stream and return.
 - Yield the results of {YieldSubsequentResults(ids, deferStates, newestFutures,
   remainingFutures, pendingFutures)}.
 
-GetIncrementalPayload(newPendingResults, originalIds, updates):
+GetIncrementalPayload(pendingResults, originalIds, updates):
 
 - Let {ids} be a new unordered map containing all of the entries in
   {originalIds}.
 - Initialize {pending}, {incremental}, and {completed} to empty lists.
-- For each {newPendingResult} in {newPendingResults}:
+- For each {pendingResult} in {pendingResults}:
+  - If an entry for {pendingResult} exists in {ids}, continue to the next
+    {pendingResult} in {pendingResults}.
   - Let {path} and {label} be the corresponding entries on {newPendingResult}.
   - Let {id} be a unique identifier for this {newPendingResult}.
-  - Set the entry for {newPendingResult} in {ids} to {id}.
+  - Set the entry for {pendingResult} in {ids} to {id}.
   - Let {pendingEntry} be an unordered map containing {path}, {label}, and {id}.
   - Append {pendingEntry} to {pending}.
 - For each {update} of {updates}:
@@ -818,33 +818,30 @@ possibly:
 
 - Completing existing pending results.
 - Contributing data for the next payload.
-- Containing additional Incremental Digests.
+- Containing additional futures.
 
-When encountering additional Incremental Digests, {ProcessCompletedFutures()}
-calls itself recursively, processing the new Incremental Digests and checking
-for any completed futures, as long as the new Incremental Digests do not contain
-any new pending results. If they do, first a new payload is yielded, notifying
-the client that new pending results have been encountered.
+When encountering completed futures, {ProcessCompletedFutures()} calls itself
+recursively on any futures for existing Deferred Fragments.
 
-ProcessCompletedFutures(maybeCompletedFutures, originalDeferStates, updates,
-pending, incrementalDigests, remainingFutures, pendingFutures):
+ProcessCompletedFutures(maybeCompletedFutures, originalDeferStates, pending,
+updates, futures, remainingFutures, pendingFutures):
 
-- If {updates}, {pending}, {incrementalDigests}, {remainingFutures}, or
-  {pendingFutures} are not provided, initialize them to empty lists.
+- If {pending} is not provided, initialize it to the empty set.
+- If {updates}, {futures}, {remainingFutures}, or {pendingFutures} are not
+  provided, initialize them to empty lists.
 - Let {completedFutures} be a list containing all completed futures from
   {maybeCompletedFutures}; append the remaining futures to {remainingFutures}.
 - Let {deferStates} be {originalDeferStates}.
-- Initialize {supplementalIncrementalDigests} to an empty list.
+- Initialize {supplementalFutures} to an empty list.
 - For each {completedFuture} in {completedFutures}:
   - Let {result} be the result of {completedFuture}.
   - If {result} represents completion of Stream Items:
-    - Let {update} and {resultIncrementalDigests} be the result of calling
+    - Let {update} and {resultFutures} be the result of calling
       {GetUpdatesForStreamItems(result)}.
     - Let {remainingPendingFutures} be {pendingFutures}.
   - Otherwise:
-    - Let {deferStates}, {update}, {resultPending}, and
-      {resultIncrementalDigests} be the result of calling
-      {GetUpdatesForDeferredResult(deferStates, result)}.
+    - Let {deferStates}, {update}, {resultPending}, and {resultFutures} be the
+      result of calling {GetUpdatesForDeferredResult(deferStates, result)}.
     - Append all items in {resultPending} to {pending}.
     - Initialize {remainingPendingFutures} to empty lists.
     - For each {future} in {pendingFutures}:
@@ -855,23 +852,27 @@ pending, incrementalDigests, remainingFutures, pendingFutures):
         - Continue to the next {future} in {pendingFutures}.
       - Append {future} to {remainingPendingFutures}.
   - Append {update} to {updates}.
-  - For each {resultIncrementalDigest} in {resultIncrementalDigests}:
-    - If {resultIncrementalDigest} contains a {newPendingResults} entry:
-      - Append {resultIncrementalDigest} to {incrementalDigests}.
+  - For each {resultFuture} in {resultFutures}:
+    - Let {deferredFragments} be the Deferred Fragments completed by
+      {resultFuture}.
+    - For each {deferredFragment} of {deferredFragments}:
+      - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
+      - If {deferState} is defined:
+        - Append {resultFuture} to {supplementalFutures}.
+        - Continue to the next {resultFuture} in {resultFutures}.
     - Otherwise:
-      - Append {resultIncrementalDigest} to {supplementalIncrementalDigests}.
-- If {supplementalIncrementalDigests} is empty:
-  - Let {newPendingResults}, {newFutures}, and {deferStates} be the result of
-    {ProcessIncrementalDigests(incrementalDigests, originalDeferStates)}.
-  - Append all items in {newPendingResults} to {pending}.
-  - Return {deferStates}, {updates}, {pending}, {newFutures},
+      - Append {resultFuture} to {futures}.
+- If {supplementalFutures} is empty:
+  - Let {pendingResults}, {newFutures}, and {deferStates} be the result of
+    {ProcessNewFutures(futures, originalDeferStates)}.
+  - Add all items in {pendingResults} to {pending}.
+  - Return {deferStates}, {pending}, {updates}, {newFutures},
     {remainingFutures}, and {remainingPendingFutures}.
-- Let {newPendingResults}, {newFutures}, and {deferStates} be the results of
-  {ProcessIncrementalDigests(supplementalIncrementalDigests, deferStates)}.
-- Append all items in {newPendingResults} to {pending}.
+- Let {pendingResults}, {newFutures}, and {deferStates} be the results of
+  {ProcessNewFutures(supplementalFutures, deferStates)}.
+- Add all items in {pendingResults} to {pending}.
 - Return the result of {ProcessCompletedFutures(newFutures, deferStates,
-  updates, pending, incrementalDigests, remainingFutures,
-  remainingPendingFutures)}.
+  pending, updates, futures, remainingFutures, remainingPendingFutures)}.
 
 GetUpdatesForStreamItems(streamItems):
 
@@ -887,14 +888,14 @@ GetUpdatesForStreamItems(streamItems):
 - Otherwise:
   - Let {incremental} be a list containing {streamItems}.
   - Let {update} be an unordered map containing {incremental}.
-  - Let {incrementalDigests} be the corresponding entry on {streamItems}.
-- Return {update} and {incrementalDigests}.
+  - Let {futures} be the corresponding entry on {streamItems}.
+- Return {update} and {futures}.
 
 GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
 
 - Let {deferStates} be a new unordered map containing all of the entries in
   {originalDeferStates}.
-- Initialize {incrementalDigests} to an empty list.
+- Initialize {futures} to an empty list.
 - Let {deferredFragments}, {data}, and {errors} be the corresponding entries on
   {deferredResult}.
 - Initialize {completed} to an empty list.
@@ -906,7 +907,7 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
     - Remove the entry for {deferredFragment} on {completed}.
     - Append {deferredFragment} to {completed}.
   - Let {update} be an unordered map containing {completed} and {errors}.
-  - Return {update} and {incrementalDigests}.
+  - Return {update} and {futures}.
 - Initialize {incremental} to an empty list.
 - Initialize {newPending} to the empty set.
 - For each {deferredFragment} of {deferredFragments}:
@@ -944,7 +945,7 @@ GetUpdatesForDeferredResult(originalDeferStates, deferredResult):
       - Set the corresponding entry on {newDeferState} to {pending}.
       - Remove {deferredResult} from {pending}.
 - Let {update} be an unordered map containing {incremental} and {completed}.
-- Return {deferStates}, {update}, {newPending}, and {incrementalDigests}.
+- Return {deferStates}, {update}, {newPending}, and {futures}.
 
 ## Executing a Field Plan
 
@@ -959,30 +960,27 @@ variableValues, serial, path, deferUsageSet, deferMap):
 - Let {groupedFieldSet}, {newGroupedFieldSets}, {newDeferUsages}, and
   {newGroupedFieldSetsRequiringDeferral} be the corresponding entries on
   {fieldPlan}.
-- Let {newDeferMap} and {newPendingResults} be the result of
-  {GetNewDeferredFragments(newDeferUsages, path, deferMap)}.
+- Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
+  deferMap)}.
 - Allowing for parallelization, perform the following steps:
-  - Let {data} and {nestedIncrementalDigests} be the result of running
+  - Let {data} and {nestedFutures} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
     variableValues, path, deferUsageSet, newDeferMap)} _serially_ if {serial} is
     {true}, _normally_ (allowing parallelization) otherwise.
-  - Let {incrementalDigest} be the result of
-    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
-    newGroupedFieldSets, false, path, newDeferMap)}.
-  - Let {deferredIncrementalDigest} be the result of
+  - Let {futures} be the result of {ExecuteDeferredGroupedFieldSets(objectType,
+    objectValue, variableValues, newGroupedFieldSets, false, path,
+    newDeferMap)}.
+  - Let {deferredFutures} be the result of
     {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
     newGroupedFieldSetsRequiringDeferral, true, path, newDeferMap)}.
-- Set the corresponding entry on {deferredIncrementalDigest} to
-  {newPendingResults}.
-- Let {incrementalDigests} be a list containing {incrementalDigest},
-  {deferredIncrementalDigest}, and all items in {nestedIncrementalDigests}.
-- Return {data} and {incrementalDigests}.
+- Let {futures} be a list containing {future}, {deferredFutures}, and all items
+  in {nestedFutures}.
+- Return {data} and {futures}.
 
-GetNewDeferredFragments(newDeferUsages, path, deferMap):
+GetNewDeferMap(newDeferUsages, path, deferMap):
 
-- Initialize {newDeferredFragments} to an empty list.
 - If {newDeferUsages} is empty:
-  - Return {deferMap} and {newDeferredFragments}.
+  - Return {deferMap}.
 - Let {newDeferMap} be a new unordered map of Defer Usage records to Deferred
   Fragment records containing all of the entries in {deferMap}.
 - For each {deferUsage} in {newDeferUsages}:
@@ -992,8 +990,7 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
   - Let {newDeferredFragment} be an unordered map containing {ancestors}, {path}
     and {label}.
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
-  - Append {newDeferredFragment} to {newDeferredFragments}.
-- Return {newDeferMap} and {newDeferredFragments}.
+- Return {newDeferMap}.
 
 ## Executing a Grouped Field Set
 
@@ -1008,20 +1005,19 @@ ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
 path, deferUsageSet, deferMap):
 
 - Initialize {resultMap} to an empty ordered map.
-- Initialize {incrementalDigests} to an empty list.
+- Initialize {futures} to an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} and {fieldIncrementalDigests} be the result of
+    - Let {responseValue} and {fieldFutures} be the result of
       {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
       path)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
-    - Append all Incremental Digests in {fieldIncrementalDigests} to
-      {incrementalDigests}.
-- Return {resultMap} and {incrementalDigests}.
+    - Append all futures in {fieldFutures} to {futures}.
+- Return {resultMap} and {futures}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section above.
@@ -1190,20 +1186,19 @@ newGroupedFieldSets, shouldInitiateDefer, path, deferMap):
     - Following any implementation specific deferral of further execution,
       initiate {future}.
   - Append {future} to {futures}.
-- Let {incrementalDigest} be a new Incremental Digest created from {futures}.
-- Return {incrementalDigest}.
+- Return {futures}.
 
 ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
 variableValues, path, deferUsageSet, deferMap):
 
-- Let {data} and {incrementalDigests} be the result of running
+- Let {data} and {futures} be the result of running
   {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
   variableValues, path, deferUsageSet, deferMap)} _normally_ (allowing
   parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   {groupedFieldSet}.
 - Let {deferredResult} be an unordered map containing {path},
-  {deferredFragments}, {data}, {errors}, and {incrementalDigests}.
+  {deferredFragments}, {data}, {errors}, and {futures}.
 - Return {deferredResult}.
 
 ## Executing Fields
@@ -1331,14 +1326,14 @@ deferUsageSet, deferMap):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} and {incrementalDigests} be the result of calling
+  - Let {completedResult} and {futures} be the result of calling
     {CompleteValue(innerType, fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult} and {incrementalDigests}.
+  - Return {completedResult} and {futures}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
-  - Initialize {incrementalDigests} to an empty list.
+  - Initialize {futures} to an empty list.
   - If {result} is not a collection of values, raise a _field error_.
   - Let {field} be the first entry in {fields}.
   - Let {innerType} be the inner type of {fieldType}.
@@ -1368,22 +1363,17 @@ deferUsageSet, deferMap):
       - If early execution of streamed fields is desired:
         - Following any implementation specific deferral of further execution,
           initiate {future}.
-      - Let {incrementalDigest} be a new Incremental Digest created from
-        {stream} and {future}.
-      - Append {incrementalDigest} to {incrementalDigests}.
-      - Return {items} and {incrementalDigests}.
+      - Append {future} to {futures}.
     - Otherwise:
       - Wait for the next item from {result} via the {iterator}.
       - If an item is not retrieved because of an error, raise a _field error_.
       - Let {item} be the item retrieved from {result}.
       - Let {itemPath} be {path} with {index} appended.
-      - Let {completedItem} and {itemIncrementalDigests} be the result of
-        calling {CompleteValue(innerType, fields, item, variableValues,
-        itemPath)}.
+      - Let {completedItem} and {itemFutures} be the result of calling
+        {CompleteValue(innerType, fields, item, variableValues, itemPath)}.
       - Append {completedItem} to {items}.
-      - Append all Incremental Digests in {itemIncrementalDigests} to
-        {incrementalDigests}.
-  - Return {items} and {incrementalDigests}.
+      - Append all futures in {itemFutures} to {futures}.
+  - Return {items} and {futures}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -1418,7 +1408,7 @@ variableValues):
 - If {iterator} is closed, return.
 - Let {item} be the next item retrieved via {iterator}.
 - Let {nextIndex} be {index} plus one.
-- Let {completedItem} and {itemIncrementalDigests} be the result of
+- Let {completedItem} and {itemFutures} be the result of
   {CompleteValue(innerType, fields, item, variableValues, itemPath)}.
 - Initialize {items} to an empty list.
 - Append {completedItem} to {items}.
@@ -1429,12 +1419,10 @@ variableValues):
 - If early execution of streamed fields is desired:
   - Following any implementation specific deferral of further execution,
     initiate {future}.
-- Let {incrementalDigest} be a new Incremental Digest created from {future}.
-- Initialize {incrementalDigests} to a list containing {incrementalDigest}.
-- Append all Incremental Digests in {itemIncrementalDigests} to
-  {incrementalDigests}.
+- Initialize {futures} to a list containing {future}.
+- Append all futures in {itemFutures} to {futures}.
 - Let {streamedItems} be an unordered map containing {stream}, {items} {errors},
-  and {incrementalDigests}.
+  and {futures}.
 - Return {streamedItem}.
 
 **Coercing Results**
