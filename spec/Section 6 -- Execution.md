@@ -675,10 +675,10 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
 - Initialize {pending} to an empty list.
 - For each {newPendingResult} in {newPendingResults}:
   - If {newPendingResult} is a Deferred Fragment:
-    - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
-    - Let {parent} and {parentDeferState} be the result of
-      {GetParentAndParentDeferState(deferState, deferStates)}.
-    - If {parent} is not defined:
+    - Let {parent} be the result of {GetNonEmptyParent(newPendingResult,
+      deferStates)}.
+    - Let {parentDeferState} be the entry for {parent} on {deferStates}.
+    - If {parentDeferState} is not defined:
       - Append {newPendingResult} to {pending}.
     - Otherwise:
       - Let {newParentDeferState} be an unordered map containing all of the
@@ -692,14 +692,14 @@ ProcessIncrementalDigests(incrementalDigests, originalDeferStates):
     - Append {newPendingResult} to {pending}.
 - Return {pending}, {futures}, and {deferStates}.
 
-GetParentAndParentDeferState(deferState, deferStates):
+GetNonEmptyParent(deferredFragment, deferStates):
 
-- Let {ancestors} be the corresponding entry on {deferState}.
-- For each {ancestor} of {ancestors}:
-  - Let {ancestorDeferState} be the entry in {deferStates} for {ancestor}.
-  - If {ancestorDeferState} is defined, return {ancestor} and
-    {ancestorDeferState}.
-- Return.
+- Let {parent} be the corresponding entry on {deferredFragment}.
+- If {parent} is not defined, return.
+- Let {parentDeferState} be the entry for {parent} on {deferStates}.
+- If {parentDeferState} is not defined, return the result of
+  {GetAncestor(parent, deferStates)}.
+- Return {parent}.
 
 ### Yielding Subsequent Results
 
@@ -986,11 +986,8 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
 - Let {newDeferMap} be a new unordered map of Defer Usage records to Deferred
   Fragment records containing all of the entries in {deferMap}.
 - For each {deferUsage} in {newDeferUsages}:
-  - Initialize {ancestors} to an empty list.
-  - Let {deferUsageAncestors} be the result of {GetAncestors(deferUsage)}.
-  - For each {deferUsageAncestor} of {deferUsageAncestors}:
-    - Let {ancestor} be the entry in {deferMap} for {deferUsageAncestor}.
-    - Append {ancestor} to {ancestors}.
+  - Let {parentDeferUsage} be the corresponding entry on {deferUsage.}
+  - Let {parent} be the entry in {deferMap} for {parentDeferUsage}.
   - Let {label} be the corresponding entry on {deferUsage}.
   - Let {newDeferredFragment} be an unordered map containing {ancestors}, {path}
     and {label}.
