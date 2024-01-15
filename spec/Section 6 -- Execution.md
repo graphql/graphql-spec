@@ -419,11 +419,11 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, deferUsage,
-newDeferUsages, visitedFragments):
+visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- If {newDeferUsages} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {newDeferUsages} to an empty list.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -468,18 +468,19 @@ newDeferUsages, visitedFragments):
         argument.
       - Let {fragmentDeferUsage} be a new Defer Usage record created from
         {label} and {deferUsage}.
-      - Add {fragmentDeferUsage} to {newDeferUsages}.
+      - Append {fragmentDeferUsage} to {newDeferUsages}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentDeferUsage, newDeferUsages, visitedFragments)}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -500,15 +501,16 @@ newDeferUsages, visitedFragments):
       - Add {fragmentDeferUsage} to {newDeferUsages}.
     - Otherwise:
       - Let {fragmentDeferUsage} be {deferUsage}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      fragmentDeferUsage, newDeferUsages, visitedFragments)}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
 - Return {groupedFields} and {newDeferUsages}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
@@ -1496,17 +1498,19 @@ After resolving the value for `me`, the selection sets are merged together so
 
 CollectSubfields(objectType, fieldDetailsList, variableValues):
 
-- Let {groupedFieldSet} be an empty map.
+- Initialize {groupedFieldSet} to an empty ordered map of lists.
+- Initialize {newDeferUsages} to an empty list.
 - For each {fieldDetails} in {fieldDetailsList}:
   - Let {field} and {deferUsage} be the corresponding entries on {fieldDetails}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues, deferUsage)}.
+  - Let {subGroupedFieldSet} and {subNewDeferUsages} be the result of
+    {CollectFields(objectType, fieldSelectionSet, variableValues, deferUsage)}.
   - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
     - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
     - Append all fields in {subfields} to {groupForResponseKey}.
+  - Append all defer usages in {subNewDeferUsages} to {newDeferUsages}.
 - Return {groupedFieldSet}.
 
 ### Handling Field Errors
