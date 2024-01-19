@@ -1105,7 +1105,7 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
 - Let {newDeferMap} be a new unordered map of Defer Usage records to Deferred
   Fragment records containing all of the entries in {deferMap}.
 - For each {deferUsage} in {newDeferUsages}:
-  - Let {parentDeferUsage} be the corresponding entry on {deferUsage.}
+  - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
   - Let {parent} be the entry in {deferMap} for {parentDeferUsage}.
   - Let {label} be the corresponding entry on {deferUsage}.
   - Let {newDeferredFragment} be an unordered map containing {ancestors}, {path}
