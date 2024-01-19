@@ -808,20 +808,19 @@ originalDeferStates, originalNewFutures, originalUpdate).
     - Remove the entry for {completedFuture} from {futureStates}.
     - Return {update}, {pending}, {newFutures}, and {deferStates}.
   - Otherwise, if {completedFuture} incrementally completes a stream:
-    - Let {resultUpdate}, {resultPending}, {resultNewFutures}, and {deferStates}
-      be the result of {GetUpdateForStreamItems(deferStates, completedFuture)}.
+    - Let {resultUpdate}, {resultNewFutures}, and {deferStates} be the result of
+      {GetUpdateForStreamItems(deferStates, completedFuture)}.
     - Remove the entry for {completedFuture} from {futureStates}.
   - Otherwise:
     - Let {sent} be the corresponding entry on {futureState}.
     - If {sent} is {true}, continue to the next {completedFuture} in
       {completedFutures}.
-    - Let {resultUpdate}, {resultPending}, {resultNewFutures}, {futureStates},
-      and {deferStates} be the result of
-      {GetUpdateForDeferredResult(futureStates, deferStates, completedFuture)}.
-  - Append all items in {resultPending} to {pending}.
+    - Let {resultUpdate}, {resultNewFutures}, {futureStates}, and {deferStates}
+      be the result of {GetUpdateForDeferredResult(futureStates, deferStates,
+      completedFuture)}.
   - Add all items in {resultNewFutures} to {newFutures}.
-  - Append all of the items in {incremental} and {completed} on {resultUpdate}
-    to {incremental} and {completed}, respectively.
+  - Append all of the items in {pending}, {incremental}, and {completed} on
+    {resultUpdate} to {pending}, {incremental}, and {completed}, respectively.
 - Let {newCompletedFutures} be the completed futures from {newFutures}.
 - Let {update} be a new unordered map containing {pending}, {incremental}, and
   {completed}.
@@ -939,7 +938,8 @@ GetUpdateForStreamItems(originalDeferStates, completedFuture):
     {streamItems}.
   - Let {pending}, {newFutures}, and {deferStates} be the result of
     {FilterDefers(newPendingResults, futures, originalDeferStates)}.
-- Return {update}, {pending}, {newFutures}, and {deferStates}.
+  - Set the corresponding entry on {update} to {pending}.
+- Return {pending}, {newFutures}, and {deferStates}.
 
 GetUpdateForDeferredResult(originalFutureStates, originalDeferStates,
 completedFuture):
