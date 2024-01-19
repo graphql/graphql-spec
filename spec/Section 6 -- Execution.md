@@ -780,8 +780,8 @@ possibly:
 - Contributing data for the next payload.
 - Containing additional pending results or futures.
 
-When encountering completed futures, {ProcessCompletedFutures()} calls itself
-recursively on any new futures in case they have been completed.
+{ProcessCompletedFutures()} may calls itself recursively on any new futures in
+the event that they have completed.
 
 ProcessCompletedFutures(completedFutures, originalFutureStates,
 originalDeferStates, originalNewFutures, originalUpdate).
