@@ -109,12 +109,12 @@ must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
 `null` result is intentional or caused by a runtime error.
 
-This field should be a list of path segments starting at the root of the
-response and ending with the field associated with the error. Path segments that
-represent fields should be strings, and path segments that represent list
-indices should be 0-indexed integers. If the error happens in an aliased field,
-the path to the error should use the aliased name, since it represents a path in
-the response, not in the request.
+This field must be a list of path segments starting at the root of the response
+and ending with the field associated with the error. Path segments that
+represent fields must be strings, and path segments that represent list indices
+must be 0-indexed integers. If the error happens in an aliased field, the path
+to the error must use the aliased name, since it represents a path in the
+response, not in the request.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
