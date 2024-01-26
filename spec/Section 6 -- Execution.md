@@ -746,14 +746,12 @@ YieldIncrementalResults(newFutures, originalFutureStates, originalDeferStates):
 - Let {futureStates} be a new unordered map containing all entries in
   {originalFutureStates}.
 - For each {future} in {newFutures}:
-  - Let {futureState} be the entry for {future} in {futureStates}.
-  - If {futureState} is not defined:
-    - Let {futureState} be a new unordered map.
-    - If {futureState} incrementally completes Deferred Fragments:
-      - Let {defers} be those Deferred Fragments.
-      - Let {count} be {0}.
-      - Set the corresponding entries on {futureState} to {count} and {defers}.
-    - Set the entry for {future} in {futureStates} to {futureState}.
+  - Let {futureState} be a new unordered map.
+  - If {futureState} incrementally completes Deferred Fragments:
+    - Let {defers} be those Deferred Fragments.
+    - Let {count} be {0}.
+    - Set the corresponding entries on {futureState} to {count} and {defers}.
+  - Set the entry for {future} in {futureStates} to {futureState}.
 - Let {maybeCompletedFutures} be the set of keys of {originalFutureStates}.
 - Wait for any futures within {maybeCompletedFutures} to complete.
 - Let {completedFutures} be those completed futures.
