@@ -833,6 +833,8 @@ FilterDefers(newPendingResults, futures, originalDeferStates):
   GetStreamFutures(originalDeferStates, futures).
 - Let {pending}, {newFutures}, and {deferStates} be the result of
   {FilterNestedDefers(newPendingResults, deferStates)}.
+- Notify the executor as necessary that all items in {pending} have been
+  released.
 - Return {pending}, {newFutures}, and {deferStates}.
 
 GetStreamFutures(deferStates, futures):
