@@ -339,6 +339,7 @@ serial):
 
 - Let {future} be the future result of {ExecuteInitialResult(variableValues,
   initialValue, objectType, selectionSet, serial)}.
+- Initiate {future}.
 - Let {futures} be a list containing {future}.
 - Let {incrementalResults} be the result of {YieldIncrementalResults(futures)}.
 - Wait for the first result in {incrementalResults} to be available.
@@ -745,7 +746,6 @@ YieldIncrementalResults(newFutures, originalFutureStates, originalDeferStates):
 - Let {futureStates} be a new unordered map containing all entries in
   {originalFutureStates}.
 - For each {future} in {newFutures}:
-  - If {future} is not initiated, initiate it.
   - Let {futureState} be the entry for {future} in {futureStates}.
   - If {futureState} is not defined:
     - Let {futureState} be a new unordered map.
@@ -1078,21 +1078,19 @@ variableValues, serial, path, deferUsageSet, deferMap):
   {fieldPlan}.
 - Let {newPendingResults} and {newDeferMap} be the result of
   {GetNewDeferredFragments(newDeferUsages, path, deferMap)}.
-- Let {supplementalFutures} be the result of {GetFutures(objectType,
-  objectValue, variableValues, newGroupedFieldSets, path, newDeferMap)}.
-- Let {deferredFutures} be the result of {GetFutures(objectType, objectValue,
-  variableValues, newGroupedFieldSetsRequiringDeferral, path, newDeferMap)}.
-- Let {futures} be a list containing all members of {supplementalFutures} and
-  {deferredFutures}.
 - Allowing for parallelization, perform the following steps:
   - Let {data}, {newPendingResults}, and {nestedFutures} be the result of
     running {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
     variableValues, path, deferUsageSet, newDeferMap)} _serially_ if {serial} is
     {true}, _normally_ (allowing parallelization) otherwise.
-  - Initiate all futures in {supplementalFutures}.
-  - If early execution of deferred fields is desired, following any
-    implementation specific deferral of further execution, initiate all futures
-    in {deferredFutures}.
+  - Let {supplementalFutures} be the result of
+    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    newGroupedFieldSets, true, path, newDeferMap)}.
+  - Let {deferredFutures} be the result of
+    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    newGroupedFieldSets, false, path, newDeferMap)}.
+- Let {futures} be a list containing all members of {supplementalFutures} and
+  {deferredFutures}.
 - Append all items in {nestedNewPendingResults} and {nestedFutures} to
   {newPendingResults} and {futures}.
 - Return {data}, {newPendingResults}, and {futures}.
@@ -1114,8 +1112,8 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
 - Return {newDeferredFragments} and {newDeferMap}.
 
-GetFutures(objectType, objectValue, variableValues, newGroupedFieldSets, path,
-deferMap):
+ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+newGroupedFieldSets, supplemental, path, deferMap):
 
 - Initialize {futures} to an empty list.
 - For each {deferUsageSet} and {groupedFieldSet} in {newGroupedFieldSets}:
@@ -1127,6 +1125,14 @@ deferMap):
     {ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
     variableValues, deferredFragments, path, deferUsageSet, deferMap)},
     incrementally completing {deferredFragments}.
+    - Let {deferredFragments} be the list of Deferred Fragments incrementally
+      completed by {future}.
+    - If {supplemental} is {true} and any Deferred Fragment in
+      {deferredFragments} has been released as pending, initiate {future}.
+    - Otherwise, initiate {future} as soon as any Deferred Fragment in
+      {deferredFragments} is released as pending, or, if early execution of
+      deferred fields is desired, following any implementation specific deferral
+      of further execution.
   - Append {future} to {futures}.
 - Return {futures}.
 
