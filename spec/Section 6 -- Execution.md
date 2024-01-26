@@ -1007,8 +1007,6 @@ originalDeferStates):
   - Otherwise, set the entry for {future} in {futureStates} to {newFutureState}.
 - For each {child} of {children}:
   - Let {childDeferState} be the entry on {deferStates} for {child}.
-  - If {childDeferState} is not defined, continue to the next {child} of
-    {children}.
   - Let {deferStates} be the result of {RemoveFragment(child, childDeferState,
     futureStates, deferStates)}.
 - Return {futureStates} and {deferStates}.
