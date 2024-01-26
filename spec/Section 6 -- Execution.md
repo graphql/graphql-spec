@@ -748,10 +748,9 @@ YieldIncrementalResults(newFutures, originalFutureStates, originalDeferStates):
 - For each {future} in {newFutures}:
   - Let {futureState} be a new unordered map.
   - If {futureState} incrementally completes Deferred Fragments:
-    - Let {deferredFragments} be those Deferred Fragments.
-    - Let {count} be the length of {deferredFragments}.
-    - Set the corresponding entries on {futureState} to {count} and
-      {deferredFragments}.
+    - Let {pendingDeferredFragments} be those Deferred Fragments.
+    - Set the corresponding entry on {futureState} to
+      {pendingDeferredFragments}.
   - Set the entry for {future} in {futureStates} to {futureState}.
 - Let {maybeCompletedFutures} be the set of keys of {originalFutureStates}.
 - Wait for any futures within {maybeCompletedFutures} to complete.
@@ -1000,10 +999,10 @@ originalDeferStates):
   - Let {futureState} be the entry for {future} on {futureStates}.
   - Let {newFutureState} be a new unordered map containing all entries in
     {futureState}.
-  - Reset {deferredFragments} on {newFutureState} to a new set containing all of
-    the original members except for {deferredFragment}.
-  - If {deferredFragments} on {futureState} is empty, remove the entry for
-    {future} in {futureStates}.
+  - Reset {pendingDeferredFragments} on {newFutureState} to a new set containing
+    all of the original members except for {deferredFragment}.
+  - If {pendingDeferredFragments} on {futureState} is empty, remove the entry
+    for {future} in {futureStates}.
   - Otherwise, set the entry for {future} in {futureStates} to {newFutureState}.
 - For each {child} of {children}:
   - Let {childDeferState} be the entry on {deferStates} for {child}.
@@ -1022,16 +1021,15 @@ originalDeferStates):
 - Initialize {newFutures} to the empty set.
 - For each {completedFuture} in {completedFutures}:
   - Let {futureState} be the entry for {completedFuture} in {futureStates}.
-  - Let {sent} be the corresponding entry on {futureState}.
-  - If {sent} is {true}, continue to the next {completedFuture} in
+  - If {futureState} is not defined, continue to the next {completedFuture} in
     {completedFutures}.
   - Let {newFutureState} be a new unordered map containing all entries in
     {futureState}.
-  - Set the entry for {sent} in {newFutureState} to {true}.
   - Set the entry for {completedFuture} in {futureStates} to {newFutureState}.
-  - Decrement the entry for {count} on {futureState}.
-  - If {count} on {futureState} is {0}, remove the entry for {completedFuture}
-    from {futureStates}.
+  - Reset {pendingDeferredFragments} on {newFutureState} to a new set containing
+    all of the original members except for {deferredFragment}.
+  - If {pendingDeferredFragments} is empty, remove the entry for
+    {completedFuture} from {futureStates}.
   - Let {deferredResult} be the result of {completedFuture}.
   - Append {deferredResult} to {incremental}.
   - Let {newPendingResults} and {futures} be the corresponding entries on
