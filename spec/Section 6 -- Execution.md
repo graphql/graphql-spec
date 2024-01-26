@@ -832,7 +832,7 @@ FilterDefers(newPendingResults, futures, originalDeferStates):
 - Let {streamFutures} and {deferStates} be the result of
   GetStreamFutures(originalDeferStates, futures).
 - Let {pending}, {newFutures}, and {deferStates} be the result of
-  {GetSinglyDeferredFutures(newPendingResults, deferStates)}.
+  {FilterNestedDefers(newPendingResults, deferStates)}.
 - Return {pending}, {newFutures}, and {deferStates}.
 
 GetStreamFutures(deferStates, futures):
@@ -860,7 +860,7 @@ GetStreamFutures(deferStates, futures):
     - Set the entry for {deferredFragment} in {deferStates} to {newDeferState}.
 - Return {streamFutures} and {deferStates}.
 
-GetSinglyDeferredFutures(newPendingResults, originalDeferStates):
+FilterNestedDefers(newPendingResults, originalDeferStates):
 
 - Let {deferStates} be a new unordered map containing all entries in
   {originalDeferStates}.
