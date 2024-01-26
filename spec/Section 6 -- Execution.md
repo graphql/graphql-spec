@@ -874,13 +874,14 @@ GetSinglyDeferredFutures(newPendingResults, originalDeferStates):
   - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
   - If {deferState} is not defined:
     - Continue to the next {newPendingResult} in {newPendingResults}.
-  - Let {parent} be the result of {GetNonEmptyParent(newPendingResult,
-    deferStates)}.
+  - Let {parent} be the corresponding entry on {newPendingResult}.
   - If {parent} is not defined:
+    - Let {futuresToRelease} and {deferState} be the result of
+      {ReleaseFragment(newPendingResult, deferStates)}.
+    - If {futuresToRelease} is empty:
+      - Continue to the next {newPendingResult} in {newPendingResults}.
     - Append {newPendingResult} to {pending}.
-    - Let {unreleasedFutures} and {deferState} be the result of
-      {ReleaseFragment(newPendingResult,deferStates)}.
-    - Append all of the items in {unreleasedFutures} to {newFutures}.
+    - Append all of the items in {futuresToRelease} to {newFutures}.
     - Continue to the next {newPendingResult} in {newPendingResults}.
   - Let {parentDeferState} be the entry in {deferStates} for {parent}.
   - Let {newParentDeferState} be a new unordered map containing all entries in
@@ -896,23 +897,22 @@ ReleaseFragment(deferredFragment, deferStates):
 - Let {deferStates} be a new unordered map containing all entries in
   {originalDeferStates}.
 - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
+- Remove the entry for {deferredFragment} on {deferStates}.
 - Let {unreleasedFutures} be the corresponding entry on {deferState}.
+- If {unreleasedFutures} is empty:
+  - Let {children} be the corresponding entry on {deferState}.
+  - Initialize {futuresToRelease} to an empty list.
+  - For each {child} of {children}:
+    - Let {childFuturesToRelease} and {deferStates} be the result of
+      ReleaseFragment(child, deferStates).
+    - Append all of the items in {childFuturesToRelease} to {futuresToRelease}.
+    - Return {futuresToRelease} and {deferStates}.
 - Let {pendingFutures} be a new list containing all members of {pendingFutures}
   on {deferState}.
 - Append all of the items in {unreleasedFutures} to {pendingFutures}.
 - Reset {unreleasedFutures} on {deferState} to an empty list.
 - Set the corresponding entry on {deferState} to {pendingFutures}.
 - Return {unreleasedFutures} and {deferStates}.
-
-GetNonEmptyParent(deferredFragment, deferStates):
-
-- Let {parent} be the corresponding entry on {deferredFragment}.
-- If {parent} is not defined, return.
-- Let {parentDeferState} be the entry for {parent} on {deferStates}.
-- Let {futures} be the corresponding entry on {parentDeferState}.
-- If {futures} is empty, return the result of {GetNonEmptyParent(parent,
-  deferStates)}.
-- Return {parent}.
 
 GetUpdateForStreamItems(originalDeferStates, completedFuture):
 
