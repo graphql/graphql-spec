@@ -975,7 +975,7 @@ completedFuture):
     {completedFutures} on {newDeferState}, appended by {completedFuture}.
   - Set the {completedFutures} entry on {newDeferState} to
     {newCompletedFutures}.
-  - Let {futures} be the corresponding entries on {newDeferState}.
+  - Let {pendingFutures} be the corresponding entries on {newDeferState}.
   - If the size of {newCompletedFutures} is equal to the size of
     {pendingFutures}:
     - Let {deferStates}, {fragmentPending}, {fragmentIncremental},
@@ -996,8 +996,8 @@ originalDeferStates):
 - Let {futureStates} and {deferStates} be a new unordered map containing all the
   entries in {originalFutureStates} and {originalDeferStates}, respectively.
 - Remove the entry for {deferredFragment} on {deferStates}.
-- Let {futures} and {children} be the corresponding entry on {deferState}.
-- For each {future} of {futures}:
+- Let {pendingFutures} and {children} be the corresponding entry on {deferState}.
+- For each {future} of {pendingFutures}:
   - Let {futureState} be the entry for {future} on {futureStates}.
   - Let {newFutureState} be a new unordered map containing all entries in
     {futureState}.
