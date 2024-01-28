@@ -897,22 +897,21 @@ ReleaseFragment(deferredFragment, deferStates):
 - Let {deferStates} be a new unordered map containing all entries in
   {originalDeferStates}.
 - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
-- Remove the entry for {deferredFragment} on {deferStates}.
+- Initialize {futuresToRelease} to an empty list.
 - Let {unreleasedFutures} be the corresponding entry on {deferState}.
-- If {unreleasedFutures} is empty:
+- Append all items in {unreleasedFutures} to {futuresToRelease}.
+- Let {pendingFutures} be a new list containing all members of {pendingFutures}
+  on {deferState}.
+- Append all of the items in {unreleasedFutures} to {pendingFutures}.
+- Set the corresponding entry on {deferState} to {pendingFutures}.
+- If {pendingFutures} is empty:
+  - Remove the entry for {deferredFragment} on {deferStates}.
   - Let {children} be the corresponding entry on {deferState}.
-  - Initialize {futuresToRelease} to an empty list.
   - For each {child} of {children}:
     - Let {childFuturesToRelease} and {deferStates} be the result of
       ReleaseFragment(child, deferStates).
     - Append all of the items in {childFuturesToRelease} to {futuresToRelease}.
-    - Return {futuresToRelease} and {deferStates}.
-- Let {pendingFutures} be a new list containing all members of {pendingFutures}
-  on {deferState}.
-- Append all of the items in {unreleasedFutures} to {pendingFutures}.
-- Reset {unreleasedFutures} on {deferState} to an empty list.
-- Set the corresponding entry on {deferState} to {pendingFutures}.
-- Return {unreleasedFutures} and {deferStates}.
+- Return {futuresToRelease} and {deferStates}.
 
 GetUpdateForStreamItems(originalDeferStates, completedFuture):
 
@@ -996,7 +995,8 @@ originalDeferStates):
 - Let {futureStates} and {deferStates} be a new unordered map containing all the
   entries in {originalFutureStates} and {originalDeferStates}, respectively.
 - Remove the entry for {deferredFragment} on {deferStates}.
-- Let {pendingFutures} and {children} be the corresponding entry on {deferState}.
+- Let {pendingFutures} and {children} be the corresponding entry on
+  {deferState}.
 - For each {future} of {pendingFutures}:
   - Let {futureState} be the entry for {future} on {futureStates}.
   - Let {newFutureState} be a new unordered map containing all entries in
