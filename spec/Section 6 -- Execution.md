@@ -1044,9 +1044,9 @@ originalDeferStates):
 - Let {children} be the corresponding entry on {deferState}.
 - Append all items in {children} to {pending}.
 - For each {child} of {children}:
-  - Let {unreleasedFutures} and {deferStates} be the result of {ReleaseFragment(
+  - Let {futuresToRelease} and {deferStates} be the result of {ReleaseFragment(
     child, deferStates)}.
-  - Append all items in {unreleasedFutures} to {newFutures}.
+  - Append all items in {futuresToRelease} to {newFutures}.
   - Let {childDeferState} be the entry for {child} on {deferStates}.
   - Let {pendingFutures} and {completedFutures} be the corresponding entries on
     {childDeferState}.
