@@ -1103,7 +1103,7 @@ GetNewDeferredFragments(newDeferUsages, path, deferMap):
   - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
   - Let {parent} be the entry in {deferMap} for {parentDeferUsage}.
   - Let {label} be the corresponding entry on {deferUsage}.
-  - Let {newDeferredFragment} be an unordered map containing {ancestors}, {path}
+  - Let {newDeferredFragment} be an unordered map containing {parent}, {path}
     and {label}.
   - Append {newDeferredFragment} to {newDeferredFragments}.
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
