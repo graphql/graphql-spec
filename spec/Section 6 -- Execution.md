@@ -337,11 +337,9 @@ initial response. Otherwise, we return just the initial result.
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
 
-- Let {future} be the future result of {ExecuteInitialResult(variableValues,
-  initialValue, objectType, selectionSet, serial)}.
-- Initiate {future}.
-- Let {futures} be a list containing {future}.
-- Let {incrementalResults} be the result of {YieldIncrementalResults(futures)}.
+- Let {incrementalResults} be the result of
+  {YieldIncrementalResults(variableValues, initialValue, objectType,
+  selectionSet, serial)}.
 - Wait for the first result in {incrementalResults} to be available.
 - Let {initialResult} be that result.
 - Let {initialResponse} and {ids} be the result of
@@ -349,22 +347,6 @@ serial):
 - Let {subsequentResponses} be the result of running
   {MapSubsequentResultToResponse(incrementalResult, ids)}.
 - Return {initialResponse} and {subsequentResponses}.
-
-ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
-serial):
-
-- If {serial} is not provided, initialize it to {false}.
-- Let {groupedFieldSet} and {newDeferUsages} be the result of
-  {CollectFields(objectType, selectionSet, variableValues)}.
-- Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
-- Let {data}, {newPendingResults}, and {futures} be the result of
-  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
-  variableValues, serial)}.
-- Let {errors} be the list of all _field error_ raised while executing the
-  {groupedFieldSet}.
-- Let {initialResult} be an unordered map consisting of {data}, {errors},
-  {newPendingResults}, and {futures}.
-- Return {initialResult}.
 
 MapSubsequentResultToResponse(subsequentResultStream, originalIds):
 
@@ -741,31 +723,50 @@ initiated. Then, any completed deferred or streamed results are processed to
 determine the payload to be yielded. Finally, if any pending results remain, the
 procedure is repeated recursively.
 
-YieldIncrementalResults(newFutures, originalFutureStates, originalDeferStates):
+YieldIncrementalResults(variableValues, initialValue, objectType, selectionSet,
+serial):
 
-- Let {futureStates} be a new unordered map containing all entries in
-  {originalFutureStates}.
-- For each {future} in {newFutures}:
-  - Let {futureState} be a new unordered map.
-  - If {futureState} incrementally completes Deferred Fragments:
-    - Let {pendingDeferredFragments} be those Deferred Fragments.
-    - Set the corresponding entry on {futureState} to
-      {pendingDeferredFragments}.
-  - Set the entry for {future} in {futureStates} to {futureState}.
-- Let {maybeCompletedFutures} be the set of keys of {originalFutureStates}.
-- Wait for any futures within {maybeCompletedFutures} to complete.
-- Let {completedFutures} be those completed futures.
-- Let {update}, {newestFutures}, {futureStates}, and {deferStates} be the result
-  of {ProcessCompletedFutures(completedFutures, originalFutureStates,
-  originalDeferStates)}.
-- Let {data}, {incremental}, and {completed} be the corresponding entries on
-  {update}.
-- If {data} is defined, or if either {incremental} and {completed} are not
-  empty, yield {update}.
-- If {futureStates} is empty, complete this incremental result stream and
-  return.
-- Yield the results of {YieldIncrementalResults(newestFutures, futureStates,
-  deferStates)}.
+- Let {initialFuture} be the future result of
+  {ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
+  serial)}.
+- Let {futureStates} be a new unordered map.
+- Set the entry for {future} in {futureStates} to {futureState}.
+- Initiate {initialFuture}.
+- While {futureStates} is not empty:
+  - Let {maybeCompletedFutures} be the set of keys of {futureStates}.
+  - Wait for any futures within {maybeCompletedFutures} to complete.
+  - Let {completedFutures} be those completed futures.
+  - Let {update}, {newestFutures}, {futureStates}, and {deferStates} be the
+    result of {ProcessCompletedFutures(completedFutures, originalFutureStates,
+    originalDeferStates)}.
+  - For each {future} in {newestFutures}:
+    - Let {futureState} be a new unordered map.
+    - If {futureState} incrementally completes Deferred Fragments:
+      - Let {pendingDeferredFragments} be those Deferred Fragments.
+      - Set the corresponding entry on {futureState} to
+        {pendingDeferredFragments}.
+    - Set the entry for {future} in {futureStates} to {futureState}.
+  - Let {data}, {incremental}, and {completed} be the corresponding entries on
+    {update}.
+  - If {data} is defined, or if either {incremental} and {completed} are not
+    empty, yield {update}.
+- Complete this incremental result stream.
+
+ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
+serial):
+
+- If {serial} is not provided, initialize it to {false}.
+- Let {groupedFieldSet} and {newDeferUsages} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
+- Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
+- Let {data}, {newPendingResults}, and {futures} be the result of
+  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
+  variableValues, serial)}.
+- Let {errors} be the list of all _field error_ raised while executing the
+  {groupedFieldSet}.
+- Let {initialResult} be an unordered map consisting of {data}, {errors},
+  {newPendingResults}, and {futures}.
+- Return {initialResult}.
 
 ### Processing Completed Futures
 
