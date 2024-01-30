@@ -728,7 +728,7 @@ serial):
   serial)}.
 - Initiate {initialFuture}.
 - Initialize {pendingFutures} to a set containing {initialFuture}.
-- Initialize {pendingResults} {pendingFutures}, and {unsent} to the empty set.
+- Initialize {pendingResults} and {unsent} to the empty set.
 - Initialize {newPendingResultsByFragment}, {pendingFuturesByFragment}, and
   {completedFuturesByFragment} to empty unordered maps.
 - Repeat the following steps:
