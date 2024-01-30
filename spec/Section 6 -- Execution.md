@@ -842,7 +842,8 @@ serial):
       - Let {incrementalResult} be a new unordered map containing {pending},
         {incremental}, {completed} and {hasNext}.
       - Yield {update}.
-    - If {hasNext} is {false}, complete this incremental result stream.
+    - If {hasNext} is {false}, complete this incremental result stream and
+      return.
 
 ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
 serial):
