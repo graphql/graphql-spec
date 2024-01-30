@@ -837,11 +837,11 @@ serial):
     - If {data} is defined:
       - Let {incrementalResult} be a new unordered map containing {data},
         {errors} and {pending}.
-      - Yield {update}.
+      - Yield {incrementalResult}.
     - Otherwise, if {incremental} or {completed} is not empty:
       - Let {incrementalResult} be a new unordered map containing {pending},
         {incremental}, {completed} and {hasNext}.
-      - Yield {update}.
+      - Yield {incrementalResult}.
     - If {hasNext} is {false}, complete this incremental result stream and
       return.
 
