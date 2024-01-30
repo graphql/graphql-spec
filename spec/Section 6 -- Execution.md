@@ -730,8 +730,8 @@ serial):
 - Initialize {newPendingResultsByFragment}, {pendingFuturesByFragment}, and
   {completedFuturesByFragment} to empty unordered maps.
 - Repeat the following steps:
-  - Wait for any futures within {pendingFutures} to complete.
   - Initialize {pending}, {incremental}, and {completed} to empty lists.
+  - Wait for any futures within {pendingFutures} to complete.
   - Let {completedFutures} be those completed futures.
   - For each {future} in {completedFutures}:
     - Remove {future} from {pendingFutures}.
