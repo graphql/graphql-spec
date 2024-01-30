@@ -718,10 +718,7 @@ IsSameSet(setA, setB):
 ### Yielding Incremental Results
 
 The procedure for yielding incremental results is specified by the
-{YieldIncrementalResults()} algorithm. First, any uninitiated executions are
-initiated. Then, any completed deferred or streamed results are processed to
-determine the payload to be yielded. Finally, if any pending results remain, the
-procedure is repeated recursively.
+{YieldIncrementalResults()} algorithm.
 
 YieldIncrementalResults(variableValues, initialValue, objectType, selectionSet,
 serial):
@@ -729,28 +726,122 @@ serial):
 - Let {initialFuture} be the future result of
   {ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
   serial)}.
-- Let {futureStates} be a new unordered map.
-- Set the entry for {future} in {futureStates} to {futureState}.
-- Initiate {initialFuture}.
-- While {futureStates} is not empty:
-  - Let {maybeCompletedFutures} be the set of keys of {futureStates}.
-  - Wait for any futures within {maybeCompletedFutures} to complete.
+- Initialize {pendingResults}, {pendingFutures}, and {unsent} to the empty set.
+- Initialize {newPendingResultsByFragment}, {pendingFuturesByFragment}, and
+  {resultsByFragment} to empty unordered maps.
+- Repeat the following steps:
+  - Wait for any futures within {pendingFutures} to complete.
+  - Initialize {pending}, {incremental}, and {completed} to empty lists.
   - Let {completedFutures} be those completed futures.
-  - Let {update}, {newestFutures}, {futureStates}, and {deferStates} be the
-    result of {ProcessCompletedFutures(completedFutures, originalFutureStates,
-    originalDeferStates)}.
-  - For each {future} in {newestFutures}:
-    - Let {futureState} be a new unordered map.
-    - If {futureState} incrementally completes Deferred Fragments:
-      - Let {pendingDeferredFragments} be those Deferred Fragments.
-      - Set the corresponding entry on {futureState} to
-        {pendingDeferredFragments}.
-    - Set the entry for {future} in {futureStates} to {futureState}.
-  - Let {data}, {incremental}, and {completed} be the corresponding entries on
-    {update}.
-  - If {data} is defined, or if either {incremental} and {completed} are not
-    empty, yield {update}.
-- Complete this incremental result stream.
+  - For each {future} in {completedFutures}:
+    - Remove {future} from {pendingFutures}.
+    - Let {result} be the result of {future}.
+    - If {result} represents the Initial Result:
+      - Let {data} and {errors} be the corresponding entries on {result}.
+    - Otherwise, if {result} incrementally completes a Stream:
+      - Let {stream}, {items}, and {errors} be the corresponding entries on
+        {result}.
+      - If {items} is not defined, the stream has asynchronously ended:
+        - Let {completedEntry} be an empty unordered map.
+        - Set the entry for {pendingResult} on {completedEntry} to {stream}.
+        - Append {completedEntry} to {completed}.
+        - Remove {stream} from {pendingResults}.
+      - Otherwise, if {items} is {null}:
+        - Let {completedEntry} be an unordered map containing {errors}.
+        - Set the entry for {pendingResult} on {completedEntry} to {stream}.
+        - Append {completedEntry} to {completed}.
+        - Remove {stream} from {pendingResults}.
+      - Otherwise:
+        - Append {streamItems} to {incremental}.
+    - Otherwise:
+      - Let {deferredFragments}, {data}, and {errors} be the corresponding
+        entries on {result}.
+      - If {data} is {null}:
+        - For each {deferredFragment} in {deferredFragments}:
+          - If {deferredFragment} is not contained by {pendingResults}, continue
+            to the next {deferredFragment} in {deferredFragments}.
+          - Let {completedEntry} be an unordered map containing {errors}.
+          - Set the entry for {pendingResult} on {completedEntry} to
+            {deferredFragment}.
+          - Append {completedEntry} to {completed}.
+          - Remove {deferredFragment} from {pendingResults}.
+      - Otherwise:
+        - For each {deferredFragment} in {deferredFragments}:
+          - If {deferredFragment} is not contained by {pendingResults}, continue
+            to the next {deferredFragment} in {deferredFragments}.
+          - Let {resultsForFragment} be the entry for {deferredFragment} in
+            {resultsByFragment}; if no such list exists, create it as an empty
+            list.
+          - Append {result} to {resultsForFragment}.
+          - Add {result} to {unsent}.
+          - Let {pendingFuturesForFragment} be the entry for {deferredFragment}
+            in {pendingFuturesByFragment}.
+          - If the size of {resultsForFragment} is equal to the size of
+            {pendingFuturesForFragment}:
+            - Let {fragmentPending}, {fragmentIncremental}, and
+              {fragmentCompleted}, be the result of
+              {CompleteFragment(deferredFragment, resultsForFragment,
+              pendingFuturesForFragment, newPendingResultsByFragment,
+              resultsByFragment, unsent)}.
+            - For each {pendingResult} in {fragmentPending}:
+              - Append {pendingResult} to {pending}.
+              - Add {pendingResult} to {pendingResults}.
+            - For each {result} in {fragmentIncremental}:
+              - Remove {result} from {unsent}.
+            - For each {completedEntry} in {completed}:
+              - Let {pendingResult} be the corresponding entry on
+                {completedEntry}.
+              - Remove {pendingResult} from {pendingResults}.
+    - For each {result} in {incremental}:
+      - Let {newPendingResults} and {futures} be the corresponding entries on
+        {incremental}.
+      - For each {future} of {futures}:
+        - If {future} represents completion of Stream Items:
+          - Initiate {future} if it has not yet been initiated.
+          - Add {future} to {pendingFutures}.
+        - Otherwise:
+          - Let {deferredFragments} be the Deferred Fragments completed by
+            {future}.
+          - For each {deferredFragment} in {deferredFragments}:
+            - Let {pendingFuturesForFragment} be the entry for
+              {deferredFragment} in {pendingFuturesByFragment}; if no such list
+              exists, create it as an empty list.
+            - Append {future} to {pendingFuturesForFragment}.
+            - If {deferredFragment} is contained by {pendingResults}:
+              - Initiate {future} if it has not yet been initiated.
+              - Add {future} to {pendingFutures}.
+      - For each {newPendingResult} of {newPendingResults}:
+        - If {newPendingResult} represents a Stream:
+          - Append {newPendingResult} to {pending}.
+          - Add {newPendingResult} to {pendingResults}.
+        - Otherwise:
+          - Let {pendingFuturesForFragment} be the entry for {newPendingResult}
+            in {pendingFuturesByFragment}; if no such list exists, continue to
+            the next {newPendingResult} of {newPendingResults}.
+          - Let {parent} be the corresponding entry on {newPendingResult}.
+          - If {parent} is not defined or {pendingResults} does not contain
+            {parent}:
+            - Append {newPendingResult} to {pending}.
+            - Add {newPendingResult} to {pendingResults}.
+            - For each {future} in {pendingFuturesForFragment}:
+              - Initiate {future} if it has not yet been initiated.
+              - Add {future} to {pendingFutures}.
+          - Otherwise:
+            - Let {newPendingResultsForFragment} be the entry for {parent} in
+              {newPendingResultsByFragment}; if no such list exists, create it
+              as an empty list.
+            - Append {newPendingResult} to {newPendingResultsForFragment}.
+    - If {pendingResults} is empty, let {hasNext} be {false}, otherwise let it
+      be {true}.
+    - If {data} is defined:
+      - Let {incrementalResult} be a new unordered map containing {data},
+        {errors} and {pending}.
+      - Yield {update}.
+    - Otherwise, if {incremental} or {completed} is not empty:
+      - Let {incrementalResult} be a new unordered map containing {pending},
+        {incremental}, {completed} and {hasNext}.
+      - Yield {update}.
+    - If {hasNext} is {false}, complete this incremental result stream.
 
 ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
 serial):
@@ -768,298 +859,36 @@ serial):
   {newPendingResults}, and {futures}.
 - Return {initialResult}.
 
-### Processing Completed Futures
+CompleteFragment(deferredFragment, resultsForFragment,
+pendingFuturesForFragment, newPendingResultsByFragment, resultsByFragment,
+unsent):
 
-As future executions are completed, the {ProcessCompletedFutures()} algorithm
-describes how the results of these executions impact the incremental state.
-Results from completed futures are processed individually, with each result
-possibly:
-
-- Completing existing pending results.
-- Contributing data for the next payload.
-- Containing additional pending results or futures.
-
-{ProcessCompletedFutures()} may calls itself recursively on any new futures in
-the event that they have completed.
-
-ProcessCompletedFutures(completedFutures, originalFutureStates,
-originalDeferStates, originalNewFutures, originalUpdate).
-
-- Let {futureStates} be a new unordered map containing all entries in
-  {originalFutureStates}.
-- Let {deferStates} be {originalDeferStates}.
-- Let {pending}, {incremental}, and {completed} be new lists containing all the
-  items in the corresponding entries on {originalUpdate}.
-- Let {newFutures} be a new set containing all members of {originalNewFutures}.
-- For each {completedFuture} in {completedFutures}:
-  - Let {futureState} be the entry for {completedFuture} in {futureStates}.
-  - If {futureState} is not defined, continue to the next {completedFuture} in
-    {completedFutures}.
-  - If {completedFuture} completes the initial result:
-    - Let {initialResult} be the result of {completedFuture}.
-    - Let {newPendingResults} and {futures} be the corresponding entries on
-      {initialResult}.
-    - Let {pending}, {newFutures}, and {deferStates} be the result of
-      {FilterDefers(newPendingResults, futures)}.
-    - Let {data} and {errors} be the corresponding entries on {initialResult}.
-    - Let {update} be a new unordered map containing {data}, {errors}, and
-      {pending}.
-    - Remove the entry for {completedFuture} from {futureStates}.
-    - Return {update}, {pending}, {newFutures}, and {deferStates}.
-  - Otherwise, if {completedFuture} incrementally completes a stream:
-    - Let {resultUpdate}, {resultNewFutures}, and {deferStates} be the result of
-      {GetUpdateForStreamItems(deferStates, completedFuture)}.
-    - Remove the entry for {completedFuture} from {futureStates}.
-  - Otherwise:
-    - Let {sent} be the corresponding entry on {futureState}.
-    - If {sent} is {true}, continue to the next {completedFuture} in
-      {completedFutures}.
-    - Let {resultUpdate}, {resultNewFutures}, {futureStates}, and {deferStates}
-      be the result of {GetUpdateForDeferredResult(futureStates, deferStates,
-      completedFuture)}.
-  - Add all items in {resultNewFutures} to {newFutures}.
-  - Append all of the items in {pending}, {incremental}, and {completed} on
-    {resultUpdate} to {pending}, {incremental}, and {completed}, respectively.
-- Let {newCompletedFutures} be the completed futures from {newFutures}.
-- Let {update} be a new unordered map containing {pending}, {incremental}, and
-  {completed}.
-- If {newCompletedFutures} is empty:
-  - Return {update}, {newFutures}, {futureStates}, and {deferStates}.
-- Return the result of {ProcessCompletedFutures(newCompletedFutures,
-  futureStates, deferStates, update)}.
-
-FilterDefers(newPendingResults, futures, originalDeferStates):
-
-- Let {streamFutures} and {deferStates} be the result of
-  GetStreamFutures(originalDeferStates, futures).
-- Let {pending}, {newFutures}, and {deferStates} be the result of
-  {FilterNestedDefers(newPendingResults, deferStates)}.
-- Notify the executor as necessary that all items in {pending} have been
-  released.
-- Return {pending}, {newFutures}, and {deferStates}.
-
-GetStreamFutures(deferStates, futures):
-
-- Initialize {streamFutures} to an empty list.
-- Let {deferStates} be a new unordered map containing all entries in
-  {originalDeferStates}.
-- For each {future} of {futures}.
-  - If {future} incrementally completes a stream:
-    - Append {future} to {streamFutures}.
-    - Continue to the next {future} in {futures}.
-  - Let {deferredFragments} be a list of the Deferred Fragments incrementally
-    completed by {future}.
-  - For each {deferredFragment} of {deferredFragments}:
-    - Let {deferState} be the entry in {deferStates} for {deferredFragment}.
-    - If {deferState} is not defined:
-      - Let {unreleasedFutures} be a new list containing {future}.
-      - Let {newDeferState} be a new unordered map containing
-        {unreleasedFutures}.
-    - Otherwise:
-      - Let {newDeferState} be a new unordered map containing all entries in
-        {deferState}.
-      - Reset {unreleasedFutures} on {newDeferState} to a new list containing
-        all of the original items, appended by {future}.
-    - Set the entry for {deferredFragment} in {deferStates} to {newDeferState}.
-- Return {streamFutures} and {deferStates}.
-
-FilterNestedDefers(newPendingResults, originalDeferStates):
-
-- Let {deferStates} be a new unordered map containing all entries in
-  {originalDeferStates}.
-- Initialize {pending} and {newFutures} to empty lists.
-- For each {newPendingResult} in {newPendingResults}:
-  - If {newPendingResult} will incrementally complete a stream:
-    - Append {newPendingResult} to {pending}.
-    - Continue to the next {newPendingResult} in {newPendingResults}.
-  - Let {deferState} be the entry in {deferStates} for {newPendingResult}.
-  - If {deferState} is not defined:
-    - Continue to the next {newPendingResult} in {newPendingResults}.
-  - Let {parent} be the corresponding entry on {newPendingResult}.
-  - If {parent} is not defined:
-    - Let {futuresToRelease} and {deferState} be the result of
-      {ReleaseFragment(newPendingResult, deferStates)}.
-    - If {futuresToRelease} is empty:
-      - Continue to the next {newPendingResult} in {newPendingResults}.
-    - Append {newPendingResult} to {pending}.
-    - Append all of the items in {futuresToRelease} to {newFutures}.
-    - Continue to the next {newPendingResult} in {newPendingResults}.
-  - Let {parentDeferState} be the entry in {deferStates} for {parent}.
-  - Let {newParentDeferState} be a new unordered map containing all entries in
-    {parentDeferState}.
-  - Set the entry for {parent} in {deferStates} to {newParentDeferState}.
-  - Let {newChildren} be a new list containing all members of {children} on
-    {newParentDeferState} as well as {newPendingResult}.
-  - Set the entry for {children} in {newParentDeferState} to {newChildren}.
-- Return {pending}, {newFutures}, and {deferStates}.
-
-ReleaseFragment(deferredFragment, deferStates):
-
-- Let {deferStates} be a new unordered map containing all entries in
-  {originalDeferStates}.
-- Let {deferState} be the entry in {deferStates} for {newPendingResult}.
-- Initialize {futuresToRelease} to an empty list.
-- Let {unreleasedFutures} be the corresponding entry on {deferState}.
-- Append all items in {unreleasedFutures} to {futuresToRelease}.
-- Let {pendingFutures} be a new list containing all members of {pendingFutures}
-  on {deferState}.
-- Append all of the items in {unreleasedFutures} to {pendingFutures}.
-- Set the corresponding entry on {deferState} to {pendingFutures}.
-- If {pendingFutures} is empty:
-  - Remove the entry for {deferredFragment} on {deferStates}.
-  - Let {children} be the corresponding entry on {deferState}.
-  - For each {child} of {children}:
-    - Let {childFuturesToRelease} and {deferStates} be the result of
-      ReleaseFragment(child, deferStates).
-    - Append all of the items in {childFuturesToRelease} to {futuresToRelease}.
-- Return {futuresToRelease} and {deferStates}.
-
-GetUpdateForStreamItems(originalDeferStates, completedFuture):
-
-- Let {streamItems} be the result of {completedFuture}.
-- Let {deferStates} be a new unordered map containing all the entries in
-  {originalDeferStates}.
-- Let {stream}, {items}, and {errors} be the corresponding entries on {result}.
-- If {items} is not defined, the stream has asynchronously ended:
-  - Let {completedEntry} be an empty unordered map.
-  - Set the entry for {pendingResult} on {completedEntry} to {stream}.
-  - Let {completed} be an list containing {completedEntry}.
-  - Let {update} be an unordered map containing {completed}.
-- Otherwise, if {items} is {null}:
-  - Let {errors} be the corresponding entry on {streamItems}.
-  - Let {completedEntry} be an unordered map containing {errors}.
-  - Set the entry for {pendingResult} on {completedEntry} to {stream}.
-  - Let {completed} be a list containing {completedEntry}.
-  - Let {update} be an unordered map containing {completed} and {errors}.
-- Otherwise:
-  - Let {incremental} be a list containing {streamItems}.
-  - Let {update} be an unordered map containing {incremental}.
-  - Let {newPendingResults} and {futures} be the corresponding entries on
-    {streamItems}.
-  - Let {pending}, {newFutures}, and {deferStates} be the result of
-    {FilterDefers(newPendingResults, futures, originalDeferStates)}.
-  - Set the corresponding entry on {update} to {pending}.
-- Return {pending}, {newFutures}, and {deferStates}.
-
-GetUpdateForDeferredResult(originalFutureStates, originalDeferStates,
-completedFuture):
-
-- Let {futureStates} and {deferStates} be a new unordered map containing all the
-  entries in {originalFutureStates} and {originalDeferStates}, respectively.
-- Initialize {newFutures} to the empty set.
-- Let {deferredResult} be the result of {completedFuture}.
-- Let {deferredFragments}, {data}, and {errors} be the corresponding entries on
-  {deferredResult}.
-- If {data} is {null}:
-  - Initialize {completed} to an empty list.
-  - For each {deferredFragment} of {deferredFragments}:
-    - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
-    - If {deferState} is not defined, continue to the next {deferredFragment} of
-      {deferredFragments}.
-    - Let {futureStates} and {deferStates} be the result of
-      {RemoveFragment(deferredFragment, deferState, futureStates, deferStates)}.
-    - Let {completedEntry} be an unordered map containing {errors}.
-    - Set the entry for {pendingResult} in {completedEntry} to
-      {deferredFragment}.
-    - Append {completedEntry} to {completed}.
-  - Let {update} be an unordered map containing {completed}.
-  - Return {update}, {newFutures}, and {deferStates}.
-- Initialize {pending}, {incremental} and {completed} to empty lists.
-- For each {deferredFragment} of {deferredFragments}:
-  - Let {deferState} be the entry on {deferStates} for {deferredFragment}.
-  - If {deferState} is not defined, continue to the next {deferredFragment} of
-    {deferredFragments}.
-  - Let {newDeferState} be a new unordered map containing all entries on
-    {deferState}.
-  - Let {newCompletedFutures} be a new list containing all members of
-    {completedFutures} on {newDeferState}, appended by {completedFuture}.
-  - Set the {completedFutures} entry on {newDeferState} to
-    {newCompletedFutures}.
-  - Let {pendingFutures} be the corresponding entries on {newDeferState}.
-  - If the size of {newCompletedFutures} is equal to the size of
-    {pendingFutures}:
-    - Let {deferStates}, {fragmentPending}, {fragmentIncremental},
-      {fragmentCompleted}, and {fragmentNewFutures} be the result of
-      {CompleteFragment(deferredFragment, deferState, futureStates,
-      deferStates)}.
-    - Append all items in {fragmentPending}, {fragmentIncremental}, and
-      {fragmentCompleted} to {pending}, {incremental}, and {completed},
-      respectively.
-    - Add all items in {fragmentNewFutures} to {newFutures}.
-- Let {update} be an unordered map containing {pending}, {incremental} and
-  {completed}.
-- Return {update}, {newFutures}, and {deferStates}.
-
-RemoveFragment(deferredFragment, deferState, originalFutureStates,
-originalDeferStates):
-
-- Let {futureStates} and {deferStates} be a new unordered map containing all the
-  entries in {originalFutureStates} and {originalDeferStates}, respectively.
-- Remove the entry for {deferredFragment} on {deferStates}.
-- Let {pendingFutures} and {children} be the corresponding entry on
-  {deferState}.
-- For each {future} of {pendingFutures}:
-  - Let {futureState} be the entry for {future} on {futureStates}.
-  - Let {newFutureState} be a new unordered map containing all entries in
-    {futureState}.
-  - Reset {pendingDeferredFragments} on {newFutureState} to a new set containing
-    all of the original members except for {deferredFragment}.
-  - If {pendingDeferredFragments} on {futureState} is empty, remove the entry
-    for {future} in {futureStates}.
-  - Otherwise, set the entry for {future} in {futureStates} to {newFutureState}.
-- For each {child} of {children}:
-  - Let {childDeferState} be the entry on {deferStates} for {child}.
-  - Let {deferStates} be the result of {RemoveFragment(child, childDeferState,
-    futureStates, deferStates)}.
-- Return {futureStates} and {deferStates}.
-
-CompleteFragment(deferredFragment, deferState, futureStates,
-originalDeferStates):
-
-- Let {deferStates} be a new unordered map containing all entries in
-  {originalDeferStates}.
-- Remove the entry for {deferredFragment} on {deferStates}.
-- Let {completedFutures} be the corresponding entry on {deferState}.
 - Initialize {pending}, {incremental}, and {completed} to empty lists.
-- Initialize {newFutures} to the empty set.
-- For each {completedFuture} in {completedFutures}:
-  - Let {futureState} be the entry for {completedFuture} in {futureStates}.
-  - If {futureState} is not defined, continue to the next {completedFuture} in
-    {completedFutures}.
-  - Let {newFutureState} be a new unordered map containing all entries in
-    {futureState}.
-  - Set the entry for {completedFuture} in {futureStates} to {newFutureState}.
-  - Reset {pendingDeferredFragments} on {newFutureState} to a new set containing
-    all of the original members except for {deferredFragment}.
-  - If {pendingDeferredFragments} is empty, remove the entry for
-    {completedFuture} from {futureStates}.
-  - Let {deferredResult} be the result of {completedFuture}.
-  - Append {deferredResult} to {incremental}.
-  - Let {newPendingResults} and {futures} be the corresponding entries on
-    {deferredResult}.
-  - Let {resultPending}, {resultNewFutures}, and {deferStates} be the result of
-    {FilterDefers(newPendingResults, futures, deferStates)}.
-  - Append all items in {resultPending} to {pending}.
-  - Add all items in {resultNewFutures} to {newFutures}.
-- Append {deferredFragment} to {completed}.
-- Let {children} be the corresponding entry on {deferState}.
-- Append all items in {children} to {pending}.
-- For each {child} of {children}:
-  - Let {futuresToRelease} and {deferStates} be the result of {ReleaseFragment(
-    child, deferStates)}.
-  - Append all items in {futuresToRelease} to {newFutures}.
-  - Let {childDeferState} be the entry for {child} on {deferStates}.
-  - Let {pendingFutures} and {completedFutures} be the corresponding entries on
-    {childDeferState}.
-  - If the size of {pendingFutures} is equal to the size of {completedFutures}:
-    - Let {deferStates}, {childPending}, {childIncremental}, {childCompleted},
-      and {childNewFutures} be the result of {CompleteFragment(child,
-      childDeferState, deferStates)}.
-    - Append all items in {childPending}, {childIncremental}, and
-      {childCompleted} to {pending}, {incremental}, and {completed},
-      respectively.
-    - Add all items in {childNewFutures} to {newFutures}.
-- Return {deferStates}, {pending}, {incremental}, {completed}, and {newFutures}.
+- Let {completedEntry} be an empty unordered map.
+- Set the entry for {pendingResult} on {completedEntry} to {deferredFragment}.
+- Append {completedEntry} to {completed}.
+- For each {result} in {resultsForFragment}:
+  - If {result} is in {unsent}:
+    - Append {result} to {incremental}.
+- Let {newPendingResultsForFragment} be the entry for {deferredFragment} in
+  {newPendingResultsByFragment}.
+- For each {deferredFragment} in {newPendingResultsForFragment}:
+  - Let {pendingFuturesForFragment} be the entry for {deferredFragment} in
+    {pendingFuturesByFragment}; if no such list exists, continue to the next
+    {deferredFragment} in {newPendingResultsForFragment}.
+  - Append {deferredFragment} to {pending}.
+  - Let {resultsForFragment} be the entry for {deferredFragment} in
+    {resultsByFragment}.
+  - If the size of {resultsForFragment} is equal to the size of
+    {pendingFuturesForFragment}:
+    - Let {fragmentPending}, {fragmentIncremental}, and {fragmentCompleted}, be
+      the result of {CompleteFragment(deferredFragment, resultsForFragment,
+      pendingFuturesForFragment, newPendingResultsByFragment, resultsByFragment,
+      unsent)}.
+    - Append all items in {fragmentPending} to {pending}.
+    - Append all items in {fragmentIncremental} to {incremental}.
+    - Append all items in {fragmentCompleted} to {completed}.
+- Return {pending}, {incremental}, and {completed}.
 
 ## Executing a Field Plan
 
