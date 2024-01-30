@@ -863,7 +863,7 @@ serial):
 - Return {initialResult}.
 
 CompleteFragment(deferredFragment, completedFuturesForFragment,
-pendingFuturesForFragment, newPendingResultsByFragment,
+pendingFuturesByFragment, newPendingResultsByFragment,
 completedFuturesByFragment, unsent):
 
 - Initialize {newFutures} to the empty set.
@@ -888,8 +888,8 @@ completedFuturesByFragment, unsent):
     {fragmentPendingFuturesForFragment}:
     - Let {fragmentNewFutures}, {fragmentPending}, {fragmentIncremental}, and
       {fragmentCompleted}, be the result of {CompleteFragment(deferredFragment,
-      resultsForFragment, pendingFuturesForFragment,
-      newPendingResultsByFragment, resultsByFragment, unsent)}.
+      resultsForFragment, pendingFuturesByFragment, newPendingResultsByFragment,
+      resultsByFragment, unsent)}.
     - Add all items in {fragmentNewFutures} to {newFutures}.
     - Append all items in {fragmentPending} to {pending}.
     - Append all items in {fragmentIncremental} to {incremental}.
