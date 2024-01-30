@@ -726,13 +726,29 @@ serial):
 - Let {initialFuture} be the future result of
   {ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
   serial)}.
-- Initialize {pendingResults}, {pendingFutures}, and {unsent} to the empty set.
+- Initiate {initialFuture}.
+- Initialize {pendingFutures} to a set containing {initialFuture}.
+- Initialize {pendingResults} {pendingFutures}, and {unsent} to the empty set.
 - Initialize {newPendingResultsByFragment}, {pendingFuturesByFragment}, and
   {completedFuturesByFragment} to empty unordered maps.
 - Repeat the following steps:
-  - Initialize {pending}, {incremental}, and {completed} to empty lists.
-  - Wait for any futures within {pendingFutures} to complete.
-  - Let {completedFutures} be those completed futures.
+  - If none of the futures in {pendingFutures} have completed:
+    - If {incremental} or {completed} is not empty:
+      - If {pendingResults} is empty, let {hasNext} be {false}, otherwise let it
+        be {true}.
+      - Let {incrementalResult} be a new unordered map containing {pending},
+        {incremental}, {completed} and {hasNext}.
+      - Yield {incrementalResult}.
+      - If {hasNext} is {false}, complete this incremental result stream and
+        return.
+      - For each {future} in {newFutures}:
+        - Initialize {future} if it has not yet been initialized.
+        - Add {future} to {pendingFutures}.
+        - Reset {newFutures} to the empty set.
+    - Reset {pending}, {incremental}, and {completed} to empty lists.
+    - Wait for any futures within {pendingFutures} to complete.
+  - Let {completedFutures} be the futures in {pendingFutures} that have
+    completed.
   - For each {future} in {completedFutures}:
     - Remove {future} from {pendingFutures}.
     - Let {result} be the result of {future}.
@@ -778,12 +794,12 @@ serial):
             in {pendingFuturesByFragment}.
           - If the size of {completedFuturesForFragment} is equal to the size of
             {pendingFuturesForFragment}:
-            - Let {fragmentPendingFutures}, {fragmentPending},
+            - Let {fragmentNewFutures}, {fragmentPending},
               {fragmentIncremental}, and {fragmentCompleted}, be the result of
               {CompleteFragment(deferredFragment, completedFuturesForFragment,
               pendingFuturesForFragment, newPendingResultsByFragment,
               completedFuturesByFragment, unsent)}.
-            - Add all items in {fragmentPendingFutures} to {pendingFutures}.
+            - Add all items in {fragmentNewFutures} to {newFutures}.
             - For each {pendingResult} in {fragmentPending}:
               - Append {pendingResult} to {pending}.
               - Add {pendingResult} to {pendingResults}.
@@ -796,10 +812,9 @@ serial):
     - For each {result} in {incremental}:
       - Let {newPendingResults} and {futures} be the corresponding entries on
         {incremental}.
-      - For each {future} of {futures}:
-        - If {future} represents completion of Stream Items:
-          - Initiate {future} if it has not yet been initiated.
-          - Add {future} to {pendingFutures}.
+      - For each {future} of {futures}: If {future} represents completion of
+        Stream Items:
+        - Add {future} to {newFutures}.
         - Otherwise:
           - Let {deferredFragments} be the Deferred Fragments completed by
             {future}.
@@ -809,8 +824,7 @@ serial):
               exists, create it as an empty list.
             - Append {future} to {pendingFuturesForFragment}.
             - If {deferredFragment} is contained by {pendingResults}:
-              - Initiate {future} if it has not yet been initiated.
-              - Add {future} to {pendingFutures}.
+              - Add {future} to {newFutures}.
       - For each {newPendingResult} of {newPendingResults}:
         - If {newPendingResult} represents a Stream:
           - Append {newPendingResult} to {pending}.
@@ -825,25 +839,12 @@ serial):
             - Append {newPendingResult} to {pending}.
             - Add {newPendingResult} to {pendingResults}.
             - For each {future} in {pendingFuturesForFragment}:
-              - Initiate {future} if it has not yet been initiated.
-              - Add {future} to {pendingFutures}.
+              - Add {future} to {newFutures}.
           - Otherwise:
             - Let {newPendingResultsForFragment} be the entry for {parent} in
               {newPendingResultsByFragment}; if no such list exists, create it
               as an empty list.
             - Append {newPendingResult} to {newPendingResultsForFragment}.
-    - If {pendingResults} is empty, let {hasNext} be {false}, otherwise let it
-      be {true}.
-    - If {data} is defined:
-      - Let {incrementalResult} be a new unordered map containing {data},
-        {errors} and {pending}.
-      - Yield {incrementalResult}.
-    - Otherwise, if {incremental} or {completed} is not empty:
-      - Let {incrementalResult} be a new unordered map containing {pending},
-        {incremental}, {completed} and {hasNext}.
-      - Yield {incrementalResult}.
-    - If {hasNext} is {false}, complete this incremental result stream and
-      return.
 
 ExecuteInitialResult(variableValues, initialValue, objectType, selectionSet,
 serial):
@@ -865,7 +866,7 @@ CompleteFragment(deferredFragment, completedFuturesForFragment,
 pendingFuturesForFragment, newPendingResultsByFragment,
 completedFuturesByFragment, unsent):
 
-- Initialize {pendingFutures} to the empty set.
+- Initialize {newFutures} to the empty set.
 - Initialize {pending}, {incremental}, and {completed} to empty lists.
 - Let {completedEntry} be an empty unordered map.
 - Set the entry for {pendingResult} on {completedEntry} to {deferredFragment}.
@@ -889,16 +890,15 @@ completedFuturesByFragment, unsent):
       {fragmentCompleted}, be the result of {CompleteFragment(deferredFragment,
       resultsForFragment, pendingFuturesForFragment,
       newPendingResultsByFragment, resultsByFragment, unsent)}.
-    - Add all items in {fragmentPendingFutures} to {pendingFutures}.
+    - Add all items in {fragmentNewFutures} to {newFutures}.
     - Append all items in {fragmentPending} to {pending}.
     - Append all items in {fragmentIncremental} to {incremental}.
     - Append all items in {fragmentCompleted} to {completed}.
   - Otherwise:
     - For each {future} in {fragmentPendingFuturesForFragment}:
       - If {completedFuturesForFragment} does not contain {future}:
-        - Initiate {future} if it has not yet been initiated.
-        - Add {future} to {pendingFutures}.
-- Return {pendingFutures}, {pending}, {incremental}, and {completed}.
+        - Add {future} to {newFutures}.
+- Return {newFutures}, {pending}, {incremental}, and {completed}.
 
 ## Executing a Field Plan
 
