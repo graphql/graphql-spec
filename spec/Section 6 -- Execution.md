@@ -248,8 +248,10 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {subscription}.
+- Let {path} be an empty list.
+- Let {eventSourceDeliveryGroup} be a new delivery group with path {path}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
+  selectionSet, variableValues, path, eventSourceDeliveryGroup)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
 - Let {fields} be the value of the first entry in {groupedFieldSet}.
 - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -357,8 +359,8 @@ be executed in parallel.
 Each represented field in the grouped field set produces an entry into a
 response map.
 
-ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-variableValues):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
+path, currentDeliveryGroups):
 
 - Let {incrementalDetailsByPath} be an empty map.
 - Initialize {resultMap} to an empty ordered map.
@@ -372,11 +374,11 @@ variableValues):
       {objectType}.
     - If {fieldType} is defined:
       - Let {childPath} be the result of appending {responseKey} to {path}.
-      - Let {responseValue} and {childFieldSetsByPath} be
+      - Let {responseValue} and {childIncrementalDetailsByPath} be
         {ExecuteField(objectType, objectValue, fieldType, fieldDigests,
         variableValues, childPath, currentDeliveryGroups)}.
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
-      - For each {childFieldSetsByPath} as {childPath} and {fieldSet}:
+      - For each {childIncrementalDetailsByPath} as {childPath} and {fieldSet}:
         - Set {fieldSet} as the value for {childPath} in
           {incrementalDetailsByPath}.
   - Otherwise:
@@ -537,9 +539,6 @@ response in a stable and predictable order.
 CollectFields(objectType, selectionSet, variableValues, path, deliveryGroup,
 visitedFragments):
 
-- If {path} is not provided, initialize it to an empty list.
-- If {deliveryGroup} is not provided, initialize it to be a new delivery group
-  with path {path}.
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
@@ -758,14 +757,14 @@ currentDeliveryGroups):
     - For each list item {resultItem} at 0-indexed index {resultIndex} in
       {result}:
       - Let {subpath} be the result of appending {resultIndex} to {path}.
-      - Let {listValue} and {itemIncrementalFieldSetsByPath} be the result of
+      - Let {listValue} and {itemIncrementalDetailsByPath} be the result of
         calling {CompleteValue(innerType, fieldDigests, resultItem,
         variableValues, subpath, currentDeliveryGroups)}.
       - Append {listValue} to {list}.
       - If {listValue} is not {null}:
-        - For each {itemIncrementalFieldSetsByPath} as {childPath} and
-          {childFieldSets}:
-          - Set {childFieldSets} as the value for {childPath} in
+        - For each {itemIncrementalDetailsByPath} as {childPath} and
+          {childIncrementalDetails}:
+          - Set {childIncrementalDetails} as the value for {childPath} in
             {incrementalDetailsByPath}.
   - Return {list} and {incrementalDetailsByPath}.
 - If {fieldType} is a Scalar or Enum type:
