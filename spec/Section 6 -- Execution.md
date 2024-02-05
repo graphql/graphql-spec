@@ -378,8 +378,9 @@ path, currentDeliveryGroups):
         {ExecuteField(objectType, objectValue, fieldType, fieldDigests,
         variableValues, childPath, currentDeliveryGroups)}.
       - Set {responseValue} as the value for {responseKey} in {resultMap}.
-      - For each {childIncrementalDetailsByPath} as {childPath} and {fieldSet}:
-        - Set {fieldSet} as the value for {childPath} in
+      - For each {childIncrementalDetailsByPath} as {childPath} and
+        {childIncrementalDetails}:
+        - Set {childIncrementalDetails} as the value for {childPath} in
           {incrementalDetailsByPath}.
   - Otherwise:
     - Let {details} be the details object in {incrementalDetailsByPath} for
@@ -748,7 +749,7 @@ currentDeliveryGroups):
   - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult} and {incrementalDetailsByPath}.
 - If {result} is {null} (or another internal value similar to {null} such as
-  {undefined}), return {null}.
+  {undefined}), return {null} and an empty map.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
@@ -936,10 +937,10 @@ An execution group consists of:
   write the data,
 - {status}: {PENDING}, {EXECUTING}, {COMPLETE} or {FAILED},
 - {dependencies}: a list of execution groups on which it is dependent, and
-- {detailsByPath}: a map of response path to a details object containing
-  {groupedFieldSet}, {objectType} and {objectValue}.
+- {incrementalDetailsByPath}: a map of response path to a details object
+  containing {groupedFieldSet}, {objectType} and {objectValue}.
 
-Note: {dependencies} and {detailsByPath} may be added to over time.
+Note: {dependencies} and {incrementalDetailsByPath} may be added to over time.
 
 ExecutionGroupPath(executionGroup):
 
