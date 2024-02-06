@@ -956,140 +956,112 @@ ExecutionGroupPath(executionGroup):
 IncrementalEventStream(data, errors, initialIncrementalDetailsByPath,
 variableValues):
 
+- Let {incrementalDetailsByPath} be {initialIncrementalDetailsByPath}.
 - Return a new event stream {responseStream} which yields events as follows:
-- Let {nextId} be {0}.
-- Let {executionGroups} be an empty set.
+  - Let {pendingDeliveryGroups} be
+    {CollectDeliveryGroups(incrementalDetailsByPath)}.
+  - Assert: {pendingDeliveryGroups} is not empty.
+  - Let {pending} be {MakePending(pendingDeliveryGroups)}.
+  - Yield an event containing {data}, {errors}, {pending}, and the value {true}
+    for {hasNext}.
+  - Let {streams} be {IncrementalStreams(incrementalDetailsByPath)}.
+  - For each {event} on each stream in {streams}:
+    - Yield {event}.
+  - When every stream in {streams} has completed:
+    - Yield a map with {hasNext} set to {false}.
+
+In order to increase efficiency, any two or more consecutive payloads in the
+IncrementalEventStream stream may optionally be combined by concatenating the
+lists therein (maintaining order) and setting {hasNext} to {false} if any of the
+payloads has {hasNext} set to {false}, otherwise {true}.
+
+CollectDeliveryGroups(incrementalDetailsByPath):
+
+- Let {allDeliveryGroup} be an empty set.
+- For each {incrementalDetailsByPath} as {path} and {details}:
+  - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties in
+    {details}.
+  - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+    - For each {fieldDigests} as {fieldDigest}.
+      - Let {deliveryGroup} be the delivery group in {fieldDigest}.
+      - Add {deliveryGroup} to {allDeliveryGroups}.
+- Return {allDeliveryGroups}.
+
+MakePending(deliveryGroups):
+
 - Let {pending} be an empty list.
-- Define the sub-procedure {CreateExecutionGroup(deliveryGroups)} with the
-  following actions:
-  - Let {executionGroup} be a new execution group that relates to
-    {deliveryGroups} with no dependencies and an empty {detailsByPath}.
-  - If {deliveryGroups} contains more than one entry:
-    - Let {id} be {null}.
-    - Let {bestPath} be {null}.
-    - For each {deliveryGroups} as {deliveryGroup}:
-      - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
-      - Let {childExecutionGroup} be the result of
-        {ExecutionGroupFor(deliveryGroupSet)}.
-      - Add {executionGroup} as a dependency of {childExecutionGroup}.
-      - Let {path} be the path of {deliveryGroup}.
-      - If {bestPath} is {null} or {bestPath} contains fewer entries than
-        {path}:
-        - Let {bestPath} be {path}.
-        - Let {id} be the {pendingId} of {childExecutionGroup}.
-  - Otherwise:
-    - Let {id} be {nextId} and increment {nextId} by one.
-    - Let {deliveryGroup} be the only entry in {deliveryGroups}.
-    - Let {path} be the path of {deliveryGroup}.
-    - Let {label} be the label of {deliveryGroup} (if any).
-    - Let {pendingPayload} be an unordered map containing {id}, {path}, {label}.
-    - Add {pendingPayload} to {pending}.
-  - Assert: {id} is not null.
-  - Set {id} as the value for {pendingId} in {executionGroup}.
-  - Add {executionGroup} to {executionGroups}.
-  - Return {executionGroup}.
-- Define the sub-procedure {ExecutionGroupFor(deliveryGroups)} with the
-  following actions:
-  - Let {executionGroup} be the execution group for the current operation that
-    relates to the delivery groups {deliveryGroups} and only those delivery
-    groups. If no such execution group exists then let {executionGroup} be the
-    result of {CreateExecutionGroup(deliveryGroups)}.
-  - Return {executionGroup}.
-- Define the sub-procedure {AddFieldDigestsToExecutionGroup(executionGroup,
-  path, objectType, objectValue, responseKey, fieldDigests)} with the following
-  actions:
-  - Let {detailsByPath} be that property of {executionGroup}.
-  - Let {details} be the details object in {detailsByPath} for {path}; if no
-    such details object exists, create it as a details object containing
-    {groupedFieldSet} as an empty map, {objectType} and {objectValue}.
-  - Let {groupedFieldSet} be that property in {details}.
-  - Set {fieldDigests} as the value for {responseKey} in {groupedFieldSet}.
-- Define the sub-procedure {HandleIncremental(incrementalDetailsByPath)} with
-  the following actions:
-  - For each {incrementalDetailsByPath} as {path} and {details}:
-    - Let {objectType} be that property in {details}.
-    - Let {objectValue} be that property in {details}.
-    - Let {groupedFieldSet} be that property in {details}.
-    - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
-      - Let {deliveryGroups} be the set containing each unique delivery group
-        for each digest in {fieldDigests}.
-      - Let {executionGroup} be {ExecutionGroupFor(deliveryGroups)}.
-      - Call {AddFieldDigestsToExecutionGroup(executionGroup, path, objectType,
-        objectValue, responseKey, fieldDigests)}.
-- Define the sub-procedure {ExecuteExecutionGroup(executionGroup)}:
-  - Set {state} of {executionGroup} to {EXECUTING}.
-  - Let {detailsByPath} be that property of {executionGroup}.
-  - Let {deliveryGroups} be that property of {executionGroup}.
-  - Let {dependencies} be that property of {executionGroup}.
-  - For each {detailsByPath} as {path} and {details} (in parallel):
-    - Let {groupedFieldSet} be that property in {details}.
-    - Let {objectType} be that property in {details}.
-    - Let {objectValue} be that property in {details}.
-    - Assert: {objectValue} exists and is not {null}.
-    - Let {data} and {incrementalDetailsByPath} be the result of running
-      {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-      variableValues, path, deliveryGroups)} _normally_ (allowing
-      parallelization).
-    - TODO: collect {data} at {path} (relative to
-      {ExecutionGroupPath(executionGroup)}).
-    - TODO: collect {incrementalDetailsByPath}.
-  - If an error {error} bubbled past any of the grouped field sets above:
-    - Set {state} of {executionGroup} to {FAILED}.
-    - If {deliveryGroups} contains exactly one entry:
-      - Let {id} be {pendingId} of {executionGroup}.
-      - Let {completedPayload} be an unordered map containing {id}, {error}.
-      - Add {completedPayload} to {completed}.
+- For each {deliveryGroups} as {deliveryGroup}:
+  - Let {id}, {path} and {label} be those properties in {deliveryGroup}.
+  - Let {pendingPayload} be an unordered map containing {id}, {path}, {label}.
+  - Append {pendingPayload} to {pending}.
+- Return {pending}.
+
+IncrementalStreams(incrementalDetailsByPath):
+
+- Let {streams} be an empty list.
+- Let {runnableDeliveryGroupsSets} be the result of
+  {PartitionDeliveryGroupsSets(incrementalDetailsByPath)}.
+- For each {runnableDeliveryGroupsSets} as {runnableDeliveryGroupsSet}:
+  - Let {stream} be {IncrementalStream(incrementalDetailsByPath,
+    runnableDeliveryGroupsSet)}.
+  - Append {stream} to {streams}.
+- Return {streams}.
+
+PartitionDeliveryGroupsSets(incrementalDetailsByPath):
+
+- Let {graph} be an empty graph, where the nodes are delivery groups.
+- For each {incrementalDetailsByPath} as {path} and {details}:
+  - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties in
+    {details}.
+  - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+    - Let {deliveryGroupsSet} be the set containing the delivery group from each
+      digest in {fieldDigests}.
+    - Add each {deliveryGroup} in {deliveryGroupsSet} as a node to the {graph}
+      (if it's not already present).
+    - For each pair of delivery groups {deliveryGroup1} and {deliveryGroup2} in
+      {deliveryGroupsSet}:
+      - Ensure {deliveryGroup1} and {deliveryGroup2} are connected in {graph}.
+- Let {partitionedDeliveryGroupsSets} be an empty unordered list.
+- For each connected {subgraph} in {graph}:
+  - Let {deliveryGroupsSet} be the delivery groups in {subgraph}.
+  - Add {deliveryGroupsSet} to {partitionedDeliveryGroupsSets}.
+- Assert: every {deliveryGroup} in {graph} must appear in exactly one set in
+  {partitionedDeliveryGroupsSets}.
+- Return {partitionedDeliveryGroupsSets}.
+
+IncrementalStream(incrementalDetailsByPath, deliveryGroupsSet):
+
+- Let {remainingIncrementalDetailsByPath}, {runnable} be
+  {SplitRunnable(incrementalDetailsByPath, deliveryGroupsSet)}.
+- Return a new event stream {incrementalStream} which yields events as follows:
+  - TODO: run the runnable
+
+SplitRunnable(incrementalDetailsByPath, runnableDeliveryGroupsSet):
+
+- Let {remainingIncrementalDetailsByPath} be an empty map.
+- Let {runnable} be an empty map.
+- For each {incrementalDetailsByPath} as {path} and {details}:
+  - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties in
+    {details}.
+  - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
+    - Let {deliveryGroups} be the set containing the delivery group from each
+      digest in {fieldDigests}.
+    - If {deliveryGroups} contains the same number and set of delivery groups as
+      {runnableDeliveryGroupsSet} (order unimportant):
+      - Let {incrementalDetails} be the incremental details object in {runnable}
+        for {path}; if no such object exists, create it with {objectType},
+        {objectValue}, and an empty {fieldDigests} map.
+    - Otherwise, if {deliveryGroups} only contains delivery groups that are also
+      in {runnableDeliveryGroupsSet}:
+      - Let {incrementalDetails} be the incremental details object in
+        {remainingIncrementalDetailsByPath} for {path}; if no such object
+        exists, create it with {objectType}, {objectValue}, and an empty
+        {fieldDigests} map.
     - Otherwise:
-      - For each {deliveryGroups} as {deliveryGroup}:
-        - Let {deliveryGroupSet} be a set containing {deliveryGroup}.
-        - Let {dependentExecutionGroup} be
-          {ExecutionGroupFor(deliveryGroupSet)}.
-        - Set {state} of {dependentExecutionGroup} to {FAILED}.
-        - Let {id} be {pendingId} of {dependentExecutionGroup}.
-        - Let {completedPayload} be an unordered map containing {id}, {error}.
-        - Add {completedPayload} to {completed}.
-        - Remove {dependentExecutionGroup} from {executionGroups}.
-    - Remove {executionGroup} from {executionGroups}.
-    - Optionally, {FlushStream()}.
-  - Otherwise:
-    - Set {state} of {executionGroup} to {COMPLETE}.
-    - If {deliveryGroups} contains exactly one entry:
-      - For each {dependencies} as {dependency}:
-        - TODO: send that stored data (see below).
-        - Remove {dependency} as a dependency from each execution group in
-          {executionGroups} for which it is a dependency.
-        - Remove {dependency} from {executionGroups}.
-      - TODO: push all the data into {incremental}.
-      - Remove {executionGroup} from {executionGroups}.
-      - Optionally, {FlushStream()}.
-    - Otherwise:
-      - TODO: store the data for later, send it with one of our dependents.
-- Call {HandleIncremental(initialIncrementalDetailsByPath)}.
-- Assert: {pending} is not empty.
-- Let {initialResponse} be an unordered map containing {data}, {errors},
-  {pending}, and the value {true} for key {hasNext}.
-- Yield an event containing {initialResponse}.
-- Let {incremental} be an empty list.
-- Let {pending} be an empty list.
-- Let {completed} be an empty list.
-- Define the sub-procedure {FlushStream()} with the following actions:
-  - Let {hasNext} be true if {executionGroups} is not empty, {false} otherwise.
-  - Let {incrementalPayload} be an empty unordered map.
-  - Add {hasNext} to {incrementalPayload}.
-  - If {incremental} is not empty:
-    - Add {incremental} to {incrementalPayload}.
-  - If {pending} is not empty:
-    - Add {pending} to {incrementalPayload}.
-  - If {completed} is not empty:
-    - Add {completed} to {incrementalPayload}.
-  - Yield an event containing {incrementalPayload}.
-  - Reset {incremental} to an empty list.
-  - Reset {pending} to an empty list.
-  - Reset {completed} to an empty list.
-  - If {hasNext} is {false}, complete {responseStream}.
-- While {executionGroups} is not empty:
-  - Let {readyToExecute} be the list of {PENDING} execution groups in
-    {executionGroups} whose {dependencies} are all {COMPLETE}.
-  - For each {readyToExecute} as {executionGroup} (in parallel):
-    - Call {ExecuteExecutionGroup(executionGroup)}.
-- Call {FlushStream()}.
+      - Continue with the next {responseKey} and {fieldDigests} in
+        {groupedFieldSet}.
+    - Let {targetGroupedFieldSet} be the {groupedFieldSet} property of
+      {incrementalDetails}.
+    - Set {fieldDigests} as the value for {responseKey} in
+      {targetGroupedFieldSet}.
+- Return {remainingIncrementalDetailsByPath} and {runnable}.
