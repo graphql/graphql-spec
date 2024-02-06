@@ -918,39 +918,6 @@ In an operation that does not utilise the `@stream` and `@defer` directives,
 there will only be a single delivery group, the _root delivery group_, and all
 fields will belong to it.
 
-### Execution Group
-
-::: An _execution group_ represents a number of fields at a number of given
-paths in the operation that all belong to the same _delivery group_ or groups.
-An execution group may depend on other execution groups, such that it cannot be
-delivered until they also have been delivered.
-
-::: A _shared execution group_ is an _execution group_ that applies to more than
-one _delivery group_. Shared execution groups cannot be delivered on their own,
-they must only be delivered along with at least one completed _execution group_
-that depends on them.
-
-An execution group consists of:
-
-- {deliveryGroups}: a set of the delivery groups to which it applies,
-- {pendingId}: a numeric id used in the response stream to identify where to
-  write the data,
-- {status}: {PENDING}, {EXECUTING}, {COMPLETE} or {FAILED},
-- {dependencies}: a list of execution groups on which it is dependent, and
-- {incrementalDetailsByPath}: a map of response path to a details object
-  containing {groupedFieldSet}, {objectType} and {objectValue}.
-
-Note: {dependencies} and {incrementalDetailsByPath} may be added to over time.
-
-ExecutionGroupPath(executionGroup):
-
-- Let {bestPath} be {null}.
-- Let {deliveryGroups} be that property of {executionGroup}.
-- For each {deliveryGroups} as {deliveryGroup}:
-- If {bestPath} is {null} or {bestPath} contains fewer entries than {path}:
-  - Let {bestPath} be {path}.
-- Return {bestPath}.
-
 ### Incremental Event Stream
 
 IncrementalEventStream(data, errors, initialIncrementalDetailsByPath,
@@ -964,7 +931,8 @@ variableValues):
   - Let {pending} be {MakePending(pendingDeliveryGroups)}.
   - Yield an event containing {data}, {errors}, {pending}, and the value {true}
     for {hasNext}.
-  - Let {streams} be {IncrementalStreams(incrementalDetailsByPath)}.
+  - Let {streams} and {runnableDeliveryGroupsSets} be
+    {IncrementalStreams(incrementalDetailsByPath)}.
   - For each {event} on each stream in {streams}:
     - Yield {event}.
   - When every stream in {streams} has completed:
@@ -975,8 +943,9 @@ IncrementalEventStream stream may optionally be combined by concatenating the
 lists therein (maintaining order) and setting {hasNext} to {false} if any of the
 payloads has {hasNext} set to {false}, otherwise {true}.
 
-CollectDeliveryGroups(incrementalDetailsByPath):
+CollectDeliveryGroups(incrementalDetailsByPath, excludingDeliveryGroups):
 
+- If {excludingDeliveryGroups} is not provided, initialize it to the empty set.
 - Let {allDeliveryGroup} be an empty set.
 - For each {incrementalDetailsByPath} as {path} and {details}:
   - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties in
@@ -984,7 +953,8 @@ CollectDeliveryGroups(incrementalDetailsByPath):
   - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
     - For each {fieldDigests} as {fieldDigest}.
       - Let {deliveryGroup} be the delivery group in {fieldDigest}.
-      - Add {deliveryGroup} to {allDeliveryGroups}.
+      - If {deliveryGroup} is not in {excludingDeliveryGroups}:
+        - Add {deliveryGroup} to {allDeliveryGroups}.
 - Return {allDeliveryGroups}.
 
 MakePending(deliveryGroups):
@@ -1005,7 +975,7 @@ IncrementalStreams(incrementalDetailsByPath):
   - Let {stream} be {IncrementalStream(incrementalDetailsByPath,
     runnableDeliveryGroupsSet)}.
   - Append {stream} to {streams}.
-- Return {streams}.
+- Return {streams} and {runnableDeliveryGroupsSets}.
 
 PartitionDeliveryGroupsSets(incrementalDetailsByPath):
 
@@ -1033,27 +1003,76 @@ IncrementalStream(incrementalDetailsByPath, deliveryGroupsSet):
 
 - Let {remainingIncrementalDetailsByPath}, {runnable} be
   {SplitRunnable(incrementalDetailsByPath, deliveryGroupsSet)}.
+- Let {hasNext} be {true}.
 - Return a new event stream {incrementalStream} which yields events as follows:
-  - TODO: run the runnable
+  - In the event of one or more errors, {errors}:
+    - Let {completed} be an empty list.
+    - For each {deliveryGroupsSet} as {deliveryGroup}:
+      - {id} be the id of {deliveryGroup}.
+      - Append an unordered map containing {id} and {errors} to {completed}.
+    - Yield an unordered map containing {hasNext} and {completed}.
+    - Complete {incrementalStream}.
+    - Return.
+  - Let {incremental} be an empty list.
+  - For each {runnable} as {path} and {incrementalDetails} (in parallel):
+    - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties
+      in {incrementalDetails}.
+    - Assert: {objectValue} exists and is not {null}.
+    - Let {data} and {childIncrementalDetailsByPath} be the result of running
+      {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+      variableValues, path, deliveryGroups)} _normally_ (allowing
+      parallelization).
+    - Let {errors} be the list of all _field error_ raised while executing the
+      grouped field set.
+    - Let {remainingIncrementalDetailsByPath} be
+      {MergeIncrementalDetailsByPath(remainingIncrementalDetailsByPath,
+      childIncrementalDetailsByPath)}.
+    - Append an unordered map containing {hasNext}, {id}, {data} and {errors} to
+      {incremental}.
+  - Let {pendingDeliveryGroups} be
+    {CollectDeliveryGroups(incrementalDetailsByPath, deliveryGroupsSet)}.
+  - Let {pending} be {MakePending(pendingDeliveryGroups)}.
+  - Let {sentInitial} be {false}.
+  - Let {streams} and {runnableDeliveryGroupsSets} be
+    {IncrementalStreams(incrementalDetailsByPath)}.
+  - For each {deliveryGroupsSet} as {deliveryGroup}:
+    - If {deliveryGroup} is not contained in any delivery group set in
+      {runnableDeliveryGroupsSets}:
+      - If {sentInitial} is not {true}:
+        - Let {sentInitial} be {true}.
+        - Yield an unordered map containing {hasNext}, {incremental} and
+          {pending}.
+      - Let {id} be the id of {deliveryGroup}.
+      - Let {completedItem} be an unordered map containing {id}.
+      - Let {completed} be a list containing {completedItem}.
+      - Yield an unordered map containing {hasNext} and {completed}.
+  - For each {event} on each stream in {streams}:
+    - If {sentInitial} is not {true}:
+      - Let {sentInitial} be {true}.
+      - Yield an unordered map containing {hasNext}, {incremental} and
+        {pending}.
+    - Yield {event}.
+  - When every stream in {streams} has completed:
+    - Complete {incrementalStreams}.
 
 SplitRunnable(incrementalDetailsByPath, runnableDeliveryGroupsSet):
 
 - Let {remainingIncrementalDetailsByPath} be an empty map.
 - Let {runnable} be an empty map.
-- For each {incrementalDetailsByPath} as {path} and {details}:
+- For each {incrementalDetailsByPath} as {path} and {incrementalDetails}:
   - Let {objectType}, {objectValue} and {groupedFieldSet} be those properties in
-    {details}.
+    {incrementalDetails}.
   - For each {groupedFieldSet} as {responseKey} and {fieldDigests}:
     - Let {deliveryGroups} be the set containing the delivery group from each
       digest in {fieldDigests}.
     - If {deliveryGroups} contains the same number and set of delivery groups as
       {runnableDeliveryGroupsSet} (order unimportant):
-      - Let {incrementalDetails} be the incremental details object in {runnable}
-        for {path}; if no such object exists, create it with {objectType},
-        {objectValue}, and an empty {fieldDigests} map.
+      - Let {targetIncrementalDetails} be the incremental details object in
+        {runnable} for {path}; if no such object exists, create it with
+        {objectType}, {objectValue}, and an empty {fieldDigests} map.
     - Otherwise, if {deliveryGroups} only contains delivery groups that are also
       in {runnableDeliveryGroupsSet}:
-      - Let {incrementalDetails} be the incremental details object in
+      - Let {targetIncrementalDetails} be the incremental details object in
         {remainingIncrementalDetailsByPath} for {path}; if no such object
         exists, create it with {objectType}, {objectValue}, and an empty
         {fieldDigests} map.
@@ -1061,7 +1080,29 @@ SplitRunnable(incrementalDetailsByPath, runnableDeliveryGroupsSet):
       - Continue with the next {responseKey} and {fieldDigests} in
         {groupedFieldSet}.
     - Let {targetGroupedFieldSet} be the {groupedFieldSet} property of
-      {incrementalDetails}.
+      {targetIncrementalDetails}.
     - Set {fieldDigests} as the value for {responseKey} in
       {targetGroupedFieldSet}.
 - Return {remainingIncrementalDetailsByPath} and {runnable}.
+
+MergeIncrementalDetailsByPath(incrementalDetailsByPath1,
+incrementalDetailsByPath2):
+
+- Let {incrementalDetailsByPath} be a copy of {incrementalDetailsByPath1}.
+- For each {incrementalDetailsByPath2} as {path} and {newIncrementalDetails}:
+  - Let {originalIncrementalDetails} be the value for {path} in
+    {incrementalDetailsByPath}, or {null} if no such entry exists.
+  - If {originalIncrementalDetails} is null:
+    - Set {newIncrementalDetails} as the value for {path} in
+      {incrementalDetailsByPath}.
+  - Otherwise:
+    - Let {originalGroupedFieldSet} be the grouped field set in
+      {originalIncrementalDetails}.
+    - Let {newGroupedFieldSet} be the grouped field set in
+      {newIncrementalDetails}.
+    - For each {newGroupedFieldSet} as {responseKey} and {newFieldDigests}:
+      - Let {fieldDigests} be the value for {responseKey} in
+        {originalGroupedFieldSet}; or if no such entry is found, create it as
+        the empty set.
+      - Add every entry in {newFieldDigests} to {fieldDigests}.
+- Return {incrementalDetailsByPath}.
