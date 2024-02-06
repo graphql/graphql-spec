@@ -904,7 +904,7 @@ return `Non-Null` types, then the {"data"} entry in the response should be
 ### Delivery Group
 
 ::: A _delivery group_ represents either the root selection set or a particular
-`@stream` or `@defer` directive at a particular {path} in the response.
+`@defer` directive at a particular {path} in the response.
 
 ::: The _root delivery group_ is the _delivery group_ that represents the root
 selection set in the operation.
@@ -914,9 +914,9 @@ delivery group_. During field collection, the delivery group of each field is
 tracked, and this is used when determining when to execute and deliver defered
 fields and streamed list items.
 
-In an operation that does not utilise the `@stream` and `@defer` directives,
-there will only be a single delivery group, the _root delivery group_, and all
-fields will belong to it.
+In an operation that does not utilise the `@defer` directive, there will only be
+a single delivery group, the _root delivery group_, and all fields will belong
+to it.
 
 ### Incremental Event Stream
 
