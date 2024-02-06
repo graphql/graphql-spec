@@ -1030,11 +1030,12 @@ IncrementalStream(incrementalDetailsByPath, deliveryGroupsSet):
     - Append an unordered map containing {hasNext}, {id}, {data} and {errors} to
       {incremental}.
   - Let {pendingDeliveryGroups} be
-    {CollectDeliveryGroups(incrementalDetailsByPath, deliveryGroupsSet)}.
+    {CollectDeliveryGroups(remainingIncrementalDetailsByPath,
+    deliveryGroupsSet)}.
   - Let {pending} be {MakePending(pendingDeliveryGroups)}.
   - Let {sentInitial} be {false}.
   - Let {streams} and {runnableDeliveryGroupsSets} be
-    {IncrementalStreams(incrementalDetailsByPath)}.
+    {IncrementalStreams(remainingIncrementalDetailsByPath)}.
   - For each {deliveryGroupsSet} as {deliveryGroup}:
     - If {deliveryGroup} is not contained in any delivery group set in
       {runnableDeliveryGroupsSets}:
