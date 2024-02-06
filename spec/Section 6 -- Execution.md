@@ -911,7 +911,7 @@ selection set in the operation.
 
 Each _delivery group_ belongs to a {parent} delivery group, except for the _root
 delivery group_. During field collection, the delivery group of each field is
-tracked, and this is used when determining when to execute and deliver defered
+tracked, and this is used when determining when to execute and deliver deferred
 fields and streamed list items.
 
 In an operation that does not utilise the `@defer` directive, there will only be
