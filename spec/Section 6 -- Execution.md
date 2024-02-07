@@ -519,12 +519,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
-    - Let {arguments} be the set of arguments on {selection}.
-    - Let {fragmentSpreadKey} be a unique key of {fragmentSpreadName} and
-      {arguments}.
-    - If {fragmentSpreadKey} is in {visitedFragments}, continue with the next
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
       {selection} in {selectionSet}.
-    - Add {fragmentSpreadKey} to {visitedFragments}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
