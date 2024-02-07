@@ -151,6 +151,7 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+  directives: [__AppliedDirective!]
 }
 
 enum __TypeKind {
@@ -171,6 +172,7 @@ type __Field {
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
+  directives: [__AppliedDirective!]
 }
 
 type __InputValue {
@@ -180,6 +182,7 @@ type __InputValue {
   defaultValue: String
   isDeprecated: Boolean!
   deprecationReason: String
+  directives: [__AppliedDirective!]
 }
 
 type __EnumValue {
@@ -187,6 +190,7 @@ type __EnumValue {
   description: String
   isDeprecated: Boolean!
   deprecationReason: String
+  directives: [__AppliedDirective!]
 }
 
 type __Directive {
@@ -195,6 +199,16 @@ type __Directive {
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean = false): [__InputValue!]!
   isRepeatable: Boolean!
+}
+
+type __AppliedDirective {
+  name: String!
+  args: [__DirectiveArgument!]!
+}
+
+type __DirectiveArgument {
+  name: String!
+  value: String!
 }
 
 enum __DirectiveLocation {
@@ -280,6 +294,7 @@ Fields\:
 - `specifiedByURL` may return a String (in the form of a URL) for custom
   scalars, otherwise must be {null}.
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this scalar.
 
 **Object**
 
@@ -297,6 +312,7 @@ Fields\:
 - `interfaces` must return the set of interfaces that an object implements (if
   none, `interfaces` must return the empty set).
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this type.
 
 **Union**
 
@@ -312,6 +328,7 @@ Fields\:
 - `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this union.
 
 **Interface**
 
@@ -334,6 +351,7 @@ Fields\:
 - `possibleTypes` returns the list of types that implement this interface. They
   must be object types.
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this interface.
 
 **Enum**
 
@@ -349,6 +367,7 @@ Fields\:
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this enum.
 
 **Input Object**
 
@@ -374,6 +393,7 @@ Fields\:
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
 - All other fields must return {null}.
+- `directives` must return the ordered set of directives applied to this input-object.
 
 **List**
 
@@ -425,6 +445,7 @@ Fields\:
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this field is deprecated.
+- `directives` must return the ordered set of directives applied to this field.
 
 ### The \_\_InputValue Type
 
@@ -444,6 +465,7 @@ Fields\:
   be used, otherwise {false}.
 - `deprecationReason` optionally provides a reason why this input field or
   argument is deprecated.
+- `directives` must return the ordered set of directives applied to this input value.
 
 ### The \_\_EnumValue Type
 
@@ -457,6 +479,7 @@ Fields\:
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this enum value is
   deprecated.
+- `directives` must return the ordered set of directives applied to this enum-value.
 
 ### The \_\_Directive Type
 
@@ -499,3 +522,25 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
+
+### The \_\_AppliedDirective Type
+
+The `__AppliedDirective` type represents a directive applied to a schema element.
+
+This includes both any _built-in directive_ and any _custom directive_.
+
+Fields\:
+
+- `name` must return a String
+- `args` returns a List of `__DirectiveArgument` representing the arguments this
+  directive accepts.
+
+### The \_\_DirectiveArgument Type
+
+The `__DirectiveArgument` type represents an argument specified in a directive applied
+to an element in the schema..
+
+Fields\:
+
+- `name` must return a String
+- `value` must return the value for the argument as a string
