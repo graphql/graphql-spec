@@ -543,4 +543,4 @@ to an element in the schema..
 Fields\:
 
 - `name` must return a String
-- `value` must return the value for the argument as a string
+- `value` must return the String encoding (using the GraphQL language) of the argument value
