@@ -578,10 +578,10 @@ getArgumentValuesFromSpread(fragmentSpread, schema, fragmentDefinitionVariableDe
     - If {defaultValue} exists
       - Add an entry to {coercedValues} named {argumentName} with the value
         {defaultValue}.
-    - If {variableType} is not-nullable raise a field-error
+    - If {variableType} is non-nullable raise a field-error
   - Let {hasValue} be {true} if {fragmentArgumentValues} or {variableValues} provides a   value for the name
     {variableName}.
-  - If {variableType} is not-nullable and {hasValue} is {false} raise a field-error
+  - If {variableType} is non-nullable and {hasValue} is {false} raise a field-error
   - Add an entry to {coercedValues} named {argumentName} with the value
     found in {variableValues} or {fragmentArgumentValues}.
 - Return {coercedValues}.
