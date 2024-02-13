@@ -352,7 +352,7 @@ Fields\:
 
 **Input Object**
 
-Input objects are composite types defined as a list of named input values. They
+Input objects are types defined as a list of named input values. They
 are only used as inputs to arguments and variables and cannot be a field return
 type.
 
