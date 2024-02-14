@@ -910,7 +910,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments on object, interface or union Types
+#### Fragments on Object, Interface or Union Types
 
 **Formal Specification**
 
