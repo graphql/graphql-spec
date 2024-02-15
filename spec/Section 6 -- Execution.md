@@ -255,12 +255,13 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
-  is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetailsList} be the value of the first entry in {groupedFieldSet}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
+- Let {field} be the corresponding entry on {fieldDetails}.
+- Let {fieldName} be the name of {field}. Note: This value is unaffected if an
+  alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  field, variableValues)}.
+  node, variableValues)}.
 - Let {fieldStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
@@ -331,14 +332,142 @@ ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 serial):
 
 - If {serial} is not provided, initialize it to {false}.
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
-- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
-  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
-  _normally_ (allowing parallelization) otherwise.
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Let {groupedFieldSet} and {newDeferUsages} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
+- Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
+- Let {data} and {incrementalDataRecords} be the result of
+  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
+  variableValues, serial)}.
+- Let {errors} be the list of all _field error_ raised while completing {data}.
+- If {incrementalDataRecords} is empty, return an unordered map containing
+  {data} and {errors}.
+- Let {incrementalResults} be the result of {YieldIncrementalResults(data,
+  errors, incrementalDataRecords)}.
+- Wait for the first result in {incrementalResults} to be available.
+- Let {initialResult} be that result.
+- Return {initialResult} and {BatchIncrementalResults(incrementalResults)}.
+
+### Yielding Incremental Results
+
+The procedure for yielding incremental results is specified by the
+{YieldIncrementalResults()} algorithm.
+
+YieldIncrementalResults(data, errors, incrementalDataRecords):
+
+- Initialize {graph} to an empty directed acyclic graph.
+- For each {incrementalDataRecord} of {incrementalDataRecords}:
+  - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
+    from the {pendingResults} that it completes, adding each of {pendingResults}
+    to {graph} as new nodes, if necessary, each directed from its {parent}, if
+    defined, recursively adding each {parent} as necessary.
+- Prune root nodes of {graph} containing no direct child Incremental Data
+  Records, repeatedly if necessary, promoting any direct child Deferred
+  Fragments of the pruned nodes to root nodes. (This ensures that no empty
+  fragments are reported as pending).
+- Let {newPendingResults} be the set of root nodes in {graph}.
+- Let {pending} be the result of {GetPending(newPendingResults)}.
+- Let {hasNext} be {true}.
+- Yield an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
+- For each completed child Pending Incremental Data node of a root node in
+  {graph}:
+  - Let {incrementalDataRecord} be the Pending Incremental Data for that node;
+    let {result} be the corresponding completed result.
+  - If {data} on {result} is {null}:
+    - Initialize {completed} to an empty list.
+    - Let {parents} be the parent nodes of {deferredGroupedFieldSetRecord}.
+    - Initialize {completed} to an empty list.
+    - For each {pendingResult} of {parents}:
+      - Append {GetCompletedEntry(parent, errors)} to {completed}.
+      - Remove {pendingResult} and all of its descendant nodes from {graph},
+        except for any descendant Incremental Data Record nodes with other
+        parents.
+    - Let {hasNext} be {false}, if {graph} is empty.
+    - Yield an unordered map containing {completed} and {hasNext}.
+    - Continue to the next completed child Incremental Data node in {graph}.
+  - Replace {node} in {graph} with a new node corresponding to the Completed
+    Incremental Data for {result}.
+  - Add each {incrementalDataRecord} of {incrementalDataRecords} on {result} to
+    {graph} via the same procedure as above.
+  - Let {completedDeferredFragments} be the set of root nodes in {graph} without
+    any child Pending Data nodes.
+  - Let {completedIncrementalDataNodes} be the set of completed Incremental Data
+    nodes that are children of {completedDeferredFragments}.
+  - If {completedIncrementalDataNodes} is empty, continue to the next completed
+    child Incremental Data node in {graph}.
+  - Initialize {incremental} to an empty list.
+  - For each {node} of {completedIncrementalDataNodes}:
+    - Let {incrementalDataRecord} be the corresponding record for {node}.
+    - Append {GetIncrementalEntry(incrementalDataRecord, graph)} to
+      {incremental}.
+    - Remove {node} from {graph}.
+  - Initialize {completed} to an empty list.
+  - For each {pendingResult} of {completedDeferredFragments}:
+    - Append {GetCompletedEntry(pendingResult)} to {completed}.
+    - Remove {pendingResult} from {graph}, promoting its child nodes to root
+      nodes.
+  - Prune root nodes of {graph} containing no direct child Incremental Data
+    Records, as above.
+  - Let {hasNext} be {false} if {graph} is empty.
+  - Let {incrementalResult} be an unordered map containing {hasNext}.
+  - If {incremental} is not empty, set the corresponding entry on
+    {incrementalResult} to {incremental}.
+  - If {completed} is not empty, set the corresponding entry on
+    {incrementalResult} to {completed}.
+  - Let {newPendingResults} be the set of new root nodes in {graph}, promoted by
+    the above steps.
+  - If {newPendingResults} is not empty:
+    - Let {pending} be the result of {GetPending(newPendingResults)}.
+    - Set the corresponding entry on {incrementalResult} to {pending}.
+  - Yield {incrementalResult}.
+- Complete this incremental result stream.
+
+GetPending(newPendingResults):
+
+- Initialize {pending} to an empty list.
+- For each {newPendingResult} of {newPendingResults}:
+  - Let {id} be a unique identifier for {newPendingResult}.
+  - Let {path} and {label} be the corresponding entries on {newPendingResult}.
+  - Let {pendingEntry} be an unordered map containing {id}, {path}, and {label}.
+  - Append {pendingEntry} to {pending}.
+- Return {pending}.
+
+GetIncrementalEntry(incrementalDataRecord, graph):
+
+- Let {deferredFragments} be the Deferred Fragments incrementally completed by
+  {incrementalDataRecord} at {path}.
+- Let {result} be the result of {incrementalDataRecord}.
+- Let {data} and {errors} be the corresponding entries on {result}.
+- Let {releasedDeferredFragments} be the members of {deferredFragments} that are
+  root nodes in {graph}.
+- Let {bestDeferredFragment} be the member of {releasedDeferredFragments} with
+  the shortest {path} entry.
+- Let {subPath} be the portion of {path} not contained by the {path} entry of
+  {bestDeferredFragment}.
+- Let {id} be the unique identifier for {bestDeferredFragment}.
+- Return an unordered map containing {id}, {subPath}, {data}, and {errors}.
+
+GetCompletedEntry(pendingResult, errors):
+
+- Let {id} be the unique identifier for {pendingResult}.
+- Let {completedEntry} be an unordered map containing {id}.
+- If {errors} is not empty, set the corresponding entry on {completedEntry} to
+  {errors}.
+- Return {completedEntry}.
+
+### Batching Incremental Results
+
+BatchIncrementalResults(incrementalResults):
+
+- Return a new stream {batchedIncrementalResults} which yields events as
+  follows:
+- While {incrementalResults} is not closed:
+  - Let {availableIncrementalResults} be a list of one or more Incremental
+    Results available on {incrementalResults}.
+  - Let {batchedIncrementalResult} be an unordered map created by merging the
+    items in {availableIncrementalResults} into a single unordered map,
+    concatenating list entries as necessary, and setting {hasNext} to the value
+    of {hasNext} on the final item in the list.
+  - Yield {batchedIncrementalResult}.
 
 ### Field Collection
 
@@ -371,10 +500,12 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, deferUsage,
+visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {newDeferUsages} to an empty list.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -389,14 +520,24 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
+    - Let {fieldDetails} be a new unordered map containing {deferUsage}.
+    - Set the entry for {field} on {fieldDetails} to {selection}. and
+      {deferUsage}.
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Append {fieldDetails} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
+    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
+      argument is not {false} and is not a variable in {variableValues} with the
+      value {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is not defined:
+      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
@@ -405,31 +546,45 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+    - If {deferDirective} is defined, let {fragmentDeferUsage} be
+      {deferDirective} and append it to {newDeferUsages}.
+    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+    - If {InlineFragment} provides the directive `@defer` and its {if} argument
+      is not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is defined, let {fragmentDeferUsage} be
+      {deferDirective} and append it to {newDeferUsages}.
+    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
+- Return {groupedFields} and {newDeferUsages}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -446,6 +601,105 @@ DoesFragmentTypeApply(objectType, fragmentType):
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
 
+### Field Plan Generation
+
+BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
+
+- If {parentDeferUsages} is not provided, initialize it to the empty set.
+- Initialize {fieldPlan} to an empty ordered map.
+- For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
+  - Let {deferUsageSet} be the result of
+    {GetDeferUsageSet(groupForResponseKey)}.
+  - Let {groupedFieldSet} be the entry in {fieldPlan} for any equivalent set to
+    {deferUsageSet}; if no such map exists, create it as an empty ordered map.
+  - Set the entry for {responseKey} in {groupedFieldSet} to
+    {groupForResponseKey}.
+- Return {fieldPlan}.
+
+GetDeferUsageSet(fieldDetailsList):
+
+- Let {deferUsageSet} be the set containing the {deferUsage} entry from each
+  item in {fieldDetailsList}.
+- For each {deferUsage} of {deferUsageSet}:
+  - Let {ancestors} be the set of {deferUsage} entries that are ancestors of
+    {deferUsage}, collected by recursively following the {parent} entry on
+    {deferUsage}.
+  - If any of {ancestors} is contained by {deferUsageSet}, remove {deferUsage}
+    from {deferUsageSet}.
+- Return {deferUsageSet}.
+
+## Executing a Field Plan
+
+To execute a field plan, the object value being evaluated and the object type
+need to be known, as well as whether the non-deferred grouped field set must be
+executed serially, or may be executed in parallel.
+
+ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, objectValue,
+variableValues, serial, path, deferUsageSet, deferMap):
+
+- If {path} is not provided, initialize it to an empty list.
+- Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
+  deferMap)}.
+- Let {groupedFieldSet} be the entry in {fieldPlan} for the set equivalent to
+  {deferUsageSet}.
+- Let {newGroupedFieldSets} be the remaining portion of {fieldPlan}.
+- Allowing for parallelization, perform the following steps:
+  - Let {data} and {nestedIncrementalDataRecords} be the result of running
+    {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+    variableValues, path, deferUsageSet, newDeferMap)} _serially_ if {serial} is
+    {true}, _normally_ (allowing parallelization) otherwise.
+  - Let {incrementalDataRecords} be the result of
+    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    newGroupedFieldSets, path, newDeferMap)}.
+- Append all items in {nestedIncrementalDataRecords} to
+  {incrementalDataRecords}.
+- Return {data} and {incrementalDataRecords}.
+
+GetNewDeferMap(newDeferUsages, path, deferMap):
+
+- If {newDeferUsages} is empty, return {deferMap}:
+- Let {newDeferMap} be a new unordered map containing all entries in {deferMap}.
+- For each {deferUsage} in {newDeferUsages}:
+  - Let {parentDeferUsage} and {label} be the corresponding entries on
+    {deferUsage}.
+  - Let {parent} be the entry in {deferMap} for {parentDeferUsage}.
+  - Let {newDeferredFragment} be an unordered map containing {parent}, {path}
+    and {label}.
+  - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
+- Return {newDeferMap}.
+
+ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+newGroupedFieldSets, path, deferMap):
+
+- Initialize {incrementalDataRecords} to an empty list.
+- For each {deferUsageSet} and {groupedFieldSet} in {newGroupedFieldSets}:
+  - Let {deferredFragments} be an empty list.
+  - For each {deferUsage} in {deferUsageSet}:
+    - Let {deferredFragment} be the entry for {deferUsage} in {deferMap}.
+    - Append {deferredFragment} to {deferredFragments}.
+  - Let {incrementalDataRecord} represent the future execution of
+    {ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+    variableValues, deferredFragments, path, deferUsageSet, deferMap)},
+    incrementally completing {deferredFragments} at {path}.
+  - Append {incrementalDataRecord} to {incrementalDataRecords}.
+  - Schedule initiation of execution of {incrementalDataRecord} following any
+    implementation specific deferral.
+- Return {incrementalDataRecords}.
+
+Note: {incrementalDataRecord} can be safely initiated without blocking
+higher-priority data once any of {deferredFragments} are released as pending.
+
+ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues, path, deferUsageSet, deferMap):
+
+- Let {data} and {incrementalDataRecords} be the result of running
+  {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+  variableValues, path, deferUsageSet, deferMap)} _normally_ (allowing
+  parallelization).
+- Let {errors} be the list of all _field error_ raised while completing {data}.
+- Return an unordered map containing {data}, {errors}, and
+  {incrementalDataRecords}.
+
 ## Executing a Grouped Field Set
 
 To execute a grouped field set, the object value being evaluated and the object
@@ -455,23 +709,27 @@ be executed in parallel.
 Each represented field in the grouped field set produces an entry into a
 response map.
 
-ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-variableValues):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
+path, deferUsageSet, deferMap):
 
 - Initialize {resultMap} to an empty ordered map.
+- Initialize {incrementalDataRecords} to an empty list.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+    - Let {responseValue} and {fieldIncrementalDataRecords} be the result of
+      {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+      path)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Return {resultMap}.
+    - Append all items in {fieldIncrementalDataRecords} to
+      {incrementalDataRecords}.
+- Return {resultMap} and {incrementalDataRecords}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
-is explained in greater detail in the Field Collection section below.
+is explained in greater detail in the Field Collection section above.
 
 **Errors and Non-Null Fields**
 
@@ -591,16 +849,19 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
+variableValues, path, deferUsageSet, deferMap):
 
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
+- Let {field} be the corresponding entry on {fieldDetails}.
 - Let {fieldName} be the field name of {field}.
+- Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+  variableValues, path, deferUsageSet, deferMap)}.
 
 ### Coercing Field Arguments
 
@@ -687,22 +948,22 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fieldDetailsList, result, variableValues, path,
+deferUsageSet, deferMap):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+  - Let {completedResult} and {incrementalDataRecords} be the result of calling
+    {CompleteValue(innerType, fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
-  - Return {completedResult}.
+  - Return {completedResult} and {incrementalDataRecords}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - Return the result of {CompleteListValue(innerType, fieldDetailsList, result,
+    variableValues, path, deferUsageSet, deferMap)}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -710,11 +971,28 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fields, variableValues)}.
-  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+  - Let {groupedFieldSet} and {newDeferUsages} be the result of calling
+    {CollectSubfields(objectType, fieldDetailsList, variableValues)}.
+  - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet,
+    deferUsageSet)}.
+  - Return the result of {ExecuteFieldPlan(newDeferUsages, fieldPlan,
+    objectType, result, variableValues, false, path, deferUsageSet, deferMap)}.
+
+CompleteListValue(innerType, fieldDetailsList, result, variableValues, path,
+deferUsageSet, deferMap):
+
+- Initialize {items} and {incrementalDataRecords} to empty lists.
+- Let {index} be {0}.
+- For each {resultItem} of {result}:
+  - Let {itemPath} be {path} with {index} appended.
+  - Let {completedItem} and {itemIncrementalDataRecords} be the result of
+    calling {CompleteValue(innerType, fieldDetailsList, item, variableValues,
+    itemPath)}.
+  - Append {completedItem} to {items}.
+  - Append all items in {itemIncrementalDataRecords} to
+    {incrementalDataRecords}.
+  - Increment {index} by {1}.
+- Return {items} and {incrementalDataRecords}.
 
 **Coercing Results**
 
@@ -780,18 +1058,21 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-CollectSubfields(objectType, fields, variableValues):
+CollectSubfields(objectType, fieldDetailsList, variableValues):
 
-- Let {groupedFieldSet} be an empty map.
-- For each {field} in {fields}:
+- Initialize {groupedFieldSet} to an empty ordered map of lists.
+- Initialize {newDeferUsages} to an empty list.
+- For each {fieldDetails} in {fieldDetailsList}:
+  - Let {field} and {deferUsage} be the corresponding entries on {fieldDetails}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
+  - Let {subGroupedFieldSet} and {subNewDeferUsages} be the result of
+    {CollectFields(objectType, fieldSelectionSet, variableValues, deferUsage)}.
   - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
     - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
     - Append all fields in {subfields} to {groupForResponseKey}.
+  - Append all defer usages in {subNewDeferUsages} to {newDeferUsages}.
 - Return {groupedFieldSet}.
 
 ### Handling Field Errors
