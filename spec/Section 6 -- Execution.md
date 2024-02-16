@@ -527,7 +527,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments, localV
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {localVariableValues} be the result of calling
-      {getArgumentValuesFromSpread(fragmentSpread, schema, fragmentDefinition.variableDefinitions, variableValues, localVariableValues)}.
+      {getArgumentValuesFromSpread(selection, fragmentDefinition, variableValues, localVariableValues)}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
@@ -566,10 +566,10 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
-getArgumentValuesFromSpread(fragmentSpread, schema, fragmentDefinitionVariableDefinitions, variableValues, fragmentArgumentValues):
+getArgumentValuesFromSpread(fragmentSpread, fragmentDefinition, variableValues, fragmentArgumentValues):
 
 - Let {coercedValues} be an empty unordered Map.
-- For each {variableDefinition} in {fragmentDefinitionVariableDefinitions}:
+- For each {variableDefinition} in {fragmentDefinition}:
   - Let {variableName} be the name of {variableDefinition}.
   - Let {variableType} be the type of {variableDefinition}.
   - Let {defaultValue} be the default value for {variableDefinition}.
