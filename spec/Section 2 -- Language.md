@@ -460,7 +460,9 @@ These two operations are semantically identical:
 
 ## Field Alias
 
-Alias : Name :
+Alias
+- Name : 
+- StringValue : 
 
 By default a field's response key in the response object will use that field's
 name. However, you can define a different response key by specifying an alias.
