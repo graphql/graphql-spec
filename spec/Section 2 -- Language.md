@@ -1222,7 +1222,7 @@ size `60`:
 Variables can be used within fragments. Operation-defined variables have global
 scope with a given operation, so a variable used within a fragment must either
 be declared in any top-level operation that transitively consumes that fragment,
-or by that same fragment as a fragment variable definition. If a variable is
+or by that same fragment as a fragment variable definition. If a variable
 referenced in a fragment is included by an operation where neither the fragment
 nor the operation defines that variable, that operation is invalid (see
 [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
