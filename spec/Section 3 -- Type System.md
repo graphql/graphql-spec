@@ -347,22 +347,22 @@ can only be used as input types. Object, Interface, and Union types can only be
 used as output types. Lists and Non-Null types may be used as input types or
 output types depending on how the wrapped type may be used.
 
-IsInputType(type) :
+IsInputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsInputType({unwrappedType})
+  - Return IsInputType({unwrappedType}).
 - If {type} is a Scalar, Enum, or Input Object type:
-  - Return {true}
+  - Return {true}.
 - Return {false}.
 
-IsOutputType(type) :
+IsOutputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsOutputType({unwrappedType})
+  - Return IsOutputType({unwrappedType}).
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
-  - Return {true}
+  - Return {true}.
 - Return {false}.
 
 ### Type Extensions
@@ -919,7 +919,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
-         - The `@deprecated` directive must not be applied to this argument.
+         1. The `@deprecated` directive must not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1699,7 +1699,7 @@ input ExampleInputObject {
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
-      - The `@deprecated` directive must not be applied to this input field.
+      1. The `@deprecated` directive must not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
