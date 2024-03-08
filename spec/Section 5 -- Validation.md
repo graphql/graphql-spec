@@ -424,7 +424,7 @@ FieldsInSetCanMerge(set):
 - Let {spreadsForName} be the set of fragment spreads with a given name in
   {visitedSelections}.
 - Given each pair of members {spreadA} and {spreadB} in {spreadsForName}:
-  - {spreadA} and {spreadB} must have identical sets of arguments.
+  - {spreadA} and {spreadB} must have identical sets of arguments, values and directives.
 - Let {fieldsForName} be the set of selections with a given response name in
   {visitedSelections}.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
@@ -1636,8 +1636,8 @@ fragment HouseTrainedFragment on Query {
 }
 ```
 
-Likewise, it is valid for both an operation and a fragment to define a variable
-with the same name:
+Likewise, it is valid for a fragment to define a variable with a name that
+is also defined on an operation:
 
 ```graphql example
 query C($atOtherHomes: Boolean) {
