@@ -1220,7 +1220,8 @@ size `60`:
 **Variable Use Within Fragments**
 
 Variables can be used within fragments. Operation-defined variables have global
-scope with a given operation, so a variable used within a fragment must either
+scope with a given operation. Fragment-defined variables have local scope within the
+fragment definition they are defined in. A variable used within a fragment must either
 be declared in any top-level operation that transitively consumes that fragment,
 or by that same fragment as a fragment variable definition. If a variable
 referenced in a fragment is included by an operation where neither the fragment
