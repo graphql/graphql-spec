@@ -455,6 +455,9 @@ SameResponseShape(fieldA, fieldB):
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
+Note: composite is used to signal a type that is either an object-, interface-
+or union-type.
+
 **Explanatory Text**
 
 If multiple field selections with the same response names are encountered during
@@ -910,7 +913,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments on Object, Interface or Union Types
+#### Fragments on Composite Types
 
 **Formal Specification**
 
