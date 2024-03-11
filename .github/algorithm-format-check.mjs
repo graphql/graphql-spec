@@ -32,7 +32,7 @@ for (const filename of filenames) {
           console.log(
             `Bad whitespace in definition of ${algorithmName} in '${filename}':`
           );
-          console.log(line);
+          console.dir(line);
           console.log();
           process.exitCode = 1;
         }
@@ -50,7 +50,7 @@ for (const filename of filenames) {
               console.log(
                 `Bad algorithm ${algorithmName} step in '${filename}':`
               );
-              console.log(step);
+              console.dir(step);
               console.log();
               process.exitCode = 1;
             }
@@ -60,7 +60,7 @@ for (const filename of filenames) {
             console.log(
               `Bad formatting for '${algorithmName}' step (does not end in '.' or ':') in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
@@ -68,7 +68,7 @@ for (const filename of filenames) {
             console.log(
               `Bad formatting of '${algorithmName}' step (should start with a capital) in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
@@ -82,7 +82,7 @@ for (const filename of filenames) {
             console.log(
               `Potential bad formatting of '${algorithmName}' step (true/false/null should be wrapped in curly braces, e.g. '{true}') in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
@@ -110,7 +110,7 @@ for (const filename of filenames) {
           if (!step.match(/^\s*(-|[0-9]+\.) /)) {
             if (step !== "") {
               console.log(`Bad grammar ${grammarName} step in '${filename}':`);
-              console.log(step);
+              console.dir(step);
               console.log();
               process.exitCode = 1;
             }
@@ -120,7 +120,7 @@ for (const filename of filenames) {
             console.log(
               `Bad formatting for '${grammarName}' step (does not end in '.' or ':') in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
@@ -128,7 +128,7 @@ for (const filename of filenames) {
             console.log(
               `Bad formatting of '${grammarName}' step (should start with a capital) in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
@@ -142,7 +142,7 @@ for (const filename of filenames) {
             console.log(
               `Potential bad formatting of '${grammarName}' step (true/false/null should be wrapped in curly braces, e.g. '{true}') in '${filename}':`
             );
-            console.log(step);
+            console.dir(step);
             console.log();
             process.exitCode = 1;
           }
