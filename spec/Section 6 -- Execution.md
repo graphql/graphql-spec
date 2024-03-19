@@ -332,13 +332,14 @@ serial):
 - Let {groupedFieldSet} and {newDeferUsages} be the result of
   {CollectFields(objectType, selectionSet, variableValues)}.
 - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
-- Let {eventEmitter} be a new event emitter.
+- Let {controller} be an implementation defined control mechanism for
+  coordinating parallel execution.
 - Let {data} and {futures} be the result of {ExecuteFieldPlan(newDeferUsages,
-  fieldPlan, objectType, initialValue, variableValues, serial, eventEmitter)}.
+  fieldPlan, objectType, initialValue, variableValues, serial, controller)}.
 - Let {errors} be the list of all _field error_ raised while completing {data}.
 - If {futures} is empty, return an unordered map containing {data} and {errors}.
 - Let {incrementalResults} be the result of {YieldIncrementalResults(data,
-  errors, futures, eventEmitter)}.
+  errors, futures, controller)}.
 - Wait for the first result in {incrementalResults} to be available.
 - Let {initialResult} be that result.
 - Return {initialResult} and {BatchIncrementalResults(incrementalResults)}.
@@ -348,7 +349,7 @@ serial):
 The procedure for yielding incremental results is specified by the
 {YieldIncrementalResults()} algorithm.
 
-YieldIncrementalResults(data, errors, futures, eventEmitter):
+YieldIncrementalResults(data, errors, futures, controller):
 
 - Initialize {graph} to an empty directed acyclic graph.
 - For each {future} of {futures}:
@@ -363,8 +364,8 @@ YieldIncrementalResults(data, errors, futures, eventEmitter):
 - Let {pending} be the result of {GetPending(newPendingResults)}.
 - Let {hasNext} be {true}.
 - Yield an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
-- Emit events on {eventEmitter} signalling the release of each of
-  {newPendingResults} as pending.
+- Utilize {controller} to broadcast release of each of {newPendingResults} as
+  pending.
 - For each completed child Future node of a root node in {graph}:
   - Let {completedFuture} be that Future; let {result} be its result.
   - If {FutureCompletedWithoutData(completedFuture, result)} is {true}:
@@ -408,9 +409,9 @@ YieldIncrementalResults(data, errors, futures, eventEmitter):
     - Let {pending} be the result of {GetPending(newPendingResults)}.
     - Set the corresponding entry on {incrementalResult} to {pending}.
   - Yield {incrementalResult}.
-  - Emit events on {eventEmitter} signalling the release of each of the Deferred
-    Fragments in {newPendingResults} as pending, as well as each of the {items}
-    entries on the Futures in {futuresToRelease}.
+  - Utilize {controller} to broadcast the release of each of the Deferred
+    Fragments in {newPendingResults} as pending, as well as the release of each
+    of the {items} entries on the Futures in {futuresToRelease}.
 - Complete this incremental result stream.
 
 GetPending(newPendingResults):
@@ -640,7 +641,7 @@ need to be known, as well as whether the non-deferred grouped field set must be
 executed serially, or may be executed in parallel.
 
 ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, objectValue,
-variableValues, serial, eventEmitter, path, deferUsageSet, deferMap):
+variableValues, serial, controller, path, deferUsageSet, deferMap):
 
 - If {path} is not provided, initialize it to an empty list.
 - Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
@@ -651,10 +652,10 @@ variableValues, serial, eventEmitter, path, deferUsageSet, deferMap):
 - Allowing for parallelization, perform the following steps:
   - Let {data} and {nestedFutures} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-    variableValues, eventEmitter, path, deferUsageSet, newDeferMap)} _serially_
-    if {serial} is {true}, _normally_ (allowing parallelization) otherwise.
+    variableValues, controller, path, deferUsageSet, newDeferMap)} _serially_ if
+    {serial} is {true}, _normally_ (allowing parallelization) otherwise.
   - Let {futures} be the result of {ExecuteDeferredGroupedFieldSets(objectType,
-    objectValue, variableValues, newGroupedFieldSets, eventEmitter, path,
+    objectValue, variableValues, newGroupedFieldSets, controller, path,
     newDeferMap)}.
 - Append all items in {nestedFutures} to {futures}.
 - Return {data} and {futures}.
@@ -673,7 +674,7 @@ GetNewDeferMap(newDeferUsages, path, deferMap):
 - Return {newDeferMap}.
 
 ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
-newGroupedFieldSets, eventEmitter, path, deferMap):
+newGroupedFieldSets, controller, path, deferMap):
 
 - Initialize {futures} to an empty list.
 - For each {deferUsageSet} and {groupedFieldSet} in {newGroupedFieldSets}:
@@ -687,16 +688,16 @@ newGroupedFieldSets, eventEmitter, path, deferMap):
     incrementally completing {deferredFragments} at {path}.
   - Append {future} to {futures}.
   - Defer the execution of {future} until {deferredFragments} are released as
-    pending, as signalled by {eventEmitter}, or if early execution is desired,
+    pending, as indicated by {controller}, or if early execution is desired,
     following any implementation specific deferral, whichever occurs first.
 - Return {futures}.
 
 ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-variableValues, eventEmitter, path, deferUsageSet, deferMap):
+variableValues, controller, path, deferUsageSet, deferMap):
 
 - Let {data} and {futures} be the result of running
   {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-  variableValues, eventEmitter, path, deferUsageSet, deferMap)} _normally_
+  variableValues, controller, path, deferUsageSet, deferMap)} _normally_
   (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while completing {data}.
 - Return an unordered map containing {data}, {errors}, and {futures}.
@@ -711,7 +712,7 @@ Each represented field in the grouped field set produces an entry into a
 response map.
 
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue, variableValues,
-eventEmitter, path, deferUsageSet, deferMap):
+controller, path, deferUsageSet, deferMap):
 
 - Initialize {resultMap} to an empty ordered map.
 - Initialize {futures} to an empty list.
@@ -723,7 +724,7 @@ eventEmitter, path, deferUsageSet, deferMap):
   - If {fieldType} is defined:
     - Let {responseValue} and {fieldFutures} be the result of
       {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
-      eventEmitter, path)}.
+      controller, path)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
     - Append all items in {fieldFutures} to {futures}.
 - Return {resultMap} and {futures}.
@@ -848,7 +849,7 @@ finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
-variableValues, eventEmitter, path, deferUsageSet, deferMap):
+variableValues, controller, path, deferUsageSet, deferMap):
 
 - Let {fieldDetails} be the first entry in {fieldDetailsList}.
 - Let {field} be the corresponding entry on {fieldDetails}.
@@ -859,7 +860,7 @@ variableValues, eventEmitter, path, deferUsageSet, deferMap):
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues, eventEmitter, path, deferUsageSet, deferMap)}.
+  variableValues, controller, path, deferUsageSet, deferMap)}.
 
 ### Coercing Field Arguments
 
@@ -946,7 +947,7 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fieldDetailsList, result, variableValues, eventEmitter,
+CompleteValue(fieldType, fieldDetailsList, result, variableValues, controller,
 path, deferUsageSet, deferMap):
 
 - If the {fieldType} is a Non-Null type:
@@ -961,7 +962,7 @@ path, deferUsageSet, deferMap):
   - If {result} is not a collection of values, raise a _field error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return the result of {CompleteListValue(innerType, fieldDetailsList, result,
-    variableValues, eventEmitter, path, deferUsageSet, deferMap)}.
+    variableValues, controller, path, deferUsageSet, deferMap)}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -974,11 +975,11 @@ path, deferUsageSet, deferMap):
   - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet,
     deferUsageSet)}.
   - Return the result of {ExecuteFieldPlan(newDeferUsages, fieldPlan,
-    objectType, result, variableValues, false, eventEmitter, path,
-    deferUsageSet, deferMap)}.
+    objectType, result, variableValues, false, controller, path, deferUsageSet,
+    deferMap)}.
 
 CompleteListValue(innerType, fieldDetailsList, result, variableValues,
-eventEmitter, path, deferUsageSet, deferMap):
+controller, path, deferUsageSet, deferMap):
 
 - Initialize {items} and {futures} to empty lists.
 - Let {fieldDetails} be the first entry in {fieldDetailsList}.
@@ -1009,10 +1010,10 @@ eventEmitter, path, deferUsageSet, deferMap):
       {GetStreamFieldDetailsList(fieldDetailsList)}.
     - Let {future} represent the future execution of {ExecuteStreamField(stream,
       iterator, streamFieldDetailsList, index, innerType, variableValues,
-      eventEmitter)}.
+      controller)}.
     - Defer the execution of {future} until {stream} is released as pending, as
-      signalled by {eventEmitter}, or if early execution is desired, following
-      any implementation specific deferral, whichever occurs first.
+      indicated by {controller}, or if early execution is desired, following any
+      implementation specific deferral, whichever occurs first.
     - Append {future} to {futures}.
     - Return {items} and {futures}.
   - Wait for the next item from {result} via the {iterator}.
@@ -1021,7 +1022,7 @@ eventEmitter, path, deferUsageSet, deferMap):
   - Let {itemPath} be {path} with {index} appended.
   - Let {completedItem} and {itemFutures} be the result of calling
     {CompleteValue(innerType, fieldDetailsList, item, variableValues,
-    eventEmitter, itemPath)}.
+    controller, itemPath)}.
   - Append {completedItem} to {items}.
   - Append all items in {itemFutures} to {futures}.
 - Return {items} and {futures}.
@@ -1038,7 +1039,7 @@ GetStreamFieldDetailsList(fieldDetailsList):
 #### Execute Stream Field
 
 ExecuteStreamField(stream, iterator, fieldDetailsList, index, innerType,
-variableValues, eventEmitter):
+variableValues, controller):
 
 - Let {path} be the corresponding entry on {stream}.
 - Let {itemPath} be {path} with {index} appended.
@@ -1054,10 +1055,10 @@ variableValues, eventEmitter):
   item.
 - Let {future} represent the future execution of {ExecuteStreamField(stream,
   path, iterator, fieldDetailsList, nextIndex, innerType, variableValues,
-  eventEmitter)}.
-- Defer the execution of {future} until {items} is released, or if early
-  execution is desired, following any implementation specific deferral,
-  whichever occurs first.
+  controller)}.
+- Defer the execution of {future} until {items} is released, as indicated via
+  {controller} or if early execution is desired, following any implementation
+  specific deferral, whichever occurs first.
 - Append {future} to {futures}.
 - Return an unordered map containing {items}, {errors}, and {futures}.
 
