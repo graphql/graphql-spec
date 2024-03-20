@@ -613,7 +613,7 @@ other input values must raise a _request error_ indicating an incorrect type.
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as the key for a cache. The ID type is serialized in the same way as a
 {String}; however, it is not intended to be human-readable. While it is often
-numeric, it should always serialize as a {String}.
+numeric, it must always serialize as a {String}.
 
 **Result Coercion**
 
