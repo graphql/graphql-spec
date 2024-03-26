@@ -589,12 +589,6 @@ getArgumentValuesFromSpread(fragmentSpread, fragmentDefinition, variableValues, 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
 
-Note: The unset value used to replace unset fragment-defined arguments in
-{SubstituteFragmentArguments()} must not be a variable defined by any operation
-that includes the fragment. An example would be to use a variable with a
-reserved prefix, like `$__UNSET`, to replace all unset fragment-defined
-variables.
-
 ## Executing Fields
 
 Each field requested in the grouped field set that is defined on the selected
