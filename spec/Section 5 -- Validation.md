@@ -456,8 +456,8 @@ SameResponseShape(fieldA, fieldB):
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
-Note: In prior versions of the spec the term "composite" was used to signal
-a type that is either an Object, Interface or Union type.
+Note: In prior versions of the spec the term "composite" was used to signal a
+type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
