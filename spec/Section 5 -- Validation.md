@@ -362,7 +362,7 @@ fragment aliasedLyingFieldTargetNotDefined on Dog {
 ```
 
 For interfaces, direct field selection can only be done on fields. Fields of
-concrete implementors are not relevant to the validity of the given
+concrete implementers are not relevant to the validity of the given
 interface-typed selection set.
 
 For example, the following is valid:
@@ -376,7 +376,7 @@ fragment interfaceFieldSelection on Pet {
 and the following is invalid:
 
 ```graphql counter-example
-fragment definedOnImplementorsButNotInterface on Pet {
+fragment definedOnImplementersButNotInterface on Pet {
   nickname
 }
 ```
