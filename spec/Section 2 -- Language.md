@@ -1248,7 +1248,7 @@ input type.
 Type : Name
 
 - Let {name} be the string value of {Name}.
-- Let {type} be the type defined in the Schema named {name}
+- Let {type} be the type defined in the Schema named {name}.
 - {type} must not be {null}.
 - Return {type}.
 
