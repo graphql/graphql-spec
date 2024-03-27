@@ -400,7 +400,7 @@ For example, given the following mutation operation, the root _selection set_
 must be executed serially:
 
 ```graphql example
-mutation {
+mutation ChangeBirthdayAndAddress($newBirthday: String!, $newAddress: String!) {
   changeBirthday(birthday: $newBirthday) {
     month
   }
