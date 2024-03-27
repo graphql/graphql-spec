@@ -151,6 +151,8 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
+  # should be non-null for INPUT_OBJECT only
+  isOneOf: Boolean
 }
 
 enum __TypeKind {
@@ -373,6 +375,8 @@ Fields\:
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
+- `isOneOf` must return {true} when representing a OneOf Input Object, {false}
+  otherwise.
 - All other fields must return {null}.
 
 **List**
