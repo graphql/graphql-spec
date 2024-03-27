@@ -312,7 +312,7 @@ types which implement this Interface are guaranteed to implement those fields.
 Whenever a field claims it will return an Interface type, it will return a valid
 implementing Object type during execution.
 
-A `Union` defines a list of possible types; similar to interfaces, whenever the
+A `Union` defines a set of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
@@ -1409,7 +1409,7 @@ A valid operation includes typed fragments (in this example, inline fragments):
 ```
 
 Union members may be defined with an optional leading `|` character to aid
-formatting when representing a longer list of possible types:
+formatting when representing a longer set of possible types:
 
 ```raw graphql example
 union SearchResult =
@@ -1474,7 +1474,7 @@ EnumValuesDefinition : { EnumValueDefinition+ }
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
 GraphQL Enum types, like Scalar types, also represent leaf values in a GraphQL
-type system. However Enum types describe the list of possible values.
+type system. However Enum types describe the set of possible values.
 
 Enums are not references for a numeric value, but are unique values in their own
 right. They may serialize as a string: the name of the represented value.
@@ -1492,7 +1492,7 @@ enum Direction {
 
 **Result Coercion**
 
-GraphQL services must return one of the defined list of possible values. If a
+GraphQL services must return one of the defined set of possible values. If a
 reasonable coercion is not possible they must raise a _field error_.
 
 **Input Coercion**
@@ -1988,7 +1988,7 @@ fragment SomeFragment on SomeType {
 ```
 
 Directive locations may be defined with an optional leading `|` character to aid
-formatting when representing a longer list of possible locations:
+formatting when representing a longer set of possible locations:
 
 ```raw graphql example
 directive @example on
