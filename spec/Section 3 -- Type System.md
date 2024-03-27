@@ -1735,27 +1735,36 @@ input ExampleInputTagged @oneOf {
 }
 ```
 
-| Literal Value            | Variables               | Coerced Value                                       |
-| ------------------------ | ----------------------- | --------------------------------------------------- |
-| `{ a: "abc", b: 123 }`   | `{}`                    | Error: Exactly one key must be specified            |
-| `{ a: null, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
-| `{ a: null }`            | `{}`                    | Error: Value for member field {a} must be non-null  |
-| `{ b: 123 }`             | `{}`                    | `{ b: 123 }`                                        |
-| `{ a: $var, b: 123 }`    | `{ var: null }`         | Error: Exactly one key must be specified            |
-| `{ a: $var, b: 123 }`    | `{}`                    | Error: Exactly one key must be specified            |
-| `{ b: $var }`            | `{ var: 123 }`          | `{ b: 123 }`                                        |
-| `$var`                   | `{ var: { b: 123 } }`   | `{ b: 123 }`                                        |
-| `"abc123"`               | `{}`                    | Error: Incorrect value                              |
-| `$var`                   | `{ var: "abc123" } }`   | Error: Incorrect value                              |
-| `{ a: "abc", b: "123" }` | `{}`                    | Error: Exactly one key must be specified            |
-| `{ b: "123" }`           | `{}`                    | Error: Incorrect value for member field {b}         |
-| `{ a: "abc" }`           | `{}`                    | `{ a: "abc" }`                                      |
-| `{ b: $var }`            | `{}`                    | Error: Value for member field {b} must be specified |
-| `$var`                   | `{ var: { a: "abc" } }` | `{ a: "abc" }`                                      |
-| `{ a: "abc", b: null }`  | `{}`                    | Error: Exactly one key must be specified            |
-| `{ b: $var }`            | `{ var: null }`         | Error: Value for member field {b} must be non-null  |
-| `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}                         |
-| `{ a: $a, b: $b }`       | `{ a: "abc" }`          | Error: Exactly one key must be specified            |
+| Literal Value            | Variables                        | Coerced Value                                       |
+| ------------------------ | -------------------------------- | --------------------------------------------------- |
+| `{ a: "abc", b: 123 }`   | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null, b: 123 }`    | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null, b: null }`   | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null }`            | `{}`                             | Error: Value for member field {a} must be non-null  |
+| `{ b: 123 }`             | `{}`                             | `{ b: 123 }`                                        |
+| `{}`                     | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: $a, b: 123 }`      | `{ a: null }`                    | Error: Exactly one key must be specified            |
+| `{ a: $a, b: 123 }`      | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: $a, b: $b }`       | `{ a: "abc" }`                   | Error: Exactly one key must be specified            |
+| `{ b: $b }`              | `{ b: 123 }`                     | `{ b: 123 }`                                        |
+| `$var`                   | `{ var: { b: 123 } }`            | `{ b: 123 }`                                        |
+| `$var`                   | `{ var: { a: "abc", b: 123 } }`  | Error: Exactly one key must be specified            |
+| `$var`                   | `{ var: { a: "abc", b: null } }` | Error: Exactly one key must be specified            |
+| `$var`                   | `{ var: { a: null } }`           | Error: Value for member field {a} must be non-null  |
+| `$var`                   | `{ var: {} }`                    | Error: Exactly one key must be specified            |
+| `"abc123"`               | `{}`                             | Error: Incorrect value                              |
+| `$var`                   | `{ var: "abc123" } }`            | Error: Incorrect value                              |
+| `{ a: "abc", b: "123" }` | `{}`                             | Error: Exactly one key must be specified            |
+| `{ b: "123" }`           | `{}`                             | Error: Incorrect value for member field {b}         |
+| `$var`                   | `{ var: { b: "abc" } }`          | Error: Incorrect value for member field {b}         |
+| `{ a: "abc" }`           | `{}`                             | `{ a: "abc" }`                                      |
+| `{ b: $b }`              | `{}`                             | Error: Value for member field {b} must be specified |
+| `$var`                   | `{ var: { a: "abc" } }`          | `{ a: "abc" }`                                      |
+| `{ a: "abc", b: null }`  | `{}`                             | Error: Exactly one key must be specified            |
+| `{ b: $b }`              | `{ b: null }`                    | Error: Value for member field {b} must be non-null  |
+| `{ b: 123, c: "xyz" }`   | `{}`                             | Error: Unexpected field {c}                         |
+| `$var`                   | `{ var: { b: 123, c: "xyz" } }`  | Error: Unexpected field {c}                         |
+| `{ a: $a, b: $b }`       | `{ a: "abc" }`                   | Error: Exactly one key must be specified            |
 
 **Type Validation**
 
