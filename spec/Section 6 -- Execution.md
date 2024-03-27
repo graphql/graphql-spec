@@ -4,19 +4,18 @@ A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
-- {schema} - The schema to use, typically solely provided by the GraphQL
-  service.
-- {document} - A {Document} which must contain GraphQL {OperationDefinition} and
+- {schema}: The schema to use, typically solely provided by the GraphQL service.
+- {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
-- {operationName} (optional) - The name of the Operation in the Document to
+- {operationName} (optional): The name of the Operation in the Document to
   execute.
-- {variableValues} (optional) - Values for any Variables defined by the
+- {variableValues} (optional): Values for any Variables defined by the
   Operation.
-- {initialValue} (optional) - An initial value corresponding to the root type
+- {initialValue} (optional): An initial value corresponding to the root type
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
-- {extensions} (optional) - A map reserved for implementers to extend the
+- {extensions} (optional): A map reserved for implementers to extend the
   protocol however they see fit.
 
 Note: Since {extensions} is reserved for implementers, the only requirement is
