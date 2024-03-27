@@ -224,32 +224,34 @@ types like "list", "set" and "map". These describe observable data collections
 such as the result of applying a grammar and the inputs and outputs of
 algorithms. They also describe unobservable data collections such as temporary
 data internal to an algorithm. Each data collection type defines the operations
-available, and whether values unique or ordered.
+available, and whether values are unique or ordered.
 
 **List**
 
-The term "list" describes a sequence of values which may not be unique. A list
-is ordered unless explicitly stated otherwise (as an "unordered list"). For
+:: The term _list_ describes a sequence of values which may not be unique. A
+list is ordered unless explicitly stated otherwise (as an "unordered list"). For
 clarity the term "ordered list" may be used when an order is semantically
 important.
 
 **Set**
 
-The term "set" describes a unique collection of values, where each value is
+:: The term _set_ describes a unique collection of values, where each value is
 considered a "member" of that set. A set is unordered unless explicitly stated
 otherwise (as an "ordered set"). For clarity the term "unordered set" may be
 used when the lack of an order is semantically important.
 
 **Map**
 
-The term "map" describes a collection of "entry" key and value pairs, where the
-set of keys across all entries is unique but the values across all entries may
-repeat. A map is unordered unless explicitly stated otherwise (as an "ordered
-map"). For clarity the term "unordered map" may be used when the lack of an
-order is semantically important.
+:: The term _map_ describes a collection of "entry" key and value pairs, where
+the set of keys across all entries is unique but the values across all entries
+may repeat. A map is unordered unless explicitly stated otherwise (as an
+"ordered map"). For clarity the term "unordered map" may be used when the lack
+of an order is semantically important.
 
-Note: To improve legibility, when possible implementations should preserve
-observable order for unordered data collections. For example, if an applied
-grammar to an input string results in an unordered set, serializing that set (to
-a string or other observable output) should produce the same order found in the
-original input string.
+**Preserving order**
+
+To improve legibility, when possible implementations should preserve observable
+order for unordered data collections. For example, if applying a grammar to an
+input string produces an unordered set, serializing that set (to a string or
+other observable output) should produce the same order found in the original
+input string.
