@@ -4,18 +4,28 @@ A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
-- The schema to use, typically solely provided by the GraphQL service.
-- A {Document} which must contain GraphQL {OperationDefinition} and may contain
-  {FragmentDefinition}.
-- Optionally: The name of the Operation in the Document to execute.
-- Optionally: Values for any Variables defined by the Operation.
-- An initial value corresponding to the root type being executed. Conceptually,
-  an initial value represents the "universe" of data available via a GraphQL
-  Service. It is common for a GraphQL Service to always use the same initial
-  value for every request.
+- {schema}: The schema to use, typically solely provided by the GraphQL service.
+- {document}: A {Document} which must contain GraphQL {OperationDefinition} and
+  may contain {FragmentDefinition}.
+- {operationName} (optional): The name of the Operation in the Document to
+  execute.
+- {variableValues} (optional): Values for any Variables defined by the
+  Operation.
+- {initialValue} (optional): An initial value corresponding to the root type
+  being executed. Conceptually, an initial value represents the "universe" of
+  data available via a GraphQL Service. It is common for a GraphQL Service to
+  always use the same initial value for every request.
+- {extensions} (optional): A map reserved for implementers to extend the
+  protocol however they see fit.
 
-Given this information, the result of {ExecuteRequest()} produces the response,
-to be formatted according to the Response section below.
+Note: Since {extensions} is reserved for implementers, the only requirement is
+that, if present, it is a map. There are no additional restrictions on its
+contents. It is recommended that implementers use prefixes in {extensions} keys
+to avoid conflicts with other implementers.
+
+Given this information, the result of {ExecuteRequest(schema, document,
+operationName, variableValues, initialValue)} produces the response, to be
+formatted according to the Response section below.
 
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
