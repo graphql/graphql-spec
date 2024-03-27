@@ -446,7 +446,8 @@ SameResponseShape(fieldA, fieldB):
 - If {typeA} or {typeB} is Scalar or Enum:
   - If {typeA} and {typeB} are the same type return {true}, otherwise return
     {false}.
-- Assert: {typeA} and {typeB} are both composite types.
+- Assert: {typeA} is an object, union or interface type.
+- Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
@@ -454,6 +455,9 @@ SameResponseShape(fieldA, fieldB):
 - Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
+
+Note: In prior versions of the spec the term "composite" was used to signal a
+type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
@@ -910,7 +914,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments on Composite Types
+#### Fragments on Object, Interface or Union Types
 
 **Formal Specification**
 
