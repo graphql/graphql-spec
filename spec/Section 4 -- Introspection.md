@@ -122,8 +122,8 @@ warnings.
 When possible implementations should preserve observable order for unordered
 data collections. For example, if a schema was produced from a source
 {TypeSystemDocument} then introspection of fields, input fields, arguments, enum
-values, directives and so on should produce the same order as found in the
-source.
+values, directives, union members, implemented interfaces and so on should
+produce the same order as found in the source.
 
 Note: This recommendation is to improve legibility and stability of schema
 representations.
