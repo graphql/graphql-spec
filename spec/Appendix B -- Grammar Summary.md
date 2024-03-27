@@ -100,7 +100,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -120,6 +120,8 @@ HexDigit :: one of
 - `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 BlockStringCharacter ::
 

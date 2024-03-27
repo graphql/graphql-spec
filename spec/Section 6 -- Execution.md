@@ -96,7 +96,7 @@ CoerceVariableValues(schema, operation, variableValues):
       {defaultValue}.
   - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _request error_.
-  - Otherwise if {hasValue} is true:
+  - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {variableName} with the value
         {null}.
@@ -173,7 +173,8 @@ Subscribe(subscription, schema, variableValues, initialValue):
 - Let {sourceStream} be the result of running
   {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
 - Let {responseStream} be the result of running
-  {MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues)}
+  {MapSourceToResponseEvent(sourceStream, subscription, schema,
+  variableValues)}.
 - Return {responseStream}.
 
 Note: In a large-scale subscription system, the {Subscribe()} and
@@ -224,9 +225,8 @@ must receive no more events from that event stream.
 
 **Supporting Subscriptions at Scale**
 
-Supporting subscriptions is a significant change for any GraphQL service. Query
-and mutation operations are stateless, allowing scaling via cloning of GraphQL
-service instances. Subscriptions, by contrast, are stateful and require
+Query and mutation operations are stateless, allowing scaling via cloning of
+GraphQL service instances. Subscriptions, by contrast, are stateful and require
 maintaining the GraphQL document, variables, and other context over the lifetime
 of the subscription.
 
@@ -264,7 +264,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   is unaffected if an alias is used.
 - Let {field} be the first entry in {fields}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  field, variableValues)}
+  field, variableValues)}.
 - Let {fieldStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
@@ -320,7 +320,7 @@ the subscription.
 
 Unsubscribe(responseStream):
 
-- Cancel {responseStream}
+- Cancel {responseStream}.
 
 ## Executing Selection Sets
 
@@ -523,7 +523,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -538,7 +538,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
-      fragmentType)} is false, continue with the next {selection} in
+      fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -555,13 +555,13 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 DoesFragmentTypeApply(objectType, fragmentType):
 
 - If {fragmentType} is an Object Type:
-  - if {objectType} and {fragmentType} are the same type, return {true},
+  - If {objectType} and {fragmentType} are the same type, return {true},
     otherwise return {false}.
 - If {fragmentType} is an Interface Type:
-  - if {objectType} is an implementation of {fragmentType}, return {true}
+  - If {objectType} is an implementation of {fragmentType}, return {true}
     otherwise return {false}.
 - If {fragmentType} is a Union:
-  - if {objectType} is a possible type of {fragmentType}, return {true}
+  - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
@@ -580,7 +580,7 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
-  variableValues)}
+  variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
@@ -622,7 +622,7 @@ CoerceArgumentValues(objectType, field, variableValues):
       {defaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _field error_.
-  - Otherwise if {hasValue} is true:
+  - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {argumentName} with the value
         {null}.

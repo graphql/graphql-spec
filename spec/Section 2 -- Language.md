@@ -810,7 +810,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -830,6 +830,8 @@ HexDigit :: one of
 - `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 BlockStringCharacter ::
 
@@ -1011,7 +1013,11 @@ StringCharacter :: `\` EscapedCharacter
 | {`r`}             | U+000D       | carriage return              |
 | {`t`}             | U+0009       | horizontal tab               |
 
-StringValue :: `"""` BlockStringCharacter\* `"""`
+StringValue :: BlockString
+
+- Return the _Unicode text_ by evaluating the {BlockString}.
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 - Let {rawValue} be the _Unicode text_ by concatenating the evaluation of all
   {BlockStringCharacter} (which may be an empty sequence).
@@ -1030,7 +1036,7 @@ BlockStringValue(rawValue):
 - Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
 - Let {commonIndent} be {null}.
 - For each {line} in {lines}:
-  - If {line} is the first item in {lines}, continue to the next line.
+  - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
   - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
     {line}.
@@ -1115,10 +1121,10 @@ ListValue : [ ]
 ListValue : [ Value+ ]
 
 - Let {inputList} be a new empty list value.
-- For each {Value+}
+- For each {Value+}:
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1162,11 +1168,11 @@ ObjectValue : { }
 ObjectValue : { ObjectField+ }
 
 - Let {inputObject} be a new input object value with no fields.
-- For each {field} in {ObjectField+}
+- For each {field} in {ObjectField+}:
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
@@ -1245,22 +1251,22 @@ input type.
 
 Type : Name
 
-- Let {name} be the string value of {Name}
+- Let {name} be the string value of {Name}.
 - Let {type} be the type defined in the Schema named {name}
-- {type} must not be {null}
-- Return {type}
+- {type} must not be {null}.
+- Return {type}.
 
 Type : [ Type ]
 
-- Let {itemType} be the result of evaluating {Type}
+- Let {itemType} be the result of evaluating {Type}.
 - Let {type} be a List type where {itemType} is the contained type.
-- Return {type}
+- Return {type}.
 
 Type : Type !
 
-- Let {nullableType} be the result of evaluating {Type}
+- Let {nullableType} be the result of evaluating {Type}.
 - Let {type} be a Non-Null type where {nullableType} is the contained type.
-- Return {type}
+- Return {type}.
 
 ## Directives
 
