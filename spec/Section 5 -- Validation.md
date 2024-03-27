@@ -455,7 +455,7 @@ SameResponseShape(fieldA, fieldB):
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
-Note: composite is used to signal a type that is either an object-, interface-
+Note: Composite is used to signal a type that is either an object-, interface-
 or union-type.
 
 **Explanatory Text**
