@@ -1220,9 +1220,9 @@ size `60`:
 **Variable Use Within Fragments**
 
 Variables can be used within fragments. Operation-defined variables have global
-scope with a given operation. Fragment-defined variables have local scope within the
-fragment definition they are defined in. A variable used within a fragment must either
-be declared in any top-level operation that transitively consumes that fragment,
+scope within a given operation. Fragment-defined variables have local scope within the
+fragment definition in which they are defined. A variable used within a fragment must either
+be declared in each top-level operation that transitively consumes that fragment,
 or by that same fragment as a fragment variable definition. If a variable
 referenced in a fragment is included by an operation where neither the fragment
 nor the operation defines that variable, that operation is invalid (see
@@ -1237,7 +1237,7 @@ For example, the profile picture may need to be a different size depending on
 the parent context:
 
 ```graphql example
-query withFragmentArguments {
+query userAndFriends {
   user(id: 4) {
     ...dynamicProfilePic(size: 100)
     friends(first: 10) {
@@ -1260,7 +1260,7 @@ A fragment-defined variable is scoped to the fragment that defines it.
 Fragment-defined variables are allowed to shadow operation-defined variables.
 
 ```graphql example
-query withShadowedVariables($size: Int) {
+query withShadowedVariables($size: Int!) {
   user(id: 4) {
     ...variableProfilePic
   }
@@ -1279,10 +1279,10 @@ fragment dynamicProfilePic($size: Int!) on User {
 ```
 
 The profilePic for `user` will be determined by the variables set by the
-operation, while `secondUser` will always have a profilePic of size 10. In this
+operation, while `secondUser` will always have a `profilePic` of size `10`. In this
 case, the fragment `variableProfilePic` uses the operation-defined variable,
 while `dynamicProfilePic` uses the value passed in via the fragment spread's
-argument `size`.
+`size` argument.
 
 ## Type References
 
