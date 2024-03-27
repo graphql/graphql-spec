@@ -794,8 +794,9 @@ And will yield the subset of each object type queried:
 When querying an Object, the resulting mapping of fields are conceptually
 ordered in the same order in which they were encountered during execution,
 excluding fragments for which the type does not apply and fields or fragments
-that are skipped via `@skip` or `@include` directives. This ordering is
-correctly produced when using the {CollectFields()} algorithm.
+that are skipped via `@skip` or `@include` directives or temporarily skipped via
+`@defer`. This ordering is correctly produced when using the {CollectFields()}
+algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
@@ -1942,6 +1943,11 @@ by a validator, executor, or client tool such as a code generator.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
+GraphQL implementations are not required to implement the `@defer` and `@stream`
+directives. If either or both of these directives are implemented, they must be
+implemented according to this specification. GraphQL implementations that do not
+support these directives must not make them available via introspection.
+
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
@@ -2162,3 +2168,99 @@ to the relevant IETF specification.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
+
+### @defer
+
+```graphql
+directive @defer(
+  label: String
+  if: Boolean! = true
+) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+```
+
+The `@defer` directive may be provided for fragment spreads and inline fragments
+to inform the executor to delay the execution of the current fragment to
+indicate deprioritization of the current fragment. A query with `@defer`
+directive will cause the request to potentially return multiple responses, where
+non-deferred data is delivered in the initial response and data deferred is
+delivered in a subsequent response. `@include` and `@skip` take precedence over
+`@defer`.
+
+```graphql example
+query myQuery($shouldDefer: Boolean) {
+  user {
+    name
+    ...someFragment @defer(label: "someLabel", if: $shouldDefer)
+  }
+}
+fragment someFragment on User {
+  id
+  profile_picture {
+    uri
+  }
+}
+```
+
+#### @defer Arguments
+
+- `if: Boolean! = true` - When `true`, fragment _should_ be deferred (See
+  [related note](#note-088b7)). When `false`, fragment will not be deferred and
+  data will be included in the initial response. Defaults to `true` when
+  omitted.
+- `label: String` - May be used by GraphQL clients to identify the data from
+  responses and associate it with the corresponding defer directive. If
+  provided, the GraphQL service must add it to the corresponding payload.
+  `label` must be unique label across all `@defer` and `@stream` directives in a
+  document. `label` must not be provided as a variable.
+
+### @stream
+
+```graphql
+directive @stream(
+  label: String
+  if: Boolean! = true
+  initialCount: Int = 0
+) on FIELD
+```
+
+The `@stream` directive may be provided for a field of `List` type so that the
+backend can leverage technology such as asynchronous iterators to provide a
+partial list in the initial response, and additional list items in subsequent
+responses. `@include` and `@skip` take precedence over `@stream`.
+
+```graphql example
+query myQuery($shouldStream: Boolean) {
+  user {
+    friends(first: 10) {
+      nodes @stream(label: "friendsStream", initialCount: 5, if: $shouldStream)
+    }
+  }
+}
+```
+
+#### @stream Arguments
+
+- `if: Boolean! = true` - When `true`, field _should_ be streamed (See
+  [related note](#note-088b7)). When `false`, the field will not be streamed and
+  all list items will be included in the initial response. Defaults to `true`
+  when omitted.
+- `label: String` - May be used by GraphQL clients to identify the data from
+  responses and associate it with the corresponding stream directive. If
+  provided, the GraphQL service must add it to the corresponding payload.
+  `label` must be unique label across all `@defer` and `@stream` directives in a
+  document. `label` must not be provided as a variable.
+- `initialCount: Int` - The number of list items the service should return as
+  part of the initial response. If omitted, defaults to `0`. A field error will
+  be raised if the value of this argument is less than `0`.
+
+Note: The ability to defer and/or stream parts of a response can have a
+potentially significant impact on application performance. Developers generally
+need clear, predictable control over their application's performance. It is
+highly recommended that GraphQL services honor the `@defer` and `@stream`
+directives on each execution. However, the specification allows advanced use
+cases where the service can determine that it is more performant to not defer
+and/or stream. Therefore, GraphQL clients _must_ be able to process a response
+that ignores the `@defer` and/or `@stream` directives. This also applies to the
+`initialCount` argument on the `@stream` directive. Clients _must_ be able to
+process a streamed response that contains a different number of initial list
+items than what was specified in the `initialCount` argument.

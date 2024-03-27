@@ -4,6 +4,7 @@ ignoreRegExpList:
   - /[a-z]{2,}'s/
 words:
   # Terms of art
+  - deprioritization
   - endianness
   - interoperation
   - monospace

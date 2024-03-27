@@ -31,6 +31,10 @@ request is determined by the result of executing this operation according to the
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
+Note: the execution assumes implementing language supports coroutines.
+Alternatively, the socket can provide a write buffer pointer to allow
+{ExecuteRequest()} to directly write payloads into the buffer.
+
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
@@ -128,15 +132,28 @@ An initial value may be provided when executing a query operation.
 
 ExecuteQuery(query, schema, variableValues, initialValue):
 
+- Let {subsequentPayloads} be an empty list.
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {query}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
+  queryType, initialValue, variableValues, subsequentPayloads)} _normally_
+  (allowing parallelization).
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is not empty:
+  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
+    an entry named {hasNext} with the value {true}.
+  - Let {iterator} be the result of running
+    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
+  - For each {payload} yielded by {iterator}:
+    - If a termination signal is received:
+      - Send a termination signal to {iterator}.
+      - Return.
+    - Otherwise:
+      - Yield {payload}.
 
 ### Mutation
 
@@ -150,14 +167,27 @@ mutations ensures against race conditions during these side-effects.
 
 ExecuteMutation(mutation, schema, variableValues, initialValue):
 
+- Let {subsequentPayloads} be an empty list.
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level Selection Set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
+  mutationType, initialValue, variableValues, subsequentPayloads)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
   selection set.
-- Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is empty:
+  - Return an unordered map containing {data} and {errors}.
+- If {subsequentPayloads} is not empty:
+  - Let {initialResponse} be an unordered map containing {data}, {errors}, and
+    an entry named {hasNext} with the value {true}.
+  - Let {iterator} be the result of running
+    {YieldSubsequentPayloads(initialResponse, subsequentPayloads)}.
+  - For each {payload} yielded by {iterator}:
+    - If a termination signal is received:
+      - Send a termination signal to {iterator}.
+      - Return.
+    - Otherwise:
+      - Yield {payload}.
 
 ### Subscription
 
@@ -291,9 +321,10 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
 - For each {event} on {sourceStream}:
-  - Let {response} be the result of running
+  - Let {executionResult} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
+  - For each {response} yielded by {executionResult}:
+    - Yield an event containing {response}.
 - When {responseStream} completes: complete this event stream.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
@@ -322,6 +353,53 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}.
 
+## Yield Subsequent Payloads
+
+If an operation contains subsequent payload records resulting from `@stream` or
+`@defer` directives, the {YieldSubsequentPayloads} algorithm defines how the
+payloads should be processed.
+
+YieldSubsequentPayloads(initialResponse, subsequentPayloads):
+
+- Let {initialRecords} be any items in {subsequentPayloads} with a completed
+  {dataExecution}.
+- Initialize {initialIncremental} to an empty list.
+- For each {record} in {initialRecords}:
+  - Remove {record} from {subsequentPayloads}.
+  - If {isCompletedIterator} on {record} is {true}:
+    - Continue to the next record in {records}.
+  - Let {payload} be the completed result returned by {dataExecution}.
+  - Append {payload} to {initialIncremental}.
+- If {initialIncremental} is not empty:
+  - Add an entry to {initialResponse} named `incremental` containing the value
+    {incremental}.
+- Yield {initialResponse}.
+- While {subsequentPayloads} is not empty:
+  - If a termination signal is received:
+    - For each {record} in {subsequentPayloads}:
+      - If {record} contains {iterator}:
+        - Send a termination signal to {iterator}.
+    - Return.
+  - Wait for at least one record in {subsequentPayloads} to have a completed
+    {dataExecution}.
+  - Let {subsequentResponse} be an unordered map with an entry {incremental}
+    initialized to an empty list.
+  - Let {records} be the items in {subsequentPayloads} with a completed
+    {dataExecution}.
+  - For each {record} in {records}:
+    - Remove {record} from {subsequentPayloads}.
+    - If {isCompletedIterator} on {record} is {true}:
+      - Continue to the next record in {records}.
+    - Let {payload} be the completed result returned by {dataExecution}.
+    - Append {payload} to the {incremental} entry on {subsequentResponse}.
+  - If {subsequentPayloads} is empty:
+    - Add an entry to {subsequentResponse} named `hasNext` with the value
+      {false}.
+  - Otherwise, if {subsequentPayloads} is not empty:
+    - Add an entry to {subsequentResponse} named `hasNext` with the value
+      {true}.
+  - Yield {subsequentResponse}
+
 ## Executing Selection Sets
 
 To execute a selection set, the object value being evaluated and the object type
@@ -332,10 +410,13 @@ First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
 map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues, path,
+subsequentPayloads, asyncRecord):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
+- If {path} is not provided, initialize it to an empty list.
+- If {subsequentPayloads} is not provided, initialize it to the empty set.
+- Let {groupedFieldSet} and {deferredGroupedFieldsList} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -344,8 +425,12 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
     {objectType}.
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+      fields, variableValues, path, subsequentPayloads, asyncRecord)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- For each {deferredGroupFieldSet} and {label} in {deferredGroupedFieldsList}
+  - Call {ExecuteDeferredFragment(label, objectType, objectValue,
+    deferredGroupFieldSet, path, variableValues, asyncRecord,
+    subsequentPayloads)}
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -360,8 +445,70 @@ either resolving to {null} if allowed or further propagated to a parent field.
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
+Additionally, async payload records in {subsequentPayloads} must be filtered if
+their path points to a location that has resolved to {null} due to propagation
+of a field error. This is described in
+[Filter Subsequent Payloads](#sec-Filter-Subsequent-Payloads). These async
+payload records must be removed from {subsequentPayloads} and their result must
+not be sent to clients. If these async records have not yet executed or have not
+yet yielded a value they may also be cancelled to avoid unnecessary work.
+
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
+
+### Filter Subsequent Payloads
+
+When a field error is raised, there may be async payload records in
+{subsequentPayloads} with a path that points to a location that has been removed
+or set to null due to null propagation. These async payload records must be
+removed from subsequent payloads and their results must not be sent to clients.
+
+In {FilterSubsequentPayloads}, {nullPath} is the path which has resolved to null
+after propagation as a result of a field error. {currentAsyncRecord} is the
+async payload record where the field error was raised. {currentAsyncRecord} will
+not be set for field errors that were raised during the initial execution
+outside of {ExecuteDeferredFragment} or {ExecuteStreamField}.
+
+FilterSubsequentPayloads(subsequentPayloads, nullPath, currentAsyncRecord):
+
+- For each {asyncRecord} in {subsequentPayloads}:
+  - If {asyncRecord} is the same record as {currentAsyncRecord}:
+    - Continue to the next record in {subsequentPayloads}.
+  - Initialize {index} to zero.
+  - While {index} is less then the length of {nullPath}:
+    - Initialize {nullPathItem} to the element at {index} in {nullPath}.
+    - Initialize {asyncRecordPathItem} to the element at {index} in the {path}
+      of {asyncRecord}.
+    - If {nullPathItem} is not equivalent to {asyncRecordPathItem}:
+      - Continue to the next record in {subsequentPayloads}.
+    - Increment {index} by one.
+  - Remove {asyncRecord} from {subsequentPayloads}. Optionally, cancel any
+    incomplete work in the execution of {asyncRecord}.
+
+For example, assume the field `alwaysThrows` is a `Non-Null` type that always
+raises a field error:
+
+```graphql example
+{
+  myObject {
+    ... @defer {
+      name
+    }
+    alwaysThrows
+  }
+}
+```
+
+In this case, only one response should be sent. The async payload record
+associated with the `@defer` directive should be removed and its execution may
+be cancelled.
+
+```json example
+{
+  "data": { "myObject": null },
+  "hasNext": false
+}
+```
 
 ### Normal and Serial Execution
 
@@ -459,13 +606,24 @@ A correct executor must generate the following result for that selection set:
 }
 ```
 
+When subsections contain a `@stream` or `@defer` directive, these subsections
+are no longer required to execute serially. Execution of the deferred or
+streamed sections of the subsection may be executed in parallel, as defined in
+{ExecuteStreamField} and {ExecuteDeferredFragment}.
+
 ### Field Collection
 
 Before execution, the selection set is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
 name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+referenced fragments) are executed at the same time. A deferred selection set's
+fields will not be included in the grouped field set. Rather, a record
+representing the deferred fragment and additional context will be stored in a
+list. The executor revisits and resumes execution for the list of deferred
+fragment records after the initial execution is initiated. This deferred
+execution would ‘re-execute’ fields with the same response key that were present
+in the grouped field set.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
@@ -490,10 +648,13 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+CollectFields(objectType, selectionSet, variableValues, visitedFragments,
+deferredGroupedFieldsList):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
+- If {deferredGroupedFieldsList} is not provided, initialize it to an empty
+  list.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -513,9 +674,16 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Append {selection} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
+    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
+      argument is not {false} and is not a variable in {variableValues} with the
+      value {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is not defined:
+      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
@@ -524,9 +692,18 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - If {deferDirective} is defined:
+      - Let {label} be the value or the variable to {deferDirective}'s {label}
+        argument.
+      - Let {deferredGroupedFields} be the result of calling
+        {CollectFields(objectType, fragmentSelectionSet, variableValues,
+        visitedFragments, deferredGroupedFieldsList)}.
+      - Append a record containing {label} and {deferredGroupedFields} to
+        {deferredGroupedFieldsList}.
+      - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -539,16 +716,34 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - If {InlineFragment} provides the directive `@defer` and its {if} argument
+      is not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is defined:
+      - Let {label} be the value or the variable to {deferDirective}'s {label}
+        argument.
+      - Let {deferredGroupedFields} be the result of calling
+        {CollectFields(objectType, fragmentSelectionSet, variableValues,
+        visitedFragments, deferredGroupedFieldsList)}.
+      - Append a record containing {label} and {deferredGroupedFields} to
+        {deferredGroupedFieldsList}.
+      - Continue with the next {selection} in {selectionSet}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, deferredGroupedFieldsList)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
       - Let {groupForResponseKey} be the list in {groupedFields} for
         {responseKey}; if no such list exists, create it as an empty list.
       - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+- Return {groupedFields}, {deferredGroupedFieldsList} and {visitedFragments}.
+
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -562,8 +757,56 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
-Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
-directives may be applied in either order since they apply commutatively.
+#### Async Payload Record
+
+An Async Payload Record is either a Deferred Fragment Record or a Stream Record.
+All Async Payload Records are structures containing:
+
+- {label}: value derived from the corresponding `@defer` or `@stream` directive.
+- {path}: a list of field names and indices from root to the location of the
+  corresponding `@defer` or `@stream` directive.
+- {iterator}: The underlying iterator if created from a `@stream` directive.
+- {isCompletedIterator}: a boolean indicating the payload record was generated
+  from an iterator that has completed.
+- {errors}: a list of field errors encountered during execution.
+- {dataExecution}: A result that can notify when the corresponding execution has
+  completed.
+
+#### Execute Deferred Fragment
+
+ExecuteDeferredFragment(label, objectType, objectValue, groupedFieldSet, path,
+variableValues, parentRecord, subsequentPayloads):
+
+- Let {deferRecord} be an async payload record created from {label} and {path}.
+- Initialize {errors} on {deferRecord} to an empty list.
+- Let {dataExecution} be the asynchronous future value of:
+  - Let {payload} be an unordered map.
+  - Initialize {resultMap} to an empty ordered map.
+  - For each {groupedFieldSet} as {responseKey} and {fields}:
+    - Let {fieldName} be the name of the first entry in {fields}. Note: This
+      value is unaffected if an alias is used.
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - If {fieldType} is defined:
+      - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+        fields, variableValues, path, subsequentPayloads, asyncRecord)}.
+      - Set {responseValue} as the value for {responseKey} in {resultMap}.
+  - Append any encountered field errors to {errors}.
+  - If {parentRecord} is defined:
+    - Wait for the result of {dataExecution} on {parentRecord}.
+  - If {errors} is not empty:
+    - Add an entry to {payload} named `errors` with the value {errors}.
+  - If a field error was raised, causing a {null} to be propagated to
+    {responseValue}:
+    - Add an entry to {payload} named `data` with the value {null}.
+  - Otherwise:
+    - Add an entry to {payload} named `data` with the value {resultMap}.
+  - If {label} is defined:
+    - Add an entry to {payload} named `label` with the value {label}.
+  - Add an entry to {payload} named `path` with the value {path}.
+  - Return {payload}.
+- Set {dataExecution} on {deferredFragmentRecord}.
+- Append {deferRecord} to {subsequentPayloads}.
 
 ## Executing Fields
 
@@ -573,16 +816,19 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues, path,
+subsequentPayloads, asyncRecord):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
+- Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Let {result} be the result of calling {CompleteValue(fieldType, fields,
+  resolvedValue, variableValues, path, subsequentPayloads, asyncRecord)}.
+- Return {result}.
 
 ### Coercing Field Arguments
 
@@ -651,6 +897,12 @@ As an example, this might accept the {objectType} `Person`, the {field}
 {"soulMate"}, and the {objectValue} representing John Lennon. It would be
 expected to yield the value representing Yoko Ono.
 
+List values are resolved similarly. For example, {ResolveFieldValue} might also
+accept the {objectType} `MusicBand`, the {field} {"members"}, and the
+{objectValue} representing the Beatles. It would be expected to yield a
+collection of values representing John Lennon, Paul McCartney, Ringo Starr and
+George Harrison.
+
 ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 
 - Let {resolver} be the internal function provided by {objectType} for
@@ -661,30 +913,110 @@ ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 Note: It is common for {resolver} to be asynchronous due to relying on reading
 an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
-flow.
+flow. In addition, an implementation for collections may leverage asynchronous
+iterators or asynchronous generators provided by many programming languages.
+This may be particularly helpful when used in conjunction with the `@stream`
+directive.
 
 ### Value Completion
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively.
+field execution process continues recursively. If the return type is a List
+type, each member of the resolved collection is completed using the same value
+completion process. In the case where `@stream` is specified on a field of list
+type, value completion iterates over the collection until the number of items
+yielded items satisfies `initialCount` specified on the `@stream` directive.
 
-CompleteValue(fieldType, fields, result, variableValues):
+#### Execute Stream Field
+
+ExecuteStreamField(label, iterator, index, fields, innerType, path,
+parentRecord, variableValues, subsequentPayloads):
+
+- Let {streamRecord} be an async payload record created from {label}, {path},
+  and {iterator}.
+- Initialize {errors} on {streamRecord} to an empty list.
+- Let {itemPath} be {path} with {index} appended.
+- Let {dataExecution} be the asynchronous future value of:
+  - Wait for the next item from {iterator}.
+  - If an item is not retrieved because {iterator} has completed:
+    - Set {isCompletedIterator} to {true} on {streamRecord}.
+    - Return {null}.
+  - Let {payload} be an unordered map.
+  - If an item is not retrieved because of an error:
+    - Append the encountered error to {errors}.
+    - Add an entry to {payload} named `items` with the value {null}.
+  - Otherwise:
+    - Let {item} be the item retrieved from {iterator}.
+    - Let {data} be the result of calling {CompleteValue(innerType, fields,
+      item, variableValues, itemPath, subsequentPayloads, parentRecord)}.
+    - Append any encountered field errors to {errors}.
+    - Increment {index}.
+    - Call {ExecuteStreamField(label, iterator, index, fields, innerType, path,
+      streamRecord, variableValues, subsequentPayloads)}.
+    - If a field error was raised, causing a {null} to be propagated to {data},
+      and {innerType} is a Non-Nullable type:
+      - Add an entry to {payload} named `items` with the value {null}.
+    - Otherwise:
+      - Add an entry to {payload} named `items` with a list containing the value
+        {data}.
+  - If {errors} is not empty:
+    - Add an entry to {payload} named `errors` with the value {errors}.
+  - If {label} is defined:
+    - Add an entry to {payload} named `label` with the value {label}.
+  - Add an entry to {payload} named `path` with the value {itemPath}.
+  - If {parentRecord} is defined:
+    - Wait for the result of {dataExecution} on {parentRecord}.
+  - Return {payload}.
+- Set {dataExecution} on {streamRecord}.
+- Append {streamRecord} to {subsequentPayloads}.
+
+CompleteValue(fieldType, fields, result, variableValues, path,
+subsequentPayloads, asyncRecord):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+    fields, result, variableValues, path)}.
   - If {completedResult} is {null}, raise a _field error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise a _field error_.
+  - Let {field} be the first entry in {fields}.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - If {field} provides the directive `@stream` and its {if} argument is not
+    {false} and is not a variable in {variableValues} with the value {false} and
+    {innerType} is the outermost return type of the list type defined for
+    {field}:
+    - Let {streamDirective} be that directive.
+    - If this execution is for a subscription operation, raise a _field error_.
+    - Let {initialCount} be the value or variable provided to
+      {streamDirective}'s {initialCount} argument.
+    - If {initialCount} is less than zero, raise a _field error_.
+    - Let {label} be the value or variable provided to {streamDirective}'s
+      {label} argument.
+  - Let {iterator} be an iterator for {result}.
+  - Let {items} be an empty list.
+  - Let {index} be zero.
+  - While {result} is not closed:
+    - If {streamDirective} is defined and {index} is greater than or equal to
+      {initialCount}:
+      - Call {ExecuteStreamField(label, iterator, index, fields, innerType,
+        path, asyncRecord, subsequentPayloads)}.
+      - Return {items}.
+    - Otherwise:
+      - Wait for the next item from {result} via the {iterator}.
+      - If an item is not retrieved because of an error, raise a _field error_.
+      - Let {resultItem} be the item retrieved from {result}.
+      - Let {itemPath} be {path} with {index} appended.
+      - Let {resolvedItem} be the result of calling {CompleteValue(innerType,
+        fields, resultItem, variableValues, itemPath, subsequentPayloads,
+        asyncRecord)}.
+      - Append {resolvedItem} to {items}.
+      - Increment {index}.
+  - Return {items}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
@@ -694,8 +1026,8 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
   - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+    objectType, result, variableValues, path, subsequentPayloads, asyncRecord)}
+    _normally_ (allowing for parallelization).
 
 **Coercing Results**
 
@@ -802,6 +1134,147 @@ If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
+
+When a field error is raised inside `ExecuteDeferredFragment` or
+`ExecuteStreamField`, the defer and stream payloads act as error boundaries.
+That is, the null resulting from a `Non-Null` type cannot propagate outside of
+the boundary of the defer or stream payload.
+
+If a field error is raised while executing the selection set of a fragment with
+the `defer` directive, causing a {null} to propagate to the object containing
+this fragment, the {null} should not propagate any further. In this case, the
+associated Defer Payload's `data` field must be set to {null}.
+
+For example, assume the `month` field is a `Non-Null` type that raises a field
+error:
+
+```graphql example
+{
+  birthday {
+    ... @defer(label: "monthDefer") {
+      month
+    }
+    ... @defer(label: "yearDefer") {
+      year
+    }
+  }
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "birthday": {} },
+  "hasNext": true
+}
+```
+
+Response 2, the defer payload for label "monthDefer" is sent. The {data} entry
+has been set to {null}, as this {null} as propagated as high as the error
+boundary will allow.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["birthday"],
+      "label": "monthDefer",
+      "data": null
+    }
+  ],
+  "hasNext": false
+}
+```
+
+Response 3, the defer payload for label "yearDefer" is sent. The data in this
+payload is unaffected by the previous null error.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["birthday"],
+      "label": "yearDefer",
+      "data": { "year": "2022" }
+    }
+  ],
+  "hasNext": false
+}
+```
+
+If the `stream` directive is present on a list field with a Non-Nullable inner
+type, and a field error has caused a {null} to propagate to the list item, the
+{null} should not propagate any further, and the associated Stream Payload's
+`item` field must be set to {null}.
+
+For example, assume the `films` field is a `List` type with an `Non-Null` inner
+type. In this case, the second list item raises a field error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "hasNext": true
+}
+```
+
+Response 2, the first stream payload is sent. The {items} entry has been set to
+{null}, as this {null} as propagated as high as the error boundary will allow.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["films", 1],
+      "items": null
+    }
+  ],
+  "hasNext": false
+}
+```
+
+In this alternative example, assume the `films` field is a `List` type without a
+`Non-Null` inner type. In this case, the second list item also raises a field
+error:
+
+```graphql example
+{
+  films @stream(initialCount: 1)
+}
+```
+
+Response 1, the initial response is sent:
+
+```json example
+{
+  "data": { "films": ["A New Hope"] },
+  "hasNext": true
+}
+```
+
+Response 2, the first stream payload is sent. The {items} entry has been set to
+a list containing {null}, as this {null} has only propagated as high as the list
+item.
+
+```json example
+{
+  "incremental": [
+    {
+      "path": ["films", 1],
+      "items": [null]
+    }
+  ],
+  "hasNext": false
+}
+```
 
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be
