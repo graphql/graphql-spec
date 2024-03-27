@@ -347,23 +347,23 @@ can only be used as input types. Object, Interface, and Union types can only be
 used as output types. Lists and Non-Null types may be used as input types or
 output types depending on how the wrapped type may be used.
 
-IsInputType(type) :
+IsInputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsInputType({unwrappedType})
+  - Return IsInputType({unwrappedType}).
 - If {type} is a Scalar, Enum, or Input Object type:
-  - Return {true}
-- Return {false}
+  - Return {true}.
+- Return {false}.
 
-IsOutputType(type) :
+IsOutputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsOutputType({unwrappedType})
+  - Return IsOutputType({unwrappedType}).
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
-  - Return {true}
-- Return {false}
+  - Return {true}.
+- Return {false}.
 
 ### Type Extensions
 
@@ -613,7 +613,7 @@ other input values must raise a _request error_ indicating an incorrect type.
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as the key for a cache. The ID type is serialized in the same way as a
 {String}; however, it is not intended to be human-readable. While it is often
-numeric, it should always serialize as a {String}.
+numeric, it must always serialize as a {String}.
 
 **Result Coercion**
 
@@ -919,7 +919,7 @@ of rules must be adhered to by every Object type in a GraphQL schema.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
-         - The `@deprecated` directive must not be applied to this argument.
+         1. The `@deprecated` directive must not be applied to this argument.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1653,7 +1653,7 @@ The value for an input object should be an input object literal or an unordered
 map supplied by a variable, otherwise a _request error_ must be raised. In
 either case, the input object literal or unordered map must not contain any
 entries with names not defined by a field of this input object type, otherwise a
-response error must be raised.
+request error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1768,7 +1768,7 @@ input ExampleInputTagged @oneOf {
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
-      - The `@deprecated` directive must not be applied to this input field.
+      1. The `@deprecated` directive must not be applied to this input field.
    5. If the Input Object is a OneOf Input Object then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.

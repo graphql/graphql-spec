@@ -1032,7 +1032,7 @@ BlockStringValue(rawValue):
 - Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
 - Let {commonIndent} be {null}.
 - For each {line} in {lines}:
-  - If {line} is the first item in {lines}, continue to the next line.
+  - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
   - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
     {line}.
@@ -1117,10 +1117,10 @@ ListValue : [ ]
 ListValue : [ Value+ ]
 
 - Let {inputList} be a new empty list value.
-- For each {Value+}
+- For each {Value+}:
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1164,11 +1164,11 @@ ObjectValue : { }
 ObjectValue : { ObjectField+ }
 
 - Let {inputObject} be a new input object value with no fields.
-- For each {field} in {ObjectField+}
+- For each {field} in {ObjectField+}:
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
@@ -1247,22 +1247,22 @@ input type.
 
 Type : Name
 
-- Let {name} be the string value of {Name}
-- Let {type} be the type defined in the Schema named {name}
-- {type} must not be {null}
-- Return {type}
+- Let {name} be the string value of {Name}.
+- Let {type} be the type defined in the Schema named {name}.
+- {type} must not be {null}.
+- Return {type}.
 
 Type : [ Type ]
 
-- Let {itemType} be the result of evaluating {Type}
+- Let {itemType} be the result of evaluating {Type}.
 - Let {type} be a List type where {itemType} is the contained type.
-- Return {type}
+- Return {type}.
 
 Type : Type !
 
-- Let {nullableType} be the result of evaluating {Type}
+- Let {nullableType} be the result of evaluating {Type}.
 - Let {type} be a Non-Null type where {nullableType} is the contained type.
-- Return {type}
+- Return {type}.
 
 ## Directives
 

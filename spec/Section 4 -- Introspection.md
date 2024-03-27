@@ -418,8 +418,8 @@ The `__Field` type represents each field in an Object or Interface type.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `args` returns a List of `__InputValue` representing the arguments this field
   accepts.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
@@ -437,8 +437,8 @@ The `__InputValue` type represents field and directive arguments as well as the
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `type` must return a `__Type` that represents the type this input value
   expects.
 - `defaultValue` may return a String encoding (using the GraphQL language) of
@@ -455,8 +455,8 @@ The `__EnumValue` type represents one of possible values of an enum.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
 - `deprecationReason` optionally provides a reason why this enum value is
@@ -493,8 +493,8 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `locations` returns a List of `__DirectiveLocation` representing the valid
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this
