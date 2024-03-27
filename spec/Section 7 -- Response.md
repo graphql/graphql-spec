@@ -294,13 +294,13 @@ JSON format throughout this document.
 
 ### Serialized Map Ordering
 
-Since the result of evaluating a selection set is ordered, the serialized Map of
-results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by selection set execution. Producing
-a serialized response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can be
-anticipated.
+Since the result of evaluating a _selection set_ is ordered, the serialized Map
+of results should preserve this order by writing the map entries in the same
+order as those fields were requested as defined by selection set execution.
+Producing a serialized response where fields are represented in the same order
+in which they appear in the request improves human readability during debugging
+and enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 Serialization formats which represent an ordered map should preserve the order
 of requested fields as defined by {CollectFields()} in the Execution section.

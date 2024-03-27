@@ -291,7 +291,8 @@ There are three types of operations that GraphQL models:
 - subscription - a long-lived request that fetches data in response to source
   events.
 
-Each operation is represented by an optional operation name and a selection set.
+Each operation is represented by an optional operation name and a _selection
+set_.
 
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
@@ -337,6 +338,9 @@ An operation selects the set of information it needs, and will receive exactly
 that information and nothing more, avoiding over-fetching and under-fetching
 data.
 
+:: A _selection set_ defines an ordered set of selections (fields, fragment
+spreads and inline fragments) against an object, union or interface type.
+
 ```graphql example
 {
   id
@@ -346,14 +350,14 @@ data.
 ```
 
 In this query operation, the `id`, `firstName`, and `lastName` fields form a
-selection set. Selection sets may also contain fragment references.
+_selection set_. Selection sets may also contain fragment references.
 
 ## Fields
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
-A selection set is primarily composed of fields. A field describes one discrete
-piece of information available to request within a selection set.
+A _selection set_ is primarily composed of fields. A field describes one
+discrete piece of information available to request within a selection set.
 
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
@@ -381,7 +385,7 @@ down to scalar values.
 }
 ```
 
-Fields in the top-level selection set of an operation often represent some
+Fields in the top-level _selection set_ of an operation often represent some
 information that is globally accessible to your application and its current
 viewer. Some typical examples of these top fields include references to a
 current logged-in viewer, or accessing certain types of data referenced by a
@@ -667,9 +671,9 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-Fragments can also be defined inline within a selection set. This is useful for
-conditionally including fields based on a type condition or applying a directive
-to a selection set.
+Fragments can also be defined inline within a _selection set_. This is useful
+for conditionally including fields based on a type condition or applying a
+directive to a selection set.
 
 This feature of standard fragment inclusion was demonstrated in the
 `query FragmentTyping` example above. We could accomplish the same thing using
