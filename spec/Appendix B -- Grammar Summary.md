@@ -170,12 +170,12 @@ Arguments[Const] : ( Argument[?Const]+ )
 
 Argument[Const] : Name : Value[?Const]
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : ... FragmentName Arguments? Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : fragment FragmentName VariablesDefinition? TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
