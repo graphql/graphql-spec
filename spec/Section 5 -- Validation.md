@@ -446,7 +446,8 @@ SameResponseShape(fieldA, fieldB):
 - If {typeA} or {typeB} is Scalar or Enum:
   - If {typeA} and {typeB} are the same type return {true}, otherwise return
     {false}.
-- Assert: {typeA} and {typeB} are both Object, Interface or Union types.
+- Assert: {typeA} is an object, union or interface type.
+- Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
