@@ -579,8 +579,6 @@ fragment conflictingDifferingResponses on Pet {
 
 Fragment spread arguments can also cause fields to fail to merge.
 
-While the following is valid:
-
 ```graphql example
 fragment commandFragment($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
@@ -588,38 +586,24 @@ fragment commandFragment($command: DogCommand!) on Dog {
 
 fragment potentiallyConflictingArguments(
   $commandOne: DogCommand!
-  $commandTwo: DogCommand!
 ) on Dog {
   ...commandFragment(command: $commandOne)
   ...commandFragment(command: $commandTwo)
 }
 
 fragment safeFragmentArguments on Dog {
-  ...potentiallyConflictingArguments(commandOne: SIT, commandTwo: SIT)
-}
-```
-
-it is only valid because `safeFragmentArguments` uses
-`potentiallyConflictingArguments` with the same value for the fragment-defined
-variables `commandOne` and `commandTwo`. Therefore `commandFragment` resolves
-`doesKnowCommand`'s `dogCommand` argument value to `SIT` in both cases.
-
-However, by changing the fragment spread argument values:
-
-```graphql counter-example
-fragment conflictingFragmentArguments on Dog {
   ...potentiallyConflictingArguments(commandOne: SIT, commandTwo: DOWN)
 }
 ```
-
-the response will have two conflicting versions of the `doesKnowCommand`
-fragment that cannot merge.
 
 If two fragment spreads with the same name supply different argument values,
 their fields will not be able to merge. In this case, validation fails because
 the fragment spread `...commandFragment(command: SIT)` and
 `...commandFragment(command: DOWN)` are part of the visited selections that will
 be merged.
+
+If both of these spreads would have `$commandOne` or `$commandTwo` as the argument-value,
+it would be allowed as we can be sure that we'd resolve identical fields.
 
 ### Leaf Field Selections
 
