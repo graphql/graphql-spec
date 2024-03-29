@@ -425,7 +425,7 @@ FieldsInSetCanMerge(set):
   {visitedSelections}.
 - For each {spreadsForName} as {name} and {spreads}:
   - Each entry in {spreads} must have identical sets of arguments to each other entry in {spreads}.
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of field selections with a given response name in
   {visitedSelections}.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
@@ -731,7 +731,7 @@ fragment invalidArgName on Dog {
 }
 ```
 
-and this is also invalid as the variable `dogCommand` is not defined on fragment
+and this is also invalid as the argument `dogCommand` is not defined on fragment
 `withFragmentArg`.
 
 ```graphql counter-example
@@ -1989,10 +1989,7 @@ fragment fragmentArgUnused($atOtherHomes: Boolean) on Dog {
 }
 ```
 
-This document is invalid: even though `fragmentArgUnused` is spread with the
-argument `atOtherHomes` and `$atOtherHomes` is defined as an operation variable,
-there is never a variable `$atOtherHomes` used within the scope of
-`fragmentArgUnused`.
+This document is invalid: fragment `fragmentArgUnused` defines a fragment variable `$atOtherHomes`, but this variable is not used within this fragment.
 
 ### All Variable Usages Are Allowed
 
