@@ -423,8 +423,8 @@ FieldsInSetCanMerge(set):
   arguments.
 - Let {spreadsForName} be the set of fragment spreads with a given name in
   {visitedSelections}.
-- Given each pair of members {spreadA} and {spreadB} in {spreadsForName}:
-  - {spreadA} and {spreadB} must have identical sets of arguments, values and directives.
+- For each {spreadsForName} as {name} and {spreads}:
+  - Each entry in {spreads} must have identical sets of arguments to each other entry in {spreads}.
 - Let {fieldsForName} be the set of selections with a given response name in
   {visitedSelections}.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
