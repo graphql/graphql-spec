@@ -419,8 +419,7 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 FieldsInSetCanMerge(set):
 
 - Let {visitedSelections} be the selections in {set} including visiting
-  fragments and inline fragments and applying any supplied fragment spread
-  arguments.
+  fields, fragment-spreads and inline fragments.
 - Let {spreadsForName} be the set of fragment spreads with a given name in
   {visitedSelections}.
 - For each {spreadsForName} as {name} and {spreads}:
