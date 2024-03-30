@@ -1643,6 +1643,12 @@ query C($atOtherHomes: Boolean) {
   }
 }
 
+fragment HouseTrainedFragment on Query {
+  dog {
+    isHouseTrained(atOtherHomes: $atOtherHomes)
+  }
+}
+
 fragment HouseTrainedDog($atOtherHomes: Boolean) on Dog {
   isHouseTrained(atOtherHomes: $atOtherHomes)
 }
