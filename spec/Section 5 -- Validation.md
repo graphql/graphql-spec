@@ -1658,8 +1658,8 @@ Fragment-defined variables are scoped locally to the fragment that defines them,
 and override any operation-defined variable values, so there is never ambiguity
 about which value to use. In this case, the value of the argument `atOtherHomes`
 within `HouseTrainedFragment` will be the operation-set value, and within
-`HouseTrainedDog` will resolve to `null`, as the argument is not set by the
-fragment spread in the query `C`.
+`HouseTrainedDog` will default to being unset (unless a default-value applies),
+as the argument is not set by the fragment spread in the query `C`.
 
 ### Variables Are Input Types
 
