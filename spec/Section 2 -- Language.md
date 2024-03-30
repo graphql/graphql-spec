@@ -1220,12 +1220,13 @@ size `60`:
 **Variable Use Within Fragments**
 
 Variables can be used within fragments. Operation-defined variables have global
-scope within a given operation. Fragment-defined variables have local scope within the
-fragment definition in which they are defined. A variable used within a fragment must either
-be declared in each top-level operation that transitively consumes that fragment,
-or by that same fragment as a fragment variable definition. If a variable
-referenced in a fragment is included by an operation where neither the fragment
-nor the operation defines that variable, that operation is invalid (see
+scope within a given operation. Fragment-defined variables have local scope
+within the fragment definition in which they are defined. A variable used within
+a fragment must either be declared in each top-level operation that transitively
+consumes that fragment, or by that same fragment as a fragment variable
+definition. If a variable referenced in a fragment is included by an operation
+where neither the fragment nor the operation defines that variable, that
+operation is invalid (see
 [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
 
 ## Fragment Variable Definitions
@@ -1279,10 +1280,10 @@ fragment dynamicProfilePic($size: Int!) on User {
 ```
 
 The profilePic for `user` will be determined by the variables set by the
-operation, while `secondUser` will always have a `profilePic` of size `10`. In this
-case, the fragment `variableProfilePic` uses the operation-defined variable,
-while `dynamicProfilePic` uses the value passed in via the fragment spread's
-`size` argument.
+operation, while `secondUser` will always have a `profilePic` of size `10`. In
+this case, the fragment `variableProfilePic` uses the operation-defined
+variable, while `dynamicProfilePic` uses the value passed in via the fragment
+spread's `size` argument.
 
 ## Type References
 

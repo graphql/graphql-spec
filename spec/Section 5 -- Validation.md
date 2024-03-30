@@ -424,9 +424,10 @@ FieldsInSetCanMerge(set):
 - Let {spreadsForName} be the set of fragment spreads with a given name in
   {visitedSelections}.
 - For each {spreadsForName} as {name} and {spreads}:
-  - Each entry in {spreads} must have identical sets of arguments to each other entry in {spreads}.
-- Let {fieldsForName} be the set of field selections with a given response name in
-  {visitedSelections}.
+  - Each entry in {spreads} must have identical sets of arguments to each other
+    entry in {spreads}.
+- Let {fieldsForName} be the set of field selections with a given response name
+  in {visitedSelections}.
 - Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
@@ -602,8 +603,9 @@ the fragment spread `...commandFragment(command: SIT)` and
 `...commandFragment(command: DOWN)` are part of the visited selections that will
 be merged.
 
-If both of these spreads would have `$commandOne` or `$commandTwo` as the argument-value,
-it would be allowed as we can be sure that we'd resolve identical fields.
+If both of these spreads would have `$commandOne` or `$commandTwo` as the
+argument-value, it would be allowed as we can be sure that we'd resolve
+identical fields.
 
 ### Leaf Field Selections
 
@@ -699,8 +701,8 @@ validation rules apply in each case.
 
 **Explanatory Text**
 
-Every argument provided to a field or directive or fragment spread must be
-defined in the set of possible arguments of that field, directive or fragment.
+Every argument provided to a field or directive must be defined in the set of
+possible arguments of that field or directive.
 
 For example the following are valid:
 
@@ -712,7 +714,13 @@ fragment argOnRequiredArg on Dog {
 fragment argOnOptional on Dog {
   isHouseTrained(atOtherHomes: true) @include(if: true)
 }
+```
 
+The above is also applicable to fragment-definitions and fragment-spreads, each
+variable must be defined by the fragment-definition before it can be inserted as
+an argument by the fragment-spread.
+
+```graphql example
 fragment withFragmentArg($command: DogCommand) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
@@ -737,6 +745,10 @@ and this is also invalid as the argument `dogCommand` is not defined on fragment
 ```graphql counter-example
 fragment invalidFragmentArgName on Dog {
   ...withFragmentArg(dogCommand: SIT)
+}
+
+fragment withFragmentArg($command: DogCommand) on Dog {
+  doesKnowCommand(dogCommand: $command)
 }
 ```
 
@@ -1620,8 +1632,8 @@ fragment HouseTrainedFragment on Query {
 }
 ```
 
-Likewise, it is valid for a fragment to define a variable with a name that
-is also defined on an operation:
+Likewise, it is valid for a fragment to define a variable with a name that is
+also defined on an operation:
 
 ```graphql example
 query C($atOtherHomes: Boolean) {
@@ -1989,7 +2001,8 @@ fragment fragmentArgUnused($atOtherHomes: Boolean) on Dog {
 }
 ```
 
-This document is invalid: fragment `fragmentArgUnused` defines a fragment variable `$atOtherHomes`, but this variable is not used within this fragment.
+This document is invalid: fragment `fragmentArgUnused` defines a fragment
+variable `$atOtherHomes`, but this variable is not used within this fragment.
 
 ### All Variable Usages Are Allowed
 

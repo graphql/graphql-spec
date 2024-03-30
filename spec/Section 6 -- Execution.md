@@ -340,7 +340,8 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
-  - Let {fragmentVariableValues} be the fragment-variables value of the first entry in {fields}.
+  - Let {fragmentVariableValues} be the fragment-variables value of the first
+    entry in {fields}.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
@@ -493,7 +494,8 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments, localVariableValues):
+CollectFields(objectType, selectionSet, variableValues, visitedFragments,
+localVariableValues):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
@@ -501,13 +503,13 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments, localV
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
     - If {skipDirective}'s {if} argument is {true} or is a variable in
-      {localVariableValues} or {variableValues} with the value {true}, continue with the next {selection}
-      in {selectionSet}.
+      {localVariableValues} or {variableValues} with the value {true}, continue
+      with the next {selection} in {selectionSet}.
   - If {selection} provides the directive `@include`, let {includeDirective} be
     that directive.
     - If {includeDirective}'s {if} argument is not {true} and is not a variable
-      in {localVariableValues} or {variableValues} with the value {true}, continue with the next
-      {selection} in {selectionSet}.
+      in {localVariableValues} or {variableValues} with the value {true},
+      continue with the next {selection} in {selectionSet}.
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
@@ -527,7 +529,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments, localV
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {localVariableValues} be the result of calling
-      {getArgumentValuesFromSpread(selection, fragmentDefinition, variableValues, localVariableValues)}.
+      {getArgumentValuesFromSpread(selection, fragmentDefinition,
+      variableValues, localVariableValues)}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
@@ -566,24 +569,27 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
-getArgumentValuesFromSpread(fragmentSpread, fragmentDefinition, variableValues, fragmentArgumentValues):
+getArgumentValuesFromSpread(fragmentSpread, fragmentDefinition, variableValues,
+fragmentArgumentValues):
 
 - Let {coercedValues} be an empty unordered Map.
 - For each {variableDefinition} in {fragmentDefinition}:
   - Let {variableName} be the name of {variableDefinition}.
   - Let {variableType} be the type of {variableDefinition}.
   - Let {defaultValue} be the default value for {variableDefinition}.
-  - Let {argumentNode} be the node provided in the fragment-spread for {variableName}
+  - Let {argumentNode} be the node provided in the fragment-spread for
+    {variableName}
   - If {argumentNode} isn't present or is null
     - If {defaultValue} exists
       - Add an entry to {coercedValues} named {argumentName} with the value
         {defaultValue}.
     - If {variableType} is non-nullable raise a field-error
-  - Let {hasValue} be {true} if {fragmentArgumentValues} or {variableValues} provides a   value for the name
-    {variableName}.
-  - If {variableType} is non-nullable and {hasValue} is {false} raise a field-error
-  - Add an entry to {coercedValues} named {argumentName} with the value
-    found in {variableValues} or {fragmentArgumentValues}.
+  - Let {hasValue} be {true} if {fragmentArgumentValues} or {variableValues}
+    provides a value for the name {variableName}.
+  - If {variableType} is non-nullable and {hasValue} is {false} raise a
+    field-error
+  - Add an entry to {coercedValues} named {argumentName} with the value found in
+    {variableValues} or {fragmentArgumentValues}.
 - Return {coercedValues}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
@@ -597,7 +603,8 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues, fragmentVariableValues):
+ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+fragmentVariableValues):
 
 - Let {field} be the first entry in {fields}.
 - Let {fieldName} be the field name of {field}.
@@ -617,7 +624,8 @@ the type system to have a specific input type.
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
-CoerceFieldArgumentValues(objectType, field, variableValues, fragmentVariableValues):
+CoerceFieldArgumentValues(objectType, field, variableValues,
+fragmentVariableValues):
 
 - Let {argumentValues} be the argument values provided in {field}.
 - Let {fieldName} be the name of {field}.
@@ -626,7 +634,8 @@ CoerceFieldArgumentValues(objectType, field, variableValues, fragmentVariableVal
 - Return {CoerceArgumentValues(argumentDefinitions, argumentValues,
   variableValues, fragmentVariableValues)}
 
-CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues, fragmentVariableValues):
+CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues,
+fragmentVariableValues):
 
 - For each {argumentDefinition} in {argumentDefinitions}:
   - Let {argumentName} be the name of {argumentDefinition}.
@@ -638,8 +647,8 @@ CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues, fragme
     {argumentName}.
   - If {argumentValue} is a {Variable}:
     - Let {variableName} be the name of {argumentValue}.
-    - Let {hasValue} be {true} if {fragmentVariableValues} provides a value for the name
-      {variableName}.
+    - Let {hasValue} be {true} if {fragmentVariableValues} provides a value for
+      the name {variableName}.
     - Let {value} be the value provided in {fragmentVariableValues} for the name
       {variableName}.
     - Let {hasValue} be {true} if {variableValues} provides a value for the name
