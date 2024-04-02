@@ -2033,19 +2033,20 @@ directive @invalidExample(arg: String @invalidExample) on ARGUMENT_DEFINITION
 Note: The order in which directives appear may be significant, including
 repeatable directives.
 
-**Validation**
+**Type Validation**
 
-1. A directive definition must not contain the use of a directive which
+1. A Directive definition must include at least one DirectiveLocation
+2. A Directive definition must not contain the use of a Directive which
    references itself directly.
-2. A directive definition must not contain the use of a directive which
+3. A Directive definition must not contain the use of a Directive which
    references itself indirectly by referencing a Type or Directive which
    transitively includes a reference to this directive.
-3. The directive must not have a name which begins with the characters {"\_\_"}
+4. The Directive must not have a name which begins with the characters {"\_\_"}
    (two underscores).
-4. For each argument of the directive:
+5. For each argument of the Directive:
    1. The argument must not have a name which begins with the characters
       {"\_\_"} (two underscores).
-   2. The argument must have a unique name within that directive; no two
+   2. The argument must have a unique name within that Directive; no two
       arguments may share the same name.
    3. The argument must accept a type where {IsInputType(argumentType)} returns
       {true}.
