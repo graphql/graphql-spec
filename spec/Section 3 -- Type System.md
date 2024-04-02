@@ -2035,7 +2035,7 @@ repeatable directives.
 
 **Type Validation**
 
-1. A Directive definition must include at least one DirectiveLocation
+1. A Directive definition must include at least one DirectiveLocation.
 2. A Directive definition must not contain the use of a Directive which
    references itself directly.
 3. A Directive definition must not contain the use of a Directive which
