@@ -121,8 +121,8 @@ respectively.
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the operation’s top level selection set with the query root operation
-type.
+executing the operation’s top level _selection set_ with the query root
+operation type.
 
 An initial value may be provided when executing a query operation.
 
@@ -130,7 +130,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {query}.
+- Let {selectionSet} be the top level selection set in {query}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
@@ -141,7 +141,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 ### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
-executing the operation’s top level selection set on the mutation root object
+executing the operation’s top level _selection set_ on the mutation root object
 type. This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
@@ -152,7 +152,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {mutation}.
+- Let {selectionSet} be the top level selection set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   mutationType, initialValue, variableValues)} _serially_.
 - Let {errors} be the list of all _field error_ raised while executing the
@@ -255,7 +255,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {subscription}.
+- Let {selectionSet} be the top level selection set in {subscription}.
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
@@ -285,7 +285,7 @@ operation type.
 #### Response Stream
 
 Each event in the underlying Source Stream triggers execution of the
-subscription selection set using that event as a root value.
+subscription _selection set_ using that event as a root value.
 
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
@@ -300,7 +300,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {selectionSet} be the top level Selection Set in {subscription}.
+- Let {selectionSet} be the top level selection set in {subscription}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
@@ -324,9 +324,9 @@ Unsubscribe(responseStream):
 
 ## Executing Selection Sets
 
-To execute a selection set, the object value being evaluated and the object type
-need to be known, as well as whether it must be executed serially, or may be
-executed in parallel.
+To execute a _selection set_, the object value being evaluated and the object
+type need to be known, as well as whether it must be executed serially, or may
+be executed in parallel.
 
 First, the selection set is turned into a grouped field set; then, each
 represented field in the grouped field set produces an entry into a response
@@ -396,10 +396,11 @@ entry from the grouped field set in the order provided in the grouped field set.
 It must determine the corresponding entry in the result map for each item to
 completion before it continues on to the next item in the grouped field set:
 
-For example, given the following selection set to be executed serially:
+For example, given the following mutation operation, the root _selection set_
+must be executed serially:
 
 ```graphql example
-{
+mutation ChangeBirthdayAndAddress($newBirthday: String!, $newAddress: String!) {
   changeBirthday(birthday: $newBirthday) {
     month
   }
@@ -409,7 +410,7 @@ For example, given the following selection set to be executed serially:
 }
 ```
 
-The executor must, in serial:
+Therefore the executor must, in serial:
 
 - Run {ExecuteField()} for `changeBirthday`, which during {CompleteValue()} will
   execute the `{ month }` sub-selection set normally.
@@ -418,9 +419,10 @@ The executor must, in serial:
 
 As an illustrative example, let's assume we have a mutation field
 `changeTheNumber` that returns an object containing one field, `theNumber`. If
-we execute the following selection set serially:
+we execute the following _selection set_ serially:
 
 ```graphql example
+# Note: This is a selection set, not a full document using the query shorthand.
 {
   first: changeTheNumber(newNumber: 1) {
     theNumber
@@ -443,7 +445,7 @@ The executor will execute the following serially:
 - Resolve the `changeTheNumber(newNumber: 2)` field
 - Execute the `{ theNumber }` sub-selection set of `third` normally
 
-A correct executor must generate the following result for that selection set:
+A correct executor must generate the following result for that _selection set_:
 
 ```json example
 {
@@ -461,7 +463,7 @@ A correct executor must generate the following result for that selection set:
 
 ### Field Collection
 
-Before execution, the selection set is converted to a grouped field set by
+Before execution, the _selection set_ is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
 fields that share a response key (the alias if defined, otherwise the field
 name). This ensures all fields with the same response key (including those in
@@ -740,9 +742,9 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one field of the same name is executed in parallel, their
-selection sets are merged together when completing the value in order to
-continue execution of the sub-selection sets.
+When more than one field of the same name is executed in parallel, the
+_selection set_ for each of the fields are merged together when completing the
+value in order to continue execution of the sub-selection sets.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
