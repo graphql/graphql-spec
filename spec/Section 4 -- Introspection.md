@@ -117,6 +117,17 @@ Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
 warnings.
 
+**Ordering**
+
+When possible, implementations should preserve observable order for unordered
+data collections. For example, if a schema was produced from a source
+{TypeSystemDocument} then introspection of fields, input fields, arguments, enum
+values, directives, union members, implemented interfaces and so on should
+produce the same order as found in the source.
+
+Note: This recommendation is to improve legibility and stability of schema
+representations.
+
 **Schema Introspection Schema**
 
 The schema introspection system is itself represented as a GraphQL schema. Below
