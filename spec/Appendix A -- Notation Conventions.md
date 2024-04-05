@@ -247,3 +247,11 @@ the set of keys across all entries is unique but the values across all entries
 may repeat. A map is unordered unless explicitly stated otherwise (as an
 "ordered map"). For clarity the term "unordered map" may be used when the lack
 of an order is semantically important.
+
+**Preserving order**
+
+To improve legibility, when possible implementations should preserve observable
+order for unordered data collections. For example, if applying a grammar to an
+input string produces an unordered set, serializing that set (to a string or
+other observable output) should produce the same order found in the original
+input string.
