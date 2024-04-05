@@ -302,17 +302,18 @@ enumerable. GraphQL offers an `Enum` type in those cases, where the type
 specifies the space of valid responses.
 
 Scalars and Enums form the leaves in response trees; the intermediate levels are
-`Object` types, which define a set of fields, where each field is another type
-in the system, allowing the definition of arbitrary type hierarchies.
+`Object` types, which define an ordered set of fields, where each field is
+another type in the system, allowing the definition of arbitrary type
+hierarchies.
 
 GraphQL supports two abstract types: interfaces and unions.
 
-An `Interface` defines a list of fields; `Object` types and other Interface
-types which implement this Interface are guaranteed to implement those fields.
-Whenever a field claims it will return an Interface type, it will return a valid
-implementing Object type during execution.
+An `Interface` defines an ordered set of fields; `Object` types and other
+Interface types which implement this Interface are guaranteed to implement those
+fields. Whenever a field claims it will return an Interface type, it will return
+a valid implementing Object type during execution.
 
-A `Union` defines a list of possible types; similar to interfaces, whenever the
+A `Union` defines a set of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
@@ -674,11 +675,11 @@ GraphQL operations are hierarchical and composed, describing a tree of
 information. While Scalar types describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values should be serialized as ordered maps, where the
-selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the _selection
-set_.
+GraphQL Objects represent an ordered set of named fields, each of which yield a
+value of a specific type. Object values should be serialized as ordered maps,
+where the selected field names (or aliases) are the keys and the result of
+evaluating the field is the value, ordered by the order in which they appear in
+the _selection set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -920,7 +921,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          1. The `@deprecated` directive must not be applied to this argument.
-3. An object type may declare that it implements one or more unique interfaces.
+3. An object type may declare that it implements a set of one or more unique
+   interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
@@ -982,7 +984,7 @@ InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
 
 Object fields are conceptually functions which yield values. Occasionally object
 fields can accept arguments to further specify the return value. Object field
-arguments are defined as a list of all possible argument names and their
+arguments are defined as an ordered set of all possible argument names and their
 expected input types.
 
 All arguments defined within a field must not have a name which begins with
@@ -1093,9 +1095,10 @@ InterfaceTypeDefinition :
 - Description? interface Name ImplementsInterfaces? Directives[Const]?
   [lookahead != `{`]
 
-GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+GraphQL interfaces represent an ordered set of named fields and their arguments.
+GraphQL objects and interfaces can then implement these interfaces which
+requires that the implementing type will define all fields defined by those
+interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1347,7 +1350,7 @@ UnionMemberTypes :
 - UnionMemberTypes | NamedType
 - = `|`? NamedType
 
-GraphQL Unions represent an object that could be one of a list of GraphQL Object
+GraphQL Unions represent an object that could be one of a set of GraphQL Object
 types, but provides for no guaranteed fields between those types. They also
 differ from interfaces in that Object types declare what interfaces they
 implement, but are not aware of what unions contain them.
@@ -1408,7 +1411,7 @@ A valid operation includes typed fragments (in this example, inline fragments):
 ```
 
 Union members may be defined with an optional leading `|` character to aid
-formatting when representing a longer list of possible types:
+formatting when representing a longer set of possible types:
 
 ```raw graphql example
 union SearchResult =
@@ -1547,9 +1550,9 @@ InputFieldsDefinition : { InputValueDefinition+ }
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
-A GraphQL Input Object defines a set of input fields; the input fields are
-either scalars, enums, or other input objects. This allows arguments to accept
-arbitrarily complex structs.
+A GraphQL Input Object defines an ordered set of named input fields; the input
+fields are either scalars, enums, or other input objects. This allows arguments
+to accept arbitrarily complex structs.
 
 In this example, an Input Object called `Point2D` describes `x` and `y` inputs:
 
@@ -1936,6 +1939,10 @@ A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
 by a validator, executor, or client tool such as a code generator.
 
+Directives can accept arguments to further specify their behavior. Directive
+arguments are defined as an ordered set of all possible argument names and their
+expected input types.
+
 **Built-in Directives**
 
 :: A _built-in directive_ is any directive defined within this specification.
@@ -1983,7 +1990,7 @@ fragment SomeFragment on SomeType {
 ```
 
 Directive locations may be defined with an optional leading `|` character to aid
-formatting when representing a longer list of possible locations:
+formatting when representing a longer set of possible locations:
 
 ```raw graphql example
 directive @example on
