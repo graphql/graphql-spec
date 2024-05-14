@@ -2040,7 +2040,7 @@ repeatable directives.
    references itself directly.
 3. A Directive definition must not contain the use of a Directive which
    references itself indirectly by referencing a Type or Directive which
-   transitively includes a reference to this directive.
+   transitively includes a reference to this Directive.
 4. The Directive must not have a name which begins with the characters {"\_\_"}
    (two underscores).
 5. For each argument of the Directive:
