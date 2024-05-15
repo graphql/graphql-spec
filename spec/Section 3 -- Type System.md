@@ -221,7 +221,7 @@ _root operation type_ uses its respective _default root type name_ and no other
 type uses any _default root type name_.
 
 Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if each _root operation type_
+language, a schema definition may be omitted if each _root operation type_
 uses its respective _default root type name_ and no other type uses any _default
 root type name_.
 
