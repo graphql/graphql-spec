@@ -1732,8 +1732,8 @@ query takesCatOrDog($catOrDog: CatOrDog) {
   - Let {fragments} be every fragment referenced by that {operation}
     transitively.
   - For each {fragment} in {fragments}:
-    - For each {variableUsage} in scope of {fragment}, variable must be in
-      {fragment}'s or {operation}'s variable list.
+    - For each {variableUsage} in scope of {fragment}, variable must be in either
+      {fragment}'s or {operation}'s variable list or both.
 
 **Explanatory Text**
 
