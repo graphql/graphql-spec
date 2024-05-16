@@ -591,15 +591,17 @@ fragment potentiallyConflictingArguments(
   ...commandFragment(command: $commandTwo)
 }
 
-fragment safeFragmentArguments on Dog {
-  ...potentiallyConflictingArguments(commandOne: SIT, commandTwo: DOWN)
+query {
+  pet {
+    ...potentiallyConflictingArguments(commandOne: SIT, commandTwo: DOWN)
+  }
 }
 ```
 
-If two fragment spreads with the same name supply different argument values,
-their fields will not be able to merge. In this case, validation fails because
-the fragment spread `...commandFragment(command: SIT)` and
-`...commandFragment(command: DOWN)` are part of the visited selections that will
+If two fragment spreads with the same name, and hence the same selection,
+supply different argument values, their fields will not be able to merge.
+In this case, validation fails because the fragment spread `...commandFragment(command: SIT)`
+and `...commandFragment(command: DOWN)` are part of the visited selections that will
 be merged.
 
 If both of these spreads would have `$commandOne` or `$commandTwo` as the
