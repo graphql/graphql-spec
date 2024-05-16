@@ -715,9 +715,9 @@ fragment argOnOptional on Dog {
 }
 ```
 
-The above is also applicable to fragment-definitions and fragment-spreads, each
-variable must be defined by the fragment-definition before it can be inserted as
-an argument by the fragment-spread.
+The above is also applicable to fragment definitions and fragment spreads, each
+variable must be defined by the fragment definition before it can be inserted as
+an argument by the fragment spread.
 
 ```graphql example
 fragment withFragmentArg($command: DogCommand) on Dog {
