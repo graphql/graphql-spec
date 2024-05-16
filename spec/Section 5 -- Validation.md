@@ -1768,7 +1768,7 @@ query variableIsNotDefined {
 ${atOtherHomes} is not defined by the operation.
 
 Fragments complicate this rule. Any fragment transitively included by an
-operation has access to the variables defined by that operation and defined on
+operation has access to the variables defined by that operation and also those defined on
 the fragment. Fragments can appear within multiple operations and therefore
 variable usages not defined on the fragment must correspond to variable
 definitions in all of those operations.
@@ -1931,8 +1931,7 @@ fragment isHouseTrainedWithoutVariableFragment on Dog {
 Fragment arguments can shadow operation variables: fragments that use an
 argument are not using the operation-defined variable of the same name.
 
-Likewise, it would be invalid if the variable was shadowed by a fragment
-argument:
+As such, it would be invalid if the operation defined a variable and variables of that name were used exclusively inside fragments that define a variable with the same name:
 
 ```graphql counter-example
 query variableNotUsedWithinFragment($atOtherHomes: Boolean) {
@@ -1982,8 +1981,7 @@ variable.
 
 - For every {fragment} in the document:
   - Let {variables} be the variables defined by that {fragment}.
-  - Each {variable} in {variables} must be used at least once in the fragment's
-    scope.
+  - Each {variable} in {variables} must be used at least once transitively within the fragment's selection set excluding traversal of named fragment spreads.
 
 **Explanatory Text**
 
