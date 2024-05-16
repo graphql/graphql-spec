@@ -692,10 +692,9 @@ validation rules apply in each case.
 
 - For each {argument} in the document:
   - Let {argumentName} be the Name of {argument}.
-  - If the parent is a field or directive:
   - Let {argumentDefinition} be the argument or variable definition named
     {argumentName} provided by the parent field definition, directive definition
-    or fragment definition.
+    or fragment spread.
   - {argumentDefinition} must exist.
 
 **Explanatory Text**
