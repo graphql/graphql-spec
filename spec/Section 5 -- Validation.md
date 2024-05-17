@@ -586,6 +586,7 @@ fragment commandFragment($command: DogCommand!) on Dog {
 
 fragment potentiallyConflictingArguments(
   $commandOne: DogCommand!
+  $commandTwo: DogCommand!
 ) on Dog {
   ...commandFragment(command: $commandOne)
   ...commandFragment(command: $commandTwo)
