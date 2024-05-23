@@ -418,8 +418,8 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {visitedSelections} be the selections in {set} including visiting
-  fields, fragment-spreads and inline fragments.
+- Let {visitedSelections} be the selections in {set} including visiting fields,
+  fragment-spreads and inline fragments.
 - Let {spreadsForName} be the set of fragment spreads with a given name in
   {visitedSelections}.
 - For each {spreadsForName} as {name} and {spreads}:
@@ -599,11 +599,11 @@ query {
 }
 ```
 
-If two fragment spreads with the same name, and hence the same selection,
-supply different argument values, their fields will not be able to merge.
-In this case, validation fails because the fragment spread `...commandFragment(command: SIT)`
-and `...commandFragment(command: DOWN)` are part of the visited selections that will
-be merged.
+If two fragment spreads with the same name, and hence the same selection, supply
+different argument values, their fields will not be able to merge. In this case,
+validation fails because the fragment spread `...commandFragment(command: SIT)`
+and `...commandFragment(command: DOWN)` are part of the visited selections that
+will be merged.
 
 If both of these spreads would have `$commandOne` or `$commandTwo` as the
 argument-value, it would be allowed as we can be sure that we'd resolve
@@ -1735,8 +1735,8 @@ query takesCatOrDog($catOrDog: CatOrDog) {
   - Let {fragments} be every fragment referenced by that {operation}
     transitively.
   - For each {fragment} in {fragments}:
-    - For each {variableUsage} in scope of {fragment}, variable must be in either
-      {fragment}'s or {operation}'s variable list or both.
+    - For each {variableUsage} in scope of {fragment}, variable must be in
+      either {fragment}'s or {operation}'s variable list or both.
 
 **Explanatory Text**
 
@@ -1770,10 +1770,10 @@ query variableIsNotDefined {
 ${atOtherHomes} is not defined by the operation.
 
 Fragments complicate this rule. Any fragment transitively included by an
-operation has access to the variables defined by that operation and also those defined on
-the fragment. Fragments can appear within multiple operations and therefore
-variable usages not defined on the fragment must correspond to variable
-definitions in all of those operations.
+operation has access to the variables defined by that operation and also those
+defined on the fragment. Fragments can appear within multiple operations and
+therefore variable usages not defined on the fragment must correspond to
+variable definitions in all of those operations.
 
 For example the following is valid:
 
@@ -1933,7 +1933,9 @@ fragment isHouseTrainedWithoutVariableFragment on Dog {
 Fragment arguments can shadow operation variables: fragments that use an
 argument are not using the operation-defined variable of the same name.
 
-As such, it would be invalid if the operation defined a variable and variables of that name were used exclusively inside fragments that define a variable with the same name:
+As such, it would be invalid if the operation defined a variable and variables
+of that name were used exclusively inside fragments that define a variable with
+the same name:
 
 ```graphql counter-example
 query variableNotUsedWithinFragment($atOtherHomes: Boolean) {
@@ -1983,7 +1985,9 @@ variable.
 
 - For every {fragment} in the document:
   - Let {variables} be the variables defined by that {fragment}.
-  - Each {variable} in {variables} must be used at least once transitively within the fragment's selection set excluding traversal of named fragment spreads.
+  - Each {variable} in {variables} must be used at least once transitively
+    within the fragment's selection set excluding traversal of named fragment
+    spreads.
 
 **Explanatory Text**
 
