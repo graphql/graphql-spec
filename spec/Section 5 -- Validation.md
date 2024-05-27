@@ -337,8 +337,8 @@ must provide the operation name as described in {GetOperation()}.
 #### Formal Specification
 
 For each operation definition in the document:
-- Let operationType be the type of the operation (query, mutation, or subscription).
-- The corresponding type for operationType must be defined in the schema.
+- Let {operationType} be the type of the operation (query, mutation, or subscription).
+- The corresponding type for {operationType} must be defined in the schema.
 
 #### Explanatory Text
 
