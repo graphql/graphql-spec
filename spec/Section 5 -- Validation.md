@@ -332,7 +332,7 @@ contain any number of operations, each of which may contain different root
 fields. When executed, a document containing multiple subscription operations
 must provide the operation name as described in {GetOperation()}.
 
-### 5.2.4 Operation Type Configuration
+### Operation Type Configuration
 
 #### Formal Specification
 
