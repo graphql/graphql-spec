@@ -332,6 +332,37 @@ contain any number of operations, each of which may contain different root
 fields. When executed, a document containing multiple subscription operations
 must provide the operation name as described in {GetOperation()}.
 
+### 5.2.4 Operation Type Configuration
+
+#### Formal Specification
+
+For each operation definition in the document:
+- Let operationType be the type of the operation (query, mutation, or subscription).
+- The corresponding type for operationType must be defined in the schema.
+
+#### Explanatory Text
+
+The schema must be properly configured to handle mutation and subscription operation
+types. This ensures that when a mutation or subscription operation is defined in the
+document, the schema includes the appropriate type to handle these operations.
+
+While query operations are required for all schemas, mutation and subscription operations
+are optional. If the schema does not include the necessary type for a mutation or subscription
+operation defined in the document, it will be considered invalid.
+
+For example, the following document is valid if the schema includes a Mutation type, but
+invalid if it does not:
+
+```graphql
+mutation {
+  likeStory(storyID: 12345) {
+    story {
+      likeCount
+    }
+  }
+}
+```
+
 ## Fields
 
 ### Field Selections
