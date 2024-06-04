@@ -579,7 +579,7 @@ fragment conflictingDifferingResponses on Pet {
 
 Fragment spread arguments can also cause fields to fail to merge.
 
-```graphql example
+```graphql counter-example
 fragment commandFragment($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
