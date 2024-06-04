@@ -2259,8 +2259,8 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 directive @oneOf on INPUT_OBJECT
 ```
 
-The `@oneOf` directive is used within the type system definition language to
-indicate an Input Object is a OneOf Input Object.
+The `@oneOf` _built-in directive_ is used within the type system definition
+language to indicate an Input Object is a OneOf Input Object.
 
 ```graphql example
 input UserUniqueCondition @oneOf {
