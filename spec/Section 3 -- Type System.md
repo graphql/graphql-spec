@@ -1764,7 +1764,6 @@ input ExampleInputTagged @oneOf {
 | `{ b: $b }`              | `{ b: null }`                    | Error: Value for member field {b} must be non-null  |
 | `{ b: 123, c: "xyz" }`   | `{}`                             | Error: Unexpected field {c}                         |
 | `$var`                   | `{ var: { b: 123, c: "xyz" } }`  | Error: Unexpected field {c}                         |
-| `{ a: $a, b: $b }`       | `{ a: "abc" }`                   | Error: Exactly one key must be specified            |
 
 **Type Validation**
 
