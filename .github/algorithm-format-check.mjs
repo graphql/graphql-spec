@@ -94,7 +94,7 @@ for (const filename of filenames) {
           // Still grammar, not algorithm
           continue;
         }
-        if (lines[i + 1] !== "") {
+        if (rest.trim() === "" && lines[i + 1] !== "") {
           console.log(
             `No empty space after grammar ${grammarName} header in '${filename}'`
           );
