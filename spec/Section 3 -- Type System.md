@@ -1566,6 +1566,28 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
+**OneOf Input Objects**
+
+OneOf Input Objects are a special variant of Input Objects where the type system
+asserts that exactly one of the fields must be set and non-null, all others
+being omitted. This is useful for representing situations where an input may be
+one of many different options.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that an Input Object is a OneOf Input Object (and thus requires
+exactly one of its field be provided):
+
+```graphql
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+```
+
+In schema introspection, the `__Type.isOneOf` field will return {true} for OneOf
+Input Objects, and {false} for all other Input Objects.
+
 **Circular References**
 
 Input Objects are allowed to reference other Input Objects as field types. A
@@ -1659,6 +1681,21 @@ is constructed with the following rules:
   does not provide a default value, the input object field definition's default
   value should be used.
 
+Further, if the input object is a OneOf Input Object, the following additional
+rules apply:
+
+- If the input object literal or unordered map does not contain exactly one
+  entry an error must be thrown.
+
+- Within the input object literal or unordered map, if the single entry is
+  {null} an error must be thrown.
+
+- If the coerced unordered map does not contain exactly one entry an error must
+  be thrown.
+
+- If the value of the single entry in the coerced unordered map is {null} an
+  error must be thrown.
+
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
 
@@ -1688,6 +1725,46 @@ input ExampleInputObject {
 | `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.         |
 | `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}          |
 
+Following are examples of input coercion for a oneOf input object type with a
+`String` member field `a` and an `Int` member field `b`:
+
+```graphql example
+input ExampleInputTagged @oneOf {
+  a: String
+  b: Int
+}
+```
+
+| Literal Value            | Variables                        | Coerced Value                                       |
+| ------------------------ | -------------------------------- | --------------------------------------------------- |
+| `{ a: "abc", b: 123 }`   | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null, b: 123 }`    | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null, b: null }`   | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: null }`            | `{}`                             | Error: Value for member field {a} must be non-null  |
+| `{ b: 123 }`             | `{}`                             | `{ b: 123 }`                                        |
+| `{}`                     | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: $a, b: 123 }`      | `{ a: null }`                    | Error: Exactly one key must be specified            |
+| `{ a: $a, b: 123 }`      | `{}`                             | Error: Exactly one key must be specified            |
+| `{ a: $a, b: $b }`       | `{ a: "abc" }`                   | Error: Exactly one key must be specified            |
+| `{ b: $b }`              | `{ b: 123 }`                     | `{ b: 123 }`                                        |
+| `$var`                   | `{ var: { b: 123 } }`            | `{ b: 123 }`                                        |
+| `$var`                   | `{ var: { a: "abc", b: 123 } }`  | Error: Exactly one key must be specified            |
+| `$var`                   | `{ var: { a: "abc", b: null } }` | Error: Exactly one key must be specified            |
+| `$var`                   | `{ var: { a: null } }`           | Error: Value for member field {a} must be non-null  |
+| `$var`                   | `{ var: {} }`                    | Error: Exactly one key must be specified            |
+| `"abc123"`               | `{}`                             | Error: Incorrect value                              |
+| `$var`                   | `{ var: "abc123" } }`            | Error: Incorrect value                              |
+| `{ a: "abc", b: "123" }` | `{}`                             | Error: Exactly one key must be specified            |
+| `{ b: "123" }`           | `{}`                             | Error: Incorrect value for member field {b}         |
+| `$var`                   | `{ var: { b: "abc" } }`          | Error: Incorrect value for member field {b}         |
+| `{ a: "abc" }`           | `{}`                             | `{ a: "abc" }`                                      |
+| `{ b: $b }`              | `{}`                             | Error: Value for member field {b} must be specified |
+| `$var`                   | `{ var: { a: "abc" } }`          | `{ a: "abc" }`                                      |
+| `{ a: "abc", b: null }`  | `{}`                             | Error: Exactly one key must be specified            |
+| `{ b: $b }`              | `{ b: null }`                    | Error: Value for member field {b} must be non-null  |
+| `{ b: 123, c: "xyz" }`   | `{}`                             | Error: Unexpected field {c}                         |
+| `$var`                   | `{ var: { b: 123, c: "xyz" } }`  | Error: Unexpected field {c}                         |
+
 **Type Validation**
 
 1. An Input Object type must define one or more input fields.
@@ -1700,6 +1777,9 @@ input ExampleInputObject {
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
       1. The `@deprecated` directive must not be applied to this input field.
+   5. If the Input Object is a OneOf Input Object then:
+      1. The type of the input field must be nullable.
+      2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -1727,6 +1807,12 @@ defined.
    the original Input Object.
 4. Any non-repeatable directives provided must not already apply to the original
    Input Object type.
+5. The `@oneOf` directive must not be provided by an Input Object type
+   extension.
+6. If the original Input Object is a OneOf Input Object then:
+   1. All fields of the Input Object type extension must be nullable.
+   2. All fields of the Input Object type extension must not have default
+      values.
 
 ## List
 
@@ -1949,6 +2035,9 @@ schema.
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
+GraphQL implementations that support the type system definition language should
+provide the `@oneOf` directive if representing OneOf Input Objects.
+
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
 
@@ -2161,4 +2250,21 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+### @oneOf
+
+```graphql
+directive @oneOf on INPUT_OBJECT
+```
+
+The `@oneOf` _built-in directive_ is used within the type system definition
+language to indicate an Input Object is a OneOf Input Object.
+
+```graphql example
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
 ```
