@@ -3783,14 +3783,14 @@ While each subscription must have exactly one root field, a document may contain
   <span class="token attr-name">barkVolume</span><span class="token punctuation">:</span> <span class="token property">kawVolume</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%205%20--%20Validation.md#L364-L366">For interfaces, direct field selection can only be done on fields. Fields of concrete implementors are not relevant to the validity of the given interface-typed selection set.</p>
+<p data-source="spec/Section%205%20--%20Validation.md#L364-L366">For interfaces, direct field selection can only be done on fields. Fields of concrete implementers are not relevant to the validity of the given interface-typed selection set.</p>
 <p data-source="spec/Section%205%20--%20Validation.md#L368">For example, the following is valid:</p>
 <pre id="example-d34e0" class="spec-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L370-L374"><a href="#example-d34e0">Example № 116</a><code><span class="token keyword">fragment</span> <span class="token fragment function">interfaceFieldSelection</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token property">name</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L376">and the following is invalid:</p>
-<pre id="example-db33b" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L378-L382"><a href="#example-db33b">Counter Example № 117</a><code><span class="token keyword">fragment</span> <span class="token fragment function">definedOnImplementorsButNotInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
+<pre id="example-e3eef" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L378-L382"><a href="#example-e3eef">Counter Example № 117</a><code><span class="token keyword">fragment</span> <span class="token fragment function">definedOnImplementersButNotInterface</span> <span class="token keyword">on</span> <span class="token class-name">Pet</span> <span class="token punctuation">{</span>
   <span class="token property">nickname</span>
 <span class="token punctuation">}</span>
 </code></pre>
@@ -5853,7 +5853,7 @@ This is distinct from a <span class="spec-ref"><a href="#request-error" data-nam
 <p data-source="spec/Section%207%20--%20Response.md#L13">A response to a GraphQL request must be a map.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L15-L18">If the request raised any errors, the response map must contain an entry with key <code>errors</code>. The value of this entry is described in the &ldquo;Errors&rdquo; section. If the request completed without raising any errors, this entry must not be present.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L20-L23">If the request included execution, the response map must contain an entry with key <code>data</code>. The value of this entry is described in the &ldquo;Data&rdquo; section. If the request failed before execution, due to a syntax error, missing information, or validation error, this entry must not be present.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L25-L28">The response map may also contain an entry with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L25-L28">The response map may also contain an entry with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L30-L32">To ensure future changes to the protocol do not break existing services and clients, the top level response map must not contain any entries other than the three described above.</p>
 <div id="note-6f005" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L34-L36">
 <a href="#note-6f005">Note</a>
@@ -5957,7 +5957,7 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L204-L207">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementors to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L204-L207">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
 <pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L209-L223"><a href="#example-8b658">Example № 202</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
