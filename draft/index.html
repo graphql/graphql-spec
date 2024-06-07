@@ -5428,13 +5428,15 @@ This <span class="spec-call"><a href="#ResolveFieldEventStream()" data-name="Res
 <p data-source="spec/Section%206%20--%20Execution.md#L290-L291">Each event in the underlying Source Stream triggers execution of the subscription <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> using that event as a root value.</p>
 <div class="spec-algo" id="MapSourceToResponseEvent()" data-source="spec/Section%206%20--%20Execution.md#L293-L300">
 <span class="spec-call"><a href="#MapSourceToResponseEvent()" data-name="MapSourceToResponseEvent">MapSourceToResponseEvent</a>(<var data-name="sourceStream">sourceStream</var>, <var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>)</span><ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L295">Return a new event stream <var data-name="responseStream">responseStream</var> which yields events as follows:</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L295-L300">Return a new event stream <var data-name="responseStream">responseStream</var> which yields events as follows:<ol>
 <li data-source="spec/Section%206%20--%20Execution.md#L296-L299">For each <var data-name="event">event</var> on <var data-name="sourceStream">sourceStream</var>:<ol>
 <li data-source="spec/Section%206%20--%20Execution.md#L297-L298">Let <var data-name="response">response</var> be the result of running <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>(<var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>, <var data-name="event">event</var>)</span>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L299">Yield an event containing <var data-name="response">response</var>.</li>
 </ol>
 </li>
 <li data-source="spec/Section%206%20--%20Execution.md#L300">When <var data-name="sourceStream">sourceStream</var> completes: complete <var data-name="responseStream">responseStream</var>.</li>
+</ol>
+</li>
 </ol>
 </div>
 <div class="spec-algo" id="ExecuteSubscriptionEvent()" data-source="spec/Section%206%20--%20Execution.md#L302-L312">
