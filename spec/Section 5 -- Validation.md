@@ -605,7 +605,7 @@ validation fails because the fragment spread `...commandFragment(command: SIT)`
 and `...commandFragment(command: DOWN)` are part of the visited selections that
 will be merged.
 
-If both of these spreads had used `$commandOne` as the argument value, it would
+If both of these spreads had used the same variable for the argument value, it would
 be allowed as we can be sure that we'd resolve identical fields.
 
 ### Leaf Field Selections
