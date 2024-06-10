@@ -23,5 +23,5 @@ words:
   - zuckerberg
 # Forbid Alternative spellings
 flagWords:
-  - implementor->implementer
-  - implementors->implementers  
+  - implementor
+  - implementors
