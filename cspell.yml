@@ -21,6 +21,7 @@ words:
   - tatooine
   - zuck
   - zuckerberg
-  # Alternative spellings
-  - !implementor
-  - !implementors
+# Forbid Alternative spellings
+flagWords:
+  - implementor
+  - implementors
