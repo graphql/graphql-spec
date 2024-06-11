@@ -164,7 +164,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 ### Subscription
 
-If the operation is a subscription, the result is an event stream called the
+If the operation is a subscription, the result is an _event stream_ called the
 "Response Stream" where each event in the event stream is the result of
 executing the operation for each new event on an underlying "Source Stream".
 
@@ -217,14 +217,21 @@ chat room ID is the "topic" and each "publish" contains the sender and text.
 
 **Event Streams**
 
-An event stream represents a sequence of discrete events over time which can be
-observed. As an example, a "Pub-Sub" system may produce an event stream when
-"subscribing to a topic", with an event occurring on that event stream for each
-"publish" to that topic. Event streams may produce an infinite sequence of
-events or may complete at any point. Event streams may complete in response to
-an error or simply because no more events will occur. An observer may at any
-point decide to stop observing an event stream by cancelling it, after which it
-must receive no more events from that event stream.
+:: An _event stream_ represents a sequence of events: discrete emitted values
+over time which can be observed. As an example, a "Pub-Sub" system may produce
+an _event stream_ when "subscribing to a topic", with an value emitted for each
+"publish" to that topic.
+
+An _event stream_ may complete at any point, often because no further events
+will occur. An _event stream_ may emit an infinite sequence of values, in which
+it may never complete. If an _event stream_ encounters an error, it must
+complete with that error.
+
+An observer may at any point decide to stop observing an _event stream_ by
+cancelling it. When an _event stream_ is cancelled, it must complete.
+
+Internal user code also may cancel an _event stream_ for any reason, which would
+be observed as that _event stream_ completing.
 
 **Supporting Subscriptions at Scale**
 
@@ -250,8 +257,8 @@ service details should be chosen by the implementing service.
 
 #### Source Stream
 
-A Source Stream represents the sequence of events, each of which will trigger a
-GraphQL execution corresponding to that event. Like field value resolution, the
+A Source Stream is an _event stream_ representing a sequence of root values,
+each of which will trigger a GraphQL execution. Like field value resolution, the
 logic to create a Source Stream is application-specific.
 
 CreateSourceEventStream(subscription, schema, variableValues, initialValue):
@@ -268,15 +275,15 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {field} be the first entry in {fields}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}.
-- Let {fieldStream} be the result of running
+- Let {sourceStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
-- Return {fieldStream}.
+- Return {sourceStream}.
 
 ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
 
 - Let {resolver} be the internal function provided by {subscriptionType} for
-  determining the resolved event stream of a subscription field named
+  determining the resolved _event stream_ of a subscription field named
   {fieldName}.
 - Return the result of calling {resolver}, providing {rootValue} and
   {argumentValues}.
@@ -287,17 +294,33 @@ operation type.
 
 #### Response Stream
 
-Each event in the underlying Source Stream triggers execution of the
-subscription _selection set_ using that event as a root value.
+Each event from the underlying Source Stream triggers execution of the
+subscription _selection set_ using that event's value as the {initialValue}.
 
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
-- Return a new event stream {responseStream} which yields events as follows:
-  - For each {event} on {sourceStream}:
-    - Let {response} be the result of running
-      {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-    - Yield an event containing {response}.
-  - When {sourceStream} completes: complete {responseStream}.
+- Let {responseStream} be a new _event stream_.
+- When {sourceStream} emits {sourceValue}:
+  - Let {response} be the result of running
+    {ExecuteSubscriptionEvent(subscription, schema, variableValues,
+    sourceValue)}.
+  - If internal {error} was raised:
+    - Cancel {sourceStream}.
+    - Complete {responseStream} with {error}.
+  - Otherwise emit {response} on {responseStream}.
+- When {sourceStream} completes normally:
+  - Complete {responseStream} normally.
+- When {sourceStream} completes with {error}:
+  - Complete {responseStream} with {error}.
+- When {responseStream} is cancelled:
+  - Cancel {sourceStream}.
+  - Complete {responseStream} normally.
+- Return {responseStream}.
+
+Note: Since {ExecuteSubscriptionEvent()} handles all _field error_, and _request
+error_ only occur during {CreateSourceEventStream()}, the only remaining error
+condition handled from {ExecuteSubscriptionEvent()} are internal exceptional
+errors not described by this specification.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
@@ -317,9 +340,9 @@ Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 #### Unsubscribe
 
 Unsubscribe cancels the Response Stream when a client no longer wishes to
-receive payloads for a subscription. This may in turn also cancel the Source
-Stream. This is also a good opportunity to clean up any other resources used by
-the subscription.
+receive payloads for a subscription. This in turn also cancels the Source
+Stream, which is a good opportunity to clean up any other resources used by the
+subscription.
 
 Unsubscribe(responseStream):
 
