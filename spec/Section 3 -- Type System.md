@@ -1350,10 +1350,10 @@ UnionMemberTypes :
 - UnionMemberTypes | NamedType
 - = `|`? NamedType
 
-GraphQL Unions represent an object that could be one of a set of GraphQL Object
-types, but provides for no guaranteed fields between those types. They also
-differ from interfaces in that Object types declare what interfaces they
-implement, but are not aware of what unions contain them.
+GraphQL Unions represent an object that could be one of an ordered set of
+GraphQL Object types, but provides for no guaranteed fields between those types.
+They also differ from interfaces in that Object types declare what interfaces
+they implement, but are not aware of what unions contain them.
 
 With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments must be
