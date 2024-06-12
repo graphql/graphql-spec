@@ -310,8 +310,8 @@ GraphQL supports two abstract types: interfaces and unions.
 
 An `Interface` defines an ordered set of fields; `Object` types and other
 Interface types which implement this Interface are guaranteed to implement those
-fields. Whenever a field claims it will return an Interface type, it will return
-a valid implementing Object type during execution.
+fields (in any order). Whenever a field claims it will return an Interface type,
+it will return a valid implementing Object type during execution.
 
 A `Union` defines a set of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
