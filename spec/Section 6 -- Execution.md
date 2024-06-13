@@ -359,15 +359,12 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
     from the {pendingResults} that it completes, adding each of {pendingResults}
     to {graph} as new nodes, if necessary, each directed from its {parent}, if
-    defined, recursively adding each {parent} as necessary.
-- Prune root nodes of {graph} containing no direct child Incremental Data
-  Records, repeatedly if necessary, promoting any direct child Deferred
-  Fragments of the pruned nodes to root nodes. (This ensures that no empty
-  fragments are reported as pending).
-- Let {newPendingResults} be the set of root nodes in {graph}.
-- Let {pending} be the result of {GetPending(newPendingResults)}.
-- Let {hasNext} be {true}.
-- Yield an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
+    defined, recursively adding each {parent} as necessary until
+    {incrementalDataRecord} is connected to {graph}.
+- Let {pendingResults} be the result of {GetNonEmptyNewPending(graph)}.
+- Prune root nodes from {graph} not in {pendingResults}, repeating as necessary
+  until all root nodes in {graph} are also in {pendingResults}.
+- Yield the result of {GetInitialResult(data, errors, pending)}.
 - For each completed child Pending Incremental Data node of a root node in
   {graph}:
   - Let {incrementalDataRecord} be the Pending Incremental Data for that node;
@@ -383,7 +380,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
         parents.
     - Let {hasNext} be {false}, if {graph} is empty.
     - Yield an unordered map containing {completed} and {hasNext}.
-    - Continue to the next completed child Incremental Data node in {graph}.
+    - Continue to the next completed Pending Incremental Data node.
   - Replace {node} in {graph} with a new node corresponding to the Completed
     Incremental Data for {result}.
   - Add each {incrementalDataRecord} of {incrementalDataRecords} on {result} to
@@ -393,7 +390,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Let {completedIncrementalDataNodes} be the set of completed Incremental Data
     nodes that are children of {completedDeferredFragments}.
   - If {completedIncrementalDataNodes} is empty, continue to the next completed
-    child Incremental Data node in {graph}.
+    Pending Incremental Data Node.
   - Initialize {incremental} to an empty list.
   - For each {node} of {completedIncrementalDataNodes}:
     - Let {incrementalDataRecord} be the corresponding record for {node}.
@@ -405,31 +402,56 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     - Append {GetCompletedEntry(pendingResult)} to {completed}.
     - Remove {pendingResult} from {graph}, promoting its child nodes to root
       nodes.
-  - Prune root nodes of {graph} containing no direct child Incremental Data
-    Records, as above.
-  - Let {hasNext} be {false} if {graph} is empty.
-  - Let {incrementalResult} be an unordered map containing {hasNext}.
-  - If {incremental} is not empty, set the corresponding entry on
-    {incrementalResult} to {incremental}.
-  - If {completed} is not empty, set the corresponding entry on
-    {incrementalResult} to {completed}.
-  - Let {newPendingResults} be the set of new root nodes in {graph}, promoted by
-    the above steps.
-  - If {newPendingResults} is not empty:
-    - Let {pending} be the result of {GetPending(newPendingResults)}.
-    - Set the corresponding entry on {incrementalResult} to {pending}.
-  - Yield {incrementalResult}.
+  - Let {newPendingResults} be a new set containing the result of
+    {GetNonEmptyNewPending(graph, pendingResults)}.
+  - Add all nodes in {newPendingResults} to {pendingResults}.
+  - Prune root nodes from {graph} not in {pendingResults}, repeating as
+    necessary until all root nodes in {graph} are also in {pendingResults}.
+  - Let {pending} be the result of {GetPendingEntry(newPendingResults)}.
+  - Yield the result of {GetIncrementalResult(graph, incremental, completed,
+    pending)}.
 - Complete this incremental result stream.
 
-GetPending(newPendingResults):
+GetNonEmptyNewPending(graph, oldPendingResults):
+
+- If not provided, initialize {oldPendingResults} to the empty set.
+- Let {rootNodes} be the set of root nodes in {graph}.
+- For each {rootNode} of {rootNodes}:
+  - If {rootNodes} is in {oldPendingResults}:
+    - Continue to the next {rootNode}.
+  - If {rootNode} has no children Pending Incremental Data nodes:
+    - Let {children} be the set of child Deferred Fragment nodes of {rootNode}.
+    - Remove {rootNode} from {rootNodes}.
+    - Add each of the nodes in {children} to {rootNodes}.
+- Return {rootNodes}.
+
+GetInitialResult(data, errors, pendingResults):
+
+- Let {pending} be the result of {GetPendingEntry(pendingResults)}.
+- Let {hasNext} be {true}.
+- Return an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
+
+GetPendingEntry(pendingResults):
 
 - Initialize {pending} to an empty list.
-- For each {newPendingResult} of {newPendingResults}:
-  - Let {id} be a unique identifier for {newPendingResult}.
-  - Let {path} and {label} be the corresponding entries on {newPendingResult}.
+- For each {pendingResult} of {pendingResult}:
+  - Let {id} be a unique identifier for {pendingResult}.
+  - Let {path} and {label} be the corresponding entries on {pendingResult}.
   - Let {pendingEntry} be an unordered map containing {id}, {path}, and {label}.
   - Append {pendingEntry} to {pending}.
 - Return {pending}.
+
+GetIncrementalResult(graph, incremental, completed, pending):
+
+- Let {hasNext} be {false} if {graph} is empty, otherwise, {true}.
+- Let {incrementalResult} be an unordered map containing {hasNext}.
+- If {incremental} is not empty:
+  - Set the corresponding entry on {incrementalResult} to {incremental}.
+- If {completed} is not empty:
+  - Set the corresponding entry on {incrementalResult} to {completed}.
+- If {pending} is not empty:
+  - Set the corresponding entry on {incrementalResult} to {pending}.
+- Return {incrementalResult}.
 
 GetIncrementalEntry(incrementalDataRecord, graph):
 
