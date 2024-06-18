@@ -400,8 +400,8 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Initialize {completed} to an empty list.
   - For each {pendingResult} of {completedDeferredFragments}:
     - Append {GetCompletedEntry(pendingResult)} to {completed}.
-    - Remove {pendingResult} from {graph}, promoting its child nodes to root
-      nodes.
+    - Remove {pendingResult} from {graph}, promoting its child Deferred Fragment
+      nodes to root nodes.
   - Let {newPendingResults} be a new set containing the result of
     {GetNonEmptyNewPending(graph, pendingResults)}.
   - Add all nodes in {newPendingResults} to {pendingResults}.
