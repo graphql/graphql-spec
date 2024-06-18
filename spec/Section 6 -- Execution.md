@@ -354,17 +354,10 @@ The procedure for yielding incremental results is specified by the
 
 YieldIncrementalResults(data, errors, incrementalDataRecords):
 
-- Initialize {graph} to an empty directed acyclic graph.
-- For each {incrementalDataRecord} of {incrementalDataRecords}:
-  - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
-    from the {pendingResults} that it completes, adding each of {pendingResults}
-    to {graph} as new nodes, if necessary, each directed from its {parent}, if
-    defined, recursively adding each {parent} as necessary until
-    {incrementalDataRecord} is connected to {graph}.
+- Let {graph} be the result of {BuildGraph(incrementalDataRecords)}.
 - Let {pendingResults} be the result of {GetNonEmptyNewPending(graph)}.
-- Prune root nodes from {graph} not in {pendingResults}, repeating as necessary
-  until all root nodes in {graph} are also in {pendingResults}.
-- Yield the result of {GetInitialResult(data, errors, pending)}.
+- Update {graph} to the subgraph rooted at nodes in {pendingResults}.
+- Yield the result of {GetInitialResult(data, errors, pendingResults)}.
 - For each completed child Pending Incremental Data node of a root node in
   {graph}:
   - Let {incrementalDataRecord} be the Pending Incremental Data for that node;
@@ -405,12 +398,23 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Let {newPendingResults} be a new set containing the result of
     {GetNonEmptyNewPending(graph, pendingResults)}.
   - Add all nodes in {newPendingResults} to {pendingResults}.
-  - Prune root nodes from {graph} not in {pendingResults}, repeating as
-    necessary until all root nodes in {graph} are also in {pendingResults}.
+  - Update {graph} to the subgraph rooted at nodes in {pendingResults}.
   - Let {pending} be the result of {GetPendingEntry(newPendingResults)}.
   - Yield the result of {GetIncrementalResult(graph, incremental, completed,
     pending)}.
 - Complete this incremental result stream.
+
+BuildGraph(incrementalDataRecords):
+
+- Initialize {graph} to an empty directed acyclic graph, where the root nodes
+  represent the Subsequent Result nodes that have been released as pending.
+- For each {incrementalDataRecord} of {incrementalDataRecords}:
+  - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
+    from the {pendingResults} that it completes, adding each of {pendingResults}
+    to {graph} as new nodes, if necessary, each directed from its {parent}, if
+    defined, recursively adding each {parent} as necessary until
+    {incrementalDataRecord} is connected to {graph}.
+- Return {graph}.
 
 GetNonEmptyNewPending(graph, oldPendingResults):
 
