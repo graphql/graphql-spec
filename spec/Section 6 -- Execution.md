@@ -410,9 +410,9 @@ GraphFromRecords(incrementalDataRecords, graph):
 - For each {incrementalDataRecord} of {incrementalDataRecords}:
   - Add {incrementalDataRecord} to {newGraph} as a new Pending Data node
     directed from the {pendingResults} that it completes, adding each of
-    {pendingResults} to {newGraph} as new nodes, if necessary, each directed
-    from its {parent}, if defined, recursively adding each {parent} as necessary
-    until {incrementalDataRecord} is connected to {newGraph}.
+    {pendingResults} to {newGraph} as a new node directed from its {parent},
+    recursively adding each {parent} until {incrementalDataRecord} is connected
+    to {newGraph}, or the {parent} is not defined.
 - Return {newGraph}.
 
 GetNonEmptyNewPending(graph):
