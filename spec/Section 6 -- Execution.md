@@ -395,8 +395,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     - Append {GetCompletedEntry(pendingResult)} to {completed}.
     - Remove {pendingResult} from {graph}, promoting its child Deferred Fragment
       nodes to root nodes.
-  - Let {newPendingResults} be a new set containing the result of
-    {GetNonEmptyNewPending(graph, pendingResults)}.
+  - Let {newPendingResults} be the result of {GetNonEmptyNewPending(graph)}.
   - Add all nodes in {newPendingResults} to {pendingResults}.
   - Update {graph} to the subgraph rooted at nodes in {pendingResults}.
   - Let {pending} be the result of {GetPendingEntry(newPendingResults)}.
@@ -416,18 +415,17 @@ BuildGraph(incrementalDataRecords, graph):
     until {incrementalDataRecord} is connected to {newGraph}.
 - Return {newGraph}.
 
-GetNonEmptyNewPending(graph, oldPendingResults):
+GetNonEmptyNewPending(graph):
 
-- If not provided, initialize {oldPendingResults} to the empty set.
-- Let {rootNodes} be the set of root nodes in {graph}.
+- Initialize {newPendingResults} to the empty set.
+- Initialize {rootNodes} to the set of root nodes in {graph}.
 - For each {rootNode} of {rootNodes}:
-  - If {rootNodes} is in {oldPendingResults}:
-    - Continue to the next {rootNode}.
   - If {rootNode} has no children Pending Incremental Data nodes:
     - Let {children} be the set of child Deferred Fragment nodes of {rootNode}.
-    - Remove {rootNode} from {rootNodes}.
     - Add each of the nodes in {children} to {rootNodes}.
-- Return {rootNodes}.
+    - Continue to the next {rootNode} of {rootNodes}.
+  - Add {rootNode} to {newPendingResults}.
+- Return {newPendingResults}.
 
 GetInitialResult(data, errors, pendingResults):
 
