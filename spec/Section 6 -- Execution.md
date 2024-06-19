@@ -376,8 +376,8 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     - Continue to the next completed Pending Incremental Data node.
   - Replace {node} in {graph} with a new node corresponding to the Completed
     Incremental Data for {result}.
-  - Add each {incrementalDataRecord} of {incrementalDataRecords} on {result} to
-    {graph} via the same procedure as above.
+  - Let {resultIncrementalDataRecords} be {incrementalDataRecords} on {result}.
+  - Update {graph} to {BuildGraph(resultIncrementalDataRecords, graph)}.
   - Let {completedDeferredFragments} be the set of root nodes in {graph} without
     any child Pending Data nodes.
   - Let {completedIncrementalDataNodes} be the set of completed Incremental Data
@@ -404,17 +404,17 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     pending)}.
 - Complete this incremental result stream.
 
-BuildGraph(incrementalDataRecords):
+BuildGraph(incrementalDataRecords, graph):
 
-- Initialize {graph} to an empty directed acyclic graph, where the root nodes
-  represent the pending Subsequent Results.
+- Let {newGraph} be a new directed acyclic graph containing all of the nodes and
+  edges in {graph}.
 - For each {incrementalDataRecord} of {incrementalDataRecords}:
-  - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
-    from the {pendingResults} that it completes, adding each of {pendingResults}
-    to {graph} as new nodes, if necessary, each directed from its {parent}, if
-    defined, recursively adding each {parent} as necessary until
-    {incrementalDataRecord} is connected to {graph}.
-- Return {graph}.
+  - Add {incrementalDataRecord} to {newGraph} as a new Pending Data node
+    directed from the {pendingResults} that it completes, adding each of
+    {pendingResults} to {newGraph} as new nodes, if necessary, each directed
+    from its {parent}, if defined, recursively adding each {parent} as necessary
+    until {incrementalDataRecord} is connected to {newGraph}.
+- Return {newGraph}.
 
 GetNonEmptyNewPending(graph, oldPendingResults):
 
