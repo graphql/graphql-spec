@@ -407,7 +407,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
 BuildGraph(incrementalDataRecords):
 
 - Initialize {graph} to an empty directed acyclic graph, where the root nodes
-  represent the Subsequent Result nodes that have been released as pending.
+  represent the pending Subsequent Results.
 - For each {incrementalDataRecord} of {incrementalDataRecords}:
   - Add {incrementalDataRecord} to {graph} as a new Pending Data node directed
     from the {pendingResults} that it completes, adding each of {pendingResults}
