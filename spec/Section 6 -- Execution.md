@@ -354,7 +354,7 @@ The procedure for yielding incremental results is specified by the
 
 YieldIncrementalResults(data, errors, incrementalDataRecords):
 
-- Let {graph} be the result of {BuildGraph(incrementalDataRecords)}.
+- Let {graph} be the result of {GraphFromRecords(incrementalDataRecords)}.
 - Let {pendingResults} be the result of {GetNonEmptyNewPending(graph)}.
 - Update {graph} to the subgraph rooted at nodes in {pendingResults}.
 - Yield the result of {GetInitialResult(data, errors, pendingResults)}.
@@ -377,7 +377,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Replace {node} in {graph} with a new node corresponding to the Completed
     Incremental Data for {result}.
   - Let {resultIncrementalDataRecords} be {incrementalDataRecords} on {result}.
-  - Update {graph} to {BuildGraph(resultIncrementalDataRecords, graph)}.
+  - Update {graph} to {GraphFromRecords(resultIncrementalDataRecords, graph)}.
   - Let {completedDeferredFragments} be the set of root nodes in {graph} without
     any child Pending Data nodes.
   - Let {completedIncrementalDataNodes} be the set of completed Incremental Data
@@ -403,7 +403,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     pending)}.
 - Complete this incremental result stream.
 
-BuildGraph(incrementalDataRecords, graph):
+GraphFromRecords(incrementalDataRecords, graph):
 
 - Let {newGraph} be a new directed acyclic graph containing all of the nodes and
   edges in {graph}.
