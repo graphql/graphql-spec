@@ -15,6 +15,13 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
+- {extensions} (optional): A map reserved for implementers to extend the
+  protocol however they see fit.
+
+Note: Since {extensions} is reserved for implementers, the only requirement is
+that, if present, it is a map. There are no additional restrictions on its
+contents. It is recommended that implementers use prefixes in {extensions} keys
+to avoid conflicts with other implementers.
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
