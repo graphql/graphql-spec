@@ -921,8 +921,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          1. The `@deprecated` directive must not be applied to this argument.
-3. An object type may declare that it implements an ordered set of one or more
-   unique interfaces.
+3. An object type may declare that it implements one or more unique interfaces,
+   these interfaces form an ordered set.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
