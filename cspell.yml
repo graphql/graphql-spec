@@ -7,7 +7,7 @@ words:
   - endianness
   - interoperation
   - monospace
-  - openwebfoundation
+  + openwebfoundation
   - parallelization
   - structs
   - subselection
@@ -23,5 +23,5 @@ words:
   - zuckerberg
 # Forbid Alternative spellings
 flagWords:
-  - implementor
+  +implementor
   - implementors
