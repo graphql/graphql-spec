@@ -630,27 +630,41 @@ directives may be applied in either order since they apply commutatively.
 BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
 
 - If {parentDeferUsages} is not provided, initialize it to the empty set.
-- Initialize {fieldPlan} to an empty ordered map.
+- Initialize {groupedFieldSet} to an empty ordered map.
+- Initialize {newGroupedFieldSets} to an empty unordered map.
+- Let {fieldPlan} be an unordered map containing {groupedFieldSet} and
+  {newGroupedFieldSets}.
 - For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
-  - Let {deferUsageSet} be the result of
-    {GetDeferUsageSet(groupForResponseKey)}.
-  - Let {groupedFieldSet} be the entry in {fieldPlan} for any equivalent set to
-    {deferUsageSet}; if no such map exists, create it as an empty ordered map.
-  - Set the entry for {responseKey} in {groupedFieldSet} to
-    {groupForResponseKey}.
+  - Let {filteredDeferUsageSet} be the result of
+    {GetFilteredDeferUsageSet(groupForResponseKey)}.
+  - If {filteredDeferUsageSet} is the equivalent set to {parentDeferUsages}:
+    - Set the entry for {responseKey} in {groupedFieldSet} to
+      {groupForResponseKey}.
+  - Otherwise:
+    - Let {newGroupedFieldSet} be the entry in {newGroupedFieldSets} for any
+      equivalent set to {deferUsageSet}; if no such map exists, create it as an
+      empty ordered map.
+    - Set the entry for {responseKey} in {newGroupedFieldSet} to
+      {groupForResponseKey}.
 - Return {fieldPlan}.
 
-GetDeferUsageSet(fieldDetailsList):
+GetFilteredDeferUsageSet(fieldGroup):
 
-- Let {deferUsageSet} be the set containing the {deferUsage} entry from each
-  item in {fieldDetailsList}.
-- For each {deferUsage} of {deferUsageSet}:
-  - Let {ancestors} be the set of {deferUsage} entries that are ancestors of
-    {deferUsage}, collected by recursively following the {parent} entry on
-    {deferUsage}.
-  - If any of {ancestors} is contained by {deferUsageSet}, remove {deferUsage}
-    from {deferUsageSet}.
-- Return {deferUsageSet}.
+- Initialize {filteredDeferUsageSet} to the empty set.
+- For each {fieldDetails} of {fieldGroup}:
+  - Let {deferUsage} be the corresponding entry on {fieldDetails}.
+  - If {deferUsage} is not defined:
+    - Remove all entries from {filteredDeferUsageSet}.
+    - Return {filteredDeferUsageSet}.
+  - Add {deferUsage} to {filteredDeferUsageSet}.
+- For each {deferUsage} in {filteredDeferUsageSet}:
+  - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
+  - While {parentDeferUsage} is defined:
+    - If {parentDeferUsage} is contained by {filteredDeferUsageSet}:
+      - Remove {deferUsage} from {filteredDeferUsageSet}.
+      - Continue to the next {deferUsage} in {filteredDeferUsageSet}.
+    - Reset {parentDeferUsage} to the corresponding entry on {parentDeferUsage}.
+- Return {filteredDeferUsageSet}.
 
 ## Executing a Field Plan
 
@@ -664,9 +678,8 @@ variableValues, serial, path, deferUsageSet, deferMap):
 - If {path} is not provided, initialize it to an empty list.
 - Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
   deferMap)}.
-- Let {groupedFieldSet} be the entry in {fieldPlan} for the set equivalent to
-  {deferUsageSet}.
-- Let {newGroupedFieldSets} be the remaining portion of {fieldPlan}.
+- Let {groupedFieldSet} and {newGroupedFieldSets} be the corresponding entries
+  on {fieldPlan}.
 - Allowing for parallelization, perform the following steps:
   - Let {data} and {nestedIncrementalDataRecords} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
