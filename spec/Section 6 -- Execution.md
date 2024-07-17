@@ -364,7 +364,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     let {result} be the corresponding completed result.
   - If {data} on {result} is {null}:
     - Initialize {completed} to an empty list.
-    - Let {parents} be the parent nodes of {deferredGroupedFieldSetRecord}.
+    - Let {parents} be the parent nodes of {executionGroup}.
     - Initialize {completed} to an empty list.
     - For each {pendingResult} of {parents}:
       - Append {GetCompletedEntry(parent, errors)} to {completed}.
@@ -686,7 +686,7 @@ variableValues, serial, path, deferUsageSet, deferMap):
     variableValues, path, deferUsageSet, newDeferMap)} _serially_ if {serial} is
     {true}, _normally_ (allowing parallelization) otherwise.
   - Let {incrementalDataRecords} be the result of
-    {ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+    {ExecuteExecutionGroups(objectType, objectValue, variableValues,
     newGroupedFieldSets, path, newDeferMap)}.
 - Append all items in {nestedIncrementalDataRecords} to
   {incrementalDataRecords}.
@@ -705,7 +705,7 @@ GetNewDeferMap(newDeferUsages, path, deferMap):
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
 - Return {newDeferMap}.
 
-ExecuteDeferredGroupedFieldSets(objectType, objectValue, variableValues,
+ExecuteExecutionGroups(objectType, objectValue, variableValues,
 newGroupedFieldSets, path, deferMap):
 
 - Initialize {incrementalDataRecords} to an empty list.
@@ -715,7 +715,7 @@ newGroupedFieldSets, path, deferMap):
     - Let {deferredFragment} be the entry for {deferUsage} in {deferMap}.
     - Append {deferredFragment} to {deferredFragments}.
   - Let {incrementalDataRecord} represent the future execution of
-    {ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+    {ExecuteExecutionGroup(groupedFieldSet, objectType, objectValue,
     variableValues, deferredFragments, path, deferUsageSet, deferMap)},
     incrementally completing {deferredFragments} at {path}.
   - Append {incrementalDataRecord} to {incrementalDataRecords}.
@@ -726,8 +726,8 @@ newGroupedFieldSets, path, deferMap):
 Note: {incrementalDataRecord} can be safely initiated without blocking
 higher-priority data once any of {deferredFragments} are released as pending.
 
-ExecuteDeferredGroupedFieldSet(groupedFieldSet, objectType, objectValue,
-variableValues, path, deferUsageSet, deferMap):
+ExecuteExecutionGroup(groupedFieldSet, objectType, objectValue, variableValues,
+path, deferUsageSet, deferMap):
 
 - Let {data} and {incrementalDataRecords} be the result of running
   {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
