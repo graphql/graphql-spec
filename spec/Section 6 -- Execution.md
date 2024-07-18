@@ -593,7 +593,7 @@ path, deferUsageSet, deferMap):
 - Return {resultMap} and {incrementalDataRecords}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
-is explained in greater detail in the Field Collection section above.
+is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
 
