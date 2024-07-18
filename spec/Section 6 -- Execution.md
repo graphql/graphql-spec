@@ -736,6 +736,40 @@ The depth-first-search order of the field groups produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
+The {CollectFields()} algorithm makes use of the following data types:
+
+Defer Usage Records are unordered maps representing the usage of a `@defer`
+directive within a given operation. Defer Usages are "abstract" in that they
+include information about the `@defer` directive from the AST of the GraphQL
+document. A single Defer Usage may be used to create many "concrete" Delivery
+Groups when a `@defer` is included within a list type.
+
+Defer Usages contain the following information:
+
+- {label}: the `label` argument provided by the given `@defer` directive, if
+  any, otherwise {undefined}.
+- {parentDeferUsage}: a Defer Usage corresponding to the `@defer` directive
+  enclosing this `@defer` directive, if any, otherwise {undefined}.
+
+The {parentDeferUsage} entry is used to build distinct Execution Groups as
+discussed within the Field Plan Generation section below.
+
+Field Details Records are unordered maps containing the following entries:
+
+- {field}: the Field selection.
+- {deferUsage}: the Defer Usage enclosing the selection, if any, otherwise
+  {undefined}.
+
+A Grouped Field Set is an ordered map of keys to lists of Field Details. The
+keys are the same as that of the response, the alias for the field, if defined,
+otherwise the field name.
+
+The {CollectFields()} algorithm returns:
+
+- {groupedFieldSet}: the Grouped Field Set for the fields in the selection set.
+- {newDeferUsages}: a list of new Defer Usages encountered during this field
+  collection.
+
 CollectFields(objectType, selectionSet, variableValues, deferUsage,
 visitedFragments):
 
@@ -842,6 +876,10 @@ DoesFragmentTypeApply(objectType, fragmentType):
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+Note: When completing a List field, the {CollectFields} algorithm is invoked
+with the same arguments for each element of the list. GraphQL Services may
+choose to memoize their implementations of {CollectFields}.
 
 ### Field Plan Generation
 
