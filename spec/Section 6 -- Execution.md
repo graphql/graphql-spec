@@ -866,10 +866,10 @@ BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
       {groupForResponseKey}.
 - Return {fieldPlan}.
 
-GetFilteredDeferUsageSet(fieldGroup):
+GetFilteredDeferUsageSet(fieldDetailsList):
 
 - Initialize {filteredDeferUsageSet} to the empty set.
-- For each {fieldDetails} of {fieldGroup}:
+- For each {fieldDetails} of {fieldDetailsList}:
   - Let {deferUsage} be the corresponding entry on {fieldDetails}.
   - If {deferUsage} is not defined:
     - Remove all entries from {filteredDeferUsageSet}.
