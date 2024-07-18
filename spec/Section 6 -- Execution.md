@@ -570,8 +570,11 @@ visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - If {deferDirective} is defined, let {fragmentDeferUsage} be
-      {deferDirective} and append it to {newDeferUsages}.
+    - If {deferDirective} is defined:
+      - Let {path} be the corresponding entry on {deferDirective}.
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be an unordered map containing {path} and
+        {parentDeferUsage}.
     - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
       of calling {CollectFields(objectType, fragmentSelectionSet,
@@ -595,8 +598,11 @@ visitedFragments):
       - Let {deferDirective} be that directive.
       - If this execution is for a subscription operation, raise a _field
         error_.
-    - If {deferDirective} is defined, let {fragmentDeferUsage} be
-      {deferDirective} and append it to {newDeferUsages}.
+    - If {deferDirective} is defined:
+      - Let {path} be the corresponding entry on {deferDirective}.
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be an unordered map containing {path} and
+        {parentDeferUsage}.
     - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
     - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
       of calling {CollectFields(objectType, fragmentSelectionSet,
