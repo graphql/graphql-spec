@@ -493,185 +493,6 @@ BatchIncrementalResults(incrementalResults):
     of {hasNext} on the final item in the list.
   - Yield {batchedIncrementalResult}.
 
-### Field Collection
-
-Before execution, the _selection set_ is converted to a grouped field set by
-calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
-
-As an example, collecting the fields of this selection set would collect two
-instances of the field `a` and one of field `b`:
-
-```graphql example
-{
-  a {
-    subfield1
-  }
-  ...ExampleFragment
-}
-
-fragment ExampleFragment on Query {
-  a {
-    subfield2
-  }
-  b
-}
-```
-
-The depth-first-search order of the field groups produced by {CollectFields()}
-is maintained through execution, ensuring that fields appear in the executed
-response in a stable and predictable order.
-
-CollectFields(objectType, selectionSet, variableValues, deferUsage,
-visitedFragments):
-
-- If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
-- Initialize {newDeferUsages} to an empty list.
-- For each {selection} in {selectionSet}:
-  - If {selection} provides the directive `@skip`, let {skipDirective} be that
-    directive.
-    - If {skipDirective}'s {if} argument is {true} or is a variable in
-      {variableValues} with the value {true}, continue with the next {selection}
-      in {selectionSet}.
-  - If {selection} provides the directive `@include`, let {includeDirective} be
-    that directive.
-    - If {includeDirective}'s {if} argument is not {true} and is not a variable
-      in {variableValues} with the value {true}, continue with the next
-      {selection} in {selectionSet}.
-  - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
-      defined, otherwise the field name).
-    - Let {fieldDetails} be a new unordered map containing {deferUsage}.
-    - Set the entry for {field} on {fieldDetails} to {selection}. and
-      {deferUsage}.
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {fieldDetails} to the {groupForResponseKey}.
-  - If {selection} is a {FragmentSpread}:
-    - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
-      argument is not {false} and is not a variable in {variableValues} with the
-      value {false}:
-      - Let {deferDirective} be that directive.
-      - If this execution is for a subscription operation, raise a _field
-        error_.
-    - If {deferDirective} is not defined:
-      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-        {selection} in {selectionSet}.
-      - Add {fragmentSpreadName} to {visitedFragments}.
-    - Let {fragment} be the Fragment in the current Document whose name is
-      {fragmentSpreadName}.
-    - If no such {fragment} exists, continue with the next {selection} in
-      {selectionSet}.
-    - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
-      with the next {selection} in {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - If {deferDirective} is defined:
-      - Let {path} be the corresponding entry on {deferDirective}.
-      - Let {parentDeferUsage} be {deferUsage}.
-      - Let {fragmentDeferUsage} be an unordered map containing {path} and
-        {parentDeferUsage}.
-    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
-    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
-      of calling {CollectFields(objectType, fragmentSelectionSet,
-      variableValues, fragmentDeferUsage, visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
-  - If {selection} is an {InlineFragment}:
-    - Let {fragmentType} be the type condition on {selection}.
-    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
-      fragmentType)} is {false}, continue with the next {selection} in
-      {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - If {InlineFragment} provides the directive `@defer` and its {if} argument
-      is not {false} and is not a variable in {variableValues} with the value
-      {false}:
-      - Let {deferDirective} be that directive.
-      - If this execution is for a subscription operation, raise a _field
-        error_.
-    - If {deferDirective} is defined:
-      - Let {path} be the corresponding entry on {deferDirective}.
-      - Let {parentDeferUsage} be {deferUsage}.
-      - Let {fragmentDeferUsage} be an unordered map containing {path} and
-        {parentDeferUsage}.
-    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
-    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
-      of calling {CollectFields(objectType, fragmentSelectionSet,
-      variableValues, fragmentDeferUsage, visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
-- Return {groupedFields} and {newDeferUsages}.
-
-DoesFragmentTypeApply(objectType, fragmentType):
-
-- If {fragmentType} is an Object Type:
-  - If {objectType} and {fragmentType} are the same type, return {true},
-    otherwise return {false}.
-- If {fragmentType} is an Interface Type:
-  - If {objectType} is an implementation of {fragmentType}, return {true}
-    otherwise return {false}.
-- If {fragmentType} is a Union:
-  - If {objectType} is a possible type of {fragmentType}, return {true}
-    otherwise return {false}.
-
-Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
-directives may be applied in either order since they apply commutatively.
-
-### Field Plan Generation
-
-BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
-
-- If {parentDeferUsages} is not provided, initialize it to the empty set.
-- Initialize {groupedFieldSet} to an empty ordered map.
-- Initialize {newGroupedFieldSets} to an empty unordered map.
-- Let {fieldPlan} be an unordered map containing {groupedFieldSet} and
-  {newGroupedFieldSets}.
-- For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
-  - Let {filteredDeferUsageSet} be the result of
-    {GetFilteredDeferUsageSet(groupForResponseKey)}.
-  - If {filteredDeferUsageSet} is the equivalent set to {parentDeferUsages}:
-    - Set the entry for {responseKey} in {groupedFieldSet} to
-      {groupForResponseKey}.
-  - Otherwise:
-    - Let {newGroupedFieldSet} be the entry in {newGroupedFieldSets} for any
-      equivalent set to {deferUsageSet}; if no such map exists, create it as an
-      empty ordered map.
-    - Set the entry for {responseKey} in {newGroupedFieldSet} to
-      {groupForResponseKey}.
-- Return {fieldPlan}.
-
-GetFilteredDeferUsageSet(fieldGroup):
-
-- Initialize {filteredDeferUsageSet} to the empty set.
-- For each {fieldDetails} of {fieldGroup}:
-  - Let {deferUsage} be the corresponding entry on {fieldDetails}.
-  - If {deferUsage} is not defined:
-    - Remove all entries from {filteredDeferUsageSet}.
-    - Return {filteredDeferUsageSet}.
-  - Add {deferUsage} to {filteredDeferUsageSet}.
-- For each {deferUsage} in {filteredDeferUsageSet}:
-  - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
-  - While {parentDeferUsage} is defined:
-    - If {parentDeferUsage} is contained by {filteredDeferUsageSet}:
-      - Remove {deferUsage} from {filteredDeferUsageSet}.
-      - Continue to the next {deferUsage} in {filteredDeferUsageSet}.
-    - Reset {parentDeferUsage} to the corresponding entry on {parentDeferUsage}.
-- Return {filteredDeferUsageSet}.
-
 ## Executing a Field Plan
 
 To execute a field plan, the object value being evaluated and the object type
@@ -883,6 +704,185 @@ A correct executor must generate the following result for that _selection set_:
   }
 }
 ```
+
+### Field Collection
+
+Before execution, the _selection set_ is converted to a grouped field set by
+calling {CollectFields()}. Each entry in the grouped field set is a list of
+fields that share a response key (the alias if defined, otherwise the field
+name). This ensures all fields with the same response key (including those in
+referenced fragments) are executed at the same time.
+
+As an example, collecting the fields of this selection set would collect two
+instances of the field `a` and one of field `b`:
+
+```graphql example
+{
+  a {
+    subfield1
+  }
+  ...ExampleFragment
+}
+
+fragment ExampleFragment on Query {
+  a {
+    subfield2
+  }
+  b
+}
+```
+
+The depth-first-search order of the field groups produced by {CollectFields()}
+is maintained through execution, ensuring that fields appear in the executed
+response in a stable and predictable order.
+
+CollectFields(objectType, selectionSet, variableValues, deferUsage,
+visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {newDeferUsages} to an empty list.
+- For each {selection} in {selectionSet}:
+  - If {selection} provides the directive `@skip`, let {skipDirective} be that
+    directive.
+    - If {skipDirective}'s {if} argument is {true} or is a variable in
+      {variableValues} with the value {true}, continue with the next {selection}
+      in {selectionSet}.
+  - If {selection} provides the directive `@include`, let {includeDirective} be
+    that directive.
+    - If {includeDirective}'s {if} argument is not {true} and is not a variable
+      in {variableValues} with the value {true}, continue with the next
+      {selection} in {selectionSet}.
+  - If {selection} is a {Field}:
+    - Let {responseKey} be the response key of {selection} (the alias if
+      defined, otherwise the field name).
+    - Let {fieldDetails} be a new unordered map containing {deferUsage}.
+    - Set the entry for {field} on {fieldDetails} to {selection}. and
+      {deferUsage}.
+    - Let {groupForResponseKey} be the list in {groupedFields} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append {fieldDetails} to the {groupForResponseKey}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} provides the directive `@defer` and its {if}
+      argument is not {false} and is not a variable in {variableValues} with the
+      value {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is not defined:
+      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - If {deferDirective} is defined:
+      - Let {path} be the corresponding entry on {deferDirective}.
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be an unordered map containing {path} and
+        {parentDeferUsage}.
+    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
+    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {responseKey} be the response key shared by all fields in
+        {fragmentGroup}.
+      - Let {groupForResponseKey} be the list in {groupedFields} for
+        {responseKey}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentType} be the type condition on {selection}.
+    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
+      fragmentType)} is {false}, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - If {InlineFragment} provides the directive `@defer` and its {if} argument
+      is not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise a _field
+        error_.
+    - If {deferDirective} is defined:
+      - Let {path} be the corresponding entry on {deferDirective}.
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be an unordered map containing {path} and
+        {parentDeferUsage}.
+    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
+    - Let {fragmentGroupedFieldSet} and {fragmentNewDeferUsages} be the result
+      of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
+    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {responseKey} be the response key shared by all fields in
+        {fragmentGroup}.
+      - Let {groupForResponseKey} be the list in {groupedFields} for
+        {responseKey}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
+- Return {groupedFields} and {newDeferUsages}.
+
+DoesFragmentTypeApply(objectType, fragmentType):
+
+- If {fragmentType} is an Object Type:
+  - If {objectType} and {fragmentType} are the same type, return {true},
+    otherwise return {false}.
+- If {fragmentType} is an Interface Type:
+  - If {objectType} is an implementation of {fragmentType}, return {true}
+    otherwise return {false}.
+- If {fragmentType} is a Union:
+  - If {objectType} is a possible type of {fragmentType}, return {true}
+    otherwise return {false}.
+
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
+
+### Field Plan Generation
+
+BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
+
+- If {parentDeferUsages} is not provided, initialize it to the empty set.
+- Initialize {groupedFieldSet} to an empty ordered map.
+- Initialize {newGroupedFieldSets} to an empty unordered map.
+- Let {fieldPlan} be an unordered map containing {groupedFieldSet} and
+  {newGroupedFieldSets}.
+- For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
+  - Let {filteredDeferUsageSet} be the result of
+    {GetFilteredDeferUsageSet(groupForResponseKey)}.
+  - If {filteredDeferUsageSet} is the equivalent set to {parentDeferUsages}:
+    - Set the entry for {responseKey} in {groupedFieldSet} to
+      {groupForResponseKey}.
+  - Otherwise:
+    - Let {newGroupedFieldSet} be the entry in {newGroupedFieldSets} for any
+      equivalent set to {deferUsageSet}; if no such map exists, create it as an
+      empty ordered map.
+    - Set the entry for {responseKey} in {newGroupedFieldSet} to
+      {groupForResponseKey}.
+- Return {fieldPlan}.
+
+GetFilteredDeferUsageSet(fieldGroup):
+
+- Initialize {filteredDeferUsageSet} to the empty set.
+- For each {fieldDetails} of {fieldGroup}:
+  - Let {deferUsage} be the corresponding entry on {fieldDetails}.
+  - If {deferUsage} is not defined:
+    - Remove all entries from {filteredDeferUsageSet}.
+    - Return {filteredDeferUsageSet}.
+  - Add {deferUsage} to {filteredDeferUsageSet}.
+- For each {deferUsage} in {filteredDeferUsageSet}:
+  - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
+  - While {parentDeferUsage} is defined:
+    - If {parentDeferUsage} is contained by {filteredDeferUsageSet}:
+      - Remove {deferUsage} from {filteredDeferUsageSet}.
+      - Continue to the next {deferUsage} in {filteredDeferUsageSet}.
+    - Reset {parentDeferUsage} to the corresponding entry on {parentDeferUsage}.
+- Return {filteredDeferUsageSet}.
 
 ## Executing Fields
 
