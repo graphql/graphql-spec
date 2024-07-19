@@ -23,3 +23,7 @@ words:
   - zuckerberg
   - brontie
   - oneOf
+# Forbid Alternative spellings
+flagWords:
+  - implementor
+  - implementors

@@ -677,8 +677,8 @@ operations, Objects describe the intermediate levels.
 GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
 selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the selection
-set.
+field is the value, ordered by the order in which they appear in the _selection
+set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -1026,7 +1026,7 @@ Object, Interface, or Union type).
 ### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
-application. It is still legal to include these fields in a selection set (to
+application. It is still legal to include these fields in a _selection set_ (to
 ensure existing clients are not broken by the change), but the fields should be
 appropriately treated in documentation and tooling.
 
@@ -1142,7 +1142,7 @@ type Contact {
 }
 ```
 
-This allows us to write a selection set for a `Contact` that can select the
+This allows us to write a _selection set_ for a `Contact` that can select the
 common fields.
 
 ```graphql example
@@ -1881,9 +1881,9 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 
 **Nullable vs. Optional**
 
-Fields are _always_ optional within the context of a selection set, a field may
-be omitted and the selection set is still valid (so long as the selection set
-does not become empty). However fields that return Non-Null types will never
+Fields are _always_ optional within the context of a _selection set_, a field
+may be omitted and the selection set is still valid (so long as the selection
+set does not become empty). However fields that return Non-Null types will never
 return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a

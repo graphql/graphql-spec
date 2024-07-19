@@ -23,7 +23,7 @@ request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry, if
-set, must have a map as its value. This entry is reserved for implementors to
+set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
@@ -109,11 +109,11 @@ must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
 `null` result is intentional or caused by a runtime error.
 
-This field should be a list of path segments starting at the root of the
-response and ending with the field associated with the error. Path segments that
-represent fields should be strings, and path segments that represent list
-indices should be 0-indexed integers. If the error happens in an aliased field,
-the path to the error should use the aliased name, since it represents a path in
+If present, this field must be a list of path segments starting at the root of
+the response and ending with the field associated with the error. Path segments
+that represent fields must be strings, and path segments that represent list
+indices must be 0-indexed integers. If the error happens in an aliased field,
+the path to the error must use the aliased name, since it represents a path in
 the response, not in the request.
 
 For example, if fetching one of the friends' names fails in the following
@@ -203,7 +203,7 @@ be the same:
 
 GraphQL services may provide an additional entry to errors with key
 `extensions`. This entry, if set, must have a map as its value. This entry is
-reserved for implementors to add additional information to errors however they
+reserved for implementers to add additional information to errors however they
 see fit, and there are no additional restrictions on its contents.
 
 ```json example
@@ -294,13 +294,13 @@ JSON format throughout this document.
 
 ### Serialized Map Ordering
 
-Since the result of evaluating a selection set is ordered, the serialized Map of
-results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by selection set execution. Producing
-a serialized response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can be
-anticipated.
+Since the result of evaluating a _selection set_ is ordered, the serialized Map
+of results should preserve this order by writing the map entries in the same
+order as those fields were requested as defined by selection set execution.
+Producing a serialized response where fields are represented in the same order
+in which they appear in the request improves human readability during debugging
+and enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 Serialization formats which represent an ordered map should preserve the order
 of requested fields as defined by {CollectFields()} in the Execution section.
