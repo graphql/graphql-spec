@@ -334,9 +334,9 @@ serial):
 - If {serial} is not provided, initialize it to {false}.
 - Let {groupedFieldSet} and {newDeferUsages} be the result of
   {CollectFields(objectType, selectionSet, variableValues)}.
-- Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet)}.
+- Let {executionPlan} be the result of {BuildExecutionPlan(groupedFieldSet)}.
 - Let {data} and {incrementalDataRecords} be the result of
-  {ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, initialValue,
+  {ExecuteExecutionPlan(newDeferUsages, executionPlan, objectType, initialValue,
   variableValues, serial)}.
 - Let {errors} be the list of all _field error_ raised while completing {data}.
 - If {incrementalDataRecords} is empty, return an unordered map containing
@@ -493,20 +493,20 @@ BatchIncrementalResults(incrementalResults):
     of {hasNext} on the final item in the list.
   - Yield {batchedIncrementalResult}.
 
-## Executing a Field Plan
+## Executing an Execution Plan
 
-To execute a field plan, the object value being evaluated and the object type
-need to be known, as well as whether the non-deferred grouped field set must be
-executed serially, or may be executed in parallel.
+To execute a execution plan, the object value being evaluated and the object
+type need to be known, as well as whether the non-deferred grouped field set
+must be executed serially, or may be executed in parallel.
 
-ExecuteFieldPlan(newDeferUsages, fieldPlan, objectType, objectValue,
+ExecuteExecutionPlan(newDeferUsages, executionPlan, objectType, objectValue,
 variableValues, serial, path, deferUsageSet, deferMap):
 
 - If {path} is not provided, initialize it to an empty list.
 - Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
   deferMap)}.
 - Let {groupedFieldSet} and {newGroupedFieldSets} be the corresponding entries
-  on {fieldPlan}.
+  on {executionPlan}.
 - Allowing for parallelization, perform the following steps:
   - Let {data} and {nestedIncrementalDataRecords} be the result of running
     {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
@@ -752,7 +752,7 @@ Defer Usages contain the following information:
   enclosing this `@defer` directive, if any, otherwise {undefined}.
 
 The {parentDeferUsage} entry is used to build distinct Execution Groups as
-discussed within the Field Plan Generation section below.
+discussed within the Execution Plan Generation section below.
 
 Field Details Records are unordered maps containing the following entries:
 
@@ -881,14 +881,14 @@ Note: When completing a List field, the {CollectFields} algorithm is invoked
 with the same arguments for each element of the list. GraphQL Services may
 choose to memoize their implementations of {CollectFields}.
 
-### Field Plan Generation
+### Execution Plan Generation
 
-BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
+BuildExecutionPlan(originalGroupedFieldSet, parentDeferUsages):
 
 - If {parentDeferUsages} is not provided, initialize it to the empty set.
 - Initialize {groupedFieldSet} to an empty ordered map.
 - Initialize {newGroupedFieldSets} to an empty unordered map.
-- Let {fieldPlan} be an unordered map containing {groupedFieldSet} and
+- Let {executionPlan} be an unordered map containing {groupedFieldSet} and
   {newGroupedFieldSets}.
 - For each {responseKey} and {groupForResponseKey} of {groupedFieldSet}:
   - Let {filteredDeferUsageSet} be the result of
@@ -902,7 +902,7 @@ BuildFieldPlan(originalGroupedFieldSet, parentDeferUsages):
       empty ordered map.
     - Set the entry for {responseKey} in {newGroupedFieldSet} to
       {groupForResponseKey}.
-- Return {fieldPlan}.
+- Return {executionPlan}.
 
 GetFilteredDeferUsageSet(fieldDetailsList):
 
@@ -1055,9 +1055,9 @@ deferUsageSet, deferMap):
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {groupedFieldSet} and {newDeferUsages} be the result of calling
     {CollectSubfields(objectType, fieldDetailsList, variableValues)}.
-  - Let {fieldPlan} be the result of {BuildFieldPlan(groupedFieldSet,
+  - Let {executionPlan} be the result of {BuildExecutionPlan(groupedFieldSet,
     deferUsageSet)}.
-  - Return the result of {ExecuteFieldPlan(newDeferUsages, fieldPlan,
+  - Return the result of {ExecuteExecutionPlan(newDeferUsages, executionPlan,
     objectType, result, variableValues, false, path, deferUsageSet, deferMap)}.
 
 CompleteListValue(innerType, fieldDetailsList, result, variableValues, path,
