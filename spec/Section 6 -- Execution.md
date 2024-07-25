@@ -1155,7 +1155,7 @@ CollectSubfields(objectType, fieldDetailsList, variableValues):
       {responseKey}; if no such list exists, create it as an empty list.
     - Append all fields in {subfields} to {groupForResponseKey}.
   - Append all defer usages in {subNewDeferUsages} to {newDeferUsages}.
-- Return {groupedFieldSet}.
+- Return {groupedFieldSet} and {newDeferUsages}.
 
 ### Handling Field Errors
 
