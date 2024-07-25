@@ -586,7 +586,7 @@ path, deferUsageSet, deferMap):
   - If {fieldType} is defined:
     - Let {responseValue} and {fieldIncrementalDataRecords} be the result of
       {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
-      path)}.
+      path, deferUsageSet, deferMap)}.
     - Set {responseValue} as the value for {responseKey} in {resultMap}.
     - Append all items in {fieldIncrementalDataRecords} to
       {incrementalDataRecords}.
