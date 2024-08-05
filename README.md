@@ -1,3 +1,5 @@
+![GraphQLConf 2024 Banner: September 10-12, San Francisco. Hosted by the GraphQL Foundation](https://github.com/user-attachments/assets/0203f10b-ae1e-4fe1-9222-6547fa2bbd5d)
+
 # GraphQL
 
 <img alt="GraphQL Logo" align="right" src="https://graphql.org/img/logo.svg" width="15%" />
