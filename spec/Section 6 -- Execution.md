@@ -499,9 +499,12 @@ BatchIncrementalResults(incrementalResults):
 
 ## Executing an Execution Plan
 
-To execute a execution plan, the object value being evaluated and the object
-type need to be known, as well as whether the non-deferred grouped field set
-must be executed serially, or may be executed in parallel.
+Executing an execution plan consists of two tasks that may be performed in
+parallel. The first task is simply the execution of the non-deferred grouped
+field set. The second task is to use the partitioned grouped field sets within
+the execution plan to generate Execution Groups, i.e. Incremental Data Records,
+where each Incremental Data Records represents the deferred execution of one of
+the partitioned grouped field sets.
 
 ExecuteExecutionPlan(newDeferUsages, executionPlan, objectType, objectValue,
 variableValues, serial, path, deferUsageSet, deferMap):
@@ -523,6 +526,15 @@ variableValues, serial, path, deferUsageSet, deferMap):
   {incrementalDataRecords}.
 - Return {data} and {incrementalDataRecords}.
 
+Because `@defer` directives may be nested within list types, a map is required
+to associate a Defer Usage record as recorded within Field Details Records and
+an actual Deferred Fragment so that any additional Execution Groups may be
+associated with the correct Deferred Fragment. The {GetNewDeferMap()} algorithm
+creates that map. Given a list of new Defer Usages, the actual path at which the
+fields they defer are spread, and an initial map, it returns a new map
+containing all entries in the provided defer map, as well as new entries for
+each new Defer Usage.
+
 GetNewDeferMap(newDeferUsages, path, deferMap):
 
 - If {newDeferUsages} is empty, return {deferMap}:
@@ -535,6 +547,11 @@ GetNewDeferMap(newDeferUsages, path, deferMap):
     and {label}.
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
 - Return {newDeferMap}.
+
+The {CollectExecutionGroups()} algorithm is responsible for creating the
+Execution Groups, i.e. Incremental Data Records, for each partitioned grouped
+field set. It uses the map created by {GetNewDeferMap()} algorithm to associate
+each Execution Group with the correct Deferred Fragment.
 
 CollectExecutionGroups(objectType, objectValue, variableValues,
 newGroupedFieldSets, path, deferMap):
@@ -557,6 +574,9 @@ newGroupedFieldSets, path, deferMap):
 Note: {incrementalDataRecord} can be safely initiated without blocking
 higher-priority data once any of {deferredFragments} are released as pending.
 
+The {ExecuteExecutionGroup()} algorithm is responsible for actually executing
+the deferred grouped field set and collecting the result and any raised errors.
+
 ExecuteExecutionGroup(groupedFieldSet, objectType, objectValue, variableValues,
 path, deferUsageSet, deferMap):
 
@@ -564,7 +584,8 @@ path, deferUsageSet, deferMap):
   {ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
   variableValues, path, deferUsageSet, deferMap)} _normally_ (allowing
   parallelization).
-- Let {errors} be the list of all _field error_ raised while completing {data}.
+- Let {errors} be the list of all _field error_ raised while executing
+  {ExecuteGroupedFieldSet()}.
 - Return an unordered map containing {data}, {errors}, and
   {incrementalDataRecords}.
 
@@ -886,6 +907,15 @@ with the same arguments for each element of the list. GraphQL Services may
 choose to memoize their implementations of {CollectFields}.
 
 ### Execution Plan Generation
+
+A grouped field set may contain fields that have been deferred by the use of the
+`@defer` directive on their enclosing fragments. Given a grouped field set,
+{BuildExecutionPlan()} generates an execution plan by partitioning the grouped
+field as specified by the operation's use of `@defer` and the requirements of
+the incremental response format. An execution plan consists of a single new
+grouped field containing the fields that do not require deferral, and a map of
+new grouped field set containing where the keys represent the set of Defer
+Usages containing those fields.
 
 BuildExecutionPlan(originalGroupedFieldSet, parentDeferUsages):
 
