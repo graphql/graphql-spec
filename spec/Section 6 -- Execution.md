@@ -261,7 +261,7 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
   alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  node, variableValues)}.
+  field, variableValues)}.
 - Let {fieldStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
