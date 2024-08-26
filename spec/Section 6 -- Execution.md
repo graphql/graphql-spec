@@ -338,7 +338,8 @@ serial):
 - Let {data} and {incrementalDataRecords} be the result of
   {ExecuteExecutionPlan(newDeferUsages, executionPlan, objectType, initialValue,
   variableValues, serial)}.
-- Let {errors} be the list of all _field error_ raised while completing {data}.
+- Let {errors} be the list of all _field error_ raised while executing the
+  execution plan.
 - If {incrementalDataRecords} is empty, return an unordered map containing
   {data} and {errors}.
 - Let {incrementalResults} be the result of {YieldIncrementalResults(data,
@@ -346,6 +347,9 @@ serial):
 - Wait for the first result in {incrementalResults} to be available.
 - Let {initialResult} be that result.
 - Return {initialResult} and {BatchIncrementalResults(incrementalResults)}.
+
+Note: {ExecuteExecutionPlan()} does not directly raise field errors from the
+incremental portion of the Execution Plan.
 
 ### Yielding Incremental Results
 
