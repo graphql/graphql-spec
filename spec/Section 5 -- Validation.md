@@ -609,8 +609,29 @@ validation fails because the fragment spread `...commandFragment(command: SIT)`
 and `...commandFragment(command: DOWN)` are part of the visited selections that
 will be merged.
 
-If both of these spreads had used the same variable for the argument value, it
-would be allowed as we can be sure that we'd resolve identical fields.
+If both of these spreads had used the same value for the argument value, it
+would be allowed as we can be sure that we would resolve identical fields.
+Spreads that use different variables that would always resolve to the same value
+are also valid. For example, the following is valid:
+
+```graphql example
+fragment commandFragment($command: DogCommand!) on Dog {
+  doesKnowCommand(dogCommand: $command)
+}
+
+fragment noConflictWhenPassedOperationCommand(
+  $fragmentCommand: DogCommand!
+) on Dog {
+  ...commandFragment(command: $operationCommand)
+  ...commandFragment(command: $fragmentCommand)
+}
+
+query($operationCommand: DogCommand!) {
+  pet {
+    ...noConflictWhenPassedOperationCommand(fragmentCommand: $operationCommand)
+  }
+}
+```
 
 ### Leaf Field Selections
 
@@ -1873,7 +1894,7 @@ This is because {houseTrainedQueryTwoNotDefined} does not define a variable
 ${atOtherHomes} but that variable is used by {isHouseTrainedFragment} which is
 included in that operation.
 
-### All Operation Variables Used
+### All Variables Used
 
 **Formal Specification**
 
@@ -1882,6 +1903,11 @@ included in that operation.
   - Each {variable} in {variables} must be used at least once in either the
     operation scope itself or any fragment transitively referenced by that
     operation, excluding fragments that define the same name as an argument.
+- For every {fragment} in the document:
+  - Let {variables} be the variables defined by that {fragment}.
+  - Each {variable} in {variables} must be used at least once transitively
+    within the fragment's selection set excluding traversal of named fragment
+    spreads.
 
 **Explanatory Text**
 
@@ -1982,24 +2008,8 @@ fragment isHouseTrainedFragment on Dog {
 This document is not valid because {queryWithExtraVar} defines an extraneous
 variable.
 
-### All Fragment Variables Used
-
-**Formal Specification**
-
-- For every {fragment} in the document:
-  - Let {variables} be the variables defined by that {fragment}.
-  - Each {variable} in {variables} must be used at least once transitively
-    within the fragment's selection set excluding traversal of named fragment
-    spreads.
-
-**Explanatory Text**
-
-All variables defined by a fragment must be used in that same fragment. Because
-fragment-defined variables are scoped to the fragment they are defined on, if
-the fragment does not use the variable, then the variable definition is
-superfluous.
-
-For example, the following is invalid:
+Fragment variables must also be used within their definitions. For example, the
+following is invalid:
 
 ```graphql counter-example
 query queryWithFragmentArgUnused($atOtherHomes: Boolean) {
