@@ -526,6 +526,8 @@ variableValues, serial, path, deferUsageSet, deferMap):
   {incrementalDataRecords}.
 - Return {data} and {incrementalDataRecords}.
 
+### Mapping Deferred Fragments to Delivery Groups
+
 Because `@defer` directives may be nested within list types, a map is required
 to associate a Defer Usage record as recorded within Field Details Records and
 an actual Deferred Fragment so that any additional Execution Groups may be
@@ -547,6 +549,8 @@ GetNewDeferMap(newDeferUsages, path, deferMap):
     and {label}.
   - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
 - Return {newDeferMap}.
+
+### Collecting Execution Groups
 
 The {CollectExecutionGroups()} algorithm is responsible for creating the
 Execution Groups, i.e. Incremental Data Records, for each partitioned grouped
