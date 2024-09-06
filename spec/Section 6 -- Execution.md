@@ -354,14 +354,50 @@ incremental portion of the Execution Plan.
 ### Yielding Incremental Results
 
 The procedure for yielding incremental results is specified by the
-{YieldIncrementalResults()} algorithm.
+{YieldIncrementalResults()} algorithm. The incremental state is stored within a
+graph, with root nodes representing the currently pending delivery groups.
+
+For example, given the following operation:
+
+```graphql example
+{
+  ...SlowFragment @defer
+  fastField
+}
+
+fragment SlowFragment on Query {
+  ...SlowestFragment @defer
+  slowField
+}
+
+fragment SlowestFragment on Query {
+  slowestField
+}
+```
+
+A valid GraphQL executor deferring `SlowFragment` must include a `pending` entry
+to that effect within the initial result, while the `pending` entry for
+`SlowestFragment` should be delivered together with `SlowFragment`.
+
+Delivery group nodes may have three different types of child nodes:
+
+1. Other delivery group nodes, i.e. the node representing `SlowFragment` should
+   have a child node representing `SlowestFragment`.
+2. Pending incremental data nodes, i.e. the node for `SlowFragment` should
+   initially have a node for `slowField`.
+3. Completed incremental data nodes, i.e. when `slowField` is completed, the
+   pending incremental data node for `slowField` should be replaced with a node
+   representing the completed data.
+
+The {YieldIncrementalResults()} algorithm is responsible for updating the graph
+as it yields the incremental results.
 
 YieldIncrementalResults(data, errors, incrementalDataRecords):
 
 - Let {graph} be the result of {GraphFromRecords(incrementalDataRecords)}.
 - Let {rootNodes} be the result of {GetNewRootNodes(graph)}.
 - Update {graph} to the subgraph rooted at nodes in {rootNodes}.
-- Yield the result of {GetInitialResult(data, errors, pendingResults)}.
+- Yield the result of {GetInitialResult(data, errors, rootNodes)}.
 - For each completed child Pending Incremental Data node of a root node in
   {graph}:
   - Let {incrementalDataRecord} be the Pending Incremental Data for that node;
@@ -373,7 +409,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
       - Append {GetCompletedEntry(parent, errors)} to {completed}.
       - Remove {node} and all of its descendant nodes from {graph}, except for
         any descendant Incremental Data Record nodes with other parents.
-    - Yield the result of {GetIncrementalResult(graph, completed)}.
+    - Yield the result of {GetSubsequentResult(graph, completed)}.
     - Continue to the next completed Pending Incremental Data node.
   - Replace {node} in {graph} with a new node corresponding to the Completed
     Incremental Data for {result}.
@@ -397,11 +433,11 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     - Append {GetCompletedEntry(completedDeferredFragment)} to {completed}.
     - Remove {completedDeferredFragment} from {graph}, promoting its child
       Deferred Fragment nodes to root nodes.
-  - Let {newRootNodes} be the result of {GetNewRootNodes(graph)}.
+  - Let {newRootNodes} be the result of {GetNewRootNodes(graph, rootNodes)}.
   - Add all nodes in {newRootNodes} to {rootNodes}.
   - Update {graph} to the subgraph rooted at nodes in {rootNodes}.
   - Let {pending} be the result of {GetPendingEntry(newRootNodes)}.
-  - Yield the result of {GetIncrementalResult(graph, incremental, completed,
+  - Yield the result of {GetSubsequentResult(graph, incremental, completed,
     pending)}.
 - Complete this incremental result stream.
 
@@ -418,17 +454,28 @@ GraphFromRecords(incrementalDataRecords, graph):
     to {newGraph}, or the {parent} is not defined.
 - Return {newGraph}.
 
-GetNewRootNodes(graph):
+The {GetNewRootNodes()} algorithm is responsible for determining the new root
+nodes that must be reported as pending. Any delivery groups without any
+execution groups should not be reported as pending, and any child delivery
+groups for these "empty" delivery groups should be reported as pending in their
+stead.
 
-- Initialize {newPendingResults} to the empty set.
+GetNewRootNodes(graph, oldRootNodes):
+
+- Initialize {newRootNodes} to the empty set.
 - Initialize {rootNodes} to the set of root nodes in {graph}.
 - For each {rootNode} of {rootNodes}:
   - If {rootNode} has no children Pending Incremental Data nodes:
     - Let {children} be the set of child Deferred Fragment nodes of {rootNode}.
     - Add each of the nodes in {children} to {rootNodes}.
     - Continue to the next {rootNode} of {rootNodes}.
-  - Add {rootNode} to {newPendingResults}.
-- Return {newPendingResults}.
+  - If {oldRootNodes} does not contain {rootNode}, add {rootNode} to
+    {newRootNodes}.
+- Return {newRootNodes}.
+
+Formatting of the initial result is defined by the {GetInitialResult()}
+algorithm. It will only be called when there is an incremental result stream,
+and so `hasNext` will always be set to {true}.
 
 GetInitialResult(data, errors, pendingResults):
 
@@ -436,17 +483,26 @@ GetInitialResult(data, errors, pendingResults):
 - Let {hasNext} be {true}.
 - Return an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
 
-GetPendingEntry(pendingResults):
+Formatting the `pending` of initial and subsequentResults is defined by the
+{GetPendingEntry()} algorithm. Given a set of new root nodes added to the graph,
+{GetPendingEntry()} returns a list of formatted `pending` entries.
+
+GetPendingEntry(newRootNodes):
 
 - Initialize {pending} to an empty list.
-- For each {pendingResult} of {pendingResult}:
-  - Let {id} be a unique identifier for {pendingResult}.
-  - Let {path} and {label} be the corresponding entries on {pendingResult}.
+- For each {newRootNode} of {newRootNodes}:
+  - Let {id} be a unique identifier for {newRootNode}.
+  - Let {path} and {label} be the corresponding entries on {newRootNode}.
   - Let {pendingEntry} be an unordered map containing {id}, {path}, and {label}.
   - Append {pendingEntry} to {pending}.
 - Return {pending}.
 
-GetIncrementalResult(graph, completed, incremental, pending):
+Formatting of subsequent incremental results is defined by the
+{GetSubsequentResult()} algorithm. Given the current graph, and any `completed`,
+`incremental`, and `pending` entries, it produces an appropriately formatted
+subsequent incremental response.
+
+GetSubsequentResult(graph, completed, incremental, pending):
 
 - Let {hasNext} be {false} if {graph} is empty, otherwise, {true}.
 - Let {incrementalResult} be an unordered map containing {hasNext}.
@@ -457,6 +513,10 @@ GetIncrementalResult(graph, completed, incremental, pending):
 - If {pending} is provided and not empty:
   - Set the corresponding entry on {incrementalResult} to {pending}.
 - Return {incrementalResult}.
+
+Formatting of subsequent incremental results is defined by the
+{GetSubsequentResult()} algorithm. Execution groups are tagged with the `id` and
+`subPath` combination optimized to produce the shortest `subPath`.
 
 GetIncrementalEntry(incrementalDataRecord, graph):
 
@@ -472,6 +532,9 @@ GetIncrementalEntry(incrementalDataRecord, graph):
   {bestDeferredFragment}.
 - Let {id} be the unique identifier for {bestDeferredFragment}.
 - Return an unordered map containing {id}, {subPath}, {data}, and {errors}.
+
+Formatting of completed incremental results is defined by the
+{GetCompletedEntry()} algorithm.
 
 GetCompletedEntry(pendingResult, errors):
 
