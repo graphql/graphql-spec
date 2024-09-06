@@ -507,9 +507,9 @@ GetInitialResult(data, errors, pendingResults):
 - Let {hasNext} be {true}.
 - Return an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
 
-Formatting the `pending` of initial and subsequentResults is defined by the
-{GetPendingEntry()} algorithm. Given a set of new root nodes added to the graph,
-{GetPendingEntry()} returns a list of formatted `pending` entries.
+Formatting the `pending` entries of initial and subsequentResults is defined by
+the {GetPendingEntry()} algorithm. Given a set of new root nodes added to the
+graph, {GetPendingEntry()} returns a list of formatted `pending` entries.
 
 GetPendingEntry(newRootNodes):
 
