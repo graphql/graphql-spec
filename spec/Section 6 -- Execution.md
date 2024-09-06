@@ -526,7 +526,7 @@ variableValues, serial, path, deferUsageSet, deferMap):
   {incrementalDataRecords}.
 - Return {data} and {incrementalDataRecords}.
 
-### Mapping Deferred Fragments to Delivery Groups
+### Mapping @defer Directives to Delivery Groups
 
 Because `@defer` directives may be nested within list types, a map is required
 to associate a Defer Usage record as recorded within Field Details Records and
