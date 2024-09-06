@@ -373,8 +373,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
       - Append {GetCompletedEntry(parent, errors)} to {completed}.
       - Remove {node} and all of its descendant nodes from {graph}, except for
         any descendant Incremental Data Record nodes with other parents.
-    - Let {hasNext} be {false} if {graph} is empty; otherwise, {true}.
-    - Yield an unordered map containing {completed} and {hasNext}.
+    - Yield the result of {GetIncrementalResult(graph, completed)}.
     - Continue to the next completed Pending Incremental Data node.
   - Replace {node} in {graph} with a new node corresponding to the Completed
     Incremental Data for {result}.
@@ -447,15 +446,15 @@ GetPendingEntry(pendingResults):
   - Append {pendingEntry} to {pending}.
 - Return {pending}.
 
-GetIncrementalResult(graph, incremental, completed, pending):
+GetIncrementalResult(graph, completed, incremental, pending):
 
 - Let {hasNext} be {false} if {graph} is empty, otherwise, {true}.
 - Let {incrementalResult} be an unordered map containing {hasNext}.
-- If {incremental} is not empty:
+- If {incremental} is provided and not empty:
   - Set the corresponding entry on {incrementalResult} to {incremental}.
 - If {completed} is not empty:
   - Set the corresponding entry on {incrementalResult} to {completed}.
-- If {pending} is not empty:
+- If {pending} is provided and not empty:
   - Set the corresponding entry on {incrementalResult} to {pending}.
 - Return {incrementalResult}.
 
