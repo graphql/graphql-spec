@@ -381,16 +381,18 @@ to that effect within the initial result, while the `pending` entry for
 
 Delivery group nodes may have three different types of child nodes:
 
-1. Other delivery group nodes, i.e. the node representing `SlowFragment` should
+1. Child Delivery Group nodes, i.e. the node representing `SlowFragment` should
    have a child node representing `SlowestFragment`.
-2. Pending incremental data nodes, i.e. the node for `SlowFragment` should
+2. Pending Incremental Data nodes, i.e. the node for `SlowFragment` should
    initially have a node for `slowField`.
-3. Completed incremental data nodes, i.e. when `slowField` is completed, the
+3. Completed Incremental Data nodes, i.e. when `slowField` is completed, the
    pending incremental data node for `slowField` should be replaced with a node
    representing the completed data.
 
 The {YieldIncrementalResults()} algorithm is responsible for updating the graph
-as it yields the incremental results.
+as it yields the incremental results. When a delivery group contains only
+completed incremental data nodes, the group is removed from the graph as it is
+delivered.
 
 YieldIncrementalResults(data, errors, incrementalDataRecords):
 
@@ -416,7 +418,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
   - Let {resultIncrementalDataRecords} be {incrementalDataRecords} on {result}.
   - Update {graph} to {GraphFromRecords(resultIncrementalDataRecords, graph)}.
   - Let {completedDeferredFragments} be the set of root nodes in {graph} without
-    any child Pending Data nodes.
+    any child Pending Incremental Data nodes.
   - Let {completedIncrementalDataNodes} be the set of completed Incremental Data
     nodes that are children of {completedDeferredFragments}.
   - If {completedIncrementalDataNodes} is empty, continue to the next completed
@@ -441,17 +443,39 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
     pending)}.
 - Complete this incremental result stream.
 
+New Incremental Data Records are added to the {graph} by the
+{GraphFromRecords()} algorithm as Pending Incremental Data nodes directed from
+the Deferred Fragments they incrementally complete.
+
 GraphFromRecords(incrementalDataRecords, graph):
 
 - If {graph} is not provided, initialize to an empty graph.
 - Let {newGraph} be a new directed acyclic graph containing all of the nodes and
   edges in {graph}.
 - For each {incrementalDataRecord} of {incrementalDataRecords}:
-  - Add {incrementalDataRecord} to {newGraph} as a new Pending Data node
-    directed from the {pendingResults} that it completes, adding each of
-    {pendingResults} to {newGraph} as a new node directed from its {parent},
-    recursively adding each {parent} until {incrementalDataRecord} is connected
-    to {newGraph}, or the {parent} is not defined.
+  - Let {deferredFragments} be the Deferred Fragments incrementally completed by
+    {incrementalDataRecord}.
+  - For each {deferredFragment} of {deferredFragments}:
+    - Reset {newGraph} to the result of
+      {GraphWithDeferredFragmentRecord(deferredFragment, newGraph)}.
+  - Add {incrementalDataRecord} to {newGraph} as a new Pending Incremental Data
+    node directed from the {deferredFragments} that it completes.
+- Return {newGraph}.
+
+The {GraphWithDeferredFragmentRecord()} algorithm returns a new graph containing
+the provided Deferred Fragment Record, recursively adding its parent Deferred
+Fragment nodes.
+
+GraphWithDeferredFragmentRecord(deferredFragment, graph):
+
+- If {graph} contains a Deferred Fragment node representing {deferredFragment},
+  return {graph}.
+- Let {parent} be the parent Deferred Fragment of {deferredFragment}.
+- If {parent} is defined, let {newGraph} be the result of
+  {GraphWithDeferredFragmentRecord(parent, graph)}; otherwise, let {newGraph} be
+  a new directed acyclic graph containing all of the nodes and edges in {graph}.
+- Add {deferredFragment} to {newGraph} as a new Deferred Fragment node directed
+  from {parent}, if defined.
 - Return {newGraph}.
 
 The {GetNewRootNodes()} algorithm is responsible for determining the new root
