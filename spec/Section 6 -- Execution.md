@@ -409,6 +409,7 @@ YieldIncrementalResults(data, errors, incrementalDataRecords):
 
 GraphFromRecords(incrementalDataRecords, graph):
 
+- If {graph} is not provided, initialize to an empty graph.
 - Let {newGraph} be a new directed acyclic graph containing all of the nodes and
   edges in {graph}.
 - For each {incrementalDataRecord} of {incrementalDataRecords}:
