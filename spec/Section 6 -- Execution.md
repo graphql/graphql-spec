@@ -656,12 +656,6 @@ As an example, this might accept the {objectType} `Person`, the {field}
 {"soulMate"}, and the {objectValue} representing John Lennon. It would be
 expected to yield the value representing Yoko Ono.
 
-List values are resolved similarly. For example, {ResolveFieldValue} might also
-accept the {objectType} `MusicBand`, the {field} {"members"}, and the
-{objectValue} representing the Beatles. It would be expected to yield a
-collection of values representing John Lennon, Paul McCartney, Ringo Starr and
-George Harrison.
-
 ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 
 - Let {resolver} be the internal function provided by {objectType} for
@@ -672,9 +666,8 @@ ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 Note: It is common for {resolver} to be asynchronous due to relying on reading
 an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
-flow. In addition, for fields that have a return type that is a List type, each
-value in a collection of values returned by {resolver} may be retrieved
-asynchronously.
+flow. If the field is of a list type, each value in the collection of values
+returned by {resolver} may itself be retrieved asynchronously.
 
 ### Value Completion
 
