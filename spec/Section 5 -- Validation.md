@@ -1452,103 +1452,6 @@ arguments, an input object may have required fields. An input field is required
 if it has a non-null type and does not have a default value. Otherwise, the
 input object field is optional.
 
-### OneOf Input Objects Have Exactly One Field
-
-**Formal Specification**
-
-- For each {operation} in {document}:
-  - Let {oneofInputObjects} be all OneOf Input Objects transitively included in
-    the {operation}.
-  - For each {oneofInputObject} in {oneofInputObjects}:
-    - Let {fields} be the fields provided by {oneofInputObject}.
-    - {fields} must contain exactly one entry.
-    - Let {field} be the sole entry in {fields}.
-    - Let {value} be the value of {field}.
-    - {value} must not be the {null} literal.
-    - If {value} is a variable:
-      - Let {variableName} be the name of {variable}.
-      - Let {variableDefinition} be the {VariableDefinition} named
-        {variableName} defined within {operation}.
-      - Let {variableType} be the expected type of {variableDefinition}.
-      - {variableType} must be a non-null type.
-
-**Explanatory Text**
-
-OneOf Input Objects require that exactly one field must be supplied and that
-field must not be {null}.
-
-An empty OneOf Input Object is invalid.
-
-```graphql counter-example
-mutation addPet {
-  addPet(pet: {}) {
-    name
-  }
-}
-```
-
-Multiple fields are not allowed.
-
-```graphql counter-example
-mutation addPet($cat: CatInput, $dog: DogInput) {
-  addPet(pet: { cat: $cat, dog: $dog }) {
-    name
-  }
-}
-```
-
-```graphql counter-example
-mutation addPet($dog: DogInput) {
-  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
-    name
-  }
-}
-```
-
-```graphql counter-example
-mutation addPet {
-  addPet(pet: { cat: { name: "Brontie" }, dog: null }) {
-    name
-  }
-}
-```
-
-Variables used for OneOf Input Object fields must be non-nullable.
-
-```graphql example
-mutation addPet($cat: CatInput!) {
-  addPet(pet: { cat: $cat }) {
-    name
-  }
-}
-```
-
-```graphql counter-example
-mutation addPet($cat: CatInput) {
-  addPet(pet: { cat: $cat }) {
-    name
-  }
-}
-```
-
-If a field with a literal value is present then the value must not be {null}.
-
-```graphql example
-mutation addPet {
-  addPet(pet: { cat: { name: "Brontie" } }) {
-    name
-  }
-}
-```
-
-```graphql counter-example
-mutation addPet {
-  addPet(pet: { cat: null }) {
-    name
-  }
-}
-```
-
 ## Directives
 
 ### Directives Are Defined
@@ -1989,8 +1892,8 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
-- If {locationType} is a non-null type AND {variableType} is NOT a non-null
-  type:
+- If {IsNonNullPosition(locationType, variableUsage)} AND {variableType} is NOT
+  a non-null type:
   - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists for
     {variableDefinition} and is not the value {null}.
   - Let {hasLocationDefaultValue} be {true} if a default value exists for the
@@ -2000,6 +1903,15 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
   - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
+
+IsNonNullPosition(locationType, variableUsage):
+
+- Let {isOneOfField} be {true} if {variableUsage} is located within an
+  {ObjectField} entry and the parent type of {ObjectField} is a OneOf Input
+  Object; otherwise {false}.
+- If {isOneOfField} is {true} or {locationType} is a non-null type, return
+  {true}.
+- Return {false}.
 
 AreTypesCompatible(variableType, locationType):
 
@@ -2088,6 +2000,34 @@ query listToNonNullList($booleanList: [Boolean]) {
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 Similarly a `[T]` cannot be passed to a `[T!]`.
+
+Variables used for OneOf Input Object fields must be non-nullable.
+
+```graphql example
+mutation addPet($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addPet($cat: CatInput) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+Variables used for OneOf Input Object fields cannot have default values.
+
+```graphql counter-example
+mutation addPet($cat: CatInput = { name: "Kitty" }) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
 
 **Allowing Optional Variables When Default Values Exist**
 
