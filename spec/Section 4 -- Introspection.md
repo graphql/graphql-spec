@@ -64,9 +64,6 @@ Similarly, a request containing the operation:
     name
     arguments {
       name
-      type {
-        name
-      }
     }
   }
 }
@@ -80,8 +77,7 @@ would produce the result:
     "name": "skip",
     "arguments": [
       {
-        "name": "if",
-        "type": { "name": "Boolean" }
+        "name": "if"
       }
     ]
   }
