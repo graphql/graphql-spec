@@ -118,7 +118,7 @@ operation.
 ## Schema Introspection
 
 The schema introspection system is accessible from the meta-fields `__schema`,
-`__type`, and `_directive` which are accessible from the type of the root of a
+`__type`, and `__directive` which are accessible from the type of the root of a
 query operation.
 
 ```graphql
