@@ -56,6 +56,38 @@ would produce the result:
 }
 ```
 
+Similarly, a request containing the operation:
+
+```graphql example
+{
+  __directive(name: "skip") {
+    name
+    arguments {
+      name
+      type {
+        name
+      }
+    }
+  }
+}
+```
+
+would produce the result:
+
+```json example
+{
+  "__directive": {
+    "name": "skip",
+    "arguments": [
+      {
+        "name": "if",
+        "type": { "name": "Boolean" }
+      }
+    ]
+  }
+}
+```
+
 **Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
