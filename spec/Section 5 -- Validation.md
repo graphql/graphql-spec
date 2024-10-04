@@ -338,8 +338,10 @@ must provide the operation name as described in {GetOperation()}.
 
 For each operation definition in the document:
 
-- Let {operationType} be the type of the operation (`query`, `mutation`, or `subscription`).
-- The corresponding _root operation type_ for {operationType} must be defined in the schema.
+- Let {operationType} be the type of the operation (`query`, `mutation`, or
+  `subscription`).
+- The corresponding _root operation type_ for {operationType} must be defined in
+  the schema.
 
 #### Explanatory Text
 
@@ -347,12 +349,13 @@ A schema defines the root operation types that it supports. Any document that
 contains an operation of a type unsupported by the schema is invalid, since such
 an operation cannot be executed.
 
-While query operations are required for all schemas, mutation and subscription operations
-are optional. If the schema does not include the necessary type for a mutation or subscription
-operation defined in the document, it will be considered invalid.
+While query operations are required for all schemas, mutation and subscription
+operations are optional. If the schema does not include the necessary type for a
+mutation or subscription operation defined in the document, it will be
+considered invalid.
 
-For example, the following document is valid if the schema includes a Mutation type, but
-invalid if it does not:
+For example, the following document is valid if the schema includes a Mutation
+type, but invalid if it does not:
 
 ```graphql example
 mutation {
