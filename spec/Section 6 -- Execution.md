@@ -4,18 +4,21 @@ A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
-- The schema to use, typically solely provided by the GraphQL service.
-- A {Document} which must contain GraphQL {OperationDefinition} and may contain
-  {FragmentDefinition}.
-- Optionally: The name of the Operation in the Document to execute.
-- Optionally: Values for any Variables defined by the Operation.
-- An initial value corresponding to the root type being executed. Conceptually,
-  an initial value represents the "universe" of data available via a GraphQL
-  Service. It is common for a GraphQL Service to always use the same initial
-  value for every request.
+- {schema}: The schema to use, typically solely provided by the GraphQL service.
+- {document}: A {Document} which must contain GraphQL {OperationDefinition} and
+  may contain {FragmentDefinition}.
+- {operationName} (optional): The name of the Operation in the Document to
+  execute.
+- {variableValues} (optional): Values for any Variables defined by the
+  Operation.
+- {initialValue} (optional): An initial value corresponding to the root type
+  being executed. Conceptually, an initial value represents the "universe" of
+  data available via a GraphQL Service. It is common for a GraphQL Service to
+  always use the same initial value for every request.
 
-Given this information, the result of {ExecuteRequest()} produces the response,
-to be formatted according to the Response section below.
+Given this information, the result of {ExecuteRequest(schema, document,
+operationName, variableValues, initialValue)} produces the response, to be
+formatted according to the Response section below.
 
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
@@ -290,11 +293,11 @@ subscription _selection set_ using that event as a root value.
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Return a new event stream {responseStream} which yields events as follows:
-- For each {event} on {sourceStream}:
-  - Let {response} be the result of running
-    {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
-  - Yield an event containing {response}.
-- When {responseStream} completes: complete this event stream.
+  - For each {event} on {sourceStream}:
+    - Let {response} be the result of running
+      {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
+    - Yield an event containing {response}.
+  - When {sourceStream} completes: complete {responseStream}.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
