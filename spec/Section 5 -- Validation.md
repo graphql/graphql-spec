@@ -174,7 +174,7 @@ query helloQuery {
 
 While the following operation is invalid:
 
-```graphql example
+```graphql counter-example
 mutation goodbyeMutation {
   goodbye
 }
