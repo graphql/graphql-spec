@@ -56,6 +56,34 @@ would produce the result:
 }
 ```
 
+Similarly, a request containing the operation:
+
+```graphql example
+{
+  __directive(name: "skip") {
+    name
+    arguments {
+      name
+    }
+  }
+}
+```
+
+would produce the result:
+
+```json example
+{
+  "__directive": {
+    "name": "skip",
+    "arguments": [
+      {
+        "name": "if"
+      }
+    ]
+  }
+}
+```
+
 **Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
@@ -85,13 +113,14 @@ operation.
 
 ## Schema Introspection
 
-The schema introspection system is accessible from the meta-fields `__schema`
-and `__type` which are accessible from the type of the root of a query
-operation.
+The schema introspection system is accessible from the meta-fields `__schema`,
+`__type`, and `__directive` which are accessible from the type of the root of a
+query operation.
 
 ```graphql
 __schema: __Schema!
 __type(name: String!): __Type
+__directive(name: String!): __Directive
 ```
 
 Like all meta-fields, these are implicit and do not appear in the fields list in
