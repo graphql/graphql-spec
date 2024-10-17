@@ -5735,79 +5735,79 @@ Variable values are not coerced because they are expected to be coerced before e
 <li data-source="spec/Section%206%20--%20Execution.md#L663-L664">Return the result of calling <var data-name="resolver">resolver</var>, providing <var data-name="objectValue">objectValue</var> and <var data-name="argumentValues">argumentValues</var>.</li>
 </ol>
 </div>
-<div id="note-7bf5f" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L666-L669">
-<a href="#note-7bf5f">Note</a>
-It is common for <var data-name="resolver">resolver</var> to be asynchronous due to relying on reading an underlying database or networked service to produce a value. This necessitates the rest of a GraphQL executor to handle an asynchronous execution flow.</div>
+<div id="note-778fd" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L666-L670">
+<a href="#note-778fd">Note</a>
+It is common for <var data-name="resolver">resolver</var> to be asynchronous due to relying on reading an underlying database or networked service to produce a value. This necessitates the rest of a GraphQL executor to handle an asynchronous execution flow. If the field is of a list type, each value in the collection of values returned by <var data-name="resolver">resolver</var> may itself be retrieved asynchronously.</div>
 </section>
 <section id="sec-Value-Completion" secid="6.4.3">
-<h3 data-source="spec/Section%206%20--%20Execution.md#L671"><span class="spec-secid" title="link to this section"><a href="#sec-Value-Completion">6.4.3</a></span>Value Completion</h3>
-<p data-source="spec/Section%206%20--%20Execution.md#L673-L675">After resolving the value for a field, it is completed by ensuring it adheres to the expected return type. If the return type is another Object type, then the field execution process continues recursively.</p>
-<div class="spec-algo" id="CompleteValue()" data-source="spec/Section%206%20--%20Execution.md#L677-L703">
+<h3 data-source="spec/Section%206%20--%20Execution.md#L672"><span class="spec-secid" title="link to this section"><a href="#sec-Value-Completion">6.4.3</a></span>Value Completion</h3>
+<p data-source="spec/Section%206%20--%20Execution.md#L674-L676">After resolving the value for a field, it is completed by ensuring it adheres to the expected return type. If the return type is another Object type, then the field execution process continues recursively.</p>
+<div class="spec-algo" id="CompleteValue()" data-source="spec/Section%206%20--%20Execution.md#L678-L704">
 <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="fieldType">fieldType</var>, <var data-name="fields">fields</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span><ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L679-L684">If the <var data-name="fieldType">fieldType</var> is a Non-Null type:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L680">Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L681-L682">Let <var data-name="completedResult">completedResult</var> be the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L683">If <var data-name="completedResult">completedResult</var> is <span class="spec-keyword">null</span>, raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L684">Return <var data-name="completedResult">completedResult</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L680-L685">If the <var data-name="fieldType">fieldType</var> is a Non-Null type:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L681">Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L682-L683">Let <var data-name="completedResult">completedResult</var> be the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L684">If <var data-name="completedResult">completedResult</var> is <span class="spec-keyword">null</span>, raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L685">Return <var data-name="completedResult">completedResult</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L685-L686">If <var data-name="result">result</var> is <span class="spec-keyword">null</span> (or another internal value similar to <span class="spec-keyword">null</span> such as <span class="spec-keyword">undefined</span>), return <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L687-L692">If <var data-name="fieldType">fieldType</var> is a List type:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L688">If <var data-name="result">result</var> is not a collection of values, raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L689">Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L690-L692">Return a list where each list item is the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="resultItem">resultItem</var>, <var data-name="variableValues">variableValues</var>)</span>, where <var data-name="resultItem">resultItem</var> is each item in <var data-name="result">result</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L686-L687">If <var data-name="result">result</var> is <span class="spec-keyword">null</span> (or another internal value similar to <span class="spec-keyword">null</span> such as <span class="spec-keyword">undefined</span>), return <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L688-L693">If <var data-name="fieldType">fieldType</var> is a List type:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L689">If <var data-name="result">result</var> is not a collection of values, raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L690">Let <var data-name="innerType">innerType</var> be the inner type of <var data-name="fieldType">fieldType</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L691-L693">Return a list where each list item is the result of calling <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>(<var data-name="innerType">innerType</var>, <var data-name="fields">fields</var>, <var data-name="resultItem">resultItem</var>, <var data-name="variableValues">variableValues</var>)</span>, where <var data-name="resultItem">resultItem</var> is each item in <var data-name="result">result</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L693-L694">If <var data-name="fieldType">fieldType</var> is a Scalar or Enum type:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L694">Return the result of <span class="spec-call"><a href="#CoerceResult()" data-name="CoerceResult">CoerceResult</a>(<var data-name="fieldType">fieldType</var>, <var data-name="result">result</var>)</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L694-L695">If <var data-name="fieldType">fieldType</var> is a Scalar or Enum type:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L695">Return the result of <span class="spec-call"><a href="#CoerceResult()" data-name="CoerceResult">CoerceResult</a>(<var data-name="fieldType">fieldType</var>, <var data-name="result">result</var>)</span>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L695-L703">If <var data-name="fieldType">fieldType</var> is an Object, Interface, or Union type:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L696-L697">If <var data-name="fieldType">fieldType</var> is an Object type.<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L697">Let <var data-name="objectType">objectType</var> be <var data-name="fieldType">fieldType</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L696-L704">If <var data-name="fieldType">fieldType</var> is an Object, Interface, or Union type:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L697-L698">If <var data-name="fieldType">fieldType</var> is an Object type.<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L698">Let <var data-name="objectType">objectType</var> be <var data-name="fieldType">fieldType</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L698-L699">Otherwise if <var data-name="fieldType">fieldType</var> is an Interface or Union type.<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L699">Let <var data-name="objectType">objectType</var> be <span class="spec-call"><a href="#ResolveAbstractType()" data-name="ResolveAbstractType">ResolveAbstractType</a>(<var data-name="fieldType">fieldType</var>, <var data-name="result">result</var>)</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L699-L700">Otherwise if <var data-name="fieldType">fieldType</var> is an Interface or Union type.<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L700">Let <var data-name="objectType">objectType</var> be <span class="spec-call"><a href="#ResolveAbstractType()" data-name="ResolveAbstractType">ResolveAbstractType</a>(<var data-name="fieldType">fieldType</var>, <var data-name="result">result</var>)</span>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L700">Let <var data-name="subSelectionSet">subSelectionSet</var> be the result of calling <span class="spec-call"><a href="#MergeSelectionSets()" data-name="MergeSelectionSets">MergeSelectionSets</a>(<var data-name="fields">fields</var>)</span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L701-L703">Return the result of evaluating <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>(<var data-name="subSelectionSet">subSelectionSet</var>, <var data-name="objectType">objectType</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span> <em>normally</em> (allowing for parallelization).</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L701">Let <var data-name="subSelectionSet">subSelectionSet</var> be the result of calling <span class="spec-call"><a href="#MergeSelectionSets()" data-name="MergeSelectionSets">MergeSelectionSets</a>(<var data-name="fields">fields</var>)</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L702-L704">Return the result of evaluating <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>(<var data-name="subSelectionSet">subSelectionSet</var>, <var data-name="objectType">objectType</var>, <var data-name="result">result</var>, <var data-name="variableValues">variableValues</var>)</span> <em>normally</em> (allowing for parallelization).</li>
 </ol>
 </li>
 </ol>
 </div>
 <section id="sec-Value-Completion.Coercing-Results" class="subsec">
-<h6 data-source="spec/Section%206%20--%20Execution.md#L705"><a href="#sec-Value-Completion.Coercing-Results" title="link to this subsection">Coercing Results</a></h6>
-<p data-source="spec/Section%206%20--%20Execution.md#L707-L710">The primary purpose of value completion is to ensure that the values returned by field resolvers are valid according to the GraphQL type system and a service&rsquo;s schema. This &ldquo;dynamic type checking&rdquo; allows GraphQL to provide consistent guarantees about returned types atop any service&rsquo;s internal runtime.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L712-L715">See the Scalars <a href="#sec-Scalars.Result-Coercion-and-Serialization">Result Coercion and Serialization</a> sub-section for more detailed information about how GraphQL&rsquo;s built-in scalars coerce result values.</p>
-<div class="spec-algo" id="CoerceResult()" data-source="spec/Section%206%20--%20Execution.md#L717-L723">
+<h6 data-source="spec/Section%206%20--%20Execution.md#L706"><a href="#sec-Value-Completion.Coercing-Results" title="link to this subsection">Coercing Results</a></h6>
+<p data-source="spec/Section%206%20--%20Execution.md#L708-L711">The primary purpose of value completion is to ensure that the values returned by field resolvers are valid according to the GraphQL type system and a service&rsquo;s schema. This &ldquo;dynamic type checking&rdquo; allows GraphQL to provide consistent guarantees about returned types atop any service&rsquo;s internal runtime.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L713-L716">See the Scalars <a href="#sec-Scalars.Result-Coercion-and-Serialization">Result Coercion and Serialization</a> sub-section for more detailed information about how GraphQL&rsquo;s built-in scalars coerce result values.</p>
+<div class="spec-algo" id="CoerceResult()" data-source="spec/Section%206%20--%20Execution.md#L718-L724">
 <span class="spec-call"><a href="#CoerceResult()" data-name="CoerceResult">CoerceResult</a>(<var data-name="leafType">leafType</var>, <var data-name="value">value</var>)</span><ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L719">Assert <var data-name="value">value</var> is not <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L720-L723">Return the result of calling the internal method provided by the type system for determining the &ldquo;result coercion&rdquo; of <var data-name="leafType">leafType</var> given the value <var data-name="value">value</var>. This internal method must return a valid value for the type and not <span class="spec-keyword">null</span>. Otherwise raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L720">Assert <var data-name="value">value</var> is not <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L721-L724">Return the result of calling the internal method provided by the type system for determining the &ldquo;result coercion&rdquo; of <var data-name="leafType">leafType</var> given the value <var data-name="value">value</var>. This internal method must return a valid value for the type and not <span class="spec-keyword">null</span>. Otherwise raise a <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span>.</li>
 </ol>
 </div>
-<div id="note-5bde4" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L725-L727">
+<div id="note-5bde4" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L726-L728">
 <a href="#note-5bde4">Note</a>
 If a field resolver returns <span class="spec-keyword">null</span> then it is handled within <span class="spec-call"><a href="#CompleteValue()" data-name="CompleteValue">CompleteValue</a>()</span> before <span class="spec-call"><a href="#CoerceResult()" data-name="CoerceResult">CoerceResult</a>()</span> is called. Therefore both the input and output of <span class="spec-call"><a href="#CoerceResult()" data-name="CoerceResult">CoerceResult</a>()</span> must not be <span class="spec-keyword">null</span>.</div>
 </section>
 <section id="sec-Value-Completion.Resolving-Abstract-Types" class="subsec">
-<h6 data-source="spec/Section%206%20--%20Execution.md#L729"><a href="#sec-Value-Completion.Resolving-Abstract-Types" title="link to this subsection">Resolving Abstract Types</a></h6>
-<p data-source="spec/Section%206%20--%20Execution.md#L731-L734">When completing a field with an abstract return type, that is an Interface or Union return type, first the abstract type must be resolved to a relevant Object type. This determination is made by the internal system using whatever means appropriate.</p>
-<div id="note-5ee58" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L736-L738">
+<h6 data-source="spec/Section%206%20--%20Execution.md#L730"><a href="#sec-Value-Completion.Resolving-Abstract-Types" title="link to this subsection">Resolving Abstract Types</a></h6>
+<p data-source="spec/Section%206%20--%20Execution.md#L732-L735">When completing a field with an abstract return type, that is an Interface or Union return type, first the abstract type must be resolved to a relevant Object type. This determination is made by the internal system using whatever means appropriate.</p>
+<div id="note-5ee58" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L737-L739">
 <a href="#note-5ee58">Note</a>
 A common method of determining the Object type for an <var data-name="objectValue">objectValue</var> in object-oriented environments, such as Java or C#, is to use the class name of the <var data-name="objectValue">objectValue</var>.</div>
-<div class="spec-algo" id="ResolveAbstractType()" data-source="spec/Section%206%20--%20Execution.md#L740-L744">
+<div class="spec-algo" id="ResolveAbstractType()" data-source="spec/Section%206%20--%20Execution.md#L741-L745">
 <span class="spec-call"><a href="#ResolveAbstractType()" data-name="ResolveAbstractType">ResolveAbstractType</a>(<var data-name="abstractType">abstractType</var>, <var data-name="objectValue">objectValue</var>)</span><ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L742-L744">Return the result of calling the internal method provided by the type system for determining the Object type of <var data-name="abstractType">abstractType</var> given the value <var data-name="objectValue">objectValue</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L743-L745">Return the result of calling the internal method provided by the type system for determining the Object type of <var data-name="abstractType">abstractType</var> given the value <var data-name="objectValue">objectValue</var>.</li>
 </ol>
 </div>
 </section>
 <section id="sec-Value-Completion.Merging-Selection-Sets" class="subsec">
-<h6 data-source="spec/Section%206%20--%20Execution.md#L746"><a href="#sec-Value-Completion.Merging-Selection-Sets" title="link to this subsection">Merging Selection Sets</a></h6>
-<p data-source="spec/Section%206%20--%20Execution.md#L748-L750">When more than one field of the same name is executed in parallel, the <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> for each of the fields are merged together when completing the value in order to continue execution of the sub-selection sets.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L752-L753">An example operation illustrating parallel fields with the same name with sub-selections.</p>
-<pre id="example-77852" class="spec-example" data-language="graphql" data-source="spec/Section%206%20--%20Execution.md#L755-L764"><a href="#example-77852">Example № 198</a><code><span class="token punctuation">{</span>
+<h6 data-source="spec/Section%206%20--%20Execution.md#L747"><a href="#sec-Value-Completion.Merging-Selection-Sets" title="link to this subsection">Merging Selection Sets</a></h6>
+<p data-source="spec/Section%206%20--%20Execution.md#L749-L751">When more than one field of the same name is executed in parallel, the <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> for each of the fields are merged together when completing the value in order to continue execution of the sub-selection sets.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L753-L754">An example operation illustrating parallel fields with the same name with sub-selections.</p>
+<pre id="example-77852" class="spec-example" data-language="graphql" data-source="spec/Section%206%20--%20Execution.md#L756-L765"><a href="#example-77852">Example № 198</a><code><span class="token punctuation">{</span>
   <span class="token object">me</span> <span class="token punctuation">{</span>
     <span class="token property">firstName</span>
   <span class="token punctuation">}</span>
@@ -5816,33 +5816,33 @@ A common method of determining the Object type for an <var data-name="objectValu
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%206%20--%20Execution.md#L766-L767">After resolving the value for <code>me</code>, the selection sets are merged together so <code>firstName</code> and <code>lastName</code> can be resolved for one value.</p>
-<div class="spec-algo" id="MergeSelectionSets()" data-source="spec/Section%206%20--%20Execution.md#L769-L776">
+<p data-source="spec/Section%206%20--%20Execution.md#L767-L768">After resolving the value for <code>me</code>, the selection sets are merged together so <code>firstName</code> and <code>lastName</code> can be resolved for one value.</p>
+<div class="spec-algo" id="MergeSelectionSets()" data-source="spec/Section%206%20--%20Execution.md#L770-L777">
 <span class="spec-call"><a href="#MergeSelectionSets()" data-name="MergeSelectionSets">MergeSelectionSets</a>(<var data-name="fields">fields</var>)</span><ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L771">Let <var data-name="selectionSet">selectionSet</var> be an empty list.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L772-L775">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L773">Let <var data-name="fieldSelectionSet">fieldSelectionSet</var> be the selection set of <var data-name="field">field</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L774">If <var data-name="fieldSelectionSet">fieldSelectionSet</var> is null or empty, continue to the next field.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L775">Append all selections in <var data-name="fieldSelectionSet">fieldSelectionSet</var> to <var data-name="selectionSet">selectionSet</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L772">Let <var data-name="selectionSet">selectionSet</var> be an empty list.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L773-L776">For each <var data-name="field">field</var> in <var data-name="fields">fields</var>:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L774">Let <var data-name="fieldSelectionSet">fieldSelectionSet</var> be the selection set of <var data-name="field">field</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L775">If <var data-name="fieldSelectionSet">fieldSelectionSet</var> is null or empty, continue to the next field.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L776">Append all selections in <var data-name="fieldSelectionSet">fieldSelectionSet</var> to <var data-name="selectionSet">selectionSet</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L776">Return <var data-name="selectionSet">selectionSet</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L777">Return <var data-name="selectionSet">selectionSet</var>.</li>
 </ol>
 </div>
 </section>
 </section>
 <section id="sec-Handling-Field-Errors" secid="6.4.4">
-<h3 data-source="spec/Section%206%20--%20Execution.md#L778"><span class="spec-secid" title="link to this section"><a href="#sec-Handling-Field-Errors">6.4.4</a></span>Handling Field Errors</h3>
-<p data-source="spec/Section%206%20--%20Execution.md#L780-L782">A <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span> is an error raised from a particular field during value resolution or coercion. While these errors should be reported in the response, they are &ldquo;handled&rdquo; by producing a partial response.</p>
-<div id="note-4c9fd" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L784-L785">
+<h3 data-source="spec/Section%206%20--%20Execution.md#L779"><span class="spec-secid" title="link to this section"><a href="#sec-Handling-Field-Errors">6.4.4</a></span>Handling Field Errors</h3>
+<p data-source="spec/Section%206%20--%20Execution.md#L781-L783">A <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span> is an error raised from a particular field during value resolution or coercion. While these errors should be reported in the response, they are &ldquo;handled&rdquo; by producing a partial response.</p>
+<div id="note-4c9fd" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L785-L786">
 <a href="#note-4c9fd">Note</a>
 This is distinct from a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> which results in a response with no data.</div>
-<p data-source="spec/Section%206%20--%20Execution.md#L787-L789">If a field error is raised while resolving a field, it is handled as though the field returned <span class="spec-keyword">null</span>, and the error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L791-L794">If the result of resolving a field is <span class="spec-keyword">null</span> (either because the function to resolve the field returned <span class="spec-keyword">null</span> or because a field error was raised), and that field is of a <code>Non-Null</code> type, then a field error is raised. The error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L796-L799">If the field returns <span class="spec-keyword">null</span> because of a field error which has already been added to the <span class="spec-string">"errors"</span> list in the response, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per field.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L801-L804">Since <code>Non-Null</code> type fields cannot be <span class="spec-keyword">null</span>, field errors are propagated to be handled by the parent field. If the parent field may be <span class="spec-keyword">null</span> then it resolves to <span class="spec-keyword">null</span>, otherwise if it is a <code>Non-Null</code> type, the field error is further propagated to its parent field.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L806-L809">If a <code>List</code> type wraps a <code>Non-Null</code> type, and one of the elements of that list resolves to <span class="spec-keyword">null</span>, then the entire list must resolve to <span class="spec-keyword">null</span>. If the <code>List</code> type is also wrapped in a <code>Non-Null</code>, the field error continues to propagate upwards.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L811-L814">If all fields from the root of the request to the source of the field error return <code>Non-Null</code> types, then the <span class="spec-string">"data"</span> entry in the response should be <span class="spec-keyword">null</span>. </p>
+<p data-source="spec/Section%206%20--%20Execution.md#L788-L790">If a field error is raised while resolving a field, it is handled as though the field returned <span class="spec-keyword">null</span>, and the error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L792-L795">If the result of resolving a field is <span class="spec-keyword">null</span> (either because the function to resolve the field returned <span class="spec-keyword">null</span> or because a field error was raised), and that field is of a <code>Non-Null</code> type, then a field error is raised. The error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L797-L800">If the field returns <span class="spec-keyword">null</span> because of a field error which has already been added to the <span class="spec-string">"errors"</span> list in the response, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per field.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L802-L805">Since <code>Non-Null</code> type fields cannot be <span class="spec-keyword">null</span>, field errors are propagated to be handled by the parent field. If the parent field may be <span class="spec-keyword">null</span> then it resolves to <span class="spec-keyword">null</span>, otherwise if it is a <code>Non-Null</code> type, the field error is further propagated to its parent field.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L807-L810">If a <code>List</code> type wraps a <code>Non-Null</code> type, and one of the elements of that list resolves to <span class="spec-keyword">null</span>, then the entire list must resolve to <span class="spec-keyword">null</span>. If the <code>List</code> type is also wrapped in a <code>Non-Null</code>, the field error continues to propagate upwards.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L812-L815">If all fields from the root of the request to the source of the field error return <code>Non-Null</code> types, then the <span class="spec-string">"data"</span> entry in the response should be <span class="spec-keyword">null</span>. </p>
 </section>
 </section>
 </section>
