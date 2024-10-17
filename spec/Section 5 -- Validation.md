@@ -42,7 +42,8 @@ type Query {
 }
 
 type Mutation {
-  addPet(pet: PetInput): Pet
+  addPet(pet: PetInput!): Pet
+  addPets(pet: [PetInput!]!): [Pet]
 }
 
 enum DogCommand {
@@ -1351,6 +1352,12 @@ query goodComplexDefaultValue($search: FindDogInput = { name: "Fido" }) {
     name
   }
 }
+
+mutation addPet($pet: PetInput! = { cat: { name: "Brontie" } }) {
+  addPet(pet: $pet) {
+    name
+  }
+}
 ```
 
 Non-coercible values (such as a String into an Int) are invalid. The following
@@ -1363,6 +1370,24 @@ fragment stringIntoInt on Arguments {
 
 query badComplexValue {
   findDog(searchBy: { name: 123 }) {
+    name
+  }
+}
+
+mutation oneOfWithNoFields {
+  addPet(pet: {}) {
+    name
+  }
+}
+
+mutation oneOfWithTwoFields($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+
+mutation listOfOneOfWithNullableVariable($dog: DogInput) {
+  addPets(pets: [{ dog: $dog }]) {
     name
   }
 }
