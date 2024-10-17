@@ -144,7 +144,7 @@ extend type Dog {
 - For each operation definition {operation} in the document:
   - Let {rootOperationType} be the _root operation type_ in {schema}
     corresponding to the kind of {operation}.
-  - {operationRootType} must exist.
+  - {rootOperationType} must exist.
 
 **Explanatory Text**
 
