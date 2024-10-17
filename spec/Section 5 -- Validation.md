@@ -2004,7 +2004,12 @@ Similarly a `[T]` cannot be passed to a `[T!]`.
 Variables used for OneOf Input Object fields must be non-nullable.
 
 ```graphql example
-mutation addPet($cat: CatInput!) {
+mutation addCat($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+mutation addCatWithDefault($cat: CatInput! = { name: "Brontie" }) {
   addPet(pet: { cat: $cat }) {
     name
   }
@@ -2012,17 +2017,12 @@ mutation addPet($cat: CatInput!) {
 ```
 
 ```graphql counter-example
-mutation addPet($cat: CatInput) {
+mutation addNullableCat($cat: CatInput) {
   addPet(pet: { cat: $cat }) {
     name
   }
 }
-```
-
-Variables used for OneOf Input Object fields cannot have default values.
-
-```graphql counter-example
-mutation addPet($cat: CatInput = { name: "Kitty" }) {
+mutation addNullableCatWithDefault($cat: CatInput = { name: "Brontie" }) {
   addPet(pet: { cat: $cat }) {
     name
   }
