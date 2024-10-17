@@ -1688,7 +1688,7 @@ rules apply:
   entry an error must be thrown.
 
 - Within the input object literal or unordered map, if the single entry is
-  {null} an error must be thrown.
+  {null} or the {null} literal an error must be thrown.
 
 - If the coerced unordered map does not contain exactly one entry an error must
   be thrown.
