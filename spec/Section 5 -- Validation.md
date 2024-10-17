@@ -148,30 +148,13 @@ extend type Dog {
 
 **Explanatory Text**
 
-A schema defines the root operation types that it supports. Any document that
-contains an operation of a type unsupported by the schema is invalid, since such
-an operation cannot be executed.
+A schema defines the root operation type for each kind of operation that it
+supports. Every schema must support `query` operations, however support for
+`mutation` and `subscription` operations is optional.
 
-While query operations are required for all schemas, mutation and subscription
-operations are optional. If the schema does not include the necessary type for a
-mutation or subscription operation defined in the document, it will be
-considered invalid.
-
-For example, the following document is valid if the schema includes a Mutation
-type, but invalid if it does not:
-
-```graphql example
-mutation {
-  likeStory(storyID: 12345) {
-    story {
-      likeCount
-    }
-  }
-}
-```
-
-Each operation must reference an operation type which has a valid root type in
-the schema.
+If the schema does not include the necessary _root operation type_ for an
+operation defined in the document, that operation is invalid since it cannot be
+executed.
 
 For example given the following schema:
 
