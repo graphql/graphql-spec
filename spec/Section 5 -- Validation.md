@@ -148,13 +148,13 @@ extend type Dog {
 
 **Explanatory Text**
 
-A schema defines the root operation type for each kind of operation that it
+A schema defines the _root operation type_ for each kind of operation that it
 supports. Every schema must support `query` operations, however support for
 `mutation` and `subscription` operations is optional.
 
-If the schema does not include the necessary _root operation type_ for an
-operation defined in the document, that operation is invalid since it cannot be
-executed.
+If the schema does not include the necessary _root operation type_ for the kind
+of an operation defined in the document, that operation is invalid since it
+cannot be executed.
 
 For example given the following schema:
 
