@@ -92,10 +92,14 @@ Conformance requirements expressed as algorithms can be fulfilled by an
 implementation of this specification in any way as long as the perceived result
 is equivalent. Algorithms described in this document are written to be easy to
 understand. Implementers are encouraged to include equivalent but optimized
-implementations.
+implementations. Similarly, data collections such as _list_, _set_ and _map_
+also introduce conformance requirements. Implementers are free to use
+alternative data collections as long as the perceived result remains equivalent.
 
 See [Appendix A](#sec-Appendix-Notation-Conventions) for more details about the
-definition of algorithms and other notational conventions used in this document.
+definition of algorithms and other notational conventions used in this document,
+and [Appendix A: Data Collections](#sec-Data-Collections) for specifics of data
+collections and their ordering.
 
 **Non-Normative Portions**
 
