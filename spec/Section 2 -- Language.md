@@ -288,8 +288,8 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
 Each operation is represented by an optional operation name and a _selection
 set_.
