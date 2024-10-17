@@ -1,11 +1,12 @@
 # Response
 
-When a GraphQL service receives a request, it must return a well-formed
+When a GraphQL service receives a _request_, it must return a well-formed
 response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors raised during the request.
 
-A response may contain both a partial response as well as any field errors in
-the case that a field error was raised on a field and was replaced with {null}.
+A response may contain both a partial response as well as a list of errors in
+the case that any _field error_ was raised on a field and was replaced with
+{null}.
 
 ## Response Format
 
@@ -22,7 +23,7 @@ request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry, if
-set, must have a map as its value. This entry is reserved for implementors to
+set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
@@ -49,46 +50,49 @@ If an error was raised during the execution that prevented a valid response, the
 
 ### Errors
 
-The `errors` entry in the response is a non-empty list of errors, where each
-error is a map.
+The `errors` entry in the response is a non-empty list of errors raised during
+the _request_, where each error is a map of data described by the error result
+format below.
 
-If no errors were raised during the request, the `errors` entry should not be
+If present, the `errors` entry in the response must contain at least one error.
+If no errors were raised during the request, the `errors` entry must not be
 present in the result.
 
-If the `data` entry in the response is not present, the `errors` entry in the
-response must not be empty. It must contain at least one error. The errors it
-contains should indicate why no data was able to be returned.
+If the `data` entry in the response is not present, the `errors` entry must be
+present. It must contain at least one _request error_ indicating why no data was
+able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry in the response may contain any field errors that
-were raised during execution. If field errors were raised during execution, it
-should contain those errors.
+{null}), the `errors` entry must be present if and only if one or more _field
+error_ was raised during execution.
 
-**Request errors**
+**Request Errors**
 
-Request errors are raised before execution begins. This may occur due to a parse
-grammar or validation error in the requested document, an inability to determine
-which operation to execute, or invalid input values for variables.
+:: A _request error_ is an error raised during a _request_ which results in no
+response data. Typically raised before execution begins, a request error may
+occur due to a parse grammar or validation error in the _Document_, an inability
+to determine which operation to execute, or invalid input values for variables.
 
-Request errors are typically the fault of the requesting client.
+A request error is typically the fault of the requesting client.
 
-If a request error is raised, execution does not begin and the `data` entry in
-the response must not be present. The `errors` entry must include the error.
+If a request error is raised, the `data` entry in the response must not be
+present, the `errors` entry must include the error, and request execution should
+be halted.
 
-**Field errors**
+**Field Errors**
 
-Field errors are raised during execution from a particular field. This may occur
-due to an internal error during value resolution or failure to coerce the
-resulting value.
+:: A _field error_ is an error raised during the execution of a particular field
+which results in partial response data. This may occur due to an internal error
+during value resolution or failure to coerce the resulting value.
 
-Field errors are typically the fault of GraphQL service.
+A field error is typically the fault of a GraphQL service.
 
 If a field error is raised, execution attempts to continue and a partial result
 is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)). The
 `data` entry in the response must be present. The `errors` entry should include
-all raised field errors.
+this error.
 
-**Error result format**
+**Error Result Format**
 
 Every error must contain an entry with the key `message` with a string
 description of the error intended for the developer as a guide to understand and
@@ -105,11 +109,11 @@ must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
 `null` result is intentional or caused by a runtime error.
 
-This field should be a list of path segments starting at the root of the
-response and ending with the field associated with the error. Path segments that
-represent fields should be strings, and path segments that represent list
-indices should be 0-indexed integers. If the error happens in an aliased field,
-the path to the error should use the aliased name, since it represents a path in
+If present, this field must be a list of path segments starting at the root of
+the response and ending with the field associated with the error. Path segments
+that represent fields must be strings, and path segments that represent list
+indices must be 0-indexed integers. If the error happens in an aliased field,
+the path to the error must use the aliased name, since it represents a path in
 the response, not in the request.
 
 For example, if fetching one of the friends' names fails in the following
@@ -199,7 +203,7 @@ be the same:
 
 GraphQL services may provide an additional entry to errors with key
 `extensions`. This entry, if set, must have a map as its value. This entry is
-reserved for implementors to add additional information to errors however they
+reserved for implementers to add additional information to errors however they
 see fit, and there are no additional restrictions on its contents.
 
 ```json example
@@ -290,13 +294,13 @@ JSON format throughout this document.
 
 ### Serialized Map Ordering
 
-Since the result of evaluating a selection set is ordered, the serialized Map of
-results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by selection set execution. Producing
-a serialized response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can be
-anticipated.
+Since the result of evaluating a _selection set_ is ordered, the serialized Map
+of results should preserve this order by writing the map entries in the same
+order as those fields were requested as defined by selection set execution.
+Producing a serialized response where fields are represented in the same order
+in which they appear in the request improves human readability during debugging
+and enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 Serialization formats which represent an ordered map should preserve the order
 of requested fields as defined by {CollectFields()} in the Execution section.
