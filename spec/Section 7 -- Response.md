@@ -308,6 +308,10 @@ response fields contained in the deferred fragment are not known to be complete.
 Clients should expect the the GraphQL Service to incrementally deliver the
 remainder of the fields contained in the deferred fragment.
 
+If the associated `@defer` or `@stream` directive contains a `label` argument,
+the Pending Result must contain an entry `label` with the value of this
+argument.
+
 If a Pending Result is not returned for a `@defer` or `@stream` directive,
 clients must assume that the GraphQL service chose not to incrementally deliver
 this data, and the data can be found either in the `data` entry in the initial
@@ -426,7 +430,199 @@ present, it informs clients that the delivery of the data associated with the
 corresponding Pending Result has failed, due to an error bubbling to a path
 higher than the Incremental Data Result's path. The `errors` entry must contain
 these field errors. The value of this entry is described in the "Errors"
-section.e
+section.
+
+### Examples
+
+#### A query containing both defer and stream:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    name
+    films @stream(initialCount: 1, label: "filmsStream") {
+      title
+    }
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Payload 1, the initial response does not contain any deferred or streamed
+results in the `data` entry. The initial response contains a `hasNext` entry,
+indicating that subsequent payloads will be delivered. There are two Pending
+Responses indicating that results for both the `@defer` and `@stream` in the
+query will be delivered in the subsequent payloads.
+
+```json example
+{
+  "data": {
+    "person": {
+      "name": "Luke Skywalker",
+      "films": [{ "title": "A New Hope" }]
+    }
+  },
+  "pending": [
+    { "id": "0", "path": ["person"], "label": "homeWorldDefer" },
+    { "id": "1", "path": ["person", "films"], "label": "filmsStream" }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 2, contains the deferred data and the first streamed list item. There is
+one Completed Result, indicating that the deferred data has been completely
+delivered.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "0",
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "id": "1",
+      "items": [{ "title": "The Empire Strikes Back" }]
+    }
+  ],
+  "completed": [
+    {"id": "0"}
+  ]
+  "hasNext": true
+}
+```
+
+Payload 3, contains the final stream payload. In this example, the underlying
+iterator does not close synchronously so {hasNext} is set to {true}. If this
+iterator did close synchronously, {hasNext} would be set to {false} and this
+would be the final response.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "1",
+      "items": [{ "title": "Return of the Jedi" }]
+    }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 4, contains no incremental data. {hasNext} set to {false} indicates the
+end of the response stream. This response is sent when the underlying iterator
+of the `films` field closes.
+
+```json example
+{
+  "hasNext": false
+}
+```
+
+### Examples
+
+#### A query containing overlapping defers:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    ...NameAndHomeWorldFragment @defer(label: "nameAndWorld")
+    firstName
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+    terrain
+  }
+}
+
+fragment NameAndHomeWorldFragment on Person {
+  firstName
+  lastName
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Payload 1, the initial response contains the results of the `firstName` field.
+Even though it is also present in the `HomeWorldFragment`, it must be returned
+in the initial payload because it is also defined outside of any fragments with
+the `@defer` directive. Additionally, There are two Pending Responses indicating
+that results for both `@defer`s in the query will be delivered in the subsequent
+payloads.
+
+```json example
+{
+  "data": {
+    "person": {
+      "firstName": "Luke"
+    }
+  },
+  "pending": [
+    { "id": "0", "path": ["person"], "label": "homeWorldDefer" },
+    { "id": "1", "path": ["person"], "label": "nameAndWorld" }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 2, contains the deferred data from `HomeWorldFragment`. There is one
+Completed Result, indicating that `HomeWorldFragment` has been completely
+delivered. Because the `homeWorld` field is present in two separate `@defer`s,
+it is separated into its own Incremental Result.
+
+The second Incremental Result contains the data for the `terrain` field. This
+incremental result contains a `subPath` property to indicate to clients that the
+path of this result can be determined by concatenating the path from the Pending
+Result with id `"0"` and this `subPath` entry.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "0",
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "id": "0",
+      "subPath": ["homeWorld"],
+      "data": { "terrain": "desert" }
+    }
+  ],
+  "completed": [{ "id": "0" }],
+  "hasNext": true
+}
+```
+
+Payload 3, contains the remaining data from the `NameAndHomeWorldFragment`.
+`lastName` is the only remaining field that has not been delivered in a previous
+payload.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "1",
+      "data": { "lastName": "Skywalker" }]
+    }
+  ],
+  "completed": [{"id": "1"}],
+  "hasNext": false
+}
+```
 
 ## Serialization Format
 
@@ -504,3 +700,7 @@ encode the same value, they also have observably different property orderings.
 
 Note: This does not violate the JSON spec, as clients may still interpret
 objects in the response as unordered Maps and arrive at a valid value.
+
+```
+
+```
