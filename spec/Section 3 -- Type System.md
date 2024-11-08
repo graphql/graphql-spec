@@ -1943,11 +1943,6 @@ by a validator, executor, or client tool such as a code generator.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
 
-GraphQL implementations are not required to implement the `@defer` and `@stream`
-directives. If either or both of these directives are implemented, they must be
-implemented according to this specification. GraphQL implementations that do not
-support these directives must not make them available via introspection.
-
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
@@ -2171,6 +2166,14 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 
 ### @defer
 
+GraphQL implementations are not required to implement the `@defer` and `@stream`
+directives. If either or both of these directives are implemented, they must be
+implemented according to this specification. GraphQL implementations that do not
+support these directives must not make them available via introspection. The
+[Directives Are Defined](#sec-Directives-Are-Defined) validation rule will
+prevent GraphQL Operations containing the `@defer` or `@stream` directive from
+being executed by a GraphQL service that does not implement these directives.
+
 ```graphql
 directive @defer(
   label: String
@@ -2182,9 +2185,8 @@ The `@defer` directive may be provided for fragment spreads and inline fragments
 to inform the executor to delay the execution of the current fragment to
 indicate deprioritization of the current fragment. A query with `@defer`
 directive will cause the request to potentially return multiple responses, where
-non-deferred data is delivered in the initial response and data deferred is
-delivered in a subsequent response. `@include` and `@skip` take precedence over
-`@defer`.
+deferred data is delivered in subsequent responses. `@include` and `@skip` take
+precedence over `@defer`.
 
 ```graphql example
 query myQuery($shouldDefer: Boolean) {
@@ -2226,7 +2228,10 @@ directive @stream(
 The `@stream` directive may be provided for a field of `List` type so that the
 backend can leverage technology such as asynchronous iterators to provide a
 partial list in the initial response, and additional list items in subsequent
-responses. `@include` and `@skip` take precedence over `@stream`.
+responses. `@include` and `@skip` take precedence over `@stream`. The
+[Stream Directives Are Used On List Fields](#sec-Stream-Directives-Are-Used-On-List-Fields)
+validation rule is used to prevent the `@stream` directive from being applied to
+a field that is not a `List` type.
 
 ```graphql example
 query myQuery($shouldStream: Boolean) {
