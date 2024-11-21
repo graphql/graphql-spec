@@ -1947,6 +1947,14 @@ GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
 schema.
 
+GraphQL services are not required to implement the `@defer` and `@stream`
+directives. If either or both of these directives are implemented, they must be
+implemented according to this specification. GraphQL services that do not
+support these directives must not make them available via introspection. The
+[Directives Are Defined](#sec-Directives-Are-Defined) validation rule will
+prevent GraphQL Operations containing the `@defer` or `@stream` directive from
+being executed by a GraphQL service that does not implement these directives.
+
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
 
@@ -2165,14 +2173,6 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
 
 ### @defer
-
-GraphQL implementations are not required to implement the `@defer` and `@stream`
-directives. If either or both of these directives are implemented, they must be
-implemented according to this specification. GraphQL implementations that do not
-support these directives must not make them available via introspection. The
-[Directives Are Defined](#sec-Directives-Are-Defined) validation rule will
-prevent GraphQL Operations containing the `@defer` or `@stream` directive from
-being executed by a GraphQL service that does not implement these directives.
 
 ```graphql
 directive @defer(
