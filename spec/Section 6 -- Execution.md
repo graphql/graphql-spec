@@ -297,7 +297,12 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
     - Let {response} be the result of running
       {ExecuteSubscriptionEvent(subscription, schema, variableValues, event)}.
     - Yield an event containing {response}.
-  - When {sourceStream} completes: complete {responseStream}.
+  - When {sourceStream} completes:
+    - If {sourceStream} completed with an {error}:
+      - Let {errors} be a list containing {error}.
+      - Let {response} be an unordered map containing {errors}.
+      - Yield an event containing {response}.
+    - Complete {responseStream}.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
