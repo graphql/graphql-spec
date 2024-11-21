@@ -306,10 +306,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
     sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
-    - Let {errors} be a list containing {error}.
-    - Let {response} be an unordered map containing {errors}.
-    - Emit {response} on {responseStream}.
-    - Complete {responseStream} normally.
+    - Complete {responseStream} with {error}.
   - Otherwise emit {response} on {responseStream}.
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
