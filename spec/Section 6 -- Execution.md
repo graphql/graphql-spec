@@ -306,12 +306,18 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
     sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
-    - Perform {EmitErrorAndComplete(responseStream, error)}.
+    - Let {errors} be a list containing {error}.
+    - Let {response} be an unordered map containing {errors}.
+    - Emit {response} on {responseStream}.
+    - Complete {responseStream} normally.
   - Otherwise emit {response} on {responseStream}.
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
 - When {sourceStream} completes with {error}:
-  - Perform {EmitErrorAndComplete(responseStream, error)}.
+  - Let {errors} be a list containing {error}.
+  - Let {response} be an unordered map containing {errors}.
+  - Emit {response} on {responseStream}.
+  - Complete {responseStream} normally.
 - When {responseStream} is cancelled:
   - Cancel {sourceStream}.
   - Complete {responseStream} normally.
@@ -336,13 +342,6 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
-
-EmitErrorAndComplete(responseStream, error):
-
-- Let {errors} be a list containing {error}.
-- Let {response} be an unordered map containing {errors}.
-- Emit {response} on {responseStream}.
-- Complete {responseStream} normally.
 
 #### Unsubscribe
 
