@@ -2102,7 +2102,7 @@ condition is false.
 ```graphql
 directive @deprecated(
   reason: String = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | OBJECT
 ```
 
 The `@deprecated` _built-in directive_ is used within the type system definition
@@ -2142,6 +2142,36 @@ type ExampleType {
 
 To deprecate a required argument or input field, it must first be made optional
 by either changing the type to nullable or adding a default value.
+
+The `@deprecated` directive is useful for object types that are included in
+unions or interfaces. Deprecating the type indicates to clients that the server
+will no longer be returning this type and clients should remove references to
+this type in their queries.
+
+```graphql example
+type Query {
+  returnsUnion: MyUnion
+}
+
+union MyUnion = ExampleType | DeprecatedType
+
+type DeprecatedType @deprecated {
+  id: ID
+}
+```
+
+The `@deprecated` directive should not appear on object types that are
+referenced by non-deprecated fields.
+
+```graphql counter-example
+type Query {
+  returnsDeprecatedType: DeprecatedType
+}
+
+type DeprecatedType @deprecated {
+  id: ID
+}
+```
 
 ### @specifiedBy
 
