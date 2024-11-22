@@ -110,7 +110,7 @@ CommonMark-compliant Markdown renderer.
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
 input fields, and enum values can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`isDeprecated: Boolean!`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
