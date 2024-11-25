@@ -83,6 +83,23 @@ in any defined type.
 Note: `__typename` may not be included as a root field in a subscription
 operation.
 
+## Ordering
+
+Servers must preserve lexical ordering between SDL and introspection.
+
+For the given SDL:
+
+```graphql
+type MyType {
+  field1(arg1: String, arg2: Int): Boolean
+  field2: Boolean
+}
+```
+
+The introspection result must produce an ordered array of fields `[field1, field2]` for `MyType`
+and an ordered array of arguments `[arg1, arg2]` for `MyType.field1`.
+
+
 ## Schema Introspection
 
 The schema introspection system is accessible from the meta-fields `__schema`
