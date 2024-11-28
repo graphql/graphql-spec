@@ -1790,8 +1790,7 @@ CoerceListValue(value, listType):
 
 CoerceListItemValue(itemValue, itemType):
 
-- If {itemValue} is {null}, return {null}.
-- Otherwise, if {itemValue} is a Variable:
+- If {itemValue} is a Variable:
   - If the variable provides a runtime value:
     - Let {coercedItemValue} be the runtime value of the variable.
   - Otherwise, if the variable definition provides a default value:
