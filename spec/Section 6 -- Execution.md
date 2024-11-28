@@ -618,7 +618,7 @@ CoerceArgumentValues(objectType, field, variableValues):
       - Let {value} be the value provided in {variableValues} for the name
         {variableName}.
   - Otherwise if {argumentValues} provides a value for the name {argumentName}.
-    - Let {hasValue} be {true}
+    - Let {hasValue} be {true}.
     - Let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
     - Add an entry to {coercedValues} named {argumentName} with the value
