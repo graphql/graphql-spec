@@ -2207,10 +2207,10 @@ fragment someFragment on User {
 #### @defer Arguments
 
 - `if: Boolean! = true` - When `true`, fragment _should_ be deferred (see
-  related note below). When `false`, fragment will not be deferred and data will
-  be included in the initial response. Defaults to `true` when omitted.
+  related note below). When `false`, fragment will not be deferred. Defaults to
+  `true` when omitted.
 - `label: String` - An optional string literal (variables are disallowed) used
-  by GraphQL clients to identify data from responses and associate it with the
+  by GraphQL clients to identify data from payloads and associate it with the
   corresponding defer directive. If provided, the GraphQL service must include
   this label in the corresponding pending object within the response. The
   `label` argument must be unique across all `@defer` and `@stream` directives
@@ -2228,8 +2228,8 @@ directive @stream(
 
 The `@stream` directive may be provided for a field whose type incorporates a
 `List` type modifier; the directive enables the backend to leverage technology
-such as asynchronous iterators to provide a partial list in the initial payload,
-and additional list items in subsequent payloads.
+such as asynchronous iterators to provide a partial list initially, and
+additional list items in subsequent payloads.
 
 The `@include` and `@skip` directives take precedence over `@stream`.
 
@@ -2254,16 +2254,16 @@ query myQuery($shouldStream: Boolean! = true) {
 
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see related
   note below). When `false`, the field will not be streamed and all list items
-  will be included in the initial response. Defaults to `true` when omitted.
+  will be initially included. Defaults to `true` when omitted.
 - `label: String` - An optional string literal (variables are disallowed) used
-  by GraphQL clients to identify data from responses and associate it with the
+  by GraphQL clients to identify data from payloads and associate it with the
   corresponding stream directive. If provided, the GraphQL service must include
   this label in the corresponding pending object within the response. The
   `label` argument must be unique across all `@defer` and `@stream` directives
   in the document.
-- `initialCount: Int` - The number of list items the service should return as
-  part of the initial response. If omitted, defaults to `0`. A field error will
-  be raised if the value of this argument is less than `0`.
+- `initialCount: Int` - The number of list items the service should return
+  initially. If omitted, defaults to `0`. A field error will be raised if the
+  value of this argument is less than `0`.
 
 Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
