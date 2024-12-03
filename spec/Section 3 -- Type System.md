@@ -794,9 +794,8 @@ And will yield the subset of each object type queried:
 When querying an Object, the resulting mapping of fields are conceptually
 ordered in the same order in which they were encountered during execution,
 excluding fragments for which the type does not apply and fields or fragments
-that are skipped via `@skip` or `@include` directives or temporarily skipped via
-`@defer`. This ordering is correctly produced when using the {CollectFields()}
-algorithm.
+that are skipped via `@skip` or `@include` directives or postponed via `@defer`.
+This ordering is correctly produced when using the {CollectFields()} algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
