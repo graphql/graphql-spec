@@ -185,9 +185,9 @@ The response might look like:
 ```
 
 If the field which experienced an error was declared as `Non-Null`, the `null`
-result will propagate to the next nullable parent field. In that case, the
-`path` for the error should include the full path to the result field where the
-error was raised, even if that field is not present in the response.
+result will bubble up to the next nullable field. In that case, the `path` for
+the error should include the full path to the result field where the error was
+raised, even if that field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
@@ -360,13 +360,13 @@ Incremental List Result's `path`. This output will be a list of the same type of
 the response field at this path.
 
 If any field errors were raised during the execution of the results in `items`
-and these errors bubbled to a path higher than the Incremental List Result's
+and these errors propagate to a path higher than the Incremental List Result's
 path, The Incremental List Result is considered failed and should not be
 included in the response stream. The errors that caused this failure will be
 included in a Completed Result.
 
 If any field errors were raised during the execution of the results in `items`
-and these errors did not bubble to a path higher than the Incremental List
+and these errors did not propagate to a path higher than the Incremental List
 Result's path, the Incremental List Result must contain an entry with key
 `errors` containing these field errors. The value of this entry is described in
 the "Errors" section.
@@ -396,13 +396,13 @@ Incremental Object Result must point to the Pending Result that results in the
 shortest `subPath`.
 
 If any field errors were raised during the execution of the results in `data`
-and these errors bubbled to a path higher than the Incremental Object Result's
-path, The Incremental Object Result is considered failed and should not be
-included in the response stream. The errors that caused this failure will be
+and these errors propagated to a path higher than the Incremental Object
+Result's path, The Incremental Object Result is considered failed and should not
+be included in the response stream. The errors that caused this failure will be
 included in a Completed Result.
 
 If any field errors were raised during the execution of the results in `data`
-and these errors did not bubble to a path higher than the Incremental Object
+and these errors did not propagate to a path higher than the Incremental Object
 Result's path, the Incremental Object Result must contain an entry with key
 `errors` containing these field errors. The value of this entry is described in
 the "Errors" section.
