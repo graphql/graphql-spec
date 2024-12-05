@@ -3037,7 +3037,7 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
 <section id="sec--deprecated" secid="3.13.3">
 <h3 data-source="spec/Section%203%20--%20Type%20System.md#L2100"><span class="spec-secid" title="link to this section"><a href="#sec--deprecated">3.13.3</a></span>@deprecated</h3>
 <pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2102-L2106"><code><span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
-  <span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token operator">=</span> <span class="token string">"No longer supported"</span>
+  <span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token operator">=</span> <span class="token string">"No longer supported"</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span>
 </code></pre>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L2108-L2111">The <code>@deprecated</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to indicate deprecated portions of a GraphQL service&rsquo;s schema, such as deprecated fields on a type, arguments on a field, input fields on an input type, or values of an enum type.</p>
@@ -3149,7 +3149,7 @@ Details on implementing a GraphQL scalar specification can be found in the <a hr
 </section>
 <section id="sec-Schema-Introspection.Deprecation" class="subsec">
 <h6 data-source="spec/Section%204%20--%20Introspection.md#L109"><a href="#sec-Schema-Introspection.Deprecation" title="link to this subsection">Deprecation</a></h6>
-<p data-source="spec/Section%204%20--%20Introspection.md#L111-L114">To support the management of backwards compatibility, GraphQL fields, arguments, input fields, and enum values can indicate whether or not they are deprecated (<code>isDeprecated: Boolean</code>) along with a description of why it is deprecated (<code>deprecationReason: String</code>).</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L111-L114">To support the management of backwards compatibility, GraphQL fields, arguments, input fields, and enum values can indicate whether or not they are deprecated (<code>isDeprecated: Boolean!</code>) along with a description of why it is deprecated (<code>deprecationReason: String</code>).</p>
 <p data-source="spec/Section%204%20--%20Introspection.md#L116-L118">Tools built using GraphQL introspection should respect deprecation by discouraging deprecated use through information hiding or developer-facing warnings.</p>
 </section>
 <section id="sec-Schema-Introspection.Schema-Introspection-Schema" class="subsec">
@@ -3411,69 +3411,69 @@ Details on implementing a GraphQL scalar specification can be found in the <a hr
 </li>
 <li data-source="spec/Section%204%20--%20Introspection.md#L423-L424"><code>type</code> must return a <code>__Type</code> that represents the type of value returned by this field.</li>
 <li data-source="spec/Section%204%20--%20Introspection.md#L425-L426"><code>isDeprecated</code> returns <span class="spec-keyword">true</span> if this field should no longer be used, otherwise <span class="spec-keyword">false</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L427"><code>deprecationReason</code> optionally provides a reason why this field is deprecated.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L427-L428"><code>deprecationReason</code> returns the reason why this field is deprecated, or null if this field is not deprecated.</li>
 </ul>
 </section>
 <section id="sec-The-__InputValue-Type" secid="4.2.4">
-<h3 data-source="spec/Section%204%20--%20Introspection.md#L429"><span class="spec-secid" title="link to this section"><a href="#sec-The-__InputValue-Type">4.2.4</a></span>The __InputValue Type</h3>
-<p data-source="spec/Section%204%20--%20Introspection.md#L431-L432">The <code>__InputValue</code> type represents field and directive arguments as well as the <code>inputFields</code> of an input object.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L434">Fields:</p>
+<h3 data-source="spec/Section%204%20--%20Introspection.md#L430"><span class="spec-secid" title="link to this section"><a href="#sec-The-__InputValue-Type">4.2.4</a></span>The __InputValue Type</h3>
+<p data-source="spec/Section%204%20--%20Introspection.md#L432-L433">The <code>__InputValue</code> type represents field and directive arguments as well as the <code>inputFields</code> of an input object.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L435">Fields:</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L436"><code>name</code> must return a String.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L437"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L438-L439"><code>type</code> must return a <code>__Type</code> that represents the type this input value expects.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L440-L442"><code>defaultValue</code> may return a String encoding (using the GraphQL language) of the default value used by this input value in the condition a value is not provided at runtime. If this input value has no default value, returns <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L443-L444"><code>isDeprecated</code> returns <span class="spec-keyword">true</span> if this input field or argument should no longer be used, otherwise <span class="spec-keyword">false</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L445-L446"><code>deprecationReason</code> optionally provides a reason why this input field or argument is deprecated.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L437"><code>name</code> must return a String.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L438"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L439-L440"><code>type</code> must return a <code>__Type</code> that represents the type this input value expects.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L441-L443"><code>defaultValue</code> may return a String encoding (using the GraphQL language) of the default value used by this input value in the condition a value is not provided at runtime. If this input value has no default value, returns <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L444-L445"><code>isDeprecated</code> returns <span class="spec-keyword">true</span> if this input field or argument should no longer be used, otherwise <span class="spec-keyword">false</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L446-L447"><code>deprecationReason</code> returns the reason why this input field or argument is deprecated, or null if the input field or argument is not deprecated.</li>
 </ul>
 </section>
 <section id="sec-The-__EnumValue-Type" secid="4.2.5">
-<h3 data-source="spec/Section%204%20--%20Introspection.md#L448"><span class="spec-secid" title="link to this section"><a href="#sec-The-__EnumValue-Type">4.2.5</a></span>The __EnumValue Type</h3>
-<p data-source="spec/Section%204%20--%20Introspection.md#L450">The <code>__EnumValue</code> type represents one of possible values of an enum.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L452">Fields:</p>
+<h3 data-source="spec/Section%204%20--%20Introspection.md#L449"><span class="spec-secid" title="link to this section"><a href="#sec-The-__EnumValue-Type">4.2.5</a></span>The __EnumValue Type</h3>
+<p data-source="spec/Section%204%20--%20Introspection.md#L451">The <code>__EnumValue</code> type represents one of possible values of an enum.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L453">Fields:</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L454"><code>name</code> must return a String.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L455"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L456-L457"><code>isDeprecated</code> returns <span class="spec-keyword">true</span> if this enum value should no longer be used, otherwise <span class="spec-keyword">false</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L458-L459"><code>deprecationReason</code> optionally provides a reason why this enum value is deprecated.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L455"><code>name</code> must return a String.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L456"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L457-L458"><code>isDeprecated</code> returns <span class="spec-keyword">true</span> if this enum value should no longer be used, otherwise <span class="spec-keyword">false</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L459-L460"><code>deprecationReason</code> returns the reason why this enum value is deprecated, or null if the enum value is not deprecated.</li>
 </ul>
 </section>
 <section id="sec-The-__Directive-Type" secid="4.2.6">
-<h3 data-source="spec/Section%204%20--%20Introspection.md#L461"><span class="spec-secid" title="link to this section"><a href="#sec-The-__Directive-Type">4.2.6</a></span>The __Directive Type</h3>
-<p data-source="spec/Section%204%20--%20Introspection.md#L463">The <code>__Directive</code> type represents a directive that a service supports.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L465">This includes both any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> and any <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span>.</p>
-<p data-source="spec/Section%204%20--%20Introspection.md#L467-L468">Individual directives may only be used in locations that are explicitly supported. All possible locations are listed in the <code>__DirectiveLocation</code> enum:</p>
+<h3 data-source="spec/Section%204%20--%20Introspection.md#L462"><span class="spec-secid" title="link to this section"><a href="#sec-The-__Directive-Type">4.2.6</a></span>The __Directive Type</h3>
+<p data-source="spec/Section%204%20--%20Introspection.md#L464">The <code>__Directive</code> type represents a directive that a service supports.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L466">This includes both any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> and any <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span>.</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L468-L469">Individual directives may only be used in locations that are explicitly supported. All possible locations are listed in the <code>__DirectiveLocation</code> enum:</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L470"><span class="spec-string">"QUERY"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L471"><span class="spec-string">"MUTATION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L472"><span class="spec-string">"SUBSCRIPTION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L473"><span class="spec-string">"FIELD"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L474"><span class="spec-string">"FRAGMENT_DEFINITION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L475"><span class="spec-string">"FRAGMENT_SPREAD"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L476"><span class="spec-string">"INLINE_FRAGMENT"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L477"><span class="spec-string">"VARIABLE_DEFINITION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L478"><span class="spec-string">"SCHEMA"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L479"><span class="spec-string">"SCALAR"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L480"><span class="spec-string">"OBJECT"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L481"><span class="spec-string">"FIELD_DEFINITION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L482"><span class="spec-string">"ARGUMENT_DEFINITION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L483"><span class="spec-string">"INTERFACE"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L484"><span class="spec-string">"UNION"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L485"><span class="spec-string">"ENUM"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L486"><span class="spec-string">"ENUM_VALUE"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L487"><span class="spec-string">"INPUT_OBJECT"</span></li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L488"><span class="spec-string">"INPUT_FIELD_DEFINITION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L471"><span class="spec-string">"QUERY"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L472"><span class="spec-string">"MUTATION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L473"><span class="spec-string">"SUBSCRIPTION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L474"><span class="spec-string">"FIELD"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L475"><span class="spec-string">"FRAGMENT_DEFINITION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L476"><span class="spec-string">"FRAGMENT_SPREAD"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L477"><span class="spec-string">"INLINE_FRAGMENT"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L478"><span class="spec-string">"VARIABLE_DEFINITION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L479"><span class="spec-string">"SCHEMA"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L480"><span class="spec-string">"SCALAR"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L481"><span class="spec-string">"OBJECT"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L482"><span class="spec-string">"FIELD_DEFINITION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L483"><span class="spec-string">"ARGUMENT_DEFINITION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L484"><span class="spec-string">"INTERFACE"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L485"><span class="spec-string">"UNION"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L486"><span class="spec-string">"ENUM"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L487"><span class="spec-string">"ENUM_VALUE"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L488"><span class="spec-string">"INPUT_OBJECT"</span></li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L489"><span class="spec-string">"INPUT_FIELD_DEFINITION"</span></li>
 </ul>
-<p data-source="spec/Section%204%20--%20Introspection.md#L490">Fields:</p>
+<p data-source="spec/Section%204%20--%20Introspection.md#L491">Fields:</p>
 <ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L492"><code>name</code> must return a String.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L493"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L494-L495"><code>locations</code> returns a List of <code>__DirectiveLocation</code> representing the valid locations this directive may be placed.</li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L496-L499"><code>args</code> returns a List of <code>__InputValue</code> representing the arguments this directive accepts.<ul>
-<li data-source="spec/Section%204%20--%20Introspection.md#L498-L499">Accepts the argument <code>includeDeprecated</code> which defaults to <span class="spec-keyword">false</span>. If <span class="spec-keyword">true</span>, deprecated arguments are also returned.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L493"><code>name</code> must return a String.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L494"><code>description</code> may return a String or <span class="spec-keyword">null</span>.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L495-L496"><code>locations</code> returns a List of <code>__DirectiveLocation</code> representing the valid locations this directive may be placed.</li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L497-L500"><code>args</code> returns a List of <code>__InputValue</code> representing the arguments this directive accepts.<ul>
+<li data-source="spec/Section%204%20--%20Introspection.md#L499-L500">Accepts the argument <code>includeDeprecated</code> which defaults to <span class="spec-keyword">false</span>. If <span class="spec-keyword">true</span>, deprecated arguments are also returned.</li>
 </ul>
 </li>
-<li data-source="spec/Section%204%20--%20Introspection.md#L500-L502"><code>isRepeatable</code> must return a Boolean that indicates if the directive may be used repeatedly at a single location. </li>
+<li data-source="spec/Section%204%20--%20Introspection.md#L501-L503"><code>isRepeatable</code> must return a Boolean that indicates if the directive may be used repeatedly at a single location. </li>
 </ul>
 </section>
 </section>
