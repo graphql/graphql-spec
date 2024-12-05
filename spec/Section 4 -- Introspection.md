@@ -110,7 +110,7 @@ CommonMark-compliant Markdown renderer.
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
 input fields, and enum values can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`isDeprecated: Boolean!`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
@@ -424,7 +424,8 @@ Fields\:
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this field is deprecated.
+- `deprecationReason` returns the reason why this field is deprecated, or null
+  if this field is not deprecated.
 
 ### The \_\_InputValue Type
 
@@ -442,8 +443,8 @@ Fields\:
   provided at runtime. If this input value has no default value, returns {null}.
 - `isDeprecated` returns {true} if this input field or argument should no longer
   be used, otherwise {false}.
-- `deprecationReason` optionally provides a reason why this input field or
-  argument is deprecated.
+- `deprecationReason` returns the reason why this input field or argument is
+  deprecated, or null if the input field or argument is not deprecated.
 
 ### The \_\_EnumValue Type
 
@@ -455,8 +456,8 @@ Fields\:
 - `description` may return a String or {null}.
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this enum value is
-  deprecated.
+- `deprecationReason` returns the reason why this enum value is deprecated, or
+  null if the enum value is not deprecated.
 
 ### The \_\_Directive Type
 

@@ -1780,7 +1780,9 @@ Following are examples of input coercion with various list types and values:
 | `[Int]`       | `1`              | `[1]`                       |
 | `[Int]`       | `null`           | `null`                      |
 | `[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`             |
-| `[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value |
+| `[[Int]]`     | `[1, 2, 3]`      | `[[1], [2], [3]]`           |
+| `[[Int]]`     | `[1, null, 3]`   | `[[1], null, [3]]`          |
+| `[[Int]]`     | `[[1], ["b"]]`   | Error: Incorrect item value |
 | `[[Int]]`     | `1`              | `[[1]]`                     |
 | `[[Int]]`     | `null`           | `null`                      |
 
@@ -2099,7 +2101,7 @@ condition is false.
 
 ```graphql
 directive @deprecated(
-  reason: String = "No longer supported"
+  reason: String! = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 

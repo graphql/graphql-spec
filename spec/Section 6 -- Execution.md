@@ -692,7 +692,8 @@ ResolveFieldValue(objectType, objectValue, fieldName, argumentValues):
 Note: It is common for {resolver} to be asynchronous due to relying on reading
 an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
-flow.
+flow. If the field is of a list type, each value in the collection of values
+returned by {resolver} may itself be retrieved asynchronously.
 
 ### Value Completion
 
