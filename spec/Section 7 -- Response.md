@@ -240,7 +240,7 @@ discouraged.
 
 ### Path
 
-A `path` field allows for the association to a particular field in a GraphQL
+:: A _path field_ allows for the association to a particular field in a GraphQL
 result. This field must be a list of path segments starting at the root of the
 response and ending with the field to be associated with. Path segments that
 represent fields must be strings, and path segments that represent list indices
@@ -248,7 +248,7 @@ must be 0-indexed integers. If the path is associated to an aliased field, the
 path must use the aliased name, since it represents a path in the response, not
 in the request.
 
-When the `path` field is present on an "Error result", it indicates the response
+When the _path field_ is present on an "Error result", it indicates the response
 field which experienced the error.
 
 ## Serialization Format
