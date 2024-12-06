@@ -1861,6 +1861,7 @@ non-null input type as invalid.
 **Type Validation**
 
 1. A Non-Null type must not wrap another Non-Null type.
+1. A Non-Null type must not wrap a Null-Only-On-Error type.
 
 ### Combining List and Non-Null
 
@@ -1893,6 +1894,83 @@ Following are examples of result coercion with various types and values:
 | `[Int!]!`     | `null`          | Error: Value cannot be null         |
 | `[Int!]!`     | `[1, 2, null]`  | Error: Item cannot be null          |
 | `[Int!]!`     | `[1, 2, Error]` | Error: Error occurred in item       |
+
+## Null-Only-On-Error
+
+The GraphQL Null-Only-On-Error type is an alternative to the GraphQL Non-Null
+type to disallow null unless accompanied by a field error. This type wraps an
+underlying type, and this type acts identically to that wrapped type, with the
+exception that {null} will result in a field error being raised. A trailing
+asterisk is used to denote a field that uses a Null-Only-On-Error type like
+this: `name: String*`.
+
+Null-Only-On-Error types are only valid for use as an _output type_; they must
+not be used as an _input type_.
+
+**Nullable vs. Optional**
+
+Fields that return Null-Only-On-Error types will never return the value {null}
+if queried _unless_ an error has been logged for that field.
+
+**Result Coercion**
+
+To coerce the result of a Null-Only-On-Error type, the coercion of the wrapped
+type should be performed. If that result was not {null}, then the result of
+coercing the Null-Only-On-Error type is that result. If that result was {null},
+then a _field error_ must be raised.
+
+Note: When a _field error_ is raised on a Null-Only-On-Error value, the error
+does not propagate to the parent field, instead {null} is used for the value.
+For more information on this process, see
+[Handling Field Errors](#sec-Handling-Field-Errors) within the Execution
+section.
+
+**Input Coercion**
+
+Null-Only-On-Error types are never valid inputs.
+
+**Type Validation**
+
+1. A Null-Only-On-Error type must wrap an _output type_.
+1. A Null-Only-On-Error type must not wrap another Null-Only-On-Error type.
+1. A Null-Only-On-Error type must not wrap a Non-Null type.
+
+### Combining List and Null-Only-On-Error
+
+The List and Null-Only-On-Error wrapping types can compose, representing more
+complex types. The rules for result coercion of Lists and Null-Only-On-Error
+types apply in a recursive fashion.
+
+For example if the inner item type of a List is Null-Only-On-Error (e.g.
+`[T*]`), then that List may not contain any {null} items unless associated field
+errors were raised. However if the inner type of a Null-Only-On-Error is a List
+(e.g. `[T]*`), then {null} is not accepted without an accompanying field error
+being raised, however an empty list is accepted.
+
+Following are examples of result coercion with various types and values:
+
+| Expected Type | Internal Value  | Coerced Result                              |
+| ------------- | --------------- | ------------------------------------------- |
+| `[Int]*`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]*`      | `null`          | `null` (With logged coercion error)         |
+| `[Int]*`      | `[1, 2, null]`  | `[1, 2, null]`                              |
+| `[Int]*`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int!]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int!]*`     | `null`          | `null` (With logged coercion error)         |
+| `[Int!]*`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
+| `[Int!]*`     | `[1, 2, Error]` | `null` (With logged error)                  |
+| `[Int*]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]`      | `null`          | `null`                                      |
+| `[Int*]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int*]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]!`     | `null`          | Error: Value cannot be null                 |
+| `[Int*]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int*]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]*`     | `null`          | `null` (With logged coercion error)         |
+| `[Int*]*`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]*`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
 
 ## Directives
 
@@ -1942,7 +2020,8 @@ by a validator, executor, or client tool such as a code generator.
 
 :: A _built-in directive_ is any directive defined within this specification.
 
-GraphQL implementations should provide the `@skip` and `@include` directives.
+GraphQL implementations should provide the `@skip`, `@include` and
+`@nullOnError` directives.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
@@ -2163,4 +2242,97 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+### @nullOnError
+
+```graphql
+directive @nullOnError on QUERY | MUTATION | SUBSCRIPTION
+```
+
+The `@nullOnError` _built-in directive_ may be provided on query, mutation and
+subscription operations, and disables the error propagation behavior described
+in [Handling Field Errors](#sec-Handling-Field-Errors) by treating all Non-Null
+types as if they were instead Null-Only-On-Error types.
+
+Note: This is useful for clients that still wish to receive sibling fields when
+an error on a Non-Null value occurs. Effectively, `@nullOnError` enables the
+client to opt in to handling errors locally; for example, a client might use
+this to limit the scope of null propagation to a fragment rather than the entire
+field, or to update a normalized store even when an error occurs.
+
+Consider the following schema:
+
+```graphql
+type Query {
+  me: Viewer
+}
+
+type Viewer {
+  username: String!
+  bestFriend: Viewer!
+}
+```
+
+If the `bestFriend` field were to return `null`, then the following operation:
+
+```graphql example
+query myQuery {
+  me {
+    username
+    bestFriend {
+      username
+    }
+  }
+}
+```
+
+Would return a result such as:
+
+```json example
+{
+  "errors": [
+    {
+      "message": "Value cannot be null",
+      "locations": [{ "line": 4, "column": 5 }],
+      "path": ["me", "bestFriend"]
+    }
+  ],
+  "data": {
+    "me": null
+  }
+}
+```
+
+However, if we apply the `@nullOnError` directive to our operation:
+
+```graphql example
+query myQuery @nullOnError {
+  me {
+    username
+    bestFriend {
+      username
+    }
+  }
+}
+```
+
+The result would contain identical errors, but the "me" field will be populated:
+
+```json example
+{
+  "errors": [
+    {
+      "message": "Value cannot be null",
+      "locations": [{ "line": 4, "column": 5 }],
+      "path": ["me", "bestFriend"]
+    }
+  ],
+  "data": {
+    "me": {
+      "username": "billy",
+      "bestFriend": null
+    }
+  }
+}
 ```
