@@ -5895,13 +5895,13 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <section id="sec-Data" secid="7.1.1">
 <h3 data-source="spec/Section%207%20--%20Response.md#L38"><span class="spec-secid" title="link to this section"><a href="#sec-Data">7.1.1</a></span>Data</h3>
 <p data-source="spec/Section%207%20--%20Response.md#L40-L43">The <code>data</code> entry in the response will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the query root operation type; if the operation was a mutation, this output will be an object of the mutation root operation type.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L45-L46">If an error was raised before execution begins, the <code>data</code> entry should not be present in the result.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L45-L46">If an error was raised before execution begins, the <code>data</code> entry should not be present in the response.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L48-L49">If an error was raised during the execution that prevented a valid response, the <code>data</code> entry in the response should be <code>null</code>.</p>
 </section>
 <section id="sec-Errors" secid="7.1.2">
 <h3 data-source="spec/Section%207%20--%20Response.md#L51"><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.2</a></span>Errors</h3>
 <p data-source="spec/Section%207%20--%20Response.md#L53-L55">The <code>errors</code> entry in the response is a non-empty list of errors raised during the <span class="spec-ref"><a href="#request" data-name="request">request</a></span>, where each error is a map of data described by the error result format below.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L57-L59">If present, the <code>errors</code> entry in the response must contain at least one error. If no errors were raised during the request, the <code>errors</code> entry must not be present in the result.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L57-L59">If present, the <code>errors</code> entry in the response must contain at least one error. If no errors were raised during the request, the <code>errors</code> entry must not be present in the response.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L61-L63">If the <code>data</code> entry in the response is not present, the <code>errors</code> entry must be present. It must contain at least one <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> indicating why no data was able to be returned.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L65-L67">If the <code>data</code> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <code>errors</code> entry must be present if and only if one or more <span class="spec-ref"><a href="#field-error" data-name="field-error">field error</a></span> was raised during execution.</p>
 <section id="sec-Errors.Request-Errors" class="subsec">
