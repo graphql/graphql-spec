@@ -43,7 +43,7 @@ of the query root operation type; if the operation was a mutation, this output
 will be an object of the mutation root operation type.
 
 If an error was raised before execution begins, the `data` entry should not be
-present in the result.
+present in the response.
 
 If an error was raised during the execution that prevented a valid response, the
 `data` entry in the response should be `null`.
@@ -56,7 +56,7 @@ format below.
 
 If present, the `errors` entry in the response must contain at least one error.
 If no errors were raised during the request, the `errors` entry must not be
-present in the result.
+present in the response.
 
 If the `data` entry in the response is not present, the `errors` entry must be
 present. It must contain at least one _request error_ indicating why no data was
