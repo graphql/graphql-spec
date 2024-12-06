@@ -1307,6 +1307,15 @@ fragment resourceFragment on Resource {
   - Let {type} be the type expected in the position {value} is found.
   - {value} must be coercible to {type}.
 
+Note: Because all variable usages must be allowed,
+[as specified below separately](#sec-All-Variable-Usages-Are-Allowed), it can be
+assumed that any variables found within input Values are within allowed
+positions. Because variable values are supplied only at runtime, validation of
+the supplied values is deferred to the {CoerceVariableValues()} algorithm
+[as part of execution](#sec-Coercing-Variable-Values). For the purpose of this
+algorithm, it can therefore be assumed that all variables found within input
+Values in a document are coercible.
+
 **Explanatory Text**
 
 Literal values must be compatible with the type expected in the position they
