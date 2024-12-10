@@ -44,6 +44,7 @@ Token ::
 - StringValue
 
 Punctuator ::
+
 - DotPunctuator
 - OtherPunctuator
 
@@ -420,6 +421,7 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_FIELD_DEFINITION`
 
 SchemaCoordinate :
+
 - Name
 - Name . Name
 - Name . Name ( Name : )
