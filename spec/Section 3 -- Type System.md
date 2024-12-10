@@ -282,7 +282,6 @@ Schema extensions have the potential to be invalid if incorrectly defined.
 2. Any non-repeatable directives provided must not already apply to the original
    Schema.
 
-
 ## Types
 
 TypeDefinition :

@@ -44,8 +44,8 @@ Token ::
 - StringValue
 
 Punctuator ::
-  - DotPunctuator
-  - OtherPunctuator
+- DotPunctuator
+- OtherPunctuator
 
 DotPunctuator :: `.` [lookahead != {`.`, Digit}]
 
