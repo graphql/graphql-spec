@@ -2182,7 +2182,7 @@ _schema element_ within a GraphQL Schema.
 field, enum value, field argument, directive, or directive argument.
 
 A _schema coordinate_ is always unique. Each _schema element_ may be referenced
-by exactly one possible schema coordinate. There is a bidirectional 1:1 mapping.
+by exactly one possible schema coordinate.
 
 A _schema coordinate_ may refer to either a defined or built-in _schema
 element_. For example, `String` and `@deprecated(reason:)` are both valid schema
@@ -2190,9 +2190,9 @@ coordinates which refer to built-in schema elements. However it must not refer
 to a meta-field. For example, `Business.__typename` is _not_ a valid schema
 coordinate.
 
-Note: Unions members are not valid schema coordinates since they are references
-to existing types in the schema. This preserves the 1:1 mapping property of
-schema coordinates as stated above.
+Note: A union member is not a valid _schema coordinate_ as they reference
+existing types in the schema. This preserves the uniqueness property of a
+_schema coordinate_ as stated above.
 
 Note: A {SchemaCoordinate} is not a definition within a GraphQL {Document}, but
 a separate standalone grammar, intended to be used by tools to reference types,
