@@ -19,8 +19,8 @@ A GraphQL service generates a response from a request via execution.
   protocol however they see fit.
 
 Note: Since future versions of the specification may add more information,
-implementers should not add top level keys to requests; instead, {extensions}
-provides implementers a reserved location to include additional information. If
+implementers should not extend requests directly; instead, {extensions} provides
+a reserved location for implementers to include additional information. If
 present, {extensions} must be a map, but there are no additional restrictions on
 its contents. To avoid conflicts, we recommended implementers use unique
 prefixes for keys within {extensions}.
