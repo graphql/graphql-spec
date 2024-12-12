@@ -18,11 +18,12 @@ A GraphQL service generates a response from a request via execution.
 - {extensions} (optional): A map reserved for implementers to extend the
   protocol however they see fit.
 
-Note: {extensions} exists to provide implementers with a reserved location to
-include additional information in requests without risking conflicts with future
-versions of this specification. If present, {extensions} must be a map, but
-there are no additional restrictions on its contents. To avoid conflicts, we
-recommended implementers use unique prefixes for keys within {extensions}.
+Note: Since future versions of the specification may add more information,
+implementers should not add top level keys to requests; instead, {extensions}
+provides implementers a reserved location to include additional information. If
+present, {extensions} must be a map, but there are no additional restrictions on
+its contents. To avoid conflicts, we recommended implementers use unique
+prefixes for keys within {extensions}.
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
