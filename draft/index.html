@@ -1473,7 +1473,7 @@ The type system definition language is used throughout the remainder of this spe
 <span class="spec-nt"><a href="#TypeSystemExtension" data-name="TypeSystemExtension">TypeSystemExtension</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#SchemaExtension" data-name="SchemaExtension">SchemaExtension</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#TypeExtension" data-name="TypeExtension">TypeExtension</a></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L44-L47">Type system extensions are used to represent a GraphQL type system which has been extended from some original type system. For example, this might be used by a local service to represent data a GraphQL client only accesses locally, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L44-L47">Type system extensions are used to represent a GraphQL type system which has been extended from some previous type system. For example, this might be used by a local service to represent data a GraphQL client only accesses locally, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L49-L51">Tools which only seek to produce and extend schema and not execute requests may choose to only allow <span class="spec-nt"><a href="#TypeSystemExtensionDocument" data-name="TypeSystemExtensionDocument">TypeSystemExtensionDocument</a></span> and not allow <span class="spec-nt"><a href="#ExecutableDefinition" data-name="ExecutableDefinition">ExecutableDefinition</a></span> but should provide a descriptive error if present.</p>
 </section>
 <section id="sec-Descriptions" secid="3.2">
@@ -1615,7 +1615,7 @@ The set of languages supported by `translate`.
 <span class="spec-nt"><a href="#SchemaExtension" data-name="SchemaExtension">SchemaExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">schema</span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#RootOperationTypeDefinition" data-name="RootOperationTypeDefinition">RootOperationTypeDefinition</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">schema</span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L269-L271">Schema extensions are used to represent a schema which has been extended from an original schema. For example, this might be used by a GraphQL service which adds additional operation types, or additional directives to an existing schema.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L269-L271">Schema extensions are used to represent a schema which has been extended from a previous schema. For example, this might be used by a GraphQL service which adds additional operation types, or additional directives to an existing schema.</p>
 <div id="note-c9cd2" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L273-L275">
 <a href="#note-c9cd2">Note</a>
 Schema extensions without additional operation type definitions must not be followed by a <span class="spec-t">{</span> (such as a query shorthand) to avoid parsing ambiguity. The same limitation applies to the type definitions and extensions below.</div>
@@ -1624,7 +1624,7 @@ Schema extensions without additional operation type definitions must not be foll
 <p data-source="spec/Section%203%20--%20Type%20System.md#L279">Schema extensions have the potential to be invalid if incorrectly defined.</p>
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L281">The Schema must already be defined.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L282-L283">Any non-repeatable directives provided must not already apply to the original Schema.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L282-L283">Any non-repeatable directives provided must not already apply to the previous Schema.</li>
 </ol>
 </section>
 </section>
@@ -1695,7 +1695,7 @@ Schema extensions without additional operation type definitions must not be foll
 <div class="spec-rhs"><span class="spec-nt"><a href="#EnumTypeExtension" data-name="EnumTypeExtension">EnumTypeExtension</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#InputObjectTypeExtension" data-name="InputObjectTypeExtension">InputObjectTypeExtension</a></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L379-L381">Type extensions are used to represent a GraphQL type which has been extended from some original type. For example, this might be used by a local service to represent additional fields a GraphQL client only accesses locally.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L379-L381">Type extensions are used to represent a GraphQL type which has been extended from some previous type. For example, this might be used by a local service to represent additional fields a GraphQL client only accesses locally.</p>
 </section>
 </section>
 <section id="sec-Scalars" secid="3.5">
@@ -1820,13 +1820,13 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <div class="spec-production" id="ScalarTypeExtension" data-source="spec/Section%203%20--%20Type%20System.md#L638-L640">
 <span class="spec-nt"><a href="#ScalarTypeExtension" data-name="ScalarTypeExtension">ScalarTypeExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">scalar</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L642-L644">Scalar type extensions are used to represent a scalar type which has been extended from some original scalar type. For example, this might be used by a GraphQL tool or service which adds directives to an existing scalar.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L642-L644">Scalar type extensions are used to represent a scalar type which has been extended from some previous scalar type. For example, this might be used by a GraphQL tool or service which adds directives to an existing scalar.</p>
 <section id="sec-Scalar-Extensions.Type-Validation" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L646"><a href="#sec-Scalar-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L648">Scalar type extensions have the potential to be invalid if incorrectly defined.</p>
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L650">The named type must already be defined and must be a Scalar type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L651-L652">Any non-repeatable directives provided must not already apply to the original Scalar type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L651-L652">Any non-repeatable directives provided must not already apply to the previous Scalar type.</li>
 </ol>
 </section>
 </section>
@@ -2111,7 +2111,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">type</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#ImplementsInterfaces" data-name="ImplementsInterfaces">ImplementsInterfaces</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">type</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#ImplementsInterfaces" data-name="ImplementsInterfaces">ImplementsInterfaces</a></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1050-L1052">Object type extensions are used to represent a type which has been extended from some original type. For example, this might be used to represent local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1050-L1052">Object type extensions are used to represent a type which has been extended from some previous type. For example, this might be used to represent local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1054">In this example, a local data field is added to a <code>Story</code> type:</p>
 <pre id="example-8bda7" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1056-L1060"><a href="#example-8bda7">Example № 63</a><code><span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Story</span> <span class="token punctuation">{</span>
   <span class="token attr-name">isHiddenLocally</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
@@ -2127,9 +2127,9 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1075">The named type must already be defined and must be an Object type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1076-L1077">The fields of an Object type extension must have unique names; no two fields may share the same name.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1078-L1079">Any fields of an Object type extension must not be already defined on the original Object type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1080-L1081">Any non-repeatable directives provided must not already apply to the original Object type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1082-L1083">Any interfaces provided must not be already implemented by the original Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1078-L1079">Any fields of an Object type extension must not be already defined on the previous Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1080-L1081">Any non-repeatable directives provided must not already apply to the previous Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1082-L1083">Any interfaces provided must not be already implemented by the previous Object type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1084-L1085">The resulting extended object type must be a super-set of all interfaces it implements.</li>
 </ol>
 </section>
@@ -2280,7 +2280,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">interface</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#ImplementsInterfaces" data-name="ImplementsInterfaces">ImplementsInterfaces</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">interface</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#ImplementsInterfaces" data-name="ImplementsInterfaces">ImplementsInterfaces</a></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1290-L1293">Interface type extensions are used to represent an interface which has been extended from some original interface. For example, this might be used to represent common local data on many types, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1290-L1293">Interface type extensions are used to represent an interface which has been extended from some previous interface. For example, this might be used to represent common local data on many types, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1295-L1296">In this example, an extended data field is added to a <code>NamedEntity</code> type along with the types which implement it:</p>
 <pre id="example-9d45f" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1298-L1310"><a href="#example-9d45f">Example № 73</a><code><span class="token keyword">extend</span> <span class="token keyword">interface</span> <span class="token class-name">NamedEntity</span> <span class="token punctuation">{</span>
   <span class="token attr-name">nickname</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -2304,9 +2304,9 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1327">The named type must already be defined and must be an Interface type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1328-L1329">The fields of an Interface type extension must have unique names; no two fields may share the same name.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1330-L1331">Any fields of an Interface type extension must not be already defined on the original Interface type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1332-L1334">Any Object or Interface type which implemented the original Interface type must also be a super-set of the fields of the Interface type extension (which may be due to Object type extension).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1335-L1336">Any non-repeatable directives provided must not already apply to the original Interface type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1330-L1331">Any fields of an Interface type extension must not be already defined on the previous Interface type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1332-L1334">Any Object or Interface type which implemented the previous Interface type must also be a super-set of the fields of the Interface type extension (which may be due to Object type extension).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1335-L1336">Any non-repeatable directives provided must not already apply to the previous Interface type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1337-L1338">The resulting extended Interface type must be a super-set of all Interfaces it implements.</li>
 </ol>
 </section>
@@ -2387,7 +2387,7 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <span class="spec-nt"><a href="#UnionTypeExtension" data-name="UnionTypeExtension">UnionTypeExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">union</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#UnionMemberTypes" data-name="UnionMemberTypes">UnionMemberTypes</a></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">union</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1445-L1448">Union type extensions are used to represent a union type which has been extended from some original union type. For example, this might be used to represent additional local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1445-L1448">Union type extensions are used to represent a union type which has been extended from some previous union type. For example, this might be used to represent additional local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <section id="sec-Union-Extensions.Type-Validation" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L1450"><a href="#sec-Union-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1452">Union type extensions have the potential to be invalid if incorrectly defined.</p>
@@ -2395,8 +2395,8 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1454">The named type must already be defined and must be a Union type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1455-L1457">The member types of a Union type extension must all be Object base types; Scalar, Interface and Union types must not be member types of a Union. Similarly, wrapping types must not be member types of a Union.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1458">All member types of a Union type extension must be unique.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1459-L1460">All member types of a Union type extension must not already be a member of the original Union type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1461-L1462">Any non-repeatable directives provided must not already apply to the original Union type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1459-L1460">All member types of a Union type extension must not already be a member of the previous Union type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1461-L1462">Any non-repeatable directives provided must not already apply to the previous Union type.</li>
 </ol>
 </section>
 </section>
@@ -2445,15 +2445,15 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <span class="spec-nt"><a href="#EnumTypeExtension" data-name="EnumTypeExtension">EnumTypeExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">enum</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#EnumValuesDefinition" data-name="EnumValuesDefinition">EnumValuesDefinition</a></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">enum</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1522-L1525">Enum type extensions are used to represent an enum type which has been extended from some original enum type. For example, this might be used to represent additional local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1522-L1525">Enum type extensions are used to represent an enum type which has been extended from some previous enum type. For example, this might be used to represent additional local data, or by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <section id="sec-Enum-Extensions.Type-Validation" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L1527"><a href="#sec-Enum-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1529">Enum type extensions have the potential to be invalid if incorrectly defined.</p>
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1531">The named type must already be defined and must be an Enum type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1532">All values of an Enum type extension must be unique.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1533-L1534">All values of an Enum type extension must not already be a value of the original Enum.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1535-L1536">Any non-repeatable directives provided must not already apply to the original Enum type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1533-L1534">All values of an Enum type extension must not already be a value of the previous Enum.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1535-L1536">Any non-repeatable directives provided must not already apply to the previous Enum type.</li>
 </ol>
 </section>
 </section>
@@ -2647,15 +2647,15 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <span class="spec-nt"><a href="#InputObjectTypeExtension" data-name="InputObjectTypeExtension">InputObjectTypeExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">input</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#InputFieldsDefinition" data-name="InputFieldsDefinition">InputFieldsDefinition</a></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">input</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1714-L1717">Input object type extensions are used to represent an input object type which has been extended from some original input object type. For example, this might be used by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1714-L1717">Input object type extensions are used to represent an input object type which has been extended from some previous input object type. For example, this might be used by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <section id="sec-Input-Object-Extensions.Type-Validation" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L1719"><a href="#sec-Input-Object-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1721-L1722">Input object type extensions have the potential to be invalid if incorrectly defined.</p>
 <ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1724">The named type must already be defined and must be a Input Object type.</li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1725">All fields of an Input Object type extension must have unique names.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1726-L1727">All fields of an Input Object type extension must not already be a field of the original Input Object.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1728-L1729">Any non-repeatable directives provided must not already apply to the original Input Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1726-L1727">All fields of an Input Object type extension must not already be a field of the previous Input Object.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1728-L1729">Any non-repeatable directives provided must not already apply to the previous Input Object type.</li>
 </ol>
 </section>
 </section>
