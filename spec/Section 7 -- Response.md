@@ -10,7 +10,12 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A response to a GraphQL request must be a map.
+A response to a GraphQL request must be a map or a stream of incrementally
+delivered results. The response will be a stream of incrementally delivered
+results when the GraphQL service has deferred or streamed data as a result of
+the `@defer` or `@stream` directives. When the response of the GraphQL operation
+contains incrementally delivered results, the first value will be an initial
+payload, followed by one or more subsequent payloads.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -22,14 +27,31 @@ key `data`. The value of this entry is described in the "Data" section. If the
 request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
+When the response of the GraphQL operation contains incrementally delivered
+results, both the initial payload and all subsequent payloads must contain an
+entry with key `hasNext`. The value of this entry must be {true} for all but the
+last response in the stream. The value of this entry must be {false} for the
+last response of the stream. This entry must not be present for GraphQL
+operations that return a single response map.
+
+When the response of the GraphQL operation contains incrementally delivered
+results, both the initial payload and any subsequent payloads may contain
+entries with the keys `pending`, `incremental`, and/or `completed`. The value of
+these entries are described in the "Pending", "Incremental", and "Completed"
+sections below.
+
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
-restrictions on its contents.
+restrictions on its contents. When the response of the GraphQL operation is a
+response stream, the initial payload and any subsequent payloads may contain an
+entry with the key `extensions`, also reserved for implementers to extend the
+protocol however they see fit. Additionally, implementers may send subsequent
+payloads containing only `hasNext` and `extensions` entries.
 
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
-three described above.
+entries described above.
 
 Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present in a
@@ -47,6 +69,10 @@ present in the response.
 
 If an error was raised during the execution that prevented a valid response, the
 `data` entry in the response should be `null`.
+
+When the response of the GraphQL operation contains incrementally delivered
+results, `data` may only be present in the initial payload. `data` must not be
+present in any subsequent payloads.
 
 ### Errors
 
@@ -107,14 +133,8 @@ syntax element.
 If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
-`null` result is intentional or caused by a runtime error.
-
-If present, this field must be a list of path segments starting at the root of
-the response and ending with the field associated with the error. Path segments
-that represent fields must be strings, and path segments that represent list
-indices must be 0-indexed integers. If the error happens in an aliased field,
-the path to the error must use the aliased name, since it represents a path in
-the response, not in the request.
+`null` result is intentional or caused by a runtime error. The value of this
+field is described in the [Path](#sec-Path) section.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
@@ -244,6 +264,366 @@ discouraged.
 }
 ```
 
+### Path
+
+A `path` field allows for the association to a particular field in a GraphQL
+result. This field should be a list of path segments starting at the root of the
+response and ending with the field to be associated with. Path segments that
+represent fields should be strings, and path segments that represent list
+indices should be 0-indexed integers. If the path is associated to an aliased
+field, the path should use the aliased name, since it represents a path in the
+response, not in the request.
+
+When the `path` field is present on an "Error result", it indicates the response
+field which experienced the error.
+
+### Pending
+
+The `pending` entry in the response is a non-empty list of Pending Results. If
+the response of the GraphQL operation contains incrementally delivered results,
+this field may appear on both the initial and subsequent payloads. If present,
+the `pending` entry must contain at least one Pending Result.
+
+Each Pending Result corresponds to either a `@defer` or `@stream` directive
+located at a specific path in the response data. The Pending Result is used to
+communicate that the GraphQL service has chosen to incrementally deliver the
+data associated with this `@defer` or `@stream` directive and clients should
+expect the associated data in either the current payload, or one of the
+following payloads.
+
+**Pending Result Format**
+
+Every Pending Result must contain an entry with the key `id` with a string
+value. This `id` should be used by clients to correlate Pending Results with
+Completed Results. The `id` value must be unique for the entire response stream.
+There must not be any other Pending Result in any payload that contains the same
+`id`.
+
+Every Pending Result must contain an entry with the key `path`. When the Pending
+Result is associated with a `@stream` directive, it indicates the response list
+field that is not known to be complete. Clients should expect the GraphQL
+Service to incrementally deliver the remainder of indicated list field. When the
+Pending Result is associated with a `@defer` directive, it indicates that the
+response fields contained in the deferred fragment are not known to be complete.
+Clients should expect the the GraphQL Service to incrementally deliver the
+remainder of the fields contained in the deferred fragment.
+
+If the associated `@defer` or `@stream` directive contains a `label` argument,
+the Pending Result must contain an entry `label` with the value of this
+argument.
+
+If a Pending Result is not returned for a `@defer` or `@stream` directive,
+clients must assume that the GraphQL service chose not to incrementally deliver
+this data, and the data can be found either in the `data` entry in the initial
+payload, or one of the Incremental Results in a prior payload.
+
+### Incremental
+
+The `incremental` entry in the response is a non-empty list of Incremental
+Results. If the response of the GraphQL operation contains incrementally
+delivered results, this field may appear on both the initial and subsequent
+values. If present, the `incremental` entry must contain at least one
+Incremental Result.
+
+The Incremental Result is used to deliver data that the GraphQL service has
+chosen to incrementally deliver. An Incremental Result may be ether an
+Incremental List Result or an Incremental Object Result.
+
+An Incremental List Result is used to deliver additional list items for a list
+field with a `@stream` directive.
+
+An Incremental Object Result is used to deliver additional response fields that
+were contained in one or more fragments with a `@defer` directive.
+
+**Incremental Result Format**
+
+Every Incremental Result must contain an entry with the key `id` with a string
+value. This `id` must match the `id` that was returned in a prior Pending
+Result.
+
+Additionally, Incremental List Results and Incremental Object Results have
+further requirements.
+
+**Incremental List Result Format**
+
+An Incremental List Result's `id` entry must match the `id` that was returned in
+a prior Pending Result. This Pending Result must be associated with a `@stream`
+directive.
+
+The Incremental List Result's `path` can be determined using the prior Pending
+Result with the same `id` as this Incremental Result. The Incremental List
+Result's `path` is the same as the Pending Result's `path`.
+
+Every Incremental List Result must contain an `items` entry. The `items` entry
+must contain a list of additional list items for the response field at the
+Incremental List Result's `path`. This output will be a list of the same type of
+the response field at this path.
+
+If any field errors were raised during the execution of the results in `items`
+and these errors bubbled to a path higher than the Incremental List Result's
+path, The Incremental List Result is considered failed and should not be
+included in the response stream. The errors that caused this failure will be
+included in a Completed Result.
+
+If any field errors were raised during the execution of the results in `items`
+and these errors did not bubble to a path higher than the Incremental List
+Result's path, the Incremental List Result must contain an entry with key
+`errors` containing these field errors. The value of this entry is described in
+the "Errors" section.
+
+**Incremental Object Result Format**
+
+An Incremental List Result's `id` entry must match the `id` that was returned in
+a prior Pending Result. This Pending Result must be associated with a `@defer`
+directive.
+
+The Incremental Object Result's `path` can be determined using the prior Pending
+Result with the same `id` as this Incremental Result. The Incremental Object
+Result may contain a `subPath` entry. If the `subPath` entry is present, The
+Incremental Object Record's path can be determined by concatenating the Pending
+Result's `path` with this `subPath`. If no `subPath` entry is present, the path
+is the same as the Pending Result's `path`.
+
+Every Incremental Object Result must contain an `data` entry. The `data` entry
+must contain a map of additional response fields. The `data` entry in an
+Incremental Object Result will be of the type of a particular field in the
+GraphQL result. The Incremental Object Result's `path` will contain the path
+segments of the field this data is associated with.
+
+An Incremental Object Result's data may contain response fields that were
+contained in more than one deferred fragments. In that case, the `id` of the
+Incremental Object Result must point to the Pending Result that results in the
+shortest `subPath`.
+
+If any field errors were raised during the execution of the results in `data`
+and these errors bubbled to a path higher than the Incremental Object Result's
+path, The Incremental Object Result is considered failed and should not be
+included in the response stream. The errors that caused this failure will be
+included in a Completed Result.
+
+If any field errors were raised during the execution of the results in `data`
+and these errors did not bubble to a path higher than the Incremental Object
+Result's path, the Incremental Object Result must contain an entry with key
+`errors` containing these field errors. The value of this entry is described in
+the "Errors" section.
+
+### Completed
+
+The `completed` entry in the response is a non-empty list of Completed Results.
+If the response of the GraphQL operation contains incrementally delivered
+results, this field may appear on both the initial and subsequent payloads. If
+present, the `completed` entry must contain at least one Completed Result.
+
+Each Completed Result corresponds to a prior Pending Result. The Completed
+Result is used to communicate that the GraphQL service has completed the
+incremental delivery of the data associated with the corresponding Pending
+Result. The associated data must have been completed in the current payload.
+
+**Completed Result Format**
+
+Every Completed Result must contain an entry with the key `id` with a string
+value. The `id` entry must match the `id` that was returned in a prior Pending
+Result.
+
+A Completed Result may contain an `errors` entry. When the `errors` entry is
+present, it informs clients that the delivery of the data associated with the
+corresponding Pending Result has failed, due to an error bubbling to a path
+higher than the Incremental Data Result's path. The `errors` entry must contain
+these field errors. The value of this entry is described in the "Errors"
+section.
+
+### Examples
+
+#### A query containing both defer and stream:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    name
+    films @stream(initialCount: 1, label: "filmsStream") {
+      title
+    }
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Payload 1, the initial response does not contain any deferred or streamed
+results in the `data` entry. The initial response contains a `hasNext` entry,
+indicating that subsequent payloads will be delivered. There are two Pending
+Responses indicating that results for both the `@defer` and `@stream` in the
+query will be delivered in the subsequent payloads.
+
+```json example
+{
+  "data": {
+    "person": {
+      "name": "Luke Skywalker",
+      "films": [{ "title": "A New Hope" }]
+    }
+  },
+  "pending": [
+    { "id": "0", "path": ["person"], "label": "homeWorldDefer" },
+    { "id": "1", "path": ["person", "films"], "label": "filmsStream" }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 2, contains the deferred data and the first streamed list item. There is
+one Completed Result, indicating that the deferred data has been completely
+delivered.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "0",
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "id": "1",
+      "items": [{ "title": "The Empire Strikes Back" }]
+    }
+  ],
+  "completed": [
+    {"id": "0"}
+  ]
+  "hasNext": true
+}
+```
+
+Payload 3, contains the final stream payload. In this example, the underlying
+iterator does not close synchronously so {hasNext} is set to {true}. If this
+iterator did close synchronously, {hasNext} would be set to {false} and this
+would be the final response.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "1",
+      "items": [{ "title": "Return of the Jedi" }]
+    }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 4, contains no incremental data. {hasNext} set to {false} indicates the
+end of the response stream. This response is sent when the underlying iterator
+of the `films` field closes.
+
+```json example
+{
+  "hasNext": false
+}
+```
+
+### Examples
+
+#### A query containing overlapping defers:
+
+```graphql example
+query {
+  person(id: "cGVvcGxlOjE=") {
+    ...HomeWorldFragment @defer(label: "homeWorldDefer")
+    ...NameAndHomeWorldFragment @defer(label: "nameAndWorld")
+    firstName
+  }
+}
+fragment HomeWorldFragment on Person {
+  homeWorld {
+    name
+    terrain
+  }
+}
+
+fragment NameAndHomeWorldFragment on Person {
+  firstName
+  lastName
+  homeWorld {
+    name
+  }
+}
+```
+
+The response stream might look like:
+
+Payload 1, the initial response contains the results of the `firstName` field.
+Even though it is also present in the `HomeWorldFragment`, it must be returned
+in the initial payload because it is also defined outside of any fragments with
+the `@defer` directive. Additionally, There are two Pending Responses indicating
+that results for both `@defer`s in the query will be delivered in the subsequent
+payloads.
+
+```json example
+{
+  "data": {
+    "person": {
+      "firstName": "Luke"
+    }
+  },
+  "pending": [
+    { "id": "0", "path": ["person"], "label": "homeWorldDefer" },
+    { "id": "1", "path": ["person"], "label": "nameAndWorld" }
+  ],
+  "hasNext": true
+}
+```
+
+Payload 2, contains the deferred data from `HomeWorldFragment`. There is one
+Completed Result, indicating that `HomeWorldFragment` has been completely
+delivered. Because the `homeWorld` field is present in two separate `@defer`s,
+it is separated into its own Incremental Result.
+
+The second Incremental Result contains the data for the `terrain` field. This
+incremental result contains a `subPath` property to indicate to clients that the
+path of this result can be determined by concatenating the path from the Pending
+Result with id `"0"` and this `subPath` entry.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "0",
+      "data": { "homeWorld": { "name": "Tatooine" } }
+    },
+    {
+      "id": "0",
+      "subPath": ["homeWorld"],
+      "data": { "terrain": "desert" }
+    }
+  ],
+  "completed": [{ "id": "0" }],
+  "hasNext": true
+}
+```
+
+Payload 3, contains the remaining data from the `NameAndHomeWorldFragment`.
+`lastName` is the only remaining field that has not been delivered in a previous
+payload.
+
+```json example
+{
+  "incremental": [
+    {
+      "id": "1",
+      "data": { "lastName": "Skywalker" }]
+    }
+  ],
+  "completed": [{"id": "1"}],
+  "hasNext": false
+}
+```
+
 ## Serialization Format
 
 GraphQL does not require a specific serialization format. However, clients
@@ -320,3 +700,7 @@ encode the same value, they also have observably different property orderings.
 
 Note: This does not violate the JSON spec, as clients may still interpret
 objects in the response as unordered Maps and arrive at a valid value.
+
+```
+
+```
