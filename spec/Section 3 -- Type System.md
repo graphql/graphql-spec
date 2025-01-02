@@ -2178,8 +2178,8 @@ SchemaCoordinate :
 :: A _schema coordinate_ is a human readable string that uniquely identifies a
 _schema element_ within a GraphQL Schema.
 
-:: A _schema element_ is a specific instance of a named type, field, input
-field, enum value, field argument, directive, or directive argument.
+:: A _schema element_ can be a named type, a field, an input
+a field, an enum value, a field argument, a directive, or a directive argument.
 
 A _schema coordinate_ is always unique. Each _schema element_ may be referenced
 by exactly one possible schema coordinate.
