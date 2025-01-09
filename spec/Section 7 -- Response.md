@@ -108,7 +108,7 @@ If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
 `null` result is intentional or caused by a runtime error. The value of this
-field is described in the [Path](#sec-Path) section.
+entry is described in the [Path](#sec-Path) section.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
@@ -240,16 +240,16 @@ discouraged.
 
 ### Path
 
-:: A _path field_ allows for the association to a particular field in a GraphQL
-result. This field must be a list of path segments starting at the root of the
-response and ending with the field to be associated with. Path segments that
-represent fields must be strings, and path segments that represent list indices
-must be 0-indexed integers. If the path is associated to an aliased field, the
-path must use the aliased name, since it represents a path in the response, not
-in the request.
+:: A _path entry_ allows for the association with a particular field reached
+during GraphQL execution. The value for this entry must be a list of path
+segments starting at the root of the response and ending with the field to be
+associated with. Path segments that represent fields must be strings, and path
+segments that represent list indices must be 0-indexed integers. If a path
+segment is associated with an aliased field it must use the aliased name, since
+it represents a path in the response, not in the request.
 
-When the _path field_ is present on an "Error result", it indicates the response
-field which experienced the error.
+When the _path entry_ is present on an "Error result", it identifies the
+response field which experienced the error.
 
 ## Serialization Format
 
