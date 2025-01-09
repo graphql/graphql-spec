@@ -1320,9 +1320,8 @@ which may be a variable usage. The
 validation rule ensures that each {variableUsage} is of a type allowed in its
 position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
 algorithm ensures runtime values for variables coerce correctly. Therefore, for
-the purposes of the coercibility assertion in this validation rule, we can
-assume the runtime value of each {variableUsage} is valid for usage in its
-position.
+the purposes of the "coercible" assertion in this validation rule, we can assume
+the runtime value of each {variableUsage} is valid for usage in its position.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
