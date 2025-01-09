@@ -919,9 +919,9 @@ visitedFragments):
       - Let {deferDirective} be that directive.
       - If this execution is for a subscription operation, raise a _field
         error_.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
     - If {deferDirective} is not defined:
-      - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-        {selection} in {selectionSet}.
       - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
