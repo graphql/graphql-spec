@@ -2221,7 +2221,7 @@ fragment someFragment on User {
 
 ```graphql
 directive @stream(
-  initialCount: Int = 0
+  initialCount: Int! = 0
   if: Boolean! = true
   label: String
 ) on FIELD
@@ -2249,7 +2249,7 @@ query myQuery($shouldStream: Boolean! = true) {
 
 #### @stream Arguments
 
-- `initialCount: Int` - The number of list items the service should return
+- `initialCount: Int! = 0` - The number of list items the service should return
   initially. If omitted, defaults to `0`. A field error will be raised if the
   value of this argument is less than `0`.
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see related
