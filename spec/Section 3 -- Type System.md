@@ -2177,8 +2177,8 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 
 ```graphql
 directive @defer(
-  label: String
   if: Boolean! = true
+  label: String
 ) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
@@ -2221,9 +2221,9 @@ fragment someFragment on User {
 
 ```graphql
 directive @stream(
-  label: String
-  if: Boolean! = true
   initialCount: Int = 0
+  if: Boolean! = true
+  label: String
 ) on FIELD
 ```
 
@@ -2249,6 +2249,9 @@ query myQuery($shouldStream: Boolean! = true) {
 
 #### @stream Arguments
 
+- `initialCount: Int` - The number of list items the service should return
+  initially. If omitted, defaults to `0`. A field error will be raised if the
+  value of this argument is less than `0`.
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see related
   note below). When `false`, the field must not be streamed and all list items
   must be initially included. Defaults to `true` when omitted.
@@ -2258,9 +2261,6 @@ query myQuery($shouldStream: Boolean! = true) {
   this label in the corresponding pending object within the result. The `label`
   argument must be unique across all `@defer` and `@stream` directives in the
   document.
-- `initialCount: Int` - The number of list items the service should return
-  initially. If omitted, defaults to `0`. A field error will be raised if the
-  value of this argument is less than `0`.
 
 Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
