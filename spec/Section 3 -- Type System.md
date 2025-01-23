@@ -1638,9 +1638,9 @@ defined by the input object type and for which a value exists. The resulting map
 is constructed with the following rules:
 
 - If no value is provided for a defined input object field and that field
-  definition provides a default value, the default value should be used. If no
+  definition provides a default value, the default value must be used. If no
   default value is provided and the input object field's type is non-null, an
-  error should be raised. Otherwise, if the field is not required, then no entry
+  error must be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
 
 - If the value {null} was provided for an input object field, and the field's
@@ -1652,12 +1652,17 @@ is constructed with the following rules:
   coerced unordered map is given the result of coercing that value according to
   the input coercion rules for the type of that field.
 
-- If a variable is provided for an input object field, the runtime value of that
-  variable must be used. If the runtime value is {null} and the field type is
-  non-null, a _field error_ must be raised. If no runtime value is provided, the
-  variable definition's default value should be used. If the variable definition
-  does not provide a default value, the input object field definition's default
-  value should be used.
+- If a variable is provided for an input object field:
+
+  - If the _coerced runtime value_ of that variable exists then it must be used.
+    If the coerced runtime value is {null} and the field type is non-null, a
+    _field error_ must be raised.
+
+  - If the _coerced runtime value_ of that variable does not exist then the
+    input object field definition's default value must be used. If no default
+    value is provided and the input object field's type is non-null, an error
+    must be raised. Otherwise, if the field is not required, then no entry is
+    added to the coerced unordered map.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
@@ -1791,12 +1796,8 @@ CoerceListValue(value, listType):
 CoerceListItemValue(itemValue, itemType):
 
 - If {itemValue} is a Variable:
-  - If the variable provides a runtime value:
-    - Let {coercedItemValue} be the runtime value of the variable.
-  - Otherwise, if the variable definition provides a default value:
-    - Let {coercedItemValue} be this default value.
-  - Otherwise:
-    - Let {coercedItemValue} be {null}.
+  - Let {coercedItemValue} be the _coerced runtime value_ of that variable, or
+    {null} if no such value exists.
   - If {coercedItemValue} is {null} and {itemType} is a non-null type, a _field
     error_ must be raised.
   - Return {coercedItemValue}.
