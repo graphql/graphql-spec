@@ -1654,9 +1654,9 @@ is constructed with the following rules:
 
 - If a variable is provided for an input object field:
 
-  - If the _coerced runtime value_ of that variable exists then it must be used.
-    If the coerced runtime value is {null} and the field type is non-null, a
-    _field error_ must be raised.
+  - If the _coerced runtime value_ of that variable exists (including {null})
+    then it must be used. If the coerced runtime value is {null} and the field
+    type is non-null, a _field error_ must be raised.
 
   - If the _coerced runtime value_ of that variable does not exist then the
     input object field definition's default value must be used. If no default
