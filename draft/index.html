@@ -306,6 +306,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Response-Format"><span class="spec-secid">7.1</span>Response Format</a><ol>
 <li><a href="#sec-Data"><span class="spec-secid">7.1.1</span>Data</a></li>
 <li><a href="#sec-Errors"><span class="spec-secid">7.1.2</span>Errors</a></li>
+<li><a href="#sec-Path"><span class="spec-secid">7.1.3</span>Path</a></li>
 </ol>
 </li>
 <li><a href="#sec-Serialization-Format"><span class="spec-secid">7.2</span>Serialization Format</a><ol>
@@ -5920,10 +5921,9 @@ When <code>errors</code> is present in the response, it may be helpful for it to
 <h6 data-source="spec/Section%207%20--%20Response.md#L95"><a href="#sec-Errors.Error-Result-Format" title="link to this subsection">Error Result Format</a></h6>
 <p data-source="spec/Section%207%20--%20Response.md#L97-L99">Every error must contain an entry with the key <code>message</code> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L101-L105">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <code>locations</code> with a list of locations, where each location is a map with the keys <code>line</code> and <code>column</code>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L107-L110">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L112-L117">If present, this field must be a list of path segments starting at the root of the response and ending with the field associated with the error. Path segments that represent fields must be strings, and path segments that represent list indices must be 0-indexed integers. If the error happens in an aliased field, the path to the error must use the aliased name, since it represents a path in the response, not in the request.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L119-L120">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
-<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L122-L132"><a href="#example-bc485">Example № 199</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L107-L111">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <code>path</code> that details the path of the response field which experienced the error. This allows clients to identify whether a <code>null</code> result is intentional or caused by a runtime error. The value of this <span class="spec-ref"><a href="#path-entry" data-name="path-entry">path entry</a></span> is described in the <a href="#sec-Path">Path</a> section.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L113-L114">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
+<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L116-L126"><a href="#example-bc485">Example № 199</a><code><span class="token punctuation">{</span>
   <span class="token property-query">hero</span><span class="token punctuation">(</span><span class="token attr-name">episode</span><span class="token punctuation">:</span> <span class="token variable">$episode</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">name</span>
     <span class="token attr-name">heroFriends</span><span class="token punctuation">:</span> <span class="token object">friends</span> <span class="token punctuation">{</span>
@@ -5933,8 +5933,8 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L134">The response might look like:</p>
-<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L136-L165"><a href="#example-072c4">Example № 200</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L128">The response might look like:</p>
+<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L130-L159"><a href="#example-072c4">Example № 200</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5963,9 +5963,9 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L167-L170">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L172-L174">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
-<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L176-L202"><a href="#example-c18ef">Example № 201</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L161-L164">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L166-L168">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
+<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L170-L196"><a href="#example-c18ef">Example № 201</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -5991,8 +5991,8 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L204-L207">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
-<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L209-L223"><a href="#example-8b658">Example № 202</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L198-L201">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
+<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L203-L217"><a href="#example-8b658">Example № 202</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6006,11 +6006,11 @@ When <code>errors</code> is present in the response, it may be helpful for it to
   <span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L225-L227">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
-<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L229-L231">
+<p data-source="spec/Section%207%20--%20Response.md#L219-L221">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
+<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L223-L225">
 <a href="#note-5c13b">Note</a>
 Previous versions of this spec did not describe the <code>extensions</code> entry for error formatting. While non-specified entries are not violations, they are still discouraged.</div>
-<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L233-L245"><a href="#example-78af4">Counter Example № 203</a><code><span class="token punctuation">{</span>
+<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L227-L239"><a href="#example-78af4">Counter Example № 203</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6024,81 +6024,87 @@ Previous versions of this spec did not describe the <code>extensions</code> entr
 </code></pre>
 </section>
 </section>
+<section id="sec-Path" secid="7.1.3">
+<h3 data-source="spec/Section%207%20--%20Response.md#L241"><span class="spec-secid" title="link to this section"><a href="#sec-Path">7.1.3</a></span>Path</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L243-L244">A <dfn id="path-entry"><a href="#path-entry" data-name="path-entry">path entry</a></dfn> is an entry within an <em>error result</em> that allows for association with a particular field reached during GraphQL execution.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L246-L251">The value for a <span class="spec-ref"><a href="#path-entry" data-name="path-entry">path entry</a></span> must be a list of path segments starting at the root of the response and ending with the field to be associated with. Path segments that represent fields must be strings, and path segments that represent list indices must be 0-indexed integers. If a path segment is associated with an aliased field it must use the aliased name, since it represents a path in the response, not in the request.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L253-L254">When the <span class="spec-ref"><a href="#path-entry" data-name="path-entry">path entry</a></span> is present on an <em>error result</em>, it identifies the response field which experienced the error.</p>
+</section>
 </section>
 <section id="sec-Serialization-Format" secid="7.2">
-<h2 data-source="spec/Section%207%20--%20Response.md#L247"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
-<p data-source="spec/Section%207%20--%20Response.md#L249-L252">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
+<h2 data-source="spec/Section%207%20--%20Response.md#L256"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
+<p data-source="spec/Section%207%20--%20Response.md#L258-L261">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L254">Map</li>
-<li data-source="spec/Section%207%20--%20Response.md#L255">List</li>
-<li data-source="spec/Section%207%20--%20Response.md#L256">String</li>
-<li data-source="spec/Section%207%20--%20Response.md#L257">Null</li>
+<li data-source="spec/Section%207%20--%20Response.md#L263">Map</li>
+<li data-source="spec/Section%207%20--%20Response.md#L264">List</li>
+<li data-source="spec/Section%207%20--%20Response.md#L265">String</li>
+<li data-source="spec/Section%207%20--%20Response.md#L266">Null</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L259-L261">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
+<p data-source="spec/Section%207%20--%20Response.md#L268-L270">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L263">Boolean</li>
-<li data-source="spec/Section%207%20--%20Response.md#L264">Int</li>
-<li data-source="spec/Section%207%20--%20Response.md#L265">Float</li>
-<li data-source="spec/Section%207%20--%20Response.md#L266">Enum Value</li>
+<li data-source="spec/Section%207%20--%20Response.md#L272">Boolean</li>
+<li data-source="spec/Section%207%20--%20Response.md#L273">Int</li>
+<li data-source="spec/Section%207%20--%20Response.md#L274">Float</li>
+<li data-source="spec/Section%207%20--%20Response.md#L275">Enum Value</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L268-L271">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L277-L280">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
 <section id="sec-JSON-Serialization" secid="7.2.1">
-<h3 data-source="spec/Section%207%20--%20Response.md#L273"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L275-L276">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L278-L279">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
+<h3 data-source="spec/Section%207%20--%20Response.md#L282"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L284-L285">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L287-L288">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
 <table>
 <thead>
-<tr data-source="spec/Section%207%20--%20Response.md#L281">
+<tr data-source="spec/Section%207%20--%20Response.md#L290">
 <th>GraphQL Value</th>
 <th>JSON Value</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%207%20--%20Response.md#L283">
+<tr data-source="spec/Section%207%20--%20Response.md#L292">
 <td>Map</td>
 <td>Object</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L284">
+<tr data-source="spec/Section%207%20--%20Response.md#L293">
 <td>List</td>
 <td>Array</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L285">
+<tr data-source="spec/Section%207%20--%20Response.md#L294">
 <td>Null</td>
 <td><span class="spec-keyword">null</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L286">
+<tr data-source="spec/Section%207%20--%20Response.md#L295">
 <td>String</td>
 <td>String</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L287">
+<tr data-source="spec/Section%207%20--%20Response.md#L296">
 <td>Boolean</td>
 <td><span class="spec-keyword">true</span> or <span class="spec-keyword">false</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L288">
+<tr data-source="spec/Section%207%20--%20Response.md#L297">
 <td>Int</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L289">
+<tr data-source="spec/Section%207%20--%20Response.md#L298">
 <td>Float</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L290">
+<tr data-source="spec/Section%207%20--%20Response.md#L299">
 <td>Enum Value</td>
 <td>String</td>
 </tr>
 </tbody>
 </table>
-<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L292-L293">
+<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L301-L302">
 <a href="#note-786e2">Note</a>
 For consistency and ease of notation, examples of responses are given in JSON format throughout this document.</div>
 </section>
 <section id="sec-Serialized-Map-Ordering" secid="7.2.2">
-<h3 data-source="spec/Section%207%20--%20Response.md#L295"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L297-L303">Since the result of evaluating a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L305-L309">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L311-L313">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L315-L319">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
-<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L321-L323">
+<h3 data-source="spec/Section%207%20--%20Response.md#L304"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L306-L312">Since the result of evaluating a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L314-L318">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L320-L322">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L324-L328">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
+<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L330-L332">
 <a href="#note-4bb20">Note</a>
 This does not violate the JSON spec, as clients may still interpret objects in the response as unordered Maps and arrive at a valid value. </div>
 </section>
@@ -6835,6 +6841,7 @@ Block string values are interpreted to exclude blank initial and trailing lines 
 <li><a href="#ObjectValue">ObjectValue</a></li>
 <li><a href="#OperationDefinition">OperationDefinition</a></li>
 <li><a href="#OperationType">OperationType</a></li>
+<li><a href="#path-entry">path entry</a></li>
 <li><a href="#Punctuator">Punctuator</a></li>
 <li><a href="#request">request</a></li>
 <li><a href="#request-error">request error</a></li>
@@ -7192,6 +7199,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <ol>
 <li id="_sidebar_7.1.1"><a href="#sec-Data"><span class="spec-secid">7.1.1</span>Data</a></li>
 <li id="_sidebar_7.1.2"><a href="#sec-Errors"><span class="spec-secid">7.1.2</span>Errors</a></li>
+<li id="_sidebar_7.1.3"><a href="#sec-Path"><span class="spec-secid">7.1.3</span>Path</a></li>
 </ol>
 </li>
 <li id="_sidebar_7.2"><a href="#sec-Serialization-Format"><span class="spec-secid">7.2</span>Serialization Format</a>
