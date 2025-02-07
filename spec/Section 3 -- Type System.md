@@ -1953,8 +1953,9 @@ either or both of these directives are provided, they must conform to the
 requirements defined in this specification.
 
 Note: The [Directives Are Defined](#sec-Directives-Are-Defined) validation rule
-ensures that GraphQL Operations containing the `@defer` or `@stream` directives
-cannot be executed by a GraphQL service that does not support them.
+ensures that GraphQL operations can only include directives available on the
+schema; thus operations including `@defer` or `@stream` directives can only be
+executed by a GraphQL service that supports them.
 
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
@@ -2228,20 +2229,21 @@ directive @stream(
 ```
 
 The `@stream` directive may be provided for a field whose type incorporates a
-`List` type modifier; the directive enables the backend to leverage technology
-such as asynchronous iterators to provide a partial list initially, and
-additional list items in subsequent responses.
+`List` type modifier. The directive enables returning a partial list initially,
+followed by additional items in subsequent responses. Should the field type
+incorporate multiple `List` type modifiers, only the outermost list is streamed.
+
+Note: The mechanism through which items are streamed is implementation-defined
+and may use technologies such as asynchronous iterators.
 
 The `@include` and `@skip` directives take precedence over `@stream`.
 
 ```graphql example
 query myQuery($shouldStream: Boolean! = true) {
   user {
-    friends(first: 10) {
-      nodes
-        @stream(label: "friendsStream", initialCount: 5, if: $shouldStream) {
-        name
-      }
+    friends(first: 10)
+      @stream(label: "friendsStream", initialCount: 5, if: $shouldStream) {
+      name
     }
   }
 }
@@ -2249,18 +2251,28 @@ query myQuery($shouldStream: Boolean! = true) {
 
 #### @stream Arguments
 
-- `initialCount: Int! = 0` - The number of list items the service should return
-  initially. If omitted, defaults to `0`. A field error will be raised if the
-  value of this argument is less than `0`.
+- `initialCount: Int! = 0` - The number of list items to include initially. If
+  omitted, defaults to `0`. A field error will be raised if the value of this
+  argument is less than `0`. When the size of the list is greater than or equal
+  to the value of `initialCount`, the GraphQL service _must_ initially include
+  at least as many list items as the value of `initialCount` (see related note
+  below).
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see related
-  note below). When `false`, the field must not be streamed and all list items
-  must be initially included. Defaults to `true` when omitted.
+  note below). When `false`, the field must behave as if the `@stream` directive
+  is not present—it must not be streamed and all of the list items must be
+  included. Defaults to `true` when omitted.
 - `label: String` - An optional string literal (variables are disallowed) used
   by GraphQL clients to identify data from responses and associate it with the
   corresponding stream directive. If provided, the GraphQL service must include
-  this label in the corresponding pending object within the result. The `label`
-  argument must be unique across all `@defer` and `@stream` directives in the
-  document.
+  this label in the corresponding pending object within the response. The
+  `label` argument must be unique across all `@defer` and `@stream` directives
+  in the document.
+
+Note: The
+[Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique)
+validation rule ensures uniqueness of the values passed to `label` on both the
+`@defer` and `@stream` directives. Variables are disallowed in the `label`
+because their values may not be known during validation.
 
 Note: The ability to defer and/or stream parts of a response can have a
 potentially significant impact on application performance. Developers generally
@@ -2269,7 +2281,7 @@ highly recommended that GraphQL services honor the `@defer` and `@stream`
 directives on each execution. However, the specification allows advanced use
 cases where the service can determine that it is more performant to not defer
 and/or stream. Therefore, GraphQL clients _must_ be able to process a response
-that ignores the `@defer` and/or `@stream` directives. This also applies to the
-`initialCount` argument on the `@stream` directive. Clients _must_ be able to
-process a streamed response that contains a different number of initial list
-items than what was specified in the `initialCount` argument.
+that ignores individual `@defer` and/or `@stream` directives. This also applies
+to the `initialCount` argument on the `@stream` directive. Clients must be able
+to process a streamed response that contains more initial list items than what
+was specified in the `initialCount` argument.
