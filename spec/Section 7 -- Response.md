@@ -301,6 +301,10 @@ response, not in the request.
 When the _path entry_ is present on an _error result_, it identifies the
 response field which experienced the error.
 
+When the _path entry_ is present on a _pending result_, it identifies the the
+response field where incremental data will be delivered in a subsequent
+response.
+
 ### Pending
 
 The `pending` entry in the response is a non-empty list of Pending Results. If
