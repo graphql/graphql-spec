@@ -25,9 +25,9 @@ The incremental stream might look like:
 
 The initial response does not contain any deferred or streamed results in the
 `data` entry. The initial response contains a `hasNext` entry, indicating that
-subsequent responses will be delivered. There are two Pending Responses
-indicating that results for both the `@defer` and `@stream` in the query will be
-delivered in the subsequent responses.
+subsequent responses will be delivered. There are two Pending Results indicating
+that results for both the `@defer` and `@stream` in the query will be delivered
+in the subsequent responses.
 
 ```json example
 {
@@ -126,8 +126,8 @@ The incremental stream might look like:
 The initial response contains the results of the `firstName` field. Even though
 it is also present in the `HomeWorldFragment`, it must be returned in the
 initial response because it is also defined outside of any fragments with the
-`@defer` directive. Additionally, There are two Pending Responses indicating
-that results for both `@defer`s in the query will be delivered in the subsequent
+`@defer` directive. Additionally, There are two Pending Results indicating that
+results for both `@defer`s in the query will be delivered in the subsequent
 responses.
 
 ```json example
