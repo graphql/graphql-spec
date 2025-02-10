@@ -27,6 +27,41 @@ set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
+GraphQL Response for an extension with rate limit might look like this:
+
+```json example
+{
+    "data": {
+        "hero": {
+            "name": "R2-D2",
+            "heroFriends": [
+                {
+                    "id": "1000",
+                    "name": "Luke Skywalker"
+                },
+                {
+                    "id": "1002",
+                    "name": null
+                },
+                {
+                    "id": "1003",
+                    "name": "Leia Organa"
+                }
+            ]
+        }
+    },
+    "extensions": {
+        "customNamespace": {
+            "requestRate": 2,
+            "remaining": 98,
+            "retryAfterMs": 0,
+            "resetAfterMs": 1985
+        }
+    }
+}
+```
+Please note replace `customNamespace` with your customization. 
+
 To ensure future changes to the protocol do not break existing services and
 clients, the top level response map must not contain any entries other than the
 three described above.
