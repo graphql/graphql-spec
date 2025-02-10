@@ -134,12 +134,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level selection set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue, queryType,
+  selectionSet)}.
 
 ### Mutation
 
@@ -156,11 +152,8 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level selection set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue, mutationType,
+  selectionSet, true)}.
 
 ### Subscription
 
@@ -327,12 +320,8 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level selection set in {subscription}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue,
+  subscriptionType, selectionSet)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -348,144 +337,31 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}.
 
-## Executing Selection Sets
+## Executing the Root Selection Set
 
-To execute a _selection set_, the object value being evaluated and the object
-type need to be known, as well as whether it must be executed serially, or may
-be executed in parallel.
+To execute the root selection set, the object value being evaluated and the
+object type need to be known, as well as whether it must be executed serially,
+or may be executed in parallel.
 
-First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+Executing the root selection set works similarly for queries (parallel),
+mutations (serial), and subscriptions (where it is executed for each event in
+the underlying Source Stream).
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+First, the selection set is turned into a grouped field set; then, we execute
+this grouped field set and return the resulting {data} and {errors}.
 
+ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
+serial):
+
+- If {serial} is not provided, initialize it to {false}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
-- Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
-  - Let {fieldType} be the return type defined for the field {fieldName} of
-    {objectType}.
-  - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
-- Return {resultMap}.
-
-Note: {resultMap} is ordered by which fields appear first in the operation. This
-is explained in greater detail in the Field Collection section below.
-
-**Errors and Non-Null Fields**
-
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
-_field error_ then that error must propagate to this entire selection set,
-either resolving to {null} if allowed or further propagated to a parent field.
-
-If this occurs, any sibling fields which have not yet executed or have not yet
-yielded a value may be cancelled to avoid unnecessary work.
-
-Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
-this behavior.
-
-### Normal and Serial Execution
-
-Normally the executor can execute the entries in a grouped field set in whatever
-order it chooses (normally in parallel). Because the resolution of fields other
-than top-level mutation fields must always be side effect-free and idempotent,
-the execution order must not affect the result, and hence the service has the
-freedom to execute the field entries in whatever order it deems optimal.
-
-For example, given the following grouped field set to be executed normally:
-
-```graphql example
-{
-  birthday {
-    month
-  }
-  address {
-    street
-  }
-}
-```
-
-A valid GraphQL executor can resolve the four fields in whatever order it chose
-(however of course `birthday` must be resolved before `month`, and `address`
-before `street`).
-
-When executing a mutation, the selections in the top most selection set will be
-executed in serial order, starting with the first appearing field textually.
-
-When executing a grouped field set serially, the executor must consider each
-entry from the grouped field set in the order provided in the grouped field set.
-It must determine the corresponding entry in the result map for each item to
-completion before it continues on to the next item in the grouped field set:
-
-For example, given the following mutation operation, the root _selection set_
-must be executed serially:
-
-```graphql example
-mutation ChangeBirthdayAndAddress($newBirthday: String!, $newAddress: String!) {
-  changeBirthday(birthday: $newBirthday) {
-    month
-  }
-  changeAddress(address: $newAddress) {
-    street
-  }
-}
-```
-
-Therefore the executor must, in serial:
-
-- Run {ExecuteField()} for `changeBirthday`, which during {CompleteValue()} will
-  execute the `{ month }` sub-selection set normally.
-- Run {ExecuteField()} for `changeAddress`, which during {CompleteValue()} will
-  execute the `{ street }` sub-selection set normally.
-
-As an illustrative example, let's assume we have a mutation field
-`changeTheNumber` that returns an object containing one field, `theNumber`. If
-we execute the following _selection set_ serially:
-
-```graphql example
-# Note: This is a selection set, not a full document using the query shorthand.
-{
-  first: changeTheNumber(newNumber: 1) {
-    theNumber
-  }
-  second: changeTheNumber(newNumber: 3) {
-    theNumber
-  }
-  third: changeTheNumber(newNumber: 2) {
-    theNumber
-  }
-}
-```
-
-The executor will execute the following serially:
-
-- Resolve the `changeTheNumber(newNumber: 1)` field
-- Execute the `{ theNumber }` sub-selection set of `first` normally
-- Resolve the `changeTheNumber(newNumber: 3)` field
-- Execute the `{ theNumber }` sub-selection set of `second` normally
-- Resolve the `changeTheNumber(newNumber: 2)` field
-- Execute the `{ theNumber }` sub-selection set of `third` normally
-
-A correct executor must generate the following result for that _selection set_:
-
-```json example
-{
-  "first": {
-    "theNumber": 1
-  },
-  "second": {
-    "theNumber": 3
-  },
-  "third": {
-    "theNumber": 2
-  }
-}
-```
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
+  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
+  _normally_ (allowing parallelization) otherwise.
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
+- Return an unordered map containing {data} and {errors}.
 
 ### Field Collection
 
@@ -592,6 +468,143 @@ DoesFragmentTypeApply(objectType, fragmentType):
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+## Executing a Grouped Field Set
+
+To execute a grouped field set, the object value being evaluated and the object
+type need to be known, as well as whether it must be executed serially, or may
+be executed in parallel.
+
+Each represented field in the grouped field set produces an entry into a
+response map.
+
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues):
+
+- Initialize {resultMap} to an empty ordered map.
+- For each {groupedFieldSet} as {responseKey} and {fields}:
+  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
+    is unaffected if an alias is used.
+  - Let {fieldType} be the return type defined for the field {fieldName} of
+    {objectType}.
+  - If {fieldType} is defined:
+    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
+      fields, variableValues)}.
+    - Set {responseValue} as the value for {responseKey} in {resultMap}.
+- Return {resultMap}.
+
+Note: {resultMap} is ordered by which fields appear first in the operation. This
+is explained in greater detail in the Field Collection section below.
+
+**Errors and Non-Null Fields**
+
+If during {ExecuteGroupedFieldSet()} a field with a non-null {fieldType} raises
+a _field error_ then that error must propagate to this entire selection set,
+either resolving to {null} if allowed or further propagated to a parent field.
+
+If this occurs, any sibling fields which have not yet executed or have not yet
+yielded a value may be cancelled to avoid unnecessary work.
+
+Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
+this behavior.
+
+### Normal and Serial Execution
+
+Normally the executor can execute the entries in a grouped field set in whatever
+order it chooses (normally in parallel). Because the resolution of fields other
+than top-level mutation fields must always be side effect-free and idempotent,
+the execution order must not affect the result, and hence the service has the
+freedom to execute the field entries in whatever order it deems optimal.
+
+For example, given the following grouped field set to be executed normally:
+
+```graphql example
+{
+  birthday {
+    month
+  }
+  address {
+    street
+  }
+}
+```
+
+A valid GraphQL executor can resolve the four fields in whatever order it chose
+(however of course `birthday` must be resolved before `month`, and `address`
+before `street`).
+
+When executing a mutation, the selections in the top most selection set will be
+executed in serial order, starting with the first appearing field textually.
+
+When executing a grouped field set serially, the executor must consider each
+entry from the grouped field set in the order provided in the grouped field set.
+It must determine the corresponding entry in the result map for each item to
+completion before it continues on to the next item in the grouped field set:
+
+For example, given the following mutation operation, the root _selection set_
+must be executed serially:
+
+```graphql example
+mutation ChangeBirthdayAndAddress($newBirthday: String!, $newAddress: String!) {
+  changeBirthday(birthday: $newBirthday) {
+    month
+  }
+  changeAddress(address: $newAddress) {
+    street
+  }
+}
+```
+
+Therefore the executor must, in serial:
+
+- Run {ExecuteField()} for `changeBirthday`, which during {CompleteValue()} will
+  execute the `{ month }` sub-selection set normally.
+- Run {ExecuteField()} for `changeAddress`, which during {CompleteValue()} will
+  execute the `{ street }` sub-selection set normally.
+
+As an illustrative example, let's assume we have a mutation field
+`changeTheNumber` that returns an object containing one field, `theNumber`. If
+we execute the following _selection set_ serially:
+
+```graphql example
+# Note: This is a selection set, not a full document using the query shorthand.
+{
+  first: changeTheNumber(newNumber: 1) {
+    theNumber
+  }
+  second: changeTheNumber(newNumber: 3) {
+    theNumber
+  }
+  third: changeTheNumber(newNumber: 2) {
+    theNumber
+  }
+}
+```
+
+The executor will execute the following serially:
+
+- Resolve the `changeTheNumber(newNumber: 1)` field
+- Execute the `{ theNumber }` sub-selection set of `first` normally
+- Resolve the `changeTheNumber(newNumber: 3)` field
+- Execute the `{ theNumber }` sub-selection set of `second` normally
+- Resolve the `changeTheNumber(newNumber: 2)` field
+- Execute the `{ theNumber }` sub-selection set of `third` normally
+
+A correct executor must generate the following result for that _selection set_:
+
+```json example
+{
+  "first": {
+    "theNumber": 1
+  },
+  "second": {
+    "theNumber": 3
+  },
+  "third": {
+    "theNumber": 2
+  }
+}
+```
 
 ## Executing Fields
 
@@ -721,8 +734,9 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
+  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
+    fields, variableValues)}.
+  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
 
@@ -769,9 +783,10 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one field of the same name is executed in parallel, the
-_selection set_ for each of the fields are merged together when completing the
-value in order to continue execution of the sub-selection sets.
+When more than one field of the same name is executed in parallel, during value
+completion each related _selection set_ is collected together to produce a
+single grouped field set in order to continue execution of the sub-selection
+sets.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
@@ -790,14 +805,19 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-MergeSelectionSets(fields):
+CollectSubfields(objectType, fields, variableValues):
 
-- Let {selectionSet} be an empty list.
+- Let {groupedFieldSet} be an empty map.
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Append all selections in {fieldSelectionSet} to {selectionSet}.
-- Return {selectionSet}.
+  - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
+    fieldSelectionSet, variableValues)}.
+  - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
+    - Let {groupForResponseKey} be the list in {groupedFieldSet} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append all fields in {subfields} to {groupForResponseKey}.
+- Return {groupedFieldSet}.
 
 ### Handling Field Errors
 
