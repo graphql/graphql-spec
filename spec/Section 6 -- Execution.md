@@ -86,10 +86,8 @@ CoerceVariableValues(schema, operation, variableValues):
 - Let {coercedValues} be an empty unordered Map.
 - Let {variablesDefinition} be the variables defined by {operation}.
 - For each {variableDefinition} in {variablesDefinition}:
-  - Let {variableName} be the name of {variableDefinition}.
-  - Let {variableType} be the expected type of {variableDefinition}.
-  - Assert: {IsInputType(variableType)} must be {true}.
-  - Let {defaultValue} be the default value for {variableDefinition}.
+  - Let {variableName}, {variableType}, and {defaultValue} be the result of
+    {GetVariableSignature(variableDefinition)}.
   - Let {hasValue} be {true} if {variableValues} provides a value for the name
     {variableName}.
   - Let {value} be the value provided in {variableValues} for the name
@@ -113,6 +111,14 @@ CoerceVariableValues(schema, operation, variableValues):
 - Return {coercedValues}.
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
+
+GetVariableSignature(variableDefinition):
+
+- Let {variableName} be the name of {variableDefinition}.
+- Let {variableType} be the expected type of {variableDefinition}.
+- Assert: {IsInputType(variableType)} must be {true}.
+- Let {defaultValue} be the default value for {variableDefinition}.
+- Return {variableName}, {variableType}, and {defaultValue}.
 
 ## Executing Operations
 
@@ -498,45 +504,54 @@ is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments,
-localVariableValues):
+fragmentVariables):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {groupedFields} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
-    - If {skipDirective}'s {if} argument is {true} or is a variable in
-      {localVariableValues} or {variableValues} with the value {true}, continue
-      with the next {selection} in {selectionSet}.
+    - Let {directiveValues} be the result of {GetDirectiveValues(skipDirective,
+      variableValues, fragmentVariables)}.
+    - If the entry for the {if} argument within {directiveValues} is {true},
+      continue with the next {selection} in {selectionSet}.
   - If {selection} provides the directive `@include`, let {includeDirective} be
     that directive.
-    - If {includeDirective}'s {if} argument is not {true} and is not a variable
-      in {localVariableValues} or {variableValues} with the value {true},
-      continue with the next {selection} in {selectionSet}.
+    - Let {directiveValues} be the result of
+      {GetDirectiveValues(includeDirective, variableValues, fragmentVariables)}.
+    - If the entry for the {if} argument within {directiveValues} is not {true},
   - If {selection} is a {Field}:
     - Let {responseKey} be the response key of {selection} (the alias if
       defined, otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} and {localVariableValues} to the {groupForResponseKey}.
+    - Let {fieldDetails} be a new unordered map containing {fragmentVariables}.
+    - Set the entry for {field} on {fieldDetails} to {selection}.
+    - Append {fieldDetails} to the {groupForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
-    - Let {localVariableValues} be the result of calling
-      {getArgumentValuesFromSpread(selection, fragmentDefinition,
-      variableValues, localVariableValues)}.
+    - Let {variableDefinitions} be the variable definitions for {fragment}.
+    - Initialize {signatures} to an empty list.
+    - For each {variableDefinition} of {variableDefinitions}:
+      - Append the result of {GetVariableSignature(variableDefinition)} to
+        {signatures}.
+    - Let {values} be the result of {CoerceArgumentValues(fragment,
+      argumentDefinitions, variableValues, fragmentVariables)}.
+    - Let {newFragmentVariables} be an unordered map containing {signatures} and
+      {values}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, newFragmentVariables)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -551,7 +566,7 @@ localVariableValues):
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
+      visitedFragments, fragmentVariables)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseKey} be the response key shared by all fields in
         {fragmentGroup}.
@@ -572,31 +587,18 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} is a possible type of {fragmentType}, return {true}
     otherwise return {false}.
 
-getArgumentValuesFromSpread(fragmentSpread, fragmentDefinition, variableValues,
-fragmentArgumentValues):
-
-- Let {coercedValues} be an empty unordered Map.
-- For each {variableDefinition} in {fragmentDefinition}:
-  - Let {variableName} be the name of {variableDefinition}.
-  - Let {variableType} be the type of {variableDefinition}.
-  - Let {defaultValue} be the default value for {variableDefinition}.
-  - Let {argumentNode} be the node provided in the fragment-spread for
-    {variableName}
-  - If {argumentNode} isn't present or is null
-    - If {defaultValue} exists
-      - Add an entry to {coercedValues} named {argumentName} with the value
-        {defaultValue}.
-    - If {variableType} is non-nullable raise a field-error
-  - Let {hasValue} be {true} if {fragmentArgumentValues} or {variableValues}
-    provides a value for the name {variableName}.
-  - If {variableType} is non-nullable and {hasValue} is {false} raise a
-    field-error
-  - Add an entry to {coercedValues} named {argumentName} with the value found in
-    {variableValues} or {fragmentArgumentValues}.
-- Return {coercedValues}.
-
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+GetDirectiveValues(directive, variableValues, fragmentVariables):
+
+- Let {directiveName} be the name of {directive}.
+- Let {directiveDefinition} be the definition for {directiveName} within the
+  schema.
+- Assert {directiveDefinition} is defined.
+- Let {argumentDefinitions} be the arguments defined by {directiveDefinition}.
+- Return the result of {CoerceArgumentValues(directiveDefinition,
+  argumentDefinitions, variableValues, fragmentVariables)}.
 
 ## Executing Fields
 
@@ -605,6 +607,8 @@ objectType will result in an entry in the response map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
+
+### TODO: this needs updating
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
 fragmentVariableValues):
@@ -618,11 +622,13 @@ fragmentVariableValues):
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
   variableValues)}.
 
-### Coercing Field Arguments
+### Coercing Arguments
 
-Fields may include arguments which are provided to the underlying runtime in
-order to correctly produce a value. These arguments are defined by the field in
-the type system to have a specific input type.
+Fields, directives, and fragment spreads may include arguments which are
+provided to the underlying runtime in order to correctly produce a value. For
+fields and directives, these arguments are defined by the field or directive in
+the type system to have a specific input type; for fragment spreads, the
+fragment definition within the document specifies the input type.
 
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
@@ -637,7 +643,7 @@ fragmentVariableValues):
 - Return {CoerceArgumentValues(argumentDefinitions, argumentValues,
   variableValues, fragmentVariableValues)}
 
-CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues,
+CoerceArgumentValues(node, argumentDefinitions, argumentValues, variableValues,
 fragmentVariableValues):
 
 - For each {argumentDefinition} in {argumentDefinitions}:
@@ -650,12 +656,12 @@ fragmentVariableValues):
     {argumentName}.
   - If {argumentValue} is a {Variable}:
     - Let {variableName} be the name of {argumentValue}.
-    - Let {hasValue} be {true} if {fragmentVariableValues} provides a value for
+    - Let {signatures} and {values} be the corresponding entries on
+      {fragmentVariables}.
+    - Let {scopedVariableValues} be {values} if an entry in {signatures} exists
+      for {variableName}; otherwise, let it be {variableValues}.
+    - Let {hasValue} be {true} if {scopedVariableValues} provides a value for
       the name {variableName}.
-    - Let {value} be the value provided in {fragmentVariableValues} for the name
-      {variableName}.
-    - Let {hasValue} be {true} if {variableValues} provides a value for the name
-      {variableName}.
     - Let {value} be the value provided in {variableValues} for the name
       {variableName}.
   - Otherwise, let {value} be {argumentValue}.
@@ -712,6 +718,8 @@ flow.
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
+
+### TODO: needs updating with fieldDetails
 
 CompleteValue(fieldType, fields, result, variableValues):
 
