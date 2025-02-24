@@ -420,7 +420,7 @@ FieldsInSetCanMerge(set):
 
 - Let {fieldsForName} be the set of selections with a given response name in
   {set} including visiting fragments and inline fragments.
-- Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -452,7 +452,8 @@ SameResponseShape(fieldA, fieldB):
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
   {mergedSet} including visiting fragments and inline fragments.
-- Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
+- Given each pair of distinct members {subfieldA} and {subfieldB} in
+  {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
