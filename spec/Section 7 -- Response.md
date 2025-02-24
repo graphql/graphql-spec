@@ -14,8 +14,8 @@ A GraphQL request returns either a _response_ or a _response stream_.
 
 ### Response
 
-:: A GraphQL request will return a _response_ when the GraphQL operation is a
-query or mutation. A _response_ must be a map.
+:: A GraphQL request returns a _response_ when the GraphQL operation is a query
+or mutation. A _response_ must be a map.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -42,8 +42,8 @@ response during debugging.
 
 ### Response Stream
 
-:: A GraphQL request will return a _response stream_ when the GraphQL operation
-is a subscription. A _response stream_ must be a stream of _response_.
+:: A GraphQL request returns a _response stream_ when the GraphQL operation is a
+subscription. A _response stream_ must be a stream of _response_.
 
 ### Data
 
