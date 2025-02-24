@@ -452,7 +452,8 @@ SameResponseShape(fieldA, fieldB):
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
   {mergedSet} including visiting fragments and inline fragments.
-- Given each pair of distinct members {subfieldA} and {subfieldB} in {fieldsForName}:
+- Given each pair of distinct members {subfieldA} and {subfieldB} in
+  {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
