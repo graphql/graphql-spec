@@ -87,7 +87,7 @@ MyAlgorithm(argOne, argTwo):
 
 For important terms, use [Spec Markdown definition paragraphs](https://spec-md.com/#sec-Definition-Paragraph).
 
-Definition paragraphs start with `::` and addsthe matching italicized term to the
+Definition paragraphs start with `::` and add the matching italicized term to the
 [specification index](https://spec.graphql.org/draft/#index), making it easy to
 reference them.
 
