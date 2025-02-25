@@ -90,8 +90,9 @@ descriptive tone of voice.
 
 Favor the present tense. The present tense is usually clearer and shorter:
 
-✅ Present: The client then sends a request to the server. ❌ Future: The client
-will then send a request to the server.
+✅ Present: The client then sends a request to the server.
+
+❌ Future: The client will then send a request to the server.
 
 Avoid repetition. Repetition adds more cognitive load and possibilities for
 different parts of the specification to diverge in their meaning.
