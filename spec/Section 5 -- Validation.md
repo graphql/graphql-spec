@@ -286,7 +286,7 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is false, continue
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentGroupedFieldSet} be the result of calling
@@ -301,7 +301,7 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
-      fragmentType)} is false, continue with the next {selection} in
+      fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentGroupedFieldSet} be the result of calling
