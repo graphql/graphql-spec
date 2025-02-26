@@ -4,6 +4,8 @@
 .DS_Store
 npm-debug.log
 /build
-/public
+/changelogs
+/out
 /gh-pages
 /node_modules
+/package.json
