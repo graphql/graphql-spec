@@ -6,8 +6,9 @@ contributions.
 
 Contributions that do not change the interpretation of the spec but instead
 improve legibility, fix editorial errors, clear up ambiguity and improve
-examples are encouraged. Those are often referred as "editorial changes" and
-often merged by a spec editor with little process.
+examples are encouraged. These "editorial changes" will normally be given the
+["✏ Editorial" label](https://github.com/graphql/graphql-spec/issues?q=sort%3Aupdated-desc+is%3Aopen+label%3A%22%E2%9C%8F%EF%B8%8F+Editorial%22)
+and are often merged by a spec editor with little process.
 
 However, contributions that _do_ meaningfully change the interpretation of the
 spec must follow an RFC (Request For Comments) process led by a _champion_
