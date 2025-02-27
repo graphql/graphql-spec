@@ -235,3 +235,11 @@ become _rejected_ if they fail to attract a new _champion_.
 Once _rejected_, an RFC will typically not be reconsidered. Reconsideration is
 possible if a _champion_ believes the original reason for rejection no longer
 applies due to new circumstances or new evidence.
+
+## Editorial changes
+
+Editorial changes are changes that do not modify the compliance requirements of
+the spec. They may be formatting changes, typo or rephrasing to make the spec
+more readable.
+
+Editorial changes do not go through the RFC process and may be merged faster.
