@@ -158,11 +158,11 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 ### Subscription
 
 If the operation is a subscription, the result is an _event stream_ called the
-"Response Stream" where each event in the event stream is the result of
-executing the operation for each new event on an underlying "Source Stream".
+_response stream_ where each event in the event stream is the result of
+executing the operation for each new event on an underlying _source stream_.
 
 Executing a subscription operation creates a persistent function on the service
-that maps an underlying Source Stream to a returned Response Stream.
+that maps an underlying _source stream_ to a returned _response stream_.
 
 Subscribe(subscription, schema, variableValues, initialValue):
 
@@ -250,9 +250,9 @@ service details should be chosen by the implementing service.
 
 #### Source Stream
 
-A Source Stream is an _event stream_ representing a sequence of root values,
-each of which will trigger a GraphQL execution. Like field value resolution, the
-logic to create a Source Stream is application-specific.
+:: A _source stream_ is an _event stream_ representing a sequence of root
+values, each of which will trigger a GraphQL execution. Like field value
+resolution, the logic to create a _source stream_ is application-specific.
 
 CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 
@@ -287,7 +287,7 @@ operation type.
 
 #### Response Stream
 
-Each event from the underlying Source Stream triggers execution of the
+Each event from the underlying _source stream_ triggers execution of the
 subscription _selection set_ using that event's value as the {initialValue}.
 
 MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
@@ -328,7 +328,7 @@ Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 
 #### Unsubscribe
 
-Unsubscribe cancels the Response Stream when a client no longer wishes to
+Unsubscribe cancels the _response stream_ when a client no longer wishes to
 receive payloads for a subscription. This in turn also cancels the Source
 Stream, which is a good opportunity to clean up any other resources used by the
 subscription.
