@@ -10,7 +10,12 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A response to a GraphQL request must be a map.
+A GraphQL request returns either a _response_ or a _response stream_.
+
+### Response
+
+:: A GraphQL request returns a _response_ when the GraphQL operation is a query
+or mutation. A _response_ must be a map.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -34,6 +39,11 @@ three described above.
 Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present in a
 response during debugging.
+
+### Response Stream
+
+:: A GraphQL request returns a _response stream_ when the GraphQL operation is a
+subscription. A _response stream_ must be a stream of _response_.
 
 ### Data
 
