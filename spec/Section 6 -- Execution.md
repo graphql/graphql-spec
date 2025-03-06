@@ -812,9 +812,9 @@ CollectSubfields(objectType, fields, variableValues):
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {subGroupedFieldSet} be the result of {CollectFields(objectType,
+  - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
-  - For each {subGroupedFieldSet} as {responseKey} and {subfields}:
+  - For each {fieldGroupedFieldSet} as {responseKey} and {subfields}:
     - Let {groupForResponseKey} be the list in {groupedFieldSet} for
       {responseKey}; if no such list exists, create it as an empty list.
     - Append all fields in {subfields} to {groupForResponseKey}.
