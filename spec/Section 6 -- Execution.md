@@ -365,13 +365,12 @@ serial):
 
 ### Field Collection
 
-Before execution, the _selection set_ is converted to a _grouped field set_ by
-calling {CollectFields()}.
-
 :: A _grouped field set_ is a map where each entry is a list of field selections
 that share a _response key_ (the alias if defined, otherwise the field name).
-This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+
+Before execution, the _selection set_ is converted to a _grouped field set_ by
+calling {CollectFields()}. This ensures all fields with the same response key
+(including those in referenced fragments) are executed at the same time.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
