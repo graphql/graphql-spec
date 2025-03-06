@@ -2387,8 +2387,9 @@ directive @stream(
 
 The `@stream` directive may be provided for a field whose type incorporates a
 `List` type modifier. The directive enables returning a partial list initially,
-followed by additional items in subsequent payloads. Should the field type
-incorporate multiple `List` type modifiers, only the outermost list is streamed.
+followed by additional items in subsequent payloads. If the field type
+incorporates multiple `List` type modifiers, only the outermost list is
+streamed.
 
 Note: The mechanism through which items are streamed is implementation-defined
 and may use technologies such as asynchronous iterators.
