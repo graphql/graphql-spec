@@ -91,3 +91,16 @@ For important terms, use
 Definition paragraphs start with `::` and add the matching italicized term to
 the [specification index](https://spec.graphql.org/draft/#index), making it easy
 to reference them.
+
+## Tone of voice
+
+The GraphQL specification is a reference document and should use neutral and
+descriptive tone of voice.
+
+**Favor the present tense**
+
+The present tense is usually clearer and shorter:
+
+✅ Present: The client then sends a request to the server.
+
+❌ Future: The client will then send a request to the server.
