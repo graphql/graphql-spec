@@ -15,7 +15,9 @@ the case that any _field error_ was raised on a field and was replaced with
 ### Response Map
 
 :: A GraphQL request returns a _response map_ when the GraphQL operation is a
-query or mutation. A response map must be a map.
+query or mutation. When the GraphQL operation is a subscription, the GraphQL
+request returns a _response map_ if a _request error_ is raised. A response map
+must be a map.
 
 If the request raised any errors, the _response map_ must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -43,7 +45,8 @@ a response map during debugging.
 ### Response Stream
 
 :: A GraphQL request returns a _response stream_ when the GraphQL operation is a
-subscription. A response stream must be a stream of _response map_.
+subscription and a _request error_ is not raised. A response stream must be a
+stream of _response map_.
 
 ### Data
 
