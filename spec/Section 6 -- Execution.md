@@ -347,7 +347,7 @@ Executing the root selection set works similarly for queries (parallel),
 mutations (serial), and subscriptions (where it is executed for each event in
 the underlying Source Stream).
 
-First, the selection set is turned into a grouped field set; then, we execute
+First, the selection set is turned into a _grouped field set_; then, we execute
 this grouped field set and return the resulting {data} and {errors}.
 
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
@@ -365,11 +365,13 @@ serial):
 
 ### Field Collection
 
-Before execution, the _selection set_ is converted to a grouped field set by
-calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
+Before execution, the _selection set_ is converted to a _grouped field set_ by
+calling {CollectFields()}.
+
+:: A _grouped field set_ is a map where each entry is a list of field selections
+(including those in referenced fragments) that share a _response key_ (the alias
+if defined, otherwise the field name). This ensures all fields with the same
+_response key_ are executed at the same time.
 
 As an example, collecting the fields of this selection set would collect two
 instances of the field `a` and one of field `b`:
