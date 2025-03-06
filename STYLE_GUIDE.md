@@ -96,7 +96,3 @@ The present tense is usually clearer and shorter:
 
 ❌ Future: The client will then send a request to the server.
 
-**Avoid repetition**
-
-Repetition adds more cognitive load and possibilities for different parts of the
-specification to diverge in their meaning.
