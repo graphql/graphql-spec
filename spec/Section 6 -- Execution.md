@@ -820,6 +820,9 @@ CollectSubfields(objectType, fields, variableValues):
     - Append all fields in {subfields} to {groupForResponseKey}.
 - Return {groupedFieldSet}.
 
+Note: All the {fields} passed to {CollectSubfields()} share the same _response
+key_.
+
 ### Handling Field Errors
 
 A _field error_ is an error raised from a particular field during value
