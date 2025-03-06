@@ -466,7 +466,7 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-:: A _response key_ is the key in the response object that correlates with a
+:: A _response key_ is the key in the response object which correlates with a
 field's result. By default the response key will use the field's name; however,
 you can define a different response key by specifying an alias.
 
