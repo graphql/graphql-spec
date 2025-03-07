@@ -42,7 +42,7 @@ TypeSystemExtension :
 - TypeExtension
 
 Type system extensions are used to represent a GraphQL type system which has
-been extended from some original type system. For example, this might be used by
+been extended from some previous type system. For example, this might be used by
 a local service to represent data a GraphQL client only accesses locally, or by
 a GraphQL service which is itself an extension of another GraphQL service.
 
@@ -122,7 +122,7 @@ RootOperationTypeDefinition : OperationType : NamedType
 
 A GraphQL service's collective type system capabilities are referred to as that
 service's "schema". A schema is defined in terms of the types and directives it
-supports as well as the root operation types for each kind of operation: query,
+supports as well as the _root operation type_ for each kind of operation: query,
 mutation, and subscription; this determines the place in the type system where
 those operations begin.
 
@@ -141,24 +141,24 @@ introspection system.
 
 ### Root Operation Types
 
-A schema defines the initial root operation type for each kind of operation it
-supports: query, mutation, and subscription; this determines the place in the
+:: A schema defines the initial _root operation type_ for each kind of operation
+it supports: query, mutation, and subscription; this determines the place in the
 type system where those operations begin.
 
-The {`query`} root operation type must be provided and must be an Object type.
+The {`query`} _root operation type_ must be provided and must be an Object type.
 
-The {`mutation`} root operation type is optional; if it is not provided, the
+The {`mutation`} _root operation type_ is optional; if it is not provided, the
 service does not support mutations. If it is provided, it must be an Object
 type.
 
-Similarly, the {`subscription`} root operation type is also optional; if it is
+Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
 must be an Object type.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
 
-The fields on the {`query`} root operation type indicate what fields are
+The fields on the {`query`} _root operation type_ indicate what fields are
 available at the top level of a GraphQL query operation.
 
 For example, this example operation:
@@ -169,7 +169,8 @@ query {
 }
 ```
 
-is only valid when the {`query`} root operation type has a field named "myName":
+is only valid when the {`query`} _root operation type_ has a field named
+"myName":
 
 ```graphql example
 type Query {
@@ -177,8 +178,8 @@ type Query {
 }
 ```
 
-Similarly, the following mutation is only valid if the {`mutation`} root
-operation type has a field named "setName".
+Similarly, the following mutation is only valid if the {`mutation`} _root
+operation type_ has a field named "setName".
 
 ```graphql example
 mutation {
@@ -191,8 +192,8 @@ mutation {
 When using the type system definition language, a document must include at most
 one {`schema`} definition.
 
-In this example, a GraphQL schema is defined with both query and mutation root
-operation types:
+In this example, a GraphQL schema is defined with both a query and mutation
+_root operation type_:
 
 ```graphql example
 schema {
@@ -211,22 +212,50 @@ type MyMutationRootType {
 
 **Default Root Operation Type Names**
 
-While any type can be the root operation type for a GraphQL operation, the type
-system definition language can omit the schema definition when the {`query`},
-{`mutation`}, and {`subscription`} root types are named {"Query"}, {"Mutation"},
-and {"Subscription"} respectively.
+:: The _default root type name_ for each {`query`}, {`mutation`}, and
+{`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
+{"Subscription"} respectively.
+
+The type system definition language can omit the schema definition when each
+_root operation type_ uses its respective _default root type name_ and no other
+type uses any _default root type name_.
 
 Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if it only uses the default root
-operation type names.
+language, a schema definition should be omitted if each _root operation type_
+uses its respective _default root type name_ and no other type uses any _default
+root type name_.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
-{`query`} root operation type of the schema.
+{`query`} _root operation type_ of the schema.
 
 ```graphql example
 type Query {
   someField: String
+}
+```
+
+This example describes a valid GraphQL schema without a {`mutation`} _root
+operation type_, even though it contains a type named {"Mutation"}. The schema
+definition must be included, otherwise the {"Mutation"} type would be
+incorrectly presumed to be the {`mutation`} _root operation type_ of the schema.
+
+```graphql example
+schema {
+  query: Query
+}
+
+type Query {
+  latestVirus: Virus
+}
+
+type Virus {
+  name: String
+  mutations: [Mutation]
+}
+
+type Mutation {
+  name: String
 }
 ```
 
@@ -237,8 +266,8 @@ SchemaExtension :
 - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
 - extend schema Directives[Const] [lookahead != `{`]
 
-Schema extensions are used to represent a schema which has been extended from an
-original schema. For example, this might be used by a GraphQL service which adds
+Schema extensions are used to represent a schema which has been extended from a
+previous schema. For example, this might be used by a GraphQL service which adds
 additional operation types, or additional directives to an existing schema.
 
 Note: Schema extensions without additional operation type definitions must not
@@ -250,7 +279,7 @@ The same limitation applies to the type definitions and extensions below.
 Schema extensions have the potential to be invalid if incorrectly defined.
 
 1. The Schema must already be defined.
-2. Any non-repeatable directives provided must not already apply to the original
+2. Any non-repeatable directives provided must not already apply to the previous
    Schema.
 
 ## Types
@@ -318,23 +347,23 @@ can only be used as input types. Object, Interface, and Union types can only be
 used as output types. Lists and Non-Null types may be used as input types or
 output types depending on how the wrapped type may be used.
 
-IsInputType(type) :
+IsInputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsInputType({unwrappedType})
+  - Return IsInputType({unwrappedType}).
 - If {type} is a Scalar, Enum, or Input Object type:
-  - Return {true}
-- Return {false}
+  - Return {true}.
+- Return {false}.
 
-IsOutputType(type) :
+IsOutputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsOutputType({unwrappedType})
+  - Return IsOutputType({unwrappedType}).
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
-  - Return {true}
-- Return {false}
+  - Return {true}.
+- Return {false}.
 
 ### Type Extensions
 
@@ -348,7 +377,7 @@ TypeExtension :
 - InputObjectTypeExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
-from some original type. For example, this might be used by a local service to
+from some previous type. For example, this might be used by a local service to
 represent additional fields a GraphQL client only accesses locally.
 
 ## Scalars
@@ -405,11 +434,16 @@ conform to its described rules.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 scalar URL @specifiedBy(url: "https://tools.ietf.org/html/rfc3986")
+scalar DateTime
+  @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time")
 ```
 
 Custom *scalar specification URL*s should provide a single, stable format to
 avoid ambiguity. If the linked specification is in flux, the service should link
 to a fixed version rather than to a resource which might change.
+
+Note: Some community-maintained custom scalar specifications are hosted at
+[scalars.graphql.org](https://scalars.graphql.org/).
 
 Custom *scalar specification URL*s should not be changed once defined. Doing so
 would likely disrupt tooling or could introduce breaking changes within the
@@ -419,7 +453,9 @@ Built-in scalar types must not provide a _scalar specification URL_ as they are
 specified by this document.
 
 Note: Custom scalars should also summarize the specified format and provide
-examples in their description.
+examples in their description; see the GraphQL scalars
+[implementation guide](https://scalars.graphql.org/implementation-guide) for
+more guidance.
 
 **Result Coercion and Serialization**
 
@@ -577,7 +613,7 @@ other input values must raise a _request error_ indicating an incorrect type.
 The ID scalar type represents a unique identifier, often used to refetch an
 object or as the key for a cache. The ID type is serialized in the same way as a
 {String}; however, it is not intended to be human-readable. While it is often
-numeric, it should always serialize as a {String}.
+numeric, it must always serialize as a {String}.
 
 **Result Coercion**
 
@@ -604,7 +640,7 @@ ScalarTypeExtension :
 - extend scalar Name Directives[Const]
 
 Scalar type extensions are used to represent a scalar type which has been
-extended from some original scalar type. For example, this might be used by a
+extended from some previous scalar type. For example, this might be used by a
 GraphQL tool or service which adds directives to an existing scalar.
 
 **Type Validation**
@@ -612,7 +648,7 @@ GraphQL tool or service which adds directives to an existing scalar.
 Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Scalar type.
-2. Any non-repeatable directives provided must not already apply to the original
+2. Any non-repeatable directives provided must not already apply to the previous
    Scalar type.
 
 ## Objects
@@ -641,8 +677,8 @@ operations, Objects describe the intermediate levels.
 GraphQL Objects represent a list of named fields, each of which yield a value of
 a specific type. Object values should be serialized as ordered maps, where the
 selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the selection
-set.
+field is the value, ordered by the order in which they appear in the _selection
+set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -878,11 +914,13 @@ of rules must be adhered to by every Object type in a GraphQL schema.
    4. For each argument of the field:
       1. The argument must not have a name which begins with the characters
          {"\_\_"} (two underscores).
-      2. The argument must accept a type where {IsInputType(argumentType)}
+      2. The argument must have a unique name within that field; no two
+         arguments may share the same name.
+      3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-      3. If argument type is Non-Null and a default value is not defined:
-         - The `@deprecated` directive must not be applied to this argument.
-      4. If the argument has a default value it must be compatible with
+      4. If argument type is Non-Null and a default value is not defined:
+         1. The `@deprecated` directive must not be applied to this argument.
+      5. If the argument has a default value it must be compatible with
          {argumentType} as per the coercion rules for that type.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
@@ -990,7 +1028,7 @@ Object, Interface, or Union type).
 ### Field Deprecation
 
 Fields in an object may be marked as deprecated as deemed necessary by the
-application. It is still legal to include these fields in a selection set (to
+application. It is still legal to include these fields in a _selection set_ (to
 ensure existing clients are not broken by the change), but the fields should be
 appropriately treated in documentation and tooling.
 
@@ -1012,7 +1050,7 @@ ObjectTypeExtension :
 - extend type Name ImplementsInterfaces [lookahead != `{`]
 
 Object type extensions are used to represent a type which has been extended from
-some original type. For example, this might be used to represent local data, or
+some previous type. For example, this might be used to represent local data, or
 by a GraphQL service which is itself an extension of another GraphQL service.
 
 In this example, a local data field is added to a `Story` type:
@@ -1040,10 +1078,10 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 2. The fields of an Object type extension must have unique names; no two fields
    may share the same name.
 3. Any fields of an Object type extension must not be already defined on the
-   original Object type.
-4. Any non-repeatable directives provided must not already apply to the original
+   previous Object type.
+4. Any non-repeatable directives provided must not already apply to the previous
    Object type.
-5. Any interfaces provided must not be already implemented by the original
+5. Any interfaces provided must not be already implemented by the previous
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
    implements.
@@ -1106,7 +1144,7 @@ type Contact {
 }
 ```
 
-This allows us to write a selection set for a `Contact` that can select the
+This allows us to write a _selection set_ for a `Contact` that can select the
 common fields.
 
 ```graphql example
@@ -1230,7 +1268,9 @@ Interface types have the potential to be invalid if incorrectly defined.
    4. For each argument of the field:
       1. The argument must not have a name which begins with the characters
          {"\_\_"} (two underscores).
-      2. The argument must accept a type where {IsInputType(argumentType)}
+      2. The argument must have a unique name within that field; no two
+         arguments may share the same name.
+      3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
@@ -1250,7 +1290,7 @@ InterfaceTypeExtension :
 - extend interface Name ImplementsInterfaces [lookahead != `{`]
 
 Interface type extensions are used to represent an interface which has been
-extended from some original interface. For example, this might be used to
+extended from some previous interface. For example, this might be used to
 represent common local data on many types, or by a GraphQL service which is
 itself an extension of another GraphQL service.
 
@@ -1290,11 +1330,11 @@ defined.
 2. The fields of an Interface type extension must have unique names; no two
    fields may share the same name.
 3. Any fields of an Interface type extension must not be already defined on the
-   original Interface type.
-4. Any Object or Interface type which implemented the original Interface type
+   previous Interface type.
+4. Any Object or Interface type which implemented the previous Interface type
    must also be a super-set of the fields of the Interface type extension (which
    may be due to Object type extension).
-5. Any non-repeatable directives provided must not already apply to the original
+5. Any non-repeatable directives provided must not already apply to the previous
    Interface type.
 6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
@@ -1405,7 +1445,7 @@ UnionTypeExtension :
 - extend union Name Directives[Const]
 
 Union type extensions are used to represent a union type which has been extended
-from some original union type. For example, this might be used to represent
+from some previous union type. For example, this might be used to represent
 additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
 
@@ -1419,8 +1459,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    Similarly, wrapping types must not be member types of a Union.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
-   the original Union type.
-5. Any non-repeatable directives provided must not already apply to the original
+   the previous Union type.
+5. Any non-repeatable directives provided must not already apply to the previous
    Union type.
 
 ## Enums
@@ -1482,7 +1522,7 @@ EnumTypeExtension :
 - extend enum Name Directives[Const] [lookahead != `{`]
 
 Enum type extensions are used to represent an enum type which has been extended
-from some original enum type. For example, this might be used to represent
+from some previous enum type. For example, this might be used to represent
 additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
 
@@ -1493,8 +1533,8 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 1. The named type must already be defined and must be an Enum type.
 2. All values of an Enum type extension must be unique.
 3. All values of an Enum type extension must not already be a value of the
-   original Enum.
-4. Any non-repeatable directives provided must not already apply to the original
+   previous Enum.
+4. Any non-repeatable directives provided must not already apply to the previous
    Enum type.
 
 ## Input Objects
@@ -1593,7 +1633,7 @@ The value for an input object should be an input object literal or an unordered
 map supplied by a variable, otherwise a _request error_ must be raised. In
 either case, the input object literal or unordered map must not contain any
 entries with names not defined by a field of this input object type, otherwise a
-response error must be raised.
+request error must be raised.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1662,7 +1702,7 @@ input ExampleInputObject {
    3. The input field must accept a type where {IsInputType(inputFieldType)}
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
-      - The `@deprecated` directive must not be applied to this input field.
+      1. The `@deprecated` directive must not be applied to this input field.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -1711,7 +1751,7 @@ InputObjectTypeExtension :
 - extend input Name Directives[Const] [lookahead != `{`]
 
 Input object type extensions are used to represent an input object type which
-has been extended from some original input object type. For example, this might
+has been extended from some previous input object type. For example, this might
 be used by a GraphQL service which is itself an extension of another GraphQL
 service.
 
@@ -1723,8 +1763,8 @@ defined.
 1. The named type must already be defined and must be a Input Object type.
 2. All fields of an Input Object type extension must have unique names.
 3. All fields of an Input Object type extension must not already be a field of
-   the original Input Object.
-4. Any non-repeatable directives provided must not already apply to the original
+   the previous Input Object.
+4. Any non-repeatable directives provided must not already apply to the previous
    Input Object type.
 
 ## List
@@ -1779,7 +1819,9 @@ Following are examples of input coercion with various list types and values:
 | `[Int]`       | `1`              | `[1]`                       |
 | `[Int]`       | `null`           | `null`                      |
 | `[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`             |
-| `[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value |
+| `[[Int]]`     | `[1, 2, 3]`      | `[[1], [2], [3]]`           |
+| `[[Int]]`     | `[1, null, 3]`   | `[[1], null, [3]]`          |
+| `[[Int]]`     | `[[1], ["b"]]`   | Error: Incorrect item value |
 | `[[Int]]`     | `1`              | `[[1]]`                     |
 | `[[Int]]`     | `null`           | `null`                      |
 
@@ -1794,9 +1836,10 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 
 **Nullable vs. Optional**
 
-Fields are _always_ optional within the context of a selection set, a field may
-be omitted and the selection set is still valid. However fields that return
-Non-Null types will never return the value {null} if queried.
+Fields are _always_ optional within the context of a _selection set_, a field
+may be omitted and the selection set is still valid (so long as the selection
+set does not become empty). However fields that return Non-Null types will never
+return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},
@@ -2043,7 +2086,9 @@ repeatable directives.
 4. For each argument of the directive:
    1. The argument must not have a name which begins with the characters
       {"\_\_"} (two underscores).
-   2. The argument must accept a type where {IsInputType(argumentType)} returns
+   2. The argument must have a unique name within that directive; no two
+      arguments may share the same name.
+   3. The argument must accept a type where {IsInputType(argumentType)} returns
       {true}.
 
 ### @skip
@@ -2095,7 +2140,7 @@ condition is false.
 
 ```graphql
 directive @deprecated(
-  reason: String = "No longer supported"
+  reason: String! = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
@@ -2148,6 +2193,9 @@ definition language to provide a _scalar specification URL_ for specifying the
 behavior of [custom scalar types](#sec-Scalars.Custom-Scalars). The URL should
 point to a human-readable specification of the data format, serialization, and
 coercion rules. It must not appear on built-in scalar types.
+
+Note: Details on implementing a GraphQL scalar specification can be found in the
+[scalars.graphql.org implementation guide](https://scalars.graphql.org/implementation-guide).
 
 In this example, a custom scalar type for `UUID` is defined with a URL pointing
 to the relevant IETF specification.

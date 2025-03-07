@@ -362,7 +362,7 @@ fragment aliasedLyingFieldTargetNotDefined on Dog {
 ```
 
 For interfaces, direct field selection can only be done on fields. Fields of
-concrete implementors are not relevant to the validity of the given
+concrete implementers are not relevant to the validity of the given
 interface-typed selection set.
 
 For example, the following is valid:
@@ -376,7 +376,7 @@ fragment interfaceFieldSelection on Pet {
 and the following is invalid:
 
 ```graphql counter-example
-fragment definedOnImplementorsButNotInterface on Pet {
+fragment definedOnImplementersButNotInterface on Pet {
   nickname
 }
 ```
@@ -420,7 +420,7 @@ FieldsInSetCanMerge(set):
 
 - Let {fieldsForName} be the set of selections with a given response name in
   {set} including visiting fragments and inline fragments.
-- Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -435,25 +435,30 @@ SameResponseShape(fieldA, fieldB):
 - Let {typeA} be the return type of {fieldA}.
 - Let {typeB} be the return type of {fieldB}.
 - If {typeA} or {typeB} is Non-Null:
-  - If {typeA} or {typeB} is nullable, return false.
+  - If {typeA} or {typeB} is nullable, return {false}.
   - Let {typeA} be the nullable type of {typeA}.
   - Let {typeB} be the nullable type of {typeB}.
 - If {typeA} or {typeB} is List:
-  - If {typeA} or {typeB} is not List, return false.
+  - If {typeA} or {typeB} is not List, return {false}.
   - Let {typeA} be the item type of {typeA}.
   - Let {typeB} be the item type of {typeB}.
   - Repeat from step 3.
 - If {typeA} or {typeB} is Scalar or Enum:
-  - If {typeA} and {typeB} are the same type return true, otherwise return
-    false.
-- Assert: {typeA} and {typeB} are both composite types.
+  - If {typeA} and {typeB} are the same type return {true}, otherwise return
+    {false}.
+- Assert: {typeA} is an object, union or interface type.
+- Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
 - Let {fieldsForName} be the set of selections with a given response name in
   {mergedSet} including visiting fragments and inline fragments.
-- Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
-  - If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
-- Return true.
+- Given each pair of distinct members {subfieldA} and {subfieldB} in
+  {fieldsForName}:
+  - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
+- Return {true}.
+
+Note: In prior versions of the spec the term "composite" was used to signal a
+type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
@@ -739,7 +744,7 @@ invalid.
     which contains {argument}.
   - {arguments} must be the set containing only {argument}.
 
-#### Required Arguments
+### Required Arguments
 
 - For each Field or Directive in the document:
   - Let {arguments} be the arguments provided by the Field or Directive.
@@ -910,7 +915,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments on Composite Types
+#### Fragments on Object, Interface or Union Types
 
 **Formal Specification**
 
@@ -1014,7 +1019,7 @@ is a validation error if the target of a spread is not defined.
 
 - For each {fragmentDefinition} in the document:
   - Let {visited} be the empty set.
-  - {DetectFragmentCycles(fragmentDefinition, visited)}
+  - {DetectFragmentCycles(fragmentDefinition, visited)}.
 
 DetectFragmentCycles(fragmentDefinition, visited):
 
@@ -1023,7 +1028,7 @@ DetectFragmentCycles(fragmentDefinition, visited):
   - {visited} must not contain {spread}.
   - Let {nextVisited} be the set including {spread} and members of {visited}.
   - Let {nextFragmentDefinition} be the target of {spread}.
-  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}
+  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}.
 
 **Explanatory Text**
 
