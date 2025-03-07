@@ -1304,14 +1304,25 @@ fragment resourceFragment on Resource {
 
 **Formal Specification**
 
-- For each input Value {value} in the document:
+- For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type}.
+  - {value} must be coercible to {type} (with the assumption that any
+    {variableUsage} nested within {value} will represent a runtime value valid
+    for usage in its position).
 
 **Explanatory Text**
 
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
+
+Note: A {ListValue} or {ObjectValue} may contain nested Input Values, some of
+which may be a variable usage. The
+[All Variable Usages Are Allowed](#sec-All-Variable-Usages-Are-Allowed)
+validation rule ensures that each {variableUsage} is of a type allowed in its
+position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
+algorithm ensures runtime values for variables coerce correctly. Therefore, for
+the purposes of the "coercible" assertion in this validation rule, we can assume
+the runtime value of each {variableUsage} is valid for usage in its position.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
