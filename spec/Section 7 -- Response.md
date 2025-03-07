@@ -10,7 +10,12 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A response to a GraphQL request must be a map.
+A GraphQL request returns either a _response_ or a _response stream_.
+
+### Response
+
+:: A GraphQL request returns a _response_ when the GraphQL operation is a query
+or mutation. A _response_ must be a map.
 
 If the request raised any errors, the response map must contain an entry with
 key `errors`. The value of this entry is described in the "Errors" section. If
@@ -23,7 +28,7 @@ request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry, if
-set, must have a map as its value. This entry is reserved for implementors to
+set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
@@ -35,6 +40,11 @@ Note: When `errors` is present in the response, it may be helpful for it to
 appear first when serialized to make it more clear when errors are present in a
 response during debugging.
 
+### Response Stream
+
+:: A GraphQL request returns a _response stream_ when the GraphQL operation is a
+subscription. A _response stream_ must be a stream of _response_.
+
 ### Data
 
 The `data` entry in the response will be the result of the execution of the
@@ -43,7 +53,7 @@ of the query root operation type; if the operation was a mutation, this output
 will be an object of the mutation root operation type.
 
 If an error was raised before execution begins, the `data` entry should not be
-present in the result.
+present in the response.
 
 If an error was raised during the execution that prevented a valid response, the
 `data` entry in the response should be `null`.
@@ -56,7 +66,7 @@ format below.
 
 If present, the `errors` entry in the response must contain at least one error.
 If no errors were raised during the request, the `errors` entry must not be
-present in the result.
+present in the response.
 
 If the `data` entry in the response is not present, the `errors` entry must be
 present. It must contain at least one _request error_ indicating why no data was
@@ -107,14 +117,8 @@ syntax element.
 If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key `path` that details the path of the response
 field which experienced the error. This allows clients to identify whether a
-`null` result is intentional or caused by a runtime error.
-
-This field should be a list of path segments starting at the root of the
-response and ending with the field associated with the error. Path segments that
-represent fields should be strings, and path segments that represent list
-indices should be 0-indexed integers. If the error happens in an aliased field,
-the path to the error should use the aliased name, since it represents a path in
-the response, not in the request.
+`null` result is intentional or caused by a runtime error. The value of this
+_path entry_ is described in the [Path](#sec-Path) section.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
@@ -203,7 +207,7 @@ be the same:
 
 GraphQL services may provide an additional entry to errors with key
 `extensions`. This entry, if set, must have a map as its value. This entry is
-reserved for implementors to add additional information to errors however they
+reserved for implementers to add additional information to errors however they
 see fit, and there are no additional restrictions on its contents.
 
 ```json example
@@ -243,6 +247,21 @@ discouraged.
   ]
 }
 ```
+
+### Path
+
+:: A _path entry_ is an entry within an _error result_ that allows for
+association with a particular field reached during GraphQL execution.
+
+The value for a _path entry_ must be a list of path segments starting at the
+root of the response and ending with the field to be associated with. Path
+segments that represent fields must be strings, and path segments that represent
+list indices must be 0-indexed integers. If a path segment is associated with an
+aliased field it must use the aliased name, since it represents a path in the
+response, not in the request.
+
+When the _path entry_ is present on an _error result_, it identifies the
+response field which experienced the error.
 
 ## Serialization Format
 
@@ -294,13 +313,13 @@ JSON format throughout this document.
 
 ### Serialized Map Ordering
 
-Since the result of evaluating a selection set is ordered, the serialized Map of
-results should preserve this order by writing the map entries in the same order
-as those fields were requested as defined by selection set execution. Producing
-a serialized response where fields are represented in the same order in which
-they appear in the request improves human readability during debugging and
-enables more efficient parsing of responses if the order of properties can be
-anticipated.
+Since the result of evaluating a _selection set_ is ordered, the serialized Map
+of results should preserve this order by writing the map entries in the same
+order as those fields were requested as defined by selection set execution.
+Producing a serialized response where fields are represented in the same order
+in which they appear in the request improves human readability during debugging
+and enables more efficient parsing of responses if the order of properties can
+be anticipated.
 
 Serialization formats which represent an ordered map should preserve the order
 of requested fields as defined by {CollectFields()} in the Execution section.
