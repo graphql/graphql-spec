@@ -1706,41 +1706,42 @@ input ExampleInputObject {
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
-4. {DetectInputObjectDefaultValueCycle(inputObject)}.
+4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
 
-DetectInputObjectDefaultValueCycle(inputObject, defaultValue, visitedFields):
+InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
 
 - If {defaultValue} is not provided, initialize it to an empty unordered map.
 - If {visitedFields} is not provided, initialize it to the empty set.
 - If {defaultValue} is a list:
   - For each {itemValue} in {defaultValue}:
-    - {DetectInputObjectDefaultValueCycle(inputObject, itemValue,
-      visitedFields)}.
-- Otherwise:
-  - If {defaultValue} is not an unordered map:
-    - Return.
+    - If {InputObjectDefaultValueHasCycle(inputObject, itemValue,
+      visitedFields)}, return {true}.
+- Otherwise, if {defaultValue} is an unordered map:
   - For each field {field} in {inputObject}:
-    - {DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields)}.
+    - If {InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields)},
+      return {true}.
+- Return {false}.
 
-DetectInputFieldDefaultValueCycle(field, defaultValue, visitedFields):
+InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
 
 - Assert: {defaultValue} is an unordered map.
 - Let {fieldType} be the type of {field}.
 - Let {namedFieldType} be the underlying named type of {fieldType}.
 - If {namedFieldType} is not an input object type:
-  - Return.
+  - Return {false}.
 - Let {fieldName} be the name of {field}.
 - Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
 - If {fieldDefaultValue} exists:
-  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue,
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     visitedFields)}.
 - Otherwise:
   - Let {fieldDefaultValue} be the default value of {field}.
   - If {fieldDefaultValue} does not exist:
-    - Return.
-  - {field} must not be within {visitedFields}.
+    - Return {false}.
+  - If {field} is within {visitedFields}:
+    - Return {true}.
   - Add {field} to {visitedFields}.
-  - {DetectInputObjectDefaultValueCycle(namedFieldType, fieldDefaultValue,
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     visitedFields)}.
 
 ### Input Object Extensions
