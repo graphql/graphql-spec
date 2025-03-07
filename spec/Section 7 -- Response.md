@@ -58,8 +58,8 @@ output will be an object of the mutation root operation type.
 If an error was raised before execution begins, the `data` entry should not be
 present in the _response map_.
 
-If an error was raised during the execution that prevented a valid result, the
-`data` entry in the _response map_ should be `null`.
+If an error was raised during execution that propagated to the operation root,
+the `data` entry in the _response map_ should be `null`.
 
 ### Errors
 
