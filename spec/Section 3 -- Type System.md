@@ -42,7 +42,7 @@ TypeSystemExtension :
 - TypeExtension
 
 Type system extensions are used to represent a GraphQL type system which has
-been extended from some original type system. For example, this might be used by
+been extended from some previous type system. For example, this might be used by
 a local service to represent data a GraphQL client only accesses locally, or by
 a GraphQL service which is itself an extension of another GraphQL service.
 
@@ -266,8 +266,8 @@ SchemaExtension :
 - extend schema Directives[Const]? { RootOperationTypeDefinition+ }
 - extend schema Directives[Const] [lookahead != `{`]
 
-Schema extensions are used to represent a schema which has been extended from an
-original schema. For example, this might be used by a GraphQL service which adds
+Schema extensions are used to represent a schema which has been extended from a
+previous schema. For example, this might be used by a GraphQL service which adds
 additional operation types, or additional directives to an existing schema.
 
 Note: Schema extensions without additional operation type definitions must not
@@ -279,7 +279,7 @@ The same limitation applies to the type definitions and extensions below.
 Schema extensions have the potential to be invalid if incorrectly defined.
 
 1. The Schema must already be defined.
-2. Any non-repeatable directives provided must not already apply to the original
+2. Any non-repeatable directives provided must not already apply to the previous
    Schema.
 
 ## Types
@@ -377,7 +377,7 @@ TypeExtension :
 - InputObjectTypeExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
-from some original type. For example, this might be used by a local service to
+from some previous type. For example, this might be used by a local service to
 represent additional fields a GraphQL client only accesses locally.
 
 ## Scalars
@@ -640,7 +640,7 @@ ScalarTypeExtension :
 - extend scalar Name Directives[Const]
 
 Scalar type extensions are used to represent a scalar type which has been
-extended from some original scalar type. For example, this might be used by a
+extended from some previous scalar type. For example, this might be used by a
 GraphQL tool or service which adds directives to an existing scalar.
 
 **Type Validation**
@@ -648,7 +648,7 @@ GraphQL tool or service which adds directives to an existing scalar.
 Scalar type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be a Scalar type.
-2. Any non-repeatable directives provided must not already apply to the original
+2. Any non-repeatable directives provided must not already apply to the previous
    Scalar type.
 
 ## Objects
@@ -1048,7 +1048,7 @@ ObjectTypeExtension :
 - extend type Name ImplementsInterfaces [lookahead != `{`]
 
 Object type extensions are used to represent a type which has been extended from
-some original type. For example, this might be used to represent local data, or
+some previous type. For example, this might be used to represent local data, or
 by a GraphQL service which is itself an extension of another GraphQL service.
 
 In this example, a local data field is added to a `Story` type:
@@ -1076,10 +1076,10 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 2. The fields of an Object type extension must have unique names; no two fields
    may share the same name.
 3. Any fields of an Object type extension must not be already defined on the
-   original Object type.
-4. Any non-repeatable directives provided must not already apply to the original
+   previous Object type.
+4. Any non-repeatable directives provided must not already apply to the previous
    Object type.
-5. Any interfaces provided must not be already implemented by the original
+5. Any interfaces provided must not be already implemented by the previous
    Object type.
 6. The resulting extended object type must be a super-set of all interfaces it
    implements.
@@ -1288,7 +1288,7 @@ InterfaceTypeExtension :
 - extend interface Name ImplementsInterfaces [lookahead != `{`]
 
 Interface type extensions are used to represent an interface which has been
-extended from some original interface. For example, this might be used to
+extended from some previous interface. For example, this might be used to
 represent common local data on many types, or by a GraphQL service which is
 itself an extension of another GraphQL service.
 
@@ -1328,11 +1328,11 @@ defined.
 2. The fields of an Interface type extension must have unique names; no two
    fields may share the same name.
 3. Any fields of an Interface type extension must not be already defined on the
-   original Interface type.
-4. Any Object or Interface type which implemented the original Interface type
+   previous Interface type.
+4. Any Object or Interface type which implemented the previous Interface type
    must also be a super-set of the fields of the Interface type extension (which
    may be due to Object type extension).
-5. Any non-repeatable directives provided must not already apply to the original
+5. Any non-repeatable directives provided must not already apply to the previous
    Interface type.
 6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
@@ -1443,7 +1443,7 @@ UnionTypeExtension :
 - extend union Name Directives[Const]
 
 Union type extensions are used to represent a union type which has been extended
-from some original union type. For example, this might be used to represent
+from some previous union type. For example, this might be used to represent
 additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
 
@@ -1457,8 +1457,8 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    Similarly, wrapping types must not be member types of a Union.
 3. All member types of a Union type extension must be unique.
 4. All member types of a Union type extension must not already be a member of
-   the original Union type.
-5. Any non-repeatable directives provided must not already apply to the original
+   the previous Union type.
+5. Any non-repeatable directives provided must not already apply to the previous
    Union type.
 
 ## Enums
@@ -1520,7 +1520,7 @@ EnumTypeExtension :
 - extend enum Name Directives[Const] [lookahead != `{`]
 
 Enum type extensions are used to represent an enum type which has been extended
-from some original enum type. For example, this might be used to represent
+from some previous enum type. For example, this might be used to represent
 additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
 
@@ -1531,8 +1531,8 @@ Enum type extensions have the potential to be invalid if incorrectly defined.
 1. The named type must already be defined and must be an Enum type.
 2. All values of an Enum type extension must be unique.
 3. All values of an Enum type extension must not already be a value of the
-   original Enum.
-4. Any non-repeatable directives provided must not already apply to the original
+   previous Enum.
+4. Any non-repeatable directives provided must not already apply to the previous
    Enum type.
 
 ## Input Objects
@@ -1792,7 +1792,7 @@ InputObjectTypeExtension :
 - extend input Name Directives[Const] [lookahead != `{`]
 
 Input object type extensions are used to represent an input object type which
-has been extended from some original input object type. For example, this might
+has been extended from some previous input object type. For example, this might
 be used by a GraphQL service which is itself an extension of another GraphQL
 service.
 
@@ -1804,8 +1804,8 @@ defined.
 1. The named type must already be defined and must be a Input Object type.
 2. All fields of an Input Object type extension must have unique names.
 3. All fields of an Input Object type extension must not already be a field of
-   the original Input Object.
-4. Any non-repeatable directives provided must not already apply to the original
+   the previous Input Object.
+4. Any non-repeatable directives provided must not already apply to the previous
    Input Object type.
 5. The `@oneOf` directive must not be provided by an Input Object type
    extension.
@@ -1866,7 +1866,9 @@ Following are examples of input coercion with various list types and values:
 | `[Int]`       | `1`              | `[1]`                       |
 | `[Int]`       | `null`           | `null`                      |
 | `[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`             |
-| `[[Int]]`     | `[1, 2, 3]`      | Error: Incorrect item value |
+| `[[Int]]`     | `[1, 2, 3]`      | `[[1], [2], [3]]`           |
+| `[[Int]]`     | `[1, null, 3]`   | `[[1], null, [3]]`          |
+| `[[Int]]`     | `[[1], ["b"]]`   | Error: Incorrect item value |
 | `[[Int]]`     | `1`              | `[[1]]`                     |
 | `[[Int]]`     | `null`           | `null`                      |
 
@@ -2188,7 +2190,7 @@ condition is false.
 
 ```graphql
 directive @deprecated(
-  reason: String = "No longer supported"
+  reason: String! = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 ```
 
