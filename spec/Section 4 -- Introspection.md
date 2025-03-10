@@ -421,7 +421,7 @@ response _unless_ an associated _field error_ has been raised.
 
 The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Semantic-Non-Null of Lists. However it must not
-be a modified Semantic-Non-Null type to avoid a redundant Null-Only-On-Error of
+be a modified Semantic-Non-Null type to avoid a redundant Semantic-Non-Null of
 Semantic-Non-Null; nor may it be a modified Non-Null type since these types are
 mutually exclusive.
 
