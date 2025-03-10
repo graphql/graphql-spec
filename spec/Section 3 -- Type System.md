@@ -328,11 +328,13 @@ scalar string returns either null or a singular string.
 A GraphQL schema may describe that a field represents a list of another type;
 the `List` type is provided for this reason, and wraps another type.
 
-Similarly, the `Non-Null` type wraps another type, and denotes that the
-resulting value will never be {null} (and that a _field error_ cannot result in
-a {null} value).
+Similarly, both the `Non-Null` type and the `Semantic-Non-Null` type wrap
+another type, the former denotes that the resulting value will never be {null}
+(and that a _field error_ cannot result in a {null} value), whereas the latter
+denotes that the resulting value will never be {null} _unless_ there is a
+matching _field error_.
 
-These two types are referred to as "wrapping types"; non-wrapping types are
+These three types are referred to as "wrapping types"; non-wrapping types are
 referred to as "named types". A wrapping type has an underlying named type,
 found by continually unwrapping the type until a named type is found.
 
@@ -345,10 +347,13 @@ like Scalar and Enum types, can be used as both input types and output types;
 other kinds of types can only be used in one or the other. Input Object types
 can only be used as input types. Object, Interface, and Union types can only be
 used as output types. Lists and Non-Null types may be used as input types or
-output types depending on how the wrapped type may be used.
+output types depending on how the wrapped type may be used. Semantic-Non-Null
+types may only be used as output types.
 
 IsInputType(type) :
 
+- If {type} is a Semantic-Non-Null type:
+  - Return {false}
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
   - Return IsInputType({unwrappedType})
@@ -358,7 +363,7 @@ IsInputType(type) :
 
 IsOutputType(type) :
 
-- If {type} is a List type or Non-Null type:
+- If {type} is a List type, Non-Null type, or Semantic-Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
   - Return IsOutputType({unwrappedType})
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
@@ -1902,12 +1907,16 @@ Following are examples of result coercion with various types and values:
 
 ## Semantic-Non-Null
 
-The GraphQL Semantic-Non-Null type is an alternative to the GraphQL Non-Null
-type to disallow null unless accompanied by a field error. This type wraps an
-underlying type, and this type acts identically to that wrapped type, with the
-exception that {null} will result in a field error being raised. A leading
-exclamation mark is used to denote a field that uses a Semantic-Non-Null type
-like this: `name: !String`.
+The Semantic-Non-Null type is an alternative to the Non-Null type, used to
+indicate that a field is _semantically_ non-nullable (the data will never
+represent a {null}) whilst still allowing the position to act as an error
+boundary, preventing error propagation. Essentially it acts to disallow {null}
+_unless_ accompanied by a _field error_.
+
+The Semantic-Non-Null type wraps an underlying type, and this type acts
+identically to that wrapped type, with the exception that {null} will result in
+a field error being raised. A leading exclamation mark is used to denote a
+field that uses a Semantic-Non-Null type like this: `name: !String`.
 
 Semantic-Non-Null types are only valid for use as an _output type_; they must
 not be used as an _input type_.
@@ -1915,7 +1924,7 @@ not be used as an _input type_.
 **Nullable vs. Optional**
 
 Fields that return Semantic-Non-Null types will never return the value {null} if
-queried _unless_ an error has been logged for that field.
+queried _unless_ a _field error_ is associated with that field.
 
 **Result Coercion**
 
