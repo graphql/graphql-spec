@@ -134,12 +134,8 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
 - Let {selectionSet} be the top level selection set in {query}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  queryType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue, queryType,
+  selectionSet)}.
 
 ### Mutation
 
@@ -156,11 +152,8 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
 - Let {selectionSet} be the top level selection set in {mutation}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  mutationType, initialValue, variableValues)} _serially_.
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue, mutationType,
+  selectionSet, true)}.
 
 ### Subscription
 
@@ -327,12 +320,8 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level selection set in {subscription}.
-- Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
-  subscriptionType, initialValue, variableValues)} _normally_ (allowing
-  parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+- Return {ExecuteRootSelectionSet(variableValues, initialValue,
+  subscriptionType, selectionSet)}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -348,20 +337,151 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}.
 
-## Executing Selection Sets
+## Executing the Root Selection Set
 
-To execute a _selection set_, the object value being evaluated and the object
+To execute the root selection set, the object value being evaluated and the
+object type need to be known, as well as whether it must be executed serially,
+or may be executed in parallel.
+
+Executing the root selection set works similarly for queries (parallel),
+mutations (serial), and subscriptions (where it is executed for each event in
+the underlying Source Stream).
+
+First, the selection set is turned into a _grouped field set_; then, we execute
+this grouped field set and return the resulting {data} and {errors}.
+
+ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
+serial):
+
+- If {serial} is not provided, initialize it to {false}.
+- Let {groupedFieldSet} be the result of {CollectFields(objectType,
+  selectionSet, variableValues)}.
+- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
+  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
+  _normally_ (allowing parallelization) otherwise.
+- Let {errors} be the list of all _field error_ raised while executing the
+  selection set.
+- Return an unordered map containing {data} and {errors}.
+
+### Field Collection
+
+:: A _grouped field set_ is a map where each entry is a list of field selections
+that share a _response key_ (the alias if defined, otherwise the field name).
+
+Before execution, the _selection set_ is converted to a _grouped field set_ by
+calling {CollectFields()}. This ensures all fields with the same response key
+(including those in referenced fragments) are executed at the same time.
+
+As an example, collecting the fields of this selection set would collect two
+instances of the field `a` and one of field `b`:
+
+```graphql example
+{
+  a {
+    subfield1
+  }
+  ...ExampleFragment
+}
+
+fragment ExampleFragment on Query {
+  a {
+    subfield2
+  }
+  b
+}
+```
+
+The depth-first-search order of the field groups produced by {CollectFields()}
+is maintained through execution, ensuring that fields appear in the executed
+response in a stable and predictable order.
+
+CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- Initialize {groupedFields} to an empty ordered map of lists.
+- For each {selection} in {selectionSet}:
+  - If {selection} provides the directive `@skip`, let {skipDirective} be that
+    directive.
+    - If {skipDirective}'s {if} argument is {true} or is a variable in
+      {variableValues} with the value {true}, continue with the next {selection}
+      in {selectionSet}.
+  - If {selection} provides the directive `@include`, let {includeDirective} be
+    that directive.
+    - If {includeDirective}'s {if} argument is not {true} and is not a variable
+      in {variableValues} with the value {true}, continue with the next
+      {selection} in {selectionSet}.
+  - If {selection} is a {Field}:
+    - Let {responseKey} be the response key of {selection} (the alias if
+      defined, otherwise the field name).
+    - Let {groupForResponseKey} be the list in {groupedFields} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append {selection} to the {groupForResponseKey}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentGroupedFieldSet} be the result of calling
+      {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments)}.
+    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {responseKey} be the response key shared by all fields in
+        {fragmentGroup}.
+      - Let {groupForResponseKey} be the list in {groupedFields} for
+        {responseKey}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentType} be the type condition on {selection}.
+    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
+      fragmentType)} is {false}, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - Let {fragmentGroupedFieldSet} be the result of calling
+      {CollectFields(objectType, fragmentSelectionSet, variableValues,
+      visitedFragments)}.
+    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
+      - Let {responseKey} be the response key shared by all fields in
+        {fragmentGroup}.
+      - Let {groupForResponseKey} be the list in {groupedFields} for
+        {responseKey}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+- Return {groupedFields}.
+
+DoesFragmentTypeApply(objectType, fragmentType):
+
+- If {fragmentType} is an Object Type:
+  - If {objectType} and {fragmentType} are the same type, return {true},
+    otherwise return {false}.
+- If {fragmentType} is an Interface Type:
+  - If {objectType} is an implementation of {fragmentType}, return {true}
+    otherwise return {false}.
+- If {fragmentType} is a Union:
+  - If {objectType} is a possible type of {fragmentType}, return {true}
+    otherwise return {false}.
+
+Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
+directives may be applied in either order since they apply commutatively.
+
+## Executing a Grouped Field Set
+
+To execute a grouped field set, the object value being evaluated and the object
 type need to be known, as well as whether it must be executed serially, or may
 be executed in parallel.
 
-First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+Each represented field in the grouped field set produces an entry into a
+response map.
 
-ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
+ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+variableValues):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
 - For each {groupedFieldSet} as {responseKey} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
@@ -379,8 +499,8 @@ is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Fields**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
-_field error_ then that error must propagate to this entire selection set,
+If during {ExecuteGroupedFieldSet()} a field with a non-null {fieldType} raises
+a _field error_ then that error must propagate to this entire selection set,
 either resolving to {null} if allowed or further propagated to a parent field.
 
 If this occurs, any sibling fields which have not yet executed or have not yet
@@ -486,112 +606,6 @@ A correct executor must generate the following result for that _selection set_:
   }
 }
 ```
-
-### Field Collection
-
-Before execution, the _selection set_ is converted to a grouped field set by
-calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
-name). This ensures all fields with the same response key (including those in
-referenced fragments) are executed at the same time.
-
-As an example, collecting the fields of this selection set would collect two
-instances of the field `a` and one of field `b`:
-
-```graphql example
-{
-  a {
-    subfield1
-  }
-  ...ExampleFragment
-}
-
-fragment ExampleFragment on Query {
-  a {
-    subfield2
-  }
-  b
-}
-```
-
-The depth-first-search order of the field groups produced by {CollectFields()}
-is maintained through execution, ensuring that fields appear in the executed
-response in a stable and predictable order.
-
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
-
-- If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
-- For each {selection} in {selectionSet}:
-  - If {selection} provides the directive `@skip`, let {skipDirective} be that
-    directive.
-    - If {skipDirective}'s {if} argument is {true} or is a variable in
-      {variableValues} with the value {true}, continue with the next {selection}
-      in {selectionSet}.
-  - If {selection} provides the directive `@include`, let {includeDirective} be
-    that directive.
-    - If {includeDirective}'s {if} argument is not {true} and is not a variable
-      in {variableValues} with the value {true}, continue with the next
-      {selection} in {selectionSet}.
-  - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
-      defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
-  - If {selection} is a {FragmentSpread}:
-    - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
-    - Let {fragment} be the Fragment in the current Document whose name is
-      {fragmentSpreadName}.
-    - If no such {fragment} exists, continue with the next {selection} in
-      {selectionSet}.
-    - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
-      with the next {selection} in {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-  - If {selection} is an {InlineFragment}:
-    - Let {fragmentType} be the type condition on {selection}.
-    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
-      fragmentType)} is {false}, continue with the next {selection} in
-      {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
-
-DoesFragmentTypeApply(objectType, fragmentType):
-
-- If {fragmentType} is an Object Type:
-  - If {objectType} and {fragmentType} are the same type, return {true},
-    otherwise return {false}.
-- If {fragmentType} is an Interface Type:
-  - If {objectType} is an implementation of {fragmentType}, return {true}
-    otherwise return {false}.
-- If {fragmentType} is a Union:
-  - If {objectType} is a possible type of {fragmentType}, return {true}
-    otherwise return {false}.
-
-Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
-directives may be applied in either order since they apply commutatively.
 
 ## Executing Fields
 
@@ -721,8 +735,9 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {subSelectionSet} be the result of calling {MergeSelectionSets(fields)}.
-  - Return the result of evaluating {ExecuteSelectionSet(subSelectionSet,
+  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
+    fields, variableValues)}.
+  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
 
@@ -769,9 +784,10 @@ ResolveAbstractType(abstractType, objectValue):
 
 **Merging Selection Sets**
 
-When more than one field of the same name is executed in parallel, the
-_selection set_ for each of the fields are merged together when completing the
-value in order to continue execution of the sub-selection sets.
+When more than one field of the same name is executed in parallel, during value
+completion each related _selection set_ is collected together to produce a
+single grouped field set in order to continue execution of the sub-selection
+sets.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
@@ -790,14 +806,22 @@ sub-selections.
 After resolving the value for `me`, the selection sets are merged together so
 `firstName` and `lastName` can be resolved for one value.
 
-MergeSelectionSets(fields):
+CollectSubfields(objectType, fields, variableValues):
 
-- Let {selectionSet} be an empty list.
+- Let {groupedFieldSet} be an empty map.
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Append all selections in {fieldSelectionSet} to {selectionSet}.
-- Return {selectionSet}.
+  - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
+    fieldSelectionSet, variableValues)}.
+  - For each {fieldGroupedFieldSet} as {responseKey} and {subfields}:
+    - Let {groupForResponseKey} be the list in {groupedFieldSet} for
+      {responseKey}; if no such list exists, create it as an empty list.
+    - Append all fields in {subfields} to {groupForResponseKey}.
+- Return {groupedFieldSet}.
+
+Note: All the {fields} passed to {CollectSubfields()} share the same _response
+key_.
 
 ### Handling Field Errors
 
