@@ -353,7 +353,7 @@ types may only be used as output types.
 IsInputType(type):
 
 - If {type} is a Semantic-Non-Null type:
-  - Return {false}
+  - Return {false}.
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
   - Return IsInputType({unwrappedType}).
