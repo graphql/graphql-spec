@@ -1663,7 +1663,7 @@ Schema extensions without additional operation type definitions must not be foll
 <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="type">type</var>)</span><ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L352-L354">If <var data-name="type">type</var> is a List type or Non-Null type:<ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L353">Let <var data-name="unwrappedType">unwrappedType</var> be the unwrapped type of <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L354">Return IsInputType(<var data-name="unwrappedType">unwrappedType</var>).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L354">Return <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="unwrappedType">unwrappedType</var>)</span>.</li>
 </ol>
 </li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L355-L356">If <var data-name="type">type</var> is a Scalar, Enum, or Input Object type:<ol>
@@ -1677,7 +1677,7 @@ Schema extensions without additional operation type definitions must not be foll
 <span class="spec-call"><a href="#IsOutputType()" data-name="IsOutputType">IsOutputType</a>(<var data-name="type">type</var>)</span><ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L361-L363">If <var data-name="type">type</var> is a List type or Non-Null type:<ol>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L362">Let <var data-name="unwrappedType">unwrappedType</var> be the unwrapped type of <var data-name="type">type</var>.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L363">Return IsOutputType(<var data-name="unwrappedType">unwrappedType</var>).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L363">Return <span class="spec-call"><a href="#IsOutputType()" data-name="IsOutputType">IsOutputType</a>(<var data-name="unwrappedType">unwrappedType</var>)</span>.</li>
 </ol>
 </li>
 <li data-source="spec/Section%203%20--%20Type%20System.md#L364-L365">If <var data-name="type">type</var> is a Scalar, Object, Interface, Union, or Enum type:<ol>
