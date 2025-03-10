@@ -418,9 +418,9 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForName} be the set of selections with a given response name in
-  {set} including visiting fragments and inline fragments.
-- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
+- Let {fieldsForKey} be the set of selections with a given response key in {set}
+  including visiting fragments and inline fragments.
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForKey}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -450,10 +450,10 @@ SameResponseShape(fieldA, fieldB):
 - Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForKey} be the set of selections with a given response key in
   {mergedSet} including visiting fragments and inline fragments.
 - Given each pair of distinct members {subfieldA} and {subfieldB} in
-  {fieldsForName}:
+  {fieldsForKey}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
@@ -462,13 +462,13 @@ type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
-If multiple field selections with the same response names are encountered during
+If multiple field selections with the same response keys are encountered during
 execution, the field and arguments to execute and the resulting value should be
 unambiguous. Therefore any two field selections which might both be encountered
 for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+key is accomplished by {MergeSelectionSets()} and {CollectFields()}.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
