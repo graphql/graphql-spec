@@ -2026,7 +2026,7 @@ by a validator, executor, or client tool such as a code generator.
 :: A _built-in directive_ is any directive defined within this specification.
 
 GraphQL implementations should provide the `@skip`, `@include` and
-`@nullOnError` directives.
+`@disableErrorPropagation` directives.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
@@ -2249,22 +2249,22 @@ to the relevant IETF specification.
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
 
-### @nullOnError
+### @disableErrorPropagation
 
 ```graphql
-directive @nullOnError on QUERY | MUTATION | SUBSCRIPTION
+directive @disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 ```
 
-The `@nullOnError` _built-in directive_ may be provided on query, mutation and
-subscription operations, and disables the error propagation behavior described
-in [Handling Field Errors](#sec-Handling-Field-Errors) by treating all Non-Null
-types as if they were instead Null-Only-On-Error types.
+The `@disableErrorPropagation` _built-in directive_ may be provided on query,
+mutation and subscription operations, and disables the error propagation
+behavior described in [Handling Field Errors](#sec-Handling-Field-Errors) by
+treating all Non-Null types as if they were instead Null-Only-On-Error types.
 
 Note: This is useful for clients that still wish to receive sibling fields when
-an error on a Non-Null value occurs. Effectively, `@nullOnError` enables the
-client to opt in to handling errors locally; for example, a client might use
-this to limit the scope of null propagation to a fragment rather than the entire
-field, or to update a normalized store even when an error occurs.
+an error on a Non-Null value occurs. Effectively, `@disableErrorPropagation`
+enables the client to opt in to handling errors locally; for example, a client
+might use this to limit the scope of null propagation to a fragment rather than
+the entire field, or to update a normalized store even when an error occurs.
 
 Consider the following schema:
 
@@ -2309,10 +2309,10 @@ Would return a result such as:
 }
 ```
 
-However, if we apply the `@nullOnError` directive to our operation:
+However, if we apply the `@disableErrorPropagation` directive to our operation:
 
 ```graphql example
-query myQuery @nullOnError {
+query myQuery @disableErrorPropagation {
   me {
     username
     bestFriend {
