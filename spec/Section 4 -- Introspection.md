@@ -458,6 +458,8 @@ RecursivelyStripSemanticNonNullTypes(type):
 - If {type} is a Semantic-Non-Null type:
   - Let {innerType} be the inner type of {type}.
   - Return {RecursivelyStripSemanticNonNullTypes(innerType)}.
+- Otherwise, if {type} is a Non-Null type or List type:
+  - Return {RecursivelyStripSemanticNonNullTypes(type)}.
 - Otherwise, return {type}.
 
 Note: This algorithm recursively removes all Semantic-Non-Null type wrappers
