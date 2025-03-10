@@ -491,7 +491,7 @@ A correct executor must generate the following result for that _selection set_:
 
 Before execution, the _selection set_ is converted to a grouped field set by
 calling {CollectFields()}. Each entry in the grouped field set is a list of
-fields that share a response key (the alias if defined, otherwise the field
+fields that share a _response key_ (the alias if defined, otherwise the field
 name). This ensures all fields with the same response key (including those in
 referenced fragments) are executed at the same time.
 
@@ -534,7 +534,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       in {variableValues} with the value {true}, continue with the next
       {selection} in {selectionSet}.
   - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
+    - Let {responseKey} be the _response key_ of {selection} (the alias if
       defined, otherwise the field name).
     - Let {groupForResponseKey} be the list in {groupedFields} for
       {responseKey}; if no such list exists, create it as an empty list.

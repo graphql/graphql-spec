@@ -418,8 +418,8 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForKey} be the set of selections with a given response key in {set}
-  including visiting fragments and inline fragments.
+- Let {fieldsForKey} be the set of selections with a given _response key_ in
+  {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForKey}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
@@ -450,7 +450,7 @@ SameResponseShape(fieldA, fieldB):
 - Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForKey} be the set of selections with a given response key in
+- Let {fieldsForKey} be the set of selections with a given _response key_ in
   {mergedSet} including visiting fragments and inline fragments.
 - Given each pair of distinct members {subfieldA} and {subfieldB} in
   {fieldsForKey}:
@@ -462,7 +462,7 @@ type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
-If multiple field selections with the same response keys are encountered during
+If multiple field selections with the same _response key_ are encountered during
 execution, the field and arguments to execute and the resulting value should be
 unambiguous. Therefore any two field selections which might both be encountered
 for the same object are only valid if they are equivalent.
