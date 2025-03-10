@@ -288,10 +288,11 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
-Each operation is represented by an optional operation name and a selection set.
+Each operation is represented by an optional operation name and a _selection
+set_.
 
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
@@ -337,6 +338,9 @@ An operation selects the set of information it needs, and will receive exactly
 that information and nothing more, avoiding over-fetching and under-fetching
 data.
 
+:: A _selection set_ defines an ordered set of selections (fields, fragment
+spreads and inline fragments) against an object, union or interface type.
+
 ```graphql example
 {
   id
@@ -346,14 +350,14 @@ data.
 ```
 
 In this query operation, the `id`, `firstName`, and `lastName` fields form a
-selection set. Selection sets may also contain fragment references.
+_selection set_. Selection sets may also contain fragment references.
 
 ## Fields
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
-A selection set is primarily composed of fields. A field describes one discrete
-piece of information available to request within a selection set.
+A _selection set_ is primarily composed of fields. A field describes one
+discrete piece of information available to request within a selection set.
 
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
@@ -381,7 +385,7 @@ down to scalar values.
 }
 ```
 
-Fields in the top-level selection set of an operation often represent some
+Fields in the top-level _selection set_ of an operation often represent some
 information that is globally accessible to your application and its current
 viewer. Some typical examples of these top fields include references to a
 current logged-in viewer, or accessing certain types of data referenced by a
@@ -667,9 +671,9 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-Fragments can also be defined inline within a selection set. This is useful for
-conditionally including fields based on a type condition or applying a directive
-to a selection set.
+Fragments can also be defined inline within a _selection set_. This is useful
+for conditionally including fields based on a type condition or applying a
+directive to a selection set.
 
 This feature of standard fragment inclusion was demonstrated in the
 `query FragmentTyping` example above. We could accomplish the same thing using
@@ -1032,7 +1036,7 @@ BlockStringValue(rawValue):
 - Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
 - Let {commonIndent} be {null}.
 - For each {line} in {lines}:
-  - If {line} is the first item in {lines}, continue to the next line.
+  - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
   - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
     {line}.
@@ -1117,10 +1121,10 @@ ListValue : [ ]
 ListValue : [ Value+ ]
 
 - Let {inputList} be a new empty list value.
-- For each {Value+}
+- For each {Value+}:
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1164,11 +1168,11 @@ ObjectValue : { }
 ObjectValue : { ObjectField+ }
 
 - Let {inputObject} be a new input object value with no fields.
-- For each {field} in {ObjectField+}
+- For each {field} in {ObjectField+}:
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
@@ -1252,22 +1256,22 @@ input type.
 
 Type : Name
 
-- Let {name} be the string value of {Name}
-- Let {type} be the type defined in the Schema named {name}
-- {type} must not be {null}
-- Return {type}
+- Let {name} be the string value of {Name}.
+- Let {type} be the type defined in the Schema named {name}.
+- {type} must exist.
+- Return {type}.
 
 Type : [ Type ]
 
-- Let {itemType} be the result of evaluating {Type}
+- Let {itemType} be the result of evaluating {Type}.
 - Let {type} be a List type where {itemType} is the contained type.
-- Return {type}
+- Return {type}.
 
 Type : Type !
 
-- Let {nullableType} be the result of evaluating {Type}
+- Let {nullableType} be the result of evaluating {Type}.
 - Let {type} be a Non-Null type where {nullableType} is the contained type.
-- Return {type}
+- Return {type}.
 
 ## Directives
 

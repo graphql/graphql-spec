@@ -68,7 +68,7 @@ underscores {"\_\_"}.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection within any selection set in an
+GraphQL supports type name introspection within any _selection set_ in an
 operation, with the single exception of selections at the root of a subscription
 operation. Type name introspection is accomplished via the meta-field
 `__typename: String!` on any Object, Interface, or Union. It returns the name of
@@ -110,7 +110,7 @@ CommonMark-compliant Markdown renderer.
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
 input fields, and enum values can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`isDeprecated: Boolean!`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
@@ -437,8 +437,8 @@ The `__Field` type represents each field in an Object or Interface type.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `args` returns a List of `__InputValue` representing the arguments this field
   accepts.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
@@ -451,7 +451,8 @@ Fields\:
     {RecursivelyStripSemanticNonNullTypes(fieldType)}.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this field is deprecated.
+- `deprecationReason` returns the reason why this field is deprecated, or null
+  if this field is not deprecated.
 
 RecursivelyStripSemanticNonNullTypes(type):
 
@@ -473,8 +474,8 @@ The `__InputValue` type represents field and directive arguments as well as the
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `type` must return a `__Type` that represents the type this input value
   expects.
 - `defaultValue` may return a String encoding (using the GraphQL language) of
@@ -482,8 +483,8 @@ Fields\:
   provided at runtime. If this input value has no default value, returns {null}.
 - `isDeprecated` returns {true} if this input field or argument should no longer
   be used, otherwise {false}.
-- `deprecationReason` optionally provides a reason why this input field or
-  argument is deprecated.
+- `deprecationReason` returns the reason why this input field or argument is
+  deprecated, or null if the input field or argument is not deprecated.
 
 ### The \_\_EnumValue Type
 
@@ -491,12 +492,12 @@ The `__EnumValue` type represents one of possible values of an enum.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this enum value is
-  deprecated.
+- `deprecationReason` returns the reason why this enum value is deprecated, or
+  null if the enum value is not deprecated.
 
 ### The \_\_Directive Type
 
@@ -529,8 +530,8 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `locations` returns a List of `__DirectiveLocation` representing the valid
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this
