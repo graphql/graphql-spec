@@ -418,9 +418,9 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForKey} be the set of selections with a given _response name_ in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {set} including visiting fragments and inline fragments.
-- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForKey}:
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -450,10 +450,10 @@ SameResponseShape(fieldA, fieldB):
 - Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForKey} be the set of selections with a given _response name_ in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {mergedSet} including visiting fragments and inline fragments.
 - Given each pair of distinct members {subfieldA} and {subfieldB} in
-  {fieldsForKey}:
+  {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 

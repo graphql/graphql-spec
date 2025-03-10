@@ -363,7 +363,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseKey} and {fields}:
+- For each {groupedFieldSet} as {responseName} and {fields}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
@@ -371,7 +371,7 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues)}.
-    - Set {responseValue} as the value for {responseKey} in {resultMap}.
+    - Set {responseValue} as the value for {responseName} in {resultMap}.
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -534,11 +534,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       in {variableValues} with the value {true}, continue with the next
       {selection} in {selectionSet}.
   - If {selection} is a {Field}:
-    - Let {responseKey} be the _response name_ of {selection} (the alias if
+    - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {groupForResponseName} be the list in {groupedFields} for
+      {responseName}; if no such list exists, create it as an empty list.
+    - Append {selection} to the {groupForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -556,11 +556,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response name shared by all fields in
+      - Let {responseName} be the response name shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+      - Let {groupForResponseName} be the list in {groupedFields} for
+        {responseName}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseName}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -571,11 +571,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response name shared by all fields in
+      - Let {responseName} be the response name shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+      - Let {groupForResponseName} be the list in {groupedFields} for
+        {responseName}; if no such list exists, create it as an empty list.
+      - Append all items in {fragmentGroup} to {groupForResponseName}.
 - Return {groupedFields}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
