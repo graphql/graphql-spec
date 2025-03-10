@@ -176,7 +176,7 @@ and is {Ignored}.
 
 ### Punctuators
 
-Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | } \*
 
 GraphQL documents include punctuation in order to describe structure. GraphQL is
 a data description language and not a programming language, therefore GraphQL
@@ -1241,8 +1241,8 @@ NonNullType :
 
 SemanticNonNullType :
 
-- ! NamedType
-- ! ListType
+- NamedType \*
+- ListType \*
 
 GraphQL describes the types of data expected by arguments and variables. Input
 types may be lists of another input type, or a non-null variant of any other

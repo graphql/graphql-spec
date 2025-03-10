@@ -1915,8 +1915,8 @@ _unless_ accompanied by a _field error_.
 
 The Semantic-Non-Null type wraps an underlying type, and this type acts
 identically to that wrapped type, with the exception that {null} will result in
-a field error being raised. A leading exclamation mark is used to denote a
-field that uses a Semantic-Non-Null type like this: `name: !String`.
+a field error being raised. A trailing asterisk is used to denote a field that
+uses a Semantic-Non-Null type like this: `name: String*`.
 
 Semantic-Non-Null types are only valid for use as an _output type_; they must
 not be used as an _input type_.
@@ -1955,36 +1955,36 @@ The List and Semantic-Non-Null wrapping types can compose, representing more
 complex types. The rules for result coercion of Lists and Semantic-Non-Null
 types apply in a recursive fashion.
 
-For example if the inner item type of a List is Semantic-Non-Null (e.g. `[!T]`),
+For example if the inner item type of a List is Semantic-Non-Null (e.g. `[T*]`),
 then that List may not contain any {null} items unless associated field errors
 were raised. However if the inner type of a Semantic-Non-Null is a List (e.g.
-`![T]`), then {null} is not accepted without an accompanying field error being
+`[T]*`), then {null} is not accepted without an accompanying field error being
 raised, however an empty list is accepted.
 
 Following are examples of result coercion with various types and values:
 
 | Expected Type | Internal Value  | Coerced Result                              |
 | ------------- | --------------- | ------------------------------------------- |
-| `![Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![Int]`      | `null`          | `null` (With logged coercion error)         |
-| `![Int]`      | `[1, 2, null]`  | `[1, 2, null]`                              |
-| `![Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `![Int!]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![Int!]`     | `null`          | `null` (With logged coercion error)         |
-| `![Int!]`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
-| `![Int!]`     | `[1, 2, Error]` | `null` (With logged error)                  |
-| `[!Int]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[!Int]`      | `null`          | `null`                                      |
-| `[!Int]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[!Int]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `[!Int]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `[!Int]!`     | `null`          | Error: Value cannot be null                 |
-| `[!Int]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `[!Int]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
-| `![!Int]`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
-| `![!Int]`     | `null`          | `null` (With logged coercion error)         |
-| `![!Int]`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
-| `![!Int]`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int]*`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int]*`      | `null`          | `null` (With logged coercion error)         |
+| `[Int]*`      | `[1, 2, null]`  | `[1, 2, null]`                              |
+| `[Int]*`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int!]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int!]*`     | `null`          | `null` (With logged coercion error)         |
+| `[Int!]*`     | `[1, 2, null]`  | `null` (With logged coercion error)         |
+| `[Int!]*`     | `[1, 2, Error]` | `null` (With logged error)                  |
+| `[Int*]`      | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]`      | `null`          | `null`                                      |
+| `[Int*]`      | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]`      | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int*]!`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]!`     | `null`          | Error: Value cannot be null                 |
+| `[Int*]!`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]!`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
+| `[Int*]*`     | `[1, 2, 3]`     | `[1, 2, 3]`                                 |
+| `[Int*]*`     | `null`          | `null` (With logged coercion error)         |
+| `[Int*]*`     | `[1, 2, null]`  | `[1, 2, null]` (With logged coercion error) |
+| `[Int*]*`     | `[1, 2, Error]` | `[1, 2, null]` (With logged error)          |
 
 ## Directives
 

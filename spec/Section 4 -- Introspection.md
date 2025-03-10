@@ -461,7 +461,7 @@ RecursivelyStripSemanticNonNullTypes(type):
 - Otherwise, return {type}.
 
 Note: This algorithm recursively removes all Semantic-Non-Null type wrappers
-(e.g. `![[!Int]!]` would become `[[Int]!]`). This is to support legacy clients:
+(e.g. `[[Int*]!]*` would become `[[Int]!]`). This is to support legacy clients:
 they can safely treat a Semantic-Non-Null type as the underlying nullable type.
 
 ### The \_\_InputValue Type
