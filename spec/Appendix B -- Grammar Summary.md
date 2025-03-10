@@ -43,7 +43,7 @@ Token ::
 - FloatValue
 - StringValue
 
-Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | } \*
 
 Name ::
 
@@ -233,6 +233,11 @@ NonNullType :
 
 - NamedType !
 - ListType !
+
+SemanticNonNullType :
+
+- NamedType \*
+- ListType \*
 
 Directives[Const] : Directive[?Const]+
 
