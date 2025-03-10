@@ -1818,7 +1818,9 @@ must be raised.
 Note: When a _field error_ is raised on a non-null value, the error propagates
 to the parent field. For more information on this process, see
 [Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields)
-within the Execution section.
+within the Execution section. This error propagation behavior can be modified using the 
+`@disableErrorPropagation` directive, which prevents errors from propagating upward through
+parent fields. See [`@disableErrorPropagation`](#sec-disableErrorPropagation) for more details.
 
 **Input Coercion**
 
@@ -1943,6 +1945,8 @@ by a validator, executor, or client tool such as a code generator.
 :: A _built-in directive_ is any directive defined within this specification.
 
 GraphQL implementations should provide the `@skip` and `@include` directives.
+
+GraphQL implementations should provide the `@disableErrorPropagation` directive to allow clients to control error propagation behavior for specific operations.
 
 GraphQL implementations that support the type system definition language must
 provide the `@deprecated` directive if representing deprecated portions of the
@@ -2164,3 +2168,31 @@ to the relevant IETF specification.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
+
+### @disableErrorPropagation
+
+```graphql
+directive @disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
+```
+
+The `@disableErrorPropagation` _built-in directive_ can be used to disable error propagation during execution of operations. When this directive is applied to an operation, errors in non-null fields will not propagate to their parent fields. Instead, the error is reported in the response's `errors` list while the field simply returns `null`, even if it's a non-null field.
+
+Without this directive, GraphQL follows the default error propagation behavior: when a field error occurs on a non-null field, the error propagates to the parent field, potentially nullifying the entire response if the parent field is also non-null.
+
+In this example, error propagation is disabled for the query:
+
+```graphql example
+query getUser @disableErrorPropagation {
+  user {
+    id
+    name
+    email
+  }
+}
+```
+
+If the `email` field (which may be defined as `String!` in the schema) throws an error, it would return `null` instead of causing the entire `user` object to become `null`.
+
+This directive is particularly useful for clients that want more granular control over error handling and prefer partial data with errors rather than having entire objects or responses nullified due to a single field error.
+
+Note: The `@disableErrorPropagation` directive only affects error propagation during execution. It does not affect how errors are validated or included in the response's `errors` list.
