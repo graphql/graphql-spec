@@ -2258,7 +2258,7 @@ directive @disableErrorPropagation on QUERY | MUTATION | SUBSCRIPTION
 The `@disableErrorPropagation` _built-in directive_ may be provided on query,
 mutation and subscription operations, and disables the error propagation
 behavior described in [Handling Field Errors](#sec-Handling-Field-Errors) by
-treating all Non-Null types as if they were instead Null-Only-On-Error types.
+treating all Non-Null types as if they were instead Semantic-Non-Null types.
 
 Note: This is useful for clients that still wish to receive sibling fields when
 an error on a Non-Null value occurs. Effectively, `@disableErrorPropagation`
