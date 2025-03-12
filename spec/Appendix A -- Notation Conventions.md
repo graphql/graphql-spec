@@ -216,3 +216,34 @@ Fibonacci(number):
 Note: Algorithms described in this document are written to be easy to
 understand. Implementers are encouraged to include equivalent but optimized
 implementations.
+
+## Data Collections
+
+This specification describes the semantic properties of data collections using
+types like "list", "set" and "map". These describe observable data collections
+such as the result of applying a grammar and the inputs and outputs of
+algorithms. They also describe unobservable data collections such as temporary
+data internal to an algorithm. Each data collection type defines the operations
+available, and whether values are unique or ordered.
+
+**List**
+
+:: The term _list_ describes a sequence of values which may not be unique. A
+list is ordered unless explicitly stated otherwise (as an "unordered list"). For
+clarity the term "ordered list" may be used when an order is semantically
+important.
+
+**Set**
+
+:: The term _set_ describes a unique collection of values, where each value is
+considered a "member" of that set. A set is unordered unless explicitly stated
+otherwise (as an "ordered set"). For clarity the term "unordered set" may be
+used when the lack of an order is semantically important.
+
+**Map**
+
+:: The term _map_ describes a collection of "entry" key and value pairs, where
+the set of keys across all entries is unique but the values across all entries
+may repeat. A map is unordered unless explicitly stated otherwise (as an
+"ordered map"). For clarity the term "unordered map" may be used when the lack
+of an order is semantically important.
