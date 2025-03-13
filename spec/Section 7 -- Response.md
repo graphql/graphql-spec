@@ -10,71 +10,75 @@ the case that any _field error_ was raised on a field and was replaced with
 
 ## Response Format
 
-A GraphQL request returns either a _response_ or a _response stream_.
+:: A GraphQL _response_ is the returned result of a GraphQL _request_. A
+_response_ is either a _response payload_ or a _response stream_.
 
-### Response
+### Response Payload
 
-:: A GraphQL request returns a _response_ when the GraphQL operation is a query
-or mutation. A _response_ must be a map.
+:: A GraphQL request returns a _response payload_ when the GraphQL operation is
+a query or mutation. When the GraphQL operation is a subscription, the GraphQL
+request returns a _response payload_ if a _request error_ is raised. A response
+payload must be a map.
 
-If the request raised any errors, the response map must contain an entry with
-key `errors`. The value of this entry is described in the "Errors" section. If
-the request completed without raising any errors, this entry must not be
+If the request raised any errors, the _response payload_ must contain an entry
+with key `errors`. The value of this entry is described in the "Errors" section.
+If the request completed without raising any errors, this entry must not be
 present.
 
-If the request included execution, the response map must contain an entry with
-key `data`. The value of this entry is described in the "Data" section. If the
-request failed before execution, due to a syntax error, missing information, or
-validation error, this entry must not be present.
+If the request included execution, the _response payload_ must contain an entry
+with key `data`. The value of this entry is described in the "Data" section. If
+the request failed before execution, due to a syntax error, missing information,
+or validation error, this entry must not be present.
 
-The response map may also contain an entry with key `extensions`. This entry, if
-set, must have a map as its value. This entry is reserved for implementers to
-extend the protocol however they see fit, and hence there are no additional
-restrictions on its contents.
+The _response payload_ may also contain an entry with key `extensions`. This
+entry, if set, must have a map as its value. This entry is reserved for
+implementers to extend the protocol however they see fit, and hence there are no
+additional restrictions on its contents.
 
 To ensure future changes to the protocol do not break existing services and
-clients, the top level response map must not contain any entries other than the
-three described above.
+clients, the top level _response payload_ must not contain any entries other
+than the three described above.
 
-Note: When `errors` is present in the response, it may be helpful for it to
-appear first when serialized to make it more clear when errors are present in a
-response during debugging.
+Note: When `errors` is present in the _response payload_, it may be helpful for
+it to appear first when serialized to make it more clear when errors are present
+in a response payload during debugging.
 
 ### Response Stream
 
 :: A GraphQL request returns a _response stream_ when the GraphQL operation is a
-subscription. A _response stream_ must be a stream of _response_.
+subscription and a _request error_ is not raised. A response stream must be a
+stream of _response payload_.
 
 ### Data
 
-The `data` entry in the response will be the result of the execution of the
-requested operation. If the operation was a query, this output will be an object
-of the query root operation type; if the operation was a mutation, this output
-will be an object of the mutation root operation type.
+The `data` entry in the _response payload_ will be the result of the execution
+of the requested operation. If the operation was a query, this output will be an
+object of the query root operation type; if the operation was a mutation, this
+output will be an object of the mutation root operation type.
 
 If an error was raised before execution begins, the `data` entry should not be
-present in the response.
+present in the _response payload_.
 
-If an error was raised during the execution that prevented a valid response, the
-`data` entry in the response should be `null`.
+If an error was raised during execution that propagated to the operation root,
+the `data` entry in the _response payload_ should be `null`.
 
 ### Errors
 
-The `errors` entry in the response is a non-empty list of errors raised during
-the _request_, where each error is a map of data described by the error result
-format below.
+The `errors` entry in the _response payload_ is a non-empty list of errors
+raised during the _request_, where each error is a map of data described by the
+error result format below.
 
-If present, the `errors` entry in the response must contain at least one error.
-If no errors were raised during the request, the `errors` entry must not be
-present in the response.
+If present, the `errors` entry in the _response payload_ must contain at least
+one error. If no errors were raised during the request, the `errors` entry must
+not be present in the response payload.
 
-If the `data` entry in the response is not present, the `errors` entry must be
-present. It must contain at least one _request error_ indicating why no data was
-able to be returned.
+If the `data` entry in the _response payload_ is not present, the `errors` entry
+must be present. It must contain at least one _request error_ indicating why no
+data was able to be returned.
 
-If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry must be present if and only if one or more _field
-error_ was raised during execution.
+If the `data` entry in the _response payload_ is present (including if it is the
+value {null}), the `errors` entry must be present if and only if one or more
+_field error_ was raised during execution.
 
 **Request Errors**
 
@@ -85,9 +89,9 @@ to determine which operation to execute, or invalid input values for variables.
 
 A request error is typically the fault of the requesting client.
 
-If a request error is raised, the `data` entry in the response must not be
-present, the `errors` entry must include the error, and request execution should
-be halted.
+If a request error is raised, the `data` entry in the _response payload_ must
+not be present, the `errors` entry must include the error, and request execution
+should be halted.
 
 **Field Errors**
 
@@ -99,8 +103,8 @@ A field error is typically the fault of a GraphQL service.
 
 If a field error is raised, execution attempts to continue and a partial result
 is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)). The
-`data` entry in the response must be present. The `errors` entry should include
-this error.
+`data` entry in the _response payload_ must be present. The `errors` entry
+should include this error.
 
 **Error Result Format**
 

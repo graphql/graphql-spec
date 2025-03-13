@@ -301,13 +301,13 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Let {responseStream} be a new _event stream_.
 - When {sourceStream} emits {sourceValue}:
-  - Let {response} be the result of running
+  - Let {responsePayload} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues,
     sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
     - Complete {responseStream} with {error}.
-  - Otherwise emit {response} on {responseStream}.
+  - Otherwise emit {responsePayload} on {responseStream}.
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
 - When {sourceStream} completes with {error}:
@@ -355,8 +355,7 @@ type need to be known, as well as whether it must be executed serially, or may
 be executed in parallel.
 
 First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+represented field in the grouped field set produces an entry into a result map.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
@@ -596,7 +595,7 @@ directives may be applied in either order since they apply commutatively.
 ## Executing Fields
 
 Each field requested in the grouped field set that is defined on the selected
-objectType will result in an entry in the response map. Field execution first
+objectType will result in an entry in the result map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
@@ -805,22 +804,22 @@ A _field error_ is an error raised from a particular field during value
 resolution or coercion. While these errors should be reported in the response,
 they are "handled" by producing a partial response.
 
-Note: This is distinct from a _request error_ which results in a response with
-no data.
+Note: This is distinct from a _request error_ which results in a _response
+payload_ with no {"data"}.
 
 If a field error is raised while resolving a field, it is handled as though the
 field returned {null}, and the error must be added to the {"errors"} list in the
-response.
+_response payload_.
 
 If the result of resolving a field is {null} (either because the function to
 resolve the field returned {null} or because a field error was raised), and that
 field is of a `Non-Null` type, then a field error is raised. The error must be
-added to the {"errors"} list in the response.
+added to the {"errors"} list in the _response payload_.
 
 If the field returns {null} because of a field error which has already been
-added to the {"errors"} list in the response, the {"errors"} list must not be
-further affected. That is, only one error should be added to the errors list per
-field.
+added to the {"errors"} list in the _response payload_, the {"errors"} list must
+not be further affected. That is, only one error should be added to the errors
+list per field.
 
 Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
 handled by the parent field. If the parent field may be {null} then it resolves
@@ -833,5 +832,5 @@ type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
 
 If all fields from the root of the request to the source of the field error
-return `Non-Null` types, then the {"data"} entry in the response should be
-{null}.
+return `Non-Null` types, then the {"data"} entry in the _response payload_
+should be {null}.
