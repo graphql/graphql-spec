@@ -355,8 +355,7 @@ type need to be known, as well as whether it must be executed serially, or may
 be executed in parallel.
 
 First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+represented field in the grouped field set produces an entry into a result map.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
@@ -596,7 +595,7 @@ directives may be applied in either order since they apply commutatively.
 ## Executing Fields
 
 Each field requested in the grouped field set that is defined on the selected
-objectType will result in an entry in the response map. Field execution first
+objectType will result in an entry in the result map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
