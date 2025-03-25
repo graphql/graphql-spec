@@ -2343,8 +2343,9 @@ directive @defer(
 The `@defer` directive may be provided on a fragment spread or inline fragment
 to indicate that execution of the related selection set should be deferred. When
 a request includes the `@defer` directive, it may return an _incremental stream_
-consisting of an _initial response_ containing all non-deferred data, followed
-by one or more _subsequent payloads_ including the deferred data.
+consisting of an _initial response payload_ containing all non-deferred data,
+followed by one or more _subsequent response payload_ including the deferred
+data.
 
 The `@include` and `@skip` directives take precedence over `@defer`.
 
@@ -2438,8 +2439,8 @@ control over their application's performance. It is highly recommended that
 GraphQL services honor the `@defer` and `@stream` directives on each execution.
 However, the specification allows advanced use cases where the service can
 determine that it is more performant to not defer and/or stream. Therefore,
-GraphQL clients _must_ be able to process a _response_ or _incremental stream_
-that ignores individual `@defer` and/or `@stream` directives. This also applies
-to the `initialCount` argument on the `@stream` directive. Clients must be able
-to process a streamed field result that contains more initial list items than
-what was specified in the `initialCount` argument.
+GraphQL clients _must_ be able to process a _response_ that ignores individual
+`@defer` and/or `@stream` directives. This also applies to the `initialCount`
+argument on the `@stream` directive. Clients must be able to process a streamed
+field result that contains more initial list items than what was specified in
+the `initialCount` argument.
