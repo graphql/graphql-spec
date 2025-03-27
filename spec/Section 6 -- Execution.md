@@ -15,7 +15,7 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
-- {onError} (optional): The _error behavior_ that is desired, see
+- {onError} (optional, recommended): The _error behavior_ that is desired, see
   [Handling Execution Errors](#sec-Handling-Execution-Errors).
 
 Given this information, the result of {ExecuteRequest(schema, document,
@@ -842,10 +842,10 @@ type, then an execution error is raised by the field.
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then an execution error is raised by the list item.
 
-:: The _error behavior_ is the way in which the request wishes for errors to be
-handled. It can be specified by the client using the {onError} property of the
-_request_. Valid values are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}; their
-respective behaviors are detailed below.
+:: The _error behavior_ indicates the way in which any errors are handled during
+the request. It can be specified by the client using the {onError} property of
+the _request_. Valid values are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"};
+their respective behaviors are detailed below.
 
 Implementations are free to choose the default value to use if _error behavior_
 is not specified. It is recommended this is {"NO_PROPAGATE"} for newly created
@@ -863,7 +863,7 @@ the {"errors"} list in the _response_.
 If the response position returns {null} because of an execution error which has
 already been added to the {"errors"} list in the response, the {"errors"} list
 must not be further affected. That is, only one error should be added to the
-errors list per response position.
+errors list per _response position_.
 
 Execution errors are handled according to the selected _error behavior_, as
 detailed below:
