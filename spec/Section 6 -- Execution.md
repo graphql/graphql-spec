@@ -16,8 +16,8 @@ A GraphQL service generates a response from a request via execution.
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
 
-As this specification evolves, new information may be added. Implementation
-must ignore any value they do not recognize.
+As this specification evolves, new information may be added. Implementation must
+ignore any value they do not recognize.
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
