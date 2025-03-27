@@ -627,6 +627,9 @@ the type system to have a specific input type.
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
+Any _request error_ raised during {CoerceArgumentValues()} should be treated
+instead as a _runtime error_.
+
 CoerceArgumentValues(objectType, field, variableValues):
 
 - Let {coercedValues} be an empty unordered Map.
