@@ -8,7 +8,7 @@ A GraphQL service generates a response from a request via execution.
 - {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
 - {operationName} (optional): The name of the Operation in the Document to
-  execute.
+  process.
 - {variableValues} (optional): Values for any Variables defined by the
   Operation.
 - {initialValue} (optional): An initial value corresponding to the root type
@@ -16,35 +16,41 @@ A GraphQL service generates a response from a request via execution.
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
 
-Given this information, the result of {ExecuteRequest(schema, document,
+Given this information, the result of {ProcessRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
+
+:: Formally, _execution_ starts when executing the root selection set in
+{ExecuteRootSelectionSet()}. For convenience, this section also contains
+preliminary steps required for execution such as coercing variables or getting a
+source event stream.
 
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
 chosen by the implementing service.
 
-## Executing Requests
+## Processing Requests
 
-To execute a request, the executor must have a parsed {Document} and a selected
+To process a request, the executor must have a parsed {Document} and a selected
 operation name to run if the document defines multiple operations, otherwise the
 document is expected to only contain a single operation. The result of the
-request is determined by the result of executing this operation according to the
-"Executing Operations” section below.
+request is determined by the result of processing this operation according to
+the "Processing Operations” section below.
 
-ExecuteRequest(schema, document, operationName, variableValues, initialValue):
+ProcessRequest(schema, document, operationName, variableValues, initialValue):
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
 - If {operation} is a query operation:
-  - Return {ExecuteQuery(operation, schema, coercedVariableValues,
+  - Return {ProcessQuery(operation, schema, coercedVariableValues,
     initialValue)}.
 - Otherwise if {operation} is a mutation operation:
-  - Return {ExecuteMutation(operation, schema, coercedVariableValues,
+  - Return {ProcessMutation(operation, schema, coercedVariableValues,
     initialValue)}.
 - Otherwise if {operation} is a subscription operation:
-  - Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
+  - Return {ProcessSubscription(operation, schema, coercedVariableValues,
+    initialValue)}.
 
 GetOperation(document, operationName):
 
@@ -60,14 +66,14 @@ GetOperation(document, operationName):
 ### Validating Requests
 
 As explained in the Validation section, only requests which pass all validation
-rules should be executed. If validation errors are known, they should be
-reported in the list of "errors" in the response and the request must fail
-without execution.
+rules should be process. If validation errors are known, they should be reported
+in the list of "errors" in the response and the request must fail without
+processing.
 
 Typically validation is performed in the context of a request immediately before
-execution, however a GraphQL service may execute a request without immediately
+processing, however a GraphQL service may process a request without immediately
 validating it if that exact same request is known to have been validated before.
-A GraphQL service should only execute requests which _at some point_ were known
+A GraphQL service should only process requests which _at some point_ were known
 to be free of any validation errors, and have since not changed.
 
 For example: the request may be validated during development, provided it does
@@ -114,7 +120,7 @@ CoerceVariableValues(schema, operation, variableValues):
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
-## Executing Operations
+## Processing Operations
 
 The type system, as described in the "Type System" section of the spec, must
 provide a query root operation type. If mutations or subscriptions are
@@ -124,12 +130,12 @@ respectively.
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the operation’s top level _selection set_ with the query root
-operation type.
+executing the operation’s root _selection set_ with the query root operation
+type.
 
-An initial value may be provided when executing a query operation.
+An initial value may be provided when processing a query operation.
 
-ExecuteQuery(query, schema, variableValues, initialValue):
+ProcessQuery(query, schema, variableValues, initialValue):
 
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
@@ -140,14 +146,14 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 ### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
-executing the operation’s top level _selection set_ on the mutation root object
-type. This selection set should be executed serially.
+executing the operation’s root _selection set_ on the mutation root object type.
+This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
 side-effects on the underlying data system. Serial execution of the provided
 mutations ensures against race conditions during these side-effects.
 
-ExecuteMutation(mutation, schema, variableValues, initialValue):
+ProcessMutation(mutation, schema, variableValues, initialValue):
 
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
@@ -159,12 +165,13 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 If the operation is a subscription, the result is an _event stream_ called the
 _response stream_ where each event in the event stream is the result of
-executing the operation for each new event on an underlying _source stream_.
+executing the operation ’s root _selection set_ for each new event on an
+underlying _source stream_.
 
-Executing a subscription operation creates a persistent function on the service
+Processing a subscription operation creates a persistent function on the service
 that maps an underlying _source stream_ to a returned _response stream_.
 
-Subscribe(subscription, schema, variableValues, initialValue):
+ProcessSubscription(subscription, schema, variableValues, initialValue):
 
 - Let {sourceStream} be the result of running
   {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
@@ -173,8 +180,8 @@ Subscribe(subscription, schema, variableValues, initialValue):
   variableValues)}.
 - Return {responseStream}.
 
-Note: In a large-scale subscription system, the {Subscribe()} and
-{ExecuteSubscriptionEvent()} algorithms may be run on separate services to
+Note: In a large-scale subscription system, the {ProcessSubscription()} and
+{ProcessSubscriptionEvent()} algorithms may be run on separate services to
 maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
 
@@ -295,7 +302,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - Let {responseStream} be a new _event stream_.
 - When {sourceStream} emits {sourceValue}:
   - Let {response} be the result of running
-    {ExecuteSubscriptionEvent(subscription, schema, variableValues,
+    {ProcessSubscriptionEvent(subscription, schema, variableValues,
     sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
@@ -310,12 +317,12 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - Complete {responseStream} normally.
 - Return {responseStream}.
 
-Note: Since {ExecuteSubscriptionEvent()} handles all _field error_, and _request
+Note: Since {ProcessSubscriptionEvent()} handles all _field error_, and _request
 error_ only occur during {CreateSourceEventStream()}, the only remaining error
-condition handled from {ExecuteSubscriptionEvent()} are internal exceptional
+condition handled from {ProcessSubscriptionEvent()} are internal exceptional
 errors not described by this specification.
 
-ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
+ProcessSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
@@ -323,8 +330,8 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Return {ExecuteRootSelectionSet(variableValues, initialValue,
   subscriptionType, selectionSet)}.
 
-Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
-{ExecuteQuery()} since this is how each event result is produced.
+Note: The {ProcessSubscriptionEvent()} algorithm is intentionally similar to
+{ProcessQuery()} since this is how each event result is produced.
 
 #### Unsubscribe
 
@@ -534,7 +541,7 @@ A valid GraphQL executor can resolve the four fields in whatever order it chose
 (however of course `birthday` must be resolved before `month`, and `address`
 before `street`).
 
-When executing a mutation, the selections in the top most selection set will be
+When processing a mutation, the selections in the top most selection set will be
 executed in serial order, starting with the first appearing field textually.
 
 When executing a grouped field set serially, the executor must consider each
@@ -679,8 +686,8 @@ CoerceArgumentValues(objectType, field, variableValues):
 - Return {coercedValues}.
 
 Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid operations
-must only allow usage of variables of appropriate types.
+before processing the operation in {CoerceVariableValues()}, and valid
+operations must only allow usage of variables of appropriate types.
 
 ### Value Resolution
 
