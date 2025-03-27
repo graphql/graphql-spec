@@ -387,9 +387,9 @@ If during {ExecuteSelectionSet()} a _response position_ with a non-null type
 raises a _runtime error_ then that error must propagate to the parent response
 position (the entire selection set in the case of a field, or the entire list in
 the case of a list position), either resolving to {null} if allowed or being
-further propagated to a parent _response position_.
+further propagated to a parent response position.
 
-If this occurs, any sibling response position which have not yet executed or
+If this occurs, any sibling response positions which have not yet executed or
 have not yet yielded a value may be cancelled to avoid unnecessary work.
 
 Note: See [Handling Runtime Errors](#sec-Handling-Runtime-Errors) for more about
