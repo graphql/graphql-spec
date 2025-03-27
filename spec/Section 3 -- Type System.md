@@ -1753,8 +1753,8 @@ that position in the list along with an _execution error_ added to the response.
 If a list's item type is non-null, an execution error occurring at an individual
 item in the list must result in an execution error for the entire list.
 
-Note: See [Handling Runtime Errors](#sec-Handling-Runtime-Errors) for more about
-this behavior.
+Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
+about this behavior.
 
 **Input Coercion**
 

@@ -392,8 +392,8 @@ allowed or being further propagated to a parent response position.
 If this occurs, any sibling response positions which have not yet executed or
 have not yet yielded a value may be cancelled to avoid unnecessary work.
 
-Note: See [Handling Runtime Errors](#sec-Handling-Runtime-Errors) for more about
-this behavior.
+Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
+about this behavior.
 
 ### Normal and Serial Execution
 
@@ -812,7 +812,7 @@ MergeSelectionSets(fields):
   <!-- This link exists for legacy hyperlink support -->
 </a>
 
-### Handling Runtime Errors
+### Handling Execution Errors
 
 An _execution error_ is an error raised from a particular field during value
 resolution or coercion. While these errors should be reported in the response,
