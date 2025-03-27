@@ -897,8 +897,8 @@ producing a partial response _without_ propagating errors to conform to
 Note: With this error behavior, the client is expected to honour the {"errors"}
 in the _response_ and prevent developers from reading a {null} produced by an
 error. One approach for clients to to prevent a {null} produced by an error from
-being read is to raise an error on the client when the errored response
-position's data is accessed.
+being read is to raise an error on the client when the data at that error's
+_path entry_ is accessed.
 
 **ABORT**
 
