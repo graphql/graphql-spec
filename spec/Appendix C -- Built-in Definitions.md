@@ -1,4 +1,10 @@
-# C. Appendix: Built-in Definitions
+# C. Appendix: Type System Definitions
+
+This appendix lists all the type system definitions mentioned throughout this
+specification.
+
+The descriptions are non-normative. Implementations are recommended to use them
+for consistency but different descriptions are allowed.
 
 ## Scalars
 
