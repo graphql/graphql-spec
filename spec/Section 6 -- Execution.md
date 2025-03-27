@@ -15,10 +15,15 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
+- {errors} (optional): The _error behavior_ that is desired, see
+  [Handling Execution Errors](#sec-Handling-Execution-Errors).
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
-formatted according to the Response section below.
+formatted according to the Response section below. The value of {errors} is
+referenced by the [Handling Execution Errors](#sec-Handling-Execution-Errors)
+section only, so we do not complicate the algorithms by passing it through every
+call.
 
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
@@ -815,38 +820,81 @@ MergeSelectionSets(fields):
 ### Handling Execution Errors
 
 An _execution error_ is an error raised from a particular field during value
-resolution or coercion. While these errors should be reported in the response,
-they are "handled" by producing a partial response.
+resolution or coercion. These errors should be reported in the response and are
+"handled" according to the selected _error behavior_.
 
-Note: This is distinct from a _request error_ which results in a response with
-no data.
+Note: An _execution error_ is distinct from a _request error_ which results in a
+response with no data.
 
-If an execution error is raised while resolving a field (either directly or
-nested inside any lists), it is handled as though the position at which the
-error occurred resulted in {null}, and the error must be added to the {"errors"}
-list in the response.
-
-If the result of resolving a _response position_ is {null} (either due to the
-result of {ResolveFieldValue()} or because an execution error was raised), and
-that position is of a `Non-Null` type, then an execution error is raised at that
-position. The error must be added to the {"errors"} list in the response.
-
-If a _response position_ returns {null} because of an execution error which has
-already been added to the {"errors"} list in the response, the {"errors"} list
-must not be further affected. That is, only one error should be added to the
-errors list per _response position_.
-
-Since `Non-Null` response positions cannot be {null}, execution errors are
-propagated to be handled by the parent _response position_. If the parent
-response position may be {null} then it resolves to {null}, otherwise if it is a
-`Non-Null` type, the execution error is further propagated to its parent
-_response position_.
+If the result of resolving a field is {null}, and that field is of a `Non-Null`
+type, then an execution error is raised by the field.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
-resolves to {null}, then the entire list must resolve to {null}. If the `List`
-type is also wrapped in a `Non-Null`, the execution error continues to propagate
-upwards.
+resolves to {null}, then an execution error is raised by the list item.
+
+:: The _error behavior_ is the way in which the request wishes for errors to be
+handled. Valid values are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}; their
+respective behaviors are detailed below.
+
+Implementations are free to choose the default value to use if _error behavior_
+is not specified. It is recommended this is {"NO_PROPAGATE"} for newly created
+schemas, but {"PROPAGATE"} should be used for existing schemas since that was
+the implicit behavior in previous versions of this specification.
+
+Note: {"ABORT"} is not recommended as the default error behavior because it
+makes clients less resilient to errors. GraphQL enables partial responses so
+that the end user can still see some useful data even when something goes wrong
+on the server.
+
+If an execution error is raised from a response position, it must be added to
+the {"errors"} list in the _response_.
+
+If the response position returns {null} because of an execution error which has
+already been added to the {"errors"} list in the response, the {"errors"} list
+must not be further affected. That is, only one error should be added to the
+errors list per response position.
+
+Execution errors are handled according to the selected _error behavior_, as
+detailed below:
+
+**PROPAGATE**
+
+This is the traditional error handling approach in which errors are "handled" by
+producing a partial response whilst ensuring that {null} may not occur in a
+`Non-Null` position.
+
+If an execution error is raised while resolving a nullable response position, it
+is handled as though the response position returned {null} (and as stated above,
+the error must be added to the {"errors"} list in the response).
+
+Since `Non-Null` response positions cannot be {null}, execution errors that
+occur in `Non-Null` response positions are propagated to be handled by the
+parent position. If the parent response position may be {null} then it resolves
+to {null}, otherwise if it is a `Non-Null` type, the execution error is further
+propagated to its parent response position.
 
 If all response positions from the root of the request to the source of the
 execution error return `Non-Null` types, then the {"data"} entry in the response
-should be {null}.
+is made {null}.
+
+**NO_PROPAGATE**
+
+This is the modern error handling approach in which errors are "handled" by
+producing a partial response _without_ propagating errors to conform to
+`Non-Null` positions.
+
+Note: With this error behavior, the client is expected to honour the {"errors"}
+in the _response_ and prevent developers from reading a {null} produced by an
+error. One approach for clients to to prevent a {null} produced by an error from
+being read is to raise an error on the client when the errored response
+position's data is accessed.
+
+**ABORT**
+
+This error handling approach terminates the request when an execution error is
+raised in any response position by setting the {"data"} entry in the response to
+{null}.
+
+It is not recommended to default to {"ABORT"}, however it can be useful for
+certain classes of clients, such as ad-hoc scripts, that do not know how to
+handle errors and thus wish to abort and fail the moment any error occurs.

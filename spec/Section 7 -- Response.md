@@ -26,6 +26,12 @@ key `data`. The value of this entry is described in the "Data" section. If the
 request failed before execution, due to a syntax error, missing information, or
 validation error, this entry must not be present.
 
+If the request included execution, raised any errors, and the _error behavior_
+was not {"PROPAGATE"} then the response map must contain an entry with key
+`errors`. Otherwise, inclusion of the `errors` key is permitted but not
+recommended. The value of this key, if present, must be that of the _error
+behavior_.
+
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
