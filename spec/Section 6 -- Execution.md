@@ -15,15 +15,25 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
-- {errors} (optional): The _error behavior_ that is desired, see
+- {onError} (optional): The _error behavior_ that is desired, see
   [Handling Execution Errors](#sec-Handling-Execution-Errors).
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
-formatted according to the Response section below. The value of {errors} is
-referenced by the [Handling Execution Errors](#sec-Handling-Execution-Errors)
-section only, so we do not complicate the algorithms by passing it through every
-call.
+formatted according to the Response section below.
+
+Servers should use the value of {onError}, if present, as the _error behavior_
+of the request described in
+[Handling Execution Errors](#sec-Handling-Execution-Errors). However, it should
+be noted that previous versions of this specification did not make this option
+available and thus a client must not rely on the server to honor the {onError}
+value it has specified. If a _response_ includes {"errors"}, the client must
+check the {"onError"} of the _response_ determine how errors are treated. If no
+such property is present, the client must treat the request as if it had
+specified {onError} as {"PROPAGATE"}.
+
+If {onError} is present and it's value is not one of {"PROPAGATE"},
+{"NO_PROPAGATE"}, or {"ABORT"} then a request error must be raised.
 
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
@@ -833,7 +843,8 @@ If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then an execution error is raised by the list item.
 
 :: The _error behavior_ is the way in which the request wishes for errors to be
-handled. Valid values are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}; their
+handled. It can be specified by the client using the {onError} property of the
+_request_. Valid values are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}; their
 respective behaviors are detailed below.
 
 Implementations are free to choose the default value to use if _error behavior_
