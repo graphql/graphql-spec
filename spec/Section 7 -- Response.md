@@ -5,7 +5,7 @@ response. The service's response describes the result of executing the requested
 operation if successful, and describes any errors raised during the request.
 
 A response may contain both a partial response as well as a list of errors in
-the case that any _runtime error_ was raised and replaced with {null}.
+the case that any _execution error_ was raised and replaced with {null}.
 
 ## Response Format
 
@@ -72,8 +72,8 @@ present. It must contain at least one _request error_ indicating why no data was
 able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
-{null}), the `errors` entry must be present if and only if one or more _runtime
-error_ was raised during execution.
+{null}), the `errors` entry must be present if and only if one or more
+_execution error_ was raised during execution.
 
 **Request Errors**
 
@@ -92,29 +92,29 @@ be halted.
   <!-- This link exists for legacy hyperlink support -->
 </a>
 
-**Runtime Errors**
+**Execution Errors**
 
-:: A _runtime error_ is an error raised during the execution of a particular
+:: An _execution error_ is an error raised during the execution of a particular
 field which results in partial response data. This may occur due to failure to
 coerce the arguments for the field, an internal error during value resolution,
-or failure to coerce the resulting value. A _runtime error_ may occur in any
+or failure to coerce the resulting value. An _execution error_ may occur in any
 _response position_.
 
-Note: In previous versions of this specification _runtime error_ was called
+Note: In previous versions of this specification _execution error_ was called
 _field error_.
 
 :: A _response position_ is an identifiable position in the response: either a
 _field_, or a (potentially nested) list position within a field if the field has
-a `List` type. A _runtime error_ may only occur within a _response position_.
+a `List` type. An _execution error_ may only occur within a _response position_.
 The _response position_ is indicated in the _response_ via the error's _path
 entry_.
 
-A runtime error is typically the fault of a GraphQL service.
+An execution error is typically the fault of a GraphQL service.
 
-If a runtime error is raised, execution attempts to continue and a partial
+If an execution error is raised, execution attempts to continue and a partial
 result is produced (see
-[Handling Runtime Errors](#sec-Handling-Runtime-Errors)). The `data` entry in
-the response must be present. The `errors` entry must include this error.
+[Handling Execution Errors](#sec-Handling-Execution-Errors)). The `data` entry
+in the response must be present. The `errors` entry must include this error.
 
 **Error Result Format**
 

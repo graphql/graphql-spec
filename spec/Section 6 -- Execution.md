@@ -137,7 +137,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be the list of all _runtime error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -158,7 +158,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {selectionSet} be the top level selection set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   mutationType, initialValue, variableValues)} _serially_.
-- Let {errors} be the list of all _runtime error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -317,7 +317,7 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - Complete {responseStream} normally.
 - Return {responseStream}.
 
-Note: Since {ExecuteSubscriptionEvent()} handles all _runtime error_, and
+Note: Since {ExecuteSubscriptionEvent()} handles all _execution error_, and
 _request error_ only occur during {CreateSourceEventStream()}, the only
 remaining error condition handled from {ExecuteSubscriptionEvent()} are internal
 exceptional errors not described by this specification.
@@ -330,7 +330,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be the list of all _runtime error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -384,10 +384,10 @@ is explained in greater detail in the Field Collection section below.
 **Errors and Non-Null Types**
 
 If during {ExecuteSelectionSet()} a _response position_ with a non-null type
-raises a _runtime error_ then that error must propagate to the parent response
-position (the entire selection set in the case of a field, or the entire list in
-the case of a list position), either resolving to {null} if allowed or being
-further propagated to a parent response position.
+raises an _execution error_ then that error must propagate to the parent
+response position (the entire selection set in the case of a field, or the
+entire list in the case of a list position), either resolving to {null} if
+allowed or being further propagated to a parent response position.
 
 If this occurs, any sibling response positions which have not yet executed or
 have not yet yielded a value may be cancelled to avoid unnecessary work.
@@ -628,7 +628,7 @@ At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
 Any _request error_ raised during {CoerceArgumentValues()} should be treated
-instead as a _runtime error_.
+instead as an _execution error_.
 
 CoerceArgumentValues(objectType, field, variableValues):
 
@@ -656,7 +656,7 @@ CoerceArgumentValues(objectType, field, variableValues):
     - Add an entry to {coercedValues} named {argumentName} with the value
       {defaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a _runtime error_.
+    not {true} or {value} is {null}, raise an _execution error_.
   - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {argumentName} with the value
@@ -666,7 +666,7 @@ CoerceArgumentValues(objectType, field, variableValues):
         {value}.
     - Otherwise:
       - If {value} cannot be coerced according to the input coercion rules of
-        {argumentType}, raise a _runtime error_.
+        {argumentType}, raise an _execution error_.
       - Let {coercedValue} be the result of coercing {value} according to the
         input coercion rules of {argumentType}.
       - Add an entry to {coercedValues} named {argumentName} with the value
@@ -713,12 +713,12 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
     fields, result, variableValues)}.
-  - If {completedResult} is {null}, raise a _runtime error_.
+  - If {completedResult} is {null}, raise an _execution error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
-  - If {result} is not a collection of values, raise a _runtime error_.
+  - If {result} is not a collection of values, raise an _execution error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
     {CompleteValue(innerType, fields, resultItem, variableValues)}, where
@@ -753,7 +753,7 @@ CoerceResult(leafType, value):
 - Return the result of calling the internal method provided by the type system
   for determining the "result coercion" of {leafType} given the value {value}.
   This internal method must return a valid value for the type and not {null}.
-  Otherwise raise a _runtime error_.
+  Otherwise raise an _execution error_.
 
 Note: If a field resolver returns {null} then it is handled within
 {CompleteValue()} before {CoerceResult()} is called. Therefore both the input
@@ -814,39 +814,39 @@ MergeSelectionSets(fields):
 
 ### Handling Runtime Errors
 
-A _runtime error_ is an error raised from a particular field during value
+An _execution error_ is an error raised from a particular field during value
 resolution or coercion. While these errors should be reported in the response,
 they are "handled" by producing a partial response.
 
 Note: This is distinct from a _request error_ which results in a response with
 no data.
 
-If a runtime error is raised while resolving a field (either directly or nested
-inside any lists), it is handled as though the position at which the error
-occurred resulted in {null}, and the error must be added to the {"errors"} list
-in the response.
+If an execution error is raised while resolving a field (either directly or
+nested inside any lists), it is handled as though the position at which the
+error occurred resulted in {null}, and the error must be added to the {"errors"}
+list in the response.
 
 If the result of resolving a _response position_ is {null} (either due to the
-result of {ResolveFieldValue()} or because a runtime error was raised), and that
-position is of a `Non-Null` type, then a runtime error is raised at that
+result of {ResolveFieldValue()} or because an execution error was raised), and
+that position is of a `Non-Null` type, then an execution error is raised at that
 position. The error must be added to the {"errors"} list in the response.
 
-If a _response position_ returns {null} because of a runtime error which has
+If a _response position_ returns {null} because of an execution error which has
 already been added to the {"errors"} list in the response, the {"errors"} list
 must not be further affected. That is, only one error should be added to the
 errors list per _response position_.
 
-Since `Non-Null` response positions cannot be {null}, runtime errors are
+Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
 response position may be {null} then it resolves to {null}, otherwise if it is a
-`Non-Null` type, the runtime error is further propagated to its parent _response
-position_.
+`Non-Null` type, the execution error is further propagated to its parent
+_response position_.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
-type is also wrapped in a `Non-Null`, the runtime error continues to propagate
+type is also wrapped in a `Non-Null`, the execution error continues to propagate
 upwards.
 
 If all response positions from the root of the request to the source of the
-runtime error return `Non-Null` types, then the {"data"} entry in the response
+execution error return `Non-Null` types, then the {"data"} entry in the response
 should be {null}.
