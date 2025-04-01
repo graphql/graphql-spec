@@ -219,31 +219,35 @@ implementations.
 
 ## Data Collections
 
-This specification describes the semantic properties of data collections using
-types like "list", "set" and "map". These describe observable data collections
-such as the result of applying a grammar and the inputs and outputs of
-algorithms. They also describe unobservable data collections such as temporary
-data internal to an algorithm. Each data collection type defines the operations
-available, and whether values are unique or ordered.
+A data collection is a finite, iterable aggregation of elements whose iteration
+order is not necessarily stable. This specification describes the semantic
+properties of data collections using types like "list", "set" and "map". These
+describe observable data collections, such as the result of applying a grammar
+and the inputs and outputs of algorithms. They also describe unobservable data
+collections such as temporary data internal to an algorithm. Each data
+collection type defines the operations available, and whether values are unique
+or ordered.
 
 **List**
 
-:: The term _list_ describes a sequence of values which may not be unique. A
-list is ordered unless explicitly stated otherwise (as an "unordered list"). For
-clarity the term "ordered list" may be used when an order is semantically
+:: The term _list_ describes a sequence of zero or more values, which may
+contain duplicates. Currently, all lists in this specification are ordered, but
+for clarity the term "ordered list" may be used when an order is semantically
 important.
 
 **Set**
 
-:: The term _set_ describes a unique collection of values, where each value is
-considered a "member" of that set. A set is unordered unless explicitly stated
-otherwise (as an "ordered set"). For clarity the term "unordered set" may be
-used when the lack of an order is semantically important.
+:: The term _set_ describes a collection of zero or more values, which may not
+contain duplicates. Each value is considered a "member" of the set. A set is
+unordered unless explicitly stated otherwise (as an "ordered set"). For clarity,
+the term "unordered set" may be used when the lack of an order is semantically
+important.
 
 **Map**
 
-:: The term _map_ describes a collection of "entry" key and value pairs, where
-the set of keys across all entries is unique but the values across all entries
-may repeat. A map is unordered unless explicitly stated otherwise (as an
-"ordered map"). For clarity the term "unordered map" may be used when the lack
-of an order is semantically important.
+:: The term _map_ describes a collection where each element is a pair (called an
+"entry") consisting of a key and a value. Keys are unique: no two entries with
+the same key may exist in the same map, but values may repeat. A map is
+unordered unless explicitly stated otherwise (as an "ordered map"). For clarity,
+the term "unordered map" may be used when the lack of an order is semantically
+important.
