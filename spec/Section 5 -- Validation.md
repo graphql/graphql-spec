@@ -1306,9 +1306,10 @@ fragment resourceFragment on Resource {
 
 - For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type} (with the assumption that any
-    {variableUsage} nested within {value} will represent a runtime value valid
-    for usage in its position).
+  - If {type} is not a custom scalar type:
+    - {value} must be coercible to {type} (with the assumption that any
+      {variableUsage} nested within {value} will represent a runtime value valid
+      for usage in its position).
 
 **Explanatory Text**
 
@@ -1323,6 +1324,11 @@ position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
 algorithm ensures runtime values for variables coerce correctly. Therefore, for
 the purposes of the "coercible" assertion in this validation rule, we can assume
 the runtime value of each {variableUsage} is valid for usage in its position.
+
+Note: Custom scalar coercion rules are not always available when validating a
+document and custom scalar literal values are excluded from this validation. If
+a custom scalar literal value cannot be coerced, it will raise an execution
+error.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
