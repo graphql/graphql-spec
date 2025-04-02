@@ -1890,6 +1890,7 @@ variable.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
+- If {variableUsage} is nested in a custom scalar literal value, return {true}.
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
