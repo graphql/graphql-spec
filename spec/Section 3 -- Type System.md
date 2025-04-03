@@ -487,7 +487,7 @@ information on the serialization of scalars in common JSON and other formats.
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
 a coercion rule, a _request error_ must be raised (input values are validated
-before execution begins).
+before _execution_ begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
