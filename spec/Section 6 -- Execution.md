@@ -66,7 +66,7 @@ GetOperation(document, operationName):
 ### Validating Requests
 
 As explained in the Validation section, only requests which pass all validation
-rules should be process. If validation errors are known, they should be reported
+rules should be processed. If validation errors are known, they should be reported
 in the list of "errors" in the response and the request must fail without
 processing.
 
