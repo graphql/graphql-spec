@@ -1890,7 +1890,8 @@ variable.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
-- If {variableUsage} is nested in a custom scalar literal value, return {true}.
+- If {variableUsage} is nested within a custom scalar literal value, return
+  {true}.
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
@@ -1978,6 +1979,19 @@ query nonNullListToList($nonNullBooleanList: [Boolean]!) {
   arguments {
     booleanListArgField(booleanListArg: $nonNullBooleanList)
   }
+}
+```
+
+When using variables nested within custom scalars literals, the expected type is
+unknown, and variable usages are always allowed. The actual value is coerced at
+runtime using the custom scalar coercion rules. In the following case, the
+`user` argument expects a `JSON` custom scalar, and it is valid for it to
+reference variables:
+
+```graphql example
+mutation updateUserName($name: String!) {
+  # This usage of the $name variable is valid
+  updateUser(user: { name: $name })
 }
 ```
 
