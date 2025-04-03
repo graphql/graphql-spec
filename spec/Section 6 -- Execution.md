@@ -28,7 +28,6 @@ Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
 chosen by the implementing service.
 
-
 ## Executing Requests
 
 To execute a request, the executor must have a parsed {Document} and a selected
