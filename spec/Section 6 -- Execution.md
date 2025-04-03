@@ -35,7 +35,8 @@ request is determined by the result of executing this operation according to the
 :: We define _execution_ as the process of executing the operation's root
 selection set through {ExecuteSelectionSet()}, thus _execution_ begins when
 {ExecuteSelectionSet()} is called for the first time in a request. The
-{ExecuteRequest()} algorithm is a preamble for _execution_.
+{ExecuteRequest()} algorithm contains the preamble for _execution_, followed by
+the _execution_ itself.
 
 Note: An error raised before _execution_ begins will typically be a _request
 error_, and once _execution_ begins will typically be a _field error_.
