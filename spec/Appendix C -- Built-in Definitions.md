@@ -71,7 +71,7 @@ directive @deprecated(
   """
   The reason for the deprecation.
   """
-  reason: String = "No longer supported"
+  reason: String! = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
 
 """
