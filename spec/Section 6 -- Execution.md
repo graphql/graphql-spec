@@ -16,16 +16,18 @@ A GraphQL service generates a response from a request via execution.
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
 
-As this specification evolves, new information may be added. Implementation must
-ignore any value they do not recognize.
-
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
 
+A GraphQL service must ignore unrecognized information in a request. This allows
+a service to remain resilient to future changes in future versions of this 
+specification.
+
 Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
 chosen by the implementing service.
+
 
 ## Executing Requests
 
