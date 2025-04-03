@@ -65,7 +65,7 @@ directive @skip(
 ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 """
-Marks the field, argument, input field or enum value as deprecated
+Marks the field, argument, input field or enum value as deprecated.
 """
 directive @deprecated(
   """
