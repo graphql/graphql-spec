@@ -22,10 +22,10 @@ key `errors`. The value of this entry is described in the "Errors" section. If
 the request completed without raising any errors, this entry must not be
 present.
 
-If the request included execution, the response map must contain an entry with
+If the request included _execution_, the response map must contain an entry with
 key `data`. The value of this entry is described in the "Data" section. If the
-request failed before execution, due to a syntax error, missing information, or
-validation error, this entry must not be present.
+request failed before _execution_, due to a syntax error, missing information,
+or validation error, this entry must not be present.
 
 The response map may also contain an entry with key `extensions`. This entry, if
 set, must have a map as its value. This entry is reserved for implementers to
@@ -47,20 +47,20 @@ subscription. A _response stream_ must be a stream of _response_.
 
 ### Data
 
-The `data` entry in the response will be the result of the execution of the
+The `data` entry in the response will be the result of the _execution_ of the
 requested operation. If the operation was a query, this output will be an object
 of the query root operation type; if the operation was a mutation, this output
 will be an object of the mutation root operation type.
 
-If an error was raised before execution begins, the `data` entry should not be
+If an error was raised before _execution_ begins, the `data` entry should not be
 present in the response.
 
-If an error was raised during the execution that prevented a valid response, the
-`data` entry in the response should be `null`.
+If an error was raised during the _execution_ that prevented a valid response,
+the `data` entry in the response should be `null`.
 
 Note: Request errors (including those raised during {ExecuteRequest()}) occur
-before execution begins; when a request error is raised the `data` entry should
-not be present in the result.
+before _execution_ begins; when a request error is raised the `data` entry
+should not be present in the result.
 
 ### Errors
 
@@ -78,12 +78,12 @@ able to be returned.
 
 If the `data` entry in the response is present (including if it is the value
 {null}), the `errors` entry must be present if and only if one or more _field
-error_ was raised during execution.
+error_ was raised during _execution_.
 
 **Request Errors**
 
 :: A _request error_ is an error raised during a _request_ which results in no
-response data. Typically raised before execution begins, a request error may
+response data. Typically raised before _execution_ begins, a request error may
 occur due to a parse grammar or validation error in the _Document_, an inability
 to determine which operation to execute, or invalid input values for variables.
 
@@ -101,10 +101,10 @@ during value resolution or failure to coerce the resulting value.
 
 A field error is typically the fault of a GraphQL service.
 
-If a field error is raised, execution attempts to continue and a partial result
-is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)). The
-`data` entry in the response must be present. The `errors` entry should include
-this error.
+If a field error is raised, _execution_ attempts to continue and a partial
+result is produced (see [Handling Field Errors](#sec-Handling-Field-Errors)).
+The `data` entry in the response must be present. The `errors` entry should
+include this error.
 
 **Error Result Format**
 
@@ -255,7 +255,7 @@ discouraged.
 ### Path
 
 :: A _path entry_ is an entry within an _error result_ that allows for
-association with a particular field reached during GraphQL execution.
+association with a particular field reached during GraphQL _execution_.
 
 The value for a _path entry_ must be a list of path segments starting at the
 root of the response and ending with the field to be associated with. Path

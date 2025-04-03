@@ -32,6 +32,14 @@ document is expected to only contain a single operation. The result of the
 request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
+:: We define _execution_ as the process of executing the operation's root
+selection set through {ExecuteSelectionSet()}, thus _execution_ begins when
+{ExecuteSelectionSet()} is called for the first time in a request. The
+{ExecuteRequest()} algorithm is a preamble for _execution_.
+
+Note: An error raised before _execution_ begins will typically be a _request
+error_, and once _execution_ begins will typically be a _field error_.
+
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
@@ -62,10 +70,10 @@ GetOperation(document, operationName):
 As explained in the Validation section, only requests which pass all validation
 rules should be executed. If validation errors are known, they should be
 reported in the list of "errors" in the response and the request must fail
-without execution.
+without _execution_.
 
 Typically validation is performed in the context of a request immediately before
-execution, however a GraphQL service may execute a request without immediately
+_execution_, however a GraphQL service may execute a request without immediately
 validating it if that exact same request is known to have been validated before.
 A GraphQL service should only execute requests which _at some point_ were known
 to be free of any validation errors, and have since not changed.
@@ -79,7 +87,7 @@ result to avoid validating the same request again in the future.
 If the operation has defined any variables, then the values for those variables
 need to be coerced using the input coercion rules of variable's declared type.
 If a _request error_ is encountered during input coercion of variable values,
-then the operation fails without execution.
+then the operation fails without _execution_.
 
 CoerceVariableValues(schema, operation, variableValues):
 
