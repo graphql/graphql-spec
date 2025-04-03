@@ -40,8 +40,8 @@ clients, the top level _response payload_ must not contain any entries other
 than the three described above.
 
 Note: When `errors` is present in the _response payload_, it may be helpful for
-it to appear first when serialized to make it more clear when errors are present
-in a response payload during debugging.
+it to appear first when serialized to make it more apparent that errors are
+present.
 
 ### Response Stream
 
