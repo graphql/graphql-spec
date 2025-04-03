@@ -699,7 +699,7 @@ field execution process continues recursively.
 
 CompleteValue(fieldType, fields, result, variableValues):
 
-- If the {fieldType} is a Non-Null type:
+- If the {fieldType} is a Non-Null or a Semantic-Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
     fields, result, variableValues)}.
@@ -834,3 +834,6 @@ upwards.
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be
 {null}.
+
+Note: By the above, field errors that happen in `Semantic-Non-Null` types do not
+propagate.

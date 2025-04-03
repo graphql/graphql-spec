@@ -162,13 +162,14 @@ enum __TypeKind {
   INPUT_OBJECT
   LIST
   NON_NULL
+  SEMANTIC_NON_NULL
 }
 
 type __Field {
   name: String!
   description: String
   args(includeDeprecated: Boolean = false): [__InputValue!]!
-  type: __Type!
+  type(includeSemanticNonNull: Boolean! = false): __Type!
   isDeprecated: Boolean!
   deprecationReason: String
 }
@@ -263,6 +264,7 @@ possible value of the `__TypeKind` enum:
 - {"INPUT_OBJECT"}
 - {"LIST"}
 - {"NON_NULL"}
+- {"SEMANTIC_NON_NULL"}
 
 **Scalar**
 
@@ -400,12 +402,33 @@ required inputs for arguments and input object fields.
 
 The modified type in the `ofType` field may itself be a modified List type,
 allowing the representation of Non-Null of Lists. However it must not be a
-modified Non-Null type to avoid a redundant Non-Null of Non-Null.
+modified Non-Null type to avoid a redundant Non-Null of Non-Null; nor may it be
+a modified Semantic-Non-Null type since these types are mutually exclusive.
 
 Fields\:
 
 - `kind` must return `__TypeKind.NON_NULL`.
-- `ofType` must return a type of any kind except Non-Null.
+- `ofType` must return a type of any kind except Non-Null and Semantic-Non-Null.
+- All other fields must return {null}.
+
+**Semantic-Non-Null**
+
+GraphQL types are nullable. The value {null} is a valid response for field type.
+
+A Semantic-Non-Null type is a type modifier: it wraps another _output type_
+instance in the `ofType` field. Semantic-Non-Null types do not allow {null} as a
+response _unless_ an associated _field error_ has been raised.
+
+The modified type in the `ofType` field may itself be a modified List type,
+allowing the representation of Semantic-Non-Null of Lists. However it must not
+be a modified Semantic-Non-Null type to avoid a redundant Semantic-Non-Null of
+Semantic-Non-Null; nor may it be a modified Non-Null type since these types are
+mutually exclusive.
+
+Fields\:
+
+- `kind` must return `__TypeKind.SEMANTIC_NON_NULL`.
+- `ofType` must return a type of any kind except Non-Null and Semantic-Non-Null.
 - All other fields must return {null}.
 
 ### The \_\_Field Type
@@ -422,10 +445,27 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
+  - Accepts the argument `includeSemanticNonNull` which defaults to {false}. If
+    {false}, let {fieldType} be the type of value returned by this field and
+    instead return a `__Type` that represents
+    {RecursivelyStripSemanticNonNullTypes(fieldType)}.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
 - `deprecationReason` returns the reason why this field is deprecated, or null
   if this field is not deprecated.
+
+RecursivelyStripSemanticNonNullTypes(type):
+
+- If {type} is a Semantic-Non-Null type:
+  - Let {innerType} be the inner type of {type}.
+  - Return {RecursivelyStripSemanticNonNullTypes(innerType)}.
+- Otherwise, if {type} is a Non-Null type or List type:
+  - Return {RecursivelyStripSemanticNonNullTypes(type)}.
+- Otherwise, return {type}.
+
+Note: This algorithm recursively removes all Semantic-Non-Null type wrappers
+(e.g. `[[Int*]!]*` would become `[[Int]!]`). This is to support legacy clients:
+they can safely treat a Semantic-Non-Null type as the underlying nullable type.
 
 ### The \_\_InputValue Type
 
