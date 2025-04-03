@@ -21,7 +21,7 @@ operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
 
 A GraphQL service must ignore unrecognized information in a request. This allows
-a service to remain resilient to future changes in future versions of this 
+a service to remain resilient to changes in future versions of this 
 specification.
 
 Note: GraphQL requests do not require any specific serialization format or
