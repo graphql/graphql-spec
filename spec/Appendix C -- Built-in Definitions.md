@@ -132,31 +132,31 @@ type __Type {
   name: String
   description: String
   """
-  must be non-null for OBJECT and INTERFACE, otherwise null.
+  Must be non-null for OBJECT and INTERFACE, otherwise null.
   """
   fields(includeDeprecated: Boolean = false): [__Field!]
   """
-  must be non-null for OBJECT and INTERFACE, otherwise null.
+  Must be non-null for OBJECT and INTERFACE, otherwise null.
   """
   interfaces: [__Type!]
   """
-  must be non-null for INTERFACE and UNION, otherwise null.
+  Must be non-null for INTERFACE and UNION, otherwise null.
   """
   possibleTypes: [__Type!]
   """
-  must be non-null for ENUM, otherwise null.
+  Must be non-null for ENUM, otherwise null.
   """
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
   """
-  must be non-null for INPUT_OBJECT, otherwise null.
+  Must be non-null for INPUT_OBJECT, otherwise null.
   """
   inputFields(includeDeprecated: Boolean = false): [__InputValue!]
   """
-  must be non-null for NON_NULL and LIST, otherwise null.
+  Must be non-null for NON_NULL and LIST, otherwise null.
   """
   ofType: __Type
   """
-  may be non-null for custom SCALAR, otherwise null.
+  May be non-null for custom SCALAR, otherwise null.
   """
   specifiedByURL: String
 }
