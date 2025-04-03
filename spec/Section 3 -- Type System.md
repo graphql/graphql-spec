@@ -351,7 +351,7 @@ IsInputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsInputType({unwrappedType}).
+  - Return {IsInputType(unwrappedType)}.
 - If {type} is a Scalar, Enum, or Input Object type:
   - Return {true}.
 - Return {false}.
@@ -360,7 +360,7 @@ IsOutputType(type):
 
 - If {type} is a List type or Non-Null type:
   - Let {unwrappedType} be the unwrapped type of {type}.
-  - Return IsOutputType({unwrappedType}).
+  - Return {IsOutputType(unwrappedType)}.
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
   - Return {true}.
 - Return {false}.
