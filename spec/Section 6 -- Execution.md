@@ -165,7 +165,7 @@ ProcessMutation(mutation, schema, variableValues, initialValue):
 
 If the operation is a subscription, the result is an _event stream_ called the
 _response stream_ where each event in the event stream is the result of
-executing the operation ’s root _selection set_ for each new event on an
+executing the operation’s root _selection set_ for each new event on an
 underlying _source stream_.
 
 Processing a subscription operation creates a persistent function on the service
