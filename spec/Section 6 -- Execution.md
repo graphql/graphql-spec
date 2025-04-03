@@ -66,9 +66,9 @@ GetOperation(document, operationName):
 ### Validating Requests
 
 As explained in the Validation section, only requests which pass all validation
-rules should be processed. If validation errors are known, they should be reported
-in the list of "errors" in the response and the request must fail without
-processing.
+rules should be processed. If validation errors are known, they should be
+reported in the list of "errors" in the response and the request must fail
+without processing.
 
 Typically validation is performed in the context of a request immediately before
 processing, however a GraphQL service may process a request without immediately
