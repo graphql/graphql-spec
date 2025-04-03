@@ -258,9 +258,9 @@ additional information to the executor.
 type __Directive {
   name: String!
   description: String
-  isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean = false): [__InputValue!]!
+  isRepeatable: Boolean!
 }
 
 """
