@@ -1899,8 +1899,12 @@ AreTypesCompatible(variableType, locationType):
   - Let {nullableVariableType} be the nullable type of {variableType}.
   - Return {AreTypesCompatible(nullableVariableType, locationType)}.
 - Otherwise, if {locationType} is a list type:
-  - If {variableType} is NOT a list type, return {false}.
   - Let {itemLocationType} be the unwrapped item type of {locationType}.
+  - If {variableType} is NOT a list type:
+    - If {itemLocationType} is a non-null type:
+      - Let {nullableItemLocationType} be the unwrapped nullable type of {itemLocationType}.
+      - Return {AreTypesCompatible(variableType, nullableItemLocationType)}.
+    - Otherwise, return {AreTypesCompatible(variableType, itemLocationType)}.
   - Let {itemVariableType} be the unwrapped item type of {variableType}.
   - Return {AreTypesCompatible(itemVariableType, itemLocationType)}.
 - Otherwise, if {variableType} is a list type, return {false}.
@@ -2011,3 +2015,61 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 
 Note: The value {null} could still be provided to such a variable at runtime. A
 non-null argument must raise a _field error_ if provided a {null} value.
+
+**Coercion from Non-List to List Types**
+
+In GraphQL, variable usages must be compatible with the arguments they are passed
+to. However, GraphQL also provides a level of flexibility by allowing non-list
+variables to be used in list-type arguments under specific conditions. Specifically,
+if an argument expects a list type, a variable of a compatible non-list type can be
+used, provided that the type of the variable matches the item type of the list.
+
+For example, consider the following query:
+
+```graphql example
+query singleStringToList($singleString: String) {
+  someField(listArg: $singleString)
+}
+```
+
+Here, `$singleString` is a variable of type `String`, but it is being used in
+`listArg`, which expects a list of strings. This is a valid operation because
+GraphQL allows the `String` type of `$singleString` to be automatically coerced
+into a list type like `[String]` or `[String!]`. The coercion is permissible as
+long as the type of the variable (`String` in this case) is compatible with the
+item type of the list (`String`).
+
+**Null Semantics in Coercion from Non-List to List Types**
+
+When a variable of a non-list type holds a `null` value and is used in a list
+context, the coerced value for the list argument will be `null`, not `[null]`.
+This is in line with the typical behavior of GraphQL when a literal `null` is
+provided to a list argument.
+
+For example, consider the query:
+
+```graphql example
+query singleStringToList($singleString: String) {
+  someField(listArg: $singleString)
+}
+```
+
+If `$singleString` is provided as `null`, the behavior will be identical to the
+case where a literal `null` is directly passed to `listArg`. In both scenarios,
+`listArg` will receive `null` as its value, not `[null]`.
+
+However, it's important to note that this coercion rule doesn't allow a nullable
+non-list type like `String` to be used in a non-null list context, such as
+`[String]!`. For instance, the following query would result in a validation error:
+
+```graphql counter-example
+query singleStringToNonNullList($singleString: String) {
+  anotherField(nonNullListArg: $singleString)
+}
+```
+
+In this query, `$singleString` is of type `String`, but `nonNullListArg` expects
+a `[String]!`, which is a non-null list. Even if `$singleString` holds a non-null
+value, the query would still fail validation because the list itself is non-null
+(`[String]!`), and the coercion from `String` to `[String]!` is not allowed in
+this case.
