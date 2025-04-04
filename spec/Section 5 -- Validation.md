@@ -1860,6 +1860,26 @@ variable.
 
 ### All Variable Usages Are Allowed
 
+As GraphQL evolves and issues are spotted and fixed, the specification aims to
+maintain compatibility with existing GraphQL documents. In rare cases, this
+requires two versions of an algorithm, a Legacy Algorithm which supports clients
+with both old and new GraphQL documents, and a Strict Algorithm which only
+supports new GraphQL documents. It is recommended that you implement the Strict
+Algorithm unless you have existing GraphQL documents that you need to support
+which would become invalid under the Strict Algorithm, in which case you should
+implement the Legacy Algorithm.
+
+The All Variable Usages Are Allowed validation rule has become stricter since
+the release of the GraphQL Specification, specifically the Strict Algorithm no
+longer allows a nullable variable to be used in a non-nullable position even
+when either or both of the variable definition and the input position have a
+default value.
+
+#### Strict All Variable Usages Are Allowed
+
+Implement this only if you are not implementing
+[Legacy All Variable Usages Are Allowed](#sec-Legacy-All-Variable-Usages-Are-Allowed).
+
 **Formal Specification**
 
 - For each {operation} in {document}:
@@ -1876,6 +1896,144 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
+- Return {AreTypesCompatible(variableType, locationType)}.
+
+**Explanatory Text**
+
+Variable usages must be compatible with the arguments they are passed to.
+
+Validation failures occur when variables are used in the context of types that
+are complete mismatches, or if a nullable type in a variable is passed to a
+non-null argument type.
+
+Types must match:
+
+```graphql counter-example
+query intCannotGoIntoBoolean($intArg: Int) {
+  arguments {
+    booleanArgField(booleanArg: $intArg)
+  }
+}
+```
+
+${intArg} typed as {Int} cannot be used as an argument to {booleanArg}, typed as
+{Boolean}.
+
+List cardinality must also be the same. For example, lists cannot be passed into
+singular values.
+
+```graphql counter-example
+query booleanListCannotGoIntoBoolean($booleanListArg: [Boolean]) {
+  arguments {
+    booleanArgField(booleanArg: $booleanListArg)
+  }
+}
+```
+
+Nullability must also be respected. A nullable variable cannot be passed to a
+non-null argument.
+
+```graphql counter-example
+query booleanArgQuery($booleanArg: Boolean) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
+}
+```
+
+For list types, the same rules around nullability apply to both outer types and
+inner types. A nullable list cannot be passed to a non-null list, and a list of
+nullable values cannot be passed to a list of non-null values. The following is
+valid:
+
+```graphql example
+query nonNullListToList($nonNullBooleanList: [Boolean]!) {
+  arguments {
+    booleanListArgField(booleanListArg: $nonNullBooleanList)
+  }
+}
+```
+
+However, a nullable list cannot be passed to a non-null list:
+
+```graphql counter-example
+query listToNonNullList($booleanList: [Boolean]) {
+  arguments {
+    nonNullBooleanListField(nonNullBooleanListArg: $booleanList)
+  }
+}
+```
+
+This would fail validation because a `[T]` cannot be passed to a `[T]!`.
+Similarly a `[T]` cannot be passed to a `[T!]`.
+
+**Nullability, Optionality, and Default Values**
+
+The value for a non-nullable variable with a default value may be omitted, or
+may be set to a non-null value, but it cannot be explicitly {null}. Thus, rather
+than handling a {null} with a run-time _field error_ as in Legacy All Variable
+Usages Are Allowed, in Strict All Variable Usages Are Allowed we can make this
+situation impossible via validation.
+
+In the example below, the variable `$booleanArg` must be non-null because it is
+used in the non-null argument (`nonNullBooleanArg`); however since it provides a
+default value the variable need not be defined in the request (it is optional,
+but non-nullable).
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean! = true) {
+  arguments {
+    nonNullBooleanArgField(nonNullBooleanArg: $booleanArg)
+  }
+}
+```
+
+In the example below, the variable `$booleanArg` must be non-nullable since it
+is used in a non-null position, even though the argument `optionalBooleanArg`
+has a default value.
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean!) {
+  arguments {
+    optionalNonNullBooleanArgField(optionalBooleanArg: $booleanArg)
+  }
+}
+```
+
+The default value of `optionalBooleanArg` cannot be used when the argument is
+specified (either with a literal or a variable). You may choose to copy the
+argument's default value to the variable definition to make the variable
+optional (but still non-nullable) as in the example below:
+
+```graphql example
+query booleanArgQueryWithDefault($booleanArg: Boolean! = false) {
+  arguments {
+    optionalNonNullBooleanArgField(optionalBooleanArg: $booleanArg)
+  }
+}
+```
+
+#### Legacy All Variable Usages Are Allowed
+
+Implement this only if you are not implementing
+[Strict All Variable Usages Are Allowed](#sec-Strict-All-Variable-Usages-Are-Allowed).
+
+**Formal Specification**
+
+- For each {operation} in {document}:
+  - Let {variableUsages} be all usages transitively included in the {operation}.
+  - For each {variableUsage} in {variableUsages}:
+    - Let {variableName} be the name of {variableUsage}.
+    - Let {variableDefinition} be the {VariableDefinition} named {variableName}
+      defined within {operation}.
+    - {IsVariableUsageAllowedLegacy(variableDefinition, variableUsage)} must be
+      {true}.
+
+IsVariableUsageAllowedLegacy(variableDefinition, variableUsage):
+
+- Let {variableType} be the expected type of {variableDefinition}.
+- Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
+  {ListValue} entry where {variableUsage} is located.
 - If {locationType} is a non-null type AND {variableType} is NOT a non-null
   type:
   - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists for
@@ -1887,25 +2045,6 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
   - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
-
-AreTypesCompatible(variableType, locationType):
-
-- If {locationType} is a non-null type:
-  - If {variableType} is NOT a non-null type, return {false}.
-  - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
-  - Let {nullableVariableType} be the unwrapped nullable type of {variableType}.
-  - Return {AreTypesCompatible(nullableVariableType, nullableLocationType)}.
-- Otherwise, if {variableType} is a non-null type:
-  - Let {nullableVariableType} be the nullable type of {variableType}.
-  - Return {AreTypesCompatible(nullableVariableType, locationType)}.
-- Otherwise, if {locationType} is a list type:
-  - If {variableType} is NOT a list type, return {false}.
-  - Let {itemLocationType} be the unwrapped item type of {locationType}.
-  - Let {itemVariableType} be the unwrapped item type of {variableType}.
-  - Return {AreTypesCompatible(itemVariableType, itemLocationType)}.
-- Otherwise, if {variableType} is a list type, return {false}.
-- Return {true} if {variableType} and {locationType} are identical, otherwise
-  {false}.
 
 **Explanatory Text**
 
@@ -2011,3 +2150,26 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 
 Note: The value {null} could still be provided to such a variable at runtime. A
 non-null argument must raise a _field error_ if provided a {null} value.
+
+#### Are Types Compatible
+
+Both versions of the algorithm share the definition of {AreTypesCompatible()}:
+
+AreTypesCompatible(variableType, locationType):
+
+- If {locationType} is a non-null type:
+  - If {variableType} is NOT a non-null type, return {false}.
+  - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
+  - Let {nullableVariableType} be the unwrapped nullable type of {variableType}.
+  - Return {AreTypesCompatible(nullableVariableType, nullableLocationType)}.
+- Otherwise, if {variableType} is a non-null type:
+  - Let {nullableVariableType} be the nullable type of {variableType}.
+  - Return {AreTypesCompatible(nullableVariableType, locationType)}.
+- Otherwise, if {locationType} is a list type:
+  - If {variableType} is NOT a list type, return {false}.
+  - Let {itemLocationType} be the unwrapped item type of {locationType}.
+  - Let {itemVariableType} be the unwrapped item type of {variableType}.
+  - Return {AreTypesCompatible(itemVariableType, itemLocationType)}.
+- Otherwise, if {variableType} is a list type, return {false}.
+- Return {true} if {variableType} and {locationType} are identical, otherwise
+  {false}.
