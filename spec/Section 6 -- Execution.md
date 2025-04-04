@@ -385,6 +385,8 @@ either resolving to {null} if allowed or further propagated to a parent field.
 If this occurs, any sibling fields which have not yet executed or have not yet
 yielded a value may be cancelled to avoid unnecessary work.
 
+This default error propagation behavior can be modified by using the `@disableErrorPropagation` directive on an operation. If this directive is present, field errors in non-null fields will not propagate to their parent fields. Instead, the field that experienced the error will return `null` (even if it's a non-null field) and the error will be added to the response's `errors` list, but parent fields will continue to be resolved normally. This allows clients to receive partial data with localized errors rather than having errors propagate and potentially nullify large portions of the response.
+
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
 
@@ -834,3 +836,5 @@ upwards.
 If all fields from the root of the request to the source of the field error
 return `Non-Null` types, then the {"data"} entry in the response should be
 {null}.
+
+Note: The error propagation behavior described above can be modified by using the `@disableErrorPropagation` directive on an operation. See [Errors and Non-Null Fields](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields) for details.
