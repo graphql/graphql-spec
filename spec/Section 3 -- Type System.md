@@ -1638,9 +1638,9 @@ defined by the input object type and for which a value exists. The resulting map
 is constructed with the following rules:
 
 - If no value is provided for a defined input object field and that field
-  definition provides a default value, the default value should be used. If no
+  definition provides a default value, the default value must be used. If no
   default value is provided and the input object field's type is non-null, an
-  error should be raised. Otherwise, if the field is not required, then no entry
+  error must be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
 
 - If the value {null} was provided for an input object field, and the field's
@@ -1652,12 +1652,17 @@ is constructed with the following rules:
   coerced unordered map is given the result of coercing that value according to
   the input coercion rules for the type of that field.
 
-- If a variable is provided for an input object field, the runtime value of that
-  variable must be used. If the runtime value is {null} and the field type is
-  non-null, a _field error_ must be raised. If no runtime value is provided, the
-  variable definition's default value should be used. If the variable definition
-  does not provide a default value, the input object field definition's default
-  value should be used.
+- If a variable is provided for an input object field:
+
+  - If the _coerced runtime value_ of that variable exists (including {null})
+    then it must be used. If the coerced runtime value is {null} and the field
+    type is non-null, a _field error_ must be raised.
+
+  - If the _coerced runtime value_ of that variable does not exist then the
+    input object field definition's default value must be used. If no default
+    value is provided and the input object field's type is non-null, an error
+    must be raised. Otherwise, if the field is not required, then no entry is
+    added to the coerced unordered map.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
@@ -1771,20 +1776,77 @@ This allows inputs which accept one or many arguments (sometimes referred to as
 single value, a client can just pass that value directly rather than
 constructing the list.
 
+The result of coercion of a value {value} to a list type {listType} is
+{CoerceListValue(value, listType)}.
+
+CoerceListValue(value, listType):
+
+- If {value} is {null}, return {null}.
+- Let {itemType} be the inner type of {listType}.
+- Let {coercedList} be an empty list.
+- If {value} is a list:
+  - For each {itemValue} in {value}:
+    - Let {coercedItemValue} be {CoerceListItemValue(itemValue, itemType)}.
+    - Append {coercedItemValue} to {coercedList}.
+- Otherwise:
+  - Let {coercedItemValue} be {CoerceListItemValue(value, itemType)}.
+  - Append {coercedItemValue} to {coercedList}.
+- Return {coercedList}.
+
+CoerceListItemValue(itemValue, itemType):
+
+- If {itemValue} is a Variable:
+  - Let {coercedItemValue} be the _coerced runtime value_ of that variable, or
+    {null} if no such value exists.
+  - If {coercedItemValue} is {null} and {itemType} is a non-null type, a _field
+    error_ must be raised.
+  - Return {coercedItemValue}.
+- Otherwise, return the result of coercing {itemValue} according to the input
+  coercion rules for {itemType}.
+
+Note: When a default value exists for a variable definition, the type of the
+variable is allowed to be nullable even if it is used in a non-nullable
+position, see
+[Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist)
+in Validation. If the value for such a variable is explicitly {null} and is used
+as the value for a list item of non-nullable type then a _field error_ will be
+raised.
+
 Following are examples of input coercion with various list types and values:
 
-| Expected Type | Provided Value   | Coerced Value               |
-| ------------- | ---------------- | --------------------------- |
-| `[Int]`       | `[1, 2, 3]`      | `[1, 2, 3]`                 |
-| `[Int]`       | `[1, "b", true]` | Error: Incorrect item value |
-| `[Int]`       | `1`              | `[1]`                       |
-| `[Int]`       | `null`           | `null`                      |
-| `[[Int]]`     | `[[1], [2, 3]]`  | `[[1], [2, 3]]`             |
-| `[[Int]]`     | `[1, 2, 3]`      | `[[1], [2], [3]]`           |
-| `[[Int]]`     | `[1, null, 3]`   | `[[1], null, [3]]`          |
-| `[[Int]]`     | `[[1], ["b"]]`   | Error: Incorrect item value |
-| `[[Int]]`     | `1`              | `[[1]]`                     |
-| `[[Int]]`     | `null`           | `null`                      |
+| Expected Type | Literal Value    | Variable Values | Coerced Value                |
+| ------------- | ---------------- | --------------- | ---------------------------- |
+| `[Int]`       | `[1, 2, 3]`      | `{}`            | `[1, 2, 3]`                  |
+| `[Int]`       | `[1, null]`      | `{}`            | `[1, null]`                  |
+| `[Int]`       | `[1, "b", true]` | `{}`            | Error: Incorrect item value  |
+| `[Int]`       | `1`              | `{}`            | `[1]`                        |
+| `[Int]`       | `null`           | `{}`            | `null`                       |
+| `[Int]`       | `[1, $b]`        | `{}`            | `[1, null]`                  |
+| `[Int]`       | `[1, $b]`        | `{"b": 2}`      | `[1, 2]`                     |
+| `[Int]`       | `[1, $b]`        | `{"b": null}`   | `[1, null]`                  |
+| `[Int]!`      | `[null]`         | `{}`            | `[null]`                     |
+| `[Int]!`      | `null`           | `{}`            | Error: Must be non-null      |
+| `[Int!]`      | `[1, 2, 3]`      | `{}`            | `[1, 2, 3]`                  |
+| `[Int!]`      | `[1, null]`      | `{}`            | Error: Item must be non-null |
+| `[Int!]`      | `[1, "b", true]` | `{}`            | Error: Incorrect item value  |
+| `[Int!]`      | `1`              | `{}`            | `[1]`                        |
+| `[Int!]`      | `null`           | `{}`            | `null`                       |
+| `[Int!]`      | `[1, $b]`        | `{}`            | Error: Item must be non-null |
+| `[Int!]`      | `[1, $b]`        | `{"b": 2}`      | `[1, 2]`                     |
+| `[Int!]`      | `[1, $b]`        | `{"b": null}`   | Error: Item must be non-null |
+| `[[Int]]`     | `[[1], [2, 3]]`  | `{}`            | `[[1], [2, 3]]`              |
+| `[[Int]]`     | `[1, 2, 3]`      | `{}`            | `[[1], [2], [3]]`            |
+| `[[Int]]`     | `[1, [2], 3]`    | `{}`            | `[[1], [2], [3]]`            |
+| `[[Int]]`     | `[1, null, 3]`   | `{}`            | `[[1], null, [3]]`           |
+| `[[Int]]`     | `[[1], ["b"]]`   | `{}`            | Error: Incorrect item value  |
+| `[[Int]]`     | `1`              | `{}`            | `[[1]]`                      |
+| `[[Int]]`     | `null`           | `{}`            | `null`                       |
+| `[[Int]]`     | `[1, [$b]]`      | `{}`            | `[[1],[null]]`               |
+| `[[Int]]`     | `[1, [$b]]`      | `{"b": null}`   | `[[1],[null]]`               |
+| `[[Int]]`     | `[1, [$b]]`      | `{"b": 2}`      | `[[1],[2]]`                  |
+| `[[Int]]`     | `[1, $b]`        | `{"b": [2]}`    | `[[1],[2]]`                  |
+| `[[Int]]`     | `[1, $b]`        | `{"b": 2}`      | `[[1],[2]]`                  |
+| `[[Int]]`     | `[1, $b]`        | `{"b": null}`   | `[[1],null]`                 |
 
 ## Non-Null
 

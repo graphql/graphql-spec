@@ -81,6 +81,9 @@ need to be coerced using the input coercion rules of variable's declared type.
 If a _request error_ is encountered during input coercion of variable values,
 then the operation fails without execution.
 
+:: The _coerced runtime value_ of a variable is the entry matching the
+variable's name in the result of {CoerceVariableValues()}, if any.
+
 CoerceVariableValues(schema, operation, variableValues):
 
 - Let {coercedValues} be an empty unordered Map.
