@@ -93,7 +93,9 @@ be halted.
 
 :: A _field error_ is an error raised during the execution of a particular field
 which results in partial response data. This may occur due to an internal error
-during value resolution or failure to coerce the resulting value.
+during value resolution or failure to coerce the resulting value. A _field
+error_ may only occur within a _response position_. The _response position_ is
+indicated in the _response_ via the error's _path entry_.
 
 A field error is typically the fault of a GraphQL service.
 
@@ -250,8 +252,12 @@ discouraged.
 
 ### Path
 
-:: A _path entry_ is an entry within an _error result_ that allows for
-association with a particular field reached during GraphQL execution.
+:: A _path entry_ is an entry within an _error result_ that indicates the
+_response position_ at which the error occurred.
+
+:: A _response position_ is an identifiable position in the response: either a
+_field_, or a (potentially nested) list position within a field if the field has
+a `List` type.
 
 The value for a _path entry_ must be a list of path segments starting at the
 root of the response and ending with the field to be associated with. Path

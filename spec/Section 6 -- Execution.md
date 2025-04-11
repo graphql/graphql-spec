@@ -376,14 +376,16 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
-**Errors and Non-Null Fields**
+**Errors and Non-Null Types**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
-_field error_ then that error must propagate to this entire selection set,
-either resolving to {null} if allowed or further propagated to a parent field.
+If during {ExecuteSelectionSet()} a _response position_ with a non-null type
+raises a _field error_ then that error must propagate to the parent response
+position (the entire selection set in the case of a field, or the entire list in
+the case of a list position), either resolving to {null} if allowed or being
+further propagated to a parent response position.
 
-If this occurs, any sibling fields which have not yet executed or have not yet
-yielded a value may be cancelled to avoid unnecessary work.
+If this occurs, any sibling response positions which have not yet executed or
+have not yet yielded a value may be cancelled to avoid unnecessary work.
 
 Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
 this behavior.
@@ -811,26 +813,27 @@ If a field error is raised while resolving a field, it is handled as though the
 field returned {null}, and the error must be added to the {"errors"} list in the
 response.
 
-If the result of resolving a field is {null} (either because the function to
-resolve the field returned {null} or because a field error was raised), and that
-field is of a `Non-Null` type, then a field error is raised. The error must be
-added to the {"errors"} list in the response.
+If the result of resolving a _response position_ is {null} (either due to the
+result of {ResolveFieldValue()} or because a field error was raised), and that
+position is of a `Non-Null` type, then a field error is raised at that position.
+The error must be added to the {"errors"} list in the response.
 
-If the field returns {null} because of a field error which has already been
-added to the {"errors"} list in the response, the {"errors"} list must not be
-further affected. That is, only one error should be added to the errors list per
-field.
+If a _response position_ returns {null} because of a field error which has
+already been added to the {"errors"} list in the response, the {"errors"} list
+must not be further affected. That is, only one error should be added to the
+errors list per _response position_.
 
-Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
-handled by the parent field. If the parent field may be {null} then it resolves
-to {null}, otherwise if it is a `Non-Null` type, the field error is further
-propagated to its parent field.
+Since `Non-Null` response positions cannot be {null}, field errors are
+propagated to be handled by the parent _response position_. If the parent
+response position may be {null} then it resolves to {null}, otherwise if it is a
+`Non-Null` type, the field error is further propagated to its parent _response
+position_.
 
 If a `List` type wraps a `Non-Null` type, and one of the elements of that list
 resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the field error continues to propagate
 upwards.
 
-If all fields from the root of the request to the source of the field error
-return `Non-Null` types, then the {"data"} entry in the response should be
-{null}.
+If all response positions from the root of the request to the source of the
+field error return `Non-Null` types, then the {"data"} entry in the response
+should be {null}.
