@@ -846,6 +846,6 @@ resolves to {null}, then the entire list must resolve to {null}. If the `List`
 type is also wrapped in a `Non-Null`, the execution error continues to propagate
 upwards.
 
-If all response positions from the root of the request to the source of the
-execution error return `Non-Null` types, then the {"data"} entry in the response
-should be {null}.
+If every _response position_ from the root of the request to the source of the
+execution error returns a `Non-Null` type, then the {"data"} entry in the
+response should be {null}.
