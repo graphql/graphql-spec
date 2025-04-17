@@ -376,11 +376,11 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
-<a name="sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields">
-  <!-- This link exists for legacy hyperlink support -->
-</a>
-
 **Errors and Non-Null Types**
+
+<a name="sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields">
+  <!-- Legacy link, this section was previously titled "Errors and Non-Null Fields" -->
+</a>
 
 If during {ExecuteSelectionSet()} a _response position_ with a non-null type
 raises an _execution error_ then that error must propagate to the parent
@@ -626,9 +626,6 @@ the type system to have a specific input type.
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
-Any _request error_ raised during {CoerceArgumentValues()} should be treated
-instead as an _execution error_.
-
 CoerceArgumentValues(objectType, field, variableValues):
 
 - Let {coercedValues} be an empty unordered Map.
@@ -671,6 +668,9 @@ CoerceArgumentValues(objectType, field, variableValues):
       - Add an entry to {coercedValues} named {argumentName} with the value
         {coercedValue}.
 - Return {coercedValues}.
+
+Any _request error_ raised as a result of input coercion during
+{CoerceArgumentValues()} should be treated instead as an _execution error_.
 
 Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid operations
@@ -807,33 +807,33 @@ MergeSelectionSets(fields):
   - Append all selections in {fieldSelectionSet} to {selectionSet}.
 - Return {selectionSet}.
 
-<a name="sec-Handling-Field-Errors">
-  <!-- This link exists for legacy hyperlink support -->
-</a>
-
 ### Handling Execution Errors
 
-An _execution error_ is an error raised from a particular field during value
-resolution or coercion. While these errors should be reported in the response,
-they are "handled" by producing a partial response.
+<a name="sec-Handling-Field-Errors">
+  <!-- Legacy link, this section was previously titled "Handling Execution Errors" -->
+</a>
+
+An _execution error_ is an error raised during field execution, value resolution
+or coercion, at a specific _response position_. While these errors should be
+reported in the response, they are "handled" by producing a partial response.
 
 Note: This is distinct from a _request error_ which results in a response with
 no data.
 
 If an execution error is raised while resolving a field (either directly or
-nested inside any lists), it is handled as though the position at which the
-error occurred resulted in {null}, and the error must be added to the {"errors"}
-list in the response.
+nested inside any lists), it is handled as though the _response position_ at
+which the error occurred resolved to {null}, and the error must be added to the
+{"errors"} list in the response.
 
 If the result of resolving a _response position_ is {null} (either due to the
 result of {ResolveFieldValue()} or because an execution error was raised), and
 that position is of a `Non-Null` type, then an execution error is raised at that
 position. The error must be added to the {"errors"} list in the response.
 
-If a _response position_ returns {null} because of an execution error which has
-already been added to the {"errors"} list in the response, the {"errors"} list
-must not be further affected. That is, only one error should be added to the
-errors list per _response position_.
+If a _response position_ resolves to {null} because of an execution error which
+has already been added to the {"errors"} list in the response, the {"errors"}
+list must not be further affected. That is, only one error should be added to
+the errors list per _response position_.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
@@ -841,11 +841,11 @@ response position may be {null} then it resolves to {null}, otherwise if it is a
 `Non-Null` type, the execution error is further propagated to its parent
 _response position_.
 
-If a `List` type wraps a `Non-Null` type, and one of the elements of that list
-resolves to {null}, then the entire list must resolve to {null}. If the `List`
-type is also wrapped in a `Non-Null`, the execution error continues to propagate
-upwards.
+If a `List` type wraps a `Non-Null` type, and one of the _response position_
+elements of that list resolves to {null}, then the entire list _response
+position_ must resolve to {null}. If the `List` type is also wrapped in a
+`Non-Null`, the execution error continues to propagate upwards.
 
 If every _response position_ from the root of the request to the source of the
-execution error returns a `Non-Null` type, then the {"data"} entry in the
-response should be {null}.
+execution error has a `Non-Null` type, then the {"data"} entry in the response
+should be {null}.

@@ -57,6 +57,36 @@ present in the response.
 If an error was raised during the execution that prevented a valid response, the
 `data` entry in the response should be `null`.
 
+**Response Position**
+
+:: A _response position_ is a uniquely identifiable position in the response
+data produced during execution. It is either a direct entry in the {resultMap}
+of a {ExecuteSelectionSet()}, or it is a position in a (potentially nested) List
+value.
+
+The response data is the result of accumulating the result of all response
+positions during execution.
+
+Each _response position_ is uniquely identifiable via a _path entry_.
+
+A single field execution may result in multiple response positions. For example,
+
+```graphql example
+{
+  hero(episode: $episode) {
+    name
+    friends {
+      name
+    }
+  }
+}
+```
+
+The hero's name would be found in the _response position_ identified by
+`["hero", "name"]`. The List of the hero's friends would be found at
+`["hero", "friends"]`, the hero's first friend at `["hero", "friends", 0]` and
+that friend's name at `["hero", "friends", 0, "name"]`.
+
 ### Errors
 
 The `errors` entry in the response is a non-empty list of errors raised during
@@ -88,33 +118,31 @@ If a request error is raised, the `data` entry in the response must not be
 present, the `errors` entry must include the error, and request execution should
 be halted.
 
-<a name="sec-Errors.Field-Errors">
-  <!-- This link exists for legacy hyperlink support -->
-</a>
-
 **Execution Errors**
+
+<a name="sec-Errors.Field-Errors">
+  <!-- Legacy link, this section was previously titled "Field Errors" -->
+</a>
 
 :: An _execution error_ is an error raised during the execution of a particular
 field which results in partial response data. This may occur due to failure to
 coerce the arguments for the field, an internal error during value resolution,
-or failure to coerce the resulting value. An _execution error_ may occur in any
-_response position_.
+or failure to coerce the resulting value.
 
 Note: In previous versions of this specification _execution error_ was called
 _field error_.
 
-:: A _response position_ is an identifiable position in the response: either a
-_field_, or a (potentially nested) list position within a field if the field has
-a `List` type. An _execution error_ may only occur within a _response position_.
-The _response position_ is indicated in the _response_ via the error's _path
-entry_.
-
 An execution error is typically the fault of a GraphQL service.
 
-If an execution error is raised, execution attempts to continue and a partial
-result is produced (see
-[Handling Execution Errors](#sec-Handling-Execution-Errors)). The `data` entry
-in the response must be present. The `errors` entry must include this error.
+An _execution error_ must occur at a specific _response position_, and may occur
+in any response position. The response position of an execution error is
+indicated via the error's `path` _path entry_.
+
+When an execution error is raised at a given _response position_, then that
+response position must not be present within the _response_ `data` entry (except
+{null}), and the `errors` entry must include the error. Nested execution is
+halted and sibling execution attempts to continue, producing partial result (see
+[Handling Execution Errors](#sec-Handling-Execution-Errors)).
 
 **Error Result Format**
 
