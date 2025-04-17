@@ -310,12 +310,12 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Let {responseStream} be a new _event stream_.
 - When {sourceStream} emits {sourceValue}:
-  - Let {response} be the result of running
+  - Let {executionResult} be the result of running
     {ExecuteSubscriptionEvent(subscription, schema, variableValues,
     sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
-    - Complete {responseStream} with {error}.
+    - Complete {executionResult} with {error}.
   - Otherwise emit {response} on {responseStream}.
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
@@ -827,23 +827,24 @@ or coercion, at a specific _response position_. While these errors must be
 reported in the response, they are "handled" by producing partial {"data"} in
 the _response_.
 
-Note: This is distinct from a _request error_ which results in a response with
-no data.
+Note: This is distinct from a _request error_ which results in a _request error
+result_ with no data.
 
 If an execution error is raised while resolving a field (either directly or
 nested inside any lists), it is handled as though the _response position_ at
 which the error occurred resolved to {null}, and the error must be added to the
-{"errors"} list in the response.
+{"errors"} list in the _execution result_.
 
 If the result of resolving a _response position_ is {null} (either due to the
 result of {ResolveFieldValue()} or because an execution error was raised), and
 that position is of a `Non-Null` type, then an execution error is raised at that
-position. The error must be added to the {"errors"} list in the response.
+position. The error must be added to the {"errors"} list in the _execution
+result_.
 
 If a _response position_ resolves to {null} because of an execution error which
-has already been added to the {"errors"} list in the response, the {"errors"}
-list must not be further affected. That is, only one error should be added to
-the errors list per _response position_.
+has already been added to the {"errors"} list in the _execution result_, the
+{"errors"} list must not be further affected. That is, only one error should be
+added to the errors list per _response position_.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
@@ -857,5 +858,5 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 `Non-Null`, the execution error continues to propagate upwards.
 
 If every _response position_ from the root of the request to the source of the
-execution error has a `Non-Null` type, then the {"data"} entry in the response
-should be {null}.
+execution error has a `Non-Null` type, then the {"data"} entry in the _execution
+result_ should be {null}.
