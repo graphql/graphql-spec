@@ -2471,40 +2471,40 @@ Numeric integer values larger than 32-bit should either use String or a custom-d
 <span class="spec-nt"><a href="#InputFieldsDefinition" data-name="InputFieldsDefinition">InputFieldsDefinition</a></span><div class="spec-rhs"><span class="spec-t">{</span><span class="spec-quantified"><span class="spec-nt"><a href="#InputValueDefinition" data-name="InputValueDefinition">InputValueDefinition</a></span><span class="spec-quantifiers"><span class="spec-quantifier list">list</span></span></span><span class="spec-t">}</span></div>
 </div>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1547-L1548">Fields may accept arguments to configure their behavior. These inputs are often scalars or enums, but they sometimes need to represent more complex values.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1550-L1552">A GraphQL Input Object defines a set of input fields; the input fields are either scalars, enums, or other input objects. This allows arguments to accept arbitrarily complex structs.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1554">In this example, an Input Object called <code>Point2D</code> describes <code>x</code> and <code>y</code> inputs:</p>
-<pre id="example-45e4e" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1556-L1561"><a href="#example-45e4e">Example № 80</a><code><span class="token keyword">input</span> <span class="token object">Point2D</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1550-L1553">A GraphQL Input Object defines a set of input fields; the input fields are scalars, enums, other input objects, or any wrapping type whose underlying base type is one of those three. This allows arguments to accept arbitrarily complex structs.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1555">In this example, an Input Object called <code>Point2D</code> describes <code>x</code> and <code>y</code> inputs:</p>
+<pre id="example-45e4e" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1557-L1562"><a href="#example-45e4e">Example № 80</a><code><span class="token keyword">input</span> <span class="token object">Point2D</span> <span class="token punctuation">{</span>
   <span class="token attr-name">x</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
   <span class="token attr-name">y</span><span class="token punctuation">:</span> <span class="token scalar">Float</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-7a6d2" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1563-L1567">
+<div id="note-7a6d2" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1564-L1568">
 <a href="#note-7a6d2">Note</a>
 The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" data-name="ObjectTypeDefinition">ObjectTypeDefinition</a></span>) defined above is inappropriate for re-use here, because Object types can contain fields that define arguments or contain references to interfaces and unions, neither of which is appropriate for use as an input argument. For this reason, input objects have a separate type in the system.</div>
 <section id="sec-Input-Objects.Circular-References" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1569"><a href="#sec-Input-Objects.Circular-References" title="link to this subsection">Circular References</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1571-L1573">Input Objects are allowed to reference other Input Objects as field types. A circular reference occurs when an Input Object references itself either directly or through referenced Input Objects.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1575-L1577">Circular references are generally allowed, however they may not be defined as an unbroken chain of Non-Null singular fields. Such Input Objects are invalid because there is no way to provide a legal value for them.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1579-L1580">This example of a circularly-referenced input type is valid as the field <code>self</code> may be omitted or the value <span class="spec-keyword">null</span>.</p>
-<pre id="example-e9cda" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1582-L1587"><a href="#example-e9cda">Example № 81</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1570"><a href="#sec-Input-Objects.Circular-References" title="link to this subsection">Circular References</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1572-L1574">Input Objects are allowed to reference other Input Objects as field types. A circular reference occurs when an Input Object references itself either directly or through referenced Input Objects.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1576-L1578">Circular references are generally allowed, however they may not be defined as an unbroken chain of Non-Null singular fields. Such Input Objects are invalid because there is no way to provide a legal value for them.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1580-L1581">This example of a circularly-referenced input type is valid as the field <code>self</code> may be omitted or the value <span class="spec-keyword">null</span>.</p>
+<pre id="example-e9cda" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1583-L1588"><a href="#example-e9cda">Example № 81</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
   <span class="token attr-name">self</span><span class="token punctuation">:</span> <span class="token class-name">Example</span>
   <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1589">This example is also valid as the field <code>self</code> may be an empty List.</p>
-<pre id="example-2f832" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1591-L1596"><a href="#example-2f832">Example № 82</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1590">This example is also valid as the field <code>self</code> may be an empty List.</p>
+<pre id="example-2f832" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1592-L1597"><a href="#example-2f832">Example № 82</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
   <span class="token attr-name">self</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Example</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
   <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1598-L1599">This example of a circularly-referenced input type is invalid as the field <code>self</code> cannot be provided a finite value.</p>
-<pre id="example-e70c9" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1601-L1606"><a href="#example-e70c9">Counter Example № 83</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1599-L1600">This example of a circularly-referenced input type is invalid as the field <code>self</code> cannot be provided a finite value.</p>
+<pre id="example-e70c9" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1602-L1607"><a href="#example-e70c9">Counter Example № 83</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
   <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">self</span><span class="token punctuation">:</span> <span class="token class-name">Example</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1608-L1609">This example is also invalid, as there is a non-null singular circular reference via the <code>First.second</code> and <code>Second.first</code> fields.</p>
-<pre id="example-31c9f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1611-L1621"><a href="#example-31c9f">Counter Example № 84</a><code><span class="token keyword">input</span> <span class="token object">First</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1609-L1610">This example is also invalid, as there is a non-null singular circular reference via the <code>First.second</code> and <code>Second.first</code> fields.</p>
+<pre id="example-31c9f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1612-L1622"><a href="#example-31c9f">Counter Example № 84</a><code><span class="token keyword">input</span> <span class="token object">First</span> <span class="token punctuation">{</span>
   <span class="token attr-name">second</span><span class="token punctuation">:</span> <span class="token class-name">Second</span><span class="token operator">!</span>
   <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
@@ -2516,110 +2516,110 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 </code></pre>
 </section>
 <section id="sec-Input-Objects.Result-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1623"><a href="#sec-Input-Objects.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1625-L1626">An input object is never a valid result. Input Object types cannot be the return type of an Object or Interface field.</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1624"><a href="#sec-Input-Objects.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1626-L1627">An input object is never a valid result. Input Object types cannot be the return type of an Object or Interface field.</p>
 </section>
 <section id="sec-Input-Objects.Input-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1628"><a href="#sec-Input-Objects.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1630-L1634">The value for an input object should be an input object literal or an unordered map supplied by a variable, otherwise a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> must be raised. In either case, the input object literal or unordered map must not contain any entries with names not defined by a field of this input object type, otherwise a request error must be raised.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1636-L1638">The result of coercion is an unordered map with an entry for each field both defined by the input object type and for which a value exists. The resulting map is constructed with the following rules:</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1629"><a href="#sec-Input-Objects.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1631-L1635">The value for an input object should be an input object literal or an unordered map supplied by a variable, otherwise a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> must be raised. In either case, the input object literal or unordered map must not contain any entries with names not defined by a field of this input object type, otherwise a request error must be raised.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1637-L1639">The result of coercion is an unordered map with an entry for each field both defined by the input object type and for which a value exists. The resulting map is constructed with the following rules:</p>
 <ul>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1640-L1644">If no value is provided for a defined input object field and that field definition provides a default value, the default value should be used. If no default value is provided and the input object field&rsquo;s type is non-null, an error should be raised. Otherwise, if the field is not required, then no entry is added to the coerced unordered map.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1646-L1649">If the value <span class="spec-keyword">null</span> was provided for an input object field, and the field&rsquo;s type is not a non-null type, an entry in the coerced unordered map is given the value <span class="spec-keyword">null</span>. In other words, there is a semantic difference between the explicitly provided value <span class="spec-keyword">null</span> versus having not provided a value.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1651-L1653">If a literal value is provided for an input object field, an entry in the coerced unordered map is given the result of coercing that value according to the input coercion rules for the type of that field.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1655-L1660">If a variable is provided for an input object field, the runtime value of that variable must be used. If the runtime value is <span class="spec-keyword">null</span> and the field type is non-null, an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised. If no runtime value is provided, the variable definition&rsquo;s default value should be used. If the variable definition does not provide a default value, the input object field definition&rsquo;s default value should be used.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1641-L1645">If no value is provided for a defined input object field and that field definition provides a default value, the default value should be used. If no default value is provided and the input object field&rsquo;s type is non-null, an error should be raised. Otherwise, if the field is not required, then no entry is added to the coerced unordered map.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1647-L1650">If the value <span class="spec-keyword">null</span> was provided for an input object field, and the field&rsquo;s type is not a non-null type, an entry in the coerced unordered map is given the value <span class="spec-keyword">null</span>. In other words, there is a semantic difference between the explicitly provided value <span class="spec-keyword">null</span> versus having not provided a value.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1652-L1654">If a literal value is provided for an input object field, an entry in the coerced unordered map is given the result of coercing that value according to the input coercion rules for the type of that field.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1656-L1661">If a variable is provided for an input object field, the runtime value of that variable must be used. If the runtime value is <span class="spec-keyword">null</span> and the field type is non-null, an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised. If no runtime value is provided, the variable definition&rsquo;s default value should be used. If the variable definition does not provide a default value, the input object field definition&rsquo;s default value should be used.</li>
 </ul>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1662-L1663">Following are examples of input coercion for an input object type with a <code>String</code> field <code>a</code> and a required (non-null) <code>Int!</code> field <code>b</code>:</p>
-<pre id="example-704b8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1665-L1670"><a href="#example-704b8">Example № 85</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">ExampleInput</span><span class="token object">Object</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1663-L1664">Following are examples of input coercion for an input object type with a <code>String</code> field <code>a</code> and a required (non-null) <code>Int!</code> field <code>b</code>:</p>
+<pre id="example-704b8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1666-L1671"><a href="#example-704b8">Example № 85</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">ExampleInput</span><span class="token object">Object</span> <span class="token punctuation">{</span>
   <span class="token attr-name">a</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">b</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <table>
 <thead>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1672">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1673">
 <th>Literal Value</th>
 <th>Variables</th>
 <th>Coerced Value</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1674">
-<td><code>{ a: "abc", b: 123 }</code></td>
-<td><code>{}</code></td>
-<td><code>{ a: "abc", b: 123 }</code></td>
-</tr>
 <tr data-source="spec/Section%203%20--%20Type%20System.md#L1675">
-<td><code>{ a: null, b: 123 }</code></td>
+<td><code>{ a: "abc", b: 123 }</code></td>
 <td><code>{}</code></td>
-<td><code>{ a: null, b: 123 }</code></td>
+<td><code>{ a: "abc", b: 123 }</code></td>
 </tr>
 <tr data-source="spec/Section%203%20--%20Type%20System.md#L1676">
+<td><code>{ a: null, b: 123 }</code></td>
+<td><code>{}</code></td>
+<td><code>{ a: null, b: 123 }</code></td>
+</tr>
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1677">
 <td><code>{ b: 123 }</code></td>
 <td><code>{}</code></td>
 <td><code>{ b: 123 }</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1677">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1678">
 <td><code>{ a: $var, b: 123 }</code></td>
 <td><code>{ var: null }</code></td>
 <td><code>{ a: null, b: 123 }</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1678">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1679">
 <td><code>{ a: $var, b: 123 }</code></td>
 <td><code>{}</code></td>
 <td><code>{ b: 123 }</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1679">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1680">
 <td><code>{ b: $var }</code></td>
 <td><code>{ var: 123 }</code></td>
 <td><code>{ b: 123 }</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1680">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1681">
 <td><code>$var</code></td>
 <td><code>{ var: { b: 123 } }</code></td>
 <td><code>{ b: 123 }</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1681">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1682">
 <td><code>"abc123"</code></td>
 <td><code>{}</code></td>
 <td>Error: Incorrect value</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1682">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1683">
 <td><code>$var</code></td>
 <td><code>{ var: "abc123" }</code></td>
 <td>Error: Incorrect value</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1683">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1684">
 <td><code>{ a: "abc", b: "123" }</code></td>
 <td><code>{}</code></td>
 <td>Error: Incorrect value for field <var data-name="b">b</var></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1684">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1685">
 <td><code>{ a: "abc" }</code></td>
 <td><code>{}</code></td>
 <td>Error: Missing required field <var data-name="b">b</var></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1685">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1686">
 <td><code>{ b: $var }</code></td>
 <td><code>{}</code></td>
 <td>Error: Missing required field <var data-name="b">b</var>.</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1686">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1687">
 <td><code>$var</code></td>
 <td><code>{ var: { a: "abc" } }</code></td>
 <td>Error: Missing required field <var data-name="b">b</var></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1687">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1688">
 <td><code>{ a: "abc", b: null }</code></td>
 <td><code>{}</code></td>
 <td>Error: <var data-name="b">b</var> must be non-null.</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1688">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1689">
 <td><code>{ b: $var }</code></td>
 <td><code>{ var: null }</code></td>
 <td>Error: <var data-name="b">b</var> must be non-null.</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1689">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1690">
 <td><code>{ b: 123, c: "xyz" }</code></td>
 <td><code>{}</code></td>
 <td>Error: Unexpected field <var data-name="c">c</var></td>
@@ -2628,114 +2628,114 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 </table>
 </section>
 <section id="sec-Input-Objects.Type-Validation" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1691"><a href="#sec-Input-Objects.Type-Validation" title="link to this subsection">Type Validation</a></h6>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1692"><a href="#sec-Input-Objects.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1693">An Input Object type must define one or more input fields.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1694-L1702">For each input field of an Input Object type:<ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1695-L1696">The input field must have a unique name within that Input Object type; no two input fields may share the same name.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1697-L1698">The input field must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1699-L1700">The input field must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="inputFieldType">inputFieldType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1701-L1702">If input field type is Non-Null and a default value is not defined:<ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1702">The <code>@deprecated</code> directive must not be applied to this input field.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1694">An Input Object type must define one or more input fields.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1695-L1703">For each input field of an Input Object type:<ol>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1696-L1697">The input field must have a unique name within that Input Object type; no two input fields may share the same name.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1698-L1699">The input field must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1700-L1701">The input field must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="inputFieldType">inputFieldType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1702-L1703">If input field type is Non-Null and a default value is not defined:<ol>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1703">The <code>@deprecated</code> directive must not be applied to this input field.</li>
 </ol>
 </li>
 </ol>
 </li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1703-L1705">If an Input Object references itself either directly or through referenced Input Objects, at least one of the fields in the chain of references must be either a nullable or a List type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1704-L1706">If an Input Object references itself either directly or through referenced Input Objects, at least one of the fields in the chain of references must be either a nullable or a List type.</li>
 </ol>
 </section>
 <section id="sec-Input-Object-Extensions" secid="3.10.1">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1707"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Extensions">3.10.1</a></span>Input Object Extensions</h3>
-<div class="spec-production" id="InputObjectTypeExtension" data-source="spec/Section%203%20--%20Type%20System.md#L1709-L1712">
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1708"><span class="spec-secid" title="link to this section"><a href="#sec-Input-Object-Extensions">3.10.1</a></span>Input Object Extensions</h3>
+<div class="spec-production" id="InputObjectTypeExtension" data-source="spec/Section%203%20--%20Type%20System.md#L1710-L1713">
 <span class="spec-nt"><a href="#InputObjectTypeExtension" data-name="InputObjectTypeExtension">InputObjectTypeExtension</a></span><div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">input</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#InputFieldsDefinition" data-name="InputFieldsDefinition">InputFieldsDefinition</a></span></div>
 <div class="spec-rhs"><span class="spec-t">extend</span><span class="spec-t">input</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-nt"><a href="#Directives" data-name="Directives">Directives</a><span class="spec-params"><span class="spec-param">Const</span></span></span><span class="spec-lookahead not"><span class="spec-t">{</span></span></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1714-L1717">Input object type extensions are used to represent an input object type which has been extended from some previous input object type. For example, this might be used by a GraphQL service which is itself an extension of another GraphQL service.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1715-L1718">Input object type extensions are used to represent an input object type which has been extended from some previous input object type. For example, this might be used by a GraphQL service which is itself an extension of another GraphQL service.</p>
 <section id="sec-Input-Object-Extensions.Type-Validation" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1719"><a href="#sec-Input-Object-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1721-L1722">Input object type extensions have the potential to be invalid if incorrectly defined.</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1720"><a href="#sec-Input-Object-Extensions.Type-Validation" title="link to this subsection">Type Validation</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1722-L1723">Input object type extensions have the potential to be invalid if incorrectly defined.</p>
 <ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1724">The named type must already be defined and must be a Input Object type.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1725">All fields of an Input Object type extension must have unique names.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1726-L1727">All fields of an Input Object type extension must not already be a field of the previous Input Object.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1728-L1729">Any non-repeatable directives provided must not already apply to the previous Input Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1725">The named type must already be defined and must be a Input Object type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1726">All fields of an Input Object type extension must have unique names.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1727-L1728">All fields of an Input Object type extension must not already be a field of the previous Input Object.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1729-L1730">Any non-repeatable directives provided must not already apply to the previous Input Object type.</li>
 </ol>
 </section>
 </section>
 </section>
 <section id="sec-List" secid="3.11">
-<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1731"><span class="spec-secid" title="link to this section"><a href="#sec-List">3.11</a></span>List</h2>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1733-L1736">A GraphQL list is a special collection type which declares the type of each item in the List (referred to as the <em>item type</em> of the list). List values are serialized as ordered lists, where each item in the list is serialized as per the item type.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1738-L1739">To denote that a field uses a List type the item type is wrapped in square brackets like this: <code>pets: [Pet]</code>. Nesting lists is allowed: <code>matrix: [[Int]]</code>.</p>
+<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1732"><span class="spec-secid" title="link to this section"><a href="#sec-List">3.11</a></span>List</h2>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1734-L1737">A GraphQL list is a special collection type which declares the type of each item in the List (referred to as the <em>item type</em> of the list). List values are serialized as ordered lists, where each item in the list is serialized as per the item type.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1739-L1740">To denote that a field uses a List type the item type is wrapped in square brackets like this: <code>pets: [Pet]</code>. Nesting lists is allowed: <code>matrix: [[Int]]</code>.</p>
 <section id="sec-List.Result-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1741"><a href="#sec-List.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1743-L1748">GraphQL services must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span>. In particular, if a non-list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1750-L1754">If a list&rsquo;s item type is nullable, then errors occurring during preparation or coercion of an individual item in the list must result in a the value <span class="spec-keyword">null</span> at that position in the list along with an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> added to the response. If a list&rsquo;s item type is non-null, an execution error occurring at an individual item in the list must result in an execution error for the entire list.</p>
-<div id="note-46a65" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1756-L1757">
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1742"><a href="#sec-List.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1744-L1749">GraphQL services must return an ordered list as the result of a list type. Each item in the list must be the result of a result coercion of the item type. If a reasonable coercion is not possible it must raise an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span>. In particular, if a non-list is returned, the coercion should fail, as this indicates a mismatch in expectations between the type system and the implementation.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1751-L1755">If a list&rsquo;s item type is nullable, then errors occurring during preparation or coercion of an individual item in the list must result in a the value <span class="spec-keyword">null</span> at that position in the list along with an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> added to the response. If a list&rsquo;s item type is non-null, an execution error occurring at an individual item in the list must result in an execution error for the entire list.</p>
+<div id="note-46a65" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1757-L1758">
 <a href="#note-46a65">Note</a>
 See <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a> for more about this behavior.</div>
 </section>
 <section id="sec-List.Input-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1759"><a href="#sec-List.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1761-L1762">When expected as an input, list values are accepted only when each item in the list can be accepted by the list&rsquo;s item type.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1764-L1767">If the value passed as an input to a list type is <em>not</em> a list and not the <span class="spec-keyword">null</span> value, then the result of input coercion is a list of size one, where the single item value is the result of input coercion for the list&rsquo;s item type on the provided value (note this may apply recursively for nested lists).</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1769-L1772">This allows inputs which accept one or many arguments (sometimes referred to as &ldquo;var args&rdquo;) to declare their input type as a list while for the common case of a single value, a client can just pass that value directly rather than constructing the list.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1774">Following are examples of input coercion with various list types and values:</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1760"><a href="#sec-List.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1762-L1763">When expected as an input, list values are accepted only when each item in the list can be accepted by the list&rsquo;s item type.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1765-L1768">If the value passed as an input to a list type is <em>not</em> a list and not the <span class="spec-keyword">null</span> value, then the result of input coercion is a list of size one, where the single item value is the result of input coercion for the list&rsquo;s item type on the provided value (note this may apply recursively for nested lists).</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1770-L1773">This allows inputs which accept one or many arguments (sometimes referred to as &ldquo;var args&rdquo;) to declare their input type as a list while for the common case of a single value, a client can just pass that value directly rather than constructing the list.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1775">Following are examples of input coercion with various list types and values:</p>
 <table>
 <thead>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1776">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1777">
 <th>Expected Type</th>
 <th>Provided Value</th>
 <th>Coerced Value</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1778">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1779">
 <td><code>[Int]</code></td>
 <td><code>[1, 2, 3]</code></td>
 <td><code>[1, 2, 3]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1779">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1780">
 <td><code>[Int]</code></td>
 <td><code>[1, "b", true]</code></td>
 <td>Error: Incorrect item value</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1780">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1781">
 <td><code>[Int]</code></td>
 <td><code>1</code></td>
 <td><code>[1]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1781">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1782">
 <td><code>[Int]</code></td>
 <td><code>null</code></td>
 <td><code>null</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1782">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1783">
 <td><code>[[Int]]</code></td>
 <td><code>[[1], [2, 3]]</code></td>
 <td><code>[[1], [2, 3]]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1783">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1784">
 <td><code>[[Int]]</code></td>
 <td><code>[1, 2, 3]</code></td>
 <td><code>[[1], [2], [3]]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1784">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1785">
 <td><code>[[Int]]</code></td>
 <td><code>[1, null, 3]</code></td>
 <td><code>[[1], null, [3]]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1785">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1786">
 <td><code>[[Int]]</code></td>
 <td><code>[[1], ["b"]]</code></td>
 <td>Error: Incorrect item value</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1786">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1787">
 <td><code>[[Int]]</code></td>
 <td><code>1</code></td>
 <td><code>[[1]]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1787">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1788">
 <td><code>[[Int]]</code></td>
 <td><code>null</code></td>
 <td><code>null</code></td>
@@ -2745,139 +2745,139 @@ See <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a> for m
 </section>
 </section>
 <section id="sec-Non-Null" secid="3.12">
-<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1789"><span class="spec-secid" title="link to this section"><a href="#sec-Non-Null">3.12</a></span>Non-Null</h2>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1791-L1796">By default, all types in GraphQL are nullable; the <span class="spec-keyword">null</span> value is a valid response for all of the above types. To declare a type that disallows null, the GraphQL Non-Null type can be used. This type wraps an underlying type, and this type acts identically to that wrapped type, with the exception that <span class="spec-keyword">null</span> is not a valid response for the wrapping type. A trailing exclamation mark is used to denote a field that uses a Non-Null type like this: <code>name: String!</code>.</p>
+<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1790"><span class="spec-secid" title="link to this section"><a href="#sec-Non-Null">3.12</a></span>Non-Null</h2>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1792-L1797">By default, all types in GraphQL are nullable; the <span class="spec-keyword">null</span> value is a valid response for all of the above types. To declare a type that disallows null, the GraphQL Non-Null type can be used. This type wraps an underlying type, and this type acts identically to that wrapped type, with the exception that <span class="spec-keyword">null</span> is not a valid response for the wrapping type. A trailing exclamation mark is used to denote a field that uses a Non-Null type like this: <code>name: String!</code>.</p>
 <section id="sec-Non-Null.Nullable-vs-Optional" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1798"><a href="#sec-Non-Null.Nullable-vs-Optional" title="link to this subsection">Nullable vs. Optional</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1800-L1803">Fields are <em>always</em> optional within the context of a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span>, a field may be omitted and the selection set is still valid (so long as the selection set does not become empty). However fields that return Non-Null types will never return the value <span class="spec-keyword">null</span> if queried.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1805-L1808">Inputs (such as field arguments), are always optional by default. However a non-null input type is required. In addition to not accepting the value <span class="spec-keyword">null</span>, it also does not accept omission. For the sake of simplicity nullable types are always optional and non-null types are always required.</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1799"><a href="#sec-Non-Null.Nullable-vs-Optional" title="link to this subsection">Nullable vs. Optional</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1801-L1804">Fields are <em>always</em> optional within the context of a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span>, a field may be omitted and the selection set is still valid (so long as the selection set does not become empty). However fields that return Non-Null types will never return the value <span class="spec-keyword">null</span> if queried.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1806-L1809">Inputs (such as field arguments), are always optional by default. However a non-null input type is required. In addition to not accepting the value <span class="spec-keyword">null</span>, it also does not accept omission. For the sake of simplicity nullable types are always optional and non-null types are always required.</p>
 </section>
 <section id="sec-Non-Null.Result-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1810"><a href="#sec-Non-Null.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1812-L1816">In all of the above result coercions, <span class="spec-keyword">null</span> was considered a valid value. To coerce the result of a Non-Null type, the coercion of the wrapped type should be performed. If that result was not <span class="spec-keyword">null</span>, then the result of coercing the Non-Null type is that result. If that result was <span class="spec-keyword">null</span>, then an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised.</p>
-<div id="note-f6bf9" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1818-L1822">
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1811"><a href="#sec-Non-Null.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1813-L1817">In all of the above result coercions, <span class="spec-keyword">null</span> was considered a valid value. To coerce the result of a Non-Null type, the coercion of the wrapped type should be performed. If that result was not <span class="spec-keyword">null</span>, then the result of coercing the Non-Null type is that result. If that result was <span class="spec-keyword">null</span>, then an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised.</p>
+<div id="note-f6bf9" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1819-L1823">
 <a href="#note-f6bf9">Note</a>
 When an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> is raised on a non-null <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, the error propagates to the parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. For more information on this process, see <a href="#sec-Executing-Selection-Sets.Errors-and-Non-Null-Types">Errors and Non-Null Types</a> within the Execution section.</div>
 </section>
 <section id="sec-Non-Null.Input-Coercion" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1824"><a href="#sec-Non-Null.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1826-L1829">If an argument or input-object field of a Non-Null type is not provided, is provided with the literal value <span class="spec-keyword">null</span>, or is provided with a variable that was either not provided a value at runtime, or was provided the value <span class="spec-keyword">null</span>, then a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> must be raised.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1831-L1833">If the value provided to the Non-Null type is provided with a literal value other than <span class="spec-keyword">null</span>, or a Non-Null variable value, it is coerced using the input coercion for the wrapped type.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1835">A non-null argument cannot be omitted:</p>
-<pre id="example-32bbf" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1837-L1841"><a href="#example-32bbf">Counter Example № 86</a><code><span class="token punctuation">{</span>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1825"><a href="#sec-Non-Null.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1827-L1830">If an argument or input-object field of a Non-Null type is not provided, is provided with the literal value <span class="spec-keyword">null</span>, or is provided with a variable that was either not provided a value at runtime, or was provided the value <span class="spec-keyword">null</span>, then a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> must be raised.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1832-L1834">If the value provided to the Non-Null type is provided with a literal value other than <span class="spec-keyword">null</span>, or a Non-Null variable value, it is coerced using the input coercion for the wrapped type.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1836">A non-null argument cannot be omitted:</p>
+<pre id="example-32bbf" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1838-L1842"><a href="#example-32bbf">Counter Example № 86</a><code><span class="token punctuation">{</span>
   <span class="token property">fieldWithNonNullArg</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1843">The value <span class="spec-keyword">null</span> cannot be provided to a non-null argument:</p>
-<pre id="example-da489" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1845-L1849"><a href="#example-da489">Counter Example № 87</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1844">The value <span class="spec-keyword">null</span> cannot be provided to a non-null argument:</p>
+<pre id="example-da489" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1846-L1850"><a href="#example-da489">Counter Example № 87</a><code><span class="token punctuation">{</span>
   <span class="token property-query">fieldWithNonNullArg</span><span class="token punctuation">(</span><span class="token attr-name">nonNullArg</span><span class="token punctuation">:</span> <span class="token property">null</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1851">A variable of a nullable type cannot be provided to a non-null argument:</p>
-<pre id="example-6d129" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1853-L1857"><a href="#example-6d129">Example № 88</a><code><span class="token keyword">query</span> <span class="token definition-query function">withNullableVariable</span><span class="token punctuation">(</span><span class="token variable">$var</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1852">A variable of a nullable type cannot be provided to a non-null argument:</p>
+<pre id="example-6d129" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1854-L1858"><a href="#example-6d129">Example № 88</a><code><span class="token keyword">query</span> <span class="token definition-query function">withNullableVariable</span><span class="token punctuation">(</span><span class="token variable">$var</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property-query">fieldWithNonNullArg</span><span class="token punctuation">(</span><span class="token attr-name">nonNullArg</span><span class="token punctuation">:</span> <span class="token variable">$var</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-97a45" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1859-L1860">
+<div id="note-97a45" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1860-L1861">
 <a href="#note-97a45">Note</a>
 The Validation section defines providing a nullable variable type to a non-null input type as invalid.</div>
 </section>
 <section id="sec-Non-Null.Type-Validation" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1862"><a href="#sec-Non-Null.Type-Validation" title="link to this subsection">Type Validation</a></h6>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1863"><a href="#sec-Non-Null.Type-Validation" title="link to this subsection">Type Validation</a></h6>
 <ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L1864">A Non-Null type must not wrap another Non-Null type.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L1865">A Non-Null type must not wrap another Non-Null type.</li>
 </ol>
 </section>
 <section id="sec-Combining-List-and-Non-Null" secid="3.12.1">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1866"><span class="spec-secid" title="link to this section"><a href="#sec-Combining-List-and-Non-Null">3.12.1</a></span>Combining List and Non-Null</h3>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1868-L1870">The List and Non-Null wrapping types can compose, representing more complex types. The rules for result coercion and input coercion of Lists and Non-Null types apply in a recursive fashion.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1872-L1875">For example if the inner item type of a List is Non-Null (e.g. <code>[T!]</code>), then that List may not contain any <span class="spec-keyword">null</span> items. However if the inner type of a Non-Null is a List (e.g. <code>[T]!</code>), then <span class="spec-keyword">null</span> is not accepted however an empty list is accepted.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1877">Following are examples of result coercion with various types and values:</p>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L1867"><span class="spec-secid" title="link to this section"><a href="#sec-Combining-List-and-Non-Null">3.12.1</a></span>Combining List and Non-Null</h3>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1869-L1871">The List and Non-Null wrapping types can compose, representing more complex types. The rules for result coercion and input coercion of Lists and Non-Null types apply in a recursive fashion.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1873-L1876">For example if the inner item type of a List is Non-Null (e.g. <code>[T!]</code>), then that List may not contain any <span class="spec-keyword">null</span> items. However if the inner type of a Non-Null is a List (e.g. <code>[T]!</code>), then <span class="spec-keyword">null</span> is not accepted however an empty list is accepted.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1878">Following are examples of result coercion with various types and values:</p>
 <table>
 <thead>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1879">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1880">
 <th>Expected Type</th>
 <th>Internal Value</th>
 <th>Coerced Result</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1881">
-<td><code>[Int]</code></td>
-<td><code>[1, 2, 3]</code></td>
-<td><code>[1, 2, 3]</code></td>
-</tr>
 <tr data-source="spec/Section%203%20--%20Type%20System.md#L1882">
 <td><code>[Int]</code></td>
-<td><code>null</code></td>
-<td><code>null</code></td>
+<td><code>[1, 2, 3]</code></td>
+<td><code>[1, 2, 3]</code></td>
 </tr>
 <tr data-source="spec/Section%203%20--%20Type%20System.md#L1883">
 <td><code>[Int]</code></td>
+<td><code>null</code></td>
+<td><code>null</code></td>
+</tr>
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1884">
+<td><code>[Int]</code></td>
 <td><code>[1, 2, null]</code></td>
 <td><code>[1, 2, null]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1884">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1885">
 <td><code>[Int]</code></td>
 <td><code>[1, 2, Error]</code></td>
 <td><code>[1, 2, null]</code> (With logged error)</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1885">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1886">
 <td><code>[Int]!</code></td>
 <td><code>[1, 2, 3]</code></td>
 <td><code>[1, 2, 3]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1886">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1887">
 <td><code>[Int]!</code></td>
 <td><code>null</code></td>
 <td>Error: Value cannot be null</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1887">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1888">
 <td><code>[Int]!</code></td>
 <td><code>[1, 2, null]</code></td>
 <td><code>[1, 2, null]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1888">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1889">
 <td><code>[Int]!</code></td>
 <td><code>[1, 2, Error]</code></td>
 <td><code>[1, 2, null]</code> (With logged error)</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1889">
-<td><code>[Int!]</code></td>
-<td><code>[1, 2, 3]</code></td>
-<td><code>[1, 2, 3]</code></td>
-</tr>
 <tr data-source="spec/Section%203%20--%20Type%20System.md#L1890">
 <td><code>[Int!]</code></td>
+<td><code>[1, 2, 3]</code></td>
+<td><code>[1, 2, 3]</code></td>
+</tr>
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1891">
+<td><code>[Int!]</code></td>
 <td><code>null</code></td>
 <td><code>null</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1891">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1892">
 <td><code>[Int!]</code></td>
 <td><code>[1, 2, null]</code></td>
 <td><code>null</code> (With logged coercion error)</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1892">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1893">
 <td><code>[Int!]</code></td>
 <td><code>[1, 2, Error]</code></td>
 <td><code>null</code> (With logged error)</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1893">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1894">
 <td><code>[Int!]!</code></td>
 <td><code>[1, 2, 3]</code></td>
 <td><code>[1, 2, 3]</code></td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1894">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1895">
 <td><code>[Int!]!</code></td>
 <td><code>null</code></td>
 <td>Error: Value cannot be null</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1895">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1896">
 <td><code>[Int!]!</code></td>
 <td><code>[1, 2, null]</code></td>
 <td>Error: Item cannot be null</td>
 </tr>
-<tr data-source="spec/Section%203%20--%20Type%20System.md#L1896">
+<tr data-source="spec/Section%203%20--%20Type%20System.md#L1897">
 <td><code>[Int!]!</code></td>
 <td><code>[1, 2, Error]</code></td>
 <td>Error: Error occurred in item</td>
@@ -2887,19 +2887,19 @@ The Validation section defines providing a nullable variable type to a non-null 
 </section>
 </section>
 <section id="sec-Type-System.Directives" secid="3.13">
-<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1898"><span class="spec-secid" title="link to this section"><a href="#sec-Type-System.Directives">3.13</a></span>Directives</h2>
-<div class="spec-production" id="DirectiveDefinition" data-source="spec/Section%203%20--%20Type%20System.md#L1900-L1901">
+<h2 data-source="spec/Section%203%20--%20Type%20System.md#L1899"><span class="spec-secid" title="link to this section"><a href="#sec-Type-System.Directives">3.13</a></span>Directives</h2>
+<div class="spec-production" id="DirectiveDefinition" data-source="spec/Section%203%20--%20Type%20System.md#L1901-L1902">
 <span class="spec-nt"><a href="#DirectiveDefinition" data-name="DirectiveDefinition">DirectiveDefinition</a></span><div class="spec-rhs"><span class="spec-quantified"><span class="spec-nt"><a href="#Description" data-name="Description">Description</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">directive</span><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-quantified"><span class="spec-nt"><a href="#ArgumentsDefinition" data-name="ArgumentsDefinition">ArgumentsDefinition</a></span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-quantified"><span class="spec-t">repeatable</span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-t">on</span><span class="spec-nt"><a href="#DirectiveLocations" data-name="DirectiveLocations">DirectiveLocations</a></span></div>
 </div>
-<div class="spec-production" id="DirectiveLocations" data-source="spec/Section%203%20--%20Type%20System.md#L1903-L1906">
+<div class="spec-production" id="DirectiveLocations" data-source="spec/Section%203%20--%20Type%20System.md#L1904-L1907">
 <span class="spec-nt"><a href="#DirectiveLocations" data-name="DirectiveLocations">DirectiveLocations</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#DirectiveLocations" data-name="DirectiveLocations">DirectiveLocations</a></span><span class="spec-t">|</span><span class="spec-nt"><a href="#DirectiveLocation" data-name="DirectiveLocation">DirectiveLocation</a></span></div>
 <div class="spec-rhs"><span class="spec-quantified"><span class="spec-t">|</span><span class="spec-quantifiers"><span class="spec-quantifier optional">opt</span></span></span><span class="spec-nt"><a href="#DirectiveLocation" data-name="DirectiveLocation">DirectiveLocation</a></span></div>
 </div>
-<div class="spec-production" id="DirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1908-L1911">
+<div class="spec-production" id="DirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1909-L1912">
 <span class="spec-nt"><a href="#DirectiveLocation" data-name="DirectiveLocation">DirectiveLocation</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#ExecutableDirectiveLocation" data-name="ExecutableDirectiveLocation">ExecutableDirectiveLocation</a></span></div>
 <div class="spec-rhs"><span class="spec-nt"><a href="#TypeSystemDirectiveLocation" data-name="TypeSystemDirectiveLocation">TypeSystemDirectiveLocation</a></span></div>
 </div>
-<div class="spec-production" id="ExecutableDirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1913-L1922">
+<div class="spec-production" id="ExecutableDirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1914-L1923">
 <span class="spec-nt"><a href="#ExecutableDirectiveLocation" data-name="ExecutableDirectiveLocation">ExecutableDirectiveLocation</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">QUERY</span></td></tr>
@@ -2919,7 +2919,7 @@ The Validation section defines providing a nullable variable type to a non-null 
 <td class="spec-rhs"><span class="spec-t">VARIABLE_DEFINITION</span></td></tr>
 </table></div></div>
 </div>
-<div class="spec-production" id="TypeSystemDirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1924-L1936">
+<div class="spec-production" id="TypeSystemDirectiveLocation" data-source="spec/Section%203%20--%20Type%20System.md#L1925-L1937">
 <span class="spec-nt"><a href="#TypeSystemDirectiveLocation" data-name="TypeSystemDirectiveLocation">TypeSystemDirectiveLocation</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
 <tr>
 <td class="spec-rhs"><span class="spec-t">SCHEMA</span></td></tr>
@@ -2945,45 +2945,45 @@ The Validation section defines providing a nullable variable type to a non-null 
 <td class="spec-rhs"><span class="spec-t">INPUT_FIELD_DEFINITION</span></td></tr>
 </table></div></div>
 </div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1938-L1940">A GraphQL schema describes directives which are used to annotate various parts of a GraphQL document as an indicator that they should be evaluated differently by a validator, executor, or client tool such as a code generator.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1939-L1941">A GraphQL schema describes directives which are used to annotate various parts of a GraphQL document as an indicator that they should be evaluated differently by a validator, executor, or client tool such as a code generator.</p>
 <section id="sec-Type-System.Directives.Built-in-Directives" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1942"><a href="#sec-Type-System.Directives.Built-in-Directives" title="link to this subsection">Built-in Directives</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1944">A <dfn id="built-in-directive"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></dfn> is any directive defined within this specification.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1946">GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1948-L1950">GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1952-L1953">GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1955-L1956">When representing a GraphQL schema using the type system definition language any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be omitted for brevity.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1958-L1959">When introspecting a GraphQL service all provided directives, including any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span>, must be included in the set of returned directives.</p>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1943"><a href="#sec-Type-System.Directives.Built-in-Directives" title="link to this subsection">Built-in Directives</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1945">A <dfn id="built-in-directive"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></dfn> is any directive defined within this specification.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1947">GraphQL implementations should provide the <code>@skip</code> and <code>@include</code> directives.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1949-L1951">GraphQL implementations that support the type system definition language must provide the <code>@deprecated</code> directive if representing deprecated portions of the schema.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1953-L1954">GraphQL implementations that support the type system definition language should provide the <code>@specifiedBy</code> directive if representing custom scalar definitions.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1956-L1957">When representing a GraphQL schema using the type system definition language any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be omitted for brevity.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1959-L1960">When introspecting a GraphQL service all provided directives, including any <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span>, must be included in the set of returned directives.</p>
 </section>
 <section id="sec-Type-System.Directives.Custom-Directives" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1961"><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1963-L1965">GraphQL services and client tooling may provide any additional <dfn id="custom-directive"><a href="#custom-directive" data-name="custom-directive">custom directive</a></dfn> beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
-<div id="note-39239" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1967-L1975">
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L1962"><a href="#sec-Type-System.Directives.Custom-Directives" title="link to this subsection">Custom Directives</a></h6>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1964-L1966">GraphQL services and client tooling may provide any additional <dfn id="custom-directive"><a href="#custom-directive" data-name="custom-directive">custom directive</a></dfn> beyond those defined in this document. Directives are the preferred way to extend GraphQL with custom or experimental behavior.</p>
+<div id="note-39239" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L1968-L1976">
 <a href="#note-39239">Note</a>
 When defining a <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span>, it is recommended to prefix the directive&rsquo;s name to make its scope of usage clear and to prevent a collision with <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> which may be specified by future versions of this document (which will not include <code>_</code> in their name). For example, a <span class="spec-ref"><a href="#custom-directive" data-name="custom-directive">custom directive</a></span> used by Facebook&rsquo;s GraphQL service should be named <code>@fb_auth</code> instead of <code>@auth</code>. This is especially recommended for proposed additions to this specification which can change during the <a href="https://github.com/graphql/graphql-spec/blob/main/CONTRIBUTING.md">RFC process</a>. For example a work in progress version of <code>@live</code> should be named <code>@rfc_live</code>.</div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1977-L1978">Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
-<pre id="example-060af" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1980-L1986"><a href="#example-060af">Example № 89</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1978-L1979">Directives must only be used in the locations they are declared to belong in. In this example, a directive is defined which can be used to annotate a field:</p>
+<pre id="example-060af" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1981-L1987"><a href="#example-060af">Example № 89</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span>
 
 <span class="token keyword">fragment</span> <span class="token fragment function">SomeFragment</span> <span class="token keyword">on</span> <span class="token class-name">SomeType</span> <span class="token punctuation">{</span>
   <span class="token property">field</span> <span class="token directive function">@example</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1988-L1989">Directive locations may be defined with an optional leading <code>|</code> character to aid formatting when representing a longer list of possible locations:</p>
-<pre id="example-79697" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1991-L1996"><a href="#example-79697">Example № 90</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1989-L1990">Directive locations may be defined with an optional leading <code>|</code> character to aid formatting when representing a longer list of possible locations:</p>
+<pre id="example-79697" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1992-L1997"><a href="#example-79697">Example № 90</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span>
   <span class="token operator">|</span> <span class="token constant">FIELD</span>
   <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span>
   <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L1998-L2001">Directives can also be used to annotate the type system definition language as well, which can be a useful tool for supplying additional metadata in order to generate GraphQL execution services, produce client generated runtime code, or many other useful extensions of the GraphQL semantics.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2003-L2004">In this example, the directive <code>@example</code> annotates field and argument definitions:</p>
-<pre id="example-c3a06" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2006-L2012"><a href="#example-c3a06">Example № 91</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L1999-L2002">Directives can also be used to annotate the type system definition language as well, which can be a useful tool for supplying additional metadata in order to generate GraphQL execution services, produce client generated runtime code, or many other useful extensions of the GraphQL semantics.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2004-L2005">In this example, the directive <code>@example</code> annotates field and argument definitions:</p>
+<pre id="example-c3a06" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2007-L2013"><a href="#example-c3a06">Example № 91</a><code><span class="token keyword">directive</span> <span class="token directive function">@example</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span>
 
 <span class="token keyword">type</span> <span class="token class-name">SomeType</span> <span class="token punctuation">{</span>
   <span class="token attr-name">field</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token scalar">Int</span> <span class="token directive function">@example</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@example</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2014-L2018">A directive may be defined as repeatable by including the &ldquo;repeatable&rdquo; keyword. Repeatable directives are often useful when the same directive should be used with different arguments at a single location, especially in cases where additional information needs to be provided to a type or schema extension via a directive:</p>
-<pre id="example-67869" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2020-L2028"><a href="#example-67869">Example № 92</a><code><span class="token keyword">directive</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2015-L2019">A directive may be defined as repeatable by including the &ldquo;repeatable&rdquo; keyword. Repeatable directives are often useful when the same directive should be used with different arguments at a single location, especially in cases where additional information needs to be provided to a type or schema extension via a directive:</p>
+<pre id="example-67869" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2021-L2029"><a href="#example-67869">Example № 92</a><code><span class="token keyword">directive</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">repeatable</span> <span class="token keyword">on</span> <span class="token constant">OBJECT</span> <span class="token operator">|</span> <span class="token constant">INTERFACE</span>
 
 <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"pageCount"</span><span class="token punctuation">)</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"author"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span><span class="token operator">!</span>
@@ -2991,62 +2991,62 @@ When defining a <span class="spec-ref"><a href="#custom-directive" data-name="cu
 
 <span class="token keyword">extend</span> <span class="token keyword">type</span> <span class="token class-name">Book</span> <span class="token directive function">@delegateField</span><span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"index"</span><span class="token punctuation">)</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2030">While defining a directive, it must not reference itself directly or indirectly:</p>
-<pre id="example-79945" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2032-L2034"><a href="#example-79945">Counter Example № 93</a><code><span class="token keyword">directive</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">ARGUMENT_DEFINITION</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2031">While defining a directive, it must not reference itself directly or indirectly:</p>
+<pre id="example-79945" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2033-L2035"><a href="#example-79945">Counter Example № 93</a><code><span class="token keyword">directive</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">(</span><span class="token attr-name">arg</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@invalidExample</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">ARGUMENT_DEFINITION</span>
 </code></pre>
-<div id="note-921fb" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2036-L2037">
+<div id="note-921fb" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2037-L2038">
 <a href="#note-921fb">Note</a>
 The order in which directives appear may be significant, including repeatable directives.</div>
 </section>
 <section id="sec-Type-System.Directives.Validation" class="subsec">
-<h6 data-source="spec/Section%203%20--%20Type%20System.md#L2039"><a href="#sec-Type-System.Directives.Validation" title="link to this subsection">Validation</a></h6>
+<h6 data-source="spec/Section%203%20--%20Type%20System.md#L2040"><a href="#sec-Type-System.Directives.Validation" title="link to this subsection">Validation</a></h6>
 <ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2041-L2042">A directive definition must not contain the use of a directive which references itself directly.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2043-L2045">A directive definition must not contain the use of a directive which references itself indirectly by referencing a Type or Directive which transitively includes a reference to this directive.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2046-L2047">The directive must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2048-L2054">For each argument of the directive:<ol>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2049-L2050">The argument must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2051-L2052">The argument must have a unique name within that directive; no two arguments may share the same name.</li>
-<li data-source="spec/Section%203%20--%20Type%20System.md#L2053-L2054">The argument must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="argumentType">argumentType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2042-L2043">A directive definition must not contain the use of a directive which references itself directly.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2044-L2046">A directive definition must not contain the use of a directive which references itself indirectly by referencing a Type or Directive which transitively includes a reference to this directive.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2047-L2048">The directive must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2049-L2055">For each argument of the directive:<ol>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2050-L2051">The argument must not have a name which begins with the characters <span class="spec-string">"__"</span> (two underscores).</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2052-L2053">The argument must have a unique name within that directive; no two arguments may share the same name.</li>
+<li data-source="spec/Section%203%20--%20Type%20System.md#L2054-L2055">The argument must accept a type where <span class="spec-call"><a href="#IsInputType()" data-name="IsInputType">IsInputType</a>(<var data-name="argumentType">argumentType</var>)</span> returns <span class="spec-keyword">true</span>.</li>
 </ol>
 </li>
 </ol>
 </section>
 <section id="sec--skip" secid="3.13.1">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2056"><span class="spec-secid" title="link to this section"><a href="#sec--skip">3.13.1</a></span>@skip</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2058-L2060"><code><span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2057"><span class="spec-secid" title="link to this section"><a href="#sec--skip">3.13.1</a></span>@skip</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2059-L2061"><code><span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2062-L2064">The <code>@skip</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional exclusion during execution as described by the <code>if</code> argument.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2066-L2067">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>false</code>.</p>
-<pre id="example-cb6b7" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2069-L2073"><a href="#example-cb6b7">Example № 94</a><code><span class="token keyword">query</span> <span class="token definition-query function">myQuery</span><span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2063-L2065">The <code>@skip</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional exclusion during execution as described by the <code>if</code> argument.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2067-L2068">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>false</code>.</p>
+<pre id="example-cb6b7" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2070-L2074"><a href="#example-cb6b7">Example № 94</a><code><span class="token keyword">query</span> <span class="token definition-query function">myQuery</span><span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property">experimentalField</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
 </section>
 <section id="sec--include" secid="3.13.2">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2075"><span class="spec-secid" title="link to this section"><a href="#sec--include">3.13.2</a></span>@include</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2077-L2079"><code><span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2076"><span class="spec-secid" title="link to this section"><a href="#sec--include">3.13.2</a></span>@include</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2078-L2080"><code><span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2081-L2083">The <code>@include</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional inclusion during execution as described by the <code>if</code> argument.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2085-L2086">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>true</code></p>
-<pre id="example-aa3a0" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2088-L2092"><a href="#example-aa3a0">Example № 95</a><code><span class="token keyword">query</span> <span class="token definition-query function">myQuery</span><span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2082-L2084">The <code>@include</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> may be provided for fields, fragment spreads, and inline fragments, and allows for conditional inclusion during execution as described by the <code>if</code> argument.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2086-L2087">In this example <code>experimentalField</code> will only be queried if the variable <code>$someTest</code> has the value <code>true</code></p>
+<pre id="example-aa3a0" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2089-L2093"><a href="#example-aa3a0">Example № 95</a><code><span class="token keyword">query</span> <span class="token definition-query function">myQuery</span><span class="token punctuation">(</span><span class="token variable">$someTest</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property">experimentalField</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token variable">$someTest</span><span class="token punctuation">)</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<div id="note-f3059" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2094-L2099">
+<div id="note-f3059" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2095-L2100">
 <a href="#note-f3059">Note</a>
 Neither <code>@skip</code> nor <code>@include</code> has precedence over the other. In the case that both the <code>@skip</code> and <code>@include</code> directives are provided on the same field or fragment, it <em>must</em> be queried only if the <code>@skip</code> condition is false <em>and</em> the <code>@include</code> condition is true. Stated conversely, the field or fragment must <em>not</em> be queried if either the <code>@skip</code> condition is true <em>or</em> the <code>@include</code> condition is false.</div>
 </section>
 <section id="sec--deprecated" secid="3.13.3">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2101"><span class="spec-secid" title="link to this section"><a href="#sec--deprecated">3.13.3</a></span>@deprecated</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2103-L2107"><code><span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2102"><span class="spec-secid" title="link to this section"><a href="#sec--deprecated">3.13.3</a></span>@deprecated</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2104-L2108"><code><span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
   <span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token operator">=</span> <span class="token string">"No longer supported"</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2109-L2112">The <code>@deprecated</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to indicate deprecated portions of a GraphQL service&rsquo;s schema, such as deprecated fields on a type, arguments on a field, input fields on an input type, or values of an enum type.</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2114-L2115">Deprecations include a reason for why it is deprecated, which is formatted using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>).</p>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2117-L2118">In this example type definition, <code>oldField</code> is deprecated in favor of using <code>newField</code> and <code>oldArg</code> is deprecated in favor of using <code>newArg</code>.</p>
-<pre id="example-0e4e8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2120-L2130"><a href="#example-0e4e8">Example № 96</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2110-L2113">The <code>@deprecated</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to indicate deprecated portions of a GraphQL service&rsquo;s schema, such as deprecated fields on a type, arguments on a field, input fields on an input type, or values of an enum type.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2115-L2116">Deprecations include a reason for why it is deprecated, which is formatted using Markdown syntax (as specified by <a href="https://commonmark.org/">CommonMark</a>).</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2118-L2119">In this example type definition, <code>oldField</code> is deprecated in favor of using <code>newField</code> and <code>oldArg</code> is deprecated in favor of using <code>newArg</code>.</p>
+<pre id="example-0e4e8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2121-L2131"><a href="#example-0e4e8">Example № 96</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
   <span class="token attr-name">newField</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">oldField</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span><span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token string">"Use `newField`."</span><span class="token punctuation">)</span>
 
@@ -3056,26 +3056,26 @@ Neither <code>@skip</code> nor <code>@include</code> has precedence over the oth
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2132-L2133">The <code>@deprecated</code> directive must not appear on required (non-null without a default) arguments or input object field definitions.</p>
-<pre id="example-3c02f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2135-L2142"><a href="#example-3c02f">Counter Example № 97</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2133-L2134">The <code>@deprecated</code> directive must not appear on required (non-null without a default) arguments or input object field definitions.</p>
+<pre id="example-3c02f" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2136-L2143"><a href="#example-3c02f">Counter Example № 97</a><code><span class="token keyword">type</span> <span class="token class-name">ExampleType</span> <span class="token punctuation">{</span>
   <span class="token property-query">invalidField</span><span class="token punctuation">(</span>
     <span class="token attr-name">newArg</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
     <span class="token attr-name">oldArg</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span><span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token string">"Use `newArg`."</span><span class="token punctuation">)</span>
   <span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2144-L2145">To deprecate a required argument or input field, it must first be made optional by either changing the type to nullable or adding a default value.</p>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2145-L2146">To deprecate a required argument or input field, it must first be made optional by either changing the type to nullable or adding a default value.</p>
 </section>
 <section id="sec--specifiedBy" secid="3.13.4">
-<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2147"><span class="spec-secid" title="link to this section"><a href="#sec--specifiedBy">3.13.4</a></span>@specifiedBy</h3>
-<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2149-L2151"><code><span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">SCALAR</span>
+<h3 data-source="spec/Section%203%20--%20Type%20System.md#L2148"><span class="spec-secid" title="link to this section"><a href="#sec--specifiedBy">3.13.4</a></span>@specifiedBy</h3>
+<pre data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2150-L2152"><code><span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">SCALAR</span>
 </code></pre>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2153-L2157">The <code>@specifiedBy</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to provide a <span class="spec-ref"><a href="#scalar-specification-url" data-name="scalar-specification-url">scalar specification URL</a></span> for specifying the behavior of <a href="#sec-Scalars.Custom-Scalars">custom scalar types</a>. The URL should point to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.</p>
-<div id="note-c8292" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2159-L2160">
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2154-L2158">The <code>@specifiedBy</code> <span class="spec-ref"><a href="#built-in-directive" data-name="built-in-directive">built-in directive</a></span> is used within the type system definition language to provide a <span class="spec-ref"><a href="#scalar-specification-url" data-name="scalar-specification-url">scalar specification URL</a></span> for specifying the behavior of <a href="#sec-Scalars.Custom-Scalars">custom scalar types</a>. The URL should point to a human-readable specification of the data format, serialization, and coercion rules. It must not appear on built-in scalar types.</p>
+<div id="note-c8292" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2160-L2161">
 <a href="#note-c8292">Note</a>
 Details on implementing a GraphQL scalar specification can be found in the <a href="https://scalars.graphql.org/implementation-guide">scalars.graphql.org implementation guide</a>.</div>
-<p data-source="spec/Section%203%20--%20Type%20System.md#L2162-L2163">In this example, a custom scalar type for <code>UUID</code> is defined with a URL pointing to the relevant IETF specification.</p>
-<pre id="example-e5b0d" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2165-L2167"><a href="#example-e5b0d">Example № 98</a><code><span class="token keyword">scalar</span> <span class="token constant">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
+<p data-source="spec/Section%203%20--%20Type%20System.md#L2163-L2164">In this example, a custom scalar type for <code>UUID</code> is defined with a URL pointing to the relevant IETF specification.</p>
+<pre id="example-e5b0d" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L2166-L2168"><a href="#example-e5b0d">Example № 98</a><code><span class="token keyword">scalar</span> <span class="token constant">UUID</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token string">"https://tools.ietf.org/html/rfc4122"</span><span class="token punctuation">)</span>
 </code></pre>
 </section>
 </section>
