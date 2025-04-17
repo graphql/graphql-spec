@@ -466,9 +466,9 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-:: A _response key_ is the key in the response object which correlates with a
-field's result. By default the response key will use the field's name; however,
-you can define a different response key by specifying an alias.
+:: A _response name_ is the key in the response object which correlates with a
+field's result. By default the response name will use the field's name; however,
+you can define a different response name by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting response object will not have duplicate keys:
@@ -1254,7 +1254,7 @@ Type : Name
 
 - Let {name} be the string value of {Name}.
 - Let {type} be the type defined in the Schema named {name}.
-- {type} must not be {null}.
+- {type} must exist.
 - Return {type}.
 
 Type : [ Type ]
