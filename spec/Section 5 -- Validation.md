@@ -1326,8 +1326,8 @@ the purposes of the "coercible" assertion in this validation rule, we can assume
 the runtime value of each {variableUsage} is valid for usage in its position.
 
 Note: Custom scalar coercion rules are not always available when validating a
-document and custom scalar literal values are optional in this validation. If
-a custom scalar literal value cannot be coerced, it will raise an error during
+document and custom scalar literal values are optional in this validation. If a
+custom scalar literal value cannot be coerced, it will raise an error during
 execution.
 
 The type expected in a position includes the type defined by the argument a
