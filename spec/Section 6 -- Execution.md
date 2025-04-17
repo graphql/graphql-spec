@@ -133,8 +133,8 @@ respectively.
 ### Query
 
 If the operation is a query, the result of the operation is the result of
-executing the operation’s top level _selection set_ with the query root
-operation type.
+executing the operation’s _root selection set_ with the query root operation
+type.
 
 An initial value may be provided when executing a query operation.
 
@@ -142,15 +142,15 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
-- Let {selectionSet} be the top level selection set in {query}.
+- Let {rootSelectionSet} be the _root selection set_ in {query}.
 - Return {ExecuteRootSelectionSet(variableValues, initialValue, queryType,
-  selectionSet)}.
+  rootSelectionSet, "normal")}.
 
 ### Mutation
 
 If the operation is a mutation, the result of the operation is the result of
-executing the operation’s top level _selection set_ on the mutation root object
-type. This selection set should be executed serially.
+executing the operation’s _root selection set_ on the mutation root object type.
+This selection set should be executed serially.
 
 It is expected that the top level fields in a mutation operation perform
 side-effects on the underlying data system. Serial execution of the provided
@@ -160,9 +160,9 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
-- Let {selectionSet} be the top level selection set in {mutation}.
+- Let {rootSelectionSet} be the _root selection set_ in {mutation}.
 - Return {ExecuteRootSelectionSet(variableValues, initialValue, mutationType,
-  selectionSet, true)}.
+  rootSelectionSet, "serial")}.
 
 ### Subscription
 
@@ -328,9 +328,9 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
-- Let {selectionSet} be the top level selection set in {subscription}.
+- Let {rootSelectionSet} be the _root selection set_ in {subscription}.
 - Return {ExecuteRootSelectionSet(variableValues, initialValue,
-  subscriptionType, selectionSet)}.
+  subscriptionType, rootSelectionSet, "normal")}.
 
 Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
 {ExecuteQuery()} since this is how each event result is produced.
@@ -346,43 +346,56 @@ Unsubscribe(responseStream):
 
 - Cancel {responseStream}.
 
-## Executing the Root Selection Set
+## Executing Selection Sets
 
-To execute the root selection set, the object value being evaluated and the
-object type need to be known, as well as whether it must be executed serially,
-or may be executed in parallel.
+The process of executing a GraphQL operation is to recursively execute every
+selected field in the operation. To do this, first all initially selected fields
+from the operation's top most _root selection set_ are collected, then each
+executed, then of those all subfields are collected, then each executed. This
+process continues until there are no more subfields to collect and execute.
+
+### Executing the Root Selection Set
+
+:: A _root selection set_ is the top level _selection set_ provided by a GraphQL
+operation. A root selection set always selects from a root type.
+
+To execute the root selection set, the initial value being evaluated and the
+root type must be known, as well as whether it must be executed serially, or may
+be executed in parallel (see
+[Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
 
 Executing the root selection set works similarly for queries (parallel),
 mutations (serial), and subscriptions (where it is executed for each event in
 the underlying Source Stream).
 
-First, the selection set is turned into a _grouped field set_; then, we execute
-this grouped field set and return the resulting {data} and {errors}.
+First, the _selection set_ is collected into a _grouped field set_ which is then
+executed, returning the resulting {data} and {errors}.
 
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
-serial):
+executionMode):
 
-- If {serial} is not provided, initialize it to {false}.
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
 - Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
-  objectType, initialValue, variableValues)} _serially_ if {serial} is {true},
-  _normally_ (allowing parallelization) otherwise.
+  objectType, initialValue, variableValues)} _serially_ if {executionMode} is
+  {"serial"}, otherwise _normally_).
 - Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
 ### Field Collection
 
-:: A _grouped field set_ is a map where each entry is a list of field selections
-that share a _response name_ (the alias if defined, otherwise the field name).
-
 Before execution, the _selection set_ is converted to a _grouped field set_ by
-calling {CollectFields()}. This ensures all fields with the same response name
-(including those in referenced fragments) are executed at the same time.
+calling {CollectFields()}. This ensures all fields with the same response name,
+including those in referenced fragments, are executed at the same time.
 
-As an example, collecting the fields of this selection set would collect two
-instances of the field `a` and one of field `b`:
+:: A _grouped field set_ is a map where each entry is a _response name_ and a
+list of selected fields that share that _response name_ (the field alias if
+defined, otherwise the field's name).
+
+As an example, collecting the fields of this selection set would result in a
+grouped field set with two entries, `"a"` and `"b"`, with two instances of the
+field `a` and one of field `b`:
 
 ```graphql example
 {
@@ -479,14 +492,64 @@ DoesFragmentTypeApply(objectType, fragmentType):
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
 
-## Executing a Grouped Field Set
+**Merging Selection Sets**
 
-To execute a grouped field set, the object value being evaluated and the object
-type need to be known, as well as whether it must be executed serially, or may
-be executed in parallel.
+When more than one field of the same name is executed in parallel, during value
+completion each related _selection set_ is collected together to produce a
+single _grouped field set_ in order to continue execution of the sub-selection
+sets.
 
-Each represented field in the grouped field set produces an entry into a result
-map.
+An example operation illustrating parallel fields with the same name with
+sub-selections.
+
+Continuing the example above,
+
+```graphql example
+{
+  a {
+    subfield1
+  }
+  ...ExampleFragment
+}
+
+fragment ExampleFragment on Query {
+  a {
+    subfield2
+  }
+  b
+}
+```
+
+After resolving the value for field `"a"`, the following multiple selection sets
+are merged together so `"subfield1"` and `"subfield2"` are resolved in the same
+phase with the same value.
+
+CollectSubfields(objectType, fields, variableValues):
+
+- Let {groupedFieldSet} be an empty map.
+- For each {field} in {fields}:
+  - Let {fieldSelectionSet} be the selection set of {field}.
+  - If {fieldSelectionSet} is null or empty, continue to the next field.
+  - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
+    fieldSelectionSet, variableValues)}.
+  - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
+    - Let {groupForResponseName} be the list in {groupedFieldSet} for
+      {responseName}; if no such list exists, create it as an empty list.
+    - Append all fields in {subfields} to {groupForResponseName}.
+- Return {groupedFieldSet}.
+
+Note: All the {fields} passed to {CollectSubfields()} share the same _response
+name_.
+
+### Executing a Grouped Field Set
+
+To execute a _grouped field set_, the object value being evaluated and the
+object type need to be known, as well as whether it must be executed serially,
+or may be executed in parallel (see
+[Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
+
+Each entry in the grouped field set represents a _response name_ which produces
+an entry into a result map.
 
 ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
 variableValues):
@@ -504,7 +567,8 @@ variableValues):
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
-is explained in greater detail in the Field Collection section below.
+is explained in greater detail in the [Field Collection](#sec-Field-Collection)
+section.
 
 **Errors and Non-Null Types**
 
@@ -799,47 +863,6 @@ ResolveAbstractType(abstractType, objectValue):
 - Return the result of calling the internal method provided by the type system
   for determining the Object type of {abstractType} given the value
   {objectValue}.
-
-**Merging Selection Sets**
-
-When more than one field of the same name is executed in parallel, during value
-completion each related _selection set_ is collected together to produce a
-single grouped field set in order to continue execution of the sub-selection
-sets.
-
-An example operation illustrating parallel fields with the same name with
-sub-selections.
-
-```graphql example
-{
-  me {
-    firstName
-  }
-  me {
-    lastName
-  }
-}
-```
-
-After resolving the value for `me`, the selection sets are merged together so
-`firstName` and `lastName` can be resolved for one value.
-
-CollectSubfields(objectType, fields, variableValues):
-
-- Let {groupedFieldSet} be an empty map.
-- For each {field} in {fields}:
-  - Let {fieldSelectionSet} be the selection set of {field}.
-  - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
-  - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
-    - Let {groupForResponseName} be the list in {groupedFieldSet} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {groupForResponseName}.
-- Return {groupedFieldSet}.
-
-Note: All the {fields} passed to {CollectSubfields()} share the same _response
-name_.
 
 ### Handling Execution Errors
 
