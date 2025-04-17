@@ -8,7 +8,7 @@ A GraphQL service generates a response from a request via execution.
 - {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
 - {operationName} (optional): The name of the Operation in the Document to
-  process.
+  execute.
 - {variableValues} (optional): Values for any Variables defined by the
   Operation.
 - {initialValue} (optional): An initial value corresponding to the root type
