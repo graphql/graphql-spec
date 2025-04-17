@@ -2,6 +2,9 @@ import { readFile, readdir } from "node:fs/promises";
 
 const SPEC_DIR = new URL("../spec", import.meta.url).pathname;
 
+/** @see {@link https://spec-md.com/#sec-Value-Literals} */
+const valueLiteralsRegexp = /\{((?:[^{}]|(?:\{[^{}]*\}))+)\}/g;
+
 process.exitCode = 0;
 const filenames = await readdir(SPEC_DIR);
 for (const filename of filenames) {
@@ -72,6 +75,33 @@ for (const filename of filenames) {
             console.log();
             process.exitCode = 1;
           }
+
+          const stepWithoutValueLiterals = step.replace(
+            valueLiteralsRegexp,
+            ""
+          );
+          if (stepWithoutValueLiterals.match(/\b[A-Z][A-Za-z0-9]+\(/)) {
+            console.log(
+              `Bad formatting of '${algorithmName}' step (algorithm call should be wrapped in braces: \`{MyAlgorithm(a, b, c)}\`) in '${filename}':`
+            );
+            console.dir(step);
+            console.log();
+            process.exitCode = 1;
+          }
+
+          const valueLiterals = step.matchAll(valueLiteralsRegexp, "");
+          for (const lit of valueLiterals) {
+            const inner = lit[1];
+            if (inner.includes("{")) {
+              console.log(
+                `Bad formatting of '${algorithmName}' step (algorithm call should not contain braces: \`${lit}\`) in '${filename}':`
+              );
+              console.dir(step);
+              console.log();
+              process.exitCode = 1;
+            }
+          }
+
           const trimmedInnerLine = step.replace(/\s+/g, " ");
           if (
             trimmedInnerLine.match(

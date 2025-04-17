@@ -137,7 +137,7 @@ ExecuteQuery(query, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   queryType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -158,7 +158,7 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 - Let {selectionSet} be the top level selection set in {mutation}.
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   mutationType, initialValue, variableValues)} _serially_.
-- Let {errors} be the list of all _field error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -317,10 +317,10 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - Complete {responseStream} normally.
 - Return {responseStream}.
 
-Note: Since {ExecuteSubscriptionEvent()} handles all _field error_, and _request
-error_ only occur during {CreateSourceEventStream()}, the only remaining error
-condition handled from {ExecuteSubscriptionEvent()} are internal exceptional
-errors not described by this specification.
+Note: Since {ExecuteSubscriptionEvent()} handles all _execution error_, and
+_request error_ only occur during {CreateSourceEventStream()}, the only
+remaining error condition handled from {ExecuteSubscriptionEvent()} are internal
+exceptional errors not described by this specification.
 
 ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
@@ -330,7 +330,7 @@ ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Let {data} be the result of running {ExecuteSelectionSet(selectionSet,
   subscriptionType, initialValue, variableValues)} _normally_ (allowing
   parallelization).
-- Let {errors} be the list of all _field error_ raised while executing the
+- Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
@@ -355,8 +355,7 @@ type need to be known, as well as whether it must be executed serially, or may
 be executed in parallel.
 
 First, the selection set is turned into a grouped field set; then, each
-represented field in the grouped field set produces an entry into a response
-map.
+represented field in the grouped field set produces an entry into a result map.
 
 ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 
@@ -377,17 +376,23 @@ ExecuteSelectionSet(selectionSet, objectType, objectValue, variableValues):
 Note: {resultMap} is ordered by which fields appear first in the operation. This
 is explained in greater detail in the Field Collection section below.
 
-**Errors and Non-Null Fields**
+**Errors and Non-Null Types**
 
-If during {ExecuteSelectionSet()} a field with a non-null {fieldType} raises a
-_field error_ then that error must propagate to this entire selection set,
-either resolving to {null} if allowed or further propagated to a parent field.
+<a name="sec-Executing-Selection-Sets.Errors-and-Non-Null-Fields">
+  <!-- Legacy link, this section was previously titled "Errors and Non-Null Fields" -->
+</a>
 
-If this occurs, any sibling fields which have not yet executed or have not yet
-yielded a value may be cancelled to avoid unnecessary work.
+If during {ExecuteSelectionSet()} a _response position_ with a non-null type
+raises an _execution error_ then that error must propagate to the parent
+response position (the entire selection set in the case of a field, or the
+entire list in the case of a list position), either resolving to {null} if
+allowed or being further propagated to a parent response position.
 
-Note: See [Handling Field Errors](#sec-Handling-Field-Errors) for more about
-this behavior.
+If this occurs, any sibling response positions which have not yet executed or
+have not yet yielded a value may be cancelled to avoid unnecessary work.
+
+Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
+about this behavior.
 
 ### Normal and Serial Execution
 
@@ -596,7 +601,7 @@ directives may be applied in either order since they apply commutatively.
 ## Executing Fields
 
 Each field requested in the grouped field set that is defined on the selected
-objectType will result in an entry in the response map. Field execution first
+objectType will result in an entry in the result map. Field execution first
 coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
@@ -647,7 +652,7 @@ CoerceArgumentValues(objectType, field, variableValues):
     - Add an entry to {coercedValues} named {argumentName} with the value
       {defaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a _field error_.
+    not {true} or {value} is {null}, raise an _execution error_.
   - Otherwise if {hasValue} is {true}:
     - If {value} is {null}:
       - Add an entry to {coercedValues} named {argumentName} with the value
@@ -657,12 +662,15 @@ CoerceArgumentValues(objectType, field, variableValues):
         {value}.
     - Otherwise:
       - If {value} cannot be coerced according to the input coercion rules of
-        {argumentType}, raise a _field error_.
+        {argumentType}, raise an _execution error_.
       - Let {coercedValue} be the result of coercing {value} according to the
         input coercion rules of {argumentType}.
       - Add an entry to {coercedValues} named {argumentName} with the value
         {coercedValue}.
 - Return {coercedValues}.
+
+Any _request error_ raised as a result of input coercion during
+{CoerceArgumentValues()} should be treated instead as an _execution error_.
 
 Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid operations
@@ -704,12 +712,12 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
     fields, result, variableValues)}.
-  - If {completedResult} is {null}, raise a _field error_.
+  - If {completedResult} is {null}, raise an _execution error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
   {undefined}), return {null}.
 - If {fieldType} is a List type:
-  - If {result} is not a collection of values, raise a _field error_.
+  - If {result} is not a collection of values, raise an _execution error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
     {CompleteValue(innerType, fields, resultItem, variableValues)}, where
@@ -744,7 +752,7 @@ CoerceResult(leafType, value):
 - Return the result of calling the internal method provided by the type system
   for determining the "result coercion" of {leafType} given the value {value}.
   This internal method must return a valid value for the type and not {null}.
-  Otherwise raise a _field error_.
+  Otherwise raise an _execution error_.
 
 Note: If a field resolver returns {null} then it is handled within
 {CompleteValue()} before {CoerceResult()} is called. Therefore both the input
@@ -799,39 +807,46 @@ MergeSelectionSets(fields):
   - Append all selections in {fieldSelectionSet} to {selectionSet}.
 - Return {selectionSet}.
 
-### Handling Field Errors
+### Handling Execution Errors
 
-A _field error_ is an error raised from a particular field during value
-resolution or coercion. While these errors should be reported in the response,
-they are "handled" by producing a partial response.
+<a name="sec-Handling-Field-Errors">
+  <!-- Legacy link, this section was previously titled "Handling Execution Errors" -->
+</a>
+
+An _execution error_ is an error raised during field execution, value resolution
+or coercion, at a specific _response position_. While these errors must be
+reported in the response, they are "handled" by producing partial {"data"} in
+the _response_.
 
 Note: This is distinct from a _request error_ which results in a response with
 no data.
 
-If a field error is raised while resolving a field, it is handled as though the
-field returned {null}, and the error must be added to the {"errors"} list in the
-response.
+If an execution error is raised while resolving a field (either directly or
+nested inside any lists), it is handled as though the _response position_ at
+which the error occurred resolved to {null}, and the error must be added to the
+{"errors"} list in the response.
 
-If the result of resolving a field is {null} (either because the function to
-resolve the field returned {null} or because a field error was raised), and that
-field is of a `Non-Null` type, then a field error is raised. The error must be
-added to the {"errors"} list in the response.
+If the result of resolving a _response position_ is {null} (either due to the
+result of {ResolveFieldValue()} or because an execution error was raised), and
+that position is of a `Non-Null` type, then an execution error is raised at that
+position. The error must be added to the {"errors"} list in the response.
 
-If the field returns {null} because of a field error which has already been
-added to the {"errors"} list in the response, the {"errors"} list must not be
-further affected. That is, only one error should be added to the errors list per
-field.
+If a _response position_ resolves to {null} because of an execution error which
+has already been added to the {"errors"} list in the response, the {"errors"}
+list must not be further affected. That is, only one error should be added to
+the errors list per _response position_.
 
-Since `Non-Null` type fields cannot be {null}, field errors are propagated to be
-handled by the parent field. If the parent field may be {null} then it resolves
-to {null}, otherwise if it is a `Non-Null` type, the field error is further
-propagated to its parent field.
+Since `Non-Null` response positions cannot be {null}, execution errors are
+propagated to be handled by the parent _response position_. If the parent
+response position may be {null} then it resolves to {null}, otherwise if it is a
+`Non-Null` type, the execution error is further propagated to its parent
+_response position_.
 
-If a `List` type wraps a `Non-Null` type, and one of the elements of that list
-resolves to {null}, then the entire list must resolve to {null}. If the `List`
-type is also wrapped in a `Non-Null`, the field error continues to propagate
-upwards.
+If a `List` type wraps a `Non-Null` type, and one of the _response position_
+elements of that list resolves to {null}, then the entire list _response
+position_ must resolve to {null}. If the `List` type is also wrapped in a
+`Non-Null`, the execution error continues to propagate upwards.
 
-If all fields from the root of the request to the source of the field error
-return `Non-Null` types, then the {"data"} entry in the response should be
-{null}.
+If every _response position_ from the root of the request to the source of the
+execution error has a `Non-Null` type, then the {"data"} entry in the response
+should be {null}.
