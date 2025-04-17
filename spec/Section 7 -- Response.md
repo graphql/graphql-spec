@@ -56,11 +56,11 @@ of a {ExecuteSelectionSet()}, or it is a position in a (potentially nested) List
 value. Each response position is uniquely identifiable via a _response path_.
 
 :: A _response path_ uniquely identifies a _response position_ via a list of
-path segments (response keys or list indices) starting at the root of the
+path segments (response names or list indices) starting at the root of the
 response and ending with the associated response position.
 
 The value for a _response path_ must be a list of path segments. Path segments
-that represent field response keys must be strings, and path segments that
+that represent field _response name_ must be strings, and path segments that
 represent list indices must be 0-indexed integers. If a path segment is
 associated with an aliased field it must use the aliased name, since it
 represents a path in the response, not in the request.
