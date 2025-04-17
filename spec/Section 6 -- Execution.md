@@ -814,8 +814,9 @@ MergeSelectionSets(fields):
 </a>
 
 An _execution error_ is an error raised during field execution, value resolution
-or coercion, at a specific _response position_. While these errors should be
-reported in the response, they are "handled" by producing a partial response.
+or coercion, at a specific _response position_. While these errors must be
+reported in the response, they are "handled" by producing partial {"data"} in
+the _response_.
 
 Note: This is distinct from a _request error_ which results in a response with
 no data.
