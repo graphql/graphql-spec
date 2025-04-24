@@ -10,13 +10,14 @@ the case that any _execution error_ was raised and replaced with {null}.
 ## Response Format
 
 :: A GraphQL request returns a _response_. A _response_ is either an _execution
-result_, a _request error result_, or a _response stream_.
+result_, a _response stream_, or a _request error result_.
 
 ### Execution Result
 
 :: A GraphQL request returns an _execution result_ when the GraphQL operation is
-a query or mutation and the request included execution. Additionally, an
-execution result is the event emitted by a _response stream_.
+a query or mutation and the request included execution. Additionally, for each
+event in a subscription's _source stream_, the _response stream_ will emit an
+_execution result_.
 
 An _execution result_ must be map.
 
@@ -36,12 +37,22 @@ present.
 The _execution result_ may also contain an entry with key `extensions`. The
 value of this entry is described in the "Extensions" section.
 
+### Response Stream
+
+:: A GraphQL request returns a _response stream_ when the GraphQL operation is a
+subscription and the request included execution. A response stream must be a
+stream of _execution result_.
+
 ### Request Error Result
 
-:: A GraphQL request returns a _request error result_ when the request fails
-before execution. A request may fail before execution due to a syntax error,
-missing information, or validation error, resulting in one or more _request
-error_ being raised. This request will result in no response data.
+:: A GraphQL request returns a _request error result_ when one or more _request
+error_ are raised, causing the request to fail before execution. This request
+will result in no response data.
+
+Note: A _request error_ may be raised before execution due to missing
+information, syntax errors, validation failure, coercion failure, or any other
+reason the implementation may determine should prevent the request from
+proceeding.
 
 A _request error result_ must be a map.
 
@@ -54,14 +65,10 @@ below.
 Note: It may be helpful for the {"errors"} key to appear first when serialized
 to make it more apparent that errors are present.
 
+The _request error result_ map must not contain an entry with key {"data"}.
+
 The _request error result_ map may also contain an entry with key `extensions`.
 The value of this entry is described in the "Extensions" section.
-
-### Response Stream
-
-:: A GraphQL request returns a _response stream_ when the GraphQL operation is a
-subscription and the request included execution. A response stream must be a
-stream of _execution result_.
 
 ### Response Position
 
@@ -117,7 +124,7 @@ The response data is the result of accumulating the resolved result of all
 response positions during execution.
 
 If an error was raised before execution begins, the _response_ must be a
-_request error result_. The {"data"} entry must not be present in this map.
+_request error result_ which will result in no response data.
 
 If an error was raised during the execution that prevented a valid response, the
 {"data"} entry in the response should be `null`.
@@ -321,9 +328,12 @@ set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
+### Additional Entries
+
 To ensure future changes to the protocol do not break existing services and
 clients, the _execution result_ and _request error result_ maps must not contain
-any entries other than those described above.
+any entries other than those described above. Clients must ignore any entries
+other than those described above.
 
 ## Serialization Format
 
