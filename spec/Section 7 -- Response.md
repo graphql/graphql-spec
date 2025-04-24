@@ -58,8 +58,9 @@ A _request error result_ must be a map.
 
 The _request error result_ map must contain an entry with key {"errors"}. The
 value of this entry must be a non-empty list of _request error_ raised during
-the _request_. The errors it contains should indicate why no data was able to be
-returned. Each error must be a map as described in the "Errors" section below.
+the _request_. It must contain at least one _request error_ indicating why no
+data was able to be returned. Each error must be a map as described in the
+"Errors" section below.
 
 Note: It may be helpful for the {"errors"} key to appear first when serialized
 to make it more apparent that errors are present.
