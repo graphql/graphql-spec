@@ -351,13 +351,14 @@ Unsubscribe(responseStream):
 The process of executing a GraphQL operation is to recursively execute every
 selected field in the operation. To do this, first all initially selected fields
 from the operation's top most _root selection set_ are collected, then each
-executed, then of those all subfields are collected, then each executed. This
-process continues until there are no more subfields to collect and execute.
+executed. As each field completes, all its subfields are collected, then each
+executed. This process continues until there are no more subfields to collect
+and execute.
 
 ### Executing the Root Selection Set
 
 :: A _root selection set_ is the top level _selection set_ provided by a GraphQL
-operation. A root selection set always selects from a root type.
+operation. A root selection set always selects from a _root operation type_.
 
 To execute the root selection set, the initial value being evaluated and the
 root type must be known, as well as whether it must be executed serially, or may
@@ -378,7 +379,7 @@ executionMode):
   selectionSet, variableValues)}.
 - Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
   objectType, initialValue, variableValues)} _serially_ if {executionMode} is
-  {"serial"}, otherwise _normally_).
+  {"serial"}, otherwise _normally_ (allowing parallelization)).
 - Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
@@ -494,10 +495,10 @@ directives may be applied in either order since they apply commutatively.
 
 **Merging Selection Sets**
 
-When more than one field of the same name is executed in parallel, during value
-completion each related _selection set_ is collected together to produce a
-single _grouped field set_ in order to continue execution of the sub-selection
-sets.
+When a field is executed, during value completion the _selection set_ of each of
+the related field selections with the same response name are collected together
+to produce a single _grouped field set_ in order to continue execution of the
+sub-selection sets.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
