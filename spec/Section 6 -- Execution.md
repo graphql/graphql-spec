@@ -395,13 +395,8 @@ associated _field set_. A _grouped field set_ may be produced from a selection
 set via {CollectFields()} or from the selection sets of a _field set_ via
 {CollectSubfields()}.
 
-:: A _field set_ is a list of selected fields that share the same _response
-name_ (the field alias if defined, otherwise the field's name).
-
-Note: The order of field selections in a _field set_ is significant, hence the
-algorithms in this specification model it as a list. Any later duplicated field
-selections in a field set will not impact its interpretation, so using an
-ordered set would yield equivalent results.
+:: A _field set_ is an ordered set of selected fields that share the same
+_response name_ (the field alias if defined, otherwise the field's name).
 
 As an example, collecting the fields of this query's selection set would result
 in a grouped field set with two entries, `"a"` and `"b"`, with two instances of
@@ -445,9 +440,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if no
-      such list exists, create it as an empty list.
-    - Append {selection} to {fieldSet}.
+    - Let {fieldSet} be the set in {groupedFieldSet} for {responseName}; if no
+      such set exists, create it as an empty ordered set.
+    - Add {selection} to {fieldSet}, if not already present.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -466,9 +461,10 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       visitedFragments)}.
     - For each {fragmentGroupedFieldSet} as {responseName} and
       {fragmentFieldSet}:
-      - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if
-        no such list exists, create it as an empty list.
-      - Append all fields in {fragmentFieldSet} to {fieldSet}.
+      - Let {fieldSet} be the set in {groupedFieldSet} for {responseName}; if no
+        such set exists, create it as an empty ordered set.
+      - Add each field in {fragmentFieldSet} to {fieldSet}, if not already
+        present.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -480,9 +476,10 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       visitedFragments)}.
     - For each {fragmentGroupedFieldSet} as {responseName} and
       {fragmentFieldSet}:
-      - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if
-        no such list exists, create it as an empty list.
-      - Append all fields in {fragmentFieldSet} to {fieldSet}.
+      - Let {fieldSet} be the set in {groupedFieldSet} for {responseName}; if no
+        such set exists, create it as an empty ordered set.
+      - Add each field in {fragmentFieldSet} to {fieldSet}, if not already
+        present.
 - Return {groupedFieldSet}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
@@ -541,13 +538,13 @@ CollectSubfields(objectType, fieldSet, variableValues):
   - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
   - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
-    - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if no
-      such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {fieldSet}.
+    - Let {fieldSet} be the set in {groupedFieldSet} for {responseName}; if no
+      such set exists, create it as an empty ordered set.
+    - Add each field in {subfields} to {fieldSet}, if not already present.
 - Return {groupedFieldSet}.
 
-Note: The {fieldSet} passed to {CollectSubfields()} is a _field set_, thus they
-share the same _response name_.
+Note: The {fieldSet} passed to {CollectSubfields()} is a _field set_, thus each
+{field} will share the same _response name_.
 
 ### Executing Collected Fields
 
