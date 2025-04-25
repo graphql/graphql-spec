@@ -377,7 +377,7 @@ executionMode):
 
 - Let {groupedFieldSet} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
-- Let {data} be the result of running {ExecuteGroupedFieldSet(groupedFieldSet,
+- Let {data} be the result of running {ExecuteCollectedFields(groupedFieldSet,
   objectType, initialValue, variableValues)} _serially_ if {executionMode} is
   {"serial"}, otherwise _normally_ (allowing parallelization)).
 - Let {errors} be the list of all _execution error_ raised while executing the
@@ -386,17 +386,26 @@ executionMode):
 
 ### Field Collection
 
-Before execution, the _selection set_ is converted to a _grouped field set_ by
-calling {CollectFields()}. This ensures all fields with the same response name,
-including those in referenced fragments, are executed at the same time.
+Before execution, the _root selection set_ is converted to a _grouped field set_
+by calling {CollectFields()}. This ensures all fields with the same response
+name, including those in referenced fragments, are executed at the same time.
 
-:: A _grouped field set_ is a map where each entry is a _response name_ and a
-list of selected fields that share that _response name_ (the field alias if
-defined, otherwise the field's name).
+:: A _grouped field set_ is a map where each entry is a _response name_ and its
+associated _field set_. A _grouped field set_ may be produced from a selection
+set via {CollectFields()} or from the selection sets of a _field set_ via
+{CollectSubfields()}.
 
-As an example, collecting the fields of this selection set would result in a
-grouped field set with two entries, `"a"` and `"b"`, with two instances of the
-field `a` and one of field `b`:
+:: A _field set_ is a list of selected fields that share the same _response
+name_ (the field alias if defined, otherwise the field's name).
+
+Note: The order of field selections in a _field set_ is significant, hence the
+algorithms in this specification model it as a list. Any later duplicated field
+selections in a field set will not impact its interpretation, so using an
+ordered set would yield equivalent results.
+
+As an example, collecting the fields of this query's selection set would result
+in a grouped field set with two entries, `"a"` and `"b"`, with two instances of
+the field `a` and one of field `b`:
 
 ```graphql example
 {
@@ -542,7 +551,12 @@ CollectSubfields(objectType, fields, variableValues):
 Note: All the {fields} passed to {CollectSubfields()} share the same _response
 name_.
 
-### Executing a Grouped Field Set
+### Executing Collected Fields
+
+The {CollectFields()} and {CollectSubfields()} algorithms transitively collect
+the field selections from a _selection set_ or the associated selection sets of
+a _field set_ respectively, and split them into groups by their _response name_
+to produce a _grouped field set_.
 
 To execute a _grouped field set_, the object value being evaluated and the
 object type need to be known, as well as whether it must be executed serially,
@@ -552,7 +566,7 @@ or may be executed in parallel (see
 Each entry in the grouped field set represents a _response name_ which produces
 an entry into a result map.
 
-ExecuteGroupedFieldSet(groupedFieldSet, objectType, objectValue,
+ExecuteCollectedFields(groupedFieldSet, objectType, objectValue,
 variableValues):
 
 - Initialize {resultMap} to an empty ordered map.
@@ -577,7 +591,7 @@ section.
   <!-- Legacy link, this section was previously titled "Errors and Non-Null Fields" -->
 </a>
 
-If during {ExecuteGroupedFieldSet()} a _response position_ with a non-null type
+If during {ExecuteCollectedFields()} a _response position_ with a non-null type
 raises an _execution error_ then that error must propagate to the parent
 response position (the entire selection set in the case of a field, or the
 entire list in the case of a list position), either resolving to {null} if
@@ -820,7 +834,7 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
     fields, variableValues)}.
-  - Return the result of evaluating {ExecuteGroupedFieldSet(groupedFieldSet,
+  - Return the result of evaluating {ExecuteCollectedFields(groupedFieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
 
