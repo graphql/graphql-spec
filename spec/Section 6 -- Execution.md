@@ -271,10 +271,10 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
 - If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
+- Let {fieldSet} be the value of the first entry in {groupedFieldSet}.
+- Let {fieldName} be the name of the first entry in {fieldSet}. Note: This value
   is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {field} be the first entry in {fieldSet}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}.
 - Let {sourceStream} be the result of running
@@ -430,7 +430,7 @@ response in a stable and predictable order.
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {groupedFieldSet} to an empty ordered map of lists.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -445,9 +445,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseName} be the list in {groupedFields} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseName}.
+    - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if no
+      such list exists, create it as an empty list.
+    - Append {selection} to {fieldSet}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -464,12 +464,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseName} be the response name shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
+    - For each {fragmentGroupedFieldSet} as {responseName} and
+      {fragmentFieldSet}:
+      - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if
+        no such list exists, create it as an empty list.
+      - Append all fields in {fragmentFieldSet} to {fieldSet}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -479,13 +478,12 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentGroupedFieldSet} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseName} be the response name shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
-- Return {groupedFields}.
+    - For each {fragmentGroupedFieldSet} as {responseName} and
+      {fragmentFieldSet}:
+      - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if
+        no such list exists, create it as an empty list.
+      - Append all fields in {fragmentFieldSet} to {fieldSet}.
+- Return {groupedFieldSet}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -534,22 +532,22 @@ After resolving the value for field `"a"`, the following multiple selection sets
 are merged together so `"subfield1"` and `"subfield2"` are resolved in the same
 phase with the same value.
 
-CollectSubfields(objectType, fields, variableValues):
+CollectSubfields(objectType, fieldSet, variableValues):
 
 - Let {groupedFieldSet} be an empty map.
-- For each {field} in {fields}:
+- For each {field} in {fieldSet}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
   - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
-    - Let {groupForResponseName} be the list in {groupedFieldSet} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {groupForResponseName}.
+    - Let {fieldSet} be the list in {groupedFieldSet} for {responseName}; if no
+      such list exists, create it as an empty list.
+    - Append all fields in {subfields} to {fieldSet}.
 - Return {groupedFieldSet}.
 
-Note: All the {fields} passed to {CollectSubfields()} share the same _response
-name_.
+Note: The {fieldSet} passed to {CollectSubfields()} is a _field set_, thus they
+share the same _response name_.
 
 ### Executing Collected Fields
 
@@ -570,14 +568,14 @@ ExecuteCollectedFields(groupedFieldSet, objectType, objectValue,
 variableValues):
 
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseName} and {fields}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
+- For each {groupedFieldSet} as {responseName} and {fieldSet}:
+  - Let {fieldName} be the name of the first entry in {fieldSet}. Note: This
+    value is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+      fieldSet, variableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
 - Return {resultMap}.
 
@@ -709,15 +707,15 @@ coerces any provided argument values, then resolves a value for the field, and
 finally completes that value either by recursively executing another selection
 set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fieldSet, variableValues):
 
-- Let {field} be the first entry in {fields}.
+- Let {field} be the first entry in {fieldSet}.
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
+- Return the result of {CompleteValue(fieldType, fieldSet, resolvedValue,
   variableValues)}.
 
 ### Coercing Field Arguments
@@ -809,12 +807,12 @@ After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
 field execution process continues recursively.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fieldSet, result, variableValues):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
   - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+    fieldSet, result, variableValues)}.
   - If {completedResult} is {null}, raise an _execution error_.
   - Return {completedResult}.
 - If {result} is {null} (or another internal value similar to {null} such as
@@ -823,7 +821,7 @@ CompleteValue(fieldType, fields, result, variableValues):
   - If {result} is not a collection of values, raise an _execution error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
+    {CompleteValue(innerType, fieldSet, resultItem, variableValues)}, where
     {resultItem} is each item in {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
@@ -833,7 +831,7 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
   - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fields, variableValues)}.
+    fieldSet, variableValues)}.
   - Return the result of evaluating {ExecuteCollectedFields(groupedFieldSet,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
