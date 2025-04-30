@@ -1,12 +1,13 @@
 # C. Appendix: Transitional Non-Null
 
+Note: This appendix defines an optional mechanism enabling existing fields to be
+marked as `Non-Null` for clients that opt out of error propagation without
+changing the error propagation boundaries for deployed legacy clients.
+Implementations are not required to support this feature, but doing so enables
+gradual migration toward semantic nullability while preserving compatibility.
+
 ## Overview
 
-_This appendix defines an optional mechanism for marking fields as
-"transitionally non-null" to allow schema evolution without breaking error
-behavior for legacy clients. Implementations are not required to support this
-feature, but doing so enables gradual migration toward semantic nullability
-while preserving compatibility._
 
 The introduction of _error behavior_ to this specification allows clients to
 take responsibility for error handling, no longer having the schema perform
