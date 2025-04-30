@@ -131,6 +131,7 @@ type __Schema {
   mutationType: __Type
   subscriptionType: __Type
   directives: [__Directive!]!
+  defaultErrorBehavior: __ErrorBehavior!
 }
 
 type __Type {
@@ -162,6 +163,12 @@ enum __TypeKind {
   INPUT_OBJECT
   LIST
   NON_NULL
+}
+
+enum __ErrorBehavior {
+  NO_PROPAGATE
+  PROPAGATE
+  ABORT
 }
 
 type __Field {
@@ -238,6 +245,11 @@ Fields\:
   must be included in this set.
 - `directives` must return the set of all directives available within this
   schema including all built-in directives.
+- `defaultErrorBehavior` must return the _default error behavior_ of the schema
+  using one of the values of the `__ErrorBehavior` enum:
+  - {"NO_PROPAGATE"}
+  - {"PROPAGATE"}
+  - {"ABORT"}
 
 ### The \_\_Type Type
 
