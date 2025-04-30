@@ -4,6 +4,8 @@ A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
 - {schema}: The schema to use, typically solely provided by the GraphQL service.
 - {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
@@ -15,12 +17,22 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
+- {onError} (optional): The _error behavior_ to apply to the request; see
+  [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
+  provided and its value is not one of {"PROPAGATE"}, {"NO_PROPAGATE"}, or
+  {"ABORT"}, then a _request error_ must be raised.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
+
+Note: Previous versions of this specification did not define the {onError}
+request attribute. Clients can detect support for {onError} by checking for the
+presence of the `defaultErrorBehavior` field on the `__Schema` introspection
+type. If this field is absent, clients should not include {onError} in the
+request and must assume the _error behavior_ is {"PROPAGATE"}.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -392,13 +404,24 @@ is explained in greater detail in the Field Collection section below.
 </a>
 
 If during {ExecuteSelectionSet()} a _response position_ with a non-null type
-raises an _execution error_ then that error must propagate to the parent
-response position (the entire selection set in the case of a field, or the
-entire list in the case of a list position), either resolving to {null} if
-allowed or being further propagated to a parent response position.
+raises an _execution error_, the error must be added to the {"errors"} list in
+the _response_ and then handled according to the _error behavior_ of the
+request:
 
-If this occurs, any sibling response positions which have not yet executed or
-have not yet yielded a value may be cancelled to avoid unnecessary work.
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
+- {"NO\_PROPAGATE"}: The _response position_ must be set to {null}. (The client
+  is responsible for interpreting this {null} in conjunction with the {"errors"}
+  list to distinguish error results from intentional {null} values.)
+- {"PROPAGATE"}: The _execution error_ must propagate to the parent _response
+  position_ (the entire selection set in the case of a field, or the entire list
+  in the case of a list position). The parent position resolves to {null} if
+  allowed, or else the error is further propagated to a parent response
+  position. Any sibling response positions that have not yet executed or have
+  not yet yielded a value may be cancelled to avoid unnecessary work.
+- {"ABORT"}: The entire _request_ must be aborted. The {"data"} entry in the
+  _response_ must be {null}. Any _response position_ that has not yet executed
+  or has not yet yielded a value may be cancelled to avoid unnecessary work.
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
@@ -823,27 +846,60 @@ MergeSelectionSets(fields):
 </a>
 
 An _execution error_ is an error raised during field execution, value resolution
-or coercion, at a specific _response position_. While these errors must be
-reported in the response, they are "handled" by producing partial {"data"} in
-the _response_.
+or coercion, at a specific _response position_. These errors must be added to
+the {"errors"} list in the _response_, and are "handled" according to the _error
+behavior_ of the request.
 
-Note: This is distinct from a _request error_ which results in a response with
-no data.
-
-If an execution error is raised while resolving a field (either directly or
-nested inside any lists), it is handled as though the _response position_ at
-which the error occurred resolved to {null}, and the error must be added to the
-{"errors"} list in the response.
-
-If the result of resolving a _response position_ is {null} (either due to the
-result of {ResolveFieldValue()} or because an execution error was raised), and
-that position is of a `Non-Null` type, then an execution error is raised at that
-position. The error must be added to the {"errors"} list in the response.
+Note: An _execution error_ is distinct from a _request error_ which results in a
+response with no {"data"}.
 
 If a _response position_ resolves to {null} because of an execution error which
 has already been added to the {"errors"} list in the response, the {"errors"}
 list must not be further affected. That is, only one error should be added to
 the errors list per _response position_.
+
+:: The _error behavior_ of a request indicates how an _execution error_ is
+handled. It may be specified using the optional {onError} attribute of the
+_request_. If omitted, the _default error behavior_ of the schema applies. Valid
+values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}.
+
+:: The _default error behavior_ of a schema is implementation-defined. For
+compatibility with existing clients, schemas should default to {"PROPAGATE"}
+which reflects prior behavior. For new schemas, {"NO_PROPAGATE"} is recommended.
+The default error behavior is indicated via the `defaultErrorBehavior` field of
+the `__Schema` introspection type, or via the `@behavior` schema directive.
+
+Note: {"ABORT"} is not recommended as the _default error behavior_ because it
+prevents generating partial responses which may still contain useful data.
+
+Regardless of error behavior, if a _response position_ with a non-null type
+results in {null} due to the result of {ResolveFieldValue()} then an execution
+error must be raised at that position as specified in {CompleteValue()}.
+
+The _error behavior_ of a request applies to every _execution error_ raised
+during execution. The following sections describe the behavior of each valid
+value:
+
+**{"NO_PROPAGATE"}**
+
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
+With {"NO\_PROPAGATE"}, a `Non-Null` _response position_ will have the value
+{null} if and only if an error occurred at that position.
+
+Note: Clients must inspect the {"errors"} list and use the {"path"} of each
+error result to distinguish between intentional {null} values and those
+resulting from an _execution error_.
+
+**{"PROPAGATE"}**
+
+With {"PROPAGATE"}, a `Non-Null` _response position_ must not contain {null} in
+the _response_.
+
+If the result of resolving a _response position_ is {null} (either due to the
+result of {ResolveFieldValue()} or because an execution error was raised), and
+that position is of a `Non-Null` type, then an execution error is raised at that
+position. The error must be added to the {"errors"} list in the response.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
@@ -859,3 +915,9 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 If every _response position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the response
 should be {null}.
+
+**{"ABORT"}**
+
+With {"ABORT"}, execution must cease immediately when the first _execution
+error_ is raised. That error must be added to the {"errors"} list, and {"data"}
+must be {null}.
