@@ -1,5 +1,7 @@
 # C. Appendix: Transitional Non-Null
 
+## Overview
+
 _This appendix defines an optional mechanism for marking fields as
 "transitionally non-null" to allow schema evolution without breaking error
 behavior for legacy clients. Implementations are not required to support this
@@ -28,7 +30,7 @@ whilst the fields are still in use by legacy clients, without changing their
 error propagation boundaries, this appendix introduces the optional
 `@noPropagate` directive.
 
-## @noPropagate
+## The @noPropagate Directive
 
 ```graphql
 directive @noPropagate(levels: [Int!]! = [0]) on FIELD_DEFINITION
@@ -50,7 +52,22 @@ For a field that does not return a list type you do not need to specify levels.
 If a field returns a list type and you wish to mark the inner type as
 `@noPropagate` only then you would provide `@noPropagate(levels: [1])`.
 
-Example:
+This example outlines how you might introduce semantic nullability into existing
+fields in your schema, to reduce the number of null checks your error-handling
+clients need to perform. Remember: new fields should reflect the semantic
+nullability immediately, they do not need the `@noPropagate` directive since
+there is no legacy to support.
+
+```diff example
+ type Query {
+-  myString: String
++  myString: String! @noPropagate
+-  myString2: String
++  myString2: String! @noPropagate(levels: [0])
+-  myList: [Int]!
++  myList: [Int!]! @noPropagate(levels: [1])
+ }
+```
 
 ```graphql example
 type Query {
