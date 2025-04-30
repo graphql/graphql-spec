@@ -85,7 +85,7 @@ that behaves identically to Non-Null with two exceptions:
 2. When the _error behavior_ of the request is {"PROPAGATE"}, this _response
    position_ must be exposed as nullable in introspection.
 
-### Changes: Handling Execution Errors
+### Changes to Handling Execution Errors
 
 When interpreting the
 [Handling Execution Errors](#sec-Handling-Execution-Errors) and
@@ -95,7 +95,7 @@ if they were nullable types. This does not apply to {CompleteValue()} which
 should still raise an _execution error_ if {null} is returned for a Transitional
 Non-Null type.
 
-### Changes: Introspection
+### Changes to Introspection
 
 Note: Transitional Non-Null types do not appear in the type system as a distinct
 \_\_TypeKind. They are unwrapped to nullable types in introspection when the
@@ -122,7 +122,7 @@ The list must match the `levels` that would be passed to `@noPropagate` to
 describe the field’s transitional Non-Null wrappers, or `null` if no
 `@noPropagate` would be needed. It must not be an empty list.
 
-### Changes: Type System
+### Changes to the Type System
 
 When representing a GraphQL schema using the type system definition language,
 any field whose return type involves Transitional Non-Null types must indicate
