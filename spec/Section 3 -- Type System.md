@@ -2167,3 +2167,27 @@ to the relevant IETF specification.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
+
+### @behavior
+
+```graphql
+directive @behavior(onError: __ErrorBehavior! = PROPAGATE) on SCHEMA
+```
+
+The `@behavior` _built-in directive_ is used within the type system definition
+language to indicate the _default error behavior_ of a GraphQL schema. It may be
+omitted only if the _default error behavior_ is {"PROPAGATE"}.
+
+Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
+information on _error behavior_.
+
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
+In this example, the schema indicates it is using the {"NO\_PROPAGATE"} _default
+error behavior_:
+
+```graphql example
+schema @behavior(onError: NO_PROPAGATE) {
+  query: Query
+}
+```
