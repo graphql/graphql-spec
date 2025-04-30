@@ -8,28 +8,23 @@ gradual migration toward semantic nullability while preserving compatibility.
 
 ## Overview
 
+With the introduction of _error behavior_, clients can take responsibility for
+handling of _execution error_: correlating {"errors"} in the result with `null`
+values inside {"data"} and thereby removing the ambiguity that error propagation
+originally set out to solve. If all clients adopt this approach then schema
+designers can, and should, reflect true nullability in the schema, marking
+fields as `Non-Null` based on their data semantics without regard to whether or
+not they might error.
 
-The introduction of _error behavior_ to this specification allows clients to
-take responsibility for error handling, no longer having the schema perform
-error propagation and destroying potentially useful response data in the
-process. With this move towards clients handling errors, designers of new
-schemas (or new fields in existing schemas) no longer need to factor whether or
-not a field is likely to error into its nullability; designers can mark a
-_semantically_ non-nullable _response position_ (a place where {null} is not a
-semantically valid value for the data) as `Non-Null`, writing a {null} there on
-error in the knowledge that the client now takes responsibility for handling
-errors and preventing these placeholder {null} values from being read.
+However, legacy clients may not perform this correlation. Introducing `Non-Null`
+in such cases could cause errors to propagate further, potentially turning a
+previously handled error in a single field into a full-screen error in the
+application.
 
-However, for schema designers that need to support legacy clients that do not
-exhibit these error handling properties, marking semantically non-nullable
-response positions as `Non-Null` would mean that more of the response would be
-destroyed for these clients on error, potentially turning local widget errors
-into full screen errors.
-
-To allow you to add `Non-Null` to existing fields during this transitional time,
-whilst the fields are still in use by legacy clients, without changing their
-error propagation boundaries, this appendix introduces the optional
-`@noPropagate` directive.
+To support a smooth transition, this appendix introduces the `@noPropagate`
+directive and the concept of _transitional_ Non-Null types. These wrappers raise
+errors like regular `Non-Null` types, but suppress propagation and appear
+nullable in introspection when using the legacy {"PROPAGATE"} _error behavior_.
 
 ## The @noPropagate Directive
 
