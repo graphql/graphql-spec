@@ -258,8 +258,11 @@ TypeSystemExtension :
 - SchemaExtension
 - TypeExtension
 
-SchemaDefinition : Description? schema Directives[Const]? {
-RootOperationTypeDefinition+ }
+SchemaDefinition :
+
+- Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
+- Description? schema Directives[Const] [lookahead != `{`]
+- Description schema [lookahead != {`{`, `@`}]
 
 SchemaExtension :
 
