@@ -799,7 +799,7 @@ CoerceArgumentValues(objectType, field, variableValues):
 Any _request error_ raised as a result of input coercion during
 {CoerceArgumentValues()} should be treated instead as an _execution error_.
 
-Note: Variable values are not coerced because they are expected to be coerced in
+Note: Variable values are not coerced because they are expected to be coerced by
 {CoerceVariableValues()} before _execution_ begins, and valid operations must
 only allow usage of variables of appropriate types.
 
