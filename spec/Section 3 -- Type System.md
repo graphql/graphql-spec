@@ -227,8 +227,9 @@ The type system definition language can omit the schema definition entirely when
 all of the following hold:
 
 - each _root operation type_ uses its respective _default root type name_,
-- no other type uses any _default root type name_, and
-- the schema does not have a description.
+- no other type uses any _default root type name_,
+- the schema does not have a description, and
+- the schema uses the {"PROPAGATE"} _default error behavior_.
 
 Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if all of the above conditions
@@ -270,14 +271,17 @@ type Mutation {
 }
 ```
 
-This example describes a valid GraphQL schema with a description and both a
-{`query`} and {`mutation`} operation type:
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
+This example describes a valid GraphQL schema with a description, _default
+error behavior_ of {"NO\_PROPAGATE"}, and both a {`query`} and {`mutation`}
+operation type:
 
 ```graphql example
 """
 Example schema
 """
-schema
+schema @behavior(onError: NO_PROPAGATE)
 
 type Query {
   someField: String
@@ -2216,7 +2220,5 @@ In this example, the schema indicates it is using the {"NO\_PROPAGATE"} _default
 error behavior_:
 
 ```graphql example
-schema @behavior(onError: NO_PROPAGATE) {
-  query: Query
-}
+schema @behavior(onError: NO_PROPAGATE)
 ```
