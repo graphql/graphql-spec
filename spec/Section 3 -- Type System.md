@@ -115,8 +115,11 @@ enum Language {
 
 ## Schema
 
-SchemaDefinition : Description? schema Directives[Const]? {
-RootOperationTypeDefinition+ }
+SchemaDefinition :
+
+- Description? schema Directives[Const]? { RootOperationTypeDefinition+ }
+- Description? schema Directives[Const] [lookahead != `{`]
+- Description schema [lookahead != {`{`, `@`}]
 
 RootOperationTypeDefinition : OperationType : NamedType
 
@@ -216,14 +219,23 @@ type MyMutationRootType {
 {`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
 {"Subscription"} respectively.
 
-The type system definition language can omit the schema definition when each
-_root operation type_ uses its respective _default root type name_ and no other
-type uses any _default root type name_.
+The type system definition language can omit the schema definition's root
+operation type definitions when each _root operation type_ uses its respective
+_default root type name_ and no other type uses any _default root type name_.
+
+The type system definition language can omit the schema definition entirely when
+all of the following hold:
+
+- each _root operation type_ uses its respective _default root type name_,
+- no other type uses any _default root type name_,
+- the schema does not have a description, and
+- the schema uses the {"PROPAGATE"} _default error behavior_.
 
 Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if each _root operation type_
-uses its respective _default root type name_ and no other type uses any _default
-root type name_.
+language, a schema definition should be omitted if all of the above conditions
+hold; otherwise the schema definition's root operation type definitions should
+be omitted if each _root operation type_ uses its respective _default root type
+name_ and no other type uses any _default root type name_.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
@@ -256,6 +268,27 @@ type Virus {
 
 type Mutation {
   name: String
+}
+```
+
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
+This example describes a valid GraphQL schema with a description, _default
+error behavior_ of {"NO\_PROPAGATE"}, and both a {`query`} and {`mutation`}
+operation type:
+
+```graphql example
+"""
+Example schema
+"""
+schema @behavior(onError: NO_PROPAGATE)
+
+type Query {
+  someField: String
+}
+
+type Mutation {
+  someMutation: String
 }
 ```
 
@@ -2187,7 +2220,5 @@ In this example, the schema indicates it is using the {"NO\_PROPAGATE"} _default
 error behavior_:
 
 ```graphql example
-schema @behavior(onError: NO_PROPAGATE) {
-  query: Query
-}
+schema @behavior(onError: NO_PROPAGATE)
 ```
