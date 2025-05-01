@@ -57,10 +57,7 @@ error_, and once _execution_ begins will typically be an _execution error_.
 
 :: We define _execution_ as the process of executing the operation's _root
 selection set_ through {ExecuteRootSelectionSet()}, and hence _execution_ begins
-when {ExecuteSelectionSet()} is called for the first time in a request.
-
-Note: A subscription operation may call {ExecuteSelectionSet()} a number of
-times.
+when {ExecuteRootSelectionSet()} is called for the first time in a request.
 
 Request(schema, document, operationName, variableValues, initialValue):
 
