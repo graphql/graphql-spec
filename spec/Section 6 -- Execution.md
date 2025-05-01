@@ -93,11 +93,11 @@ they should be reported in the list of "errors" in the response and the request
 must fail without execution.
 
 Typically validation is performed in the context of a request immediately before
-processing, however a GraphQL service may process a request without immediately
-validating the document if that exact same document is known to have been
-validated before. A GraphQL service should only execute operations which _at
-some point_ were known to be free of any validation errors, and have since not
-changed.
+calling {Request()}, however a GraphQL service may process a request without
+immediately validating the document if that exact same document is known to have
+been validated before. A GraphQL service should only execute operations which
+_at some point_ were known to be free of any validation errors, and have since
+not changed.
 
 For example: the document may be validated during development, provided it does
 not later change, or a service may validate a document once and memoize the
