@@ -45,21 +45,22 @@ document is expected to only contain a single operation. The result of the
 request is determined by the result of performing this operation according to
 the "Performing Operations” section below.
 
+The {Request()} algorithm contains the preamble for _execution_, handling
+concerns such as determining the operation and coercing the inputs, before
+passing the request on to the relevant algorithm for the operation's type which
+then performs any other necessary preliminary steps (for example establishing
+the source event stream for subscription operations) and then initiates
+_execution_.
+
+Note: An error raised before _execution_ begins will typically be a _request
+error_, and once _execution_ begins will typically be an _execution error_.
+
 :: We define _execution_ as the process of executing the operation's _root
 selection set_ through {ExecuteRootSelectionSet()}, and hence _execution_ begins
 when {ExecuteSelectionSet()} is called for the first time in a request.
 
 Note: A subscription operation may call {ExecuteSelectionSet()} a number of
 times.
-
-The {Request()} algorithm contains the preamble for execution, handling concerns
-such as determining the operation and coercing the inputs, before passing the
-request on to the relevant algorithm for the operation's type which then
-performs any other necessary preliminary steps (for example establishing the
-source event stream for subscription operations) and then initiates _execution_.
-
-Note: An error raised before _execution_ begins will typically be a _request
-error_, and once _execution_ begins will typically be an _execution error_.
 
 Request(schema, document, operationName, variableValues, initialValue):
 
