@@ -5,8 +5,6 @@ used to determine if a requested operation is valid, to guarantee the type of
 response results, and describes the input types of variables to determine if
 values provided at request time are valid.
 
-TypeSystemDocument : TypeSystemDefinition+
-
 TypeSystemDefinition :
 
 - SchemaDefinition
@@ -21,20 +19,13 @@ to provide utilities such as client code generation or service boot-strapping.
 GraphQL tools or services which only seek to execute GraphQL requests and not
 construct a new GraphQL schema may choose not to allow {TypeSystemDefinition}.
 Tools which only seek to produce schema and not execute requests may choose to
-only allow {TypeSystemDocument} and not allow {ExecutableDefinition} or
+only allow {TypeSystemDefinition} and not allow {ExecutableDefinition} or
 {TypeSystemExtension} but should provide a descriptive error if present.
 
 Note: The type system definition language is used throughout the remainder of
 this specification document when illustrating example type systems.
 
 ## Type System Extensions
-
-TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
-
-TypeSystemDefinitionOrExtension :
-
-- TypeSystemDefinition
-- TypeSystemExtension
 
 TypeSystemExtension :
 
@@ -47,8 +38,8 @@ a local service to represent data a GraphQL client only accesses locally, or by
 a GraphQL service which is itself an extension of another GraphQL service.
 
 Tools which only seek to produce and extend schema and not execute requests may
-choose to only allow {TypeSystemExtensionDocument} and not allow
-{ExecutableDefinition} but should provide a descriptive error if present.
+choose to only allow {TypeSystemDefinition} and {TypeSystemExtension} and not
+allow {ExecutableDefinition} but should provide a descriptive error if present.
 
 ## Descriptions
 
@@ -139,6 +130,8 @@ All types and directives defined within a schema must not have a name which
 begins with {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
+A document may include at most one {SchemaDefinition}.
+
 ### Root Operation Types
 
 :: A schema defines the initial _root operation type_ for each kind of operation
@@ -189,9 +182,6 @@ mutation {
 }
 ```
 
-When using the type system definition language, a document must include at most
-one {`schema`} definition.
-
 In this example, a GraphQL schema is defined with both a query and mutation
 _root operation type_:
 
@@ -207,55 +197,6 @@ type MyQueryRootType {
 
 type MyMutationRootType {
   setSomeField(to: String): String
-}
-```
-
-**Default Root Operation Type Names**
-
-:: The _default root type name_ for each {`query`}, {`mutation`}, and
-{`subscription`} _root operation type_ are {"Query"}, {"Mutation"}, and
-{"Subscription"} respectively.
-
-The type system definition language can omit the schema definition when each
-_root operation type_ uses its respective _default root type name_ and no other
-type uses any _default root type name_.
-
-Likewise, when representing a GraphQL schema using the type system definition
-language, a schema definition should be omitted if each _root operation type_
-uses its respective _default root type name_ and no other type uses any _default
-root type name_.
-
-This example describes a valid complete GraphQL schema, despite not explicitly
-including a {`schema`} definition. The {"Query"} type is presumed to be the
-{`query`} _root operation type_ of the schema.
-
-```graphql example
-type Query {
-  someField: String
-}
-```
-
-This example describes a valid GraphQL schema without a {`mutation`} _root
-operation type_, even though it contains a type named {"Mutation"}. The schema
-definition must be included, otherwise the {"Mutation"} type would be
-incorrectly presumed to be the {`mutation`} _root operation type_ of the schema.
-
-```graphql example
-schema {
-  query: Query
-}
-
-type Query {
-  latestVirus: Virus
-}
-
-type Virus {
-  name: String
-  mutations: [Mutation]
-}
-
-type Mutation {
-  name: String
 }
 ```
 
@@ -406,9 +347,6 @@ When returning the set of types from the `__Schema` introspection type, all
 referenced built-in scalars must be included. If a built-in scalar type is not
 referenced anywhere in a schema (there is no field, argument, or input field of
 that type) then it must not be included.
-
-When representing a GraphQL schema using the type system definition language,
-all built-in scalars must be omitted for brevity.
 
 **Custom Scalars**
 
@@ -1953,12 +1891,6 @@ schema.
 
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
-
-When representing a GraphQL schema using the type system definition language any
-_built-in directive_ may be omitted for brevity.
-
-When introspecting a GraphQL service all provided directives, including any
-_built-in directive_, must be included in the set of returned directives.
 
 **Custom Directives**
 
