@@ -135,6 +135,51 @@ extend type Dog {
 
 ## Operations
 
+### All Operation Definitions
+
+#### Operation Type Existence
+
+**Formal Specification**
+
+- For each operation definition {operation} in the document:
+  - Let {rootOperationType} be the _root operation type_ in {schema}
+    corresponding to the kind of {operation}.
+  - {rootOperationType} must exist.
+
+**Explanatory Text**
+
+A schema defines the _root operation type_ for each kind of operation that it
+supports. Every schema must support `query` operations, however support for
+`mutation` and `subscription` operations is optional.
+
+If the schema does not include the necessary _root operation type_ for the kind
+of an operation defined in the document, that operation is invalid since it
+cannot be executed.
+
+For example given the following schema:
+
+```graphql example
+type Query {
+  hello: String
+}
+```
+
+The following operation is valid:
+
+```graphql example
+query helloQuery {
+  hello
+}
+```
+
+While the following operation is invalid:
+
+```graphql counter-example
+mutation goodbyeMutation {
+  goodbye
+}
+```
+
 ### Named Operation Definitions
 
 #### Operation Name Uniqueness
