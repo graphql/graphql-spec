@@ -310,6 +310,31 @@ possible; capability versioning, if needed, can be indicated using dot suffixes
 This system enables incremental feature adoption and richer tooling
 interoperability, while avoiding tight coupling to specific implementations.
 
+Implementers of earlier versions of this specification may choose to implement
+the capabilities system, but when doing so they must not include capabilities
+that they do not support.
+
+Implementers of this version of this specification must include the following
+capabilities:
+
+- `org.graphql.scalar.specifiedBy` - indicates the ability to request the
+  _scalar specification URL_ of a scalar via the `__Type.specifiedBy`
+  introspection field
+- `org.graphql.directive.repeatable` - indicates support for repeatable
+  directive and the related `__Directive.isRepeatable` introspection field
+- `org.graphql.schema.description` - indicates the ability to request a
+  description of the schema via the `__Schema.description` introspection field
+- `org.graphql.deprecation.inputValues` - indicates support for deprecating
+  input values along with the related introspection schema coordinates:
+  `__Directive.args(includeDeprecated:)`, `__Field.args(includeDeprecated:)`,
+  `__Type.inputFields(includeDeprecated:)`, `__InputValue.isDeprecated` and
+  `__InputValue.deprecationReason`
+- `org.graphql.inputObject.oneOf` - indicates support for OneOf Input Objects
+  and the related introspection field `__Type.isOneOf`
+
+If the schema, implementation, and service support the subscription operation,
+the `org.graphql.subscription` capability should be included.
+
 ### The \_\_Schema Type
 
 The `__Schema` type is returned from the `__schema` meta-field and provides all
