@@ -85,11 +85,12 @@ operation.
 
 ## Schema Introspection
 
-The schema introspection system is accessible from the meta-fields `__schema`
-and `__type` which are accessible from the type of the root of a query
-operation.
+The schema introspection system is accessible from the meta-fields `__service`,
+`__schema` and `__type` which are accessible from the type of the root of a
+query operation.
 
 ```graphql
+__service: __Service!
 __schema: __Schema!
 __type(name: String!): __Type
 ```
@@ -124,6 +125,10 @@ are the full set of type system definitions providing schema introspection,
 which are fully defined in the sections below.
 
 ```graphql
+type __Service {
+  capabilities: [String!]!
+}
+
 type __Schema {
   description: String
   types: [__Type!]!
@@ -226,6 +231,84 @@ enum __DirectiveLocation {
   INPUT_FIELD_DEFINITION
 }
 ```
+
+### The \_\_Service Type
+
+The `__Service` type is returned from the `__service` meta-field and provides
+information about the GraphQL service, most notably about its capabilities. This
+type was added after the original release of GraphQL, so older schemas may not
+support it.
+
+Fields\:
+
+- `capabilities` returns a list of strings indicating the capabilities supported
+  by the service.
+
+**Capabilities**
+
+As GraphQL becomes more feature rich, clients need to understand the features
+that a service supports so that they only send compatible requests; the
+`__Service.capabilities` field reveals these capabilities.
+
+Note: Prior to the introduction of the capabilities system, a client would
+either require out-of-band communication to discover the capabilities of a
+schema, or would need to perform multiple introspection phases determining the
+fields available in introspection in order to perform feature discovery.
+
+Capabilities may be supplied by the GraphQL implementation, by the service, or
+both.
+
+A individual capability is described by a string, {CapabilityString}, inspired
+by reverse domain name notation to ensure globally unique and
+collision-resistant identifiers. A capability string must be composed of two or
+more {CompatibilitySegment}, separated by a period (`.`). A {CapabilitySegment}
+is a non-empty string composed only from ASCII letter (`[a-zA-Z]`), digits
+(`[0-9]`), or hyphens (`-`); it must start with an ASCII letter and must not
+terminate with a hyphen.
+
+CapabilityString ::
+
+- CapabilityString . CapabilitySegment
+- CapabilitySegment . CapabilitySegment
+
+CapabilitySegment ::
+
+- CapabilitySegmentStart
+- CapabilitySegmentStart CapabilitySegmentContinue\* CapabilitySegmentEnd
+
+CapabilitySegmentStart :: Letter
+
+CapabilitySegmentContinue ::
+
+- Letter
+- Digit
+- `-`
+
+CapabilitySegmentEnd ::
+
+- Letter
+- Digit
+
+Identifiers beginning with the prefix `org.graphql.` are reserved and must not
+be used outside of official GraphQL Foundation specifications. Further,
+identifiers beginning with the prefix `org.graphql.http.` are reserved for use
+by the GraphQL-over-HTTP specification, and identifiers beginning with the
+prefix `org.graphql.rfc.` are reserved for RFC proposals.
+
+Identifiers defined by specific projects, vendors, or implementations should
+begin with a prefix derived from a DNS name they control (e.g., `com.example.`)
+
+Clients should use string equality to check for known identifiers, and should
+ignore unknown identifiers.
+
+Implementers should not change the meaning of capability identifiers, instead a
+new capability identifier should be used when the meaning changes. Implementers
+should ensure that capability strings remain stable and version-agnostic where
+possible; capability versioning, if needed, can be indicated using dot suffixes
+(e.g. `org.example.capability.v2`).
+
+This system enables incremental feature adoption and richer tooling
+interoperability, while avoiding tight coupling to specific implementations.
 
 ### The \_\_Schema Type
 
