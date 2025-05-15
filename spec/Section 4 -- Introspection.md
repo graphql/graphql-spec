@@ -168,7 +168,7 @@ enum __TypeKind {
 enum __ErrorBehavior {
   NO_PROPAGATE
   PROPAGATE
-  ABORT
+  HALT
 }
 
 type __Field {
@@ -249,7 +249,7 @@ Fields\:
   using one of the values of the `__ErrorBehavior` enum:
   - {"NO_PROPAGATE"}
   - {"PROPAGATE"}
-  - {"ABORT"}
+  - {"HALT"}
 
 ### The \_\_Type Type
 

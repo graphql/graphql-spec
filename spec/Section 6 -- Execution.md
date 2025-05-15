@@ -20,7 +20,7 @@ A GraphQL service generates a response from a request via execution.
 - {onError} (optional): The _error behavior_ to apply to the request; see
   [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
   provided and its value is not one of {"PROPAGATE"}, {"NO_PROPAGATE"}, or
-  {"ABORT"}, then a _request error_ must be raised.
+  {"HALT"}, then a _request error_ must be raised.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
@@ -419,7 +419,7 @@ request:
   allowed, or else the error is further propagated to a parent response
   position. Any sibling response positions that have not yet executed or have
   not yet yielded a value may be cancelled to avoid unnecessary work.
-- {"ABORT"}: The entire _request_ must be aborted. The {"data"} entry in the
+- {"HALT"}: The entire _request_ must be cancelled. The {"data"} entry in the
   _response_ must be {null}. Any _response position_ that has not yet executed
   or has not yet yielded a value may be cancelled to avoid unnecessary work.
 
@@ -861,7 +861,7 @@ the errors list per _response position_.
 :: The _error behavior_ of a request indicates how an _execution error_ is
 handled. It may be specified using the optional {onError} attribute of the
 _request_. If omitted, the _default error behavior_ of the schema applies. Valid
-values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"ABORT"}.
+values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"HALT"}.
 
 :: The _default error behavior_ of a schema is implementation-defined. For
 compatibility with existing clients, schemas should default to {"PROPAGATE"}
@@ -869,7 +869,7 @@ which reflects prior behavior. For new schemas, {"NO_PROPAGATE"} is recommended.
 The default error behavior is indicated via the `defaultErrorBehavior` field of
 the `__Schema` introspection type, or via the `@behavior` schema directive.
 
-Note: {"ABORT"} is not recommended as the _default error behavior_ because it
+Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
 
 Regardless of error behavior, if a _response position_ with a non-null type
@@ -916,8 +916,8 @@ If every _response position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the response
 should be {null}.
 
-**{"ABORT"}**
+**{"HALT"}**
 
-With {"ABORT"}, execution must cease immediately when the first _execution
-error_ is raised. That error must be added to the {"errors"} list, and {"data"}
-must be {null}.
+With {"HALT"}, execution must cease immediately when the first _execution error_
+is raised. That error must be added to the {"errors"} list, and {"data"} must be
+{null}.
