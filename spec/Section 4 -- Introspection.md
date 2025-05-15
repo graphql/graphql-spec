@@ -127,6 +127,7 @@ which are fully defined in the sections below.
 ```graphql
 type __Service {
   capabilities: [String!]!
+  defaultErrorBehavior: __ErrorBehavior!
 }
 
 type __Schema {
@@ -136,7 +137,6 @@ type __Schema {
   mutationType: __Type
   subscriptionType: __Type
   directives: [__Directive!]!
-  defaultErrorBehavior: __ErrorBehavior!
 }
 
 type __Type {
@@ -241,8 +241,13 @@ support it.
 
 Fields\:
 
-- `capabilities` returns a list of strings indicating the capabilities supported
-  by the service.
+- `capabilities` must return a list of strings indicating the capabilities
+  supported by the service.
+- `defaultErrorBehavior` must return the _default error behavior_ of the service
+  using one of the values of the `__ErrorBehavior` enum:
+  - {"NO_PROPAGATE"}
+  - {"PROPAGATE"}
+  - {"HALT"}
 
 **Capabilities**
 
@@ -289,14 +294,15 @@ CapabilitySegmentEnd ::
 - Letter
 - Digit
 
-Identifiers beginning with the prefix `org.graphql.` are reserved and must not
+Identifiers beginning with the prefix {"org.graphql."} are reserved and must not
 be used outside of official GraphQL Foundation specifications. Further,
-identifiers beginning with the prefix `org.graphql.http.` are reserved for use
+identifiers beginning with the prefix {"org.graphql.http."} are reserved for use
 by the GraphQL-over-HTTP specification, and identifiers beginning with the
-prefix `org.graphql.rfc.` are reserved for RFC proposals.
+prefix {"org.graphql.rfc."} are reserved for RFC proposals.
 
 Identifiers defined by specific projects, vendors, or implementations should
-begin with a prefix derived from a DNS name they control (e.g., `com.example.`)
+begin with a prefix derived from a DNS name they control (e.g.,
+{"com.example."})
 
 Clients should use string equality to check for known identifiers, and should
 ignore unknown identifiers.
@@ -305,7 +311,7 @@ Implementers should not change the meaning of capability identifiers, instead a
 new capability identifier should be used when the meaning changes. Implementers
 should ensure that capability strings remain stable and version-agnostic where
 possible; capability versioning, if needed, can be indicated using dot suffixes
-(e.g. `org.example.capability.v2`).
+(e.g.{ "org.example.capability.v2"}).
 
 This system enables incremental feature adoption and richer tooling
 interoperability, while avoiding tight coupling to specific implementations.
@@ -317,23 +323,32 @@ that they do not support.
 Implementers of this version of this specification must include the following
 capabilities:
 
-- `org.graphql.scalar.specifiedBy` - indicates the ability to request the
+- {"org.graphql.scalar.specifiedBy"} - indicates the ability to request the
   _scalar specification URL_ of a scalar via the `__Type.specifiedBy`
   introspection field
-- `org.graphql.directive.repeatable` - indicates support for repeatable
+- {"org.graphql.directive.repeatable"} - indicates support for repeatable
   directive and the related `__Directive.isRepeatable` introspection field
-- `org.graphql.schema.description` - indicates the ability to request a
+- {"org.graphql.schema.description"} - indicates the ability to request a
   description of the schema via the `__Schema.description` introspection field
-- `org.graphql.deprecation.inputValues` - indicates support for deprecating
+- {"org.graphql.deprecation.inputValues"} - indicates support for deprecating
   input values along with the related introspection schema coordinates:
-  `__Directive.args(includeDeprecated:)`, `__Field.args(includeDeprecated:)`,
-  `__Type.inputFields(includeDeprecated:)`, `__InputValue.isDeprecated` and
-  `__InputValue.deprecationReason`
-- `org.graphql.inputObject.oneOf` - indicates support for OneOf Input Objects
+  - `__Directive.args(includeDeprecated:)`,
+  - `__Field.args(includeDeprecated:)`,
+  - `__Type.inputFields(includeDeprecated:)`,
+  - `__InputValue.isDeprecated`, and
+  - `__InputValue.deprecationReason`.
+- {"org.graphql.inputObject.oneOf"} - indicates support for OneOf Input Objects
   and the related introspection field `__Type.isOneOf`
+- {"org.graphql.errorBehavior"} - indicates that the
+  `__Service.defaultErrorBehavior` field exists, which indicates the the
+  _default error behavior_ of the service
 
 If the schema, implementation, and service support the subscription operation,
-the `org.graphql.subscription` capability should be included.
+the {"org.graphql.subscription"} capability should be included.
+
+If the service accepts the {onError} request parameter, the
+{"org.graphql.onError"} capability should be included. If it is not included,
+clients should infer the default will be used for all requests.
 
 ### The \_\_Schema Type
 
@@ -353,11 +368,6 @@ Fields\:
   must be included in this set.
 - `directives` must return the set of all directives available within this
   schema including all built-in directives.
-- `defaultErrorBehavior` must return the _default error behavior_ of the schema
-  using one of the values of the `__ErrorBehavior` enum:
-  - {"NO_PROPAGATE"}
-  - {"PROPAGATE"}
-  - {"HALT"}
 
 ### The \_\_Type Type
 

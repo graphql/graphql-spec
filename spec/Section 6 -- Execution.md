@@ -30,9 +30,10 @@ formatted according to the Response section below.
 
 Note: Previous versions of this specification did not define the {onError}
 request attribute. Clients can detect support for {onError} by checking for the
-presence of the `defaultErrorBehavior` field on the `__Schema` introspection
-type. If this field is absent, clients should not include {onError} in the
-request and must assume the _error behavior_ is {"PROPAGATE"}.
+{"org.graphql.onError"} capability. If this capability is not present, or if
+capabilities themselves are not supported by introspection, then clients should
+not include {onError} in the request and must assume the _error behavior_ is
+{"PROPAGATE"}.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -860,14 +861,15 @@ the errors list per _response position_.
 
 :: The _error behavior_ of a request indicates how an _execution error_ is
 handled. It may be specified using the optional {onError} attribute of the
-_request_. If omitted, the _default error behavior_ of the schema applies. Valid
-values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and {"HALT"}.
+_request_. If omitted, the _default error behavior_ of the service applies.
+Valid values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and
+{"HALT"}.
 
-:: The _default error behavior_ of a schema is implementation-defined. For
-compatibility with existing clients, schemas should default to {"PROPAGATE"}
-which reflects prior behavior. For new schemas, {"NO_PROPAGATE"} is recommended.
-The default error behavior is indicated via the `defaultErrorBehavior` field of
-the `__Schema` introspection type, or via the `@behavior` schema directive.
+:: The _default error behavior_ of a service is implementation-defined. For
+compatibility with existing clients, services should default to {"PROPAGATE"}
+which reflects prior behavior. For new services, {"NO_PROPAGATE"} is
+recommended. The default error behavior is indicated via the
+`defaultErrorBehavior` field of the `__Service` introspection type.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
