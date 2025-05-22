@@ -553,10 +553,10 @@ Identifiers defined by specific projects, vendors, or implementations should
 begin with a prefix derived from a DNS name they control (e.g.,
 {"com.example."}).
 
-Clients should use string equality to check for known identifiers, and should
-ignore unknown identifiers.
+Clients should compare identifiers using exact string equality and should ignore
+unknown identifiers.
 
-Implementers should not change the meaning of capability identifiers, instead a
+Implementers should not change the meaning of capability identifiers; instead, a
 new capability identifier should be used when the meaning changes. Implementers
 should ensure that capability identifiers remain stable and version-agnostic
 where possible; capability versioning, if needed, can be indicated using dot
