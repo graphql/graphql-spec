@@ -85,14 +85,14 @@ operation.
 
 ## Schema Introspection
 
-The schema introspection system is accessible from the meta-fields `__service`,
-`__schema` and `__type` which are accessible from the type of the root of a
+The schema introspection system is accessible from the meta-fields `__schema`,
+`__type` and `__service` which are accessible from the type of the root of a
 query operation.
 
 ```graphql
-__service: __Service!
 __schema: __Schema!
 __type(name: String!): __Type
+__service: __Service!
 ```
 
 Like all meta-fields, these are implicit and do not appear in the fields list in
