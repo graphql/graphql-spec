@@ -529,7 +529,7 @@ Fields\:
 directly expressible in the type system. This may include experimental GraphQL
 features (such as new syntax or behavior), protocol support (such as GraphQL
 over WebSockets), or additional operational metadata (such as release
-identifiers). Capabilities may be supplied by the GraphQL implementation, by the
+identifiers). Capabilities may be supplied by the GraphQL implementation, the
 service, or both.
 
 The `__Service.capabilities` field exposes a _capability_ list. A _capability_
@@ -538,13 +538,13 @@ consists of a capability identifier and optionally a string value.
 **Capability identifier**
 
 A capability identifier is a string value composed of two or more segments
-separated by a period (`.`). Each segment must begin with a letter and must
-contain only alphanumeric characters and hyphens (`[a-zA-Z][a-zA-Z0-9-]*`).
-These constraints are inspired by reverse domain name notation to encourage
-global uniqueness and collision-resistance. Unlike the domain name system,
-capability identifiers are case sensitive. Identifiers beginning with the prefix
-{"org.graphql."} are reserved and must not be used outside of official GraphQL
-Foundation specifications. Further, identifiers beginning with the prefix
+separated by a period (`.`). Each segment must begin with an ASCII letter, and
+must contain only ASCII letters, digits and hyphens. These constraints are
+inspired by reverse domain name notation to encourage global uniqueness and
+collision-resistance. Unlike the domain name system, capability identifiers are
+case sensitive. Identifiers beginning with the prefix {"org.graphql."} are
+reserved and must not be used outside of official GraphQL Foundation
+specifications. Further, identifiers beginning with the prefix
 {"org.graphql.http."} are reserved for use by the GraphQL-over-HTTP
 specification, and identifiers beginning with the prefix {"org.graphql.rfc."}
 are reserved for RFC proposals.
@@ -567,12 +567,11 @@ interoperability, while avoiding tight coupling to specific implementations.
 
 **Capability value**
 
-The value assigned to a given capability may either be {null} to indicate that
-the capability is supported and requires no additional information, or a string
-to provide additional information. For example {"org.graphql.onError"} does not
-require additional information and thus uses the value {null}, whereas
-{"org.graphql.defaultErrorBehavior"} needs the {value} to indicate which _error
-behavior_ is the default.
+The value assigned to a given capability may either be {null} to simply indicate
+the capability is supported, or a string to provide additional information. For
+example {"org.graphql.onError"} does not require additional information and thus
+uses the value {null}, whereas {"org.graphql.defaultErrorBehavior"} needs the
+{value} to indicate which _error behavior_ is the default.
 
 **Specified capabilities**
 
