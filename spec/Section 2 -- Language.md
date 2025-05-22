@@ -288,8 +288,8 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
 Each operation is represented by an optional operation name and a _selection
 set_.
@@ -466,8 +466,9 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-By default a field's response key in the response object will use that field's
-name. However, you can define a different response key by specifying an alias.
+:: A _response name_ is the key in the response object which correlates with a
+field's result. By default the response name will use the field's name; however,
+you can define a different response name by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting response object will not have duplicate keys:
@@ -1253,7 +1254,7 @@ Type : Name
 
 - Let {name} be the string value of {Name}.
 - Let {type} be the type defined in the Schema named {name}.
-- {type} must not be {null}.
+- {type} must exist.
 - Return {type}.
 
 Type : [ Type ]
