@@ -1740,9 +1740,10 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     - Return {false}.
   - If {field} is within {visitedFields}:
     - Return {true}.
-  - Add {field} to {visitedFields}.
+  - Let {nextVisitedFields} be a new set containing {field} and everything from
+    {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
-    visitedFields)}.
+    nextVisitedFields)}.
 
 ### Input Object Extensions
 
