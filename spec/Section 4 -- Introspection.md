@@ -125,11 +125,6 @@ are the full set of type system definitions providing schema introspection,
 which are fully defined in the sections below.
 
 ```graphql
-type __Service {
-  capabilities: [String!]!
-  defaultErrorBehavior: __ErrorBehavior!
-}
-
 type __Schema {
   description: String
   types: [__Type!]!
@@ -168,12 +163,6 @@ enum __TypeKind {
   INPUT_OBJECT
   LIST
   NON_NULL
-}
-
-enum __ErrorBehavior {
-  NO_PROPAGATE
-  PROPAGATE
-  HALT
 }
 
 type __Field {
@@ -230,125 +219,16 @@ enum __DirectiveLocation {
   INPUT_OBJECT
   INPUT_FIELD_DEFINITION
 }
+
+type __Service {
+  capabilities: [__Capability!]!
+}
+
+type __Capability {
+  identifier: String!
+  value: String
+}
 ```
-
-### The \_\_Service Type
-
-The `__Service` type is returned from the `__service` meta-field and provides
-information about the GraphQL service, most notably about its capabilities. This
-type was added after the original release of GraphQL, so older schemas may not
-support it.
-
-Fields\:
-
-- `capabilities` must return a list of strings indicating the capabilities
-  supported by the service.
-- `defaultErrorBehavior` must return the _default error behavior_ of the service
-  using one of the values of the `__ErrorBehavior` enum:
-  - {"NO_PROPAGATE"}
-  - {"PROPAGATE"}
-  - {"HALT"}
-
-**Capabilities**
-
-As GraphQL becomes more feature rich, clients need to understand the features
-that a service supports so that they only send compatible requests; the
-`__Service.capabilities` field reveals these capabilities.
-
-Note: Prior to the introduction of the capabilities system, a client would
-either require out-of-band communication to discover the capabilities of a
-schema, or would need to perform multiple introspection phases determining the
-fields available in introspection in order to perform feature discovery.
-
-Capabilities may be supplied by the GraphQL implementation, by the service, or
-both.
-
-A individual capability is described by a string, {CapabilityString}, inspired
-by reverse domain name notation to ensure globally unique and
-collision-resistant identifiers. A capability string must be composed of two or
-more {CompatibilitySegment}, separated by a period (`.`). A {CapabilitySegment}
-is a non-empty string composed only from ASCII letter (`[a-zA-Z]`), digits
-(`[0-9]`), or hyphens (`-`); it must start with an ASCII letter and must not
-terminate with a hyphen.
-
-CapabilityString ::
-
-- CapabilityString . CapabilitySegment
-- CapabilitySegment . CapabilitySegment
-
-CapabilitySegment ::
-
-- CapabilitySegmentStart
-- CapabilitySegmentStart CapabilitySegmentContinue\* CapabilitySegmentEnd
-
-CapabilitySegmentStart :: Letter
-
-CapabilitySegmentContinue ::
-
-- Letter
-- Digit
-- `-`
-
-CapabilitySegmentEnd ::
-
-- Letter
-- Digit
-
-Identifiers beginning with the prefix {"org.graphql."} are reserved and must not
-be used outside of official GraphQL Foundation specifications. Further,
-identifiers beginning with the prefix {"org.graphql.http."} are reserved for use
-by the GraphQL-over-HTTP specification, and identifiers beginning with the
-prefix {"org.graphql.rfc."} are reserved for RFC proposals.
-
-Identifiers defined by specific projects, vendors, or implementations should
-begin with a prefix derived from a DNS name they control (e.g.,
-{"com.example."})
-
-Clients should use string equality to check for known identifiers, and should
-ignore unknown identifiers.
-
-Implementers should not change the meaning of capability identifiers, instead a
-new capability identifier should be used when the meaning changes. Implementers
-should ensure that capability strings remain stable and version-agnostic where
-possible; capability versioning, if needed, can be indicated using dot suffixes
-(e.g.{ "org.example.capability.v2"}).
-
-This system enables incremental feature adoption and richer tooling
-interoperability, while avoiding tight coupling to specific implementations.
-
-Implementers of earlier versions of this specification may choose to implement
-the capabilities system, but when doing so they must not include capabilities
-that they do not support.
-
-Implementers of this version of this specification must include the following
-capabilities:
-
-- {"org.graphql.scalar.specifiedBy"} - indicates the ability to request the
-  _scalar specification URL_ of a scalar via the `__Type.specifiedBy`
-  introspection field
-- {"org.graphql.directive.repeatable"} - indicates support for repeatable
-  directive and the related `__Directive.isRepeatable` introspection field
-- {"org.graphql.schema.description"} - indicates the ability to request a
-  description of the schema via the `__Schema.description` introspection field
-- {"org.graphql.deprecation.inputValues"} - indicates support for deprecating
-  input values along with the related introspection schema coordinates:
-  - `__Directive.args(includeDeprecated:)`,
-  - `__Field.args(includeDeprecated:)`,
-  - `__Type.inputFields(includeDeprecated:)`,
-  - `__InputValue.isDeprecated`, and
-  - `__InputValue.deprecationReason`.
-- {"org.graphql.inputObject.oneOf"} - indicates support for OneOf Input Objects
-  and the related introspection field `__Type.isOneOf`
-- {"org.graphql.errorBehavior"} - indicates that the
-  `__Service.defaultErrorBehavior` field exists, which indicates the the
-  _default error behavior_ of the service
-
-If the schema, implementation, and service support the subscription operation,
-the {"org.graphql.subscription"} capability should be included.
-
-If the service accepts the {onError} request parameter, the
-{"org.graphql.onError"} capability should be included. If it is not included,
-clients should infer the default will be used for all requests.
 
 ### The \_\_Schema Type
 
@@ -630,3 +510,79 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
+
+### The \_\_Service Type
+
+The `__Service` type is returned from the `__service` meta-field and provides
+information about the GraphQL service, most notably about its capabilities. This
+type was added after the original release of GraphQL, so older schemas may not
+support it.
+
+Fields\:
+
+- `capabilities` must return a list of `__Capability` indicating the
+  capabilities supported by the service.
+
+### The \_\_Capability Type
+
+The `__Service.capabilities` field exposes a list of capabilities that describe
+features supported by the GraphQL service but not directly expressible in the
+type system. These may include experimental GraphQL features (such as fragment
+arguments, operation descriptions, custom error behaviors), protocol support
+(such as subscriptions over WebSocket), or additional operational metadata (such
+as release identifiers).
+
+Capabilities may be supplied by the GraphQL implementation, by the service, or
+both. An individual entry in the capabilities list will have a capability
+identifier and may optionally provide a string value.
+
+**Capability identifier**
+
+Capability identifiers are inspired by reverse domain name notation in order to
+help them be globally unique and collision-resistant. They are a string value
+composed of two or more segments separated by a period (`.`). Each segment must
+begin with a letter and must contain only alphanumeric characters and hyphens
+(`[a-zA-Z][a-zA-Z0-9-]*`). Unlike the domain name system, capability identifiers
+are case sensitive. Identifiers beginning with the prefix {"org.graphql."} are
+reserved and must not be used outside of official GraphQL Foundation
+specifications. Further, identifiers beginning with the prefix
+{"org.graphql.http."} are reserved for use by the GraphQL-over-HTTP
+specification, and identifiers beginning with the prefix {"org.graphql.rfc."}
+are reserved for RFC proposals.
+
+Identifiers defined by specific projects, vendors, or implementations should
+begin with a prefix derived from a DNS name they control (e.g.,
+{"com.example."}).
+
+Clients should use string equality to check for known identifiers, and should
+ignore unknown identifiers.
+
+Implementers should not change the meaning of capability identifiers, instead a
+new capability identifier should be used when the meaning changes. Implementers
+should ensure that capability strings remain stable and version-agnostic where
+possible; capability versioning, if needed, can be indicated using dot suffixes
+(e.g.{ "org.example.capability.v2"}).
+
+This system enables incremental feature adoption and richer tooling
+interoperability, while avoiding tight coupling to specific implementations.
+
+**Capability value**
+
+The value assigned to a given capability may either be {null} to indicate that
+the capability is supported and requires no additional information, or a string
+to provide additional information. For example
+{"org.graphql.rfc.fragmentArguments"} does not require additional information
+and thus would have value {null}, whereas {"org.graphql.websockets"} might
+indicate support for websockets whilst using the value to indicate the endpoint
+to use.
+
+**Specified capabilities**
+
+This version of the specification defines the following capabilities:
+
+- {"org.graphql.defaultErrorBehavior"} - indicates the _default error behavior_
+  of the service via the {value}. If not present, must be assumed to be
+  {"PROPAGATE"}.
+- {"org.graphql.onError"} - indicates that the service allows the client to
+  specify {onError} in a request to indicate the _error behavior_ the service
+  should use for the request. {value} is {null}.
