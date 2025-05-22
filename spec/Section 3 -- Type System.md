@@ -947,6 +947,7 @@ IsValidImplementation(type, implementedType):
        2. Let {implementedFieldType} be the return type of {implementedField}.
        3. {IsValidImplementationFieldType(fieldType, implementedFieldType)} must
           be {true}.
+    6. If {field} is deprecated then {implementedField} must also be deprecated.
 
 IsValidImplementationFieldType(fieldType, implementedFieldType):
 
