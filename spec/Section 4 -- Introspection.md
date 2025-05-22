@@ -533,7 +533,7 @@ identifiers). Capabilities may be supplied by the GraphQL implementation, by the
 service, or both.
 
 The `__Service.capabilities` field exposes a _capability_ list. A _capability_
-comprises of a capability identifier and optionally a string value.
+consists of a capability identifier and optionally a string value.
 
 **Capability identifier**
 
@@ -558,9 +558,9 @@ ignore unknown identifiers.
 
 Implementers should not change the meaning of capability identifiers, instead a
 new capability identifier should be used when the meaning changes. Implementers
-should ensure that capability strings remain stable and version-agnostic where
-possible; capability versioning, if needed, can be indicated using dot suffixes
-(e.g.{ "org.example.capability.v2"}).
+should ensure that capability identifiers remain stable and version-agnostic
+where possible; capability versioning, if needed, can be indicated using dot
+suffixes (e.g.{ "org.example.capability.v2"}).
 
 This system enables incremental feature adoption and richer tooling
 interoperability, while avoiding tight coupling to specific implementations.
@@ -569,11 +569,10 @@ interoperability, while avoiding tight coupling to specific implementations.
 
 The value assigned to a given capability may either be {null} to indicate that
 the capability is supported and requires no additional information, or a string
-to provide additional information. For example
-{"org.graphql.rfc.fragmentArguments"} does not require additional information
-and thus would have value {null}, whereas {"org.graphql.websockets"} might
-indicate support for websockets whilst using the value to indicate the endpoint
-to use.
+to provide additional information. For example {"org.graphql.onError"} does not
+require additional information and thus uses the value {null}, whereas
+{"org.graphql.defaultErrorBehavior"} needs the {value} to indicate which _error
+behavior_ is the default.
 
 **Specified capabilities**
 
