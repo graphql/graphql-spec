@@ -418,7 +418,7 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
@@ -450,7 +450,7 @@ SameResponseShape(fieldA, fieldB):
 - Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {mergedSet} including visiting fragments and inline fragments.
 - Given each pair of distinct members {subfieldA} and {subfieldB} in
   {fieldsForName}:
@@ -462,10 +462,10 @@ type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
-If multiple field selections with the same response names are encountered during
-execution, the field and arguments to execute and the resulting value should be
-unambiguous. Therefore any two field selections which might both be encountered
-for the same object are only valid if they are equivalent.
+If multiple field selections with the same _response name_ are encountered
+during execution, the field and arguments to execute and the resulting value
+should be unambiguous. Therefore any two field selections which might both be
+encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
 name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
@@ -1304,14 +1304,25 @@ fragment resourceFragment on Resource {
 
 **Formal Specification**
 
-- For each input Value {value} in the document:
+- For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type}.
+  - {value} must be coercible to {type} (with the assumption that any
+    {variableUsage} nested within {value} will represent a runtime value valid
+    for usage in its position).
 
 **Explanatory Text**
 
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
+
+Note: A {ListValue} or {ObjectValue} may contain nested Input Values, some of
+which may be a variable usage. The
+[All Variable Usages Are Allowed](#sec-All-Variable-Usages-Are-Allowed)
+validation rule ensures that each {variableUsage} is of a type allowed in its
+position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
+algorithm ensures runtime values for variables coerce correctly. Therefore, for
+the purposes of the "coercible" assertion in this validation rule, we can assume
+the runtime value of each {variableUsage} is valid for usage in its position.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
@@ -2010,4 +2021,4 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 ```
 
 Note: The value {null} could still be provided to such a variable at runtime. A
-non-null argument must raise a _field error_ if provided a {null} value.
+non-null argument must raise an _execution error_ if provided a {null} value.
