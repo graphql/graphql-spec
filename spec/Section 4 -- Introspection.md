@@ -525,16 +525,15 @@ Fields\:
 
 ### The \_\_Capability Type
 
-The `__Service.capabilities` field exposes a list of capabilities that describe
-features supported by the GraphQL service but not directly expressible in the
-type system. These may include experimental GraphQL features (such as fragment
-arguments, operation descriptions, custom error behaviors), protocol support
-(such as subscriptions over WebSocket), or additional operational metadata (such
-as release identifiers).
+:: A _capability_ describes a feature supported by the GraphQL service but not
+directly expressible in the type system. This may include experimental GraphQL
+features (such as new syntax or behavior), protocol support (such as GraphQL
+over WebSockets), or additional operational metadata (such as release
+identifiers). Capabilities may be supplied by the GraphQL implementation, by the
+service, or both.
 
-Capabilities may be supplied by the GraphQL implementation, by the service, or
-both. An individual entry in the capabilities list will have a capability
-identifier and may optionally provide a string value.
+The `__Service.capabilities` field exposes a _capability_ list. A _capability_
+comprises of a capability identifier and optionally a string value.
 
 **Capability identifier**
 

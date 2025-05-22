@@ -865,11 +865,13 @@ _request_. If omitted, the _default error behavior_ of the service applies.
 Valid values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and
 {"HALT"}.
 
+<!-- https://github.com/prettier/prettier/issues/17286 -->
+<!-- prettier-ignore -->
 :: The _default error behavior_ of a service is implementation-defined. For
 compatibility with existing clients, services should default to {"PROPAGATE"}
-which reflects prior behavior. For new services, {"NO_PROPAGATE"} is
-recommended. The default error behavior is indicated via the
-`defaultErrorBehavior` field of the `__Service` introspection type.
+which reflects prior behavior. <!-- For new services, {"NO_PROPAGATE"} is
+recommended. --> The default error behavior is indicated via the
+`org.graphql.defaultErrorBehavior` _capability_.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
