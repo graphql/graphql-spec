@@ -871,7 +871,7 @@ Valid values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and
 compatibility with existing clients, services should default to {"PROPAGATE"}
 which reflects prior behavior. <!-- For new services, {"NO_PROPAGATE"} is
 recommended. --> The default error behavior is indicated via the
-`org.graphql.defaultErrorBehavior` _capability_.
+{"org.graphql.defaultErrorBehavior"} _capability_.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
