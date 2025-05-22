@@ -1687,16 +1687,16 @@ Further, if the input object is a OneOf Input Object, the following additional
 rules apply:
 
 - If the input object literal or unordered map does not contain exactly one
-  entry an error must be thrown.
+  entry an _execution error_ must be raised.
 
-- Within the input object literal or unordered map, if the single entry is
-  {null} or the {null} literal an error must be thrown.
+- Within the input object literal or unordered map, if the single entry is the
+  {null} literal or {null} an _execution error_ must be raised.
 
-- If the coerced unordered map does not contain exactly one entry an error must
-  be thrown.
+- If the coerced unordered map does not contain exactly one entry an _execution
+  error_ must be raised.
 
 - If the value of the single entry in the coerced unordered map is {null} an
-  error must be thrown.
+  _execution error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
@@ -1727,7 +1727,7 @@ input ExampleInputObject {
 | `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.         |
 | `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}          |
 
-Following are examples of input coercion for a oneOf input object type with a
+Following are examples of input coercion for a OneOf Input Object type with a
 `String` member field `a` and an `Int` member field `b`:
 
 ```graphql example
