@@ -34,7 +34,7 @@ directive @deprecated(
   """
   Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
   """
-  reason: String = "No longer supported"
+  reason: String! = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 
 """
@@ -239,9 +239,14 @@ enum __DirectiveLocation {
   INLINE_FRAGMENT
 
   """
-  Location adjacent to a variable definition.
+  Location adjacent to an operation variable definition.
   """
   VARIABLE_DEFINITION
+
+  """
+  Location adjacent to a fragment variable definition.
+  """
+  FRAGMENT_VARIABLE_DEFINITION
 
   """
   Location adjacent to a schema definition.
