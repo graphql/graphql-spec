@@ -544,10 +544,8 @@ inspired by reverse domain name notation to encourage global uniqueness and
 collision-resistance. Unlike the domain name system, capability identifiers are
 case sensitive. Identifiers beginning with the prefix {"org.graphql."} are
 reserved and must not be used outside of official GraphQL Foundation
-specifications. Further, identifiers beginning with the prefix
-{"org.graphql.http."} are reserved for use by the GraphQL-over-HTTP
-specification, and identifiers beginning with the prefix {"org.graphql.rfc."}
-are reserved for RFC proposals.
+specifications. Identifiers beginning with the prefix {"org.graphql.rfc."} are
+reserved for RFC proposals.
 
 Identifiers defined by specific projects, vendors, or implementations should
 begin with a prefix derived from a DNS name they control (e.g.,
