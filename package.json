@@ -22,7 +22,7 @@
     "build": "./build.sh",
     "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
     "watch": "nodemon -e json,md --exec \"npm run build\"",
-    "update-appendix-c": "node scripts/update-appendix-c.mjs"
+    "update-appendix-c": "node scripts/update-appendix-c.mjs; prettier --write \"spec/Appendix C -- Built-in Definitions.md\""
   },
   "devDependencies": {
     "cspell": "5.9.1",

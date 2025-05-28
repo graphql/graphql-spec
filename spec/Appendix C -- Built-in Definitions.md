@@ -1,4 +1,3 @@
-
 # C. Appendix: Type System Definitions
 
 This appendix lists all the type system definitions mentioned throughout this
@@ -12,7 +11,9 @@ for consistency but different descriptions are allowed.
 Directs the executor to include this field or fragment only when the `if` argument is true.
 """
 directive @include(
-  """Included when true."""
+  """
+  Included when true.
+  """
   if: Boolean!
 ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
@@ -20,11 +21,15 @@ directive @include(
 Directs the executor to skip this field or fragment when the `if` argument is true.
 """
 directive @skip(
-  """Skipped when true."""
+  """
+  Skipped when true.
+  """
   if: Boolean!
 ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-"""Marks an element of a GraphQL schema as no longer supported."""
+"""
+Marks an element of a GraphQL schema as no longer supported.
+"""
 directive @deprecated(
   """
   Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
@@ -32,9 +37,13 @@ directive @deprecated(
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 
-"""Exposes a URL that specifies the behavior of this scalar."""
+"""
+Exposes a URL that specifies the behavior of this scalar.
+"""
 directive @specifiedBy(
-  """The URL that specifies the behavior of this scalar."""
+  """
+  The URL that specifies the behavior of this scalar.
+  """
   url: String!
 ) on SCALAR
 
@@ -49,10 +58,14 @@ A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all av
 type __Schema {
   description: String
 
-  """A list of all types supported by this server."""
+  """
+  A list of all types supported by this server.
+  """
   types: [__Type!]!
 
-  """The type that query operations will be rooted at."""
+  """
+  The type that query operations will be rooted at.
+  """
   queryType: __Type!
 
   """
@@ -65,7 +78,9 @@ type __Schema {
   """
   subscriptionType: __Type
 
-  """A list of all directives supported by this server."""
+  """
+  A list of all directives supported by this server.
+  """
   directives: [__Directive!]!
 }
 
@@ -88,9 +103,13 @@ type __Type {
   isOneOf: Boolean
 }
 
-"""An enum describing what kind of type a given `__Type` is."""
+"""
+An enum describing what kind of type a given `__Type` is.
+"""
 enum __TypeKind {
-  """Indicates this type is a scalar."""
+  """
+  Indicates this type is a scalar.
+  """
   SCALAR
 
   """
@@ -103,10 +122,14 @@ enum __TypeKind {
   """
   INTERFACE
 
-  """Indicates this type is a union. `possibleTypes` is a valid field."""
+  """
+  Indicates this type is a union. `possibleTypes` is a valid field.
+  """
   UNION
 
-  """Indicates this type is an enum. `enumValues` is a valid field."""
+  """
+  Indicates this type is an enum. `enumValues` is a valid field.
+  """
   ENUM
 
   """
@@ -114,10 +137,14 @@ enum __TypeKind {
   """
   INPUT_OBJECT
 
-  """Indicates this type is a list. `ofType` is a valid field."""
+  """
+  Indicates this type is a list. `ofType` is a valid field.
+  """
   LIST
 
-  """Indicates this type is a non-null. `ofType` is a valid field."""
+  """
+  Indicates this type is a non-null. `ofType` is a valid field.
+  """
   NON_NULL
 }
 
@@ -176,61 +203,99 @@ type __Directive {
 A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
 """
 enum __DirectiveLocation {
-  """Location adjacent to a query operation."""
+  """
+  Location adjacent to a query operation.
+  """
   QUERY
 
-  """Location adjacent to a mutation operation."""
+  """
+  Location adjacent to a mutation operation.
+  """
   MUTATION
 
-  """Location adjacent to a subscription operation."""
+  """
+  Location adjacent to a subscription operation.
+  """
   SUBSCRIPTION
 
-  """Location adjacent to a field."""
+  """
+  Location adjacent to a field.
+  """
   FIELD
 
-  """Location adjacent to a fragment definition."""
+  """
+  Location adjacent to a fragment definition.
+  """
   FRAGMENT_DEFINITION
 
-  """Location adjacent to a fragment spread."""
+  """
+  Location adjacent to a fragment spread.
+  """
   FRAGMENT_SPREAD
 
-  """Location adjacent to an inline fragment."""
+  """
+  Location adjacent to an inline fragment.
+  """
   INLINE_FRAGMENT
 
-  """Location adjacent to a variable definition."""
+  """
+  Location adjacent to a variable definition.
+  """
   VARIABLE_DEFINITION
 
-  """Location adjacent to a schema definition."""
+  """
+  Location adjacent to a schema definition.
+  """
   SCHEMA
 
-  """Location adjacent to a scalar definition."""
+  """
+  Location adjacent to a scalar definition.
+  """
   SCALAR
 
-  """Location adjacent to an object type definition."""
+  """
+  Location adjacent to an object type definition.
+  """
   OBJECT
 
-  """Location adjacent to a field definition."""
+  """
+  Location adjacent to a field definition.
+  """
   FIELD_DEFINITION
 
-  """Location adjacent to an argument definition."""
+  """
+  Location adjacent to an argument definition.
+  """
   ARGUMENT_DEFINITION
 
-  """Location adjacent to an interface definition."""
+  """
+  Location adjacent to an interface definition.
+  """
   INTERFACE
 
-  """Location adjacent to a union definition."""
+  """
+  Location adjacent to a union definition.
+  """
   UNION
 
-  """Location adjacent to an enum definition."""
+  """
+  Location adjacent to an enum definition.
+  """
   ENUM
 
-  """Location adjacent to an enum value definition."""
+  """
+  Location adjacent to an enum value definition.
+  """
   ENUM_VALUE
 
-  """Location adjacent to an input object type definition."""
+  """
+  Location adjacent to an input object type definition.
+  """
   INPUT_OBJECT
 
-  """Location adjacent to an input object field definition."""
+  """
+  Location adjacent to an input object field definition.
+  """
   INPUT_FIELD_DEFINITION
 }
 ```
