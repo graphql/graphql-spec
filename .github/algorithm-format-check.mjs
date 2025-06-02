@@ -67,9 +67,18 @@ for (const filename of filenames) {
             console.log();
             process.exitCode = 1;
           }
-          if (step.match(/^\s*(-|[0-9]\.)\s+[a-z]/)) {
+          if (step.match(/^\s*(-|[0-9]+\.)\s+[a-z]/)) {
             console.log(
               `Bad formatting of '${algorithmName}' step (should start with a capital) in '${filename}':`
+            );
+            console.dir(step);
+            console.log();
+            process.exitCode = 1;
+          }
+          const assertMatch = step.match(/^\s*(-|[0-9]+\.)\s*Assert([^:])/);
+          if (assertMatch) {
+            console.log(
+              `Bad formatting of '${algorithmName}' step (Assert should be immediately followed by ':'; found '${assertMatch[2]}') in '${filename}':`
             );
             console.dir(step);
             console.log();
