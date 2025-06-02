@@ -2226,7 +2226,7 @@ SchemaCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert {type} exists.
+3. Assert {type} must exist.
 4. If {type} is an Enum type:
 5. Let {enumValueName} be the value of the second {Name}.
 6. Let {enumValue} be the enum value of {type} named {enumValueName}.
@@ -2248,7 +2248,7 @@ SchemaCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert {type} exists.
+3. Assert {type} must exist.
 4. Assert {type} must be an Object or Interface type.
 5. Let {fieldName} be the value of the second {Name}.
 6. Let {field} be the field of {type} named {fieldName}.
