@@ -2173,11 +2173,21 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 
 SchemaCoordinate :
 
-- Name
-- Name . Name
-- Name . Name ( Name : )
-- @ Name
-- @ Name ( Name : )
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate : Name
+
+MemberCoordinate : Name . Name
+
+ArgumentCoordinate : Name . Name ( Name : )
+
+DirectiveCoordinate : @ Name
+
+DirectiveArgumentCoordinate : @ Name ( Name : )
 
 :: A _schema coordinate_ is a human readable string that uniquely identifies a
 _schema element_ within a GraphQL Schema.
@@ -2194,9 +2204,9 @@ coordinates which refer to built-in schema elements. However it must not refer
 to a meta-field. For example, `Business.__typename` is _not_ a valid schema
 coordinate.
 
-Note: Union members are not valid _schema coordinates_ as they reference
-existing types in the schema. This preserves the uniqueness property of a
-_schema coordinate_ as stated above.
+Note: Union members are not valid _schema coordinate_ as they reference existing
+types in the schema. This preserves the uniqueness property of a _schema
+coordinate_ as stated above.
 
 Note: A {SchemaCoordinate} is not a definition within a GraphQL {Document}, but
 a separate standalone grammar, intended to be used by tools to reference types,
@@ -2214,28 +2224,32 @@ If the _schema element_ cannot be found, the resolve function will not yield a
 value (without raising an error). However, an error will be raised if any
 non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 
-SchemaCoordinate : Name
+TypeCoordinate : Name
 
 1. Let {typeName} be the value of {Name}.
-2. Return the type in the {schema} named {typeName}, or {null} if no such type exists.
+2. Return the type in the {schema} named {typeName}, or {null} if no such type
+   exists.
 
-SchemaCoordinate : Name . Name
+MemberCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
 3. Assert: {type} must exist.
 4. If {type} is an Enum type:
    1. Let {enumValueName} be the value of the second {Name}.
-   2. Return the enum value of {type} named {enumValueName}, or {null} if no such value exists.
+   2. Return the enum value of {type} named {enumValueName}, or {null} if no
+      such value exists.
 5. Otherwise, if {type} is an Input Object type:
    1. Let {inputFieldName} be the value of the second {Name}.
-   2. Return the input field of {type} named {inputFieldName}, or {null} if no such input field exists.
+   2. Return the input field of {type} named {inputFieldName}, or {null} if no
+      such input field exists.
 6. Otherwise:
    1. Assert: {type} must be an Object or Interface type.
    2. Let {fieldName} be the value of the second {Name}.
-   3. Return the field of {type} named {fieldName}, or {null} if no such field exists.
+   3. Return the field of {type} named {fieldName}, or {null} if no such field
+      exists.
 
-SchemaCoordinate : Name . Name ( Name : )
+ArgumentCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
@@ -2245,21 +2259,23 @@ SchemaCoordinate : Name . Name ( Name : )
 6. Let {field} be the field of {type} named {fieldName}.
 7. Assert: {field} must exist.
 8. Let {fieldArgumentName} be the value of the third {Name}.
-9. Return the argument of {field} named {fieldArgumentName}, or {null} if no such argument exists.
+9. Return the argument of {field} named {fieldArgumentName}, or {null} if no
+   such argument exists.
 
-SchemaCoordinate : @ Name
+DirectiveCoordinate : @ Name
 
 1. Let {directiveName} be the value of the first {Name}.
-2. Return the directive in the {schema} named {directiveName}, or {null} if no such directive exists.
+2. Return the directive in the {schema} named {directiveName}, or {null} if no
+   such directive exists.
 
-SchemaCoordinate : @ Name ( Name : )
+DirectiveArgumentCoordinate : @ Name ( Name : )
 
 1. Let {directiveName} be the value of the first {Name}.
 2. Let {directive} be the directive in the {schema} named {directiveName}.
 3. Assert: {directive} must exist.
 4. Let {directiveArgumentName} be the value of the second {Name}.
-5. Return the argument of {directive} named
-   {directiveArgumentName}, or {null} if no such argument exists.
+5. Return the argument of {directive} named {directiveArgumentName}, or {null}
+   if no such argument exists.
 
 **Examples**
 
