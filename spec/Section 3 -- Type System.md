@@ -2264,7 +2264,7 @@ ArgumentCoordinate : Name . Name ( Name : )
 
 DirectiveCoordinate : @ Name
 
-1. Let {directiveName} be the value of the first {Name}.
+1. Let {directiveName} be the value of {Name}.
 2. Return the directive in the {schema} named {directiveName}, or {null} if no
    such directive exists.
 
