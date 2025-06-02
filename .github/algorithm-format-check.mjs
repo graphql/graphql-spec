@@ -189,6 +189,15 @@ for (const filename of filenames) {
             console.log();
             process.exitCode = 1;
           }
+          const assertMatch = step.match(/^\s*(-|[0-9]+\.)\s*Assert([^:])/);
+          if (assertMatch) {
+            console.log(
+              `Bad formatting of '${grammarName}' step (Assert should be immediately followed by ':'; found '${assertMatch[2]}') in '${filename}':`
+            );
+            console.dir(step);
+            console.log();
+            process.exitCode = 1;
+          }
         }
       }
     }
