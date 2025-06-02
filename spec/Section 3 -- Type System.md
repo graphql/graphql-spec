@@ -2253,13 +2253,12 @@ ArgumentCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert: {type} must exist.
-4. Assert: {type} must be an Object or Interface type.
-5. Let {fieldName} be the value of the second {Name}.
-6. Let {field} be the field of {type} named {fieldName}.
-7. Assert: {field} must exist.
-8. Let {fieldArgumentName} be the value of the third {Name}.
-9. Return the argument of {field} named {fieldArgumentName}, or {null} if no
+3. Assert: {type} must exist, and be an Object or Interface type.
+4. Let {fieldName} be the value of the second {Name}.
+5. Let {field} be the field of {type} named {fieldName}.
+6. Assert: {field} must exist.
+7. Let {fieldArgumentName} be the value of the third {Name}.
+8. Return the argument of {field} named {fieldArgumentName}, or {null} if no
    such argument exists.
 
 DirectiveCoordinate : @ Name
