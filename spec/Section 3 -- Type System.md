@@ -2200,7 +2200,7 @@ _schema coordinate_ as stated above.
 
 Note: A {SchemaCoordinate} is not a definition within a GraphQL {Document}, but
 a separate standalone grammar, intended to be used by tools to reference types,
-fields, and other *schema element*s. Examples include: as references within
+fields, and other _schema element_. Examples include: references within
 documentation to refer to types and fields in a schema, a lookup key that can be
 used in logging tools to track how often particular fields are queried in
 production.
@@ -2211,7 +2211,7 @@ To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
 context of a GraphQL {schema}.
 
 If the _schema element_ cannot be found, the resolve function will not yield a
-value (without raising an error). However, an error **will** be raised if any
+value (without raising an error). However, an error will be raised if any
 non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 
 SchemaCoordinate : Name
@@ -2225,33 +2225,33 @@ SchemaCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert {type} must exist.
+3. Assert: {type} must exist.
 4. If {type} is an Enum type:
-5. Let {enumValueName} be the value of the second {Name}.
-6. Let {enumValue} be the enum value of {type} named {enumValueName}.
-7. If {enumValue} does not exist, return {null}.
-8. Return {enumValue}.
-9. Otherwise if {type} is an Input Object type:
-10. Let {inputFieldName} be the value of the second {Name}.
-11. Let {inputField} be the input field of {type} named {inputFieldName}.
-12. If {inputField} does not exist, return {null}.
-13. Return {inputField}.
-14. Otherwise:
-15. Assert {type} must be an Object or Interface type.
-16. Let {fieldName} be the value of the second {Name}.
-17. Let {field} be the field of {type} named {fieldName}.
-18. If {field} does not exist, return {null}.
-19. Return {field}.
+   1. Let {enumValueName} be the value of the second {Name}.
+   2. Let {enumValue} be the enum value of {type} named {enumValueName}.
+   3. If {enumValue} does not exist, return {null}.
+   4. Return {enumValue}.
+5. Otherwise, if {type} is an Input Object type:
+   1. Let {inputFieldName} be the value of the second {Name}.
+   2. Let {inputField} be the input field of {type} named {inputFieldName}.
+   3. If {inputField} does not exist, return {null}.
+   4. Return {inputField}.
+6. Otherwise:
+   1. Assert: {type} must be an Object or Interface type.
+   2. Let {fieldName} be the value of the second {Name}.
+   3. Let {field} be the field of {type} named {fieldName}.
+   4. If {field} does not exist, return {null}.
+   5. Return {field}.
 
 SchemaCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert {type} must exist.
-4. Assert {type} must be an Object or Interface type.
+3. Assert: {type} must exist.
+4. Assert: {type} must be an Object or Interface type.
 5. Let {fieldName} be the value of the second {Name}.
 6. Let {field} be the field of {type} named {fieldName}.
-7. Assert {field} must exist.
+7. Assert: {field} must exist.
 8. Let {fieldArgumentName} be the value of the third {Name}.
 9. Let {fieldArgument} be the argument of {field} named {fieldArgumentName}.
 10. If {fieldArgument} does not exist, return {null}.
@@ -2268,9 +2268,9 @@ SchemaCoordinate : @ Name ( Name : )
 
 1. Let {directiveName} be the value of the first {Name}.
 2. Let {directive} be the directive in the {schema} named {directiveName}.
-3. Assert {directive} must exist.
+3. Assert: {directive} must exist.
 4. Let {directiveArgumentName} be the value of the second {Name}.
-5. Let {directiveArgument} be the argument of {directive} named.
+5. Let {directiveArgument} be the argument of {directive} named
    {directiveArgumentName}.
 6. If {directiveArgument} does not exist, return {null}.
 7. Return {directiveArgument}.
