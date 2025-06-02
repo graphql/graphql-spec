@@ -2248,14 +2248,15 @@ SchemaCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert {type} must be an Object or Interface type.
-4. Let {fieldName} be the value of the second {Name}.
-5. Let {field} be the field of {type} named {fieldName}.
-6. Assert {field} must exist.
-7. Let {fieldArgumentName} be the value of the third {Name}.
-8. Let {fieldArgument} be the argument of {field} named {fieldArgumentName}.
-9. If {fieldArgument} does not exist, return {void}.
-10. Return {fieldArgument}.
+3. Assert that {type} exists.
+4. Assert {type} must be an Object or Interface type.
+5. Let {fieldName} be the value of the second {Name}.
+6. Let {field} be the field of {type} named {fieldName}.
+7. Assert {field} must exist.
+8. Let {fieldArgumentName} be the value of the third {Name}.
+9. Let {fieldArgument} be the argument of {field} named {fieldArgumentName}.
+10. If {fieldArgument} does not exist, return {void}.
+11. Return {fieldArgument}.
 
 SchemaCoordinate : @ Name
 
