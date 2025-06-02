@@ -2216,7 +2216,7 @@ non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 
 SchemaCoordinate : Name
 
-1. Let {typeName} be the value of the first {Name}.
+1. Let {typeName} be the value of {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
 3. If {type} does not exist, return {null}.
 4. Return {type}.
