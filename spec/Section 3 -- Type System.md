@@ -2194,7 +2194,7 @@ coordinates which refer to built-in schema elements. However it must not refer
 to a meta-field. For example, `Business.__typename` is _not_ a valid schema
 coordinate.
 
-Note: A union member is not a valid _schema coordinate_ as they reference
+Note: Union members are not valid _schema coordinates_ as they reference
 existing types in the schema. This preserves the uniqueness property of a
 _schema coordinate_ as stated above.
 
