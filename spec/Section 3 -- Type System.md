@@ -2234,7 +2234,8 @@ MemberCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert: {type} must exist.
+3. Assert: {type} must exist, and must be an Enum, Input Object, Object or
+   Interface type.
 4. If {type} is an Enum type:
    1. Let {enumValueName} be the value of the second {Name}.
    2. Return the enum value of {type} named {enumValueName}, or {null} if no
@@ -2244,9 +2245,8 @@ MemberCoordinate : Name . Name
    2. Return the input field of {type} named {inputFieldName}, or {null} if no
       such input field exists.
 6. Otherwise:
-   1. Assert: {type} must be an Object or Interface type.
-   2. Let {fieldName} be the value of the second {Name}.
-   3. Return the field of {type} named {fieldName}, or {null} if no such field
+   1. Let {fieldName} be the value of the second {Name}.
+   2. Return the field of {type} named {fieldName}, or {null} if no such field
       exists.
 
 ArgumentCoordinate : Name . Name ( Name : )
