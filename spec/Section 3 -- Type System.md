@@ -2185,7 +2185,7 @@ _schema element_ within a GraphQL Schema.
 :: A _schema element_ can be a named type, a field, an input field, an enum
 value, a field argument, a directive, or a directive argument.
 
-A _schema coordinate_ is always unique. Each _schema element_ may be referenced
+A _schema coordinate_ is always unique. Each _schema element_ can be referenced
 by exactly one possible schema coordinate.
 
 A _schema coordinate_ may refer to either a defined or built-in _schema
@@ -2205,30 +2205,44 @@ documentation to refer to types and fields in a schema, a lookup key that can be
 used in logging tools to track how often particular fields are queried in
 production.
 
-**Semantics**
+**Resolving a Schema Coordinate**
 
 To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
 context of a GraphQL {schema}.
 
+Note: If the _schema element_ cannot be found, the resolve function will not
+yield a value (without raising an error). However, an error **will** be raised
+if any non-leaf nodes within a _schema coordinate_ cannot be found in the
+{schema}.
+
 SchemaCoordinate : Name
 
 1. Let {typeName} be the value of the first {Name}.
-2. Return the type in the {schema} named {typeName}.
+2. Let {type} be the type in the {schema} named {typeName}.
+3. If {type} does not exist, return {void}.
+4. Return {type}
 
 SchemaCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. If {type} is an Enum type:
-4. Let {enumValueName} be the value of the second {Name}.
-5. Return the enum value of {type} named {enumValueName}.
-6. Otherwise if {type} is an Input Object type:
-7. Let {inputFieldName} be the value of the second {Name}.
-8. Return the input field of {type} named {inputFieldName}.
-9. Otherwise:
-10. Assert {type} must be an Object or Interface type.
-11. Let {fieldName} be the value of the second {Name}.
-12. Return the field of {type} named {fieldName}.
+3. Assert that {type} exists.
+4. If {type} is an Enum type:
+5. Let {enumValueName} be the value of the second {Name}.
+6. Let {enumValue} be the enum value of {type} named {enumValueName}.
+7. If {enumValue} does not exist, return {void}.
+8. Return {enumValue}
+9. Otherwise if {type} is an Input Object type:
+10. Let {inputFieldName} be the value of the second {Name}.
+11. Let {inputField} be the input field of {type} named {inputFieldName}.
+12. If {inputField} does not exist, return {void}.
+13. Return {inputField}
+14. Otherwise:
+15. Assert {type} must be an Object or Interface type.
+16. Let {fieldName} be the value of the second {Name}.
+17. Let {field} be the field of {type} named {fieldName}.
+18. If {field} does not exist, return {void}.
+19. Return {field}
 
 SchemaCoordinate : Name . Name ( Name : )
 
@@ -2239,12 +2253,16 @@ SchemaCoordinate : Name . Name ( Name : )
 5. Let {field} be the field of {type} named {fieldName}.
 6. Assert {field} must exist.
 7. Let {fieldArgumentName} be the value of the third {Name}.
-8. Return the argument of {field} named {fieldArgumentName}.
+8. Let {fieldArgument} be the argument of {field} named {fieldArgumentName}.
+9. If {fieldArgument} does not exist, return {void}.
+10. Return {fieldArgument}.
 
 SchemaCoordinate : @ Name
 
 1. Let {directiveName} be the value of the first {Name}.
-2. Return the directive in the {schema} named {directiveName}.
+2. Let {directive} be the directive in the {schema} named {directiveName}.
+3. If {directive} does not exist, return {void}.
+4. Return {directive}.
 
 SchemaCoordinate : @ Name ( Name : )
 
@@ -2252,7 +2270,10 @@ SchemaCoordinate : @ Name ( Name : )
 2. Let {directive} be the directive in the {schema} named {directiveName}.
 3. Assert {directive} must exist.
 4. Let {directiveArgumentName} be the value of the second {Name}.
-5. Return the argument of {directive} named {directiveArgumentName}.
+5. Let {directiveArgument} be the argument of {directive} named
+   {directiveArgumentName}.
+6. If {directiveArgument} does not exist, return {void}.
+7. Return {directiveArgument}.
 
 **Examples**
 
