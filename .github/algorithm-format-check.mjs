@@ -28,7 +28,7 @@ for (const filename of filenames) {
       const matches = line.match(/^([a-z0-9A-Z]+)(\s*)\(([^)]*)\)(\s*):(\s*)$/);
       const grammarMatches =
         filename === "Section 2 -- Language.md" &&
-        line.match(/^([A-Za-z0-9]+) :\s+((\S).*)$/);
+        line.match(/^([A-Za-z0-9]+) ::?\s+((\S).*)$/);
       if (matches) {
         const [, algorithmName, ns1, _args, ns2, ns3] = matches;
         if (ns1 || ns2 || ns3) {
@@ -139,6 +139,10 @@ for (const filename of filenames) {
           );
           console.log();
           process.exitCode = 1;
+        }
+        while (lines[i + 1].trim() !== "") {
+          // Continuation of definition
+          i++;
         }
         if (!lines[i + 2].startsWith("- ")) {
           // Not an algorithm; probably more grammar
