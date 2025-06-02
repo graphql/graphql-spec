@@ -2210,10 +2210,9 @@ production.
 To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
 context of a GraphQL {schema}.
 
-Note: If the _schema element_ cannot be found, the resolve function will not
-yield a value (without raising an error). However, an error **will** be raised
-if any non-leaf nodes within a _schema coordinate_ cannot be found in the
-{schema}.
+If the _schema element_ cannot be found, the resolve function will not yield a
+value (without raising an error). However, an error **will** be raised if any
+non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 
 SchemaCoordinate : Name
 
