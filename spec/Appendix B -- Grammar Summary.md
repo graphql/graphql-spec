@@ -422,8 +422,18 @@ TypeSystemDirectiveLocation : one of
 
 SchemaCoordinate :
 
-- Name
-- Name . Name
-- Name . Name ( Name : )
-- @ Name
-- @ Name ( Name : )
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate : Name
+
+MemberCoordinate : Name . Name
+
+ArgumentCoordinate : Name . Name ( Name : )
+
+DirectiveCoordinate : @ Name
+
+DirectiveArgumentCoordinate : @ Name ( Name : )
