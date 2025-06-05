@@ -13,6 +13,8 @@ specification.
 The descriptions are non-normative. Implementations are recommended to use them
 for consistency but different descriptions are allowed.
 
+The order of types, fields, arguments, values and directives is non-normative.
+
 \`\`\`graphql
 `
 
