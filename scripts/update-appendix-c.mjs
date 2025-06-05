@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { printIntrospectionSchema, buildSchema, specifiedScalarTypes, printType } from 'graphql';
 
-const FILE = './spec/Appendix C -- Built-in Definitions.md';
+const FILE = './spec/Appendix C -- Specified Definitions.md';
 function printSpecifiedScalars() {
   return specifiedScalarTypes
     .map((type) => printType(type))
