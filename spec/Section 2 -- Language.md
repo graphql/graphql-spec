@@ -178,16 +178,22 @@ and is {Ignored}.
 
 Punctuator ::
 
+- ColonPunctuator
 - DotPunctuator
 - OtherPunctuator
 
+ColonPunctuator :: `:` [lookahead != {`:`}]
+
 DotPunctuator :: `.` [lookahead != {`.`, Digit}]
 
-OtherPunctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+OtherPunctuator :: one of ! $ & ( ) ... :: = @ [ ] { | }
 
 GraphQL documents include punctuation in order to describe structure. GraphQL is
 a data description language and not a programming language, therefore GraphQL
 lacks the punctuation often used to describe mathematical expressions.
+
+The {`:`} punctuator must not be followed by a {`:`}. This ensures that the
+source {"::"} can only be interpreted as a single {`::`} and not two {`:`}.
 
 The {`.`} punctuator must not be followed by a {`.`} or {Digit}. This ensures
 that the source {"..."} can only be interpreted as a single {`...`} and not
