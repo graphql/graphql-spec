@@ -1,14 +1,18 @@
 import { writeFile } from 'node:fs/promises';
-import { printIntrospectionSchema, buildSchema } from 'graphql';
+import { printIntrospectionSchema, buildSchema, specifiedScalarTypes, printType } from 'graphql';
 
 const FILE = './spec/Appendix C -- Built-in Definitions.md';
+function printSpecifiedScalars() {
+  return specifiedScalarTypes
+    .map((type) => printType(type))
+    .join('\n\n');
+}
 
-const sdl = printIntrospectionSchema(buildSchema(`type Query { i: Int }`));
+const introspectionSchema = printIntrospectionSchema(buildSchema(`type Query { i: Int }`));
 const prefix = `
 # C. Appendix: Type System Definitions
 
-This appendix lists all the type system definitions mentioned throughout this
-specification.
+This appendix lists the specified type system definitions.
 
 The descriptions are non-normative. Implementations are recommended to use them
 for consistency but different descriptions are allowed.
@@ -21,4 +25,4 @@ The order of types, fields, arguments, values and directives is non-normative.
 const suffix = `
 \`\`\`
 `
-await writeFile(FILE, prefix + sdl + suffix);
+await writeFile(FILE, prefix + printSpecifiedScalars() + '\n\n' + introspectionSchema + suffix);
