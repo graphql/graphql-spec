@@ -140,4 +140,4 @@ Note: This is an example of a non-normative note.
 
 # [Appendix: Grammar Summary](Appendix%20B%20--%20Grammar%20Summary.md)
 
-# [Appendix: Builtin Definitions](Appendix%20C%20--%20Built-in%20Definitions.md)
+# [Appendix: Specified Definitions](Appendix%20C%20--%20Specified%20Definitions.md)
