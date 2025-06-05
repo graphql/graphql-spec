@@ -972,7 +972,7 @@ StringCharacter :: `\u` EscapedUnicode
 
 - Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
   within {EscapedUnicode}.
-- Assert {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+- Assert: {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
   0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the _Unicode scalar value_ {value}.
 
@@ -984,12 +984,12 @@ HexDigit HexDigit HexDigit
 - Let {trailingValue} be the hexadecimal value represented by the second
   sequence of {HexDigit}.
 - If {leadingValue} is >= 0xD800 and <= 0xDBFF (a _Leading Surrogate_):
-  - Assert {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
+  - Assert: {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
   - Return ({leadingValue} - 0xD800) × 0x400 + ({trailingValue} - 0xDC00) +
     0x10000.
 - Otherwise:
-  - Assert {leadingValue} is within the _Unicode scalar value_ range.
-  - Assert {trailingValue} is within the _Unicode scalar value_ range.
+  - Assert: {leadingValue} is within the _Unicode scalar value_ range.
+  - Assert: {trailingValue} is within the _Unicode scalar value_ range.
   - Return the sequence of the _Unicode scalar value_ {leadingValue} followed by
     the _Unicode scalar value_ {trailingValue}.
 
