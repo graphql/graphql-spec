@@ -301,7 +301,7 @@ comments from executable documents without changing their behavior or results.
 
 Example:
 
-```graphql
+```graphql example
 "Some description"
 query SomeOperation(
   "ID you should provide"
