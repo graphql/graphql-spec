@@ -279,20 +279,70 @@ be executed must also be provided.
 
 Description : StringValue
 
-Documentation is a first-class feature of GraphQL.
-GraphQL descriptions are defined using the Markdown syntax (as specified by
-[CommonMark](https://commonmark.org/)). Description strings (often {BlockString})
-occur immediately before the definition they describe.
+Documentation is a first-class feature of GraphQL. GraphQL descriptions are
+defined using the Markdown syntax (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often
+{BlockString}) occur immediately before the definition they describe.
 
-GraphQL definitions (e.g. queries, fragments, types, fields, arguments, etc.)
-which can be described should provide a {Description} unless they are considered
-self descriptive.
+Descriptions may appear before:
+
+- Operation definitions (queries, mutations, subscriptions) in their full form
+  (not the shorthand form).
+- Fragment definitions.
+- Variable definitions within operation definitions.
+
+Descriptions are not permitted on the shorthand form of operations (e.g.,
+`{ ... }`).
+
+Note: Descriptions and comments in executable GraphQL documents are purely for
+documentation purposes. They MUST NOT affect the execution, validation, or
+response of a GraphQL document. It is safe to remove all descriptions and
+comments from executable documents without changing their behavior or results.
+
+Example:
+
+```graphql
+"Some description"
+query SomeOperation(
+  "ID you should provide"
+  $id: String
+
+  "Switch for experiment ...."
+  $enableBaz: Boolean = false,
+) {
+  foo(id: $id) {
+    bar
+    baz @include(if: $enableBaz) {
+      ...BazInfo
+    }
+  }
+}
+
+"Some description here"
+fragment BazInfo on Baz {
+  # ...
+}
+```
+
+Counterexample:
+
+```graphql counter-example
+"Descriptions are not permitted on the shorthand form of operations"
+{
+  foo {
+    bar
+    baz {
+      ...BazInfo
+    }
+  }
+}
+```
 
 ## Operations
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`

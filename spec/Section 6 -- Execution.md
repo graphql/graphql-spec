@@ -33,6 +33,12 @@ Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
 chosen by the implementing service.
 
+Note: Descriptions and comments in executable documents (operation definitions,
+fragment definitions, and variable definitions) MUST be ignored during execution
+and have no effect on the execution, validation, or response of a GraphQL
+document. Descriptions and comments on executable documents MAY be used for
+observability and logging purposes.
+
 ## Executing Requests
 
 To execute a request, the executor must have a parsed {Document} and a selected

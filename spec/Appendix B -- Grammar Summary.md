@@ -176,8 +176,8 @@ FragmentSpread : ... FragmentName Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : Description? fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -215,7 +215,8 @@ ObjectField[Const] : Name : Value[?Const]
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Description? Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 Variable : $ Name
 
