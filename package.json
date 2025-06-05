@@ -21,13 +21,15 @@
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "build": "./build.sh",
     "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
-    "watch": "nodemon -e json,md --exec \"npm run build\""
+    "watch": "nodemon -e json,md --exec \"npm run build\"",
+    "update-appendix-c": "node scripts/update-appendix-c.mjs; prettier --write \"spec/Appendix C -- Built-in Definitions.md\""
   },
   "devDependencies": {
     "cspell": "5.9.1",
     "nodemon": "2.0.20",
     "prettier": "2.8.2",
-    "spec-md": "3.1.0"
+    "spec-md": "3.1.0",
+    "graphql": "^17.0.0-alpha.8"
   },
   "prettier": {
     "proseWrap": "always",
