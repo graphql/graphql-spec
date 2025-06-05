@@ -104,8 +104,10 @@ CoerceVariableValues(schema, operation, variableValues):
   - Let {value} be the value provided in {variableValues} for the name
     {variableName}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+      according to the input coercion rules of {variableType}.
     - Add an entry to {coercedValues} named {variableName} with the value
-      {defaultValue}.
+      {coercedDefaultValue}.
   - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _request error_.
   - Otherwise if {hasValue} is {true}:
@@ -658,8 +660,10 @@ CoerceArgumentValues(objectType, field, variableValues):
       {variableName}.
   - Otherwise, let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+      according to the input coercion rules of {argumentType}.
     - Add an entry to {coercedValues} named {argumentName} with the value
-      {defaultValue}.
+      {coercedDefaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise an _execution error_.
   - Otherwise if {hasValue} is {true}:
@@ -684,6 +688,10 @@ Any _request error_ raised as a result of input coercion during
 Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid operations
 must only allow usage of variables of appropriate types.
+
+Note: As an optimization you might choose to coerce each {defaultValue} at
+schema build time and cache the results, then refer to this cache within
+{CoerceArgumentValues()} calls.
 
 ### Value Resolution
 
