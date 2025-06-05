@@ -74,11 +74,6 @@ directive @specifiedBy(
 ) on SCALAR
 
 """
-Indicates exactly one field must be supplied and this field must not be `null`.
-"""
-directive @oneOf on INPUT_OBJECT
-
-"""
 A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
 """
 type __Schema {
@@ -126,7 +121,6 @@ type __Type {
   enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
   inputFields(includeDeprecated: Boolean = false): [__InputValue!]
   ofType: __Type
-  isOneOf: Boolean
 }
 
 """
@@ -268,11 +262,6 @@ enum __DirectiveLocation {
   Location adjacent to an operation variable definition.
   """
   VARIABLE_DEFINITION
-
-  """
-  Location adjacent to a fragment variable definition.
-  """
-  FRAGMENT_VARIABLE_DEFINITION
 
   """
   Location adjacent to a schema definition.
