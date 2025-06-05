@@ -217,13 +217,14 @@ type MyMutationRootType {
 {"Subscription"} respectively.
 
 The type system definition language can omit the schema definition when each
-_root operation type_ uses its respective _default root type name_ and no other
-type uses any _default root type name_.
+_root operation type_ uses its respective _default root type name_, no other
+type uses any _default root type name_, and the schema does not have a
+description.
 
 Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if each _root operation type_
-uses its respective _default root type name_ and no other type uses any _default
-root type name_.
+uses its respective _default root type name_, no other type uses any _default
+root type name_, and the schema does not have a description.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
@@ -256,6 +257,27 @@ type Virus {
 
 type Mutation {
   name: String
+}
+```
+
+This example describes a valid GraphQL schema with a description and both a
+{`query`} and {`mutation`} operation type:
+
+```graphql example
+"""
+Example schema
+"""
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  someField: String
+}
+
+type Mutation {
+  someMutation: String
 }
 ```
 
