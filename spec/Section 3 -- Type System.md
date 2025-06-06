@@ -2195,14 +2195,21 @@ _schema element_ within a GraphQL Schema.
 :: A _schema element_ can be a named type, a field, an input field, an enum
 value, a field argument, a directive, or a directive argument.
 
+:: The _containing element_ of a _schema element_ is the schema element with one
+fewer {Name} token that syntactically contains it. Specifically:
+
+- {MemberCoordinate} has a {TypeCoordinate} containing element.
+- {ArgumentCoordinate} has a {MemberCoordinate} containing element.
+- {DirectiveArgumentCoordinate} has a {DirectiveCoordinate} containing element.
+- {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
+
 A _schema coordinate_ is always unique. Each _schema element_ can be referenced
 by exactly one possible schema coordinate.
 
 A _schema coordinate_ may refer to either a defined or built-in _schema
 element_. For example, `String` and `@deprecated(reason:)` are both valid schema
-coordinates which refer to built-in schema elements. However it must not refer
-to a meta-field. For example, `Business.__typename` is _not_ a valid schema
-coordinate.
+coordinates which refer to built-in schema elements. Meta-fields may also be
+referenced. For example, `Business.__typename` is a valid schema coordinate.
 
 Note: Union members are not valid _schema coordinate_ as they reference existing
 types in the schema. This preserves the uniqueness property of a _schema
