@@ -45,15 +45,12 @@ Token ::
 
 Punctuator ::
 
-- ColonPunctuator
 - DotPunctuator
 - OtherPunctuator
 
-ColonPunctuator :: `:` [lookahead != {`:`}]
-
 DotPunctuator :: `.` [lookahead != {`.`, Digit}]
 
-OtherPunctuator :: one of ! $ & ( ) ... :: = @ [ ] { | }
+OtherPunctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name ::
 
@@ -426,19 +423,16 @@ TypeSystemDirectiveLocation : one of
 SchemaCoordinate :
 
 - TypeCoordinate
-- FieldCoordinate
+- MemberCoordinate
 - ArgumentCoordinate
-- ValueCoordinate
 - DirectiveCoordinate
 - DirectiveArgumentCoordinate
 
 TypeCoordinate : Name
 
-FieldCoordinate : Name . Name
+MemberCoordinate : Name . Name
 
 ArgumentCoordinate : Name . Name ( Name : )
-
-ValueCoordinate : Name :: Name
 
 DirectiveCoordinate : @ Name
 

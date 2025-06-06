@@ -2174,19 +2174,16 @@ scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 SchemaCoordinate :
 
 - TypeCoordinate
-- FieldCoordinate
+- MemberCoordinate
 - ArgumentCoordinate
-- ValueCoordinate
 - DirectiveCoordinate
 - DirectiveArgumentCoordinate
 
 TypeCoordinate : Name
 
-FieldCoordinate : Name . Name
+MemberCoordinate : Name . Name
 
 ArgumentCoordinate : Name . Name ( Name : )
-
-ValueCoordinate : Name :: Name
 
 DirectiveCoordinate : @ Name
 
@@ -2197,16 +2194,6 @@ _schema element_ within a GraphQL Schema.
 
 :: A _schema element_ can be a named type, a field, an input field, an enum
 value, a field argument, a directive, or a directive argument.
-
-:: The _containing element_ of a _schema element_ is the schema element with one
-fewer {Name} token that syntactically contains it. For example:
-
-- The containing element of an {ArgumentCoordinate} or
-  {DirectiveArgumentCoordinate} is the corresponding {FieldCoordinate} or
-  {DirectiveCoordinate} respectively.
-- The containing element of a {FieldCoordinate} or {ValueCoordinate} is its
-  containing {TypeCoordinate}.
-- {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
 
 A _schema coordinate_ is always unique. Each _schema element_ can be referenced
 by exactly one possible schema coordinate.
@@ -2233,9 +2220,9 @@ production.
 To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
 context of a GraphQL {schema}.
 
-If the _schema element_ cannot be found, and either it has no _containing
-element_ or its _containing element_ exists and is of the expected type, the
-resolve function returns {null}. Otherwise, an error is raised.
+If the _schema element_ cannot be found, the resolve function will not yield a
+value (without raising an error). However, an error will be raised if any
+non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 
 TypeCoordinate : Name
 
@@ -2243,17 +2230,21 @@ TypeCoordinate : Name
 2. Return the type in the {schema} named {typeName}, or {null} if no such type
    exists.
 
-FieldCoordinate : Name . Name
+MemberCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert: {type} must exist, and must be an Input Object, Object or Interface
-   type.
-4. If {type} is an Input Object type:
+3. Assert: {type} must exist, and must be an Enum, Input Object, Object or
+   Interface type.
+4. If {type} is an Enum type:
+   1. Let {enumValueName} be the value of the second {Name}.
+   2. Return the enum value of {type} named {enumValueName}, or {null} if no
+      such value exists.
+5. Otherwise, if {type} is an Input Object type:
    1. Let {inputFieldName} be the value of the second {Name}.
    2. Return the input field of {type} named {inputFieldName}, or {null} if no
       such input field exists.
-5. Otherwise:
+6. Otherwise:
    1. Let {fieldName} be the value of the second {Name}.
    2. Return the field of {type} named {fieldName}, or {null} if no such field
       exists.
@@ -2269,15 +2260,6 @@ ArgumentCoordinate : Name . Name ( Name : )
 7. Let {fieldArgumentName} be the value of the third {Name}.
 8. Return the argument of {field} named {fieldArgumentName}, or {null} if no
    such argument exists.
-
-ValueCoordinate : Name :: Name
-
-1. Let {typeName} be the value of the first {Name}.
-2. Let {type} be the type in the {schema} named {typeName}.
-3. Assert: {type} must exist, and must be an Enum type.
-4. Let {enumValueName} be the value of the second {Name}.
-5. Return the enum value of {type} named {enumValueName}, or {null} if no such
-   value exists.
 
 DirectiveCoordinate : @ Name
 
@@ -2301,8 +2283,8 @@ DirectiveArgumentCoordinate : @ Name ( Name : )
 | Named Type         | `Business`                        | `Business` type                                                       |
 | Field              | `Business.name`                   | `name` field on the `Business` type                                   |
 | Input Field        | `SearchCriteria.filter`           | `filter` input field on the `SearchCriteria` input object type        |
+| Enum Value         | `SearchFilter.OPEN_NOW`           | `OPEN_NOW` value of the `SearchFilter` enum                           |
 | Field Argument     | `Query.searchBusiness(criteria:)` | `criteria` argument on the `searchBusiness` field on the `Query` type |
-| Enum Value         | `SearchFilter::OPEN_NOW`          | `OPEN_NOW` value of the `SearchFilter` enum                           |
 | Directive          | `@private`                        | `@private` directive                                                  |
 | Directive Argument | `@private(scope:)`                | `scope` argument on the `@private` directive                          |
 
