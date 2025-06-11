@@ -300,43 +300,33 @@ Request the current status of a time machine and its operator.
 This operation retrieves the latest information about a specific time machine,
 including its model, last maintenance date, and the operator currently assigned.
 
-You can also check the status for a particular year, to see if the time machine
-was scheduled for travel or maintenance at that time.
+You can also check the status for a particular year.
+
+**Warning:** certain years may trigger an anomaly in the space-time continuum. Use with caution!
 """
 query GetTimeMachineStatus(
   "The unique serial number of the time machine to inspect."
   $machineId: ID!
-
-  """
-  The year to check the status for.
-  **Warning:** Requesting status information for certain years may trigger an anomaly in the space-time continuum.
-  """
+  "The year to check the status for."
   $year: Int
 ) {
   timeMachine(id: $machineId) {
     ...TimeMachineDetails
-    operator {
-      ...OperatorDetails
-    }
     status(year: $year)
   }
 }
 
 """
-Time machine details.
+Details about a time machine and its operator.
 """
 fragment TimeMachineDetails on TimeMachine {
   id
   model
   lastMaintenance
-}
-
-"""
-Basic information about a time machine operator.
-"""
-fragment OperatorDetails on Operator {
-  name
-  licenseLevel
+  operator {
+    name
+    licenseLevel
+  }
 }
 ```
 
