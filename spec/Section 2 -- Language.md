@@ -360,7 +360,6 @@ documentation purposes. They MUST NOT affect the execution, validation, or
 response of a GraphQL document. It is safe to remove all descriptions and
 comments from executable documents without changing their behavior or results.
 
-
 ## Operations
 
 OperationDefinition :
