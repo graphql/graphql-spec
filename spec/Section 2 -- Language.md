@@ -291,18 +291,11 @@ Descriptions may appear before:
 - Fragment definitions.
 - Variable definitions within operation definitions.
 
-Example:
-
 ```graphql example
 """
 Request the current status of a time machine and its operator.
-
-This operation retrieves the latest information about a specific time machine,
-including its model, last maintenance date, and the operator currently assigned.
-
 You can also check the status for a particular year.
-
-**Warning:** certain years may trigger an anomaly in the space-time continuum. Use with caution!
+**Warning:** certain years may trigger an anomaly in the space-time continuum.
 """
 query GetTimeMachineStatus(
   "The unique serial number of the time machine to inspect."
@@ -316,9 +309,7 @@ query GetTimeMachineStatus(
   }
 }
 
-"""
-Details about a time machine and its operator.
-"""
+"Details about a time machine and its operator."
 fragment TimeMachineDetails on TimeMachine {
   id
   model
