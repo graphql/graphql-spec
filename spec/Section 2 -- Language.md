@@ -291,52 +291,75 @@ Descriptions may appear before:
 - Fragment definitions.
 - Variable definitions within operation definitions.
 
-Descriptions are not permitted on the shorthand form of operations (e.g.,
-`{ ... }`).
+Example:
+
+```graphql example
+"""
+Request the current status of a time machine and its operator.
+
+This operation retrieves the latest information about a specific time machine,
+including its model, last maintenance date, and the operator currently assigned.
+
+You can also check the status for a particular year, to see if the time machine
+was scheduled for travel or maintenance at that time.
+"""
+query GetTimeMachineStatus(
+  "The unique serial number of the time machine to inspect."
+  $machineId: ID!
+
+  """
+  The year to check the status for.
+  **Warning:** Requesting status information for certain years may trigger an anomaly in the space-time continuum.
+  """
+  $year: Int
+) {
+  timeMachine(id: $machineId) {
+    ...TimeMachineDetails
+    operator {
+      ...OperatorDetails
+    }
+    status(year: $year)
+  }
+}
+
+"""
+Time machine details.
+"""
+fragment TimeMachineDetails on TimeMachine {
+  id
+  model
+  lastMaintenance
+}
+
+"""
+Basic information about a time machine operator.
+"""
+fragment OperatorDetails on Operator {
+  name
+  licenseLevel
+}
+```
+
+Descriptions are not permitted on the shorthand form of operations:
+
+```graphql counter-example
+"This description is invalid, because this is a shorthand operation definition"
+{
+  timeMachine(id: "TM-1985") {
+    status
+    destination {
+      year
+      location
+    }
+  }
+}
+```
 
 Note: Descriptions and comments in executable GraphQL documents are purely for
 documentation purposes. They MUST NOT affect the execution, validation, or
 response of a GraphQL document. It is safe to remove all descriptions and
 comments from executable documents without changing their behavior or results.
 
-Example:
-
-```graphql example
-"Some description"
-query SomeOperation(
-  "ID you should provide"
-  $id: String
-
-  "Switch for experiment ...."
-  $enableBaz: Boolean = false,
-) {
-  foo(id: $id) {
-    bar
-    baz @include(if: $enableBaz) {
-      ...BazInfo
-    }
-  }
-}
-
-"Some description here"
-fragment BazInfo on Baz {
-  # ...
-}
-```
-
-Counterexample:
-
-```graphql counter-example
-"Descriptions are not permitted on the shorthand form of operations"
-{
-  foo {
-    bar
-    baz {
-      ...BazInfo
-    }
-  }
-}
-```
 
 ## Operations
 
@@ -361,6 +384,10 @@ For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
 ```graphql example
+"""
+Mark story 12345 as "liked"
+and return the updated number of likes on the story
+"""
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -633,6 +660,7 @@ query withFragments {
   }
 }
 
+"""Common fields for a user's friends."""
 fragment friendFields on User {
   id
   name
@@ -1263,7 +1291,10 @@ In this example, we want to fetch a profile picture size based on the size of a
 particular device:
 
 ```graphql example
-query getZuckProfile($devicePicSize: Int) {
+query getZuckProfile(
+  """The size of the profile picture to fetch."""
+  $devicePicSize: Int
+) {
   user(id: 4) {
     id
     name
