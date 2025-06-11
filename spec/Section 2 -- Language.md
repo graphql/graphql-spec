@@ -613,8 +613,8 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Directives?
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -1272,7 +1272,8 @@ Variable : $ Name
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 DefaultValue : = Value[Const]
 
