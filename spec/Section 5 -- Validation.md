@@ -1949,8 +1949,8 @@ IsNonNullPosition(locationType, variableUsage):
 
 - If {locationType} is a non-null type, return {true}.
 - If the location of {variableUsage} is an {ObjectField}:
-  - Let {parentLocationType} be the expected type of {ObjectField}'s parent
-    {ObjectValue}.
+  - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
+  - Let {parentLocationType} be the expected type of {ObjectValue}.
   - If {parentLocationType} is a OneOf Input Object type, return {true}.
 - Return {false}.
 
