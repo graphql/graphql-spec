@@ -1731,7 +1731,7 @@ Following are examples of input coercion for a OneOf Input Object type with a
 `String` member field `a` and an `Int` member field `b`:
 
 ```graphql example
-input ExampleInputTagged @oneOf {
+input ExampleOneOfInputObject @oneOf {
   a: String
   b: Int
 }
