@@ -1577,7 +1577,7 @@ one of many different options.
 
 When using the type system definition language, the `@oneOf` directive is used
 to indicate that an Input Object is a OneOf Input Object (and thus requires
-exactly one of its field be provided):
+exactly one of its fields be provided):
 
 ```graphql
 input UserUniqueCondition @oneOf {
