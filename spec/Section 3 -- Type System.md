@@ -59,6 +59,9 @@ documentation of a GraphQL service remains consistent with its capabilities,
 descriptions of GraphQL definitions are provided alongside their definitions and
 made available via introspection.
 
+Note: See Section 2, "Descriptions", for normative rules and additional details
+on descriptions in executable documents.
+
 To allow GraphQL service designers to easily publish documentation alongside the
 capabilities of a GraphQL service, GraphQL descriptions are defined using the
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the

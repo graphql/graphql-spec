@@ -275,11 +275,77 @@ operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL. GraphQL descriptions are
+defined using the Markdown syntax (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often
+{BlockString}) occur immediately before the definition they describe.
+
+Descriptions may appear before:
+
+- Operation definitions (queries, mutations, subscriptions) in their full form
+  (not the shorthand form).
+- Fragment definitions.
+- Variable definitions within operation definitions.
+
+```graphql example
+"""
+Request the current status of a time machine and its operator.
+You can also check the status for a particular year.
+**Warning:** certain years may trigger an anomaly in the space-time continuum.
+"""
+query GetTimeMachineStatus(
+  "The unique serial number of the time machine to inspect."
+  $machineId: ID!
+  "The year to check the status for."
+  $year: Int
+) {
+  timeMachine(id: $machineId) {
+    ...TimeMachineDetails
+    status(year: $year)
+  }
+}
+
+"Details about a time machine and its operator."
+fragment TimeMachineDetails on TimeMachine {
+  id
+  model
+  lastMaintenance
+  operator {
+    name
+    licenseLevel
+  }
+}
+```
+
+Descriptions are not permitted on the shorthand form of operations:
+
+```graphql counter-example
+"This description is invalid, because this is a shorthand operation definition"
+{
+  timeMachine(id: "TM-1985") {
+    status
+    destination {
+      year
+      location
+    }
+  }
+}
+```
+
+Note: Descriptions and comments in executable GraphQL documents are purely for
+documentation purposes. They MUST NOT affect the execution, validation, or
+response of a GraphQL document. It is safe to remove all descriptions and
+comments from executable documents without changing their behavior or results.
+
 ## Operations
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -298,6 +364,10 @@ For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
 ```graphql example
+"""
+Mark story 12345 as "liked"
+and return the updated number of likes on the story
+"""
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -523,8 +593,8 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Directives?
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -570,6 +640,7 @@ query withFragments {
   }
 }
 
+"Common fields for a user's friends."
 fragment friendFields on User {
   id
   name
@@ -1181,7 +1252,8 @@ Variable : $ Name
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 DefaultValue : = Value[Const]
 
@@ -1200,7 +1272,10 @@ In this example, we want to fetch a profile picture size based on the size of a
 particular device:
 
 ```graphql example
-query getZuckProfile($devicePicSize: Int) {
+query getZuckProfile(
+  "The size of the profile picture to fetch."
+  $devicePicSize: Int
+) {
   user(id: 4) {
     id
     name
