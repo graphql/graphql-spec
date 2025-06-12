@@ -640,7 +640,7 @@ query withFragments {
   }
 }
 
-"""Common fields for a user's friends."""
+"Common fields for a user's friends."
 fragment friendFields on User {
   id
   name
@@ -1273,7 +1273,7 @@ particular device:
 
 ```graphql example
 query getZuckProfile(
-  """The size of the profile picture to fetch."""
+  "The size of the profile picture to fetch."
   $devicePicSize: Int
 ) {
   user(id: 4) {
