@@ -248,6 +248,8 @@ TypeSystemDefinition :
 
 TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
 
+SourceSchemaDocument : TypeSystemDefinitionOrExtension+
+
 TypeSystemDefinitionOrExtension :
 
 - TypeSystemDefinition
@@ -257,6 +259,8 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+
+FullSchemaDocument : TypeSystemDefinition+
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }
