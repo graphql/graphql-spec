@@ -757,7 +757,7 @@ coerce result values.
 
 CoerceResult(leafType, value):
 
-- Assert {value} is not {null}.
+- Assert: {value} is not {null}.
 - Return the result of calling the internal method provided by the type system
   for determining the "result coercion" of {leafType} given the value {value}.
   This internal method must return a valid value for the type and not {null}.
