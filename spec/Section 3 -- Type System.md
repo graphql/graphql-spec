@@ -2234,8 +2234,7 @@ non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 TypeCoordinate : Name
 
 1. Let {typeName} be the value of {Name}.
-2. Return the type in the {schema} named {typeName}, or {null} if no such type
-   exists.
+2. Return the type in the {schema} named {typeName} if it exists.
 
 MemberCoordinate : Name . Name
 
@@ -2245,16 +2244,13 @@ MemberCoordinate : Name . Name
    Interface type.
 4. If {type} is an Enum type:
    1. Let {enumValueName} be the value of the second {Name}.
-   2. Return the enum value of {type} named {enumValueName}, or {null} if no
-      such value exists.
+   2. Return the enum value of {type} named {enumValueName} if it exists.
 5. Otherwise, if {type} is an Input Object type:
    1. Let {inputFieldName} be the value of the second {Name}.
-   2. Return the input field of {type} named {inputFieldName}, or {null} if no
-      such input field exists.
+   2. Return the input field of {type} named {inputFieldName} if it exists.
 6. Otherwise:
    1. Let {fieldName} be the value of the second {Name}.
-   2. Return the field of {type} named {fieldName}, or {null} if no such field
-      exists.
+   2. Return the field of {type} named {fieldName} if it exists.
 
 ArgumentCoordinate : Name . Name ( Name : )
 
@@ -2265,14 +2261,12 @@ ArgumentCoordinate : Name . Name ( Name : )
 5. Let {field} be the field of {type} named {fieldName}.
 6. Assert: {field} must exist.
 7. Let {fieldArgumentName} be the value of the third {Name}.
-8. Return the argument of {field} named {fieldArgumentName}, or {null} if no
-   such argument exists.
+8. Return the argument of {field} named {fieldArgumentName} if it exists.
 
 DirectiveCoordinate : @ Name
 
 1. Let {directiveName} be the value of {Name}.
-2. Return the directive in the {schema} named {directiveName}, or {null} if no
-   such directive exists.
+2. Return the directive in the {schema} named {directiveName} if it exists.
 
 DirectiveArgumentCoordinate : @ Name ( Name : )
 
@@ -2280,8 +2274,8 @@ DirectiveArgumentCoordinate : @ Name ( Name : )
 2. Let {directive} be the directive in the {schema} named {directiveName}.
 3. Assert: {directive} must exist.
 4. Let {directiveArgumentName} be the value of the second {Name}.
-5. Return the argument of {directive} named {directiveArgumentName}, or {null}
-   if no such argument exists.
+5. Return the argument of {directive} named {directiveArgumentName} if it
+   exists.
 
 **Examples**
 
