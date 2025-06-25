@@ -2203,8 +2203,8 @@ fewer {Name} token that syntactically contains it. Specifically:
 - {DirectiveArgumentCoordinate} has a {DirectiveCoordinate} containing element.
 - {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
 
-A _schema coordinate_ is always unique. Each _schema element_ can be referenced
-by exactly one possible schema coordinate.
+A _schema coordinate_ is always unique. Each non-metafield _schema element_ can
+be referenced by exactly one possible schema coordinate.
 
 A _schema coordinate_ may refer to either a defined or built-in _schema
 element_. For example, `String` and `@deprecated(reason:)` are both valid schema
