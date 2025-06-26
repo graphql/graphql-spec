@@ -302,13 +302,16 @@ This is an example of a non-normative note.</div>
 </li>
 </ol>
 </li>
-<li><a href="#sec-undefined.Response"><span class="spec-secid">7</span>Response</a><ol>
+<li><a href="#sec-Response"><span class="spec-secid">7</span>Response</a><ol>
 <li><a href="#sec-Response-Format"><span class="spec-secid">7.1</span>Response Format</a><ol>
-<li><a href="#sec-Response-Format.Response"><span class="spec-secid">7.1.1</span>Response</a></li>
+<li><a href="#sec-Execution-Result"><span class="spec-secid">7.1.1</span>Execution Result</a></li>
 <li><a href="#sec-Response-Format.Response-Stream"><span class="spec-secid">7.1.2</span>Response Stream</a></li>
-<li><a href="#sec-Response-Position"><span class="spec-secid">7.1.3</span>Response Position</a></li>
-<li><a href="#sec-Data"><span class="spec-secid">7.1.4</span>Data</a></li>
-<li><a href="#sec-Errors"><span class="spec-secid">7.1.5</span>Errors</a></li>
+<li><a href="#sec-Request-Error-Result"><span class="spec-secid">7.1.3</span>Request Error Result</a></li>
+<li><a href="#sec-Response-Position"><span class="spec-secid">7.1.4</span>Response Position</a></li>
+<li><a href="#sec-Data"><span class="spec-secid">7.1.5</span>Data</a></li>
+<li><a href="#sec-Errors"><span class="spec-secid">7.1.6</span>Errors</a></li>
+<li><a href="#sec-Extensions"><span class="spec-secid">7.1.7</span>Extensions</a></li>
+<li><a href="#sec-Additional-Entries"><span class="spec-secid">7.1.8</span>Additional Entries</a></li>
 </ol>
 </li>
 <li><a href="#sec-Serialization-Format"><span class="spec-secid">7.2</span>Serialization Format</a><ol>
@@ -5515,13 +5518,13 @@ This <span class="spec-call"><a href="#ResolveFieldEventStream()" data-name="Res
 <span class="spec-call"><a href="#MapSourceToResponseEvent()" data-name="MapSourceToResponseEvent">MapSourceToResponseEvent</a>(<var data-name="sourceStream">sourceStream</var>, <var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>)</span><ol>
 <li data-source="spec/Section%206%20--%20Execution.md#L311">Let <var data-name="responseStream">responseStream</var> be a new <span class="spec-ref"><a href="#event-stream" data-name="event-stream">event stream</a></span>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L312-L319">When <var data-name="sourceStream">sourceStream</var> emits <var data-name="sourceValue">sourceValue</var>:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L313-L315">Let <var data-name="response">response</var> be the result of running <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>(<var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>, <var data-name="sourceValue">sourceValue</var>)</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L313-L315">Let <var data-name="executionResult">executionResult</var> be the result of running <span class="spec-call"><a href="#ExecuteSubscriptionEvent()" data-name="ExecuteSubscriptionEvent">ExecuteSubscriptionEvent</a>(<var data-name="subscription">subscription</var>, <var data-name="schema">schema</var>, <var data-name="variableValues">variableValues</var>, <var data-name="sourceValue">sourceValue</var>)</span>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L316-L318">If internal <var data-name="error">error</var> was raised:<ol>
 <li data-source="spec/Section%206%20--%20Execution.md#L317">Cancel <var data-name="sourceStream">sourceStream</var>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L318">Complete <var data-name="responseStream">responseStream</var> with <var data-name="error">error</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L319">Otherwise emit <var data-name="response">response</var> on <var data-name="responseStream">responseStream</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L319">Otherwise emit <var data-name="executionResult">executionResult</var> on <var data-name="responseStream">responseStream</var>.</li>
 </ol>
 </li>
 <li data-source="spec/Section%206%20--%20Execution.md#L320-L321">When <var data-name="sourceStream">sourceStream</var> completes normally:<ol>
@@ -5941,49 +5944,63 @@ A common method of determining the Object type for an <var data-name="objectValu
 <h3 data-source="spec/Section%206%20--%20Execution.md#L819"><span class="spec-secid" title="link to this section"><a href="#sec-Handling-Execution-Errors">6.4.4</a></span>Handling Execution Errors</h3>
 <p data-source="spec/Section%206%20--%20Execution.md#L821-L823"><a name="sec-Handling-Field-Errors">  </a></p>
 <p data-source="spec/Section%206%20--%20Execution.md#L825-L828">An <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> is an error raised during field execution, value resolution or coercion, at a specific <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. While these errors must be reported in the response, they are &ldquo;handled&rdquo; by producing partial <span class="spec-string">"data"</span> in the <span class="spec-ref"><a href="#response" data-name="response">response</a></span>.</p>
-<div id="note-4c9fd" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L830-L831">
-<a href="#note-4c9fd">Note</a>
-This is distinct from a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> which results in a response with no data.</div>
-<p data-source="spec/Section%206%20--%20Execution.md#L833-L836">If an execution error is raised while resolving a field (either directly or nested inside any lists), it is handled as though the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> at which the error occurred resolved to <span class="spec-keyword">null</span>, and the error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L838-L841">If the result of resolving a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> is <span class="spec-keyword">null</span> (either due to the result of <span class="spec-call"><a href="#ResolveFieldValue()" data-name="ResolveFieldValue">ResolveFieldValue</a>()</span> or because an execution error was raised), and that position is of a <code>Non-Null</code> type, then an execution error is raised at that position. The error must be added to the <span class="spec-string">"errors"</span> list in the response.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L843-L846">If a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> resolves to <span class="spec-keyword">null</span> because of an execution error which has already been added to the <span class="spec-string">"errors"</span> list in the response, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L848-L852">Since <code>Non-Null</code> response positions cannot be <span class="spec-keyword">null</span>, execution errors are propagated to be handled by the parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. If the parent response position may be <span class="spec-keyword">null</span> then it resolves to <span class="spec-keyword">null</span>, otherwise if it is a <code>Non-Null</code> type, the execution error is further propagated to its parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L854-L857">If a <code>List</code> type wraps a <code>Non-Null</code> type, and one of the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> elements of that list resolves to <span class="spec-keyword">null</span>, then the entire list <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> must resolve to <span class="spec-keyword">null</span>. If the <code>List</code> type is also wrapped in a <code>Non-Null</code>, the execution error continues to propagate upwards.</p>
-<p data-source="spec/Section%206%20--%20Execution.md#L859-L862">If every <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> from the root of the request to the source of the execution error has a <code>Non-Null</code> type, then the <span class="spec-string">"data"</span> entry in the response should be <span class="spec-keyword">null</span>. </p>
+<div id="note-80a26" class="spec-note" data-source="spec/Section%206%20--%20Execution.md#L830-L831">
+<a href="#note-80a26">Note</a>
+This is distinct from a <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> which results in a <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> with no data.</div>
+<p data-source="spec/Section%206%20--%20Execution.md#L833-L836">If an execution error is raised while resolving a field (either directly or nested inside any lists), it is handled as though the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> at which the error occurred resolved to <span class="spec-keyword">null</span>, and the error must be added to the <span class="spec-string">"errors"</span> list in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L838-L842">If the result of resolving a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> is <span class="spec-keyword">null</span> (either due to the result of <span class="spec-call"><a href="#ResolveFieldValue()" data-name="ResolveFieldValue">ResolveFieldValue</a>()</span> or because an execution error was raised), and that position is of a <code>Non-Null</code> type, then an execution error is raised at that position. The error must be added to the <span class="spec-string">"errors"</span> list in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L844-L847">If a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> resolves to <span class="spec-keyword">null</span> because of an execution error which has already been added to the <span class="spec-string">"errors"</span> list in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>, the <span class="spec-string">"errors"</span> list must not be further affected. That is, only one error should be added to the errors list per <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L849-L853">Since <code>Non-Null</code> response positions cannot be <span class="spec-keyword">null</span>, execution errors are propagated to be handled by the parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. If the parent response position may be <span class="spec-keyword">null</span> then it resolves to <span class="spec-keyword">null</span>, otherwise if it is a <code>Non-Null</code> type, the execution error is further propagated to its parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L855-L858">If a <code>List</code> type wraps a <code>Non-Null</code> type, and one of the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> elements of that list resolves to <span class="spec-keyword">null</span>, then the entire list <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> must resolve to <span class="spec-keyword">null</span>. If the <code>List</code> type is also wrapped in a <code>Non-Null</code>, the execution error continues to propagate upwards.</p>
+<p data-source="spec/Section%206%20--%20Execution.md#L860-L863">If every <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> from the root of the request to the source of the execution error has a <code>Non-Null</code> type, then the <span class="spec-string">"data"</span> entry in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> should be <span class="spec-keyword">null</span>. </p>
 </section>
 </section>
 </section>
-<section id="sec-undefined.Response" secid="7">
-<h1 data-source="spec/Section%207%20--%20Response.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-undefined.Response">7</a></span>Response</h1>
+<section id="sec-Response" secid="7">
+<h1 data-source="spec/Section%207%20--%20Response.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Response">7</a></span>Response</h1>
 <p data-source="spec/Section%207%20--%20Response.md#L3-L5">When a GraphQL service receives a <span class="spec-ref"><a href="#request" data-name="request">request</a></span>, it must return a well-formed response. The service&rsquo;s response describes the result of executing the requested operation if successful, and describes any errors raised during the request.</p>
 <p data-source="spec/Section%207%20--%20Response.md#L7-L8">A response may contain both a partial response as well as a list of errors in the case that any <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> was raised and replaced with <span class="spec-keyword">null</span>.</p>
 <section id="sec-Response-Format" secid="7.1">
 <h2 data-source="spec/Section%207%20--%20Response.md#L10"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format">7.1</a></span>Response Format</h2>
-<p data-source="spec/Section%207%20--%20Response.md#L12">A GraphQL request returns either a <span class="spec-ref"><a href="#response" data-name="response">response</a></span> or a <span class="spec-ref"><a href="#response-stream" data-name="response-stream">response stream</a></span>.</p>
-<section id="sec-Response-Format.Response" secid="7.1.1">
-<h3 data-source="spec/Section%207%20--%20Response.md#L14"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format.Response">7.1.1</a></span>Response</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L16-L17">A GraphQL request returns a <dfn id="response"><a href="#response" data-name="response">response</a></dfn> when the GraphQL operation is a query or mutation. A <span class="spec-ref"><a href="#response" data-name="response">response</a></span> must be a map.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L19-L22">If the request raised any errors, the response map must contain an entry with key <span class="spec-string">"errors"</span>. The value of this entry is described in the &ldquo;Errors&rdquo; section. If the request completed without raising any errors, this entry must not be present.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L24-L27">If the request included execution, the response map must contain an entry with key <span class="spec-string">"data"</span>. The value of this entry is described in the &ldquo;Data&rdquo; section. If the request failed before execution, due to a syntax error, missing information, or validation error, this entry must not be present.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L29-L32">The response map may also contain an entry with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L34-L36">To ensure future changes to the protocol do not break existing services and clients, the top level response map must not contain any entries other than the three described above.</p>
-<div id="note-f8e57" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L38-L40">
-<a href="#note-f8e57">Note</a>
-When <span class="spec-string">"errors"</span> is present in the response, it may be helpful for it to appear first when serialized to make it more clear when errors are present in a response during debugging.</div>
+<p data-source="spec/Section%207%20--%20Response.md#L12-L13">A GraphQL request returns a <dfn id="response"><a href="#response" data-name="response">response</a></dfn>. A <span class="spec-ref"><a href="#response" data-name="response">response</a></span> is either an <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>, a <span class="spec-ref"><a href="#response-stream" data-name="response-stream">response stream</a></span>, or a <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span>.</p>
+<section id="sec-Execution-Result" secid="7.1.1">
+<h3 data-source="spec/Section%207%20--%20Response.md#L15"><span class="spec-secid" title="link to this section"><a href="#sec-Execution-Result">7.1.1</a></span>Execution Result</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L17-L20">A GraphQL request returns an <dfn id="execution-result"><a href="#execution-result" data-name="execution-result">execution result</a></dfn> when the GraphQL operation is a query or mutation and the request included execution. Additionally, for each event in a subscription&rsquo;s <span class="spec-ref"><a href="#source-stream" data-name="source-stream">source stream</a></span>, the <span class="spec-ref"><a href="#response-stream" data-name="response-stream">response stream</a></span> will emit an <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L22">An <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> must be map.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L24-L25">The <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> must contain an entry with key <span class="spec-string">"data"</span>. The value of this entry is described in the &ldquo;Data&rdquo; section.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L27-L31">If execution raised any errors, the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> must contain an entry with key <span class="spec-string">"errors"</span>. The value of this entry must be a non-empty list of <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> raised during execution. Each error must be a map as described in the &ldquo;Errors&rdquo; section below. If the request completed without raising any errors, this entry must not be present.</p>
+<div id="note-69858" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L33-L35">
+<a href="#note-69858">Note</a>
+When <span class="spec-string">"errors"</span> is present in a <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>, it may be helpful for it to appear first when serialized to make it more apparent that errors are present.</div>
+<p data-source="spec/Section%207%20--%20Response.md#L37-L38">The <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> may also contain an entry with key <code>extensions</code>. The value of this entry is described in the &ldquo;Extensions&rdquo; section.</p>
 </section>
 <section id="sec-Response-Format.Response-Stream" secid="7.1.2">
-<h3 data-source="spec/Section%207%20--%20Response.md#L42"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format.Response-Stream">7.1.2</a></span>Response Stream</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L44-L45">A GraphQL request returns a <dfn id="response-stream"><a href="#response-stream" data-name="response-stream">response stream</a></dfn> when the GraphQL operation is a subscription. A <span class="spec-ref"><a href="#response-stream" data-name="response-stream">response stream</a></span> must be a stream of <span class="spec-ref"><a href="#response" data-name="response">response</a></span>.</p>
+<h3 data-source="spec/Section%207%20--%20Response.md#L40"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Format.Response-Stream">7.1.2</a></span>Response Stream</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L42-L44">A GraphQL request returns a <dfn id="response-stream"><a href="#response-stream" data-name="response-stream">response stream</a></dfn> when the GraphQL operation is a subscription and the request included execution. A response stream must be a stream of <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span>.</p>
 </section>
-<section id="sec-Response-Position" secid="7.1.3">
-<h3 data-source="spec/Section%207%20--%20Response.md#L47"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Position">7.1.3</a></span>Response Position</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L49-L51"><a name="sec-Path">  </a></p>
-<p data-source="spec/Section%207%20--%20Response.md#L53-L56">A <dfn id="response-position"><a href="#response-position" data-name="response-position">response position</a></dfn> is a uniquely identifiable position in the response data produced during execution. It is either a direct entry in the <var data-name="resultMap">resultMap</var> of a <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>()</span>, or it is a position in a (potentially nested) List value. Each response position is uniquely identifiable via a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span>.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L58-L60">A <dfn id="response-path"><a href="#response-path" data-name="response-path">response path</a></dfn> uniquely identifies a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> via a list of path segments (response names or list indices) starting at the root of the response and ending with the associated response position.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L62-L66">The value for a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> must be a list of path segments. Path segments that represent field <span class="spec-ref"><a href="#response-name" data-name="response-name">response name</a></span> must be strings, and path segments that represent list indices must be 0-indexed integers. If a path segment is associated with an aliased field it must use the aliased name, since it represents a path in the response, not in the request.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L68-L69">When a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> is present on an <em>error result</em>, it identifies the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> which raised the error.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L71">A single field execution may result in multiple response positions. For example,</p>
-<pre id="example-95aa3" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L73-L82"><a href="#example-95aa3">Example № 200</a><code><span class="token punctuation">{</span>
+<section id="sec-Request-Error-Result" secid="7.1.3">
+<h3 data-source="spec/Section%207%20--%20Response.md#L46"><span class="spec-secid" title="link to this section"><a href="#sec-Request-Error-Result">7.1.3</a></span>Request Error Result</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L48-L50">A GraphQL request returns a <dfn id="request-error-result"><a href="#request-error-result" data-name="request-error-result">request error result</a></dfn> when one or more <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> are raised, causing the request to fail before execution. This request will result in no response data.</p>
+<div id="note-fc078" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L52-L55">
+<a href="#note-fc078">Note</a>
+A <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> may be raised before execution due to missing information, syntax errors, validation failure, coercion failure, or any other reason the implementation may determine should prevent the request from proceeding.</div>
+<p data-source="spec/Section%207%20--%20Response.md#L57">A <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> must be a map.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L59-L63">The <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> map must contain an entry with key <span class="spec-string">"errors"</span>. The value of this entry must be a non-empty list of <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> raised during the <span class="spec-ref"><a href="#request" data-name="request">request</a></span>. It must contain at least one <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> indicating why no data was able to be returned. Each error must be a map as described in the &ldquo;Errors&rdquo; section below.</p>
+<div id="note-4d54d" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L65-L66">
+<a href="#note-4d54d">Note</a>
+It may be helpful for the <span class="spec-string">"errors"</span> key to appear first when serialized to make it more apparent that errors are present.</div>
+<p data-source="spec/Section%207%20--%20Response.md#L68">The <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> map must not contain an entry with key <span class="spec-string">"data"</span>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L70-L71">The <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> map may also contain an entry with key <code>extensions</code>. The value of this entry is described in the &ldquo;Extensions&rdquo; section.</p>
+</section>
+<section id="sec-Response-Position" secid="7.1.4">
+<h3 data-source="spec/Section%207%20--%20Response.md#L73"><span class="spec-secid" title="link to this section"><a href="#sec-Response-Position">7.1.4</a></span>Response Position</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L75-L77"><a name="sec-Path">  </a></p>
+<p data-source="spec/Section%207%20--%20Response.md#L79-L82">A <dfn id="response-position"><a href="#response-position" data-name="response-position">response position</a></dfn> is a uniquely identifiable position in the response data produced during execution. It is either a direct entry in the <var data-name="resultMap">resultMap</var> of a <span class="spec-call"><a href="#ExecuteSelectionSet()" data-name="ExecuteSelectionSet">ExecuteSelectionSet</a>()</span>, or it is a position in a (potentially nested) List value. Each response position is uniquely identifiable via a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L84-L86">A <dfn id="response-path"><a href="#response-path" data-name="response-path">response path</a></dfn> uniquely identifies a <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> via a list of path segments (response names or list indices) starting at the root of the response and ending with the associated response position.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L88-L92">The value for a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> must be a list of path segments. Path segments that represent field <span class="spec-ref"><a href="#response-name" data-name="response-name">response name</a></span> must be strings, and path segments that represent list indices must be 0-indexed integers. If a path segment is associated with an aliased field it must use the aliased name, since it represents a path in the response, not in the request.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L94-L95">When a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> is present on an <em>error result</em>, it identifies the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> which raised the error.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L97">A single field execution may result in multiple response positions. For example,</p>
+<pre id="example-95aa3" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L99-L108"><a href="#example-95aa3">Example № 200</a><code><span class="token punctuation">{</span>
   <span class="token property-query">hero</span><span class="token punctuation">(</span><span class="token attr-name">episode</span><span class="token punctuation">:</span> <span class="token variable">$episode</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">name</span>
     <span class="token object">friends</span> <span class="token punctuation">{</span>
@@ -5992,45 +6009,42 @@ When <span class="spec-string">"errors"</span> is present in the response, it ma
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L84-L88">The hero&rsquo;s name would be found in the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> identified by the <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> <code>["hero", "name"]</code>. The List of the hero&rsquo;s friends would be found at <code>["hero", "friends"]</code>, the hero&rsquo;s first friend at <code>["hero", "friends", 0]</code> and that friend&rsquo;s name at <code>["hero", "friends", 0, "name"]</code>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L110-L114">The hero&rsquo;s name would be found in the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> identified by the <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> <code>["hero", "name"]</code>. The List of the hero&rsquo;s friends would be found at <code>["hero", "friends"]</code>, the hero&rsquo;s first friend at <code>["hero", "friends", 0]</code> and that friend&rsquo;s name at <code>["hero", "friends", 0, "name"]</code>.</p>
 </section>
-<section id="sec-Data" secid="7.1.4">
-<h3 data-source="spec/Section%207%20--%20Response.md#L90"><span class="spec-secid" title="link to this section"><a href="#sec-Data">7.1.4</a></span>Data</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L92-L95">The <span class="spec-string">"data"</span> entry in the response will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the query root operation type; if the operation was a mutation, this output will be an object of the mutation root operation type.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L97-L98">The response data is the result of accumulating the resolved result of all response positions during execution.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L100-L101">If an error was raised before execution begins, the <span class="spec-string">"data"</span> entry should not be present in the response.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L103-L104">If an error was raised during the execution that prevented a valid response, the <span class="spec-string">"data"</span> entry in the response should be <code>null</code>.</p>
+<section id="sec-Data" secid="7.1.5">
+<h3 data-source="spec/Section%207%20--%20Response.md#L116"><span class="spec-secid" title="link to this section"><a href="#sec-Data">7.1.5</a></span>Data</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L118-L121">The <span class="spec-string">"data"</span> entry in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> will be the result of the execution of the requested operation. If the operation was a query, this output will be an object of the query root operation type; if the operation was a mutation, this output will be an object of the mutation root operation type.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L123-L124">The response data is the result of accumulating the resolved result of all response positions during execution.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L126-L127">If an error was raised before execution begins, the <span class="spec-ref"><a href="#response" data-name="response">response</a></span> must be a <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> which will result in no response data.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L129-L130">If an error was raised during the execution that prevented a valid response, the <span class="spec-string">"data"</span> entry in the response should be <code>null</code>.</p>
 </section>
-<section id="sec-Errors" secid="7.1.5">
-<h3 data-source="spec/Section%207%20--%20Response.md#L106"><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.5</a></span>Errors</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L108-L110">The <span class="spec-string">"errors"</span> entry in the response is a non-empty list of errors raised during the <span class="spec-ref"><a href="#request" data-name="request">request</a></span>, where each error is a map of data described by the error result format below.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L112-L114">If present, the <span class="spec-string">"errors"</span> entry in the response must contain at least one error. If no errors were raised during the request, the <span class="spec-string">"errors"</span> entry must not be present in the response.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L116-L118">If the <span class="spec-string">"data"</span> entry in the response is not present, the <span class="spec-string">"errors"</span> entry must be present. It must contain at least one <span class="spec-ref"><a href="#request-error" data-name="request-error">request error</a></span> indicating why no data was able to be returned.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L120-L122">If the <span class="spec-string">"data"</span> entry in the response is present (including if it is the value <span class="spec-keyword">null</span>), the <span class="spec-string">"errors"</span> entry must be present if and only if one or more <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> was raised during execution.</p>
+<section id="sec-Errors" secid="7.1.6">
+<h3 data-source="spec/Section%207%20--%20Response.md#L132"><span class="spec-secid" title="link to this section"><a href="#sec-Errors">7.1.6</a></span>Errors</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L134-L136">The <span class="spec-string">"errors"</span> entry in the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> or <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> is a non-empty list of errors raised during the <span class="spec-ref"><a href="#request" data-name="request">request</a></span>, where each error is a map of data described by the error result format below.</p>
 <section id="sec-Errors.Request-Errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L124"><a href="#sec-Errors.Request-Errors" title="link to this subsection">Request Errors</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L126-L129">A <dfn id="request-error"><a href="#request-error" data-name="request-error">request error</a></dfn> is an error raised during a <span class="spec-ref"><a href="#request" data-name="request">request</a></span> which results in no response data. Typically raised before execution begins, a request error may occur due to a parse grammar or validation error in the <em>Document</em>, an inability to determine which operation to execute, or invalid input values for variables.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L131">A request error is typically the fault of the requesting client.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L133-L135">If a request error is raised, the <span class="spec-string">"data"</span> entry in the response must not be present, the <span class="spec-string">"errors"</span> entry must include the error, and request execution should be halted.</p>
+<h6 data-source="spec/Section%207%20--%20Response.md#L138"><a href="#sec-Errors.Request-Errors" title="link to this subsection">Request Errors</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L140-L143">A <dfn id="request-error"><a href="#request-error" data-name="request-error">request error</a></dfn> is an error raised during a <span class="spec-ref"><a href="#request" data-name="request">request</a></span> which results in no response data. Typically raised before execution begins, a request error may occur due to a parse grammar or validation error in the <em>Document</em>, an inability to determine which operation to execute, or invalid input values for variables.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L145">A request error is typically the fault of the requesting client.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L147-L149">If a request error is raised, the <span class="spec-ref"><a href="#response" data-name="response">response</a></span> must be a <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span>. The <span class="spec-string">"data"</span> entry in this map must not be present, the <span class="spec-string">"errors"</span> entry must include the error, and request execution should be halted.</p>
 </section>
 <section id="sec-Errors.Execution-Errors" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L137"><a href="#sec-Errors.Execution-Errors" title="link to this subsection">Execution Errors</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L139-L141"><a name="sec-Errors.Field-Errors">  </a></p>
-<p data-source="spec/Section%207%20--%20Response.md#L143-L146">An <dfn id="execution-error"><a href="#execution-error" data-name="execution-error">execution error</a></dfn> is an error raised during the execution of a particular field which results in partial response data. This may occur due to failure to coerce the arguments for the field, an internal error during value resolution, or failure to coerce the resulting value.</p>
-<div id="note-d628e" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L148-L149">
+<h6 data-source="spec/Section%207%20--%20Response.md#L151"><a href="#sec-Errors.Execution-Errors" title="link to this subsection">Execution Errors</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L153-L155"><a name="sec-Errors.Field-Errors">  </a></p>
+<p data-source="spec/Section%207%20--%20Response.md#L157-L160">An <dfn id="execution-error"><a href="#execution-error" data-name="execution-error">execution error</a></dfn> is an error raised during the execution of a particular field which results in partial response data. This may occur due to failure to coerce the arguments for the field, an internal error during value resolution, or failure to coerce the resulting value.</p>
+<div id="note-d628e" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L162-L163">
 <a href="#note-d628e">Note</a>
 In previous versions of this specification <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> was called <em>field error</em>.</div>
-<p data-source="spec/Section%207%20--%20Response.md#L151">An execution error is typically the fault of a GraphQL service.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L153-L155">An <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must occur at a specific <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, and may occur in any response position. The response position of an execution error is indicated via a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> in the error response&rsquo;s <span class="spec-string">"path"</span> entry.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L157-L162">When an execution error is raised at a given <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, then that response position must not be present within the <span class="spec-ref"><a href="#response" data-name="response">response</a></span> <span class="spec-string">"data"</span> entry (except <span class="spec-keyword">null</span>), and the <span class="spec-string">"errors"</span> entry must include the error. Nested execution is halted and sibling execution attempts to continue, producing partial result (see <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a>).</p>
+<p data-source="spec/Section%207%20--%20Response.md#L165">An execution error is typically the fault of a GraphQL service.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L167-L169">An <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must occur at a specific <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, and may occur in any response position. The response position of an execution error is indicated via a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> in the error response&rsquo;s <span class="spec-string">"path"</span> entry.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L171-L176">When an execution error is raised at a given <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, then that response position must not be present within the <span class="spec-ref"><a href="#response" data-name="response">response</a></span> <span class="spec-string">"data"</span> entry (except <span class="spec-keyword">null</span>), and the <span class="spec-string">"errors"</span> entry must include the error. Nested execution is halted and sibling execution attempts to continue, producing partial result (see <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a>).</p>
 </section>
 <section id="sec-Errors.Error-Result-Format" class="subsec">
-<h6 data-source="spec/Section%207%20--%20Response.md#L164"><a href="#sec-Errors.Error-Result-Format" title="link to this subsection">Error Result Format</a></h6>
-<p data-source="spec/Section%207%20--%20Response.md#L166-L168">Every error must contain an entry with the key <span class="spec-string">"message"</span> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L170-L174">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <span class="spec-string">"locations"</span> with a list of locations, where each location is a map with the keys <span class="spec-string">"line"</span> and <span class="spec-string">"column"</span>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L176-L180">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <span class="spec-string">"path"</span> with a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> which describes the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> which raised the error. This allows clients to identify whether a <span class="spec-keyword">null</span> resolved result is a true value or the result of an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span>.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L182-L183">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
-<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L185-L195"><a href="#example-bc485">Example № 201</a><code><span class="token punctuation">{</span>
+<h6 data-source="spec/Section%207%20--%20Response.md#L178"><a href="#sec-Errors.Error-Result-Format" title="link to this subsection">Error Result Format</a></h6>
+<p data-source="spec/Section%207%20--%20Response.md#L180-L182">Every error must contain an entry with the key <span class="spec-string">"message"</span> with a string description of the error intended for the developer as a guide to understand and correct the error.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L184-L188">If an error can be associated to a particular point in the requested GraphQL document, it should contain an entry with the key <span class="spec-string">"locations"</span> with a list of locations, where each location is a map with the keys <span class="spec-string">"line"</span> and <span class="spec-string">"column"</span>, both positive numbers starting from <code>1</code> which describe the beginning of an associated syntax element.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L190-L194">If an error can be associated to a particular field in the GraphQL result, it must contain an entry with the key <span class="spec-string">"path"</span> with a <span class="spec-ref"><a href="#response-path" data-name="response-path">response path</a></span> which describes the <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span> which raised the error. This allows clients to identify whether a <span class="spec-keyword">null</span> resolved result is a true value or the result of an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L196-L197">For example, if fetching one of the friends&rsquo; names fails in the following operation:</p>
+<pre id="example-bc485" class="spec-example" data-language="graphql" data-source="spec/Section%207%20--%20Response.md#L199-L209"><a href="#example-bc485">Example № 201</a><code><span class="token punctuation">{</span>
   <span class="token property-query">hero</span><span class="token punctuation">(</span><span class="token attr-name">episode</span><span class="token punctuation">:</span> <span class="token variable">$episode</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">name</span>
     <span class="token attr-name">heroFriends</span><span class="token punctuation">:</span> <span class="token object">friends</span> <span class="token punctuation">{</span>
@@ -6040,8 +6054,8 @@ In previous versions of this specification <span class="spec-ref"><a href="#exec
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L197">The response might look like:</p>
-<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L199-L228"><a href="#example-072c4">Example № 202</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L211">The response might look like:</p>
+<pre id="example-072c4" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L213-L242"><a href="#example-072c4">Example № 202</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6070,9 +6084,9 @@ In previous versions of this specification <span class="spec-ref"><a href="#exec
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L230-L233">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L235-L237">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
-<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L239-L265"><a href="#example-c18ef">Example № 203</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L244-L247">If the field which experienced an error was declared as <code>Non-Null</code>, the <code>null</code> result will bubble up to the next nullable field. In that case, the <code>path</code> for the error should include the full path to the result field where the error was raised, even if that field is not present in the response.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L249-L251">For example, if the <code>name</code> field from above had declared a <code>Non-Null</code> return type in the schema, the result would look different but the error reported would be the same:</p>
+<pre id="example-c18ef" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L253-L279"><a href="#example-c18ef">Example № 203</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6098,8 +6112,8 @@ In previous versions of this specification <span class="spec-ref"><a href="#exec
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L267-L270">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
-<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L272-L286"><a href="#example-8b658">Example № 204</a><code><span class="token punctuation">{</span>
+<p data-source="spec/Section%207%20--%20Response.md#L281-L284">GraphQL services may provide an additional entry to errors with key <code>extensions</code>. This entry, if set, must have a map as its value. This entry is reserved for implementers to add additional information to errors however they see fit, and there are no additional restrictions on its contents.</p>
+<pre id="example-8b658" class="spec-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L286-L300"><a href="#example-8b658">Example № 204</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6113,11 +6127,11 @@ In previous versions of this specification <span class="spec-ref"><a href="#exec
   <span class="token punctuation">]</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%207%20--%20Response.md#L288-L290">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
-<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L292-L294">
+<p data-source="spec/Section%207%20--%20Response.md#L302-L304">GraphQL services should not provide any additional entries to the error format since they could conflict with additional entries that may be added in future versions of this specification.</p>
+<div id="note-5c13b" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L306-L308">
 <a href="#note-5c13b">Note</a>
 Previous versions of this spec did not describe the <code>extensions</code> entry for error formatting. While non-specified entries are not violations, they are still discouraged.</div>
-<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L296-L308"><a href="#example-78af4">Counter Example № 205</a><code><span class="token punctuation">{</span>
+<pre id="example-78af4" class="spec-counter-example" data-language="json" data-source="spec/Section%207%20--%20Response.md#L310-L322"><a href="#example-78af4">Counter Example № 205</a><code><span class="token punctuation">{</span>
   <span class="token property">"errors"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"Name for character with ID 1002 could not be fetched."</span><span class="token punctuation">,</span>
@@ -6131,81 +6145,89 @@ Previous versions of this spec did not describe the <code>extensions</code> entr
 </code></pre>
 </section>
 </section>
+<section id="sec-Extensions" secid="7.1.7">
+<h3 data-source="spec/Section%207%20--%20Response.md#L324"><span class="spec-secid" title="link to this section"><a href="#sec-Extensions">7.1.7</a></span>Extensions</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L326-L329">The <span class="spec-string">"extensions"</span> entry in an <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> or <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span>, if set, must have a map as its value. This entry is reserved for implementers to extend the protocol however they see fit, and hence there are no additional restrictions on its contents.</p>
+</section>
+<section id="sec-Additional-Entries" secid="7.1.8">
+<h3 data-source="spec/Section%207%20--%20Response.md#L331"><span class="spec-secid" title="link to this section"><a href="#sec-Additional-Entries">7.1.8</a></span>Additional Entries</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L333-L336">To ensure future changes to the protocol do not break existing services and clients, the <span class="spec-ref"><a href="#execution-result" data-name="execution-result">execution result</a></span> and <span class="spec-ref"><a href="#request-error-result" data-name="request-error-result">request error result</a></span> maps must not contain any entries other than those described above. Clients must ignore any entries other than those described above.</p>
+</section>
 </section>
 <section id="sec-Serialization-Format" secid="7.2">
-<h2 data-source="spec/Section%207%20--%20Response.md#L310"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
-<p data-source="spec/Section%207%20--%20Response.md#L312-L315">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
+<h2 data-source="spec/Section%207%20--%20Response.md#L338"><span class="spec-secid" title="link to this section"><a href="#sec-Serialization-Format">7.2</a></span>Serialization Format</h2>
+<p data-source="spec/Section%207%20--%20Response.md#L340-L343">GraphQL does not require a specific serialization format. However, clients should use a serialization format that supports the major primitives in the GraphQL response. In particular, the serialization format must at least support representations of the following four primitives:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L317">Map</li>
-<li data-source="spec/Section%207%20--%20Response.md#L318">List</li>
-<li data-source="spec/Section%207%20--%20Response.md#L319">String</li>
-<li data-source="spec/Section%207%20--%20Response.md#L320">Null</li>
+<li data-source="spec/Section%207%20--%20Response.md#L345">Map</li>
+<li data-source="spec/Section%207%20--%20Response.md#L346">List</li>
+<li data-source="spec/Section%207%20--%20Response.md#L347">String</li>
+<li data-source="spec/Section%207%20--%20Response.md#L348">Null</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L322-L324">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
+<p data-source="spec/Section%207%20--%20Response.md#L350-L352">A serialization format should also support the following primitives, each representing one of the common GraphQL scalar types, however a string or simpler primitive may be used as a substitute if any are not directly supported:</p>
 <ul>
-<li data-source="spec/Section%207%20--%20Response.md#L326">Boolean</li>
-<li data-source="spec/Section%207%20--%20Response.md#L327">Int</li>
-<li data-source="spec/Section%207%20--%20Response.md#L328">Float</li>
-<li data-source="spec/Section%207%20--%20Response.md#L329">Enum Value</li>
+<li data-source="spec/Section%207%20--%20Response.md#L354">Boolean</li>
+<li data-source="spec/Section%207%20--%20Response.md#L355">Int</li>
+<li data-source="spec/Section%207%20--%20Response.md#L356">Float</li>
+<li data-source="spec/Section%207%20--%20Response.md#L357">Enum Value</li>
 </ul>
-<p data-source="spec/Section%207%20--%20Response.md#L331-L334">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L359-L362">This is not meant to be an exhaustive list of what a serialization format may encode. For example custom scalars representing a Date, Time, URI, or number with a different precision may be represented in whichever relevant format a given serialization format may support.</p>
 <section id="sec-JSON-Serialization" secid="7.2.1">
-<h3 data-source="spec/Section%207%20--%20Response.md#L336"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L338-L339">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L341-L342">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
+<h3 data-source="spec/Section%207%20--%20Response.md#L364"><span class="spec-secid" title="link to this section"><a href="#sec-JSON-Serialization">7.2.1</a></span>JSON Serialization</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L366-L367">JSON is the most common serialization format for GraphQL. Though as mentioned above, GraphQL does not require a specific serialization format.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L369-L370">When using JSON as a serialization of GraphQL responses, the following JSON values should be used to encode the related GraphQL values:</p>
 <table>
 <thead>
-<tr data-source="spec/Section%207%20--%20Response.md#L344">
+<tr data-source="spec/Section%207%20--%20Response.md#L372">
 <th>GraphQL Value</th>
 <th>JSON Value</th>
 </tr>
 </thead>
 <tbody>
-<tr data-source="spec/Section%207%20--%20Response.md#L346">
+<tr data-source="spec/Section%207%20--%20Response.md#L374">
 <td>Map</td>
 <td>Object</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L347">
+<tr data-source="spec/Section%207%20--%20Response.md#L375">
 <td>List</td>
 <td>Array</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L348">
+<tr data-source="spec/Section%207%20--%20Response.md#L376">
 <td>Null</td>
 <td><span class="spec-keyword">null</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L349">
+<tr data-source="spec/Section%207%20--%20Response.md#L377">
 <td>String</td>
 <td>String</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L350">
+<tr data-source="spec/Section%207%20--%20Response.md#L378">
 <td>Boolean</td>
 <td><span class="spec-keyword">true</span> or <span class="spec-keyword">false</span></td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L351">
+<tr data-source="spec/Section%207%20--%20Response.md#L379">
 <td>Int</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L352">
+<tr data-source="spec/Section%207%20--%20Response.md#L380">
 <td>Float</td>
 <td>Number</td>
 </tr>
-<tr data-source="spec/Section%207%20--%20Response.md#L353">
+<tr data-source="spec/Section%207%20--%20Response.md#L381">
 <td>Enum Value</td>
 <td>String</td>
 </tr>
 </tbody>
 </table>
-<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L355-L356">
+<div id="note-786e2" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L383-L384">
 <a href="#note-786e2">Note</a>
 For consistency and ease of notation, examples of responses are given in JSON format throughout this document.</div>
 </section>
 <section id="sec-Serialized-Map-Ordering" secid="7.2.2">
-<h3 data-source="spec/Section%207%20--%20Response.md#L358"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
-<p data-source="spec/Section%207%20--%20Response.md#L360-L366">Since the result of evaluating a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L368-L372">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L374-L376">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
-<p data-source="spec/Section%207%20--%20Response.md#L378-L382">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
-<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L384-L386">
+<h3 data-source="spec/Section%207%20--%20Response.md#L386"><span class="spec-secid" title="link to this section"><a href="#sec-Serialized-Map-Ordering">7.2.2</a></span>Serialized Map Ordering</h3>
+<p data-source="spec/Section%207%20--%20Response.md#L388-L394">Since the result of evaluating a <span class="spec-ref"><a href="#selection-set" data-name="selection-set">selection set</a></span> is ordered, the serialized Map of results should preserve this order by writing the map entries in the same order as those fields were requested as defined by selection set execution. Producing a serialized response where fields are represented in the same order in which they appear in the request improves human readability during debugging and enables more efficient parsing of responses if the order of properties can be anticipated.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L396-L400">Serialization formats which represent an ordered map should preserve the order of requested fields as defined by <span class="spec-call"><a href="#CollectFields()" data-name="CollectFields">CollectFields</a>()</span> in the Execution section. Serialization formats which only represent unordered maps but where order is still implicit in the serialization&rsquo;s textual order (such as JSON) should preserve the order of requested fields textually.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L402-L404">For example, if the request was <code>{ name, age }</code>, a GraphQL service responding in JSON should respond with <code>{ "name": "Mark", "age": 30 }</code> and should not respond with <code>{ "age": 30, "name": "Mark" }</code>.</p>
+<p data-source="spec/Section%207%20--%20Response.md#L406-L410">While JSON Objects are specified as an <a href="https://tools.ietf.org/html/rfc7159#section-4">unordered collection of key-value pairs</a> the pairs are represented in an ordered manner. In other words, while the JSON strings <code>{ "name": "Mark", "age": 30 }</code> and <code>{ "age": 30, "name": "Mark" }</code> encode the same value, they also have observably different property orderings.</p>
+<div id="note-4bb20" class="spec-note" data-source="spec/Section%207%20--%20Response.md#L412-L414">
 <a href="#note-4bb20">Note</a>
 This does not violate the JSON spec, as clients may still interpret objects in the response as unordered Maps and arrive at a valid value. </div>
 </section>
@@ -7209,6 +7231,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#ExecuteSelectionSet()">ExecuteSelectionSet</a></li>
 <li><a href="#ExecuteSubscriptionEvent()">ExecuteSubscriptionEvent</a></li>
 <li><a href="#execution-error">execution error</a></li>
+<li><a href="#execution-result">execution result</a></li>
 <li><a href="#ExponentIndicator">ExponentIndicator</a></li>
 <li><a href="#ExponentPart">ExponentPart</a></li>
 <li><a href="#Field">Field</a></li>
@@ -7263,6 +7286,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#Punctuator">Punctuator</a></li>
 <li><a href="#request">request</a></li>
 <li><a href="#request-error">request error</a></li>
+<li><a href="#request-error-result">request error result</a></li>
 <li><a href="#ResolveAbstractType()">ResolveAbstractType</a></li>
 <li><a href="#ResolveFieldEventStream()">ResolveFieldEventStream</a></li>
 <li><a href="#ResolveFieldValue()">ResolveFieldValue</a></li>
@@ -7615,17 +7639,20 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 </li>
 </ol>
 </li>
-<li id="_sidebar_7"><a href="#sec-undefined.Response"><span class="spec-secid">7</span>Response</a>
+<li id="_sidebar_7"><a href="#sec-Response"><span class="spec-secid">7</span>Response</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_7" /><label for="_toggle_7"></label>
 <ol>
 <li id="_sidebar_7.1"><a href="#sec-Response-Format"><span class="spec-secid">7.1</span>Response Format</a>
 <input hidden class="toggle" type="checkbox" id="_toggle_7.1" /><label for="_toggle_7.1"></label>
 <ol>
-<li id="_sidebar_7.1.1"><a href="#sec-Response-Format.Response"><span class="spec-secid">7.1.1</span>Response</a></li>
+<li id="_sidebar_7.1.1"><a href="#sec-Execution-Result"><span class="spec-secid">7.1.1</span>Execution Result</a></li>
 <li id="_sidebar_7.1.2"><a href="#sec-Response-Format.Response-Stream"><span class="spec-secid">7.1.2</span>Response Stream</a></li>
-<li id="_sidebar_7.1.3"><a href="#sec-Response-Position"><span class="spec-secid">7.1.3</span>Response Position</a></li>
-<li id="_sidebar_7.1.4"><a href="#sec-Data"><span class="spec-secid">7.1.4</span>Data</a></li>
-<li id="_sidebar_7.1.5"><a href="#sec-Errors"><span class="spec-secid">7.1.5</span>Errors</a></li>
+<li id="_sidebar_7.1.3"><a href="#sec-Request-Error-Result"><span class="spec-secid">7.1.3</span>Request Error Result</a></li>
+<li id="_sidebar_7.1.4"><a href="#sec-Response-Position"><span class="spec-secid">7.1.4</span>Response Position</a></li>
+<li id="_sidebar_7.1.5"><a href="#sec-Data"><span class="spec-secid">7.1.5</span>Data</a></li>
+<li id="_sidebar_7.1.6"><a href="#sec-Errors"><span class="spec-secid">7.1.6</span>Errors</a></li>
+<li id="_sidebar_7.1.7"><a href="#sec-Extensions"><span class="spec-secid">7.1.7</span>Extensions</a></li>
+<li id="_sidebar_7.1.8"><a href="#sec-Additional-Entries"><span class="spec-secid">7.1.8</span>Additional Entries</a></li>
 </ol>
 </li>
 <li id="_sidebar_7.2"><a href="#sec-Serialization-Format"><span class="spec-secid">7.2</span>Serialization Format</a>
