@@ -287,6 +287,7 @@ defined using the Markdown syntax (as specified by
 Descriptions may appear before:
 
 **In type system definitions:**
+
 - Schema definitions.
 - Type definitions (scalars, objects, interfaces, unions, enums, input objects).
 - Field definitions.
@@ -296,6 +297,7 @@ Descriptions may appear before:
 - Directive definitions.
 
 **In executable documents:**
+
 - Operation definitions (queries, mutations, subscriptions) in their full form
   (not the shorthand form).
 - Fragment definitions.

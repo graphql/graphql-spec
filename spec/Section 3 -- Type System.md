@@ -52,11 +52,18 @@ choose to only allow {TypeSystemExtensionDocument} and not allow
 
 ## Type System Descriptions
 
-Documentation is a first-class feature of GraphQL type systems. GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.) which can be described should provide a {Description} unless they are considered self descriptive.
+Documentation is a first-class feature of GraphQL type systems. GraphQL schema
+and all other definitions (e.g. types, fields, arguments, etc.) which can be
+described should provide a {Description} unless they are considered self
+descriptive.
 
-Descriptions in the type system definition language occur immediately before the definition they describe and are made available via introspection, ensuring the documentation of a GraphQL service remains consistent with its capabilities.
+Descriptions in the type system definition language occur immediately before the
+definition they describe and are made available via introspection, ensuring the
+documentation of a GraphQL service remains consistent with its capabilities.
 
-Note: See Section 2, "Descriptions", for normative rules and syntax details. Type system descriptions follow the same Markdown format and rules as executable document descriptions.
+Note: See Section 2, "Descriptions", for normative rules and syntax details.
+Type system descriptions follow the same Markdown format and rules as executable
+document descriptions.
 
 ## Schema
 
