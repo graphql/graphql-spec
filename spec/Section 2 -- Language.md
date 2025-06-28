@@ -286,10 +286,66 @@ defined using the Markdown syntax (as specified by
 
 Descriptions may appear before:
 
+**In type system definitions:**
+- Schema definitions.
+- Type definitions (scalars, objects, interfaces, unions, enums, input objects).
+- Field definitions.
+- Argument definitions.
+- Enum value definitions.
+- Input field definitions.
+- Directive definitions.
+
+**In executable documents:**
 - Operation definitions (queries, mutations, subscriptions) in their full form
   (not the shorthand form).
 - Fragment definitions.
 - Variable definitions within operation definitions.
+
+As an example, this simple GraphQL schema is well described:
+
+```raw graphql example
+"""
+A simple GraphQL schema which is well described.
+"""
+schema {
+  query: Query
+}
+
+"""
+Root type for all your query operations
+"""
+type Query {
+  """
+  Translates a string from a given language into a different language.
+  """
+  translate(
+    "The original language that `text` is provided in."
+    fromLanguage: Language
+
+    "The translated language to be returned."
+    toLanguage: Language
+
+    "The text to be translated."
+    text: String
+  ): String
+}
+
+"""
+The set of languages supported by `translate`.
+"""
+enum Language {
+  "English"
+  EN
+
+  "French"
+  FR
+
+  "Chinese"
+  CH
+}
+```
+
+This is an example of a well-described executable document:
 
 ```graphql example
 """
@@ -340,6 +396,10 @@ Note: Descriptions and comments in executable GraphQL documents are purely for
 documentation purposes. They MUST NOT affect the execution, validation, or
 response of a GraphQL document. It is safe to remove all descriptions and
 comments from executable documents without changing their behavior or results.
+
+Descriptions in type system definitions are made available via introspection,
+ensuring the documentation of a GraphQL service remains consistent with its
+capabilities.
 
 ## Operations
 

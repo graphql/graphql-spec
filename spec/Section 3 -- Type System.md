@@ -50,71 +50,13 @@ Tools which only seek to produce and extend schema and not execute requests may
 choose to only allow {TypeSystemExtensionDocument} and not allow
 {ExecutableDefinition} but should provide a descriptive error if present.
 
-## Descriptions
+## Type System Descriptions
 
-Description : StringValue
+Documentation is a first-class feature of GraphQL type systems. GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.) which can be described should provide a {Description} unless they are considered self descriptive.
 
-Documentation is a first-class feature of GraphQL type systems. To ensure the
-documentation of a GraphQL service remains consistent with its capabilities,
-descriptions of GraphQL definitions are provided alongside their definitions and
-made available via introspection.
+Descriptions in the type system definition language occur immediately before the definition they describe and are made available via introspection, ensuring the documentation of a GraphQL service remains consistent with its capabilities.
 
-Note: See Section 2, "Descriptions", for normative rules and additional details
-on descriptions in executable documents.
-
-To allow GraphQL service designers to easily publish documentation alongside the
-capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
-type system definition language, these description strings (often {BlockString})
-occur immediately before the definition they describe.
-
-GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
-which can be described should provide a {Description} unless they are considered
-self descriptive.
-
-As an example, this simple GraphQL schema is well described:
-
-```raw graphql example
-"""
-A simple GraphQL schema which is well described.
-"""
-schema {
-  query: Query
-}
-
-"""
-Root type for all your query operations
-"""
-type Query {
-  """
-  Translates a string from a given language into a different language.
-  """
-  translate(
-    "The original language that `text` is provided in."
-    fromLanguage: Language
-
-    "The translated language to be returned."
-    toLanguage: Language
-
-    "The text to be translated."
-    text: String
-  ): String
-}
-
-"""
-The set of languages supported by `translate`.
-"""
-enum Language {
-  "English"
-  EN
-
-  "French"
-  FR
-
-  "Chinese"
-  CH
-}
-```
+Note: See Section 2, "Descriptions", for normative rules and syntax details. Type system descriptions follow the same Markdown format and rules as executable document descriptions.
 
 ## Schema
 
