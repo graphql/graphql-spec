@@ -348,12 +348,11 @@ Unsubscribe(responseStream):
 
 ## Executing Selection Sets
 
-The process of executing a GraphQL operation is to recursively execute every
-selected field in the operation. To do this, first all initially selected fields
-from the operation's top most _root selection set_ are collected, then each
-executed. As each field completes, all its subfields are collected, then each
-executed. This process continues until there are no more subfields to collect
-and execute.
+Executing a GraphQL operation recursively collects and executes every selected
+field in the operation. First all initially selected fields from the operation's
+top most _root selection set_ are collected, then each executed. As each field
+completes, all its subfields are collected, then each executed. This process
+continues until there are no more subfields to collect and execute.
 
 ### Executing the Root Selection Set
 
@@ -361,8 +360,8 @@ and execute.
 operation. A root selection set always selects from a _root operation type_.
 
 To execute the root selection set, the initial value being evaluated and the
-root type must be known, as well as whether it must be executed serially, or may
-be executed in parallel (see
+root type must be known, as well as whether each field must be executed
+serially, or normally by executing all fields in parallel (see
 [Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
 
 Executing the root selection set works similarly for queries (parallel),
@@ -386,22 +385,23 @@ executionMode):
 
 ### Field Collection
 
-Before execution, the _root selection set_ is converted to a _grouped field set_
-by calling {CollectFields()}. This ensures all fields with the same response
-name, including those in referenced fragments, are executed at the same time.
+Before execution, each _selection set_ is converted to a _grouped field set_ by
+calling {CollectFields()}. This ensures all fields with the same response name,
+including those in referenced fragments, are executed at the same time.
 
 :: A _grouped field set_ is a map where each entry is a _response name_ and its
 associated _field set_. A _grouped field set_ may be produced from a selection
 set via {CollectFields()} or from the selection sets of a _field set_ via
 {CollectSubfields()}.
 
-:: A _field set_ is a list of selected fields that share the same _response
-name_ (the field alias if defined, otherwise the field's name).
+:: A _field set_ is an ordered set of selected fields that share the same
+_response name_ (the field alias if defined, otherwise the field's name).
+Validation ensures each field in the set has the same name and arguments,
+however each may have different subfields (see:
+[Field Selection Merging](#sec-Field-Selection-Merging)).
 
 Note: The order of field selections in a _field set_ is significant, hence the
-algorithms in this specification model it as a list. Any later duplicated field
-selections in a field set will not impact its interpretation, so using an
-ordered set would yield equivalent results.
+algorithms in this specification model it as an ordered set.
 
 As an example, collecting the fields of this query's selection set would result
 in a grouped field set with two entries, `"a"` and `"b"`, with two instances of
@@ -430,7 +430,7 @@ response in a stable and predictable order.
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {groupedFieldSet} to an empty ordered map of ordered sets.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -445,9 +445,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseName} be the list in {groupedFields} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseName}.
+    - Let {fieldsForResponseName} be the _field set_ in {groupedFieldSet} for
+      {responseName}; if no such set exists, create it as an empty set.
+    - Append {selection} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -467,9 +467,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseName} be the response name shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
+      - Let {fieldsForResponseName} be the _field set_ in {groupedFieldSet} for
+        {responseName}; if no such set exists, create it as an empty set.
+      - Append all items in {fragmentGroup} to {fieldsForResponseName}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -482,10 +482,10 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
       - Let {responseName} be the response name shared by all fields in
         {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
-- Return {groupedFields}.
+      - Let {fieldsForResponseName} be the _field set_ in {groupedFieldSet} for
+        {responseName}; if no such set exists, create it as an empty set.
+      - Append all items in {fragmentGroup} to {fieldsForResponseName}.
+- Return {groupedFieldSet}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -493,10 +493,10 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} and {fragmentType} are the same type, return {true},
     otherwise return {false}.
 - If {fragmentType} is an Interface Type:
-  - If {objectType} is an implementation of {fragmentType}, return {true}
+  - If {objectType} is an implementation of {fragmentType}, return {true},
     otherwise return {false}.
 - If {fragmentType} is a Union:
-  - If {objectType} is a possible type of {fragmentType}, return {true}
+  - If {objectType} is a possible type of {fragmentType}, return {true},
     otherwise return {false}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
@@ -504,10 +504,10 @@ directives may be applied in either order since they apply commutatively.
 
 **Merging Selection Sets**
 
-When a field is executed, during value completion the _selection set_ of each of
-the related field selections with the same response name are collected together
-to produce a single _grouped field set_ in order to continue execution of the
-sub-selection sets.
+In order to execute the sub-selections of a object typed field, all _selection
+sets_ of each field with the same response name of the parent _field set_ are
+merged together into a single _grouped field set_ representing the subfields to
+be executed next.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
@@ -536,16 +536,16 @@ phase with the same value.
 
 CollectSubfields(objectType, fields, variableValues):
 
-- Let {groupedFieldSet} be an empty map.
+- Let {groupedFieldSet} be an empty ordered map of ordered sets.
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
   - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
-    - Let {groupForResponseName} be the list in {groupedFieldSet} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {groupForResponseName}.
+    - Let {fieldsForResponseName} be the _field set_ in {groupedFieldSet} for
+      {responseName}; if no such set exists, create it as an empty set.
+    - Add each fields in {subfields} to {fieldsForResponseName}.
 - Return {groupedFieldSet}.
 
 Note: All the {fields} passed to {CollectSubfields()} share the same _response
@@ -558,10 +558,8 @@ the field selections from a _selection set_ or the associated selection sets of
 a _field set_ respectively, and split them into groups by their _response name_
 to produce a _grouped field set_.
 
-To execute a _grouped field set_, the object value being evaluated and the
-object type need to be known, as well as whether it must be executed serially,
-or may be executed in parallel (see
-[Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
+To execute a _grouped field set_, the object type being evaluated and the
+runtime value need to be known, as well as the runtime values for any variables.
 
 Each entry in the grouped field set represents a _response name_ which produces
 an entry into a result map.
