@@ -259,9 +259,9 @@ query getName {
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
   - Let {variableValues} be the empty set.
-  - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
+  - Let {collectedFieldsMap} be the result of {CollectFields(subscriptionType,
     selectionSet, variableValues)}.
-  - {groupedFieldSet} must have exactly one entry, which must not be an
+  - {collectedFieldsMap} must have exactly one entry, which must not be an
     introspection field.
 
 **Explanatory Text**
