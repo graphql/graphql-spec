@@ -938,6 +938,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          1. The `@deprecated` directive must not be applied to this argument.
+      5. If the argument has a default value it must be compatible with
+         {argumentType} as per the coercion rules for that type.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1658,7 +1660,8 @@ defined by the input object type and for which a value exists. The resulting map
 is constructed with the following rules:
 
 - If no value is provided for a defined input object field and that field
-  definition provides a default value, the default value should be used. If no
+  definition provides a default value, the result of coercing the default value
+  according to the coercion rules of the input field type should be used. If no
   default value is provided and the input object field's type is non-null, an
   error should be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
@@ -1723,6 +1726,44 @@ input ExampleInputObject {
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
+4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
+
+InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
+
+- If {defaultValue} is not provided, initialize it to an empty unordered map.
+- If {visitedFields} is not provided, initialize it to the empty set.
+- If {defaultValue} is a list:
+  - For each {itemValue} in {defaultValue}:
+    - If {InputObjectDefaultValueHasCycle(inputObject, itemValue,
+      visitedFields)}, return {true}.
+- Otherwise, if {defaultValue} is an unordered map:
+  - For each field {field} in {inputObject}:
+    - If {InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields)},
+      return {true}.
+- Return {false}.
+
+InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
+
+- Assert: {defaultValue} is an unordered map.
+- Let {fieldType} be the type of {field}.
+- Let {namedFieldType} be the underlying named type of {fieldType}.
+- If {namedFieldType} is not an input object type:
+  - Return {false}.
+- Let {fieldName} be the name of {field}.
+- Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
+- If {fieldDefaultValue} exists:
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
+    visitedFields)}.
+- Otherwise:
+  - Let {fieldDefaultValue} be the default value of {field}.
+  - If {fieldDefaultValue} does not exist:
+    - Return {false}.
+  - If {field} is within {visitedFields}:
+    - Return {true}.
+  - Let {nextVisitedFields} be a new set containing {field} and everything from
+    {visitedFields}.
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
+    nextVisitedFields)}.
 
 ### Input Object Extensions
 
