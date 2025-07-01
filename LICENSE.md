@@ -1,3 +1,12 @@
+## Copyright and Licensing
+
+The GraphQL Specification Project is made available by the
+[Joint Development Foundation](https://www.jointdevelopment.org/). The current
+[Working Group](https://github.com/graphql/graphql-wg) charter, which includes
+the IP policy governing all working group deliverables (including
+specifications, source code, and datasets) may be found at
+[https://technical-charter.graphql.org](https://technical-charter.graphql.org).
+
 **Copyright Notice**
 
 Copyright © 2015-2018, Facebook, Inc.
@@ -18,15 +27,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 **Licensing**
 
-The GraphQL Specification Project is made available by the
-[Joint Development Foundation](https://www.jointdevelopment.org/). The current
-[Working Group](https://github.com/graphql/graphql-wg) charter, which includes
-the IP policy governing all working group deliverables (including
-specifications, source code, and datasets) may be found at
-[https://technical-charter.graphql.org](https://technical-charter.graphql.org).
-
-Currently, the licenses governing GraphQL Specification Project deliverables
-are:
+The licenses for the GraphQL Specification Project are:
 
 | Deliverable    | License                                                                                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
