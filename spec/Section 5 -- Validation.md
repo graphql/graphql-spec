@@ -32,8 +32,7 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-In this section, we will assume the following type system to demonstrate
-examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
