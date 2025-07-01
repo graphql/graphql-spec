@@ -32,8 +32,7 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-For this section of this schema, we will assume the following type system in
-order to demonstrate examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
