@@ -133,6 +133,8 @@ lines and uniform indentation with {BlockStringValue()}.
 
 ## Document Syntax
 
+Description : StringValue
+
 Document : Definition+
 
 Definition :
@@ -146,8 +148,6 @@ ExecutableDefinition :
 
 - OperationDefinition
 - FragmentDefinition
-
-Description : StringValue
 
 OperationDefinition :
 

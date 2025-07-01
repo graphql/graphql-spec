@@ -233,56 +233,20 @@ Any {Name} within a GraphQL type system must not start with two underscores
 {"\_\_"} unless it is part of the [introspection system](#sec-Introspection) as
 defined by this specification.
 
-## Document
-
-Document : Definition+
-
-Definition :
-
-- ExecutableDefinition
-- TypeSystemDefinitionOrExtension
-
-ExecutableDocument : ExecutableDefinition+
-
-ExecutableDefinition :
-
-- OperationDefinition
-- FragmentDefinition
-
-A GraphQL Document describes a complete file or request string operated on by a
-GraphQL service or client. A document contains multiple definitions, either
-executable or representative of a GraphQL type system.
-
-Documents are only executable by a GraphQL service if they are
-{ExecutableDocument} and contain at least one {OperationDefinition}. A Document
-which contains {TypeSystemDefinitionOrExtension} must not be executed; GraphQL
-execution services which receive a Document containing these should return a
-descriptive error.
-
-GraphQL services which only seek to execute GraphQL requests and not construct a
-new GraphQL schema may choose to only permit {ExecutableDocument}.
-
-Documents which do not contain {OperationDefinition} or do contain
-{TypeSystemDefinitionOrExtension} may still be parsed and validated to allow
-client tools to represent many GraphQL uses which may appear across many
-individual files.
-
-If a Document contains only one operation, that operation may be unnamed. If
-that operation is a query without variables or directives then it may also be
-represented in the shorthand form, omitting both the {`query`} keyword as well
-as the operation name. Otherwise, if a GraphQL Document contains multiple
-operations, each operation must be named. When submitting a Document with
-multiple operations to a GraphQL service, the name of the desired operation to
-be executed must also be provided.
-
 ## Descriptions
 
 Description : StringValue
 
-Documentation is a first-class feature of GraphQL. GraphQL descriptions are
-defined using the Markdown syntax (as specified by
+Documentation is a first-class feature of GraphQL by encouraging written
+descriptions on all named definitions in both a GraphQL schema
+{TypeSystemDocument} and an executable {Document}. GraphQL descriptions are
+expected to provided as Markdown (as specified by
 [CommonMark](https://commonmark.org/)). Description strings (often
-{BlockString}) occur immediately before the definition they describe.
+{BlockString}) occur immediately before the named definition they describe.
+
+Descriptions in type system definitions are made available via introspection,
+ensuring the documentation of a GraphQL service remains consistent with its
+capabilities.
 
 Descriptions may appear before:
 
@@ -396,12 +360,51 @@ Descriptions are not permitted on the shorthand form of operations:
 
 Note: Descriptions and comments in executable GraphQL documents are purely for
 documentation purposes. They MUST NOT affect the execution, validation, or
-response of a GraphQL document. It is safe to remove all descriptions and
-comments from executable documents without changing their behavior or results.
+response of a GraphQL document except for type and schema introspection. It is
+otherwise safe to remove all descriptions and comments from executable documents
+without changing their behavior or results.
 
-Descriptions in type system definitions are made available via introspection,
-ensuring the documentation of a GraphQL service remains consistent with its
-capabilities.
+## Document
+
+Document : Definition+
+
+Definition :
+
+- ExecutableDefinition
+- TypeSystemDefinitionOrExtension
+
+ExecutableDocument : ExecutableDefinition+
+
+ExecutableDefinition :
+
+- OperationDefinition
+- FragmentDefinition
+
+A GraphQL Document describes a complete file or request string operated on by a
+GraphQL service or client. A document contains multiple definitions, either
+executable or representative of a GraphQL type system.
+
+Documents are only executable by a GraphQL service if they are
+{ExecutableDocument} and contain at least one {OperationDefinition}. A Document
+which contains {TypeSystemDefinitionOrExtension} must not be executed; GraphQL
+execution services which receive a Document containing these should return a
+descriptive error.
+
+GraphQL services which only seek to execute GraphQL requests and not construct a
+new GraphQL schema may choose to only permit {ExecutableDocument}.
+
+Documents which do not contain {OperationDefinition} or do contain
+{TypeSystemDefinitionOrExtension} may still be parsed and validated to allow
+client tools to represent many GraphQL uses which may appear across many
+individual files.
+
+If a Document contains only one operation, that operation may be unnamed. If
+that operation is a query without variables or directives then it may also be
+represented in the shorthand form, omitting both the {`query`} keyword as well
+as the operation name. Otherwise, if a GraphQL Document contains multiple
+operations, each operation must be named. When submitting a Document with
+multiple operations to a GraphQL service, the name of the desired operation to
+be executed must also be provided.
 
 ## Operations
 
