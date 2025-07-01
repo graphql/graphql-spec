@@ -338,8 +338,8 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentCollectedFieldMap} as {responseName} and
-      {fragmentFields}:
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -353,8 +353,8 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentCollectedFieldMap} as {responseName} and
-      {fragmentFields}:
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.

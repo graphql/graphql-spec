@@ -468,8 +468,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentCollectedFieldMap} as {responseName} and
-      {fragmentFields}:
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -483,8 +483,8 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentCollectedFieldMap} as {responseName} and
-      {fragmentFields}:
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -546,10 +546,10 @@ CollectSubfields(objectType, fields, variableValues):
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {fieldCollectedFieldMap} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
-  - For each {fieldCollectedFieldMap} as {responseName} and {subfields}:
+  - For each {responseName} and {subfields} in {fieldCollectedFieldMap}:
     - Let {fieldsForResponseName} be the _field set_ value in
-      {collectedFieldsMap} for the key {responseName}; otherwise create it as an
-      empty ordered set.
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
     - Add each fields from {subfields} to {fieldsForResponseName}.
 - Return {collectedFieldsMap}.
 
@@ -573,7 +573,7 @@ ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
 variableValues):
 
 - Initialize {resultMap} to an empty ordered map.
-- For each {collectedFieldsMap} as {responseName} and {fields}:
+- For each {responseName} and {fields} in {collectedFieldsMap}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
