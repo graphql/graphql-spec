@@ -214,40 +214,36 @@ Fibonacci(number):
 - Return {Fibonacci(previousNumber)} + {Fibonacci(previousPreviousNumber)}.
 
 Note: Algorithms described in this document are written to be easy to
-understand. Implementers are encouraged to include equivalent but optimized
-implementations.
+understand. Implementers are encouraged to include observably equivalent but
+optimized implementations.
 
 ## Data Collections
 
-A data collection is a finite, iterable aggregation of elements whose iteration
-order is not necessarily stable. This specification describes the semantic
-properties of data collections using types like "list", "set" and "map". These
-describe observable data collections, such as the result of applying a grammar
-and the inputs and outputs of algorithms. They also describe unobservable data
-collections such as temporary data internal to an algorithm. Each data
-collection type defines the operations available, and whether values are unique
-or ordered.
+Algorithms within this specification refer to abstract data collection types to
+express normative structural, uniqueness, and ordering requirements. Temporary
+data collections internal to an algorithm use these types to best describe
+expected behavior, but implementers are encouraged to provide observably
+equivalent but optimized implementations. Implementations may use any data
+structure as long as the expected requirements are met.
 
 **List**
 
-:: The term _list_ describes a sequence of zero or more values, which may
-contain duplicates. Currently, all lists in this specification are ordered, but
-for clarity the term "ordered list" may be used when an order is semantically
-important.
+:: A _list_ is an ordered collection of values which may contain duplicates. A
+value added to a list is ordered after existing values.
 
 **Set**
 
-:: The term _set_ describes a collection of zero or more values, which may not
-contain duplicates. Each value is considered a "member" of the set. A set is
-unordered unless explicitly stated otherwise (as an "ordered set"). For clarity,
-the term "unordered set" may be used when the lack of an order is semantically
-important.
+:: A _set_ is a collection of values which must not contain duplicates.
+
+:: An _ordered set_ is a set which has a defined order. A value added to an
+ordered set, which does not already contain that value, is ordered after
+existing values.
 
 **Map**
 
-:: The term _map_ describes a collection where each element is a pair (called an
-"entry") consisting of a key and a value. Keys are unique: no two entries with
-the same key may exist in the same map, but values may repeat. A map is
-unordered unless explicitly stated otherwise (as an "ordered map"). For clarity,
-the term "unordered map" may be used when the lack of an order is semantically
-important.
+:: A _map_ is a collection of entries, each of which has a key and value. Each
+entry has a unique key, and can be directly referenced by that key.
+
+:: An _ordered map_ is a map which has a defined order. An entry added to an
+ordered map, which does not have an entry with that key, is ordered after
+existing entries.
