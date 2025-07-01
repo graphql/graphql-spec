@@ -779,8 +779,8 @@ type Person {
 }
 ```
 
-Valid operations must supply a nested field set for any field that returns an
-object, so this operation is not valid:
+Valid operations must supply a _selection set_ for every field of an object
+type, so this operation is not valid:
 
 ```graphql counter-example
 {
