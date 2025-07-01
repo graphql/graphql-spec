@@ -151,7 +151,7 @@ type __Type {
   ofType: __Type
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
-  # should be non-null for INPUT_OBJECT only
+  # must be non-null for INPUT_OBJECT, otherwise null.
   isOneOf: Boolean
 }
 
@@ -375,8 +375,8 @@ Fields\:
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
-- `isOneOf` must return {true} when representing a OneOf Input Object, {false}
-  otherwise.
+- `isOneOf` must return {true} when representing a _OneOf Input Object_,
+  otherwise {false}.
 - All other fields must return {null}.
 
 **List**

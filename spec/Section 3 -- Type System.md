@@ -1570,10 +1570,10 @@ objects have a separate type in the system.
 
 **OneOf Input Objects**
 
-OneOf Input Objects are a special variant of Input Objects where the type system
-asserts that exactly one of the fields must be set and non-null, all others
-being omitted. This is useful for representing situations where an input may be
-one of many different options.
+:: A _OneOf Input Object_ is a special variant of Input Object where the type
+system asserts that exactly one of the fields must be set and non-null, all
+others being omitted. This is useful for representing situations where an input
+may be one of many different options.
 
 When using the type system definition language, the `@oneOf` directive is used
 to indicate that an Input Object is a OneOf Input Object (and thus requires
@@ -1683,7 +1683,7 @@ is constructed with the following rules:
   variable definition does not provide a default value, the input object field
   definition's default value should be used.
 
-Further, if the input object is a OneOf Input Object, the following additional
+Further, if the input object is a _OneOf Input Object_, the following additional
 rules apply:
 
 - If the input object literal or unordered map does not contain exactly one
@@ -1779,7 +1779,7 @@ input ExampleOneOfInputObject @oneOf {
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
       1. The `@deprecated` directive must not be applied to this input field.
-   5. If the Input Object is a OneOf Input Object then:
+   5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
@@ -1811,7 +1811,7 @@ defined.
    Input Object type.
 5. The `@oneOf` directive must not be provided by an Input Object type
    extension.
-6. If the original Input Object is a OneOf Input Object then:
+6. If the original Input Object is a _OneOf Input Object_ then:
    1. All fields of the Input Object type extension must be nullable.
    2. All fields of the Input Object type extension must not have default
       values.

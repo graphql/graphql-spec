@@ -43,7 +43,7 @@ type Query {
 
 type Mutation {
   addPet(pet: PetInput!): Pet
-  addPets(pet: [PetInput!]!): [Pet]
+  addPets(pets: [PetInput!]!): [Pet]
 }
 
 enum DogCommand {
@@ -1951,7 +1951,7 @@ IsNonNullPosition(locationType, variableUsage):
 - If the location of {variableUsage} is an {ObjectField}:
   - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
   - Let {parentLocationType} be the expected type of {ObjectValue}.
-  - If {parentLocationType} is a OneOf Input Object type, return {true}.
+  - If {parentLocationType} is a _OneOf Input Object_ type, return {true}.
 - Return {false}.
 
 AreTypesCompatible(variableType, locationType):
