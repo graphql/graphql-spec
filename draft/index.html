@@ -62,19 +62,19 @@
 <section id="sec-Conforming-Algorithms" class="subsec">
 <h6 data-source="spec/GraphQL.md#L82"><a href="#sec-Conforming-Algorithms" title="link to this subsection">Conforming Algorithms</a></h6>
 <p data-source="spec/GraphQL.md#L84-L89">Algorithm steps phrased in imperative grammar (e.g. &ldquo;Return the result of calling resolver&rdquo;) are to be interpreted with the same level of requirement as the algorithm it is contained within. Any algorithm referenced within an algorithm step (e.g. &ldquo;Let completedResult be the result of calling CompleteValue()&rdquo;) is to be interpreted as having at least the same level of requirement as the algorithm containing that step.</p>
-<p data-source="spec/GraphQL.md#L91-L95">Conformance requirements expressed as algorithms can be fulfilled by an implementation of this specification in any way as long as the perceived result is equivalent. Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include equivalent but optimized implementations.</p>
-<p data-source="spec/GraphQL.md#L97-L98">See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more details about the definition of algorithms and other notational conventions used in this document.</p>
+<p data-source="spec/GraphQL.md#L91-L95">Conformance requirements expressed as algorithms and data collections can be fulfilled by an implementation of this specification in any way as long as the perceived result is equivalent. Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include equivalent but optimized implementations.</p>
+<p data-source="spec/GraphQL.md#L97-L99">See <a href="#sec-Appendix-Notation-Conventions">Appendix A</a> for more details about the definition of algorithms, data collections, and other notational conventions used in this document.</p>
 </section>
 <section id="sec-Non-Normative-Portions" class="subsec">
-<h6 data-source="spec/GraphQL.md#L100"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
-<p data-source="spec/GraphQL.md#L102-L103">All contents of this document are normative except portions explicitly declared as non-normative.</p>
-<p data-source="spec/GraphQL.md#L105-L108">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
-<pre id="example-fed99" class="spec-example" data-source="spec/GraphQL.md#L110-L112"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
+<h6 data-source="spec/GraphQL.md#L101"><a href="#sec-Non-Normative-Portions" title="link to this subsection">Non-Normative Portions</a></h6>
+<p data-source="spec/GraphQL.md#L103-L104">All contents of this document are normative except portions explicitly declared as non-normative.</p>
+<p data-source="spec/GraphQL.md#L106-L109">Examples in this document are non-normative, and are presented to aid understanding of introduced concepts and the behavior of normative portions of the specification. Examples are either introduced explicitly in prose (e.g. &ldquo;for example&rdquo;) or are set apart in example or counter-example blocks, like this:</p>
+<pre id="example-fed99" class="spec-example" data-source="spec/GraphQL.md#L111-L113"><a href="#example-fed99">Example № 1</a><code>This is an example of a non-normative example.
 </code></pre>
-<pre id="example-881bd" class="spec-counter-example" data-source="spec/GraphQL.md#L114-L116"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
+<pre id="example-881bd" class="spec-counter-example" data-source="spec/GraphQL.md#L115-L117"><a href="#example-881bd">Counter Example № 2</a><code>This is an example of a non-normative counter-example.
 </code></pre>
-<p data-source="spec/GraphQL.md#L118-L121">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
-<div id="note-c0129" class="spec-note" data-source="spec/GraphQL.md#L123">
+<p data-source="spec/GraphQL.md#L119-L122">Notes in this document are non-normative, and are presented to clarify intent, draw attention to potential edge-cases and pit-falls, and answer common questions that arise during implementation. Notes are either introduced explicitly in prose (e.g. &ldquo;Note: &ldquo;) or are set apart in a note block, like this:</p>
+<div id="note-c0129" class="spec-note" data-source="spec/GraphQL.md#L124">
 <a href="#note-c0129">Note</a>
 This is an example of a non-normative note.</div>
 </section>
@@ -331,6 +331,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Grammar-Notation"><span class="spec-secid">A.3</span>Grammar Notation</a></li>
 <li><a href="#sec-Grammar-Semantics"><span class="spec-secid">A.4</span>Grammar Semantics</a></li>
 <li><a href="#sec-Algorithms"><span class="spec-secid">A.5</span>Algorithms</a></li>
+<li><a href="#sec-Data-Collections"><span class="spec-secid">A.6</span>Data Collections</a></li>
 </ol>
 </li>
 <li><a href="#sec-Appendix-Grammar-Summary"><span class="spec-secid">B</span>Appendix: Grammar Summary</a><ol>
@@ -6438,9 +6439,27 @@ This does not violate the JSON spec, as clients may still interpret objects in t
 <li data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L214">Return <span class="spec-call"><a href="#Fibonacci()" data-name="Fibonacci">Fibonacci</a>(<var data-name="previousNumber">previousNumber</var>)</span> + <span class="spec-call"><a href="#Fibonacci()" data-name="Fibonacci">Fibonacci</a>(<var data-name="previousPreviousNumber">previousPreviousNumber</var>)</span>.</li>
 </ol>
 </div>
-<div id="note-edb29" class="spec-note" data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L216-L219">
-<a href="#note-edb29">Note</a>
-Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include equivalent but optimized implementations. </div>
+<div id="note-28343" class="spec-note" data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L216-L218">
+<a href="#note-28343">Note</a>
+Algorithms described in this document are written to be easy to understand. Implementers are encouraged to include observably equivalent but optimized implementations.</div>
+</section>
+<section id="sec-Data-Collections" secid="A.6">
+<h2 data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L220"><span class="spec-secid" title="link to this section"><a href="#sec-Data-Collections">A.6</a></span>Data Collections</h2>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L222-L227">Algorithms within this specification refer to abstract data collection types to express normative structural, uniqueness, and ordering requirements. Temporary data collections internal to an algorithm use these types to best describe expected behavior, but implementers are encouraged to provide observably equivalent but optimized implementations. Implementations may use any data structure as long as the expected requirements are met.</p>
+<section id="sec-Data-Collections.List" class="subsec">
+<h6 data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L229"><a href="#sec-Data-Collections.List" title="link to this subsection">List</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L231-L232">A <dfn id="list"><a href="#list" data-name="list">list</a></dfn> is an ordered collection of values which may contain duplicates. A value added to a list is ordered after existing values.</p>
+</section>
+<section id="sec-Data-Collections.Set" class="subsec">
+<h6 data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L234"><a href="#sec-Data-Collections.Set" title="link to this subsection">Set</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L236">A <dfn id="set"><a href="#set" data-name="set">set</a></dfn> is a collection of values which must not contain duplicates.</p>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L238-L240">An <dfn id="ordered-set"><a href="#ordered-set" data-name="ordered-set">ordered set</a></dfn> is a set which has a defined order. A value added to an ordered set, which does not already contain that value, is ordered after existing values.</p>
+</section>
+<section id="sec-Data-Collections.Map" class="subsec">
+<h6 data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L242"><a href="#sec-Data-Collections.Map" title="link to this subsection">Map</a></h6>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L244-L245">A <dfn id="map"><a href="#map" data-name="map">map</a></dfn> is a collection of entries, each of which has a key and value. Each entry has a unique key, and can be directly referenced by that key.</p>
+<p data-source="spec/Appendix%20A%20--%20Notation%20Conventions.md#L247-L250">An <dfn id="ordered-map"><a href="#ordered-map" data-name="ordered-map">ordered map</a></dfn> is a map which has a defined order. An entry added to an ordered map, which does not have an entry with that key, is ordered after existing entries. </p>
+</section>
 </section>
 </section>
 <section id="sec-Appendix-Grammar-Summary" secid="B">
@@ -7735,6 +7754,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_A.3"><a href="#sec-Grammar-Notation"><span class="spec-secid">A.3</span>Grammar Notation</a></li>
 <li id="_sidebar_A.4"><a href="#sec-Grammar-Semantics"><span class="spec-secid">A.4</span>Grammar Semantics</a></li>
 <li id="_sidebar_A.5"><a href="#sec-Algorithms"><span class="spec-secid">A.5</span>Algorithms</a></li>
+<li id="_sidebar_A.6"><a href="#sec-Data-Collections"><span class="spec-secid">A.6</span>Data Collections</a></li>
 </ol>
 </li>
 <li id="_sidebar_B"><a href="#sec-Appendix-Grammar-Summary"><span class="spec-secid">B</span>Appendix: Grammar Summary</a>
