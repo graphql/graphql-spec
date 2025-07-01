@@ -388,8 +388,10 @@ executionMode):
 ### Field Collection
 
 Before execution, each _selection set_ is converted to a _collected fields map_
-by calling {CollectFields()}. This ensures all fields with the same response
-name, including those in referenced fragments, are executed at the same time.
+by calling {CollectFields()} by collecting all fields with the same response
+name, including those in referenced fragments, into an individual _field set_.
+This ensures that multiple references to fields with the same response name will
+only be executed once.
 
 :: A _collected fields map_ is an ordered map where each entry is a _response
 name_ and its associated _field set_. A _collected fields map_ may be produced
@@ -558,16 +560,12 @@ name_.
 
 ### Executing Collected Fields
 
-The {CollectFields()} and {CollectSubfields()} algorithms transitively collect
-the field selections from a _selection set_ or the associated selection sets of
-a _field set_ respectively, and split them into sets by their _response name_ to
-produce a _collected fields map_.
-
 To execute a _collected fields map_, the object type being evaluated and the
 runtime value need to be known, as well as the runtime values for any variables.
 
-Each entry in the collected fields map represents a _response name_ which
-produces an entry into a result map.
+Execution will recursively resolve and complete the value of every entry in the
+collected fields map, producing an entry in the result map with the same
+_response name_ key.
 
 ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
 variableValues):
@@ -608,7 +606,7 @@ about this behavior.
 
 ### Normal and Serial Execution
 
-Normally the executor can execute the entries in a collected fields map in
+Normally the executor can execute the entries in a _collected fields map_ in
 whatever order it chooses (normally in parallel). Because the resolution of
 fields other than top-level mutation fields must always be side effect-free and
 idempotent, the execution order must not affect the result, and hence the
@@ -708,11 +706,11 @@ A correct executor must generate the following result for that _selection set_:
 
 ## Executing Fields
 
-Each field from the _collected fields map_ that is defined on the selected
-objectType will result in an entry in the result map. Field execution first
-coerces any provided argument values, then resolves a value for the field, and
-finally completes that value either by recursively executing another selection
-set or coercing a scalar value.
+Each entry in a result map is the result of executing a field on an object type
+selected by the name of that field in a _collected fields map_. Field execution
+first coerces any provided argument values, then resolves a value for the field,
+and finally completes that value either by recursively executing another
+selection set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
@@ -812,7 +810,8 @@ returned by {resolver} may itself be retrieved asynchronously.
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively.
+field execution process continues recursively by collecting and executing
+subfields.
 
 CompleteValue(fieldType, fields, result, variableValues):
 
