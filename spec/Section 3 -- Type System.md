@@ -50,20 +50,16 @@ Tools which only seek to produce and extend schema and not execute requests may
 choose to only allow {TypeSystemExtensionDocument} and not allow
 {ExecutableDefinition} but should provide a descriptive error if present.
 
-## Descriptions
+## Type System Descriptions
 
-Description : StringValue
+Documentation is a first-class feature of GraphQL type systems, written
+immediately alongside definitions in a {TypeSystemDocument} and made available
+via introspection.
 
-Documentation is a first-class feature of GraphQL type systems. To ensure the
-documentation of a GraphQL service remains consistent with its capabilities,
-descriptions of GraphQL definitions are provided alongside their definitions and
-made available via introspection.
-
-To allow GraphQL service designers to easily publish documentation alongside the
-capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
-type system definition language, these description strings (often {BlockString})
-occur immediately before the definition they describe.
+[Descriptions](#sec-Descriptions) allow GraphQL service designers to easily
+provide documentation which remains consistent with the capabilities of a
+GraphQL service. Descriptions provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)) for every definition in a type system.
 
 GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
 which can be described should provide a {Description} unless they are considered
