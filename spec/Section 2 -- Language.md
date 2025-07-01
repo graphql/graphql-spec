@@ -238,80 +238,16 @@ defined by this specification.
 Description : StringValue
 
 Documentation is a first-class feature of GraphQL by encouraging written
-descriptions on all named definitions in both a GraphQL schema
-{TypeSystemDocument} and an executable {Document}. GraphQL descriptions are
-expected to provided as Markdown (as specified by
+descriptions on all named definitions in executable {Document} and GraphQL type
+systems, which is also made available via introspection ensuring the
+documentation of a GraphQL service remains consistent with its capabilities (see
+[Type System Descriptions](#sec-Type-System-Descriptions)).
+
+GraphQL descriptions are expected to provided as Markdown (as specified by
 [CommonMark](https://commonmark.org/)). Description strings (often
-{BlockString}) occur immediately before the named definition they describe.
+{BlockString}) occur immediately before the definition they describe.
 
-Descriptions in type system definitions are made available via introspection,
-ensuring the documentation of a GraphQL service remains consistent with its
-capabilities.
-
-Descriptions may appear before:
-
-**In type system definitions:**
-
-- Schema definitions.
-- Type definitions (scalars, objects, interfaces, unions, enums, input objects).
-- Field definitions.
-- Argument definitions.
-- Enum value definitions.
-- Input field definitions.
-- Directive definitions.
-
-**In executable documents:**
-
-- Operation definitions (queries, mutations, subscriptions) in their full form
-  (not the shorthand form).
-- Fragment definitions.
-- Variable definitions within operation definitions.
-
-As an example, this simple GraphQL schema is well described:
-
-```raw graphql example
-"""
-A simple GraphQL schema which is well described.
-"""
-schema {
-  query: Query
-}
-
-"""
-Root type for all your query operations
-"""
-type Query {
-  """
-  Translates a string from a given language into a different language.
-  """
-  translate(
-    "The original language that `text` is provided in."
-    fromLanguage: Language
-
-    "The translated language to be returned."
-    toLanguage: Language
-
-    "The text to be translated."
-    text: String
-  ): String
-}
-
-"""
-The set of languages supported by `translate`.
-"""
-enum Language {
-  "English"
-  EN
-
-  "French"
-  FR
-
-  "Chinese"
-  CH
-}
-```
-
-This is an example of a well-described executable document:
+This is an example of a well-described operation:
 
 ```graphql example
 """
@@ -343,26 +279,11 @@ fragment TimeMachineDetails on TimeMachine {
 }
 ```
 
-Descriptions are not permitted on the shorthand form of operations:
-
-```graphql counter-example
-"This description is invalid, because this is a shorthand operation definition"
-{
-  timeMachine(id: "TM-1985") {
-    status
-    destination {
-      year
-      location
-    }
-  }
-}
-```
-
-Note: Descriptions and comments in executable GraphQL documents are purely for
+Descriptions and comments in executable GraphQL documents are purely for
 documentation purposes. They MUST NOT affect the execution, validation, or
-response of a GraphQL document except for type and schema introspection. It is
-otherwise safe to remove all descriptions and comments from executable documents
-without changing their behavior or results.
+response of a GraphQL document except for type introspection. It is otherwise
+safe to remove all descriptions and comments from executable documents without
+changing their behavior or results.
 
 ## Document
 
@@ -456,6 +377,8 @@ For example, this unnamed query operation is written via query shorthand.
   field
 }
 ```
+
+Descriptions are not permitted on query shorthand.
 
 Note: many examples below will use the query short-hand syntax.
 
