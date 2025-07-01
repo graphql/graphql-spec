@@ -214,5 +214,36 @@ Fibonacci(number):
 - Return {Fibonacci(previousNumber)} + {Fibonacci(previousPreviousNumber)}.
 
 Note: Algorithms described in this document are written to be easy to
-understand. Implementers are encouraged to include equivalent but optimized
-implementations.
+understand. Implementers are encouraged to include observably equivalent but
+optimized implementations.
+
+## Data Collections
+
+Algorithms within this specification refer to abstract data collection types to
+express normative structural, uniqueness, and ordering requirements. Temporary
+data collections internal to an algorithm use these types to best describe
+expected behavior, but implementers are encouraged to provide observably
+equivalent but optimized implementations. Implementations may use any data
+structure as long as the expected requirements are met.
+
+**List**
+
+:: A _list_ is an ordered collection of values which may contain duplicates. A
+value added to a list is ordered after existing values.
+
+**Set**
+
+:: A _set_ is a collection of values which must not contain duplicates.
+
+:: An _ordered set_ is a set which has a defined order. A value added to an
+ordered set, which does not already contain that value, is ordered after
+existing values.
+
+**Map**
+
+:: A _map_ is a collection of entries, each of which has a key and value. Each
+entry has a unique key, and can be directly referenced by that key.
+
+:: An _ordered map_ is a map which has a defined order. An entry added to an
+ordered map, which does not have an entry with that key, is ordered after
+existing entries.
