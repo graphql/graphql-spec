@@ -449,9 +449,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
     - Let {fieldsForResponseName} be the _field set_ value in
-      {collectedFieldsMap} for the key {responseName}; otherwise create it as an
-      empty ordered set.
-    - Append {selection} to the {fieldsForResponseName}.
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -471,9 +471,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentCollectedFieldMap} as {responseName} and
       {fragmentFields}:
       - Let {fieldsForResponseName} be the _field set_ value in
-        {collectedFieldsMap} for the key {responseName}; otherwise create it as
-        an empty ordered set.
-      - Add each items from {fragmentFields} to {fieldsForResponseName}.
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseName}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
@@ -486,9 +486,9 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - For each {fragmentCollectedFieldMap} as {responseName} and
       {fragmentFields}:
       - Let {fieldsForResponseName} be the _field set_ value in
-        {collectedFieldsMap} for the key {responseName}; otherwise create it as
-        an empty ordered set.
-      - Append all items in {fragmentFields} to {fieldsForResponseName}.
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Append each item from {fragmentFields} to {fieldsForResponseName}.
 - Return {collectedFieldsMap}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
@@ -535,8 +535,8 @@ fragment ExampleFragment on Query {
 ```
 
 After resolving the value for field `"a"`, the following multiple selection sets
-are merged together so `"subfield1"` and `"subfield2"` are resolved in the same
-phase with the same value.
+are collected and merged together so `"subfield1"` and `"subfield2"` are
+resolved in the same phase with the same value.
 
 CollectSubfields(objectType, fields, variableValues):
 

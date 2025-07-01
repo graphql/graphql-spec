@@ -311,16 +311,17 @@ query getName {
 CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
 - For each {selection} in {selectionSet}:
   - {selection} must not provide the `@skip` directive.
   - {selection} must not provide the `@include` directive.
   - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
+    - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {fieldsForResponseKey} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -334,31 +335,31 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - For each {fragmentCollectedFieldMap} as {responseName} and
+      {fragmentFields}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+    - For each {fragmentCollectedFieldMap} as {responseName} and
+      {fragmentFields}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+- Return {collectedFieldsMap}.
 
 Note: This algorithm is very similar to {CollectFields()}, it differs in that it
 does not have access to runtime variables and thus the `@skip` and `@include`
