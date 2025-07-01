@@ -35,9 +35,9 @@ chosen by the implementing service.
 
 Note: Descriptions and comments in executable documents (operation definitions,
 fragment definitions, and variable definitions) MUST be ignored during execution
-and have no effect on the execution, validation, or response of a GraphQL
-document. Descriptions and comments on executable documents MAY be used for
-observability and logging purposes.
+and have no effect on the observable execution, validation, or response of a
+GraphQL document. Descriptions and comments on executable documents MAY be used
+for non-observable purposes, such as logging and other developer tools.
 
 ## Executing Requests
 

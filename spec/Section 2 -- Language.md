@@ -237,13 +237,13 @@ defined by this specification.
 
 Description : StringValue
 
-Documentation is a first-class feature of GraphQL by encouraging written
+Documentation is a first-class feature of GraphQL by including written
 descriptions on all named definitions in executable {Document} and GraphQL type
 systems, which is also made available via introspection ensuring the
 documentation of a GraphQL service remains consistent with its capabilities (see
 [Type System Descriptions](#sec-Type-System-Descriptions)).
 
-GraphQL descriptions are expected to provided as Markdown (as specified by
+GraphQL descriptions are provided as Markdown (as specified by
 [CommonMark](https://commonmark.org/)). Description strings (often
 {BlockString}) occur immediately before the definition they describe.
 
@@ -279,11 +279,10 @@ fragment TimeMachineDetails on TimeMachine {
 }
 ```
 
-Descriptions and comments in executable GraphQL documents are purely for
-documentation purposes. They MUST NOT affect the execution, validation, or
-response of a GraphQL document except for type introspection. It is otherwise
-safe to remove all descriptions and comments from executable documents without
-changing their behavior or results.
+Descriptions in GraphQL executable documents are purely for documentation
+purposes. They MUST NOT affect the execution, validation, or response of a
+GraphQL document. It is safe to remove all descriptions and comments from
+executable documents without changing their behavior or results.
 
 ## Document
 

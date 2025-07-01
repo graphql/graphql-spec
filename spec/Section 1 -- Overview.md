@@ -63,7 +63,7 @@ GraphQL has a number of design principles:
   endpoints. A GraphQL response, on the other hand, contains exactly what a
   client asks for and no more.
 
-- **Introspective**: GraphQL is introspective and self-describing. A GraphQL
+- **Self-describing**: GraphQL is self-describing and introspective. A GraphQL
   service's type system can be queryable by the GraphQL language itself, which
   includes readable documentation. GraphQL introspection serves as a powerful
   platform for building common developer tools and client software libraries.
