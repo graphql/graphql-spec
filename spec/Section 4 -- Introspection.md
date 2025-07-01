@@ -137,6 +137,8 @@ type __Type {
   kind: __TypeKind!
   name: String
   description: String
+  # may be non-null for custom SCALAR, otherwise null.
+  specifiedByURL: String
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   fields(includeDeprecated: Boolean! = false): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
@@ -149,8 +151,6 @@ type __Type {
   inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
-  # may be non-null for custom SCALAR, otherwise null.
-  specifiedByURL: String
   # must be non-null for INPUT_OBJECT, otherwise null.
   isOneOf: Boolean
 }
@@ -194,9 +194,9 @@ type __EnumValue {
 type __Directive {
   name: String!
   description: String
+  isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean! = false): [__InputValue!]!
-  isRepeatable: Boolean!
 }
 
 enum __DirectiveLocation {
