@@ -50,20 +50,16 @@ Tools which only seek to produce and extend schema and not execute requests may
 choose to only allow {TypeSystemExtensionDocument} and not allow
 {ExecutableDefinition} but should provide a descriptive error if present.
 
-## Descriptions
+## Type System Descriptions
 
-Description : StringValue
+Documentation is a first-class feature of GraphQL type systems, written
+immediately alongside definitions in a {TypeSystemDocument} and made available
+via introspection.
 
-Documentation is a first-class feature of GraphQL type systems. To ensure the
-documentation of a GraphQL service remains consistent with its capabilities,
-descriptions of GraphQL definitions are provided alongside their definitions and
-made available via introspection.
-
-To allow GraphQL service designers to easily publish documentation alongside the
-capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
-type system definition language, these description strings (often {BlockString})
-occur immediately before the definition they describe.
+[Descriptions](#sec-Descriptions) allow GraphQL service designers to easily
+provide documentation which remains consistent with the capabilities of a
+GraphQL service. Descriptions provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)) for every definition in a type system.
 
 GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
 which can be described should provide a {Description} unless they are considered
@@ -217,13 +213,14 @@ type MyMutationRootType {
 {"Subscription"} respectively.
 
 The type system definition language can omit the schema definition when each
-_root operation type_ uses its respective _default root type name_ and no other
-type uses any _default root type name_.
+_root operation type_ uses its respective _default root type name_, no other
+type uses any _default root type name_, and the schema does not have a
+description.
 
 Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if each _root operation type_
-uses its respective _default root type name_ and no other type uses any _default
-root type name_.
+uses its respective _default root type name_, no other type uses any _default
+root type name_, and the schema does not have a description.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
@@ -256,6 +253,27 @@ type Virus {
 
 type Mutation {
   name: String
+}
+```
+
+This example describes a valid GraphQL schema with a description and both a
+{`query`} and {`mutation`} operation type:
+
+```graphql example
+"""
+Example schema
+"""
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  someField: String
+}
+
+type Mutation {
+  someMutation: String
 }
 ```
 
@@ -757,8 +775,8 @@ type Person {
 }
 ```
 
-Valid operations must supply a nested field set for any field that returns an
-object, so this operation is not valid:
+Valid operations must supply a _selection set_ for every field of an object
+type, so this operation is not valid:
 
 ```graphql counter-example
 {
