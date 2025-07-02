@@ -247,6 +247,11 @@ GraphQL descriptions are provided as Markdown (as specified by
 [CommonMark](https://commonmark.org/)). Description strings (often
 {BlockString}) occur immediately before the definition they describe.
 
+Descriptions in GraphQL executable documents are purely for documentation
+purposes. They MUST NOT affect the execution, validation, or response of a
+GraphQL document. It is safe to remove all descriptions and comments from
+executable documents without changing their behavior or results.
+
 This is an example of a well-described operation:
 
 ```graphql example
@@ -278,11 +283,6 @@ fragment TimeMachineDetails on TimeMachine {
   }
 }
 ```
-
-Descriptions in GraphQL executable documents are purely for documentation
-purposes. They MUST NOT affect the execution, validation, or response of a
-GraphQL document. It is safe to remove all descriptions and comments from
-executable documents without changing their behavior or results.
 
 ## Document
 
