@@ -334,11 +334,11 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -349,11 +349,11 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -584,7 +584,7 @@ should be unambiguous. Therefore any two field selections which might both be
 encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {CollectSubfields()} before execution.
+name is accomplished by performing {CollectSubfields()} before their execution.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
