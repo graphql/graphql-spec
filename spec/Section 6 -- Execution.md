@@ -369,8 +369,8 @@ continues until there are no more subfields to collect and execute.
 operation. A root selection set always selects from a _root operation type_.
 
 To execute the root selection set, the initial value being evaluated and the
-root type must be known, as well as whether each field must be executed
-serially, or normally by executing all fields in parallel (see
+root type must be known, as well as whether the fields must be executed in a
+series, or normally by executing all fields in parallel (see
 [Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
 
 Executing the root selection set works similarly for queries (parallel),
