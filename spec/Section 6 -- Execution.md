@@ -47,19 +47,15 @@ document is expected to only contain a single operation. The result of the
 request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
-The {ExecuteRequest()} algorithm contains the preamble for _execution_, handling
-concerns such as determining the operation and coercing the inputs, before
-passing the request on to the relevant algorithm for the operation's type which
-then performs any other necessary preliminary steps (for example establishing
-the source event stream for subscription operations) and then initiates
-_execution_.
+The {ExecuteRequest()} algorithm performs the preamble for _operation
+execution_, completing preliminary steps before invoking the appropriate
+algorithm based on the operation's type. These steps include determining the
+operation to execute, coercing input values, and, for subscriptions,
+establishing the source event stream.
 
-Note: An error raised before _execution_ begins will typically be a _request
-error_, and once _execution_ begins will typically be an _execution error_.
-
-:: We define _execution_ as the process of executing the operation's _root
-selection set_ through {ExecuteRootSelectionSet()}, and hence _execution_ begins
-when {ExecuteRootSelectionSet()} is called for the first time in a request.
+Note: An error raised before _operation execution_ begins will typically be a
+_request error_, and once _operation execution_ begins will typically be an
+_execution error_.
 
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
@@ -73,7 +69,10 @@ ExecuteRequest(schema, document, operationName, variableValues, initialValue):
   - Return {ExecuteMutation(operation, schema, coercedVariableValues,
     initialValue)}.
 - Otherwise if {operation} is a subscription operation:
-  - Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
+  - Let {sourceStream} be the result of running
+    {CreateSourceEventStream(operation, schema, coercedVariableValues,
+    initialValue)}.
+  - Return {Subscribe(sourceStream, operation, schema, coercedVariableValues)}.
 
 GetOperation(document, operationName):
 
@@ -91,7 +90,7 @@ GetOperation(document, operationName):
 As explained in the Validation section, only operations from documents which
 pass all validation rules should be executed. If validation errors are known,
 they should be reported in the list of "errors" in the response and the request
-must fail without execution.
+must fail without _operation execution_.
 
 Typically validation is performed in the context of a request immediately before
 calling {ExecuteRequest()}, however a GraphQL service may execute a request
@@ -109,7 +108,7 @@ result to avoid validating the same document again in the future.
 If the operation has defined any variables, then the values for those variables
 need to be coerced using the input coercion rules of variable's declared type.
 If a _request error_ is encountered during input coercion of variable values,
-then the request fails without _execution_.
+then the request fails without _operation execution_.
 
 CoerceVariableValues(schema, operation, variableValues):
 
@@ -152,6 +151,12 @@ The type system, as described in the "Type System" section of the spec, must
 provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
+
+:: We define _operation execution_ as the process of producing output data from
+from a GraphQL operation; thus operation execution begins when the execution
+algorithm for that operation type is called: {ExecuteQuery()} for query
+operations, {ExecuteMutation()} for mutation operations, and {Subscribe()} for
+subscription operations.
 
 ### Query
 
@@ -197,10 +202,8 @@ underlying _source stream_.
 Executing a subscription operation creates a persistent function on the service
 that maps an underlying _source stream_ to a returned _response stream_.
 
-Subscribe(subscription, schema, variableValues, initialValue):
+Subscribe(sourceStream, subscription, schema, variableValues):
 
-- Let {sourceStream} be the result of running
-  {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
 - Let {responseStream} be the result of running
   {MapSourceToResponseEvent(sourceStream, subscription, schema,
   variableValues)}.
@@ -306,6 +309,9 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
 - Return {sourceStream}.
+
+Note: The call to {CreateSourceEventStream()} occurs before _operation
+execution_ begins, and thus an error raised here will be a _request error_.
 
 ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
 
@@ -805,8 +811,8 @@ Any _request error_ raised as a result of input coercion during
 {CoerceArgumentValues()} should be treated instead as an _execution error_.
 
 Note: Variable values are not coerced because they are expected to be coerced by
-{CoerceVariableValues()} before _execution_ begins, and valid operations must
-only allow usage of variables of appropriate types.
+{CoerceVariableValues()} before _operation execution_ begins, and valid
+operations must only allow usage of variables of appropriate types.
 
 Note: Implementations are encouraged to optimize the coercion of an argument's
 default value by doing so only once and caching the resulting coerced value.
