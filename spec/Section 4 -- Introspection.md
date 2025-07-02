@@ -110,7 +110,7 @@ CommonMark-compliant Markdown renderer.
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
 input fields, and enum values can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`isDeprecated: Boolean!`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
@@ -137,20 +137,20 @@ type __Type {
   kind: __TypeKind!
   name: String
   description: String
+  # may be non-null for custom SCALAR, otherwise null.
+  specifiedByURL: String
   # must be non-null for OBJECT and INTERFACE, otherwise null.
-  fields(includeDeprecated: Boolean = false): [__Field!]
+  fields(includeDeprecated: Boolean! = false): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
   # must be non-null for INTERFACE and UNION, otherwise null.
   possibleTypes: [__Type!]
   # must be non-null for ENUM, otherwise null.
-  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+  enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
   # must be non-null for INPUT_OBJECT, otherwise null.
-  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
+  inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
-  # may be non-null for custom SCALAR, otherwise null.
-  specifiedByURL: String
 }
 
 enum __TypeKind {
@@ -167,7 +167,7 @@ enum __TypeKind {
 type __Field {
   name: String!
   description: String
-  args(includeDeprecated: Boolean = false): [__InputValue!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -192,9 +192,9 @@ type __EnumValue {
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
-  args(includeDeprecated: Boolean = false): [__InputValue!]!
   isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
 }
 
 enum __DirectiveLocation {
@@ -424,7 +424,8 @@ Fields\:
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this field is deprecated.
+- `deprecationReason` returns the reason why this field is deprecated, or null
+  if this field is not deprecated.
 
 ### The \_\_InputValue Type
 
@@ -442,8 +443,8 @@ Fields\:
   provided at runtime. If this input value has no default value, returns {null}.
 - `isDeprecated` returns {true} if this input field or argument should no longer
   be used, otherwise {false}.
-- `deprecationReason` optionally provides a reason why this input field or
-  argument is deprecated.
+- `deprecationReason` returns the reason why this input field or argument is
+  deprecated, or null if the input field or argument is not deprecated.
 
 ### The \_\_EnumValue Type
 
@@ -455,8 +456,8 @@ Fields\:
 - `description` may return a String or {null}.
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this enum value is
-  deprecated.
+- `deprecationReason` returns the reason why this enum value is deprecated, or
+  null if the enum value is not deprecated.
 
 ### The \_\_Directive Type
 

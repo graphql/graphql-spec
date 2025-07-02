@@ -233,6 +233,57 @@ Any {Name} within a GraphQL type system must not start with two underscores
 {"\_\_"} unless it is part of the [introspection system](#sec-Introspection) as
 defined by this specification.
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL by including written
+descriptions on all named definitions in executable {Document} and GraphQL type
+systems, which is also made available via introspection ensuring the
+documentation of a GraphQL service remains consistent with its capabilities (see
+[Type System Descriptions](#sec-Type-System-Descriptions)).
+
+GraphQL descriptions are provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often
+{BlockString}) occur immediately before the definition they describe.
+
+Descriptions in GraphQL executable documents are purely for documentation
+purposes. They MUST NOT affect the execution, validation, or response of a
+GraphQL document. It is safe to remove all descriptions and comments from
+executable documents without changing their behavior or results.
+
+This is an example of a well-described operation:
+
+```graphql example
+"""
+Request the current status of a time machine and its operator.
+You can also check the status for a particular year.
+**Warning:** certain years may trigger an anomaly in the space-time continuum.
+"""
+query GetTimeMachineStatus(
+  "The unique serial number of the time machine to inspect."
+  $machineId: ID!
+  "The year to check the status for."
+  $year: Int
+) {
+  timeMachine(id: $machineId) {
+    ...TimeMachineDetails
+    status(year: $year)
+  }
+}
+
+"Details about a time machine and its operator."
+fragment TimeMachineDetails on TimeMachine {
+  id
+  model
+  lastMaintenance
+  operator {
+    name
+    licenseLevel
+  }
+}
+```
+
 ## Document
 
 Document : Definition+
@@ -279,7 +330,7 @@ be executed must also be provided.
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -288,8 +339,8 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
 Each operation is represented by an optional operation name and a _selection
 set_.
@@ -298,6 +349,10 @@ For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
 ```graphql example
+"""
+Mark story 12345 as "liked"
+and return the updated number of likes on the story
+"""
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -321,6 +376,8 @@ For example, this unnamed query operation is written via query shorthand.
   field
 }
 ```
+
+Descriptions are not permitted on query shorthand.
 
 Note: many examples below will use the query short-hand syntax.
 
@@ -466,8 +523,9 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-By default a field's response key in the response object will use that field's
-name. However, you can define a different response key by specifying an alias.
+:: A _response name_ is the key in the response object which correlates with a
+field's result. By default the response name will use the field's name; however,
+you can define a different response name by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting response object will not have duplicate keys:
@@ -522,7 +580,7 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Arguments? Directives?
 
-FragmentDefinition : fragment FragmentName VariablesDefinition? TypeCondition
+FragmentDefinition : Description? fragment FragmentName VariablesDefinition? TypeCondition
 Directives? SelectionSet
 
 FragmentName : Name but not `on`
@@ -569,6 +627,7 @@ query withFragments {
   }
 }
 
+"Common fields for a user's friends."
 fragment friendFields on User {
   id
   name
@@ -971,7 +1030,7 @@ StringCharacter :: `\u` EscapedUnicode
 
 - Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
   within {EscapedUnicode}.
-- Assert {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+- Assert: {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
   0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the _Unicode scalar value_ {value}.
 
@@ -983,12 +1042,12 @@ HexDigit HexDigit HexDigit
 - Let {trailingValue} be the hexadecimal value represented by the second
   sequence of {HexDigit}.
 - If {leadingValue} is >= 0xD800 and <= 0xDBFF (a _Leading Surrogate_):
-  - Assert {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
+  - Assert: {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
   - Return ({leadingValue} - 0xD800) × 0x400 + ({trailingValue} - 0xDC00) +
     0x10000.
 - Otherwise:
-  - Assert {leadingValue} is within the _Unicode scalar value_ range.
-  - Assert {trailingValue} is within the _Unicode scalar value_ range.
+  - Assert: {leadingValue} is within the _Unicode scalar value_ range.
+  - Assert: {trailingValue} is within the _Unicode scalar value_ range.
   - Return the sequence of the _Unicode scalar value_ {leadingValue} followed by
     the _Unicode scalar value_ {trailingValue}.
 
@@ -1180,7 +1239,8 @@ Variable : $ Name
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 DefaultValue : = Value[Const]
 
@@ -1199,7 +1259,10 @@ In this example, we want to fetch a profile picture size based on the size of a
 particular device:
 
 ```graphql example
-query getZuckProfile($devicePicSize: Int) {
+query getZuckProfile(
+  "The size of the profile picture to fetch."
+  $devicePicSize: Int
+) {
   user(id: 4) {
     id
     name
@@ -1312,7 +1375,7 @@ Type : Name
 
 - Let {name} be the string value of {Name}.
 - Let {type} be the type defined in the Schema named {name}.
-- {type} must not be {null}.
+- {type} must exist.
 - Return {type}.
 
 Type : [ Type ]

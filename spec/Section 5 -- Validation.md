@@ -32,8 +32,7 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-For this section of this schema, we will assume the following type system in
-order to demonstrate examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
@@ -134,6 +133,51 @@ extend type Dog {
 ```
 
 ## Operations
+
+### All Operation Definitions
+
+#### Operation Type Existence
+
+**Formal Specification**
+
+- For each operation definition {operation} in the document:
+  - Let {rootOperationType} be the _root operation type_ in {schema}
+    corresponding to the kind of {operation}.
+  - {rootOperationType} must exist.
+
+**Explanatory Text**
+
+A schema defines the _root operation type_ for each kind of operation that it
+supports. Every schema must support `query` operations, however support for
+`mutation` and `subscription` operations is optional.
+
+If the schema does not include the necessary _root operation type_ for the kind
+of an operation defined in the document, that operation is invalid since it
+cannot be executed.
+
+For example given the following schema:
+
+```graphql example
+type Query {
+  hello: String
+}
+```
+
+The following operation is valid:
+
+```graphql example
+query helloQuery {
+  hello
+}
+```
+
+While the following operation is invalid:
+
+```graphql counter-example
+mutation goodbyeMutation {
+  goodbye
+}
+```
 
 ### Named Operation Definitions
 
@@ -258,15 +302,74 @@ query getName {
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
-  - Let {variableValues} be the empty set.
-  - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-    selectionSet, variableValues)}.
-  - {groupedFieldSet} must have exactly one entry, which must not be an
+  - Let {collectedFieldsMap} be the result of
+    {CollectSubscriptionFields(subscriptionType, selectionSet)}.
+  - {collectedFieldsMap} must have exactly one entry, which must not be an
     introspection field.
+
+CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
+- For each {selection} in {selectionSet}:
+  - {selection} must not provide the `@skip` directive.
+  - {selection} must not provide the `@include` directive.
+  - If {selection} is a {Field}:
+    - Let {responseName} be the _response name_ of {selection} (the alias if
+      defined, otherwise the field name).
+    - Let {fieldsForResponseKey} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseKey}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentCollectedFieldMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentType} be the type condition on {selection}.
+    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
+      fragmentType)} is {false}, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - Let {fragmentCollectedFieldMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+- Return {collectedFieldsMap}.
+
+Note: This algorithm is very similar to {CollectFields()}, it differs in that it
+does not have access to runtime variables and thus the `@skip` and `@include`
+directives cannot be used.
 
 **Explanatory Text**
 
 Subscription operations must have exactly one root field.
+
+To enable us to determine this without access to runtime variables, we must
+forbid the `@skip` and `@include` directives in the root selection set.
 
 Valid examples:
 
@@ -315,6 +418,19 @@ fragment multipleSubscriptions on Subscription {
     sender
   }
   disallowedSecondRootField
+}
+```
+
+We do not allow the `@skip` and `@include` directives at the root of the
+subscription operation. The following example is also invalid:
+
+```graphql counter-example
+subscription requiredRuntimeValidation($bool: Boolean!) {
+  newMessage @include(if: $bool) {
+    body
+    sender
+  }
+  disallowedSecondRootField @skip(if: $bool)
 }
 ```
 
@@ -416,18 +532,13 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 - Let {set} be any selection set defined in the GraphQL document.
 - {FieldsInSetCanMerge(set)} must be true.
 
+#### TODO: problematic part, this used to allow us to look at fragmentspread
+
 FieldsInSetCanMerge(set):
 
-- Let {visitedSelections} be the selections in {set} including visiting fields,
-  fragment-spreads and inline fragments.
-- Let {spreadsForName} be the set of fragment spreads with a given name in
-  {visitedSelections}.
-- For each {spreadsForName} as {name} and {spreads}:
-  - Each entry in {spreads} must have identical sets of arguments to each other
-    entry in {spreads}.
-- Let {fieldsForName} be the set of field selections with a given response name
-  in {visitedSelections}.
-- Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+- Let {fieldsForName} be the set of selections with a given _response name_ in
+  {set} including visiting fragments and inline fragments.
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -457,9 +568,10 @@ SameResponseShape(fieldA, fieldB):
 - Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {mergedSet} including visiting fragments and inline fragments.
-- Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
+- Given each pair of distinct members {subfieldA} and {subfieldB} in
+  {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
 
@@ -468,13 +580,13 @@ type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
-If multiple field selections with the same response names are encountered during
-execution, the field and arguments to execute and the resulting value should be
-unambiguous. Therefore any two field selections which might both be encountered
-for the same object are only valid if they are equivalent.
+If multiple field selections with the same _response name_ are encountered
+during execution, the field and arguments to execute and the resulting value
+should be unambiguous. Therefore any two field selections which might both be
+encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+name is accomplished by {CollectSubfields()} before execution.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
@@ -1392,14 +1504,25 @@ fragment resourceFragment on Resource {
 
 **Formal Specification**
 
-- For each input Value {value} in the document:
+- For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type}.
+  - {value} must be coercible to {type} (with the assumption that any
+    {variableUsage} nested within {value} will represent a runtime value valid
+    for usage in its position).
 
 **Explanatory Text**
 
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
+
+Note: A {ListValue} or {ObjectValue} may contain nested Input Values, some of
+which may be a variable usage. The
+[All Variable Usages Are Allowed](#sec-All-Variable-Usages-Are-Allowed)
+validation rule ensures that each {variableUsage} is of a type allowed in its
+position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
+algorithm ensures runtime values for variables coerce correctly. Therefore, for
+the purposes of the "coercible" assertion in this validation rule, we can assume
+the runtime value of each {variableUsage} is valid for usage in its position.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
@@ -2182,4 +2305,4 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 ```
 
 Note: The value {null} could still be provided to such a variable at runtime. A
-non-null argument must raise a _field error_ if provided a {null} value.
+non-null argument must raise an _execution error_ if provided a {null} value.
