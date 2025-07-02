@@ -33,6 +33,12 @@ Note: GraphQL requests do not require any specific serialization format or
 transport mechanism. Message serialization and transport mechanisms should be
 chosen by the implementing service.
 
+Note: Descriptions and comments in executable documents (operation definitions,
+fragment definitions, and variable definitions) MUST be ignored during execution
+and have no effect on the observable execution, validation, or response of a
+GraphQL document. Descriptions and comments on executable documents MAY be used
+for non-observable purposes, such as logging and other developer tools.
+
 ## Processing Requests
 
 <a name="#sec-Executing-Requests">
@@ -122,8 +128,10 @@ CoerceVariableValues(schema, operation, variableValues):
   - Let {value} be the value provided in {variableValues} for the name
     {variableName}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+      according to the input coercion rules of {variableType}.
     - Add an entry to {coercedValues} named {variableName} with the value
-      {defaultValue}.
+      {coercedDefaultValue}.
   - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise a _request error_.
   - Otherwise if {hasValue} is {true}:
@@ -291,10 +299,11 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level selection set in {subscription}.
-- Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
+- Let {collectedFieldsMap} be the result of {CollectFields(subscriptionType,
   selectionSet, variableValues)}.
-- If {groupedFieldSet} does not have exactly one entry, raise a _request error_.
-- Let {fields} be the value of the first entry in {groupedFieldSet}.
+- If {collectedFieldsMap} does not have exactly one entry, raise a _request
+  error_.
+- Let {fields} be the value of the first entry in {collectedFieldsMap}.
 - Let {fieldName} be the name of the first entry in {fields}. Note: This value
   is unaffected if an alias is used.
 - Let {field} be the first entry in {fields}.
@@ -326,12 +335,12 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 
 - Let {responseStream} be a new _event stream_.
 - When {sourceStream} emits {sourceValue}:
-  - Let {response} be the result of running {SubscriptionEvent(subscription,
-    schema, variableValues, sourceValue)}.
+  - Let {executionResult} be the result of running
+    {SubscriptionEvent(subscription, schema, variableValues, sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
     - Complete {responseStream} with {error}.
-  - Otherwise emit {response} on {responseStream}.
+  - Otherwise emit {executionResult} on {responseStream}.
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
 - When {sourceStream} completes with {error}:
@@ -370,12 +379,11 @@ Unsubscribe(responseStream):
 
 ## Executing Selection Sets
 
-The process of executing a GraphQL operation is to recursively execute every
-selected field in the operation. To do this, first all initially selected fields
-from the operation's top most _root selection set_ are collected, then each
-executed. As each field completes, all its subfields are collected, then each
-executed. This process continues until there are no more subfields to collect
-and execute.
+Executing a GraphQL operation recursively collects and executes every selected
+field in the operation. First all initially selected fields from the operation's
+top most _root selection set_ are collected, then each executed. As each field
+completes, all its subfields are collected, then each executed. This process
+continues until there are no more subfields to collect and execute.
 
 ### Executing the Root Selection Set
 
@@ -383,51 +391,56 @@ and execute.
 operation. A root selection set always selects from a _root operation type_.
 
 To execute the root selection set, the initial value being evaluated and the
-root type must be known, as well as whether it must be executed serially, or may
-be executed in parallel (see
+root type must be known, as well as whether each field must be executed
+serially, or normally by executing all fields in parallel (see
 [Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
 
 Executing the root selection set works similarly for queries (parallel),
 mutations (serial), and subscriptions (where it is executed for each event in
 the underlying Source Stream).
 
-First, the _selection set_ is collected into a _grouped field set_ which is then
-executed, returning the resulting {data} and {errors}.
+First, the _selection set_ is collected into a _collected fields map_ which is
+then executed, returning the resulting {data} and {errors}.
 
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 executionMode):
 
-- Let {groupedFieldSet} be the result of {CollectFields(objectType,
+- Let {collectedFieldsMap} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
-- Let {data} be the result of running {ExecuteCollectedFields(groupedFieldSet,
-  objectType, initialValue, variableValues)} _serially_ if {executionMode} is
-  {"serial"}, otherwise _normally_ (allowing parallelization)).
+- Let {data} be the result of running
+  {ExecuteCollectedFields(collectedFieldsMap, objectType, initialValue,
+  variableValues)} _serially_ if {executionMode} is {"serial"}, otherwise
+  _normally_ (allowing parallelization)).
 - Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
 
 ### Field Collection
 
-Before execution, the _root selection set_ is converted to a _grouped field set_
-by calling {CollectFields()}. This ensures all fields with the same response
-name, including those in referenced fragments, are executed at the same time.
+Before execution, each _selection set_ is converted to a _collected fields map_
+by calling {CollectFields()} by collecting all fields with the same response
+name, including those in referenced fragments, into an individual _field set_.
+This ensures that multiple references to fields with the same response name will
+only be executed once.
 
-:: A _grouped field set_ is a map where each entry is a _response name_ and its
-associated _field set_. A _grouped field set_ may be produced from a selection
-set via {CollectFields()} or from the selection sets of a _field set_ via
-{CollectSubfields()}.
+:: A _collected fields map_ is an ordered map where each entry is a _response
+name_ and its associated _field set_. A _collected fields map_ may be produced
+from a selection set via {CollectFields()} or from the selection sets of all
+entries of a _field set_ via {CollectSubfields()}.
 
-:: A _field set_ is a list of selected fields that share the same _response
-name_ (the field alias if defined, otherwise the field's name).
+:: A _field set_ is an ordered set of selected fields that share the same
+_response name_ (the field alias if defined, otherwise the field's name).
+Validation ensures each field in the set has the same name and arguments,
+however each may have different subfields (see:
+[Field Selection Merging](#sec-Field-Selection-Merging)).
 
-Note: The order of field selections in a _field set_ is significant, hence the
-algorithms in this specification model it as a list. Any later duplicated field
-selections in a field set will not impact its interpretation, so using an
-ordered set would yield equivalent results.
+Note: The order of field selections in both a _collected fields map_ and a
+_field set_ are significant, hence the algorithms in this specification model
+them as an ordered map and ordered set.
 
 As an example, collecting the fields of this query's selection set would result
-in a grouped field set with two entries, `"a"` and `"b"`, with two instances of
-the field `a` and one of field `b`:
+in a collected fields map with two entries, `"a"` and `"b"`, with two instances
+of the field `a` and one of field `b`:
 
 ```graphql example
 {
@@ -445,14 +458,14 @@ fragment ExampleFragment on Query {
 }
 ```
 
-The depth-first-search order of the field groups produced by {CollectFields()}
-is maintained through execution, ensuring that fields appear in the executed
+The depth-first-search order of the _field set_ produced by {CollectFields()} is
+maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -467,9 +480,10 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseName} be the list in {groupedFields} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseName}.
+    - Let {fieldsForResponseName} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -483,31 +497,31 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseName} be the response name shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseName} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseName}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseName} be the response name shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseName} be the list in {groupedFields} for
-        {responseName}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseName}.
-- Return {groupedFields}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseName} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Append each item from {fragmentFields} to {fieldsForResponseName}.
+- Return {collectedFieldsMap}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -515,10 +529,10 @@ DoesFragmentTypeApply(objectType, fragmentType):
   - If {objectType} and {fragmentType} are the same type, return {true},
     otherwise return {false}.
 - If {fragmentType} is an Interface Type:
-  - If {objectType} is an implementation of {fragmentType}, return {true}
+  - If {objectType} is an implementation of {fragmentType}, return {true},
     otherwise return {false}.
 - If {fragmentType} is a Union:
-  - If {objectType} is a possible type of {fragmentType}, return {true}
+  - If {objectType} is a possible type of {fragmentType}, return {true},
     otherwise return {false}.
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
@@ -526,10 +540,10 @@ directives may be applied in either order since they apply commutatively.
 
 **Merging Selection Sets**
 
-When a field is executed, during value completion the _selection set_ of each of
-the related field selections with the same response name are collected together
-to produce a single _grouped field set_ in order to continue execution of the
-sub-selection sets.
+In order to execute the sub-selections of a object typed field, all _selection
+sets_ of each field with the same response name of the parent _field set_ are
+merged together into a single _collected fields map_ representing the subfields
+to be executed next.
 
 An example operation illustrating parallel fields with the same name with
 sub-selections.
@@ -553,46 +567,41 @@ fragment ExampleFragment on Query {
 ```
 
 After resolving the value for field `"a"`, the following multiple selection sets
-are merged together so `"subfield1"` and `"subfield2"` are resolved in the same
-phase with the same value.
+are collected and merged together so `"subfield1"` and `"subfield2"` are
+resolved in the same phase with the same value.
 
 CollectSubfields(objectType, fields, variableValues):
 
-- Let {groupedFieldSet} be an empty map.
+- Let {collectedFieldsMap} be an empty ordered map of ordered sets.
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {fieldGroupedFieldSet} be the result of {CollectFields(objectType,
+  - Let {fieldCollectedFieldMap} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
-  - For each {fieldGroupedFieldSet} as {responseName} and {subfields}:
-    - Let {groupForResponseName} be the list in {groupedFieldSet} for
-      {responseName}; if no such list exists, create it as an empty list.
-    - Append all fields in {subfields} to {groupForResponseName}.
-- Return {groupedFieldSet}.
+  - For each {responseName} and {subfields} in {fieldCollectedFieldMap}:
+    - Let {fieldsForResponseName} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add each fields from {subfields} to {fieldsForResponseName}.
+- Return {collectedFieldsMap}.
 
 Note: All the {fields} passed to {CollectSubfields()} share the same _response
 name_.
 
 ### Executing Collected Fields
 
-The {CollectFields()} and {CollectSubfields()} algorithms transitively collect
-the field selections from a _selection set_ or the associated selection sets of
-a _field set_ respectively, and split them into groups by their _response name_
-to produce a _grouped field set_.
+To execute a _collected fields map_, the object type being evaluated and the
+runtime value need to be known, as well as the runtime values for any variables.
 
-To execute a _grouped field set_, the object value being evaluated and the
-object type need to be known, as well as whether it must be executed serially,
-or may be executed in parallel (see
-[Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
+Execution will recursively resolve and complete the value of every entry in the
+collected fields map, producing an entry in the result map with the same
+_response name_ key.
 
-Each entry in the grouped field set represents a _response name_ which produces
-an entry into a result map.
-
-ExecuteCollectedFields(groupedFieldSet, objectType, objectValue,
+ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
 variableValues):
 
 - Initialize {resultMap} to an empty ordered map.
-- For each {groupedFieldSet} as {responseName} and {fields}:
+- For each {responseName} and {fields} in {collectedFieldsMap}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
@@ -627,13 +636,14 @@ about this behavior.
 
 ### Normal and Serial Execution
 
-Normally the executor can execute the entries in a grouped field set in whatever
-order it chooses (normally in parallel). Because the resolution of fields other
-than top-level mutation fields must always be side effect-free and idempotent,
-the execution order must not affect the result, and hence the service has the
-freedom to execute the field entries in whatever order it deems optimal.
+Normally the executor can execute the entries in a _collected fields map_ in
+whatever order it chooses (normally in parallel). Because the resolution of
+fields other than top-level mutation fields must always be side effect-free and
+idempotent, the execution order must not affect the result, and hence the
+service has the freedom to execute the field entries in whatever order it deems
+optimal.
 
-For example, given the following grouped field set to be executed normally:
+For example, given the following collected fields map to be executed normally:
 
 ```graphql example
 {
@@ -653,10 +663,11 @@ before `street`).
 When performing a mutation, the selections in the top most selection set will be
 executed in serial order, starting with the first appearing field textually.
 
-When executing a grouped field set serially, the executor must consider each
-entry from the grouped field set in the order provided in the grouped field set.
-It must determine the corresponding entry in the result map for each item to
-completion before it continues on to the next item in the grouped field set:
+When executing a collected fields map serially, the executor must consider each
+entry from the collected fields map in the order provided in the collected
+fields map. It must determine the corresponding entry in the result map for each
+item to completion before it continues on to the next entry in the collected
+fields map:
 
 For example, given the following mutation operation, the root _selection set_
 must be executed serially:
@@ -725,11 +736,11 @@ A correct executor must generate the following result for that _selection set_:
 
 ## Executing Fields
 
-Each field requested in the grouped field set that is defined on the selected
-objectType will result in an entry in the result map. Field execution first
-coerces any provided argument values, then resolves a value for the field, and
-finally completes that value either by recursively executing another selection
-set or coercing a scalar value.
+Each entry in a result map is the result of executing a field on an object type
+selected by the name of that field in a _collected fields map_. Field execution
+first coerces any provided argument values, then resolves a value for the field,
+and finally completes that value either by recursively executing another
+selection set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 
@@ -774,8 +785,10 @@ CoerceArgumentValues(objectType, field, variableValues):
       {variableName}.
   - Otherwise, let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
+    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
+      according to the input coercion rules of {argumentType}.
     - Add an entry to {coercedValues} named {argumentName} with the value
-      {defaultValue}.
+      {coercedDefaultValue}.
   - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
     not {true} or {value} is {null}, raise an _execution error_.
   - Otherwise if {hasValue} is {true}:
@@ -800,6 +813,9 @@ Any _request error_ raised as a result of input coercion during
 Note: Variable values are not coerced because they are expected to be coerced by
 {CoerceVariableValues()} before _execution_ begins, and valid operations must
 only allow usage of variables of appropriate types.
+
+Note: Implementations are encouraged to optimize the coercion of an argument's
+default value by doing so only once and caching the resulting coerced value.
 
 ### Value Resolution
 
@@ -829,7 +845,8 @@ returned by {resolver} may itself be retrieved asynchronously.
 
 After resolving the value for a field, it is completed by ensuring it adheres to
 the expected return type. If the return type is another Object type, then the
-field execution process continues recursively.
+field execution process continues recursively by collecting and executing
+subfields.
 
 CompleteValue(fieldType, fields, result, variableValues):
 
@@ -854,9 +871,9 @@ CompleteValue(fieldType, fields, result, variableValues):
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {groupedFieldSet} be the result of calling {CollectSubfields(objectType,
-    fields, variableValues)}.
-  - Return the result of evaluating {ExecuteCollectedFields(groupedFieldSet,
+  - Let {collectedFieldsMap} be the result of calling
+    {CollectSubfields(objectType, fields, variableValues)}.
+  - Return the result of evaluating {ExecuteCollectedFields(collectedFieldsMap,
     objectType, result, variableValues)} _normally_ (allowing for
     parallelization).
 
@@ -874,7 +891,7 @@ coerce result values.
 
 CoerceResult(leafType, value):
 
-- Assert {value} is not {null}.
+- Assert: {value} is not {null}.
 - Return the result of calling the internal method provided by the type system
   for determining the "result coercion" of {leafType} given the value {value}.
   This internal method must return a valid value for the type and not {null}.
@@ -912,23 +929,24 @@ or coercion, at a specific _response position_. While these errors must be
 reported in the response, they are "handled" by producing partial {"data"} in
 the _response_.
 
-Note: This is distinct from a _request error_ which results in a response with
-no data.
+Note: This is distinct from a _request error_ which results in a _request error
+result_ with no data.
 
 If an execution error is raised while resolving a field (either directly or
 nested inside any lists), it is handled as though the _response position_ at
 which the error occurred resolved to {null}, and the error must be added to the
-{"errors"} list in the response.
+{"errors"} list in the _execution result_.
 
 If the result of resolving a _response position_ is {null} (either due to the
 result of {ResolveFieldValue()} or because an execution error was raised), and
 that position is of a `Non-Null` type, then an execution error is raised at that
-position. The error must be added to the {"errors"} list in the response.
+position. The error must be added to the {"errors"} list in the _execution
+result_.
 
 If a _response position_ resolves to {null} because of an execution error which
-has already been added to the {"errors"} list in the response, the {"errors"}
-list must not be further affected. That is, only one error should be added to
-the errors list per _response position_.
+has already been added to the {"errors"} list in the _execution result_, the
+{"errors"} list must not be further affected. That is, only one error should be
+added to the errors list per _response position_.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
@@ -942,5 +960,5 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 `Non-Null`, the execution error continues to propagate upwards.
 
 If every _response position_ from the root of the request to the source of the
-execution error has a `Non-Null` type, then the {"data"} entry in the response
-should be {null}.
+execution error has a `Non-Null` type, then the {"data"} entry in the _execution
+result_ should be {null}.

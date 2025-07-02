@@ -7,7 +7,8 @@ given GraphQL schema.
 An invalid request is still technically executable, and will always produce a
 stable result as defined by the algorithms in the Execution section, however
 that result may be ambiguous, surprising, or unexpected relative to a request
-containing validation errors, so execution should only occur for valid requests.
+containing validation errors, so _execution_ should only occur for valid
+requests.
 
 Typically validation is performed in the context of a request immediately before
 execution, however a GraphQL service may execute a request without explicitly
@@ -32,8 +33,7 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-For this section of this schema, we will assume the following type system in
-order to demonstrate examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
@@ -109,7 +109,7 @@ input FindDogInput {
 
 GraphQL execution will only consider the executable definitions Operation and
 Fragment. Type system definitions and extensions are not executable, and are not
-considered during execution.
+considered during _execution_.
 
 To avoid ambiguity, a document containing {TypeSystemDefinitionOrExtension} is
 invalid for execution.
@@ -134,6 +134,51 @@ extend type Dog {
 ```
 
 ## Operations
+
+### All Operation Definitions
+
+#### Operation Type Existence
+
+**Formal Specification**
+
+- For each operation definition {operation} in the document:
+  - Let {rootOperationType} be the _root operation type_ in {schema}
+    corresponding to the kind of {operation}.
+  - {rootOperationType} must exist.
+
+**Explanatory Text**
+
+A schema defines the _root operation type_ for each kind of operation that it
+supports. Every schema must support `query` operations, however support for
+`mutation` and `subscription` operations is optional.
+
+If the schema does not include the necessary _root operation type_ for the kind
+of an operation defined in the document, that operation is invalid since it
+cannot be executed.
+
+For example given the following schema:
+
+```graphql example
+type Query {
+  hello: String
+}
+```
+
+The following operation is valid:
+
+```graphql example
+query helloQuery {
+  hello
+}
+```
+
+While the following operation is invalid:
+
+```graphql counter-example
+mutation goodbyeMutation {
+  goodbye
+}
+```
 
 ### Named Operation Definitions
 
@@ -258,15 +303,74 @@ query getName {
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
-  - Let {variableValues} be the empty set.
-  - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-    selectionSet, variableValues)}.
-  - {groupedFieldSet} must have exactly one entry, which must not be an
+  - Let {collectedFieldsMap} be the result of
+    {CollectSubscriptionFields(subscriptionType, selectionSet)}.
+  - {collectedFieldsMap} must have exactly one entry, which must not be an
     introspection field.
+
+CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
+- For each {selection} in {selectionSet}:
+  - {selection} must not provide the `@skip` directive.
+  - {selection} must not provide the `@include` directive.
+  - If {selection} is a {Field}:
+    - Let {responseName} be the _response name_ of {selection} (the alias if
+      defined, otherwise the field name).
+    - Let {fieldsForResponseKey} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseKey}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentCollectedFieldMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentType} be the type condition on {selection}.
+    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
+      fragmentType)} is {false}, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - Let {fragmentCollectedFieldMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+- Return {collectedFieldsMap}.
+
+Note: This algorithm is very similar to {CollectFields()}, it differs in that it
+does not have access to runtime variables and thus the `@skip` and `@include`
+directives cannot be used.
 
 **Explanatory Text**
 
 Subscription operations must have exactly one root field.
+
+To enable us to determine this without access to runtime variables, we must
+forbid the `@skip` and `@include` directives in the root selection set.
 
 Valid examples:
 
@@ -315,6 +419,19 @@ fragment multipleSubscriptions on Subscription {
     sender
   }
   disallowedSecondRootField
+}
+```
+
+We do not allow the `@skip` and `@include` directives at the root of the
+subscription operation. The following example is also invalid:
+
+```graphql counter-example
+subscription requiredRuntimeValidation($bool: Boolean!) {
+  newMessage @include(if: $bool) {
+    body
+    sender
+  }
+  disallowedSecondRootField @skip(if: $bool)
 }
 ```
 
@@ -463,12 +580,12 @@ type that is either an Object, Interface or Union type.
 **Explanatory Text**
 
 If multiple field selections with the same _response name_ are encountered
-during execution, the field and arguments to execute and the resulting value
+during _execution_, the field and arguments to execute and the resulting value
 should be unambiguous. Therefore any two field selections which might both be
 encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {CollectSubfields()}.
+name is accomplished by {CollectSubfields()} before execution.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
