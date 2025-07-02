@@ -334,11 +334,11 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -349,11 +349,11 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseKey} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.

@@ -475,11 +475,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -490,11 +490,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -554,9 +554,9 @@ CollectSubfields(objectType, fields, variableValues):
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {fieldCollectedFieldMap} be the result of {CollectFields(objectType,
+  - Let {fieldCollectedFieldsMap} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
-  - For each {responseName} and {subfields} in {fieldCollectedFieldMap}:
+  - For each {responseName} and {subfields} in {fieldCollectedFieldsMap}:
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
