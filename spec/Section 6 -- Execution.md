@@ -396,10 +396,9 @@ executionMode):
 ### Field Collection
 
 Before execution, each _selection set_ is converted to a _collected fields map_
-by calling {CollectFields()} by collecting all fields with the same response
-name, including those in referenced fragments, into an individual _field set_.
-This ensures that multiple references to fields with the same response name will
-only be executed once.
+by collecting all fields with the same response name, including those in
+referenced fragments, into an individual _field set_. This ensures that multiple
+references to fields with the same response name will only be executed once.
 
 :: A _collected fields map_ is an ordered map where each entry is a _response
 name_ and its associated _field set_. A _collected fields map_ may be produced
