@@ -58,7 +58,7 @@ via introspection.
 
 [Descriptions](#sec-Descriptions) allow GraphQL service designers to easily
 provide documentation which remains consistent with the capabilities of a
-GraphQL service. Descriptions provided as Markdown (as specified by
+GraphQL service. Descriptions may be provided as Markdown (as specified by
 [CommonMark](https://commonmark.org/)) for every definition in a type system.
 
 GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
