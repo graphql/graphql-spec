@@ -435,8 +435,8 @@ fragment ExampleFragment on Query {
 }
 ```
 
-The depth-first-search order of the _field set_ produced by {CollectFields()} is
-maintained through execution, ensuring that fields appear in the executed
+The depth-first-search order of each _field set_ produced by {CollectFields()}
+is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
