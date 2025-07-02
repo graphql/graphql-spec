@@ -540,8 +540,9 @@ Names in GraphQL are limited to the Latin <acronym>ASCII</acronym> subset of <sp
 </div>
 <p data-source="spec/Section%202%20--%20Language.md#L240-L244">Documentation is a first-class feature of GraphQL by including written descriptions on all named definitions in executable <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span> and GraphQL type systems, which is also made available via introspection ensuring the documentation of a GraphQL service remains consistent with its capabilities (see <a href="#sec-Type-System-Descriptions">Type System Descriptions</a>).</p>
 <p data-source="spec/Section%202%20--%20Language.md#L246-L248">GraphQL descriptions are provided as Markdown (as specified by <a href="https://commonmark.org/">CommonMark</a>). Description strings (often <span class="spec-nt"><a href="#BlockString" data-name="BlockString">BlockString</a></span>) occur immediately before the definition they describe.</p>
-<p data-source="spec/Section%202%20--%20Language.md#L250">This is an example of a well-described operation:</p>
-<pre id="example-d3650" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L252-L280"><a href="#example-d3650">Example № 5</a><code><span class="token description string">"""<span class="token language-markdown">
+<p data-source="spec/Section%202%20--%20Language.md#L250-L253">Descriptions in GraphQL executable documents are purely for documentation purposes. They MUST NOT affect the execution, validation, or response of a GraphQL document. It is safe to remove all descriptions and comments from executable documents without changing their behavior or results.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L255">This is an example of a well-described operation:</p>
+<pre id="example-d3650" class="spec-example" data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L257-L285"><a href="#example-d3650">Example № 5</a><code><span class="token description string">"""<span class="token language-markdown">
 Request the current status of a time machine and its operator.
 You can also check the status for a particular year.
 **Warning:** certain years may trigger an anomaly in the space-time continuum.
@@ -569,7 +570,6 @@ You can also check the status for a particular year.
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<p data-source="spec/Section%202%20--%20Language.md#L282-L285">Descriptions in GraphQL executable documents are purely for documentation purposes. They MUST NOT affect the execution, validation, or response of a GraphQL document. It is safe to remove all descriptions and comments from executable documents without changing their behavior or results.</p>
 </section>
 <section id="sec-Document" secid="2.3">
 <h2 data-source="spec/Section%202%20--%20Language.md#L287"><span class="spec-secid" title="link to this section"><a href="#sec-Document">2.3</a></span>Document</h2>
