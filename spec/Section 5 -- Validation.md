@@ -7,7 +7,8 @@ given GraphQL schema.
 An invalid request is still technically executable, and will always produce a
 stable result as defined by the algorithms in the Execution section, however
 that result may be ambiguous, surprising, or unexpected relative to a request
-containing validation errors, so execution should only occur for valid requests.
+containing validation errors, so _execution_ should only occur for valid
+requests.
 
 Typically validation is performed in the context of a request immediately before
 execution, however a GraphQL service may execute a request without explicitly
@@ -108,7 +109,7 @@ input FindDogInput {
 
 GraphQL execution will only consider the executable definitions Operation and
 Fragment. Type system definitions and extensions are not executable, and are not
-considered during execution.
+considered during _execution_.
 
 To avoid ambiguity, a document containing {TypeSystemDefinitionOrExtension} is
 invalid for execution.
@@ -579,7 +580,7 @@ type that is either an Object, Interface or Union type.
 **Explanatory Text**
 
 If multiple field selections with the same _response name_ are encountered
-during execution, the field and arguments to execute and the resulting value
+during _execution_, the field and arguments to execute and the resulting value
 should be unambiguous. Therefore any two field selections which might both be
 encountered for the same object are only valid if they are equivalent.
 
