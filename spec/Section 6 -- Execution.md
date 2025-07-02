@@ -18,9 +18,9 @@ A GraphQL service generates a response from a request via execution.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
-Given this information, the result of {Request(schema, document, operationName,
-variableValues, initialValue)} produces the response, to be formatted according
-to the Response section below.
+Given this information, the result of {ExecuteRequest(schema, document,
+operationName, variableValues, initialValue)} produces the response, to be
+formatted according to the Response section below.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -39,19 +39,15 @@ and have no effect on the observable execution, validation, or response of a
 GraphQL document. Descriptions and comments on executable documents MAY be used
 for non-observable purposes, such as logging and other developer tools.
 
-## Processing Requests
+## Executing Requests
 
-<a name="#sec-Executing-Requests">
-  <!-- Legacy link, this section was previously titled "Executing Requests" -->
-</a>
-
-To process a request, the executor must have a parsed {Document} and a selected
+To execute a request, the executor must have a parsed {Document} and a selected
 operation name to run if the document defines multiple operations, otherwise the
 document is expected to only contain a single operation. The result of the
-request is determined by the result of performing this operation according to
-the "Performing Operations” section below.
+request is determined by the result of executing this operation according to the
+"Executing Operations” section below.
 
-The {Request()} algorithm contains the preamble for _execution_, handling
+The {ExecuteRequest()} algorithm contains the preamble for _execution_, handling
 concerns such as determining the operation and coercing the inputs, before
 passing the request on to the relevant algorithm for the operation's type which
 then performs any other necessary preliminary steps (for example establishing
@@ -65,18 +61,19 @@ error_, and once _execution_ begins will typically be an _execution error_.
 selection set_ through {ExecuteRootSelectionSet()}, and hence _execution_ begins
 when {ExecuteRootSelectionSet()} is called for the first time in a request.
 
-Request(schema, document, operationName, variableValues, initialValue):
+ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
 - If {operation} is a query operation:
-  - Return {Query(operation, schema, coercedVariableValues, initialValue)}.
-- Otherwise if {operation} is a mutation operation:
-  - Return {Mutation(operation, schema, coercedVariableValues, initialValue)}.
-- Otherwise if {operation} is a subscription operation:
-  - Return {Subscription(operation, schema, coercedVariableValues,
+  - Return {ExecuteQuery(operation, schema, coercedVariableValues,
     initialValue)}.
+- Otherwise if {operation} is a mutation operation:
+  - Return {ExecuteMutation(operation, schema, coercedVariableValues,
+    initialValue)}.
+- Otherwise if {operation} is a subscription operation:
+  - Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
 
 GetOperation(document, operationName):
 
@@ -97,11 +94,11 @@ they should be reported in the list of "errors" in the response and the request
 must fail without execution.
 
 Typically validation is performed in the context of a request immediately before
-calling {Request()}, however a GraphQL service may process a request without
-immediately validating the document if that exact same document is known to have
-been validated before. A GraphQL service should only execute operations which
-_at some point_ were known to be free of any validation errors, and have since
-not changed.
+calling {ExecuteRequest()}, however a GraphQL service may execute a request
+without immediately validating the document if that exact same document is known
+to have been validated before. A GraphQL service should only execute operations
+which _at some point_ were known to be free of any validation errors, and have
+since not changed.
 
 For example: the document may be validated during development, provided it does
 not later change, or a service may validate a document once and memoize the
@@ -149,11 +146,7 @@ CoerceVariableValues(schema, operation, variableValues):
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
 
-## Performing Operations
-
-<a name="#sec-Executing-Operations">
-  <!-- Legacy link, this section was previously titled "Executing Operations" -->
-</a>
+## Executing Operations
 
 The type system, as described in the "Type System" section of the spec, must
 provide a query root operation type. If mutations or subscriptions are
@@ -166,9 +159,9 @@ If the operation is a query, the result of the operation is the result of
 executing the operation’s _root selection set_ with the query root operation
 type.
 
-An initial value may be provided when performing a query operation.
+An initial value may be provided when executing a query operation.
 
-Query(query, schema, variableValues, initialValue):
+ExecuteQuery(query, schema, variableValues, initialValue):
 
 - Let {queryType} be the root Query type in {schema}.
 - Assert: {queryType} is an Object type.
@@ -186,7 +179,7 @@ It is expected that the top level fields in a mutation operation perform
 side-effects on the underlying data system. Serial execution of the provided
 mutations ensures against race conditions during these side-effects.
 
-Mutation(mutation, schema, variableValues, initialValue):
+ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 - Let {mutationType} be the root Mutation type in {schema}.
 - Assert: {mutationType} is an Object type.
@@ -201,10 +194,10 @@ _response stream_ where each event in the event stream is the result of
 executing the operation’s _root selection set_ for each new event on an
 underlying _source stream_.
 
-Performing a subscription operation creates a persistent function on the service
+Executing a subscription operation creates a persistent function on the service
 that maps an underlying _source stream_ to a returned _response stream_.
 
-Subscription(subscription, schema, variableValues, initialValue):
+Subscribe(subscription, schema, variableValues, initialValue):
 
 - Let {sourceStream} be the result of running
   {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
@@ -213,9 +206,9 @@ Subscription(subscription, schema, variableValues, initialValue):
   variableValues)}.
 - Return {responseStream}.
 
-Note: In a large-scale subscription system, the {Subscription()} and
-{SubscriptionEvent()} algorithms may be run on separate services to maintain
-predictable scaling properties. See the section below on Supporting
+Note: In a large-scale subscription system, the {Subscribe()} and
+{ExecuteSubscriptionEvent()} algorithms may be run on separate services to
+maintain predictable scaling properties. See the section below on Supporting
 Subscriptions at Scale.
 
 As an example, consider a chat application. To subscribe to new messages posted
@@ -336,7 +329,8 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - Let {responseStream} be a new _event stream_.
 - When {sourceStream} emits {sourceValue}:
   - Let {executionResult} be the result of running
-    {SubscriptionEvent(subscription, schema, variableValues, sourceValue)}.
+    {ExecuteSubscriptionEvent(subscription, schema, variableValues,
+    sourceValue)}.
   - If internal {error} was raised:
     - Cancel {sourceStream}.
     - Complete {responseStream} with {error}.
@@ -350,12 +344,12 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
   - Complete {responseStream} normally.
 - Return {responseStream}.
 
-Note: Since {SubscriptionEvent()} handles all _execution error_, and _request
-error_ only occur during {CreateSourceEventStream()}, the only remaining error
-condition handled from {SubscriptionEvent()} are internal exceptional errors not
-described by this specification.
+Note: Since {ExecuteSubscriptionEvent()} handles all _execution error_, and
+_request error_ only occur during {CreateSourceEventStream()}, the only
+remaining error condition handled from {ExecuteSubscriptionEvent()} are internal
+exceptional errors not described by this specification.
 
-SubscriptionEvent(subscription, schema, variableValues, initialValue):
+ExecuteSubscriptionEvent(subscription, schema, variableValues, initialValue):
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
@@ -363,8 +357,8 @@ SubscriptionEvent(subscription, schema, variableValues, initialValue):
 - Return {ExecuteRootSelectionSet(variableValues, initialValue,
   subscriptionType, rootSelectionSet, "normal")}.
 
-Note: The {SubscriptionEvent()} algorithm is intentionally similar to {Query()}
-since this is how each event result is produced.
+Note: The {ExecuteSubscriptionEvent()} algorithm is intentionally similar to
+{ExecuteQuery()} since this is how each event result is produced.
 
 #### Unsubscribe
 
@@ -660,7 +654,7 @@ A valid GraphQL executor can resolve the four fields in whatever order it chose
 (however of course `birthday` must be resolved before `month`, and `address`
 before `street`).
 
-When performing a mutation, the selections in the top most selection set will be
+When executing a mutation, the selections in the top most selection set will be
 executed in serial order, starting with the first appearing field textually.
 
 When executing a collected fields map serially, the executor must consider each

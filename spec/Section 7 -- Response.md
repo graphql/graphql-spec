@@ -129,9 +129,9 @@ _request error result_ which will result in no response data.
 If an error was raised during _execution_ that prevented a valid response, the
 {"data"} entry in the response should be `null`.
 
-Note: Request errors (including those raised during {Request()}) occur before
-_execution_ begins; when a request error is raised the {"data"} entry should not
-be present in the result.
+Note: Request errors (including those raised during {ExecuteRequest()}) occur
+before _execution_ begins; when a request error is raised the {"data"} entry
+should not be present in the result.
 
 ### Errors
 
