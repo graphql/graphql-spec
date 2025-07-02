@@ -517,8 +517,8 @@ directives may be applied in either order since they apply commutatively.
 
 **Merging Selection Sets**
 
-In order to execute the sub-selections of a object typed field, all _selection
-sets_ of each field with the same response name of the parent _field set_ are
+In order to execute the sub-selections of an object typed field, all _selection
+sets_ of each field with the same response name in the parent _field set_ are
 merged together into a single _collected fields map_ representing the subfields
 to be executed next.
 
