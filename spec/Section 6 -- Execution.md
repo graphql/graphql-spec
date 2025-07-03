@@ -581,9 +581,14 @@ variableValues):
 - For each {responseName} and {fields} in {collectedFieldsMap}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
-  - Let {fieldType} be the return type defined for the field {fieldName} of
-    {objectType}.
-  - If {fieldType} is defined:
+  - If {fieldName} is a meta-field as defined in the Introspection section:
+    - Let {responseValue} be the result of resolving that meta-field as per the
+      rules of the [Introspection](#sec-Introspection) section.
+    - Set {responseValue} as the value for {responseName} in {resultMap}.
+  - Otherwise, if a field named {fieldName} is defined on {objectType}:
+    - Let {fieldType} be the return type defined for the field {fieldName} of
+      {objectType}.
+    - Assert: {fieldType} must exist.
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
