@@ -580,8 +580,8 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Arguments? Directives?
 
-FragmentDefinition : Description? fragment FragmentName VariablesDefinition? TypeCondition
-Directives? SelectionSet
+FragmentDefinition : Description? fragment FragmentName VariablesDefinition?
+TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 

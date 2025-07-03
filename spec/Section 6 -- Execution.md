@@ -288,9 +288,8 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   error_.
 - Let {fieldInfo} be the value of the first entry in {collectedFieldsMap}.
 - Let {field} be the value of the {field} property in {fieldInfo}.
-- Let {fieldName} be the name of the first entry in {fields}' {field} property. Note: This value
-  is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fieldName} be the name of {field}. Note: This value is unaffected if an
+  alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}.
 - Let {sourceStream} be the result of running
@@ -483,13 +482,14 @@ fragmentVariables):
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
-          - Let {variableDefinitions} be the variable definitions for {fragment}.
+    - Let {variableDefinitions} be the variable definitions for {fragment}.
     - Initialize {signatures} to an empty list.
     - For each {variableDefinition} of {variableDefinitions}:
       - Append the result of {GetVariableSignature(variableDefinition)} to
         {signatures}.
-    - Let {values} be the result of {CoerceArgumentValues(fragment,
-      argumentDefinitions, variableValues, fragmentVariables)}.
+    - Let {argumentValues} be the arguments provided in {selection}.
+    - Let {values} be the result of {CoerceArgumentValues(selection,
+      variableDefinitions, argumentValues, variableValues, fragmentVariables)}.
     - Let {newFragmentVariables} be an unordered map containing {signatures} and
       {values}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
@@ -578,7 +578,7 @@ CollectSubfields(objectType, fields, variableValues):
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
-    - Add each fieldInfo from {subfields} to {fieldsForResponseName}.
+    - Add each fieldInfo from {subfieldInfos} to {fieldsForResponseName}.
 - Return {collectedFieldsMap}.
 
 Note: All the {fields} passed to {CollectSubfields()} share the same _response
@@ -600,14 +600,15 @@ variableValues):
 - For each {responseName} and {fieldInfos} in {collectedFieldsMap}:
   - Let {fieldInfo} be the first entry in {fieldInfos}.
   - Let {field} be the field property of {fieldInfo}.
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
-  - Let {fragmentVariableValues} be the fragmentVariables property of {fieldInfo}.
+  - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
+    alias is used.
+  - Let {fragmentVariableValues} be the fragmentVariables property of
+    {fieldInfo}.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues, fragmentVariableValues)}.
+      fieldInfos, variableValues, fragmentVariableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
 - Return {resultMap}.
 
@@ -741,16 +742,20 @@ first coerces any provided argument values, then resolves a value for the field,
 and finally completes that value either by recursively executing another
 selection set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fieldDetailsList, variableValues,
-fragmentVariables):
+ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
+variableValues, fragmentVariables):
 
 - Let {fieldDetails} be the first entry in {fieldDetailsList}.
-- Let {field} and {fragmentVariables} be the corresponding entries on {fieldDetails}.
+- Let {field} and {fragmentVariables} be the corresponding entries on
+  {fieldDetails}.
 - Let {fieldName} be the field name of {field}.
-- Let {argumentDefinitions} be the arguments defined by {objectType} for the field named {fieldName}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(field, argumentDefinitions, variableValues, fragmentVariables)}.
-- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName, argumentValues)}.
-Return the result of {CompleteValue(fieldType, fieldDetailsList, resolvedValue, variableValues)}.
+- Let {argumentDefinitions} be the arguments defined by {objectType} for the
+  field named {fieldName}.
+- Let {argumentValues} be the result of {CoerceArgumentValues(field,
+  argumentDefinitions, variableValues, fragmentVariables)}.
+- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
+  argumentValues)}. Return the result of {CompleteValue(fieldType,
+  fieldDetailsList, resolvedValue, variableValues)}.
 
 ### Coercing Arguments
 
@@ -776,6 +781,7 @@ fragmentVariableValues):
 CoerceArgumentValues(node, argumentDefinitions, argumentValues, variableValues,
 fragmentVariableValues):
 
+- Let {coercedValues} be an empty unordered Map.
 - For each {argumentDefinition} in {argumentDefinitions}:
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.
@@ -792,7 +798,7 @@ fragmentVariableValues):
       for {variableName}; otherwise, let it be {variableValues}.
     - Let {hasValue} be {true} if {scopedVariableValues} provides a value for
       the name {variableName}.
-    - Let {value} be the value provided in {variableValues} for the name
+    - Let {value} be the value provided in {scopedVariableValues} for the name
       {variableName}.
   - Otherwise, let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
@@ -873,8 +879,8 @@ CompleteValue(fieldType, fieldDetailsList, result, variableValues):
   - If {result} is not a collection of values, raise an _execution error_.
   - Let {innerType} be the inner type of {fieldType}.
   - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fieldDetailsList, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+    {CompleteValue(innerType, fieldDetailsList, resultItem, variableValues)},
+    where {resultItem} is each item in {result}.
 - If {fieldType} is a Scalar or Enum type:
   - Return the result of {CoerceResult(fieldType, result)}.
 - If {fieldType} is an Object, Interface, or Union type:
