@@ -32,8 +32,7 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-For this section of this schema, we will assume the following type system in
-order to demonstrate examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
@@ -303,24 +302,25 @@ query getName {
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
-  - Let {groupedFieldSet} be the result of
+  - Let {collectedFieldsMap} be the result of
     {CollectSubscriptionFields(subscriptionType, selectionSet)}.
-  - {groupedFieldSet} must have exactly one entry, which must not be an
+  - {collectedFieldsMap} must have exactly one entry, which must not be an
     introspection field.
 
 CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
-- Initialize {groupedFields} to an empty ordered map of lists.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
 - For each {selection} in {selectionSet}:
   - {selection} must not provide the `@skip` directive.
   - {selection} must not provide the `@include` directive.
   - If {selection} is a {Field}:
-    - Let {responseKey} be the response key of {selection} (the alias if
+    - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
-    - Let {groupForResponseKey} be the list in {groupedFields} for
-      {responseKey}; if no such list exists, create it as an empty list.
-    - Append {selection} to the {groupForResponseKey}.
+    - Let {fieldsForResponseKey} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseKey}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -334,31 +334,31 @@ CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldsMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentGroupedFieldSet} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectSubscriptionFields(objectType, fragmentSelectionSet,
       visitedFragments)}.
-    - For each {fragmentGroup} in {fragmentGroupedFieldSet}:
-      - Let {responseKey} be the response key shared by all fields in
-        {fragmentGroup}.
-      - Let {groupForResponseKey} be the list in {groupedFields} for
-        {responseKey}; if no such list exists, create it as an empty list.
-      - Append all items in {fragmentGroup} to {groupForResponseKey}.
-- Return {groupedFields}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldsMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+- Return {collectedFieldsMap}.
 
 Note: This algorithm is very similar to {CollectFields()}, it differs in that it
 does not have access to runtime variables and thus the `@skip` and `@include`
@@ -584,7 +584,7 @@ should be unambiguous. Therefore any two field selections which might both be
 encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+name is accomplished by performing {CollectSubfields()} before their execution.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
