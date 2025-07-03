@@ -309,6 +309,9 @@ Fields\:
 - `kind` must return `__TypeKind.UNION`.
 - `name` must return a String.
 - `description` may return a String or {null}.
+- `fields` must return the set of fields that can be selected for this type.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated fields are also returned.
 - `possibleTypes` returns the list of types that can be represented within this
   union. They must be object types.
 - All other fields must return {null}.

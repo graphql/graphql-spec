@@ -1116,7 +1116,9 @@ InterfaceTypeDefinition :
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+the implementing type will define all fields defined by those interfaces. Unions
+can also implement interfaces, as long as each union member implements those
+interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1225,9 +1227,8 @@ interface Resource implements Node {
 ```
 
 Transitively implemented interfaces (interfaces implemented by the interface
-that is being implemented) must also be defined on an implementing type or
-interface. For example, `Image` cannot implement `Resource` without also
-implementing `Node`:
+that is being implemented) must also be defined on the implementing type. For
+example, `Image` cannot implement `Resource` without also implementing `Node`:
 
 ```raw graphql example
 interface Node {
@@ -1245,6 +1246,8 @@ interface Image implements Resource & Node {
   thumbnail: String
 }
 ```
+
+Similar syntax for unions implementing interfaces is detailed below.
 
 Interface definitions must not contain cyclic references nor implement
 themselves. This example is invalid because `Node` and `Named` implement
@@ -1360,8 +1363,8 @@ defined.
 
 ## Unions
 
-UnionTypeDefinition : Description? union Name Directives[Const]?
-UnionMemberTypes?
+UnionTypeDefinition : Description? union Name ImplementsInterfaces?
+Directives[Const]? UnionMemberTypes?
 
 UnionMemberTypes :
 
@@ -1369,16 +1372,17 @@ UnionMemberTypes :
 - = `|`? NamedType
 
 GraphQL Unions represent an object that could be one of a list of GraphQL Object
-types, but provides for no guaranteed fields between those types. They also
-differ from interfaces in that Object types declare what interfaces they
-implement, but are not aware of what unions contain them.
+types. They differ from interfaces in that Object types declare what interfaces
+they implement, but are not aware of what unions contain them.
 
 With interfaces and objects, only those fields defined on the type can be
 queried directly; to query other fields on an interface, typed fragments must be
-used. This is the same as for unions, but unions do not define any fields, so
-**no** fields may be queried on this type without the use of type refining
-fragments or inline fragments (with the exception of the meta-field
-{\_\_typename}).
+used. This is the same as for unions, but unions do not directly define any
+fields, so the only fields that may be queried on a Union are the meta-field
+{\_\_typename} and the fields of the interfaces that the Union declares it
+implements (see
+[Unions Implementing Interfaces](#sec-Unions.Unions-Implementing-Interfaces)).
+Otherwise, type refining fragments or inline fragments must be used.
 
 For example, we might define the following types:
 
@@ -1437,6 +1441,66 @@ union SearchResult =
   | Person
 ```
 
+**Unions Implementing Interfaces**
+
+When defining unions that implement interfaces, each union member must
+explicitly implement each interface implemented by the union. For example, the
+member types of union SearchResult must each explicitly implement the Resource
+interface:
+
+```raw graphql example
+interface Resource {
+  url: String
+}
+
+union SearchResult implements Resource = Photo | Article
+
+type Article implements Resource {
+  url: String
+  title: String
+}
+
+type Photo implements Resource {
+  url: String
+  height: Int
+  width: Int
+}
+```
+
+The following query would then be valid:
+
+```graphql example
+{
+  firstSearchResult {
+    url
+    ... on Article {
+      title
+    }
+    ... on Photo {
+      height
+    }
+  }
+}
+```
+
+Transitively implemented interfaces (interfaces implemented by the interface
+that is being implemented) must also be defined on the implementing union. For
+example, `SearchResult` cannot implement `Resource` without also implementing
+`Node`:
+
+```raw graphql example
+interface Node {
+  id: ID!
+}
+
+interface Resource implements Node {
+  id: ID!
+  url: String
+}
+
+union SearchResult implements Resource & Node = Photo | Article
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1455,13 +1519,26 @@ Union types have the potential to be invalid if incorrectly defined.
 2. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
+3. A union type may declare that it implements one or more unique interfaces.
+4. Each member of a union must be a super-set of all union-implemented
+   interfaces. Moreover, each union member must declare that it implements each
+   interface declared on the union:
+   1. Let this union type be {implementingType}.
+   2. For each member type of {implementingType}:
+      1. Let this member type be {memberType}.
+      2. For each interface declared implemented by {implementingType}.
+         1. Let the implemented type be {implementedType}.
+         2. {IsValidImplementation(memberType, implementedType)} must be {true}.
+         3. Let the set of types declared as implemented by {memberType} be
+            {memberImplementedTypes}.
+         4. {memberImplementedTypes} must contain {implementedType}.
 
 ### Union Extensions
 
 UnionTypeExtension :
 
-- extend union Name Directives[Const]? UnionMemberTypes
-- extend union Name Directives[Const]
+- extend union Name ImplementsInterfaces? Directives[Const]? UnionMemberTypes
+- extend union Name ImplementsInterfaces? Directives[Const]
 
 Union type extensions are used to represent a union type which has been extended
 from some previous union type. For example, this might be used to represent
@@ -1481,6 +1558,9 @@ Union type extensions have the potential to be invalid if incorrectly defined.
    the previous Union type.
 5. Any non-repeatable directives provided must not already apply to the previous
    Union type.
+6. All member types of the resulting extended Union type must be a super-set of
+   all Interfaces it implements. Moreover, each union member must declare that
+   it implements each interface that declared on the union.
 
 ## Enums
 
