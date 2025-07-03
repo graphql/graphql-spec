@@ -233,6 +233,57 @@ Any {Name} within a GraphQL type system must not start with two underscores
 {"\_\_"} unless it is part of the [introspection system](#sec-Introspection) as
 defined by this specification.
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL by including written
+descriptions on all named definitions in executable {Document} and GraphQL type
+systems, which is also made available via introspection ensuring the
+documentation of a GraphQL service remains consistent with its capabilities (see
+[Type System Descriptions](#sec-Type-System-Descriptions)).
+
+GraphQL descriptions are provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often
+{BlockString}) occur immediately before the definition they describe.
+
+Descriptions in GraphQL executable documents are purely for documentation
+purposes. They MUST NOT affect the execution, validation, or response of a
+GraphQL document. It is safe to remove all descriptions and comments from
+executable documents without changing their behavior or results.
+
+This is an example of a well-described operation:
+
+```graphql example
+"""
+Request the current status of a time machine and its operator.
+You can also check the status for a particular year.
+**Warning:** certain years may trigger an anomaly in the space-time continuum.
+"""
+query GetTimeMachineStatus(
+  "The unique serial number of the time machine to inspect."
+  $machineId: ID!
+  "The year to check the status for."
+  $year: Int
+) {
+  timeMachine(id: $machineId) {
+    ...TimeMachineDetails
+    status(year: $year)
+  }
+}
+
+"Details about a time machine and its operator."
+fragment TimeMachineDetails on TimeMachine {
+  id
+  model
+  lastMaintenance
+  operator {
+    name
+    licenseLevel
+  }
+}
+```
+
 ## Document
 
 Document : Definition+
@@ -279,7 +330,7 @@ be executed must also be provided.
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -288,15 +339,20 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
-Each operation is represented by an optional operation name and a selection set.
+Each operation is represented by an optional operation name and a _selection
+set_.
 
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
 ```graphql example
+"""
+Mark story 12345 as "liked"
+and return the updated number of likes on the story
+"""
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -321,6 +377,8 @@ For example, this unnamed query operation is written via query shorthand.
 }
 ```
 
+Descriptions are not permitted on query shorthand.
+
 Note: many examples below will use the query short-hand syntax.
 
 ## Selection Sets
@@ -337,6 +395,9 @@ An operation selects the set of information it needs, and will receive exactly
 that information and nothing more, avoiding over-fetching and under-fetching
 data.
 
+:: A _selection set_ defines an ordered set of selections (fields, fragment
+spreads and inline fragments) against an object, union or interface type.
+
 ```graphql example
 {
   id
@@ -346,14 +407,14 @@ data.
 ```
 
 In this query operation, the `id`, `firstName`, and `lastName` fields form a
-selection set. Selection sets may also contain fragment references.
+_selection set_. Selection sets may also contain fragment references.
 
 ## Fields
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
-A selection set is primarily composed of fields. A field describes one discrete
-piece of information available to request within a selection set.
+A _selection set_ is primarily composed of fields. A field describes one
+discrete piece of information available to request within a selection set.
 
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
@@ -381,7 +442,7 @@ down to scalar values.
 }
 ```
 
-Fields in the top-level selection set of an operation often represent some
+Fields in the top-level _selection set_ of an operation often represent some
 information that is globally accessible to your application and its current
 viewer. Some typical examples of these top fields include references to a
 current logged-in viewer, or accessing certain types of data referenced by a
@@ -462,8 +523,9 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-By default a field's response key in the response object will use that field's
-name. However, you can define a different response key by specifying an alias.
+:: A _response name_ is the key in the response object which correlates with a
+field's result. By default the response name will use the field's name; however,
+you can define a different response name by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting response object will not have duplicate keys:
@@ -518,8 +580,8 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Directives?
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -565,6 +627,7 @@ query withFragments {
   }
 }
 
+"Common fields for a user's friends."
 fragment friendFields on User {
   id
   name
@@ -667,9 +730,9 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-Fragments can also be defined inline within a selection set. This is useful for
-conditionally including fields based on a type condition or applying a directive
-to a selection set.
+Fragments can also be defined inline within a _selection set_. This is useful
+for conditionally including fields based on a type condition or applying a
+directive to a selection set.
 
 This feature of standard fragment inclusion was demonstrated in the
 `query FragmentTyping` example above. We could accomplish the same thing using
@@ -806,7 +869,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -826,6 +889,8 @@ HexDigit :: one of
 - `a` `b` `c` `d` `e` `f`
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 BlockStringCharacter ::
 
@@ -965,7 +1030,7 @@ StringCharacter :: `\u` EscapedUnicode
 
 - Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
   within {EscapedUnicode}.
-- Assert {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+- Assert: {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
   0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the _Unicode scalar value_ {value}.
 
@@ -977,12 +1042,12 @@ HexDigit HexDigit HexDigit
 - Let {trailingValue} be the hexadecimal value represented by the second
   sequence of {HexDigit}.
 - If {leadingValue} is >= 0xD800 and <= 0xDBFF (a _Leading Surrogate_):
-  - Assert {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
+  - Assert: {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
   - Return ({leadingValue} - 0xD800) × 0x400 + ({trailingValue} - 0xDC00) +
     0x10000.
 - Otherwise:
-  - Assert {leadingValue} is within the _Unicode scalar value_ range.
-  - Assert {trailingValue} is within the _Unicode scalar value_ range.
+  - Assert: {leadingValue} is within the _Unicode scalar value_ range.
+  - Assert: {trailingValue} is within the _Unicode scalar value_ range.
   - Return the sequence of the _Unicode scalar value_ {leadingValue} followed by
     the _Unicode scalar value_ {trailingValue}.
 
@@ -1007,7 +1072,11 @@ StringCharacter :: `\` EscapedCharacter
 | {`r`}             | U+000D       | carriage return              |
 | {`t`}             | U+0009       | horizontal tab               |
 
-StringValue :: `"""` BlockStringCharacter\* `"""`
+StringValue :: BlockString
+
+- Return the _Unicode text_ by evaluating the {BlockString}.
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 - Let {rawValue} be the _Unicode text_ by concatenating the evaluation of all
   {BlockStringCharacter} (which may be an empty sequence).
@@ -1026,7 +1095,7 @@ BlockStringValue(rawValue):
 - Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
 - Let {commonIndent} be {null}.
 - For each {line} in {lines}:
-  - If {line} is the first item in {lines}, continue to the next line.
+  - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
   - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
     {line}.
@@ -1111,10 +1180,10 @@ ListValue : [ ]
 ListValue : [ Value+ ]
 
 - Let {inputList} be a new empty list value.
-- For each {Value+}
+- For each {Value+}:
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1158,11 +1227,11 @@ ObjectValue : { }
 ObjectValue : { ObjectField+ }
 
 - Let {inputObject} be a new input object value with no fields.
-- For each {field} in {ObjectField+}
+- For each {field} in {ObjectField+}:
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
@@ -1170,7 +1239,8 @@ Variable : $ Name
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 DefaultValue : = Value[Const]
 
@@ -1189,7 +1259,10 @@ In this example, we want to fetch a profile picture size based on the size of a
 particular device:
 
 ```graphql example
-query getZuckProfile($devicePicSize: Int) {
+query getZuckProfile(
+  "The size of the profile picture to fetch."
+  $devicePicSize: Int
+) {
   user(id: 4) {
     id
     name
@@ -1241,22 +1314,22 @@ input type.
 
 Type : Name
 
-- Let {name} be the string value of {Name}
-- Let {type} be the type defined in the Schema named {name}
-- {type} must not be {null}
-- Return {type}
+- Let {name} be the string value of {Name}.
+- Let {type} be the type defined in the Schema named {name}.
+- {type} must exist.
+- Return {type}.
 
 Type : [ Type ]
 
-- Let {itemType} be the result of evaluating {Type}
+- Let {itemType} be the result of evaluating {Type}.
 - Let {type} be a List type where {itemType} is the contained type.
-- Return {type}
+- Return {type}.
 
 Type : Type !
 
-- Let {nullableType} be the result of evaluating {Type}
+- Let {nullableType} be the result of evaluating {Type}.
 - Let {type} be a Non-Null type where {nullableType} is the contained type.
-- Return {type}
+- Return {type}.
 
 ## Directives
 

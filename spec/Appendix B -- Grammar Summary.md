@@ -100,7 +100,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -121,6 +121,8 @@ HexDigit :: one of
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
+BlockString :: `"""` BlockStringCharacter\* `"""`
+
 BlockStringCharacter ::
 
 - SourceCharacter but not `"""` or `\"""`
@@ -130,6 +132,8 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 ## Document Syntax
+
+Description : StringValue
 
 Document : Definition+
 
@@ -147,7 +151,7 @@ ExecutableDefinition :
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -172,8 +176,8 @@ FragmentSpread : ... FragmentName Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -211,7 +215,8 @@ ObjectField[Const] : Name : Value[?Const]
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 Variable : $ Name
 
@@ -265,8 +270,6 @@ SchemaExtension :
 - extend schema Directives[Const] [lookahead != `{`]
 
 RootOperationTypeDefinition : OperationType : NamedType
-
-Description : StringValue
 
 TypeDefinition :
 
