@@ -2336,6 +2336,16 @@ DirectiveArgumentCoordinate : @ Name ( Name : )
 5. Return the argument of {directive} named {directiveArgumentName} if it
    exists.
 
+**Resolving Meta-fields**
+
+Resolving the _schema coordinate_ of a meta-field is undefined behavior, since
+these fields may be implemented in such a way that makes it impossible to return
+a unique value specific to that instance of the meta-field.
+
+Therefore, it is left up to the implementation to decide whether or not to
+return a value for a meta-field. If a value is returned, it must meet the
+requirement that it is unique to that _schema coordinate_.
+
 **Examples**
 
 | Element Kind       | _Schema Coordinate_               | _Schema Element_                                                      |
