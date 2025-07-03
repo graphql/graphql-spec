@@ -172,7 +172,7 @@ Arguments[Const] : ( Argument[?Const]+ )
 
 Argument[Const] : Name : Value[?Const]
 
-FragmentSpread : ... FragmentName Directives?
+FragmentSpread : ... FragmentName Arguments? Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
