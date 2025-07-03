@@ -2252,23 +2252,26 @@ DirectiveArgumentCoordinate : @ Name ( Name : )
 _schema element_ within a GraphQL Schema.
 
 :: A _schema element_ can be a named type, a field, an input field, an enum
-value, a field argument, a directive, or a directive argument.
+value, a field argument, a directive, or a directive argument defined within a
+schema (including built-in types and directives).
+
+Note: Meta-fields are not defined within a schema, and thus are not _schema
+element_. By extension, an introspection type is not a _schema element_.
 
 :: The _containing element_ of a _schema element_ is the schema element with one
 fewer {Name} token that syntactically contains it. Specifically:
 
-- {MemberCoordinate} has a {TypeCoordinate} containing element.
-- {ArgumentCoordinate} has a {MemberCoordinate} containing element.
-- {DirectiveArgumentCoordinate} has a {DirectiveCoordinate} containing element.
+- The containing element of an {ArgumentCoordinate} is a {MemberCoordinate}.
+- The containing element of a {MemberCoordinate} is a {TypeCoordinate}.
+- The containing element of a {DirectiveArgumentCoordinate} is a {DirectiveCoordinate}.
 - {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
 
-A _schema coordinate_ is always unique. Each non meta-field _schema element_ can
-be referenced by exactly one possible schema coordinate.
+A _schema coordinate_ is always unique. Each _schema element_ can be referenced
+by exactly one possible schema coordinate.
 
 A _schema coordinate_ may refer to either a defined or built-in _schema
 element_. For example, `String` and `@deprecated(reason:)` are both valid schema
-coordinates which refer to built-in schema elements. Meta-fields may also be
-referenced. For example, `Business.__typename` is a valid schema coordinate.
+coordinates which refer to built-in schema elements.
 
 Note: Union members are not valid _schema coordinate_ as they reference existing
 types in the schema. This preserves the uniqueness property of a _schema
@@ -2289,6 +2292,11 @@ context of a GraphQL {schema}.
 If the _schema element_ cannot be found, the resolve function will not yield a
 value (without raising an error). However, an error will be raised if any
 non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
+
+Note: Although it is syntactically possible to describe a meta-field or element
+of the introspection schema with a schema coordinate (e.g. `Business.__typename`
+or `__Type.fields(includeDeprecated:)`), they are not _schema element_ and
+therefore resolving such coordinates results in implementation-defined behavior.
 
 TypeCoordinate : Name
 
@@ -2335,16 +2343,6 @@ DirectiveArgumentCoordinate : @ Name ( Name : )
 4. Let {directiveArgumentName} be the value of the second {Name}.
 5. Return the argument of {directive} named {directiveArgumentName} if it
    exists.
-
-**Resolving Meta-fields**
-
-Resolving the _schema coordinate_ of a meta-field is undefined behavior, since
-these fields may be implemented in such a way that makes it impossible to return
-a unique value specific to that instance of the meta-field.
-
-Therefore, it is left up to the implementation to decide whether or not to
-return a value for a meta-field. If a value is returned, it must meet the
-requirement that it is unique to that _schema coordinate_.
 
 **Examples**
 
