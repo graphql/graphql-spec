@@ -483,6 +483,7 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
       - Add each item from {fragmentFields} to {fieldsForResponseName}.
+    - Remove {fragmentSpreadName} from {visitedFragments}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
