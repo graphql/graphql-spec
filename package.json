@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "npm run test:spelling && npm run test:format && npm run test:build",
-    "test:spelling": "cspell \"spec/**/*.md\" README.md",
+    "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
     "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || npm run suggest:format",
     "test:algorithm-format": "node .github/algorithm-format-check.mjs",
