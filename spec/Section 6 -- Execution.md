@@ -47,6 +47,16 @@ document is expected to only contain a single operation. The result of the
 request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
+The {ExecuteRequest()} algorithm performs the preamble for _operation
+execution_, completing preliminary steps before invoking the appropriate
+algorithm based on the operation's type. These steps include determining the
+operation to execute, coercing input values, and, for subscriptions,
+establishing the source event stream.
+
+Note: An error raised before _operation execution_ begins will typically be a
+_request error_, and once _operation execution_ begins will typically be an
+_execution error_.
+
 ExecuteRequest(schema, document, operationName, variableValues, initialValue):
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
@@ -59,7 +69,10 @@ ExecuteRequest(schema, document, operationName, variableValues, initialValue):
   - Return {ExecuteMutation(operation, schema, coercedVariableValues,
     initialValue)}.
 - Otherwise if {operation} is a subscription operation:
-  - Return {Subscribe(operation, schema, coercedVariableValues, initialValue)}.
+  - Let {sourceStream} be the result of running
+    {CreateSourceEventStream(operation, schema, coercedVariableValues,
+    initialValue)}.
+  - Return {Subscribe(sourceStream, operation, schema, coercedVariableValues)}.
 
 GetOperation(document, operationName):
 
@@ -74,27 +87,28 @@ GetOperation(document, operationName):
 
 ### Validating Requests
 
-As explained in the Validation section, only requests which pass all validation
-rules should be executed. If validation errors are known, they should be
-reported in the list of "errors" in the response and the request must fail
-without execution.
+As explained in the Validation section, only operations from documents which
+pass all validation rules should be executed. If validation errors are known,
+they should be reported in the list of "errors" in the response and the request
+must fail without _operation execution_.
 
 Typically validation is performed in the context of a request immediately before
-execution, however a GraphQL service may execute a request without immediately
-validating it if that exact same request is known to have been validated before.
-A GraphQL service should only execute requests which _at some point_ were known
-to be free of any validation errors, and have since not changed.
+calling {ExecuteRequest()}, however a GraphQL service may execute a request
+without immediately validating the document if that exact same document is known
+to have been validated before. A GraphQL service should only execute operations
+which _at some point_ were known to be free of any validation errors, and have
+since not changed.
 
-For example: the request may be validated during development, provided it does
-not later change, or a service may validate a request once and memoize the
-result to avoid validating the same request again in the future.
+For example: the document may be validated during development, provided it does
+not later change, or a service may validate a document once and memoize the
+result to avoid validating the same document again in the future.
 
 ### Coercing Variable Values
 
 If the operation has defined any variables, then the values for those variables
 need to be coerced using the input coercion rules of variable's declared type.
 If a _request error_ is encountered during input coercion of variable values,
-then the operation fails without execution.
+then the request fails without _operation execution_.
 
 CoerceVariableValues(schema, operation, variableValues):
 
@@ -138,6 +152,11 @@ provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
 
+:: The result of a GraphQL operation is produced through _operation execution_.
+Operation execution begins when the execution algorithm for the operation type
+is invoked: {ExecuteQuery()} for query operations, {ExecuteMutation()} for
+mutation operations, and {Subscribe()} for subscription operations.
+
 ### Query
 
 If the operation is a query, the result of the operation is the result of
@@ -176,15 +195,14 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 
 If the operation is a subscription, the result is an _event stream_ called the
 _response stream_ where each event in the event stream is the result of
-executing the operation for each new event on an underlying _source stream_.
+executing the operation’s _root selection set_ for each new event on an
+underlying _source stream_ established during {ExecuteRequest()}.
 
 Executing a subscription operation creates a persistent function on the service
-that maps an underlying _source stream_ to a returned _response stream_.
+that maps this underlying _source stream_ to a returned _response stream_.
 
-Subscribe(subscription, schema, variableValues, initialValue):
+Subscribe(sourceStream, subscription, schema, variableValues):
 
-- Let {sourceStream} be the result of running
-  {CreateSourceEventStream(subscription, schema, variableValues, initialValue)}.
 - Let {responseStream} be the result of running
   {MapSourceToResponseEvent(sourceStream, subscription, schema,
   variableValues)}.
@@ -290,6 +308,9 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
 - Return {sourceStream}.
+
+Note: The call to {CreateSourceEventStream()} occurs before _operation
+execution_ begins, and thus an error raised here will be a _request error_.
 
 ResolveFieldEventStream(subscriptionType, rootValue, fieldName, argumentValues):
 
@@ -787,9 +808,9 @@ CoerceArgumentValues(objectType, field, variableValues):
 Any _request error_ raised as a result of input coercion during
 {CoerceArgumentValues()} should be treated instead as an _execution error_.
 
-Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid operations
-must only allow usage of variables of appropriate types.
+Note: Variable values are not coerced because they are expected to be coerced by
+{CoerceVariableValues()} before _operation execution_ begins, and valid
+operations must only allow usage of variables of appropriate types.
 
 Note: Implementations are encouraged to optimize the coercion of an argument's
 default value by doing so only once and caching the resulting coerced value.
