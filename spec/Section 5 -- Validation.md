@@ -532,12 +532,17 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 - Let {set} be any selection set defined in the GraphQL document.
 - {FieldsInSetCanMerge(set)} must be true.
 
-#### TODO: problematic part, this used to allow us to look at fragmentspread
-
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForName} be the set of selections with a given _response name_ in
-  {set} including visiting fragments and inline fragments.
+- Let {visitedSelections} be the selections in {set} including visiting fields,
+  fragment-spreads and inline fragments.
+- Let {spreadsForName} be the set of fragment spreads with a given name in
+  {visitedSelections}.
+- For each {spreadsForName} as {name} and {spreads}:
+  - Each entry in {spreads} must have identical sets of arguments to each other
+    entry in {spreads}.
+- Let {fieldsForName} be the set of field selections with a given response name
+  in {visitedSelections}.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
