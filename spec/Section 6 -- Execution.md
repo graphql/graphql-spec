@@ -152,7 +152,7 @@ provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
 
-:: The result of a GraphQL request is produced through _operation execution_.
+:: The result of a GraphQL operation is produced through _operation execution_.
 Operation execution begins when the execution algorithm for the operation type
 is invoked: {ExecuteQuery()} for query operations, {ExecuteMutation()} for
 mutation operations, and {Subscribe()} for subscription operations.
