@@ -2263,7 +2263,8 @@ fewer {Name} token that syntactically contains it. Specifically:
 
 - The containing element of an {ArgumentCoordinate} is a {MemberCoordinate}.
 - The containing element of a {MemberCoordinate} is a {TypeCoordinate}.
-- The containing element of a {DirectiveArgumentCoordinate} is a {DirectiveCoordinate}.
+- The containing element of a {DirectiveArgumentCoordinate} is a
+  {DirectiveCoordinate}.
 - {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
 
 A _schema coordinate_ is always unique. Each _schema element_ can be referenced
