@@ -2293,12 +2293,12 @@ non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
 TypeCoordinate : Name
 
 1. Let {typeName} be the value of {Name}.
-2. Return the type in the {schema} named {typeName} if it exists.
+2. Return the type in {schema} named {typeName} if it exists.
 
 MemberCoordinate : Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
-2. Let {type} be the type in the {schema} named {typeName}.
+2. Let {type} be the type in {schema} named {typeName}.
 3. Assert: {type} must exist, and must be an Enum, Input Object, Object or
    Interface type.
 4. If {type} is an Enum type:
@@ -2314,7 +2314,7 @@ MemberCoordinate : Name . Name
 ArgumentCoordinate : Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
-2. Let {type} be the type in the {schema} named {typeName}.
+2. Let {type} be the type in {schema} named {typeName}.
 3. Assert: {type} must exist, and be an Object or Interface type.
 4. Let {fieldName} be the value of the second {Name}.
 5. Let {field} be the field of {type} named {fieldName}.
@@ -2325,12 +2325,12 @@ ArgumentCoordinate : Name . Name ( Name : )
 DirectiveCoordinate : @ Name
 
 1. Let {directiveName} be the value of {Name}.
-2. Return the directive in the {schema} named {directiveName} if it exists.
+2. Return the directive in {schema} named {directiveName} if it exists.
 
 DirectiveArgumentCoordinate : @ Name ( Name : )
 
 1. Let {directiveName} be the value of the first {Name}.
-2. Let {directive} be the directive in the {schema} named {directiveName}.
+2. Let {directive} be the directive in {schema} named {directiveName}.
 3. Assert: {directive} must exist.
 4. Let {directiveArgumentName} be the value of the second {Name}.
 5. Return the argument of {directive} named {directiveArgumentName} if it
