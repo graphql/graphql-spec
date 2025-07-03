@@ -6010,15 +6010,21 @@ See <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a> for m
 <li data-source="spec/Section%206%20--%20Execution.md#L750">Let <var data-name="argumentName">argumentName</var> be the name of <var data-name="argumentDefinition">argumentDefinition</var>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L751">Let <var data-name="argumentType">argumentType</var> be the expected type of <var data-name="argumentDefinition">argumentDefinition</var>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L752">Let <var data-name="defaultValue">defaultValue</var> be the default value for <var data-name="argumentDefinition">argumentDefinition</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L753-L754">Let <var data-name="hasValue">hasValue</var> be <span class="spec-keyword">true</span> if <var data-name="argumentValues">argumentValues</var> provides a value for the name <var data-name="argumentName">argumentName</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L755-L756">Let <var data-name="argumentValue">argumentValue</var> be the value provided in <var data-name="argumentValues">argumentValues</var> for the name <var data-name="argumentName">argumentName</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L757-L762">If <var data-name="argumentValue">argumentValue</var> is a <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span>:<ol>
-<li data-source="spec/Section%206%20--%20Execution.md#L758">Let <var data-name="variableName">variableName</var> be the name of <var data-name="argumentValue">argumentValue</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L759-L760">Let <var data-name="hasValue">hasValue</var> be <span class="spec-keyword">true</span> if <var data-name="variableValues">variableValues</var> provides a value for the name <var data-name="variableName">variableName</var>.</li>
-<li data-source="spec/Section%206%20--%20Execution.md#L761-L762">Let <var data-name="value">value</var> be the value provided in <var data-name="variableValues">variableValues</var> for the name <var data-name="variableName">variableName</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L753-L754">Let <var data-name="argumentValue">argumentValue</var> be the value provided in <var data-name="argumentValues">argumentValues</var> for the name <var data-name="argumentName">argumentName</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L755-L760">If <var data-name="argumentValue">argumentValue</var> is a <span class="spec-nt"><a href="#Variable" data-name="Variable">Variable</a></span>:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L756">Let <var data-name="variableName">variableName</var> be the name of <var data-name="argumentValue">argumentValue</var>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L757-L760">If <var data-name="variableValues">variableValues</var> provides a value for the name <var data-name="variableName">variableName</var>:<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L758">Let <var data-name="hasValue">hasValue</var> be <span class="spec-keyword">true</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L759-L760">Let <var data-name="value">value</var> be the value provided in <var data-name="variableValues">variableValues</var> for the name <var data-name="variableName">variableName</var>.</li>
 </ol>
 </li>
-<li data-source="spec/Section%206%20--%20Execution.md#L763">Otherwise, let <var data-name="value">value</var> be <var data-name="argumentValue">argumentValue</var>.</li>
+</ol>
+</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L761-L763">Otherwise if <var data-name="argumentValues">argumentValues</var> provides a value for the name <var data-name="argumentName">argumentName</var>.<ol>
+<li data-source="spec/Section%206%20--%20Execution.md#L762">Let <var data-name="hasValue">hasValue</var> be <span class="spec-keyword">true</span>.</li>
+<li data-source="spec/Section%206%20--%20Execution.md#L763">Let <var data-name="value">value</var> be <var data-name="argumentValue">argumentValue</var>.</li>
+</ol>
+</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L764-L768">If <var data-name="hasValue">hasValue</var> is not <span class="spec-keyword">true</span> and <var data-name="defaultValue">defaultValue</var> exists (including <span class="spec-keyword">null</span>):<ol>
 <li data-source="spec/Section%206%20--%20Execution.md#L765-L766">Let <var data-name="coercedDefaultValue">coercedDefaultValue</var> be the result of coercing <var data-name="defaultValue">defaultValue</var> according to the input coercion rules of <var data-name="argumentType">argumentType</var>.</li>
 <li data-source="spec/Section%206%20--%20Execution.md#L767-L768">Add an entry to <var data-name="coercedValues">coercedValues</var> named <var data-name="argumentName">argumentName</var> with the value <var data-name="coercedDefaultValue">coercedDefaultValue</var>.</li>
