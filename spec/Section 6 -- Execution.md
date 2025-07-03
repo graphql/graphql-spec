@@ -152,11 +152,10 @@ provide a query root operation type. If mutations or subscriptions are
 supported, it must also provide a mutation or subscription root operation type,
 respectively.
 
-:: We define _operation execution_ as the process of producing output data from
-from a GraphQL operation; thus operation execution begins when the execution
-algorithm for that operation type is called: {ExecuteQuery()} for query
-operations, {ExecuteMutation()} for mutation operations, and {Subscribe()} for
-subscription operations.
+:: The result of a GraphQL request is produced through _operation execution_.
+Operation execution begins when the execution algorithm for the operation type
+is invoked: {ExecuteQuery()} for query operations, {ExecuteMutation()} for
+mutation operations, and {Subscribe()} for subscription operations.
 
 ### Query
 
@@ -197,10 +196,10 @@ ExecuteMutation(mutation, schema, variableValues, initialValue):
 If the operation is a subscription, the result is an _event stream_ called the
 _response stream_ where each event in the event stream is the result of
 executing the operation’s _root selection set_ for each new event on an
-underlying _source stream_.
+underlying _source stream_ established during {ExecuteRequest()}.
 
 Executing a subscription operation creates a persistent function on the service
-that maps an underlying _source stream_ to a returned _response stream_.
+that maps this underlying _source stream_ to a returned _response stream_.
 
 Subscribe(sourceStream, subscription, schema, variableValues):
 
