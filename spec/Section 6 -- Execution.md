@@ -835,15 +835,16 @@ ResolveMetaFieldValue(objectType, fieldName, argumentValues):
   - Assert: {objectType} must be the _root operation type_ in {schema} for query
     operations.
   - Return {schema}.
-- If {fieldName} is {"\_\_type"}:
+- Otherwise, if {fieldName} is {"\_\_type"}:
   - Assert: {objectType} must be the _root operation type_ in {schema} for query
     operations.
   - Let {typeName} be the value provided in {argumentValues} for the name
     {"name"}.
   - Let {type} be the type with name {typeName} in {schema}.
   - Return {type} if it exists; otherwise {null}.
-- Assert: {fieldName} is {"\_\_typename"}.
-- Return the name of {objectType}.
+- Otherwise:
+  - Assert: {fieldName} is {"\_\_typename"}.
+  - Return the name of {objectType}.
 
 ### Value Completion
 
