@@ -581,14 +581,12 @@ variableValues):
 - For each {responseName} and {fields} in {collectedFieldsMap}:
   - Let {fieldName} be the name of the first entry in {fields}. Note: This value
     is unaffected if an alias is used.
-  - If {fieldName} is a meta-field as defined in the Introspection section:
-    - Let {responseValue} be the result of resolving that meta-field as per the
-      rules of the [Introspection](#sec-Introspection) section.
-    - Set {responseValue} as the value for {responseName} in {resultMap}.
-  - Otherwise, if a field named {fieldName} is defined on {objectType}:
-    - Let {fieldType} be the return type defined for the field {fieldName} of
-      {objectType}.
-    - Assert: {fieldType} must exist.
+  - If {fieldName} is a meta-field as defined in the
+    [Introspection](#sec-Introspection) section, let {fieldType} be the return
+    type of that meta-field.
+  - Otherwise, let {fieldType} be the return type defined for the field
+    {fieldName} of {objectType}.
+  - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
@@ -730,8 +728,11 @@ ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
 - Let {fieldName} be the field name of {field}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}.
-- Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}.
+- If {fieldName} is a meta-field as defined in the
+  [Introspection](#sec-Introspection) section, let {resolvedValue} be
+  {ResolveMetaFieldValue(objectType, fieldName, argumentValues)}.
+- Otherwise, let {resolvedValue} be {ResolveFieldValue(objectType, objectValue,
+  fieldName, argumentValues)}.
 - Return the result of {CompleteValue(fieldType, fields, resolvedValue,
   variableValues)}.
 
@@ -822,6 +823,27 @@ an underlying database or networked service to produce a value. This
 necessitates the rest of a GraphQL executor to handle an asynchronous execution
 flow. If the field is of a list type, each value in the collection of values
 returned by {resolver} may itself be retrieved asynchronously.
+
+### Meta-Field Resolution
+
+The meta-fields `__typename`, `__schema` and `__type` are resolved as per the
+rules in the [Introspection](#sec-Introspection) section.
+
+ResolveMetaFieldValue(objectType, fieldName, argumentValues):
+
+- If {fieldName} is {"\_\_typename"}:
+  - Return the name of {objectType}.
+- If {fieldName} is {"\_\_schema"}:
+  - Assert: {objectType} must be the _root operation type_ in {schema} for query
+    operations.
+  - Return {schema}.
+- If {fieldName} is {"\_\_type"}:
+  - Assert: {objectType} must be the _root operation type_ in {schema} for query
+    operations.
+  - Let {typeName} be the value provided in {argumentValues} for the name
+    {"name"}.
+  - Let {type} be the type with name {typeName} in {schema}.
+  - Return {type} if it exists; otherwise {null}.
 
 ### Value Completion
 
