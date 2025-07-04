@@ -2285,6 +2285,15 @@ documentation to refer to types and fields in a schema, a lookup key that can be
 used in logging tools to track how often particular fields are queried in
 production.
 
+**Lexical Analysis & Syntactic Parse of a Schema Coordinate**
+
+The source text of a _schema coordinate_ is processed in the same way as that of
+a GraphQL document, as laid out in the [Language](#sec-Language) section, with
+the exception that {Ignored} tokens are disallowed. A schema coordinate must
+therefore not contain whitespace, line terminators, comments, commas, or a _Byte
+Order Mark_. This constraint ensures that schema coordinates are both
+unambiguous and unique.
+
 **Resolving a Schema Coordinate**
 
 To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
