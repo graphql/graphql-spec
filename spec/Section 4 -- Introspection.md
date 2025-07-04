@@ -151,6 +151,8 @@ type __Type {
   inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
+  # must be non-null for INPUT_OBJECT, otherwise null.
+  isOneOf: Boolean
 }
 
 enum __TypeKind {
@@ -373,6 +375,8 @@ Fields\:
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
+- `isOneOf` must return {true} when representing a _OneOf Input Object_,
+  otherwise {false}.
 - All other fields must return {null}.
 
 **List**
