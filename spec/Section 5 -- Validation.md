@@ -2180,12 +2180,6 @@ mutation addNullableCat($cat: CatInput) {
     name
   }
 }
-
-mutation addNullableCatWithDefault($cat: CatInput = { name: "Brontie" }) {
-  addPet(pet: { cat: $cat }) {
-    name
-  }
-}
 ```
 
 **Allowing Optional Variables When Default Values Exist**
