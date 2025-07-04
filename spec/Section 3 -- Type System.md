@@ -1699,25 +1699,25 @@ is constructed with the following rules:
 
 - If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type is
-  non-null, an _execution error_ must be raised. If no runtime value is
-  provided, the variable definition's default value should be used. If the
-  variable definition does not provide a default value, the input object field
+  non-null, a _request error_ must be raised. If no runtime value is provided,
+  the variable definition's default value should be used. If the variable
+  definition does not provide a default value, the input object field
   definition's default value should be used.
 
 Further, if the input object is a _OneOf Input Object_, the following additional
 rules apply:
 
 - If the input object literal or unordered map does not contain exactly one
-  entry an _execution error_ must be raised.
+  entry a _request error_ must be raised.
 
 - Within the input object literal or unordered map, if the single entry is the
-  {null} literal or {null} an _execution error_ must be raised.
+  {null} literal or {null} a _request error_ must be raised.
 
-- If the coerced unordered map does not contain exactly one entry an _execution
+- If the coerced unordered map does not contain exactly one entry a _request
   error_ must be raised.
 
-- If the value of the single entry in the coerced unordered map is {null} an
-  _execution error_ must be raised.
+- If the value of the single entry in the coerced unordered map is {null} a
+  _request error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
