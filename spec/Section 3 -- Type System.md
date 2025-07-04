@@ -1699,9 +1699,9 @@ is constructed with the following rules:
 
 - If a variable is provided for an input object field, the runtime value of that
   variable must be used. If the runtime value is {null} and the field type is
-  non-null, a _request error_ must be raised. If no runtime value is provided,
-  the variable definition's default value should be used. If the variable
-  definition does not provide a default value, the input object field
+  non-null, an _execution error_ must be raised. If no runtime value is
+  provided, the variable definition's default value should be used. If the
+  variable definition does not provide a default value, the input object field
   definition's default value should be used.
 
 Further, if the input object is a _OneOf Input Object_, the following additional
@@ -1712,7 +1712,7 @@ rules apply:
   the {null} literal, otherwise a _request error_ must be raised.
 
 - The map resulting from the input coercion rules above must contain exactly one
-  entry and the value for that entry must not be {null}, otherwise a _request
+  entry and the value for that entry must not be {null}, otherwise an _execution
   error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
