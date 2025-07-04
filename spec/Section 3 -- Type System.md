@@ -1707,18 +1707,13 @@ is constructed with the following rules:
 Further, if the input object is a _OneOf Input Object_, the following additional
 rules apply:
 
-- Prior to the input object input coercion rules above:
+- Prior to construction of the coerced map via the rules above, the value to be
+  coerced must contain exactly one entry, and that entry must not be {null} or
+  the {null} literal, otherwise a _request error_ must be raised.
 
-  - If the value of the input object is an input object literal and it does not
-    contain exactly one entry, or if the value of this single entry is the
-    {null} literal, a _request error_ must be raised.
-  - Otherwise, it must be a map supplied by a variable. If the map does not
-    contain exactly one entry, or if the value of this single entry is {null}, a
-    _request error_ must be raised.
-
-- After following the input coercion rules above, if the resulting coerced
-  unordered map does not contain exactly one entry, or if this single entry has
-  the value {null}, a _request error_ must be raised.
+- The map resulting from the input coercion rules above must contain exactly one
+  entry, and the value for that entry must not be {null}, otherwise a _request
+  error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
