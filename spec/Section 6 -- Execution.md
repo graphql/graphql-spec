@@ -840,7 +840,9 @@ ResolveMetaFieldValue(objectType, fieldName, argumentValues):
     operations.
   - Let {typeName} be the value provided in {argumentValues} for the name
     {"name"}.
-  - Let {type} be the type with name {typeName} in {schema}.
+  - If {typeName} begins with {"\_\_"}, let {type} be the type with name
+    {typeName} in the introspection schema.
+  - Otherwise, let {type} be the type with name {typeName} in {schema}.
   - Return {type} if it exists; otherwise {null}.
 - Otherwise:
   - Assert: {fieldName} is {"\_\_typename"}.
