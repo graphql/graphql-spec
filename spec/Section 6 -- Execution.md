@@ -831,8 +831,6 @@ rules in the [Introspection](#sec-Introspection) section.
 
 ResolveMetaFieldValue(objectType, fieldName, argumentValues):
 
-- If {fieldName} is {"\_\_typename"}:
-  - Return the name of {objectType}.
 - If {fieldName} is {"\_\_schema"}:
   - Assert: {objectType} must be the _root operation type_ in {schema} for query
     operations.
@@ -844,6 +842,8 @@ ResolveMetaFieldValue(objectType, fieldName, argumentValues):
     {"name"}.
   - Let {type} be the type with name {typeName} in {schema}.
   - Return {type} if it exists; otherwise {null}.
+- Assert: {fieldName} is {"\_\_typename"}.
+- Return the name of {objectType}.
 
 ### Value Completion
 
