@@ -1707,16 +1707,12 @@ is constructed with the following rules:
 Further, if the input object is a _OneOf Input Object_, the following additional
 rules apply:
 
-- If the input object literal or unordered map does not contain exactly one
-  entry a _request error_ must be raised.
+- Prior to coercion of the input object literal, if the literal does not contain
+  exactly one entry, or if the value of this single entry is the {null} literal,
+  a _request error_ must be raised.
 
-- Within the input object literal or unordered map, if the single entry is the
-  {null} literal or {null} a _request error_ must be raised.
-
-- If the coerced unordered map does not contain exactly one entry a _request
-  error_ must be raised.
-
-- If the value of the single entry in the coerced unordered map is {null} a
+- After coercion a the input object, if the resulting coerced unordered map does
+  not contain exactly one entry, or if this single entry has the value {null}, a
   _request error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
