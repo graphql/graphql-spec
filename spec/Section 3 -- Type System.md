@@ -1707,12 +1707,12 @@ is constructed with the following rules:
 Further, if the input object is a _OneOf Input Object_, the following additional
 rules apply:
 
-- Prior to construction of the coerced map via the rules above, the value to be
-  coerced must contain exactly one entry, and that entry must not be {null} or
+- Prior to construction of the coerced map via the rules above: the value to be
+  coerced must contain exactly one entry and that entry must not be {null} or
   the {null} literal, otherwise a _request error_ must be raised.
 
 - The map resulting from the input coercion rules above must contain exactly one
-  entry, and the value for that entry must not be {null}, otherwise a _request
+  entry and the value for that entry must not be {null}, otherwise a _request
   error_ must be raised.
 
 Following are examples of input coercion for an input object type with a
