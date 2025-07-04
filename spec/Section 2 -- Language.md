@@ -157,13 +157,12 @@ Ignored ::
 lexical tokens, but are otherwise insignificant and not referenced in
 syntactical grammar productions.
 
-Any amount of {Ignored} may appear before and after every lexical token, with
-the exception of _schema coordinate_. No ignored regions of a source document
-are significant, however {SourceCharacter} which appear in {Ignored} may also
-appear within a lexical {Token} in a significant way, for example a
-{StringValue} may contain white space characters. No {Ignored} may appear
-_within_ a {Token}, for example no white space characters are permitted between
-the characters defining a {FloatValue}.
+Any amount of {Ignored} may appear before and after every lexical token. No
+ignored regions of a source document are significant, however {SourceCharacter}
+which appear in {Ignored} may also appear within a lexical {Token} in a
+significant way, for example a {StringValue} may contain white space characters.
+No {Ignored} may appear _within_ a {Token}, for example no white space
+characters are permitted between the characters defining a {FloatValue}.
 
 **Byte Order Mark**
 
