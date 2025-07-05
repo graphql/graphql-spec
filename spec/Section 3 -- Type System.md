@@ -593,7 +593,7 @@ greater than or equal to 2<sup>31</sup>, an _execution error_ should be raised.
 **Input Coercion**
 
 When expected as an input type, only integer input values are accepted. All
-other input values, including strings with numeric content result in _coercion
+other input values, including strings with numeric content, result in _coercion
 failure_ indicating an incorrect type. Input values less than -2<sup>31</sup> or
 greater than or equal to 2<sup>31</sup> result in _coercion failure_.
 
