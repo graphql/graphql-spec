@@ -1422,9 +1422,9 @@ fragment resourceFragment on Resource {
 
 - For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type} (with the assumption that any
-    {variableUsage} nested within {value} will represent a runtime value valid
-    for usage in its position).
+  - {value} must be coercible to {type} without _coercion failure_ (with the
+    assumption that any {variableUsage} nested within {value} will represent a
+    runtime value valid for usage in its position).
 
 **Explanatory Text**
 
@@ -1754,6 +1754,42 @@ query takesListOfPet($pets: [Pet]) {
 
 query takesCatOrDog($catOrDog: CatOrDog) {
   # ...
+}
+```
+
+### Variable Default Values Are Valid
+
+**Formal Specification**
+
+- For every {operation} in a {document}:
+  - For every {variableDefinition} on each {operation}:
+    - If {variableDefinition} has a default value, let it be {defaultValue}:
+      - Let {variableType} be the type of {variableDefinition}.
+      - CoerceInputValue(variableType, defaultValue) must not result in
+        _coercion failure_.
+
+**Explanatory Text**
+
+Variable definitions may have default values, which if provided must be valid
+for that variable's type.
+
+The following operation is valid
+
+```graphql example
+query takesBoolean($atOtherHomes: Boolean = true) {
+  dog {
+    isHouseTrained(atOtherHomes: $atOtherHomes)
+  }
+}
+```
+
+However the following operation is invalid, as "Yes" is not a Boolean value.
+
+```graphql counter-example
+query takesBoolean($atOtherHomes: Boolean = "Yes") {
+  dog {
+    isHouseTrained(atOtherHomes: $atOtherHomes)
+  }
 }
 ```
 

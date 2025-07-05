@@ -92,44 +92,57 @@ result to avoid validating the same request again in the future.
 ### Coercing Variable Values
 
 If the operation has defined any variables, then the values for those variables
-need to be coerced using the input coercion rules of variable's declared type.
-If a _request error_ is encountered during input coercion of variable values,
-then the operation fails without execution.
+need to be coerced using the input coercion rules of variable's declared type
+before executing any fields in that operation. If any variable value has a
+_coercion failure_, then a _request error_ is raised.
 
 CoerceVariableValues(schema, operation, variableValues):
 
-- Let {coercedValues} be an empty unordered Map.
+- Let {coercedVariableValues} be an empty unordered Map.
 - Let {variablesDefinition} be the variables defined by {operation}.
 - For each {variableDefinition} in {variablesDefinition}:
   - Let {variableName} be the name of {variableDefinition}.
   - Let {variableType} be the expected type of {variableDefinition}.
-  - Assert: {IsInputType(variableType)} must be {true}.
-  - Let {defaultValue} be the default value for {variableDefinition}.
-  - Let {hasValue} be {true} if {variableValues} provides a value for the name
-    {variableName}.
-  - Let {value} be the value provided in {variableValues} for the name
-    {variableName}.
-  - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
-    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
-      according to the input coercion rules of {variableType}.
-    - Add an entry to {coercedValues} named {variableName} with the value
-      {coercedDefaultValue}.
-  - Otherwise if {variableType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise a _request error_.
-  - Otherwise if {hasValue} is {true}:
-    - If {value} is {null}:
-      - Add an entry to {coercedValues} named {variableName} with the value
-        {null}.
-    - Otherwise:
-      - If {value} cannot be coerced according to the input coercion rules of
-        {variableType}, raise a _request error_.
-      - Let {coercedValue} be the result of coercing {value} according to the
-        input coercion rules of {variableType}.
-      - Add an entry to {coercedValues} named {variableName} with the value
-        {coercedValue}.
-- Return {coercedValues}.
+  - Assert: {IsInputType(variableType)}, because of
+    [validation](#sec-Variables-Are-Input-Types).
+  - If {variableValues} has an entry with name {variableName}, let
+    {variableValue} be its value:
+    - Let {coercedValue} be the result of {CoerceInputValue(variableType,
+      variableValue, null)} where _coercion failure_ raises a _request error_.
+    - Add an entry to {coercedVariableValues} named {variableName} with the
+      value {coercedValue}.
+  - Otherwise if {variableDefinition} has a default value, add an entry to
+    {coercedVariableValues} named {variableName} with the value
+    {GetDefaultValue(variableDefinition)}.
+  - Otherwise if {variableType} is a Non-Null type, raise a _request error_.
+- Return {coercedVariableValues}.
 
-Note: This algorithm is very similar to {CoerceArgumentValues()}.
+Note: This algorithm is similar to {CoerceArgumentValues()}, however variable
+definitions must not contain references to other variables.
+
+**Resolving Variables**
+
+ResolveVariable(type, variableName, coercedVariableValues):
+
+- If {coercedVariableValues} has an entry named {variableName}, let
+  {variableValue} be its value:
+  - If {type} is a Non-Null type and {variableValue} is {null}, raise a
+    _coercion failure_.
+  - Assert: {variableValue} is valid for {type}, as it was already coerced
+    in {CoerceVariableValues()}.
+  - Return {true}, {variableValue}.
+- Otherwise return {false}, {null}.
+
+Variable references may occur in positions where input values are expected, and
+are resolved with a value at runtime during
+[Input Coercion](#sec-Input-Coercion). Variable runtime values will have already
+been coerced by {CoerceVariableValues()}, with the notable exception of {null}
+values (see:
+[Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist)).
+
+Only Non-Null typed variables with no default value are required to be provided a value at runtime.
+Otherwise there is a distinction between a variable being provided the value
+{null} and not being provided at all.
 
 ## Executing Operations
 
@@ -741,7 +754,7 @@ At each argument position in an operation may be a literal {Value}, or a
 
 CoerceArgumentValues(objectType, field, variableValues):
 
-- Let {coercedValues} be an empty unordered Map.
+- Let {coercedValues} be an empty map.
 - Let {argumentValues} be the argument values provided in {field}.
 - Let {fieldName} be the name of {field}.
 - Let {argumentDefinitions} be the arguments defined by {objectType} for the
@@ -749,50 +762,33 @@ CoerceArgumentValues(objectType, field, variableValues):
 - For each {argumentDefinition} in {argumentDefinitions}:
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.
-  - Let {defaultValue} be the default value for {argumentDefinition}.
-  - Let {argumentValue} be the value provided in {argumentValues} for the name
-    {argumentName}.
-  - If {argumentValue} is a {Variable}:
-    - Let {variableName} be the name of {argumentValue}.
-    - If {variableValues} provides a value for the name {variableName}:
-      - Let {hasValue} be {true}.
-      - Let {value} be the value provided in {variableValues} for the name
-        {variableName}.
-  - Otherwise if {argumentValues} provides a value for the name {argumentName}.
-    - Let {hasValue} be {true}.
-    - Let {value} be {argumentValue}.
-  - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
-    - Let {coercedDefaultValue} be the result of coercing {defaultValue}
-      according to the input coercion rules of {argumentType}.
-    - Add an entry to {coercedValues} named {argumentName} with the value
-      {coercedDefaultValue}.
-  - Otherwise if {argumentType} is a Non-Nullable type, and either {hasValue} is
-    not {true} or {value} is {null}, raise an _execution error_.
-  - Otherwise if {hasValue} is {true}:
-    - If {value} is {null}:
-      - Add an entry to {coercedValues} named {argumentName} with the value
-        {null}.
-    - Otherwise, if {argumentValue} is a {Variable}:
-      - Add an entry to {coercedValues} named {argumentName} with the value
-        {value}.
+  - Assert: {IsInputType(argumentType)}, because of
+    [type validation](#sec-Objects.Type-Validation).
+  - If {argumentValues} has an entry with name {argumentName}, let
+    {argumentValue} be its value:
+    - If {argumentValue} is a {Variable}, let {variableName} be its name:
+      - Let {isProvided}, {variableValue} be the result of
+        {ResolveVariable(type, variableName, variableValues)}.
+      - If {isProvided} is {true}, add an entry to {coercedValues} named
+        {argumentName} with the value {variableValue}.
+        - Otherwise if {argumentDefinition} has a default value, add an entry to
+          {coercedValues} named {argumentName} with the value
+          {GetDefaultValue(argumentDefinition)}.
     - Otherwise:
-      - If {value} cannot be coerced according to the input coercion rules of
-        {argumentType}, raise an _execution error_.
-      - Let {coercedValue} be the result of coercing {value} according to the
-        input coercion rules of {argumentType}.
+      - Let {coercedValue} be the result of {CoerceInputValue(argumentType,
+        argumentValue, variableValues)} where _coercion failure_ raises an
+        _execution error_.
       - Add an entry to {coercedValues} named {argumentName} with the value
         {coercedValue}.
+  - Otherwise if {argumentDefinition} has a default value, add an entry to
+    {coercedValues} named {argumentName} with the value
+    {GetDefaultValue(argumentDefinition)}.
+  - Otherwise if {argumentType} is a Non-Null type, raise an _execution
+    failure_.
 - Return {coercedValues}.
 
-Any _request error_ raised as a result of input coercion during
-{CoerceArgumentValues()} should be treated instead as an _execution error_.
-
-Note: Variable values are not coerced because they are expected to be coerced
-before executing the operation in {CoerceVariableValues()}, and valid operations
-must only allow usage of variables of appropriate types.
-
-Note: Implementations are encouraged to optimize the coercion of an argument's
-default value by doing so only once and caching the resulting coerced value.
+Note: This algorithm is very similar to {CoerceInputObjectValue()}, as both are
+defined with {InputValueDefinition}.
 
 ### Value Resolution
 

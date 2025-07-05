@@ -383,6 +383,47 @@ IsOutputType(type):
   - Return {true}.
 - Return {false}.
 
+### Input Coercion
+
+CoerceInputValue(type, value, variableValues):
+
+- Assert: {IsInputType(type)}.
+- If {type} is a Non-Null type:
+  - If {value} is {null}, raise a _coercion failure_.
+  - Let {innerType} be the _inner type_ of {type}.
+  - Return the result of calling {CoerceInputValue(innerType, value,
+    variableValues)}.
+- If {value} is {null}, return {null}.
+- If {type} is a List type, return the result of {CoerceInputListValue(type,
+  value, variableValues)}.
+- If {type} is an Input Object type, return the result of
+  {CoerceInputObjectValue(type, value, variableValues)}.
+- If {type} is an Enum type, return the result of {CoerceInputEnumValue(type,
+  value)}.
+- Otherwise, return the result of {CoerceScalarValue(type, value)}.
+
+Input coercion defines the requirements for how an value is transformed into a
+canonical form expected by the internal GraphQL service, including the
+resolution of any variables (see {ResolveVariable()}). This allows GraphQL to
+provide consistent guarantees about inputs to field resolution atop any
+service's internal runtime or network serialization.
+
+:: Failure to meet these requirements results in _coercion failure_, which may
+occur during different phases of a GraphQL service, each of which results in a
+different type of error. As a result, each phase specifically describes how to
+handle a coercion failure:
+
+- During schema construction (i.e. a default value for an argument definition),
+  failure results in an invalid schema.
+- During document validation (i.e. a value literal directly within an
+  operation), failure results in document invalidation, which raises a _request
+  error_.
+- During coercion of values provided for variables as part of a request, failure
+  results in a _request error_.
+- During coercion of field arguments, failure results in an _execution error_.
+  (Validation and variable value coercion make this uncommon, but there remain
+  cases where these checks alone are insufficient.)
+
 ### Type Extensions
 
 TypeExtension :
@@ -502,10 +543,17 @@ information on the serialization of scalars in common JSON and other formats.
 
 **Input Coercion**
 
+CoerceScalarValue(scalarType, value):
+
+- Assert: value is not {null}, which is already handled in {CoerceInputValue()}.
+- Return the result of calling the internal method provided by the type system
+  for determining the “input coercion” of {scalarType} given the value {value}.
+  This internal method must return a valid value for the type and not {null}.
+  Otherwise raise a _coercion failure_.
+
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
-a coercion rule, a _request error_ must be raised (input values are validated
-before execution begins).
+a coercion rule, it results in _coercion failure_.
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -516,8 +564,9 @@ floating-point values, they are interpreted as an integer input value if they
 have an empty fractional part (ex. `1.0`) and otherwise as floating-point input
 value.
 
-For all types below, with the exception of Non-Null, if the explicit value
-{null} is provided, then the result of input coercion is {null}.
+Note: {null} is a valid input value for all scalar types except those wrapped by
+a _Non-Null type_, however {null} value coercion is handled in
+{CoerceInputValue()} before {CoerceScalarValue()} is called.
 
 ### Int
 
@@ -544,10 +593,9 @@ greater than or equal to 2<sup>31</sup>, an _execution error_ should be raised.
 **Input Coercion**
 
 When expected as an input type, only integer input values are accepted. All
-other input values, including strings with numeric content, must raise a request
-error indicating an incorrect type. If the integer input value represents a
-value less than -2<sup>31</sup> or greater than or equal to 2<sup>31</sup>, a
-_request error_ should be raised.
+other input values, including strings with numeric content, result in _coercion
+failure_ indicating an incorrect type. Input values less than -2<sup>31</sup> or
+greater than or equal to 2<sup>31</sup> result in _coercion failure_.
 
 Note: Numeric integer values larger than 32-bit should either use String or a
 custom-defined Scalar type, as not all platforms and transports support encoding
@@ -578,10 +626,10 @@ coerced to {Float} and must raise an _execution error_.
 When expected as an input type, both integer and float input values are
 accepted. Integer input values are coerced to Float by adding an empty
 fractional part, for example `1.0` for the integer input value `1`. All other
-input values, including strings with numeric content, must raise a _request
-error_ indicating an incorrect type. If the input value otherwise represents a
-value not representable by finite IEEE 754 (e.g. {NaN}, {Infinity}, or a value
-outside the available precision), a _request error_ must be raised.
+input values, including strings with numeric content, result in _coercion
+failure_ indicating an incorrect type. Input values not representable by finite
+IEEE 754 (e.g. {NaN}, {Infinity}, or a value outside the available precision)
+result in _coercion failure_.
 
 ### String
 
@@ -604,8 +652,7 @@ value, or the string `"1"` for the integer `1`.
 **Input Coercion**
 
 When expected as an input type, only valid Unicode string input values are
-accepted. All other input values must raise a _request error_ indicating an
-incorrect type.
+accepted. All other input values result in _coercion failure_.
 
 ### Boolean
 
@@ -624,7 +671,7 @@ Examples of this may include returning `true` for non-zero numbers.
 **Input Coercion**
 
 When expected as an input type, only boolean input values are accepted. All
-other input values must raise a _request error_ indicating an incorrect type.
+other input values result in _coercion failure_.
 
 ### ID
 
@@ -647,9 +694,8 @@ When coercion is not possible they must raise an _execution error_.
 
 When expected as an input type, any string (such as `"4"`) or integer (such as
 `4` or `-4`) input value should be coerced to ID as appropriate for the ID
-formats a given GraphQL service expects. Any other input value, including float
-input values (such as `4.0`), must raise a _request error_ indicating an
-incorrect type.
+formats a given GraphQL service expects. All other input values, including float
+input values (such as `4.0`), result in _coercion failure_.
 
 ### Scalar Extensions
 
@@ -914,7 +960,7 @@ executor, see [Value Completion](#sec-Value-Completion).
 
 **Input Coercion**
 
-Objects are never valid inputs.
+Object types are never valid inputs. See [Input Objects](#sec-Input-Objects).
 
 **Type Validation**
 
@@ -938,8 +984,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          1. The `@deprecated` directive must not be applied to this argument.
-      5. If the argument has a default value it must be compatible with
-         {argumentType} as per the coercion rules for that type.
+      5. If the argument has a default value, {CoerceInputValue(argumentType,
+         defaultValue)} must not result in _coercion failure_.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -1043,6 +1089,26 @@ May return the result:
 
 The type of an object field argument must be an input type (any type except an
 Object, Interface, or Union type).
+
+**Default Values**
+
+GetDefaultValue(inputValueDefinition):
+
+- Assert: {inputValueDefinition} has a {DefaultValue}, as this is only called
+  when true.
+- Let {inputType} be the type of {inputValueDefinition}.
+- Let {defaultValue} be the default value of {inputValueDefinition}
+- Return the result of {CoerceInputValue(inputType, defaultValue, null)}. (Note:
+  default values must not contain variable references)
+
+A default value may be provided for a field argument, input object field, or
+variable definitions. If at runtime a value is not provided, the coerced default
+value is used instead.
+
+Note: Implementations are encouraged to optimize the coercion of a default value
+by doing so only once and caching the resulting coerced value. This should not
+result in request execution _coercion failure_ since all default values should
+be validated before a request.
 
 ### Field Deprecation
 
@@ -1291,6 +1357,8 @@ Interface types have the potential to be invalid if incorrectly defined.
          arguments may share the same name.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      4. If a argument has a default value, {CoerceInputValue(argumentType,
+         defaultValue)} must not result in _coercion failure_.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
@@ -1517,15 +1585,24 @@ reasonable coercion is not possible they must raise an _execution error_.
 
 **Input Coercion**
 
-GraphQL has a constant literal to represent enum input values. GraphQL string
-literals must not be accepted as an enum input and instead raise a request
-error.
+CoerceInputEnumValue(type, value):
+
+- Assert: value is not {null}, which is already handled in {CoerceInputValue()}.
+- If {value} represents a name (such as {EnumValue}), let {name} be the name of
+  {value}:
+  - If Enum {type} has a member named {name}, let it be {member}:
+    - Return the internal value representing {member}.
+- Otherwise raise a _coercion failure_.
+
+GraphQL has a constant literal, {EnumValue}, used to represent enum input
+values. GraphQL {StringValue} literals must not be accepted as an enum input and
+instead result in a _coercion failure_.
 
 Variable transport serializations which have a different representation for
 non-string symbolic values (for example,
 [EDN](https://github.com/edn-format/edn)) should only allow such values as enum
 input values. Otherwise, for most transport serializations that do not, strings
-may be interpreted as the enum input value with the same name.
+may be interpreted as the enum member of the same name.
 
 **Type Validation**
 
@@ -1649,11 +1726,47 @@ type of an Object or Interface field.
 
 **Input Coercion**
 
+CoerceInputObjectValue(type, value, variableValues):
+
+- If {value} is not an {ObjectValue} or map of values, raise a _coercion
+  failure_.
+- Let {coercedValues} be an empty map.
+- Let {inputFieldDefinitions} be the input fields defined by {type}:
+- For each {inputFieldDefinition} in {inputFieldDefinitions}:
+  - Let {inputFieldName} be the name of {inputFieldDefinition}.
+  - Let {inputFieldType} be the expected type of {inputFieldDefinition}.
+  - Assert: {IsInputType(inputFieldType)}, because of
+    [type validation](#sec-Input-Objects.Type-Validation).
+  - If {value} has an entry with name {inputFieldName}, let {inputFieldValue} be
+    its value:
+    - If {inputFieldValue} is a {Variable}, let {variableName} be its name:
+      - Let {isProvided}, {variableValue} be the result of
+        {ResolveVariable(type, variableName, variableValues)}.
+      - If {isProvided} is {true}, add an entry to {coercedValues} named
+        {inputFieldName} with the value {variableValue}.
+      - Otherwise if {inputFieldDefinition} has a default value, add an entry to
+        {coercedValues} named {inputFieldName} with the value
+        {GetDefaultValue(inputFieldDefinition)}.
+    - Otherwise:
+      - Let {coercedValue} be the result of {CoerceInputValue(inputFieldType,
+        inputFieldValue, variableValues)}.
+      - Add an entry to {coercedValues} named {inputFieldName} with the value
+        {coercedValue}.
+  - Otherwise if {inputFieldDefinition} has a default value, add an entry to
+    {coercedValues} named {inputFieldName} with the value
+    {GetDefaultValue(inputFieldDefinition)}.
+  - Otherwise if {inputFieldType} is a Non-Null type, raise an _coercion
+    failure_.
+- Return {coercedValues}.
+
+Note: This algorithm is very similar to {CoerceArgumentValues()}, as both are
+defined with {InputValueDefinition}.
+
 The value for an input object should be an input object literal or an unordered
-map supplied by a variable, otherwise a _request error_ must be raised. In
+map supplied by a variable, otherwise it results in _coercion failure_. In
 either case, the input object literal or unordered map must not contain any
-entries with names not defined by a field of this input object type, otherwise a
-request error must be raised.
+entries with names not defined by a field of this input object type, otherwise
+it results in _coercion failure_.
 
 The result of coercion is an unordered map with an entry for each field both
 defined by the input object type and for which a value exists. The resulting map
@@ -1723,6 +1836,9 @@ input ExampleInputObject {
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
       1. The `@deprecated` directive must not be applied to this input field.
+   5. If the input object field has a default value,
+      {CoerceInputValue(inputObjectType, defaultValue)} must not result in
+      _coercion failure_.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -1819,18 +1935,43 @@ about this behavior.
 
 **Input Coercion**
 
+CoerceInputListValue(type, value, variableValues):
+
+- Assert: value is not {null}, which is already handled in {CoerceInputValue()}.
+- Let {coercedValues} be an empty list.
+- Let {itemType} be the _inner type_ of {type}.
+- If {value} is a list:
+  - For each {itemValue} in {value}:
+    - If {itemValue} is a {Variable}, let {variableName} be its name:
+      - Let {isProvided}, {variableValue} be the result of
+        {ResolveVariable(type, variable, variableValues)}.
+      - Append {variableValue} to {coercedValues}. (Note: Variables without
+        provided values are replaced with {null})
+    - Otherwise:
+      - Let {coercedValue} be the result of {CoerceInputValue(itemType,
+        itemValue, variableValues)}.
+      - Append {coercedValue} to {coercedValues}.
+- Otherwise:
+  - Let {coercedValue} be the result of {CoerceInputValue(itemType, value,
+    variableValues)}.
+  - Append {coercedValue} to {coercedValues}.
+- Return {coercedValues}.
+
 When expected as an input, list values are accepted only when each item in the
 list can be accepted by the list's item type.
 
-If the value passed as an input to a list type is _not_ a list and not the
-{null} value, then the result of input coercion is a list of size one, where the
-single item value is the result of input coercion for the list's item type on
-the provided value (note this may apply recursively for nested lists).
+If the value passed as an input to a list type is _not_ a list (and not the
+{null} value), then the result of input coercion is a list of size one, where
+the single item value is the result of input coercion for the list's item type
+on the provided value (which may apply recursively for nested lists).
 
 This allows inputs which accept one or many arguments (sometimes referred to as
 "var args") to declare their input type as a list while for the common case of a
 single value, a client can just pass that value directly rather than
 constructing the list.
+
+Variables provided as items within a list are resolved to their coerced runtime
+value if provided, otherwise {null} is used in place of an unprovided value.
 
 Following are examples of input coercion with various list types and values:
 
@@ -1884,14 +2025,14 @@ within the Execution section.
 
 **Input Coercion**
 
-If an argument or input-object field of a Non-Null type is not provided, is
-provided with the literal value {null}, or is provided with a variable that was
-either not provided a value at runtime, or was provided the value {null}, then a
-_request error_ must be raised.
+Non-null inputs are _required_, if an argument, variable, or input-object field
+of a Non-Null type is not provided, is provided with the literal value {null},
+or is provided with a variable that was either not provided a value at runtime,
+or was provided the value {null}, it results in a _coercion failure_.
 
 If the value provided to the Non-Null type is provided with a literal value
 other than {null}, or a Non-Null variable value, it is coerced using the input
-coercion for the wrapped type.
+coercion for the wrapped type (see {CoerceInputValue()}).
 
 A non-null argument cannot be omitted:
 
