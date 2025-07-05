@@ -135,7 +135,7 @@ ResolveVariable(type, variableName, coercedVariableValues):
 
 Variable references may occur in positions where input values are expected, and
 are resolved with a value at runtime during
-[Input Coercion](#sec-Input-Coercion). Variable runtime haves will have already
+[Input Coercion](#sec-Input-Coercion). Variable runtime values will have already
 been coerced by {CoerceVariableValues()}, with the notable exception of {null}
 values (see:
 [Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist))
