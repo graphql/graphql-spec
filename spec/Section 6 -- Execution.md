@@ -129,7 +129,7 @@ ResolveVariable(type, variableName, coercedVariableValues):
   - If {type} is a Non-Null type and {variableValue} is {null}, raise a
     _coercion failure_.
   - Assert: {variableValue} is valid for {type}, as it was already coerced
-    {CoerceVariableValues()}.
+    in {CoerceVariableValues()}.
   - Return {true}, {variableValue}.
 - Otherwise return {false}, {null}.
 
