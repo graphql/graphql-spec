@@ -140,7 +140,7 @@ been coerced by {CoerceVariableValues()}, with the notable exception of {null}
 values (see:
 [Allowing Optional Variables When Default Values Exist](#sec-All-Variable-Usages-Are-Allowed.Allowing-Optional-Variables-When-Default-Values-Exist)).
 
-Only Non-Null typed variable are required to be provided a value at runtime.
+Only Non-Null typed variables with no default value are required to be provided a value at runtime.
 Otherwise there is a distinction between a variable being provided the value
 {null} and not being provided at all.
 
