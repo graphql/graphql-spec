@@ -420,8 +420,9 @@ handle a coercion failure:
   error_.
 - During coercion of values provided for variables as part of a request, failure
   results in a _request error_.
-- During coercion of field arguments, failure results in an _execution error_,
-  however validation and variable value coercion should make this uncommon.
+- During coercion of field arguments, failure results in an _execution error_.
+  (Validation and variable value coercion make this uncommon, but there remain
+  cases where these checks alone are insufficient.)
 
 ### Type Extensions
 
