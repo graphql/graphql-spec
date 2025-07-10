@@ -605,8 +605,10 @@ response position (the entire selection set in the case of a field, or the
 entire list in the case of a list position), either resolving to {null} if
 allowed or being further propagated to a parent response position.
 
-If this occurs, any sibling response positions which have not yet executed or
-have not yet yielded a value may be cancelled to avoid unnecessary work.
+If this occurs, any sibling _response position_ or descendent thereof which has
+not yet executed or has not yet yielded a value may be cancelled to avoid
+unnecessary work. Errors from such positions should not be added to the
+{"errors"} list.
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
