@@ -76,18 +76,18 @@ The value of this entry is described in the "Extensions" section.
   <!-- Legacy link, this section was previously titled "Path" -->
 </a>
 
-:: A _response position_ is a uniquely identifiable position in the response
+:: An _execution position_ is a uniquely identifiable position in the response
 structure evaluated during execution. It may correspond to a {responseName}
 evaluated by {ExecuteCollectedFields()}, or to an element within a (potentially
-nested) List value evaluated by {CompleteValue()}. Each response position is
+nested) List value evaluated by {CompleteValue()}. Each execution position is
 uniquely identifiable via a _response path_.
 
-Note: A _response position_ may be omitted from the _execution result_ due to
+Note: An _execution position_ may be omitted from the _execution result_ due to
 error propagation.
 
-:: A _response path_ uniquely identifies a _response position_ via a list of
+:: A _response path_ uniquely identifies an _execution position_ via a list of
 path segments (response names or list indices) starting at the root of the
-response and ending with the associated response position.
+response and ending with the associated execution position.
 
 The value for a _response path_ must be a list of path segments. Path segments
 that represent field _response name_ must be strings, and path segments that
@@ -96,9 +96,10 @@ associated with an aliased field it must use the aliased name, since it
 represents a path in the response, not in the request.
 
 When a _response path_ is present on an _error result_, it identifies the
-_response position_ which raised the error.
+_execution position_ which raised the error.
 
-A single field execution may result in multiple response positions. For example,
+A single field execution may result in multiple execution positions. For
+example,
 
 ```graphql example
 {
@@ -111,7 +112,7 @@ A single field execution may result in multiple response positions. For example,
 }
 ```
 
-The hero's name would be found in the _response position_ identified by the
+The hero's name would be found in the _execution position_ identified by the
 _response path_ `["hero", "name"]`. The List of the hero's friends would be
 found at `["hero", "friends"]`, the hero's first friend at
 `["hero", "friends", 0]` and that friend's name at
@@ -125,7 +126,7 @@ object of the query root operation type; if the operation was a mutation, this
 output will be an object of the mutation root operation type.
 
 The response data is the result of accumulating the resolved result of all
-response positions during execution.
+execution positions during execution.
 
 If an error was raised before execution begins, the _response_ must be a
 _request error result_ which will result in no response data.
@@ -168,12 +169,12 @@ _field error_.
 
 An execution error is typically the fault of a GraphQL service.
 
-An _execution error_ must occur at a specific _response position_, and may occur
-in any response position. The response position of an execution error is
+An _execution error_ must occur at a specific _execution position_, and may
+occur in any execution position. The execution position of an execution error is
 indicated via a _response path_ in the error response's {"path"} entry.
 
-When an execution error is raised at a given _response position_, then that
-response position must not be present within the _response_ {"data"} entry
+When an execution error is raised at a given _execution position_, then that
+execution position must not be present within the _response_ {"data"} entry
 (except {null}), and the {"errors"} entry must include the error. Nested
 execution is halted and sibling execution attempts to continue, producing
 partial result (see
@@ -193,8 +194,8 @@ associated syntax element.
 
 If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key {"path"} with a _response path_ which
-describes the _response position_ which raised the error. This allows clients to
-identify whether a {null} resolved result is a true value or the result of an
+describes the _execution position_ which raised the error. This allows clients
+to identify whether a {null} resolved result is a true value or the result of an
 _execution error_.
 
 For example, if fetching one of the friends' names fails in the following

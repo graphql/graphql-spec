@@ -599,14 +599,14 @@ section.
   <!-- Legacy link, this section was previously titled "Errors and Non-Null Fields" -->
 </a>
 
-If during {ExecuteCollectedFields()} a _response position_ with a non-null type
-raises an _execution error_ then that error must propagate to the parent
-response position (the entire selection set in the case of a field, or the
+If during {ExecuteCollectedFields()} an _execution position_ with a non-null
+type raises an _execution error_ then that error must propagate to the parent
+execution position (the entire selection set in the case of a field, or the
 entire list in the case of a list position), either resolving to {null} if
-allowed or being further propagated to a parent response position.
+allowed or being further propagated to a parent execution position.
 
-If this occurs, any sibling response positions which have not yet executed or
-have not yet yielded a value may be cancelled to avoid unnecessary work.
+If this occurs, any sibling _execution position_ which has not yet executed or
+has not yet yielded a value may be cancelled to avoid unnecessary work.
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
@@ -902,7 +902,7 @@ ResolveAbstractType(abstractType, objectValue):
 </a>
 
 An _execution error_ is an error raised during field execution, value resolution
-or coercion, at a specific _response position_. While these errors must be
+or coercion, at a specific _execution position_. While these errors must be
 reported in the response, they are "handled" by producing partial {"data"} in
 the _response_.
 
@@ -910,32 +910,32 @@ Note: This is distinct from a _request error_ which results in a _request error
 result_ with no data.
 
 If an execution error is raised while resolving a field (either directly or
-nested inside any lists), it is handled as though the _response position_ at
+nested inside any lists), it is handled as though the _execution position_ at
 which the error occurred resolved to {null}, and the error must be added to the
 {"errors"} list in the _execution result_.
 
-If the result of resolving a _response position_ is {null} (either due to the
+If the result of resolving an _execution position_ is {null} (either due to the
 result of {ResolveFieldValue()} or because an execution error was raised), and
 that position is of a `Non-Null` type, then an execution error is raised at that
 position. The error must be added to the {"errors"} list in the _execution
 result_.
 
-If a _response position_ resolves to {null} because of an execution error which
-has already been added to the {"errors"} list in the _execution result_, the
-{"errors"} list must not be further affected. That is, each error added to the
-errors list during execution must have a unique _response path_.
+If an _execution position_ resolves to {null} because of an execution error
+which has already been added to the {"errors"} list in the _execution result_,
+the {"errors"} list must not be further affected. That is, each error added to
+the errors list during execution must have a unique _response path_.
 
-Since `Non-Null` response positions cannot be {null}, execution errors are
-propagated to be handled by the parent _response position_. If the parent
-response position may be {null} then it resolves to {null}, otherwise if it is a
-`Non-Null` type, the execution error is further propagated to its parent
-_response position_.
+Since `Non-Null` execution positions cannot be {null}, execution errors are
+propagated to be handled by the parent _execution position_. If the parent
+execution position may be {null} then it resolves to {null}, otherwise if it is
+a `Non-Null` type, the execution error is further propagated to its parent
+_execution position_.
 
-If a `List` type wraps a `Non-Null` type, and one of the _response position_
-elements of that list resolves to {null}, then the entire list _response
+If a `List` type wraps a `Non-Null` type, and one of the _execution position_
+elements of that list resolves to {null}, then the entire list _execution
 position_ must resolve to {null}. If the `List` type is also wrapped in a
 `Non-Null`, the execution error continues to propagate upwards.
 
-If every _response position_ from the root of the request to the source of the
+If every _execution position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the _execution
 result_ should be {null}.
