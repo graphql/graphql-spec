@@ -922,8 +922,8 @@ result_.
 
 If a _response position_ resolves to {null} because of an execution error which
 has already been added to the {"errors"} list in the _execution result_, the
-{"errors"} list must not be further affected. That is, only one error should be
-added to the errors list per _response position_.
+{"errors"} list must not be further affected. That is, each error added to the
+errors list during execution must have a unique _response path_.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent

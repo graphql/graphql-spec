@@ -70,7 +70,7 @@ The _request error result_ map must not contain an entry with key {"data"}.
 The _request error result_ map may also contain an entry with key `extensions`.
 The value of this entry is described in the "Extensions" section.
 
-### Response Position
+### Response Path
 
 <a name="sec-Path">
   <!-- Legacy link, this section was previously titled "Path" -->
