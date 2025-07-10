@@ -4,8 +4,6 @@ A GraphQL service generates a response from a request via execution.
 
 :: A _request_ for execution consists of a few pieces of information:
 
-<!-- https://github.com/prettier/prettier/issues/17286 -->
-<!-- prettier-ignore -->
 - {schema}: The schema to use, typically solely provided by the GraphQL service.
 - {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
@@ -19,8 +17,8 @@ A GraphQL service generates a response from a request via execution.
   always use the same initial value for every request.
 - {onError} (optional): The _error behavior_ to apply to the request; see
   [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
-  provided and its value is not one of {"PROPAGATE"}, {"NO_PROPAGATE"}, or
-  {"HALT"}, then a _request error_ must be raised.
+  provided and its value is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"},
+  then a _request error_ must be raised.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
@@ -617,10 +615,8 @@ raises an _execution error_, the error must be added to the {"errors"} list in
 the _execution result_ and then handled according to the _error behavior_ of the
 request:
 
-<!-- https://github.com/prettier/prettier/issues/17286 -->
-<!-- prettier-ignore -->
-- {"NO\_PROPAGATE"}: The _response position_ must be set to {null}. (The client
-  is responsible for interpreting this {null} in conjunction with the {"errors"}
+- {"NULL"}: The _response position_ must be set to {null}. (The client is
+  responsible for interpreting this {null} in conjunction with the {"errors"}
   list to distinguish error results from intentional {null} values.)
 - {"PROPAGATE"}: The _execution error_ must propagate to the parent _response
   position_ (the entire selection set in the case of a field, or the entire list
@@ -941,16 +937,13 @@ added to the errors list per _response position_.
 :: The _error behavior_ of a request indicates how an _execution error_ is
 handled. It may be specified using the optional {onError} attribute of the
 _request_. If omitted, the _default error behavior_ of the service applies.
-Valid values for _error behavior_ are {"PROPAGATE"}, {"NO_PROPAGATE"} and
-{"HALT"}.
+Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
 
-<!-- https://github.com/prettier/prettier/issues/17286 -->
-<!-- prettier-ignore -->
 :: The _default error behavior_ of a service is implementation-defined. For
 compatibility with existing clients, services should default to {"PROPAGATE"}
-which reflects prior behavior. <!-- For new services, {"NO_PROPAGATE"} is
-recommended. --> The default error behavior is indicated via the
-{"org.graphql.defaultErrorBehavior"} _capability_.
+which reflects prior behavior. <!-- For new services, {"NULL"} is
+recommended. --> The default error behavior is indicated via the {"org.graphql.defaultErrorBehavior"}
+_capability_.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
@@ -963,12 +956,10 @@ The _error behavior_ of a request applies to every _execution error_ raised
 during execution. The following sections describe the behavior of each valid
 value:
 
-**{"NO_PROPAGATE"}**
+**{"NULL"}**
 
-<!-- https://github.com/prettier/prettier/issues/17286 -->
-<!-- prettier-ignore -->
-With {"NO\_PROPAGATE"}, a `Non-Null` _response position_ will have the value
-{null} if and only if an error occurred at that position.
+With {"NULL"}, a `Non-Null` _response position_ will have the value {null} if
+and only if an error occurred at that position.
 
 Note: Clients must inspect the {"errors"} list and use the {"path"} of each
 error result to distinguish between intentional {null} values and those
