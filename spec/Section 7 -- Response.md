@@ -77,9 +77,13 @@ The value of this entry is described in the "Extensions" section.
 </a>
 
 :: A _response position_ is a uniquely identifiable position in the response
-data produced during execution. It is either a direct entry in the {resultMap}
-of a {ExecuteSelectionSet()}, or it is a position in a (potentially nested) List
-value. Each response position is uniquely identifiable via a _response path_.
+structure evaluated during execution. It may correspond to a {responseName}
+evaluated by {ExecuteCollectedFields()}, or to an element within a (potentially
+nested) List value evaluated by {CompleteValue()}. Each response position is
+uniquely identifiable via a _response path_.
+
+Note: A _response position_ may be omitted from the _execution result_ due to
+error propagation.
 
 :: A _response path_ uniquely identifies a _response position_ via a list of
 path segments (response names or list indices) starting at the root of the
