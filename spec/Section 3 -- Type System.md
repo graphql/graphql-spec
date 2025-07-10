@@ -50,20 +50,16 @@ Tools which only seek to produce and extend schema and not execute requests may
 choose to only allow {TypeSystemExtensionDocument} and not allow
 {ExecutableDefinition} but should provide a descriptive error if present.
 
-## Descriptions
+## Type System Descriptions
 
-Description : StringValue
+Documentation is a first-class feature of GraphQL type systems, written
+immediately alongside definitions in a {TypeSystemDocument} and made available
+via introspection.
 
-Documentation is a first-class feature of GraphQL type systems. To ensure the
-documentation of a GraphQL service remains consistent with its capabilities,
-descriptions of GraphQL definitions are provided alongside their definitions and
-made available via introspection.
-
-To allow GraphQL service designers to easily publish documentation alongside the
-capabilities of a GraphQL service, GraphQL descriptions are defined using the
-Markdown syntax (as specified by [CommonMark](https://commonmark.org/)). In the
-type system definition language, these description strings (often {BlockString})
-occur immediately before the definition they describe.
+[Descriptions](#sec-Descriptions) allow GraphQL service designers to easily
+provide documentation which remains consistent with the capabilities of a
+GraphQL service. Descriptions should be provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)) for every definition in a type system.
 
 GraphQL schema and all other definitions (e.g. types, fields, arguments, etc.)
 which can be described should provide a {Description} unless they are considered
@@ -217,13 +213,14 @@ type MyMutationRootType {
 {"Subscription"} respectively.
 
 The type system definition language can omit the schema definition when each
-_root operation type_ uses its respective _default root type name_ and no other
-type uses any _default root type name_.
+_root operation type_ uses its respective _default root type name_, no other
+type uses any _default root type name_, and the schema does not have a
+description.
 
 Likewise, when representing a GraphQL schema using the type system definition
 language, a schema definition should be omitted if each _root operation type_
-uses its respective _default root type name_ and no other type uses any _default
-root type name_.
+uses its respective _default root type name_, no other type uses any _default
+root type name_, and the schema does not have a description.
 
 This example describes a valid complete GraphQL schema, despite not explicitly
 including a {`schema`} definition. The {"Query"} type is presumed to be the
@@ -256,6 +253,27 @@ type Virus {
 
 type Mutation {
   name: String
+}
+```
+
+This example describes a valid GraphQL schema with a description and both a
+{`query`} and {`mutation`} operation type:
+
+```graphql example
+"""
+Example schema
+"""
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  someField: String
+}
+
+type Mutation {
+  someMutation: String
 }
 ```
 
@@ -757,8 +775,8 @@ type Person {
 }
 ```
 
-Valid operations must supply a nested field set for any field that returns an
-object, so this operation is not valid:
+Valid operations must supply a _selection set_ for every field whose return type
+is an object type, so this operation is not valid:
 
 ```graphql counter-example
 {
@@ -920,6 +938,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          returns {true}.
       4. If argument type is Non-Null and a default value is not defined:
          1. The `@deprecated` directive must not be applied to this argument.
+      5. If the argument has a default value it must be compatible with
+         {argumentType} as per the coercion rules for that type.
 3. An object type may declare that it implements one or more unique interfaces.
 4. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
@@ -947,6 +967,7 @@ IsValidImplementation(type, implementedType):
        2. Let {implementedFieldType} be the return type of {implementedField}.
        3. {IsValidImplementationFieldType(fieldType, implementedFieldType)} must
           be {true}.
+    6. If {field} is deprecated then {implementedField} must also be deprecated.
 
 IsValidImplementationFieldType(fieldType, implementedFieldType):
 
@@ -1639,7 +1660,8 @@ defined by the input object type and for which a value exists. The resulting map
 is constructed with the following rules:
 
 - If no value is provided for a defined input object field and that field
-  definition provides a default value, the default value should be used. If no
+  definition provides a default value, the result of coercing the default value
+  according to the coercion rules of the input field type should be used. If no
   default value is provided and the input object field's type is non-null, an
   error should be raised. Otherwise, if the field is not required, then no entry
   is added to the coerced unordered map.
@@ -1704,6 +1726,44 @@ input ExampleInputObject {
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
+4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
+
+InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
+
+- If {defaultValue} is not provided, initialize it to an empty unordered map.
+- If {visitedFields} is not provided, initialize it to the empty set.
+- If {defaultValue} is a list:
+  - For each {itemValue} in {defaultValue}:
+    - If {InputObjectDefaultValueHasCycle(inputObject, itemValue,
+      visitedFields)}, return {true}.
+- Otherwise, if {defaultValue} is an unordered map:
+  - For each field {field} in {inputObject}:
+    - If {InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields)},
+      return {true}.
+- Return {false}.
+
+InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
+
+- Assert: {defaultValue} is an unordered map.
+- Let {fieldType} be the type of {field}.
+- Let {namedFieldType} be the underlying named type of {fieldType}.
+- If {namedFieldType} is not an input object type:
+  - Return {false}.
+- Let {fieldName} be the name of {field}.
+- Let {fieldDefaultValue} be the value for {fieldName} in {defaultValue}.
+- If {fieldDefaultValue} exists:
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
+    visitedFields)}.
+- Otherwise:
+  - Let {fieldDefaultValue} be the default value of {field}.
+  - If {fieldDefaultValue} does not exist:
+    - Return {false}.
+  - If {field} is within {visitedFields}:
+    - Return {true}.
+  - Let {nextVisitedFields} be a new set containing {field} and everything from
+    {visitedFields}.
+  - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
+    nextVisitedFields)}.
 
 ### Input Object Extensions
 
