@@ -2421,7 +2421,7 @@ query myQuery($shouldStream: Boolean! = true) {
   _incremental stream_. The `label` argument must be unique across all `@defer`
   and `@stream` directives in the document.
 - `initialCount: Int! = 0` - The number of list items to include initially when
-  completing the parent selection set. If omitted, defaults to `0`. A field
+  completing the parent selection set. If omitted, defaults to `0`. An execution
   error will be raised if the value of this argument is less than `0`. When the
   size of the list is greater than or equal to the value of `initialCount`, the
   GraphQL service _must_ initially include at least as many list items as the
