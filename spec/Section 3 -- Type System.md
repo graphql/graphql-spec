@@ -2380,9 +2380,9 @@ fragment someFragment on User {
 
 ```graphql
 directive @stream(
-  initialCount: Int! = 0
   if: Boolean! = true
   label: String
+  initialCount: Int! = 0
 ) on FIELD
 ```
 
@@ -2410,12 +2410,6 @@ query myQuery($shouldStream: Boolean! = true) {
 
 #### @stream Arguments
 
-- `initialCount: Int! = 0` - The number of list items to include initially when
-  completing the parent selection set. If omitted, defaults to `0`. A field
-  error will be raised if the value of this argument is less than `0`. When the
-  size of the list is greater than or equal to the value of `initialCount`, the
-  GraphQL service _must_ initially include at least as many list items as the
-  value of `initialCount` (see related note below).
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see related
   note below). When `false`, the field must behave as if the `@stream` directive
   is not present—it must not be streamed and all of the list items must be
@@ -2426,6 +2420,12 @@ query myQuery($shouldStream: Boolean! = true) {
   must include this label in the corresponding pending object within the
   _incremental stream_. The `label` argument must be unique across all `@defer`
   and `@stream` directives in the document.
+- `initialCount: Int! = 0` - The number of list items to include initially when
+  completing the parent selection set. If omitted, defaults to `0`. A field
+  error will be raised if the value of this argument is less than `0`. When the
+  size of the list is greater than or equal to the value of `initialCount`, the
+  GraphQL service _must_ initially include at least as many list items as the
+  value of `initialCount` (see related note below).
 
 Note: The
 [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique)
