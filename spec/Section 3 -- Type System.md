@@ -2344,8 +2344,7 @@ The `@defer` directive may be provided on a fragment spread or inline fragment
 to indicate that execution of the related selection set should be deferred. When
 a request includes the `@defer` directive, it may return an _incremental stream_
 consisting of an _initial execution result_ containing all non-deferred data,
-followed by one or more _subsequent execution result_ including the deferred
-data.
+followed by one or more _execution update result_ including the deferred data.
 
 The `@include` and `@skip` directives take precedence over `@defer`.
 
@@ -2388,9 +2387,9 @@ directive @stream(
 
 The `@stream` directive may be provided for a field whose type incorporates a
 `List` type modifier. The directive enables returning a partial list initially,
-followed by additional items in one or more _subsequent execution result_. If
-the field type incorporates multiple `List` type modifiers, only the outermost
-list is streamed.
+followed by additional items in one or more _execution update result_. If the
+field type incorporates multiple `List` type modifiers, only the outermost list
+is streamed.
 
 Note: The mechanism through which items are streamed is implementation-defined
 and may use technologies such as asynchronous iterators.
