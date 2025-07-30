@@ -2353,7 +2353,7 @@ The `@include` and `@skip` directives take precedence over `@defer`.
 query myQuery($shouldDefer: Boolean! = true) {
   user {
     name
-    ...someFragment @defer(label: "someLabel", if: $shouldDefer)
+    ...someFragment @defer(if: $shouldDefer, label: "someLabel")
   }
 }
 fragment someFragment on User {
@@ -2401,7 +2401,7 @@ The `@include` and `@skip` directives take precedence over `@stream`.
 query myQuery($shouldStream: Boolean! = true) {
   user {
     friends(first: 10)
-      @stream(label: "friendsStream", initialCount: 5, if: $shouldStream) {
+      @stream(if: $shouldStream, label: "friendsStream", initialCount: 5) {
       name
     }
   }
