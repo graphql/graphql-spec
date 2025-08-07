@@ -43,14 +43,7 @@ Token ::
 - FloatValue
 - StringValue
 
-Punctuator ::
-
-- DotPunctuator
-- OtherPunctuator
-
-DotPunctuator :: `.` [lookahead != {`.`, Digit}]
-
-OtherPunctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
+Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name ::
 
@@ -438,3 +431,6 @@ ArgumentCoordinate : Name . Name ( Name : )
 DirectiveCoordinate : @ Name
 
 DirectiveArgumentCoordinate : @ Name ( Name : )
+
+Note: This grammar is unique. A _schema coordinate_ may not include any other
+tokens.
