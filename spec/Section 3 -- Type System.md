@@ -2240,11 +2240,10 @@ ServiceAttribute :
 
 - ServiceCapabilities
 
-A GraphQL service itself may be represented in the schema language in order to
-indicate the _service capabilities_ of the service; this allows indicating
-support for features which are outside of the scope of the type system.
+A GraphQL service is defined in terms of the capabilities that it offers which
+are external to the schema.
 
-Each {ServiceAttribute} may be specified at most once.
+All capabilities within a service must have unique identifiers.
 
 ### Service Capabilities
 
