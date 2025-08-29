@@ -2248,9 +2248,7 @@ Each {ServiceAttribute} may be specified at most once.
 
 ### Service Capabilities
 
-ServiceCapabilities:
-
-- capabilities { ServiceCapability+ }
+ServiceCapabilities: capabilities { ServiceCapability+ }
 
 ServiceCapability:
 

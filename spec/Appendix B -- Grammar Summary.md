@@ -429,9 +429,7 @@ ServiceAttribute :
 
 - ServiceCapabilities
 
-ServiceCapabilities:
-
-- capabilities { ServiceCapability+ }
+ServiceCapabilities: capabilities { ServiceCapability+ }
 
 ServiceCapability:
 
