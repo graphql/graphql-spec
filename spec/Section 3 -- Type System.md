@@ -2269,12 +2269,10 @@ A _service capability_ is identified by a _capability identifier_ (a
 
 :: A _capability identifier_ is a {QualifiedName} (a case-sensitive string value
 composed of two or more {Name} separated by a period (`.`)) that uniquely
-identifies a capability.
-
-This structure is inspired by reverse domain notation to encourage global
-uniqueness and collision-resistance; it is recommended that identifiers defined
-by specific projects, vendors, or implementations begin with a prefix derived
-from a DNS name they control (e.g., {"com.example."}).
+identifies a capability. This structure is inspired by reverse domain notation
+to encourage global uniqueness and collision-resistance; it is recommended that
+identifiers defined by specific projects, vendors, or implementations begin with
+a prefix derived from a DNS name they control (e.g., {"com.example."}).
 
 Clients must compare capability identifiers using exact (case-sensitive) string
 equality.
@@ -2308,9 +2306,10 @@ interoperability, while avoiding tight coupling to specific implementations.
 For capabilities that require more information than a simple indication of
 support, a string value may be specified.
 
-The capability {"graphql.onError"} does not require additional information and
-thus does not specify a value; whereas {"graphql.defaultErrorBehavior"} uses the
-value to indicate which _error behavior_ is the default.
+For example, the capability {"graphql.onError"} does not require additional
+information and thus does not specify a value; whereas
+{"graphql.defaultErrorBehavior"} uses the value to indicate which _error
+behavior_ is the default.
 
 **Specified capabilities**
 
