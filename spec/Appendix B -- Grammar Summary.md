@@ -47,7 +47,7 @@ Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 Name ::
 
-- NameStart NameContinue\* [lookahead != NameContinue, `.`]
+- NameStart NameContinue\* [lookahead != {NameContinue, `.`}]
 
 NameStart ::
 

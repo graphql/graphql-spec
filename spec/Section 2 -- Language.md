@@ -186,7 +186,7 @@ lacks the punctuation often used to describe mathematical expressions.
 
 Name ::
 
-- NameStart NameContinue\* [lookahead != NameContinue, `.`]
+- NameStart NameContinue\* [lookahead != {NameContinue, `.`}]
 
 NameStart ::
 
