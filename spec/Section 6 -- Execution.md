@@ -615,18 +615,22 @@ raises an _execution error_, the error must be added to the {"errors"} list in
 the _execution result_ and then handled according to the _error behavior_ of the
 request:
 
-- {"NULL"}: The _response position_ must be set to {null}. (The client is
-  responsible for interpreting this {null} in conjunction with the {"errors"}
-  list to distinguish error results from intentional {null} values.)
+- {"NULL"}: The _response position_ must be set to {null}, even if such position
+  is indicated by the schema to be non-nullable. (The client is responsible for
+  interpreting this {null} in conjunction with the {"errors"} list to
+  distinguish error results from intentional {null} values.)
 - {"PROPAGATE"}: The _execution error_ must propagate to the parent _response
   position_ (the entire selection set in the case of a field, or the entire list
   in the case of a list position). The parent position resolves to {null} if
   allowed, or else the error is further propagated to a parent response
   position. Any sibling response positions that have not yet executed or have
   not yet yielded a value may be cancelled to avoid unnecessary work.
-- {"HALT"}: The entire _request_ must be cancelled. The {"data"} entry in the
-  _response_ must be {null}. Any _response position_ that has not yet executed
-  or has not yet yielded a value may be cancelled to avoid unnecessary work.
+- {"HALT"}: The current {ExecuteRootSelectionSet()} must be aborted immediately
+  and must yield an execution result with an {"errors"} list consisting of this
+  _execution error_ only and the {"data"} entry set to {null}. Any _response
+  position_ that has not yet executed or has not yet yielded a value may be
+  cancelled to avoid unnecessary work. (Note: For a subscription operation the
+  underlying stream is not terminated.)
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
@@ -943,7 +947,7 @@ Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
 compatibility with existing clients, services should default to {"PROPAGATE"}
 which reflects prior behavior. <!-- For new services, {"NULL"} is
 recommended. --> The default error behavior is indicated via the {"org.graphql.defaultErrorBehavior"}
-_capability_.
+_service capability_.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
@@ -993,6 +997,10 @@ result_ should be {null}.
 
 **{"HALT"}**
 
-With {"HALT"}, execution must cease immediately when the first _execution error_
-is raised. That error must be added to the {"errors"} list, and {"data"} must be
-{null}.
+With {"HALT"}, {ExecuteRootSelectionSet()} must cease immediately that the first
+_execution error_ is raised. That error must be added to the {"errors"} list,
+and {"data"} must be {null}.
+
+Note: For subscription operations, processing of the current event is ceased,
+but the subscription still remains in place and future events will be processed
+as normal.
