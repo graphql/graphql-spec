@@ -226,6 +226,7 @@ type __Service {
 
 type __Capability {
   identifier: String!
+  description: String
   value: String
 }
 ```
@@ -514,70 +515,25 @@ Fields\:
 ### The \_\_Service Type
 
 The `__Service` type is returned from the `__service` meta-field and provides
-information about the GraphQL service, most notably about its capabilities. This
-type was added after the original release of GraphQL, so older schemas may not
-support it.
+information about the GraphQL service, most notably about its capabilities.
+
+Note: Services implementing an older version of this specification may not
+support the `__service` metafield or `__Service` type. Support may be probed
+using the introspection query: `{ __type(name: "__Service") { name } }`, a
+{null} result indicates lack of support.
 
 Fields\:
 
-- `capabilities` must return a list of `__Capability` indicating the
-  capabilities supported by the service.
+- `capabilities` must return a list of `__Capability` detailing each _service
+  capability_ supported by the service.
 
 ### The \_\_Capability Type
 
-:: A _capability_ describes a feature supported by the GraphQL service but not
-directly expressible in the type system. This may include experimental GraphQL
-features (such as new syntax or behavior), protocol support (such as GraphQL
-over WebSockets), or additional operational metadata (such as release
-identifiers). Capabilities may be supplied by the GraphQL implementation, the
-service, or both.
+A `__Capability` object describes a specific _service capability_, and has the
+following fields\:
 
-The `__Service.capabilities` field exposes a _capability_ list. A _capability_
-consists of a capability identifier and optionally a string value.
-
-**Capability identifier**
-
-A capability identifier is a string value composed of two or more segments
-separated by a period (`.`). Each segment must begin with an ASCII letter, and
-must contain only ASCII letters, digits and hyphens. These constraints are
-inspired by reverse domain name notation to encourage global uniqueness and
-collision-resistance. Unlike the domain name system, capability identifiers are
-case sensitive. Identifiers beginning with the prefix {"org.graphql."} are
-reserved and must not be used outside of official GraphQL Foundation
-specifications. Identifiers beginning with the prefix {"org.graphql.rfc."} are
-reserved for RFC proposals.
-
-Identifiers defined by specific projects, vendors, or implementations should
-begin with a prefix derived from a DNS name they control (e.g.,
-{"com.example."}).
-
-Clients should compare identifiers using exact string equality and should ignore
-unknown identifiers.
-
-Implementers should not change the meaning of capability identifiers; instead, a
-new capability identifier should be used when the meaning changes. Implementers
-should ensure that capability identifiers remain stable and version-agnostic
-where possible; capability versioning, if needed, can be indicated using dot
-suffixes (e.g.{ "org.example.capability.v2"}).
-
-This system enables incremental feature adoption and richer tooling
-interoperability, while avoiding tight coupling to specific implementations.
-
-**Capability value**
-
-The value assigned to a given capability may either be {null} to simply indicate
-the capability is supported, or a string to provide additional information. For
-example {"org.graphql.onError"} does not require additional information and thus
-uses the value {null}, whereas {"org.graphql.defaultErrorBehavior"} needs the
-{value} to indicate which _error behavior_ is the default.
-
-**Specified capabilities**
-
-This version of the specification defines the following capabilities:
-
-- {"org.graphql.defaultErrorBehavior"} - indicates the _default error behavior_
-  of the service via the {value}. If not present, must be assumed to be
-  {"PROPAGATE"}.
-- {"org.graphql.onError"} - indicates that the service allows the client to
-  specify {onError} in a request to indicate the _error behavior_ the service
-  should use for the request. {value} is {null}.
+- `identifier` must return the string _capability identifier_ uniquely
+  identifying this service capability.
+- `description` may return a String or {null}.
+- `value` the String value of the service capability, or {null} if there is no
+  associated value.

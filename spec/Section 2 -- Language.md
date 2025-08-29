@@ -186,7 +186,7 @@ lacks the punctuation often used to describe mathematical expressions.
 
 Name ::
 
-- NameStart NameContinue\* [lookahead != NameContinue]
+- NameStart NameContinue\* [lookahead != NameContinue, `.`]
 
 NameStart ::
 
@@ -232,6 +232,18 @@ systems as possible.
 Any {Name} within a GraphQL type system must not start with two underscores
 {"\_\_"} unless it is part of the [introspection system](#sec-Introspection) as
 defined by this specification.
+
+### Qualified Names
+
+QualifiedName ::
+
+- QualifiedName . Name [lookahead != `.`]
+- Name . Name [lookahead != `.`]
+
+A qualified name is a case-sensitive string composed of two or more names
+separated by a period (`.`). A qualified name allows for a structured chain of
+names which can be useful for scoping or namespacing. A _capability identifier_
+is an example of a {QualifiedName}.
 
 ## Descriptions
 

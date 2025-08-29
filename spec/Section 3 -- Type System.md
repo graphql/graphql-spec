@@ -12,6 +12,7 @@ TypeSystemDefinition :
 - SchemaDefinition
 - TypeDefinition
 - DirectiveDefinition
+- ServiceDefinition
 
 The GraphQL language includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
@@ -2227,3 +2228,100 @@ to the relevant IETF specification.
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
+
+## Service Definition
+
+ServiceDefinition :
+
+- Description service [lookahead != `{`]
+- Description? service { ServiceAttribute+ }
+
+ServiceAttribute :
+
+- ServiceCapabilities
+
+A GraphQL service itself may be represented in the schema language in order to
+indicate the _service capabilities_ of the service; this allows indicating
+support for features which are outside of the scope of the type system.
+
+Each {ServiceAttribute} may be specified at most once.
+
+### Service Capabilities
+
+ServiceCapabilities:
+
+- capabilities { ServiceCapability+ }
+
+ServiceCapability:
+
+- Description? QualifiedName [lookahead != `(`]
+- Description? QualifiedName ( StringValue )
+
+:: A _service capability_ describes a feature supported by the GraphQL service
+but not directly expressible via the type system. This may include support for
+new or experimental GraphQL syntactic or behavioral features, protocol support
+(such as GraphQL over WebSockets or Server-Sent Events), or additional
+operational information (such as endpoints for related services). Service
+capabilities may be supplied by the GraphQL implementation, the service, or
+both.
+
+A _service capability_ is identified by a _capability identifier_ (a
+{QualifiedName}), and may optionally have a string value.
+
+**Capability Identifier**
+
+:: A _capability identifier_ is a {QualifiedName} (a case-sensitive string value
+composed of two or more {Name} separated by a period (`.`)) that uniquely
+identifies a capability.
+
+This structure is inspired by reverse domain notation to encourage global
+uniqueness and collision-resistance; it is recommended that identifiers defined
+by specific projects, vendors, or implementations begin with a prefix derived
+from a DNS name they control (e.g., {"com.example."}).
+
+Clients must compare capability identifiers using exact (case-sensitive) string
+equality.
+
+**Reserved Capability Identifiers**
+
+A _capability identifier_ must not start with an underscore {"\_"}; this is
+reserved for future usage.
+
+Capability identifiers beginning with the prefix {"graphql."} are reserved and
+must not be used outside of official GraphQL Foundation specifications.
+Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
+proposals.
+
+Any identifiers beginning with case-insensitive variants of {"graphql."},
+{"org.graphql."} and {"gql."} are also reserved.
+
+Implementers should not change the meaning of capability identifiers; instead, a
+new capability identifier should be used when the meaning changes. Implementers
+should ensure that capability identifiers remain stable and version-agnostic
+where possible.
+
+Note: Capability versioning, if needed, can be indicated using dot suffixes
+(e.g.{ "org.example.capability.v2"}).
+
+This system enables incremental feature adoption and richer tooling
+interoperability, while avoiding tight coupling to specific implementations.
+
+**Capability value**
+
+For capabilities that require more information than a simple indication of
+support, a string value may be specified.
+
+The capability {"graphql.onError"} does not require additional information and
+thus does not specify a value; whereas {"graphql.defaultErrorBehavior"} uses the
+value to indicate which _error behavior_ is the default.
+
+**Specified capabilities**
+
+This version of the specification defines the following capabilities:
+
+- {"graphql.defaultErrorBehavior"} - indicates the _default error behavior_ of
+  the service via the {value}. If not present, assume the _default error
+  behavior_ is {"PROPAGATE"}.
+- {"graphql.onError"} - indicates that the service allows the client to specify
+  {onError} in a request to indicate the _error behavior_ the service should use
+  for the request. No {value} is provided.
