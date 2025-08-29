@@ -73,8 +73,8 @@ Digit :: one of
 
 QualifiedName ::
 
-- QualifiedName . Name
-- Name . Name
+- QualifiedName . Name [lookahead != `.`]
+- Name . Name [lookahead != `.`]
 
 IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
