@@ -518,7 +518,7 @@ The `__Service` type is returned from the `__service` meta-field and provides
 information about the GraphQL service, most notably about its capabilities.
 
 Note: Services implementing an older version of this specification may not
-support the `__service` metafield or `__Service` type. Support may be probed
+support the `__service` meta-field or `__Service` type. Support may be probed
 using the introspection query: `{ __type(name: "__Service") { name } }`, a
 {null} result indicates lack of support.
 

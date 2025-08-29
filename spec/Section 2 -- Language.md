@@ -242,8 +242,8 @@ QualifiedName ::
 
 A qualified name is a case-sensitive string composed of two or more names
 separated by a period (`.`). A qualified name allows for a structured chain of
-names which can be useful for scoping or namespacing. A _capability identifier_
-is an example of a {QualifiedName}.
+names which can be useful for scoping or applying namespaces. A _capability
+identifier_ is an example of a {QualifiedName}.
 
 ## Descriptions
 
