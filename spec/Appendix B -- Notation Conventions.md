@@ -251,5 +251,5 @@ existing entries.
 Note: This specification defines ordered data collection only when strictly
 necessary. When an order is observable, implementations should preserve it to
 improve output legibility and stability. For example if applying a grammar to an
-input string yields a sequence of elements, serialization should emit those
+input string yields a _set_ of elements, serialization should emit those
 elements in the same source order.
