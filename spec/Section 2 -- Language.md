@@ -23,11 +23,11 @@ throughout this document.
 **Lexical Analysis & Syntactic Parse**
 
 The source text of a GraphQL document is first converted into a sequence of
-lexical tokens, {Token}, and ignored tokens, {Ignored}. The source text is
-scanned from left to right, repeatedly taking the next possible sequence of
-code-points allowed by the lexical grammar productions as the next token. This
-sequence of lexical tokens are then scanned from left to right to produce an
-abstract syntax tree (AST) according to the {Document} syntactical grammar.
+lexical tokens ({Token}) and ignored tokens ({Ignored}). The source text is
+scanned from left to right, repeatedly taking the next possible sequence of code
+points allowed by the lexical grammar productions as the next token. This
+sequence of lexical tokens is then scanned from left to right to produce an
+abstract syntax tree (AST) according to the {Document} syntactic grammar.
 
 Lexical grammar productions in this document use _lookahead restrictions_ to
 remove ambiguity and ensure a single valid lexical analysis. A lexical token is
@@ -36,7 +36,7 @@ only valid if not followed by a character in its lookahead restriction.
 For example, an {IntValue} has the restriction {[lookahead != Digit]}, so cannot
 be followed by a {Digit}. Because of this, the sequence {`123`} cannot represent
 the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and so
-must only represent a single token. Use {WhiteSpace} or other {Ignored} between
+must only represent a single token. Use {Whitespace} or other {Ignored} between
 characters to represent multiple tokens.
 
 Note: This typically has the same behavior as a
@@ -64,19 +64,19 @@ however an unpaired _surrogate code point_ is not a valid source character.
 
 ### White Space
 
-WhiteSpace ::
+Whitespace ::
 
 - "Horizontal Tab (U+0009)"
 - "Space (U+0020)"
 
-White space is used to improve legibility of source text and act as separation
-between tokens, and any amount of white space may appear before or after any
-token. White space between tokens is not significant to the semantic meaning of
-a GraphQL Document, however white space characters may appear within a {String}
-or {Comment} token.
+Whitespace is used to improve legibility of source text and separates other
+tokens. Any amount of whitespace may appear before or after any token.
+Whitespace between tokens is not significant to the semantic meaning of a
+GraphQL document, however whitespace characters may appear within a {String} or
+{Comment} token.
 
 Note: GraphQL intentionally does not consider Unicode "Zs" category characters
-as white-space, avoiding misinterpretation by text editors and source control
+as whitespace, avoiding misinterpretation by text editors and source control
 tools.
 
 ### Line Terminators
@@ -87,7 +87,7 @@ LineTerminator ::
 - "Carriage Return (U+000D)" [lookahead != "New Line (U+000A)"]
 - "Carriage Return (U+000D)" "New Line (U+000A)"
 
-Like white space, line terminators are used to improve the legibility of source
+Like whitespace, line terminators are used to improve the legibility of source
 text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
 Document.
@@ -109,21 +109,21 @@ A comment may contain any {SourceCharacter} except {LineTerminator} so a comment
 always consists of all {SourceCharacter} starting with the {`#`} character up to
 but not including the {LineTerminator} (or end of the source).
 
-Comments are {Ignored} like white space and may appear after any token, or
-before a {LineTerminator}, and have no significance to the semantic meaning of a
-GraphQL Document.
+Comments are {Ignored} like whitespace and may appear after any token, or before
+a {LineTerminator}, and have no significance to the semantic meaning of a
+GraphQL document.
 
 ### Insignificant Commas
 
 Comma :: ,
 
-Similar to white space and line terminators, commas ({`,`}) are used to improve
+Similar to whitespace and line terminators, commas ({`,`}) are used to improve
 the legibility of source text and separate lexical tokens but are otherwise
-syntactically and semantically insignificant within GraphQL Documents.
+syntactically and semantically insignificant within GraphQL documents.
 
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
-be a common user-error in other languages. It also allows for the stylistic use
+be a common user error in other languages. It also allows for the stylistic use
 of either trailing commas or line terminators as list delimiters which are both
 often desired for legibility and maintainability of source code.
 
@@ -137,7 +137,7 @@ Token ::
 - FloatValue
 - StringValue
 
-A GraphQL document is comprised of several kinds of indivisible lexical tokens
+A GraphQL document is composed of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters.
 Lexical tokens may be separated by {Ignored} tokens.
 
@@ -148,21 +148,21 @@ Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
 Ignored ::
 
 - UnicodeBOM
-- WhiteSpace
+- Whitespace
 - LineTerminator
 - Comment
 - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-lexical tokens, but are otherwise insignificant and not referenced in
-syntactical grammar productions.
+lexical tokens, but are otherwise insignificant and not referenced in syntactic
+grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
 ignored regions of a source document are significant, however {SourceCharacter}
 which appear in {Ignored} may also appear within a lexical {Token} in a
-significant way, for example a {StringValue} may contain white space characters.
-No {Ignored} may appear _within_ a {Token}, for example no white space
-characters are permitted between the characters defining a {FloatValue}.
+significant way, for example a {StringValue} may contain whitespace characters.
+No {Ignored} may appear _within_ a {Token}, for example no whitespace characters
+are permitted between the characters defining a {FloatValue}.
 
 **Byte Order Mark**
 
@@ -179,7 +179,7 @@ and is {Ignored}.
 Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 GraphQL documents include punctuation in order to describe structure. GraphQL is
-a data description language and not a programming language, therefore GraphQL
+a data description language and not a programming language; therefore, GraphQL
 lacks the punctuation often used to describe mathematical expressions.
 
 ### Names
@@ -210,7 +210,7 @@ Digit :: one of
 
 - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
-GraphQL Documents are full of named things: operations, fields, arguments,
+GraphQL documents are full of named things: operations, fields, arguments,
 types, directives, fragments, and variables. All names must follow the same
 grammatical form.
 
@@ -300,7 +300,7 @@ ExecutableDefinition :
 - OperationDefinition
 - FragmentDefinition
 
-A GraphQL Document describes a complete file or request string operated on by a
+A GraphQL document describes a complete file or request string operated on by a
 GraphQL service or client. A document contains multiple definitions, either
 executable or representative of a GraphQL type system.
 
@@ -321,7 +321,7 @@ individual files.
 If a Document contains only one operation, that operation may be unnamed. If
 that operation is a query without variables or directives then it may also be
 represented in the shorthand form, omitting both the {`query`} keyword as well
-as the operation name. Otherwise, if a GraphQL Document contains multiple
+as the operation name. Otherwise, if a GraphQL document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
@@ -366,7 +366,7 @@ mutation {
 
 If a document contains only one operation and that operation is a query which
 defines no variables and has no directives applied to it then that operation may
-be represented in a short-hand form which omits the {`query`} keyword and
+be represented in a shorthand form which omits the {`query`} keyword and
 operation name.
 
 For example, this unnamed query operation is written via query shorthand.
@@ -379,7 +379,7 @@ For example, this unnamed query operation is written via query shorthand.
 
 Descriptions are not permitted on query shorthand.
 
-Note: many examples below will use the query short-hand syntax.
+Note: many examples below will use the query shorthand syntax.
 
 ## Selection Sets
 
@@ -809,7 +809,7 @@ NegativeSign :: -
 NonZeroDigit :: Digit but not `0`
 
 An {IntValue} is specified without a decimal point or exponent but may be
-negative (ex. {-123}). It must not have any leading {0}.
+negative (e.g. {-123}). It must not have any leading {0}.
 
 An {IntValue} must not be followed by a {Digit}. In other words, an {IntValue}
 token is always the longest possible valid sequence. The source characters {12}
@@ -838,8 +838,8 @@ ExponentIndicator :: one of `e` `E`
 
 Sign :: one of + -
 
-A {FloatValue} includes either a decimal point (ex. {1.0}) or an exponent (ex.
-{1e50}) or both (ex. {6.0221413e23}) and may be negative. Like {IntValue}, it
+A {FloatValue} includes either a decimal point (e.g. {1.0}) or an exponent (e.g.
+{1e50}) or both (e.g. {6.0221413e23}) and may be negative. Like {IntValue}, it
 also must not have any leading {0}.
 
 A {FloatValue} must not be followed by a {Digit}. In other words, a {FloatValue}
@@ -899,7 +899,7 @@ BlockStringCharacter ::
 
 A {StringValue} is evaluated to a _Unicode text_ value, a sequence of _Unicode
 scalar value_, by interpreting all escape sequences using the static semantics
-defined below. White space and other characters ignored between lexical tokens
+defined below. Whitespace and other characters ignored between lexical tokens
 are significant within a string value.
 
 The empty string {`""`} must not be followed by another {`"`} otherwise it would
@@ -952,7 +952,7 @@ sequence.
 **Block Strings**
 
 Block strings are sequences of characters wrapped in triple-quotes (`"""`).
-White space, line terminators, quote, and backslash characters may all be used
+Whitespace, line terminators, quote, and backslash characters may all be used
 unescaped to enable verbatim text. Characters must all be valid
 {SourceCharacter}.
 
@@ -1097,7 +1097,7 @@ BlockStringValue(rawValue):
 - For each {line} in {lines}:
   - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
-  - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
+  - Let {indent} be the number of leading consecutive {Whitespace} characters in
     {line}.
   - If {indent} is less than {length}:
     - If {commonIndent} is {null} or {indent} is less than {commonIndent}:
@@ -1106,9 +1106,9 @@ BlockStringValue(rawValue):
   - For each {line} in {lines}:
     - If {line} is the first item in {lines}, continue to the next line.
     - Remove {commonIndent} characters from the beginning of {line}.
-- While the first item {line} in {lines} contains only {WhiteSpace}:
+- While the first item {line} in {lines} contains only {Whitespace}:
   - Remove the first item from {lines}.
-- While the last item {line} in {lines} contains only {WhiteSpace}:
+- While the last item {line} in {lines} contains only {Whitespace}:
   - Remove the last item from {lines}.
 - Let {formatted} be the empty character sequence.
 - For each {line} in {lines}:
@@ -1153,9 +1153,9 @@ variable value at all.
 
 EnumValue : Name but not `true`, `false` or `null`
 
-Enum values are represented as unquoted names (ex. `MOBILE_WEB`). It is
+Enum values are represented as unquoted names (e.g. `MOBILE_WEB`). It is
 recommended that Enum values be "all caps". Enum values are only used in
-contexts where the precise enumeration type is known. Therefore it's not
+contexts where the precise enumeration type is known. Therefore it is not
 necessary to supply an enumeration type name in the literal.
 
 ### List Value
@@ -1165,8 +1165,9 @@ ListValue[Const] :
 - [ ]
 - [ Value[?Const]+ ]
 
-Lists are ordered sequences of values wrapped in square-brackets `[ ]`. The
-values of a List literal may be any value literal or variable (ex. `[1, 2, 3]`).
+Lists are ordered sequences of values wrapped in square brackets `[ ]`. The
+values of a List literal may be any value literal or variable (e.g.
+`[1, 2, 3]`).
 
 Commas are optional throughout GraphQL so trailing commas are allowed and
 repeated commas do not represent missing values.
@@ -1195,8 +1196,8 @@ ObjectValue[Const] :
 ObjectField[Const] : Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
-curly-braces `{ }`. The values of an object literal may be any input value
-literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
+curly braces `{ }`. The values of an object literal may be any input value
+literal or variable (e.g. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
 **Input Object Fields Are Unordered**

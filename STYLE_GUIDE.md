@@ -126,3 +126,13 @@ meaning.
 ✅ “A query must contain a single root operation type.”
 
 ❌ “A query MUST contain a single root operation type.”
+
+**Avoid unnecessary hyphenation**
+
+Only use hypenated compound words when either commonly used elsewhere in english
+or technical writing. Otherwise prefer separate words or a non-hyphenated
+compound word, whichever is most commonly accepted.
+
+✅ User defined shorthand words are separated by whitespace
+
+❌ User-defined short-hand words are separated by white-space

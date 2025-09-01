@@ -11,7 +11,7 @@ ambiguity.
 
 A context-free grammar consists of a number of productions. Each production has
 an abstract symbol called a "non-terminal" as its left-hand side, and zero or
-more possible sequences of non-terminal symbols and or terminal characters as
+more possible sequences of non-terminal symbols and/or terminal characters as
 its right-hand side.
 
 Starting from a single goal non-terminal symbol, a context-free grammar
@@ -21,8 +21,8 @@ of the sequences it is defined by, until all non-terminal symbols have been
 replaced by terminal characters.
 
 Terminals are represented in this document in a monospace font in two forms: a
-specific Unicode character or sequence of Unicode characters (ie. {`=`} or
-{`terminal`}), and prose typically describing a specific Unicode code-point
+specific Unicode character or sequence of Unicode characters (i.e. {`=`} or
+{`terminal`}), and prose typically describing a specific Unicode code point
 {"Space (U+0020)"}. Sequences of Unicode characters only appear in syntactic
 grammars and represent a {Name} token of that specific sequence.
 
@@ -46,14 +46,14 @@ ListOfLetterA :
 - ListOfLetterA `a`
 - `a`
 
-## Lexical and Syntactical Grammar
+## Lexical and Syntactic Grammar
 
 The GraphQL language is defined in a syntactic grammar where terminal symbols
 are tokens. Tokens are defined in a lexical grammar which matches patterns of
 source characters. The result of parsing a source text sequence of Unicode
 characters first produces a sequence of lexical tokens according to the lexical
 grammar which then produces abstract syntax tree (AST) according to the
-syntactical grammar.
+syntactic grammar.
 
 A lexical grammar production describes non-terminal "tokens" by patterns of
 terminal Unicode characters. No "whitespace" or other ignored characters may
@@ -63,10 +63,10 @@ definition.
 
 Word :: Letter+
 
-A Syntactical grammar production describes non-terminal "rules" by patterns of
-terminal Tokens. {WhiteSpace} and other {Ignored} sequences may appear before or
-after any terminal {Token}. A syntactical grammar production is distinguished by
-a one colon `:` definition.
+A Syntactic grammar production describes non-terminal "rules" by patterns of
+terminal Tokens. {Whitespace} and other {Ignored} sequences may appear before or
+after any terminal {Token}. A syntactic grammar production is distinguished by a
+one colon `:` definition.
 
 Sentence : Word+ `.`
 
@@ -74,7 +74,7 @@ Sentence : Word+ `.`
 
 This specification uses some additional notation to describe common patterns,
 such as optional or repeated patterns, or parameterized alterations of the
-definition of a non-terminal. This section explains these short-hand notations
+definition of a non-terminal. This section explains these shorthand notations
 and their expanded definitions in the context-free grammar.
 
 **Constraints**

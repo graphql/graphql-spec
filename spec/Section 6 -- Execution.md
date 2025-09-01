@@ -92,9 +92,9 @@ result to avoid validating the same request again in the future.
 ### Coercing Variable Values
 
 If the operation has defined any variables, then the values for those variables
-need to be coerced using the input coercion rules of variable's declared type.
-If a _request error_ is encountered during input coercion of variable values,
-then the operation fails without execution.
+need to be coerced using the input coercion rules of the variable's declared
+type. If a _request error_ is encountered during input coercion of variable
+values, then the operation fails without execution.
 
 CoerceVariableValues(schema, operation, variableValues):
 

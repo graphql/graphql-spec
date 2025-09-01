@@ -12,7 +12,7 @@ in lowercase and still retain their meaning unless explicitly declared as
 non-normative.
 
 A conforming implementation of GraphQL may provide additional functionality, but
-must not where explicitly disallowed or would otherwise result in
+must not do so where explicitly disallowed or where it would otherwise result in
 non-conformance.
 
 **Conforming Algorithms**
@@ -42,19 +42,19 @@ as non-normative.
 Examples in this document are non-normative, and are presented to aid
 understanding of introduced concepts and the behavior of normative portions of
 the specification. Examples are either introduced explicitly in prose (e.g. "for
-example") or are set apart in example or counter-example blocks, like this:
+example") or are set apart in example or counterexample blocks, like this:
 
 ```example
 This is an example of a non-normative example.
 ```
 
 ```counter-example
-This is an example of a non-normative counter-example.
+This is an example of a non-normative counterexample.
 ```
 
 Notes in this document are non-normative, and are presented to clarify intent,
-draw attention to potential edge-cases and pit-falls, and answer common
-questions that arise during implementation. Notes are either introduced
-explicitly in prose (e.g. "Note: ") or are set apart in a note block, like this:
+draw attention to potential edge cases and pitfalls, and answer common questions
+that arise during implementation. Notes are either introduced explicitly in
+prose (e.g. "Note: ") or are set apart in a note block, like this:
 
 Note: This is an example of a non-normative note.
