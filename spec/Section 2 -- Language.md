@@ -1513,7 +1513,7 @@ DirectiveArgumentCoordinate :: @ Name ( Name : )
 
 **Examples**
 
-| Element Kind       | _Schema Coordinate_               | _Schema Element_                                                      |
+| Element Kind       | Schema Coordinate                 | Schema Element                                                        |
 | ------------------ | --------------------------------- | --------------------------------------------------------------------- |
 | Named Type         | `Business`                        | `Business` type                                                       |
 | Field              | `Business.name`                   | `name` field on the `Business` type                                   |
