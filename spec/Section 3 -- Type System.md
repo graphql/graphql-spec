@@ -1568,7 +1568,7 @@ InputFieldsDefinition : { InputValueDefinition+ }
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
-A GraphQL Input Object defines a set of input fields; the input fields are
+:: A GraphQL _Input Object_ defines a set of input fields; the input fields are
 scalars, enums, other input objects, or any wrapping type whose underlying base
 type is one of those three. This allows arguments to accept arbitrarily complex
 structs.
@@ -1587,27 +1587,6 @@ inappropriate for re-use here, because Object types can contain fields that
 define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
-
-**OneOf Input Objects**
-
-:: A _OneOf Input Object_ is a special variant of Input Object where exactly one fields must be set and non-null, all
-others being omitted. This is useful for representing situations where an input
-may be one of many different options.
-
-When using the type system definition language, the `@oneOf` directive is used
-to indicate that an Input Object is a OneOf Input Object (and thus requires
-exactly one of its fields be provided):
-
-```graphql
-input UserUniqueCondition @oneOf {
-  id: ID
-  username: String
-  organizationAndEmail: OrganizationAndEmailInput
-}
-```
-
-In schema introspection, the `__Type.isOneOf` field will return {true} for OneOf
-Input Objects, and {false} for all other Input Objects.
 
 **Circular References**
 
@@ -1703,17 +1682,6 @@ is constructed with the following rules:
   variable definition does not provide a default value, the input object field
   definition's default value should be used.
 
-Further, if the input object is a _OneOf Input Object_, the following additional
-rules apply:
-
-- Prior to construction of the coerced map via the rules above: the value to be
-  coerced must contain exactly one entry and that entry must not be {null} or
-  the {null} literal, otherwise a _request error_ must be raised.
-
-- The map resulting from the input coercion rules above must contain exactly one
-  entry and the value for that entry must not be {null}, otherwise an _execution
-  error_ must be raised.
-
 Following are examples of input coercion for an input object type with a
 `String` field `a` and a required (non-null) `Int!` field `b`:
 
@@ -1742,33 +1710,6 @@ input ExampleInputObject {
 | `{ a: "abc", b: null }`  | `{}`                    | Error: {b} must be non-null.         |
 | `{ b: $var }`            | `{ var: null }`         | Error: {b} must be non-null.         |
 | `{ b: 123, c: "xyz" }`   | `{}`                    | Error: Unexpected field {c}          |
-
-Following are addtional examples of input coercion for a OneOf Input Object type with a
-`String` member field `a` and an `Int` member field `b`:
-
-```graphql example
-input ExampleOneOfInputObject @oneOf {
-  a: String
-  b: Int
-}
-```
-
-| Literal Value            | Variables                        | Coerced Value                                       |
-| ------------------------ | -------------------------------- | --------------------------------------------------- |
-| `{ a: "abc" }`           | `{}`                             | `{ a: "abc" }`                                      |
-| `{ b: 123 }`             | `{}`                             | `{ b: 123 }`                                        |
-| `$var`                   | `{ var: { a: "abc" } }`          | `{ a: "abc" }`                                      |
-| `{ a: null }`            | `{}`                             | Error: Value for member field {a} must be non-null  |
-| `$var`                   | `{ var: { a: null } }`           | Error: Value for member field {a} must be non-null  |
-| `{ a: $a }`              | `{}`                             | Error: Value for member field {a} must be specified |
-| `{ a: "abc", b: 123 }`   | `{}`                             | Error: Exactly one key must be specified            |
-| `{ a: 456, b: "xyz" }`   | `{}`                             | Error: Exactly one key must be specified            |
-| `$var`                   | `{ var: { a: "abc", b: 123 } }`  | Error: Exactly one key must be specified            |
-| `{ a: "abc", b: null }`  | `{}`                             | Error: Exactly one key must be specified            |
-| `{ a: "abc", b: $b }`    | `{}`                             | Error: Exactly one key must be specified            |
-| `{ a: $a, b: $b }`       | `{ a: "abc" }`                   | Error: Exactly one key must be specified            |
-| `{}`                     | `{}`                             | Error: Exactly one key must be specified            |
-| `$var`                   | `{ var: {} }`                    | Error: Exactly one key must be specified            |
 
 **Type Validation**
 
@@ -1826,6 +1767,72 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
+
+### OneOf Input Objects
+
+:: A _OneOf Input Object_ is a special variant of _Input Object_ where exactly
+one fields must be set and non-null, all others being omitted. This is useful
+for representing situations where an input may be one of many different options.
+
+When using the type system definition language, the `@oneOf` directive is used
+to indicate that an Input Object is a OneOf Input Object (and thus requires
+exactly one of its fields be provided):
+
+```graphql
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+```
+
+In schema introspection, the `__Type.isOneOf` field will return {true} for OneOf
+Input Objects, and {false} for all other Input Objects.
+
+**Input Coercion**
+
+The value of a OneOf Input Object, as a variant of Input Object, must also be an
+input object literal or an unordered map supplied by a variable, otherwise a
+_request error_ must be raised.
+
+- Prior to construction of the coerced map via the input coercion rules of an
+  _Input Object_: the value to be coerced must contain exactly one entry and
+  that entry must not be {null} or the {null} literal, otherwise a _request
+  error_ must be raised.
+
+- All _Input Object_
+  [input coercion rules](http://localhost:3000/draft#sec-Input-Objects.Input-Coercion)
+  must also apply to an _OneOf Input Object_.
+
+- The resulting coerced map must contain exactly one entry and the value for
+  that entry must not be {null}, otherwise an _execution error_ must be raised.
+
+Following are addtional examples of input coercion for a OneOf Input Object type
+with a `String` member field `a` and an `Int` member field `b`:
+
+```graphql example
+input ExampleOneOfInputObject @oneOf {
+  a: String
+  b: Int
+}
+```
+
+| Literal Value           | Variables                       | Coerced Value                                       |
+| ----------------------- | ------------------------------- | --------------------------------------------------- |
+| `{ a: "abc" }`          | `{}`                            | `{ a: "abc" }`                                      |
+| `{ b: 123 }`            | `{}`                            | `{ b: 123 }`                                        |
+| `$var`                  | `{ var: { a: "abc" } }`         | `{ a: "abc" }`                                      |
+| `{ a: null }`           | `{}`                            | Error: Value for member field {a} must be non-null  |
+| `$var`                  | `{ var: { a: null } }`          | Error: Value for member field {a} must be non-null  |
+| `{ a: $a }`             | `{}`                            | Error: Value for member field {a} must be specified |
+| `{ a: "abc", b: 123 }`  | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: 456, b: "xyz" }`  | `{}`                            | Error: Exactly one key must be specified            |
+| `$var`                  | `{ var: { a: "abc", b: 123 } }` | Error: Exactly one key must be specified            |
+| `{ a: "abc", b: null }` | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: "abc", b: $b }`   | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: $a, b: $b }`      | `{ a: "abc" }`                  | Error: Exactly one key must be specified            |
+| `{}`                    | `{}`                            | Error: Exactly one key must be specified            |
+| `$var`                  | `{ var: {} }`                   | Error: Exactly one key must be specified            |
 
 ### Input Object Extensions
 
