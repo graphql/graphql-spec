@@ -248,10 +248,7 @@ entry has a unique key, and can be directly referenced by that key.
 ordered map, which does not have an entry with that key, is ordered after
 existing entries.
 
-**Preserving order**
-
-To improve legibility, when possible implementations should preserve observable
-order for unordered data collections. For example, if applying a grammar to an
-input string produces an unordered set, serializing that set (to a string or
-other observable output) should produce the same order found in the original
-input string.
+Note: Ordered data collection are only specified when strictly necessary. To
+improve legibility and stability of outputs it is recommended to preserve
+observable order. For example if applying a grammar to an input string produces
+a set, serializing that set should reproduce the original order.
