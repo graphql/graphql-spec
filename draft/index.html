@@ -7502,111 +7502,39 @@ Schema coordinates must not contain <span class="spec-nt"><a href="#Ignored" dat
 </section>
 <section id="sec-Appendix-Type-System-Definitions" secid="D">
 <h1 data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Type-System-Definitions">D</a></span>Appendix: Type System Definitions</h1>
-<p data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L3">This appendix lists the specified type system definitions.</p>
-<p data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L5-L6">The descriptions are non-normative. Implementations are recommended to use them for consistency but different descriptions are allowed.</p>
-<p data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L8">The order of types, fields, arguments, values and directives is non-normative.</p>
-<pre data-language="graphql" data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L10-L321"><code><span class="token description string">"""<span class="token language-markdown">
-The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
-</span>"""</span>
-<span class="token keyword">scalar</span> <span class="token scalar">String</span>
+<p data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L3">This appendix lists all type system definitions specified in this document.</p>
+<p data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L5">The order of types, fields, arguments, values and directives is non-normative.</p>
+<pre data-language="graphql" data-source="spec/Appendix%20D%20--%20Specified%20Definitions.md#L7-L118"><code><span class="token keyword">scalar</span> <span class="token scalar">String</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.
-</span>"""</span>
 <span class="token keyword">scalar</span> <span class="token scalar">Int</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).
-</span>"""</span>
 <span class="token keyword">scalar</span> <span class="token scalar">Float</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-The `Boolean` scalar type represents `true` or `false`.
-</span>"""</span>
 <span class="token keyword">scalar</span> <span class="token scalar">Boolean</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
-</span>"""</span>
 <span class="token keyword">scalar</span> <span class="token scalar">ID</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Directs the executor to include this field or fragment only when the `if` argument is true.
-</span>"""</span>
-<span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  Included when true.
-  </span>"""</span>
-  <span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span>
-<span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<span class="token keyword">directive</span> <span class="token directive function">@include</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Directs the executor to skip this field or fragment when the `if` argument is true.
-</span>"""</span>
-<span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  Skipped when true.
-  </span>"""</span>
-  <span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span>
-<span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
+<span class="token keyword">directive</span> <span class="token directive function">@skip</span><span class="token punctuation">(</span><span class="token attr-name">if</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD</span> <span class="token operator">|</span> <span class="token constant">FRAGMENT_SPREAD</span> <span class="token operator">|</span> <span class="token constant">INLINE_FRAGMENT</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Marks an element of a GraphQL schema as no longer supported.
-</span>"""</span>
 <span class="token keyword">directive</span> <span class="token directive function">@deprecated</span><span class="token punctuation">(</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  Explains why this element was deprecated, usually also including a suggestion for how to access supported similar data. Formatted using the Markdown syntax, as specified by [CommonMark](https://commonmark.org/).
-  </span>"""</span>
   <span class="token attr-name">reason</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span> <span class="token operator">=</span> <span class="token string">"No longer supported"</span>
 <span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ARGUMENT_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">INPUT_FIELD_DEFINITION</span> <span class="token operator">|</span> <span class="token constant">ENUM_VALUE</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Exposes a URL that specifies the behavior of this scalar.
-</span>"""</span>
-<span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  The URL that specifies the behavior of this scalar.
-  </span>"""</span>
-  <span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
-<span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">SCALAR</span>
+<span class="token keyword">directive</span> <span class="token directive function">@specifiedBy</span><span class="token punctuation">(</span><span class="token attr-name">url</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">SCALAR</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.
-</span>"""</span>
+<span class="token keyword">directive</span> <span class="token directive function">@oneOf</span> <span class="token keyword">on</span> <span class="token constant">INPUT_OBJECT</span>
+
 <span class="token keyword">type</span> <span class="token class-name">__Schema</span> <span class="token punctuation">{</span>
   <span class="token attr-name">description</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  A list of all types supported by this server.
-  </span>"""</span>
   <span class="token attr-name">types</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__Type</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  The type that query operations will be rooted at.
-  </span>"""</span>
   <span class="token attr-name">queryType</span><span class="token punctuation">:</span> <span class="token class-name">__Type</span><span class="token operator">!</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  If this server supports mutation, the type that mutation operations will be rooted at.
-  </span>"""</span>
   <span class="token attr-name">mutationType</span><span class="token punctuation">:</span> <span class="token class-name">__Type</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  If this server support subscription, the type that subscription operations will be rooted at.
-  </span>"""</span>
   <span class="token attr-name">subscriptionType</span><span class="token punctuation">:</span> <span class="token class-name">__Type</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  A list of all directives supported by this server.
-  </span>"""</span>
   <span class="token attr-name">directives</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__Directive</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.
-
-Depending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.
-</span>"""</span>
 <span class="token keyword">type</span> <span class="token class-name">__Type</span> <span class="token punctuation">{</span>
   <span class="token attr-name">kind</span><span class="token punctuation">:</span> <span class="token class-name">__TypeKind</span><span class="token operator">!</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -7618,56 +7546,20 @@ Depending on the kind of a type, certain fields describe information about that 
   <span class="token attr-name">enumValues</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__EnumValue</span><span class="token operator">!</span><span class="token punctuation">]</span>
   <span class="token attr-name">inputFields</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__InputValue</span><span class="token operator">!</span><span class="token punctuation">]</span>
   <span class="token attr-name">ofType</span><span class="token punctuation">:</span> <span class="token class-name">__Type</span>
+  <span class="token attr-name">isOneOf</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-An enum describing what kind of type a given `__Type` is.
-</span>"""</span>
 <span class="token keyword">enum</span> <span class="token class-name">__TypeKind</span> <span class="token punctuation">{</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is a scalar.
-  </span>"""</span>
   <span class="token constant">SCALAR</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is an object. `fields` and `interfaces` are valid fields.
-  </span>"""</span>
   <span class="token constant">OBJECT</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.
-  </span>"""</span>
   <span class="token constant">INTERFACE</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is a union. `possibleTypes` is a valid field.
-  </span>"""</span>
   <span class="token constant">UNION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is an enum. `enumValues` is a valid field.
-  </span>"""</span>
   <span class="token constant">ENUM</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is an input object. `inputFields` is a valid field.
-  </span>"""</span>
   <span class="token constant">INPUT_OBJECT</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is a list. `ofType` is a valid field.
-  </span>"""</span>
   <span class="token constant">LIST</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Indicates this type is a non-null. `ofType` is a valid field.
-  </span>"""</span>
   <span class="token constant">NON_NULL</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.
-</span>"""</span>
 <span class="token keyword">type</span> <span class="token class-name">__Field</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">description</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -7677,25 +7569,15 @@ Object and Interface types are described by a list of Fields, each of which has 
   <span class="token attr-name">deprecationReason</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.
-</span>"""</span>
 <span class="token keyword">type</span> <span class="token class-name">__InputValue</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">description</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">type</span><span class="token punctuation">:</span> <span class="token class-name">__Type</span><span class="token operator">!</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  A GraphQL-formatted string representing the default value for this input value.
-  </span>"""</span>
   <span class="token attr-name">defaultValue</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">isDeprecated</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span><span class="token operator">!</span>
   <span class="token attr-name">deprecationReason</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.
-</span>"""</span>
 <span class="token keyword">type</span> <span class="token class-name">__EnumValue</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">description</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -7703,11 +7585,6 @@ One possible value for a given Enum. Enum values are unique values, not a placeh
   <span class="token attr-name">deprecationReason</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.
-
-In some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.
-</span>"""</span>
 <span class="token keyword">type</span> <span class="token class-name">__Directive</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span>
   <span class="token attr-name">description</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
@@ -7716,103 +7593,25 @@ In some cases, you need to provide options to alter GraphQL's execution behavior
   <span class="token attr-name">args</span><span class="token punctuation">(</span><span class="token attr-name">includeDeprecated</span><span class="token punctuation">:</span> <span class="token scalar">Boolean</span> <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">__InputValue</span><span class="token operator">!</span><span class="token punctuation">]</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
 
-<span class="token description string">"""<span class="token language-markdown">
-A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.
-</span>"""</span>
 <span class="token keyword">enum</span> <span class="token class-name">__DirectiveLocation</span> <span class="token punctuation">{</span>
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a query operation.
-  </span>"""</span>
   <span class="token constant">QUERY</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a mutation operation.
-  </span>"""</span>
   <span class="token constant">MUTATION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a subscription operation.
-  </span>"""</span>
   <span class="token constant">SUBSCRIPTION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a field.
-  </span>"""</span>
   <span class="token constant">FIELD</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a fragment definition.
-  </span>"""</span>
   <span class="token constant">FRAGMENT_DEFINITION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a fragment spread.
-  </span>"""</span>
   <span class="token constant">FRAGMENT_SPREAD</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an inline fragment.
-  </span>"""</span>
   <span class="token constant">INLINE_FRAGMENT</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an operation variable definition.
-  </span>"""</span>
   <span class="token constant">VARIABLE_DEFINITION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a schema definition.
-  </span>"""</span>
   <span class="token constant">SCHEMA</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a scalar definition.
-  </span>"""</span>
   <span class="token constant">SCALAR</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an object type definition.
-  </span>"""</span>
   <span class="token constant">OBJECT</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a field definition.
-  </span>"""</span>
   <span class="token constant">FIELD_DEFINITION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an argument definition.
-  </span>"""</span>
   <span class="token constant">ARGUMENT_DEFINITION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an interface definition.
-  </span>"""</span>
   <span class="token constant">INTERFACE</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to a union definition.
-  </span>"""</span>
   <span class="token constant">UNION</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an enum definition.
-  </span>"""</span>
   <span class="token constant">ENUM</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an enum value definition.
-  </span>"""</span>
   <span class="token constant">ENUM_VALUE</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an input object type definition.
-  </span>"""</span>
   <span class="token constant">INPUT_OBJECT</span>
-
-  <span class="token description string">"""<span class="token language-markdown">
-  Location adjacent to an input object field definition.
-  </span>"""</span>
   <span class="token constant">INPUT_FIELD_DEFINITION</span>
 <span class="token punctuation">}</span>
 </code></pre>
