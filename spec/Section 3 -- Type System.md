@@ -1807,7 +1807,7 @@ _request error_ must be raised.
 - The resulting coerced map must contain exactly one entry and the value for
   that entry must not be {null}, otherwise an _execution error_ must be raised.
 
-Following are addtional examples of input coercion for a OneOf Input Object type
+Following are additional examples of input coercion for a OneOf Input Object type
 with a `String` member field `a` and an `Int` member field `b`:
 
 ```graphql example
