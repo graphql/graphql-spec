@@ -2248,8 +2248,10 @@ DirectiveCoordinate : @ Name
 
 DirectiveArgumentCoordinate : @ Name ( Name : )
 
-Note: A _schema coordinate_ is defined with its own grammar and may not include
-any other tokens.
+Note: A _schema coordinate_ is defined with its own grammar that, unlike GraphQL
+documents, excludes {Ignored} lexical grammars (see: [Lexical Analysis &
+Syntactic Parse of a Schema Coordinate](
+(#sec-Type-System.Schema-Coordinates.Lexical-Analysis-Syntactic-Parse-of-a-Schema-Coordinate)).
 
 :: A _schema coordinate_ is a human readable string that uniquely identifies a
 _schema element_ within a GraphQL Schema.
@@ -2277,9 +2279,10 @@ A _schema coordinate_ may refer to either a defined or built-in _schema
 element_. For example, `String` and `@deprecated(reason:)` are both valid schema
 coordinates which refer to built-in schema elements.
 
-Note: Union members are not valid _schema coordinate_ as they reference existing
-types in the schema. This preserves the uniqueness property of a _schema
-coordinate_ as stated above.
+Note: A union member references a type in the schema. A type in the schema is
+identified by a {TypeCoordinate}. There is no schema coordinate which indicates
+a union member; this preserves the uniqueness property of a _schema coordinate_
+as stated above.
 
 Note: A {SchemaCoordinate} is not a definition within a GraphQL {Document}, but
 a separate standalone grammar, intended to be used by tools to reference types,
@@ -2290,12 +2293,18 @@ production.
 
 **Lexical Analysis & Syntactic Parse of a Schema Coordinate**
 
-The source text of a _schema coordinate_ is processed in the same way as that of
-a GraphQL document, as laid out in the [Language](#sec-Language) section, with
-the exception that only the subset of tokens as described in the grammar above
-may be considered. A schema coordinate must therefore not contain whitespace,
-line terminators, comments, commas, or a _Byte Order Mark_. This constraint
-ensures that schema coordinates are both unambiguous and unique.
+Similar to [GraphQL documents](#sec-Language), a schema coordinate is defined as
+a syntactic grammar where terminal symbols are tokens (indivisible lexical
+units). These tokens are defined in a lexical grammar which matches patterns of
+source characters. The source text of a schema coordinate must be a sequence of
+{SourceCharacter}. The character sequence must be described by a sequence of
+{Token} lexical grammars. The lexical token sequence, must be described by a
+single {SchemaCoordinate} syntactic grammar.
+
+Unlike with GraphQL documents, {Ignored} lexical grammars are not permitted
+within the character sequence; a schema coordinate must therefore not contain
+whitespace, line terminators, comments, commas, or a _Byte Order Mark_. This
+constraint ensures that schema coordinates are both unambiguous and unique.
 
 **Resolving a Schema Coordinate**
 

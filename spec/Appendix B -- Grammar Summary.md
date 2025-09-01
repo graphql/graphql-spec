@@ -414,6 +414,10 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 
+## Schema Coordinate Syntax
+
+Note: In order to be unique, schema coordinates do not permit {Ignored} lexical
+grammars.
 SchemaCoordinate :
 
 - TypeCoordinate
@@ -431,6 +435,3 @@ ArgumentCoordinate : Name . Name ( Name : )
 DirectiveCoordinate : @ Name
 
 DirectiveArgumentCoordinate : @ Name ( Name : )
-
-Note: This grammar is unique. A _schema coordinate_ may not include any other
-tokens.
