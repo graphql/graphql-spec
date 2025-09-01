@@ -1399,7 +1399,11 @@ DirectiveCoordinate :: @ Name
 DirectiveArgumentCoordinate :: @ Name ( Name : )
 
 :: A _schema coordinate_ is a human readable string that uniquely identifies a
-_schema element_ within a GraphQL Schema.
+_schema element_ within a GraphQL Schema, intended to be used by tools to
+reference types, fields, and other _schema element_. Examples include:
+references within documentation to refer to types and fields in a schema, a
+lookup key that can be used in logging tools to track how often particular
+fields are queried in production.
 
 :: A _schema element_ can be a named type, a field, an input field, an enum
 value, a field argument, a directive, or a directive argument defined within a
@@ -1429,13 +1433,6 @@ identified by a {TypeCoordinate}. There is no schema coordinate which indicates
 a union member; this preserves the uniqueness property of a _schema coordinate_
 as stated above.
 
-Note: A {SchemaCoordinate} is not a definition within a GraphQL {Document}, but
-a separate standalone grammar, intended to be used by tools to reference types,
-fields, and other _schema element_. Examples include: references within
-documentation to refer to types and fields in a schema, a lookup key that can be
-used in logging tools to track how often particular fields are queried in
-production.
-
 **Parsing a Schema Coordinate**
 
 SchemaCoordinateToken ::
@@ -1446,12 +1443,12 @@ SchemaCoordinateToken ::
 SchemaCoordinatePunctuator :: one of ( ) . : @
 
 A {SchemaCoordinate} is a self-contained grammar with its own set of lexical
-tokens. The source text of a SchemaCoordinate must be a sequence of
-{SourceCharacter}.
+tokens, it is not contained within a {Document}. The source text of a
+SchemaCoordinate must be a sequence of {SourceCharacter}.
 
-Unlike [GraphQL documents](#sec-Language), {SchemaCoordinate} must not contain
-{Whitespace} or other {Ignored} grammars within the character sequence. This
-ensures that every schema coordinates has a single unambiguous and unique
+Unlike other [GraphQL documents](#sec-Language), {SchemaCoordinate} must not
+contain {Whitespace} or other {Ignored} grammars within the character sequence.
+This ensures that every schema coordinates has a single unambiguous and unique
 lexical form.
 
 **Resolving a Schema Coordinate**
