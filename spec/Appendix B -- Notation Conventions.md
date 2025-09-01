@@ -247,3 +247,9 @@ entry has a unique key, and can be directly referenced by that key.
 :: An _ordered map_ is a map which has a defined order. An entry added to an
 ordered map, which does not have an entry with that key, is ordered after
 existing entries.
+
+Note: This specification defines ordered data collection only when strictly
+required. When an order is observable, implementations should preserve it to
+improve output legibility and stability. For example if applying a grammar to an
+input string yields a _set_ of elements, serialization should emit those
+elements in the same source order.
