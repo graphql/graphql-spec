@@ -1771,12 +1771,12 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
 ### OneOf Input Objects
 
 :: A _OneOf Input Object_ is a special variant of _Input Object_ where exactly
-one fields must be set and non-null, all others being omitted. This is useful
-for representing situations where an input may be one of many different options.
+one field must be set and non-null, all others being omitted. This is useful for
+representing situations where an input may be one of many different options.
 
-When using the type system definition language, the `@oneOf` directive is used
-to indicate that an Input Object is a OneOf Input Object (and thus requires
-exactly one of its fields be provided):
+When using the type system definition language, the [`@oneOf`](#sec--oneOf)
+directive is used to indicate that an Input Object is a OneOf Input Object (and
+thus requires exactly one of its fields be provided):
 
 ```graphql
 input UserUniqueCondition @oneOf {
@@ -2313,7 +2313,7 @@ directive @oneOf on INPUT_OBJECT
 ```
 
 The `@oneOf` _built-in directive_ is used within the type system definition
-language to indicate an Input Object is a OneOf Input Object.
+language to indicate an _Input Object_ is a _OneOf Input Object_.
 
 ```graphql example
 input UserUniqueCondition @oneOf {
