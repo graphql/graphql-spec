@@ -369,9 +369,9 @@ continues until there are no more subfields to collect and execute.
 operation. A root selection set always selects from a _root operation type_.
 
 To execute the root selection set, the initial value being evaluated and the
-root type must be known, as well as whether each field must be executed
-serially, or normally by executing all fields in parallel (see
-[Normal and Serial Execution](#sec-Normal-and-Serial-Execution).
+root type must be known, as well as whether the fields must be executed in a
+series, or normally by executing all fields in parallel (see
+[Normal and Serial Execution](#sec-Normal-and-Serial-Execution)).
 
 Executing the root selection set works similarly for queries (parallel),
 mutations (serial), and subscriptions (where it is executed for each event in
@@ -396,10 +396,9 @@ executionMode):
 ### Field Collection
 
 Before execution, each _selection set_ is converted to a _collected fields map_
-by calling {CollectFields()} by collecting all fields with the same response
-name, including those in referenced fragments, into an individual _field set_.
-This ensures that multiple references to fields with the same response name will
-only be executed once.
+by collecting all fields with the same response name, including those in
+referenced fragments, into an individual _field set_. This ensures that multiple
+references to fields with the same response name will only be executed once.
 
 :: A _collected fields map_ is an ordered map where each entry is a _response
 name_ and its associated _field set_. A _collected fields map_ may be produced
@@ -436,8 +435,8 @@ fragment ExampleFragment on Query {
 }
 ```
 
-The depth-first-search order of the _field set_ produced by {CollectFields()} is
-maintained through execution, ensuring that fields appear in the executed
+The depth-first-search order of each _field set_ produced by {CollectFields()}
+is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
 CollectFields(objectType, selectionSet, variableValues, visitedFragments):
@@ -475,11 +474,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -490,11 +489,11 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentCollectedFieldMap} be the result of calling
+    - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
       visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
-      {fragmentCollectedFieldMap}:
+      {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
@@ -518,8 +517,8 @@ directives may be applied in either order since they apply commutatively.
 
 **Merging Selection Sets**
 
-In order to execute the sub-selections of a object typed field, all _selection
-sets_ of each field with the same response name of the parent _field set_ are
+In order to execute the sub-selections of an object typed field, all _selection
+sets_ of each field with the same response name in the parent _field set_ are
 merged together into a single _collected fields map_ representing the subfields
 to be executed next.
 
@@ -554,9 +553,9 @@ CollectSubfields(objectType, fields, variableValues):
 - For each {field} in {fields}:
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {fieldCollectedFieldMap} be the result of {CollectFields(objectType,
+  - Let {fieldCollectedFieldsMap} be the result of {CollectFields(objectType,
     fieldSelectionSet, variableValues)}.
-  - For each {responseName} and {subfields} in {fieldCollectedFieldMap}:
+  - For each {responseName} and {subfields} in {fieldCollectedFieldsMap}:
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
@@ -751,17 +750,17 @@ CoerceArgumentValues(objectType, field, variableValues):
   - Let {argumentName} be the name of {argumentDefinition}.
   - Let {argumentType} be the expected type of {argumentDefinition}.
   - Let {defaultValue} be the default value for {argumentDefinition}.
-  - Let {hasValue} be {true} if {argumentValues} provides a value for the name
-    {argumentName}.
   - Let {argumentValue} be the value provided in {argumentValues} for the name
     {argumentName}.
   - If {argumentValue} is a {Variable}:
     - Let {variableName} be the name of {argumentValue}.
-    - Let {hasValue} be {true} if {variableValues} provides a value for the name
-      {variableName}.
-    - Let {value} be the value provided in {variableValues} for the name
-      {variableName}.
-  - Otherwise, let {value} be {argumentValue}.
+    - If {variableValues} provides a value for the name {variableName}:
+      - Let {hasValue} be {true}.
+      - Let {value} be the value provided in {variableValues} for the name
+        {variableName}.
+  - Otherwise if {argumentValues} provides a value for the name {argumentName}.
+    - Let {hasValue} be {true}.
+    - Let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
     - Let {coercedDefaultValue} be the result of coercing {defaultValue}
       according to the input coercion rules of {argumentType}.
