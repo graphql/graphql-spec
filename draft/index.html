@@ -121,6 +121,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Language.Variables"><span class="spec-secid">2.11</span>Variables</a></li>
 <li><a href="#sec-Type-References"><span class="spec-secid">2.12</span>Type References</a></li>
 <li><a href="#sec-Language.Directives"><span class="spec-secid">2.13</span>Directives</a></li>
+<li><a href="#sec-Schema-Coordinates"><span class="spec-secid">2.14</span>Schema Coordinates</a></li>
 </ol>
 </li>
 <li><a href="#sec-Type-System"><span class="spec-secid">3</span>Type System</a><ol>
@@ -342,6 +343,7 @@ This is an example of a non-normative note.</div>
 <li><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.2</span>Ignored Tokens</a></li>
 <li><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.3</span>Lexical Tokens</a></li>
 <li><a href="#sec-Document-Syntax"><span class="spec-secid">B.4</span>Document Syntax</a></li>
+<li><a href="#sec-Schema-Coordinate-Syntax"><span class="spec-secid">B.5</span>Schema Coordinate Syntax</a></li>
 </ol>
 </li>
 <li><a href="#sec-Appendix-Type-System-Definitions"><span class="spec-secid">C</span>Appendix: Type System Definitions</a></li>
@@ -1502,6 +1504,204 @@ The same two methods of representing the lack of a value are possible via variab
   <span class="token directive function">@addExternalFields</span><span class="token punctuation">(</span><span class="token attr-name">source</span><span class="token punctuation">:</span> <span class="token string">"profiles"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
+</code></pre>
+</section>
+</section>
+<section id="sec-Schema-Coordinates" secid="2.14">
+<h2 data-source="spec/Section%202%20--%20Language.md#L1381"><span class="spec-secid" title="link to this section"><a href="#sec-Schema-Coordinates">2.14</a></span>Schema Coordinates</h2>
+<div class="spec-production d2" id="SchemaCoordinate" data-source="spec/Section%202%20--%20Language.md#L1383-L1389">
+<span class="spec-nt"><a href="#SchemaCoordinate" data-name="SchemaCoordinate">SchemaCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span></div>
+</div>
+<div class="spec-production d2" id="TypeCoordinate" data-source="spec/Section%202%20--%20Language.md#L1391">
+<span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="MemberCoordinate" data-source="spec/Section%202%20--%20Language.md#L1393">
+<span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="ArgumentCoordinate" data-source="spec/Section%202%20--%20Language.md#L1395">
+<span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+</div>
+<div class="spec-production d2" id="DirectiveCoordinate" data-source="spec/Section%202%20--%20Language.md#L1397">
+<span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="DirectiveArgumentCoordinate" data-source="spec/Section%202%20--%20Language.md#L1399">
+<span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+</div>
+<p data-source="spec/Section%202%20--%20Language.md#L1401-L1406">A <dfn id="schema-coordinate"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></dfn> is a human readable string that uniquely identifies a <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> within a GraphQL Schema, intended to be used by tools to reference types, fields, and other <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span>. Examples include: references within documentation to refer to types and fields in a schema, a lookup key that can be used in logging tools to track how often particular fields are queried in production.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1408-L1410">A <dfn id="schema-element"><a href="#schema-element" data-name="schema-element">schema element</a></dfn> can be a named type, a field, an input field, an enum value, a field argument, a directive, or a directive argument defined within a schema (including built-in types and directives).</p>
+<div id="note-62a0f" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L1412-L1413">
+<a href="#note-62a0f">Note</a>
+Meta-fields are not defined within a schema, and thus are not <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span>. By extension, an introspection type is not a <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span>.</div>
+<p data-source="spec/Section%202%20--%20Language.md#L1415-L1416">The <dfn id="containing-element"><a href="#containing-element" data-name="containing-element">containing element</a></dfn> of a <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> is the schema element with one fewer <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span> token that syntactically contains it. Specifically:</p>
+<ul>
+<li data-source="spec/Section%202%20--%20Language.md#L1418">The containing element of an <span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span> is a <span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1419">The containing element of a <span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span> is a <span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1420-L1421">The containing element of a <span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span> is a <span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1422"><span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span> and <span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span> have no containing element.</li>
+</ul>
+<p data-source="spec/Section%202%20--%20Language.md#L1424-L1425">A <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> is always unique. Each <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> can be referenced by exactly one possible schema coordinate.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1427-L1429">A <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> may refer to either a defined or built-in <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span>. For example, <code>String</code> and <code>@deprecated(reason:)</code> are both valid schema coordinates which refer to built-in schema elements.</p>
+<div id="note-86d54" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L1431-L1434">
+<a href="#note-86d54">Note</a>
+A union member references a type in the schema. A type in the schema is identified by a <span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span>. There is no schema coordinate which indicates a union member; this preserves the uniqueness property of a <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> as stated above.</div>
+<section id="sec-Schema-Coordinates.Parsing-a-Schema-Coordinate" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1436"><a href="#sec-Schema-Coordinates.Parsing-a-Schema-Coordinate" title="link to this subsection">Parsing a Schema Coordinate</a></h6>
+<div class="spec-production d2" id="SchemaCoordinateToken" data-source="spec/Section%202%20--%20Language.md#L1438-L1441">
+<span class="spec-nt"><a href="#SchemaCoordinateToken" data-name="SchemaCoordinateToken">SchemaCoordinateToken</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#SchemaCoordinatePunctuator" data-name="SchemaCoordinatePunctuator">SchemaCoordinatePunctuator</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="SchemaCoordinatePunctuator" data-source="spec/Section%202%20--%20Language.md#L1443">
+<span class="spec-nt"><a href="#SchemaCoordinatePunctuator" data-name="SchemaCoordinatePunctuator">SchemaCoordinatePunctuator</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">(</span></td><td class="spec-rhs"><span class="spec-t">)</span></td><td class="spec-rhs"><span class="spec-t">.</span></td><td class="spec-rhs"><span class="spec-t">:</span></td><td class="spec-rhs"><span class="spec-t">@</span></td></tr>
+</table></div></div>
+</div>
+<p data-source="spec/Section%202%20--%20Language.md#L1445-L1447">A <span class="spec-nt"><a href="#SchemaCoordinate" data-name="SchemaCoordinate">SchemaCoordinate</a></span> is a self-contained grammar with its own set of lexical tokens, it is not contained within a <span class="spec-nt"><a href="#Document" data-name="Document">Document</a></span>. The source text of a SchemaCoordinate must be a sequence of <span class="spec-nt"><a href="#SourceCharacter" data-name="SourceCharacter">SourceCharacter</a></span>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1449-L1452">Unlike other <a href="#sec-Language">GraphQL documents</a>, <span class="spec-nt"><a href="#SchemaCoordinate" data-name="SchemaCoordinate">SchemaCoordinate</a></span> must not contain <span class="spec-nt"><span data-name="Whitespace">Whitespace</span></span> or other <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span> grammars within the character sequence. This ensures that every schema coordinates has a single unambiguous and unique lexical form.</p>
+</section>
+<section id="sec-Schema-Coordinates.Resolving-a-Schema-Coordinate" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1454"><a href="#sec-Schema-Coordinates.Resolving-a-Schema-Coordinate" title="link to this subsection">Resolving a Schema Coordinate</a></h6>
+<p data-source="spec/Section%202%20--%20Language.md#L1456-L1457">To refer to a <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span>, a <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> must be interpreted in the context of a GraphQL <var data-name="schema">schema</var>.</p>
+<p data-source="spec/Section%202%20--%20Language.md#L1459-L1461">If the <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> cannot be found, the resolve function will not yield a value (without raising an error). However, an error will be raised if any non-leaf nodes within a <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> cannot be found in the <var data-name="schema">schema</var>.</p>
+<div id="note-adbab" class="spec-note" data-source="spec/Section%202%20--%20Language.md#L1463-L1466">
+<a href="#note-adbab">Note</a>
+Although it is syntactically possible to describe a meta-field or element of the introspection schema with a schema coordinate (e.g. <code>Business.__typename</code> or <code>__Type.fields(includeDeprecated:)</code>), they are not <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> and therefore resolving such coordinates does not have a defined behavior.</div>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1468-L1471">
+<span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1470">Let <var data-name="typeName">typeName</var> be the value of <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1471">Return the type in <var data-name="schema">schema</var> named <var data-name="typeName">typeName</var> if it exists.</li>
+</ol>
+</div>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1473-L1487">
+<span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1475">Let <var data-name="typeName">typeName</var> be the value of the first <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1476">Let <var data-name="type">type</var> be the type in <var data-name="schema">schema</var> named <var data-name="typeName">typeName</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1477-L1478">Assert: <var data-name="type">type</var> must exist, and must be an Enum, Input Object, Object or Interface type.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1479-L1481">If <var data-name="type">type</var> is an Enum type:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1480">Let <var data-name="enumValueName">enumValueName</var> be the value of the second <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1481">Return the enum value of <var data-name="type">type</var> named <var data-name="enumValueName">enumValueName</var> if it exists.</li>
+</ol>
+</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1482-L1484">Otherwise, if <var data-name="type">type</var> is an Input Object type:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1483">Let <var data-name="inputFieldName">inputFieldName</var> be the value of the second <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1484">Return the input field of <var data-name="type">type</var> named <var data-name="inputFieldName">inputFieldName</var> if it exists.</li>
+</ol>
+</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1485-L1487">Otherwise:<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1486">Let <var data-name="fieldName">fieldName</var> be the value of the second <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1487">Return the field of <var data-name="type">type</var> named <var data-name="fieldName">fieldName</var> if it exists.</li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1489-L1498">
+<span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1491">Let <var data-name="typeName">typeName</var> be the value of the first <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1492">Let <var data-name="type">type</var> be the type in <var data-name="schema">schema</var> named <var data-name="typeName">typeName</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1493">Assert: <var data-name="type">type</var> must exist, and be an Object or Interface type.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1494">Let <var data-name="fieldName">fieldName</var> be the value of the second <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1495">Let <var data-name="field">field</var> be the field of <var data-name="type">type</var> named <var data-name="fieldName">fieldName</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1496">Assert: <var data-name="field">field</var> must exist.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1497">Let <var data-name="fieldArgumentName">fieldArgumentName</var> be the value of the third <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1498">Return the argument of <var data-name="field">field</var> named <var data-name="fieldArgumentName">fieldArgumentName</var> if it exists.</li>
+</ol>
+</div>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1500-L1503">
+<span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1502">Let <var data-name="directiveName">directiveName</var> be the value of <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1503">Return the directive in <var data-name="schema">schema</var> named <var data-name="directiveName">directiveName</var> if it exists.</li>
+</ol>
+</div>
+<div class="spec-semantic d2" data-source="spec/Section%202%20--%20Language.md#L1505-L1512">
+<span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+<ol>
+<li data-source="spec/Section%202%20--%20Language.md#L1507">Let <var data-name="directiveName">directiveName</var> be the value of the first <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1508">Let <var data-name="directive">directive</var> be the directive in <var data-name="schema">schema</var> named <var data-name="directiveName">directiveName</var>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1509">Assert: <var data-name="directive">directive</var> must exist.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1510">Let <var data-name="directiveArgumentName">directiveArgumentName</var> be the value of the second <span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span>.</li>
+<li data-source="spec/Section%202%20--%20Language.md#L1511-L1512">Return the argument of <var data-name="directive">directive</var> named <var data-name="directiveArgumentName">directiveArgumentName</var> if it exists.</li>
+</ol>
+</div>
+</section>
+<section id="sec-Schema-Coordinates.Examples" class="subsec">
+<h6 data-source="spec/Section%202%20--%20Language.md#L1514"><a href="#sec-Schema-Coordinates.Examples" title="link to this subsection">Examples</a></h6>
+<table>
+<thead>
+<tr data-source="spec/Section%202%20--%20Language.md#L1516">
+<th>Element Kind</th>
+<th>Schema Coordinate</th>
+<th>Schema Element</th>
+</tr>
+</thead>
+<tbody>
+<tr data-source="spec/Section%202%20--%20Language.md#L1518">
+<td>Named Type</td>
+<td><code>Business</code></td>
+<td><code>Business</code> type</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1519">
+<td>Field</td>
+<td><code>Business.name</code></td>
+<td><code>name</code> field on the <code>Business</code> type</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1520">
+<td>Input Field</td>
+<td><code>SearchCriteria.filter</code></td>
+<td><code>filter</code> input field on the <code>SearchCriteria</code> input object type</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1521">
+<td>Enum Value</td>
+<td><code>SearchFilter.OPEN_NOW</code></td>
+<td><code>OPEN_NOW</code> value of the <code>SearchFilter</code> enum</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1522">
+<td>Field Argument</td>
+<td><code>Query.searchBusiness(criteria:)</code></td>
+<td><code>criteria</code> argument on the <code>searchBusiness</code> field on the <code>Query</code> type</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1523">
+<td>Directive</td>
+<td><code>@private</code></td>
+<td><code>@private</code> directive</td>
+</tr>
+<tr data-source="spec/Section%202%20--%20Language.md#L1524">
+<td>Directive Argument</td>
+<td><code>@private(scope:)</code></td>
+<td><code>scope</code> argument on the <code>@private</code> directive</td>
+</tr>
+</tbody>
+</table>
+<p data-source="spec/Section%202%20--%20Language.md#L1526-L1527">The table above shows an example of a <span class="spec-ref"><a href="#schema-coordinate" data-name="schema-coordinate">schema coordinate</a></span> for every kind of <span class="spec-ref"><a href="#schema-element" data-name="schema-element">schema element</a></span> based on the schema below.</p>
+<pre data-language="graphql" data-source="spec/Section%202%20--%20Language.md#L1529-L1552"><code><span class="token keyword">type</span> <span class="token class-name">Query</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">searchBusiness</span><span class="token punctuation">(</span><span class="token attr-name">criteria</span><span class="token punctuation">:</span> <span class="token class-name">SearchCriteria</span><span class="token operator">!</span><span class="token punctuation">)</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token class-name">Business</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">input</span> <span class="token object">SearchCriteria</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">filter</span><span class="token punctuation">:</span> <span class="token class-name">SearchFilter</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">enum</span> <span class="token class-name">SearchFilter</span> <span class="token punctuation">{</span>
+  <span class="token constant">OPEN_NOW</span>
+  <span class="token constant">DELIVERS_TAKEOUT</span>
+  <span class="token constant">VEGETARIAN_MENU</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">type</span> <span class="token class-name">Business</span> <span class="token punctuation">{</span>
+  <span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token scalar">ID</span>
+  <span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+  <span class="token attr-name">email</span><span class="token punctuation">:</span> <span class="token scalar">String</span> <span class="token directive function">@private</span><span class="token punctuation">(</span><span class="token attr-name">scope</span><span class="token punctuation">:</span> <span class="token string">"loggedIn"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">directive</span> <span class="token directive function">@private</span><span class="token punctuation">(</span><span class="token attr-name">scope</span><span class="token punctuation">:</span> <span class="token scalar">String</span><span class="token operator">!</span><span class="token punctuation">)</span> <span class="token keyword">on</span> <span class="token constant">FIELD_DEFINITION</span>
 </code></pre>
 </section>
 </section>
@@ -7075,6 +7275,44 @@ Block string values are interpreted to exclude blank initial and trailing lines 
 </table></div></div>
 </div>
 </section>
+<section id="sec-Schema-Coordinate-Syntax" secid="B.5">
+<h2 data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L417"><span class="spec-secid" title="link to this section"><a href="#sec-Schema-Coordinate-Syntax">B.5</a></span>Schema Coordinate Syntax</h2>
+<div id="note-bf382" class="spec-note" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L419">
+<a href="#note-bf382">Note</a>
+Schema coordinates must not contain <span class="spec-nt"><a href="#Ignored" data-name="Ignored">Ignored</a></span>.</div>
+<div class="spec-production d2" id="SchemaCoordinateToken" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L421-L424">
+<span class="spec-nt"><a href="#SchemaCoordinateToken" data-name="SchemaCoordinateToken">SchemaCoordinateToken</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#SchemaCoordinatePunctuator" data-name="SchemaCoordinatePunctuator">SchemaCoordinatePunctuator</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="SchemaCoordinatePunctuator" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L426">
+<span class="spec-nt"><a href="#SchemaCoordinatePunctuator" data-name="SchemaCoordinatePunctuator">SchemaCoordinatePunctuator</a></span><div class="spec-oneof"><div class="spec-oneof-grid"><table>
+<tr>
+<td class="spec-rhs"><span class="spec-t">(</span></td><td class="spec-rhs"><span class="spec-t">)</span></td><td class="spec-rhs"><span class="spec-t">.</span></td><td class="spec-rhs"><span class="spec-t">:</span></td><td class="spec-rhs"><span class="spec-t">@</span></td></tr>
+</table></div></div>
+</div>
+<div class="spec-production d2" id="SchemaCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L428-L434">
+<span class="spec-nt"><a href="#SchemaCoordinate" data-name="SchemaCoordinate">SchemaCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span></div>
+<div class="spec-rhs"><span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span></div>
+</div>
+<div class="spec-production d2" id="TypeCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L436">
+<span class="spec-nt"><a href="#TypeCoordinate" data-name="TypeCoordinate">TypeCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="MemberCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L438">
+<span class="spec-nt"><a href="#MemberCoordinate" data-name="MemberCoordinate">MemberCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="ArgumentCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L440">
+<span class="spec-nt"><a href="#ArgumentCoordinate" data-name="ArgumentCoordinate">ArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">.</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+</div>
+<div class="spec-production d2" id="DirectiveCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L442">
+<span class="spec-nt"><a href="#DirectiveCoordinate" data-name="DirectiveCoordinate">DirectiveCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span></div>
+</div>
+<div class="spec-production d2" id="DirectiveArgumentCoordinate" data-source="spec/Appendix%20B%20--%20Grammar%20Summary.md#L444">
+<span class="spec-nt"><a href="#DirectiveArgumentCoordinate" data-name="DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></span><div class="spec-rhs"><span class="spec-t">@</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">(</span><span class="spec-nt"><a href="#Name" data-name="Name">Name</a></span><span class="spec-t">:</span><span class="spec-t">)</span></div>
+</div>
+</section>
 </section>
 <section id="sec-Appendix-Type-System-Definitions" secid="C">
 <h1 data-source="spec/Appendix%20C%20--%20Specified%20Definitions.md#L1"><span class="spec-secid" title="link to this section"><a href="#sec-Appendix-Type-System-Definitions">C</a></span>Appendix: Type System Definitions</h1>
@@ -7400,6 +7638,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#Alias">Alias</a></li>
 <li><a href="#AreTypesCompatible()">AreTypesCompatible</a></li>
 <li><a href="#Argument">Argument</a></li>
+<li><a href="#ArgumentCoordinate">ArgumentCoordinate</a></li>
 <li><a href="#Arguments">Arguments</a></li>
 <li><a href="#ArgumentsDefinition">ArgumentsDefinition</a></li>
 <li><a href="#BlockString">BlockString</a></li>
@@ -7418,6 +7657,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#Comment">Comment</a></li>
 <li><a href="#CommentChar">CommentChar</a></li>
 <li><a href="#CompleteValue()">CompleteValue</a></li>
+<li><a href="#containing-element">containing element</a></li>
 <li><a href="#CreateSourceEventStream()">CreateSourceEventStream</a></li>
 <li><a href="#custom-directive">custom directive</a></li>
 <li><a href="#default-root-type-name">default root type name</a></li>
@@ -7427,6 +7667,8 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#DetectFragmentCycles()">DetectFragmentCycles</a></li>
 <li><a href="#Digit">Digit</a></li>
 <li><a href="#Directive">Directive</a></li>
+<li><a href="#DirectiveArgumentCoordinate">DirectiveArgumentCoordinate</a></li>
+<li><a href="#DirectiveCoordinate">DirectiveCoordinate</a></li>
 <li><a href="#DirectiveDefinition">DirectiveDefinition</a></li>
 <li><a href="#DirectiveLocation">DirectiveLocation</a></li>
 <li><a href="#DirectiveLocations">DirectiveLocations</a></li>
@@ -7492,6 +7734,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#ListType">ListType</a></li>
 <li><a href="#ListValue">ListValue</a></li>
 <li><a href="#MapSourceToResponseEvent()">MapSourceToResponseEvent</a></li>
+<li><a href="#MemberCoordinate">MemberCoordinate</a></li>
 <li><a href="#Name">Name</a></li>
 <li><a href="#NameContinue">NameContinue</a></li>
 <li><a href="#NamedType">NamedType</a></li>
@@ -7525,6 +7768,11 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#scalar-specification-url">scalar specification URL</a></li>
 <li><a href="#ScalarTypeDefinition">ScalarTypeDefinition</a></li>
 <li><a href="#ScalarTypeExtension">ScalarTypeExtension</a></li>
+<li><a href="#schema-coordinate">schema coordinate</a></li>
+<li><a href="#schema-element">schema element</a></li>
+<li><a href="#SchemaCoordinate">SchemaCoordinate</a></li>
+<li><a href="#SchemaCoordinatePunctuator">SchemaCoordinatePunctuator</a></li>
+<li><a href="#SchemaCoordinateToken">SchemaCoordinateToken</a></li>
 <li><a href="#SchemaDefinition">SchemaDefinition</a></li>
 <li><a href="#SchemaExtension">SchemaExtension</a></li>
 <li><a href="#Selection">Selection</a></li>
@@ -7539,6 +7787,7 @@ A Directive can be adjacent to many parts of the GraphQL language, a __Directive
 <li><a href="#Token">Token</a></li>
 <li><a href="#Type">Type</a></li>
 <li><a href="#TypeCondition">TypeCondition</a></li>
+<li><a href="#TypeCoordinate">TypeCoordinate</a></li>
 <li><a href="#TypeDefinition">TypeDefinition</a></li>
 <li><a href="#TypeExtension">TypeExtension</a></li>
 <li><a href="#TypeSystemDefinition">TypeSystemDefinition</a></li>
@@ -7614,6 +7863,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_2.11"><a href="#sec-Language.Variables"><span class="spec-secid">2.11</span>Variables</a></li>
 <li id="_sidebar_2.12"><a href="#sec-Type-References"><span class="spec-secid">2.12</span>Type References</a></li>
 <li id="_sidebar_2.13"><a href="#sec-Language.Directives"><span class="spec-secid">2.13</span>Directives</a></li>
+<li id="_sidebar_2.14"><a href="#sec-Schema-Coordinates"><span class="spec-secid">2.14</span>Schema Coordinates</a></li>
 </ol>
 </li>
 <li id="_sidebar_3"><a href="#sec-Type-System"><span class="spec-secid">3</span>Type System</a>
@@ -7915,6 +8165,7 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_B.2"><a href="#sec-Appendix-Grammar-Summary.Ignored-Tokens"><span class="spec-secid">B.2</span>Ignored Tokens</a></li>
 <li id="_sidebar_B.3"><a href="#sec-Appendix-Grammar-Summary.Lexical-Tokens"><span class="spec-secid">B.3</span>Lexical Tokens</a></li>
 <li id="_sidebar_B.4"><a href="#sec-Document-Syntax"><span class="spec-secid">B.4</span>Document Syntax</a></li>
+<li id="_sidebar_B.5"><a href="#sec-Schema-Coordinate-Syntax"><span class="spec-secid">B.5</span>Schema Coordinate Syntax</a></li>
 </ol>
 </li>
 <li id="_sidebar_C"><a href="#sec-Appendix-Type-System-Definitions"><span class="spec-secid">C</span>Appendix: Type System Definitions</a></li>
