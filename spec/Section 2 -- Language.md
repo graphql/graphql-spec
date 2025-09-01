@@ -1465,12 +1465,12 @@ of the introspection schema with a schema coordinate (e.g. `Business.__typename`
 or `__Type.fields(includeDeprecated:)`), they are not _schema element_ and
 therefore resolving such coordinates does not have a defined behavior.
 
-TypeCoordinate : Name
+TypeCoordinate :: Name
 
 1. Let {typeName} be the value of {Name}.
 2. Return the type in {schema} named {typeName} if it exists.
 
-MemberCoordinate : Name . Name
+MemberCoordinate :: Name . Name
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in {schema} named {typeName}.
@@ -1486,7 +1486,7 @@ MemberCoordinate : Name . Name
    1. Let {fieldName} be the value of the second {Name}.
    2. Return the field of {type} named {fieldName} if it exists.
 
-ArgumentCoordinate : Name . Name ( Name : )
+ArgumentCoordinate :: Name . Name ( Name : )
 
 1. Let {typeName} be the value of the first {Name}.
 2. Let {type} be the type in {schema} named {typeName}.
@@ -1497,12 +1497,12 @@ ArgumentCoordinate : Name . Name ( Name : )
 7. Let {fieldArgumentName} be the value of the third {Name}.
 8. Return the argument of {field} named {fieldArgumentName} if it exists.
 
-DirectiveCoordinate : @ Name
+DirectiveCoordinate :: @ Name
 
 1. Let {directiveName} be the value of {Name}.
 2. Return the directive in {schema} named {directiveName} if it exists.
 
-DirectiveArgumentCoordinate : @ Name ( Name : )
+DirectiveArgumentCoordinate :: @ Name ( Name : )
 
 1. Let {directiveName} be the value of the first {Name}.
 2. Let {directive} be the directive in {schema} named {directiveName}.
