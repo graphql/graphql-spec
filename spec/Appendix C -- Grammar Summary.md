@@ -1,4 +1,4 @@
-# B. Appendix: Grammar Summary
+# C. Appendix: Grammar Summary
 
 ## Source Text
 
