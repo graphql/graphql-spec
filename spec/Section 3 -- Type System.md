@@ -1801,7 +1801,7 @@ _request error_ must be raised.
   error_ must be raised.
 
 - All _Input Object_
-  [input coercion rules](http://localhost:3000/draft#sec-Input-Objects.Input-Coercion)
+  [input coercion rules](#sec-Input-Objects.Input-Coercion)
   must also apply to an _OneOf Input Object_.
 
 - The resulting coerced map must contain exactly one entry and the value for
