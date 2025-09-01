@@ -14,6 +14,12 @@ import {
 function stripDescriptions(sdl) {
   const ast = parse(sdl);
   const noDescAst = visit(ast, {
+    enter: (node) => {
+      // Not in spec yet
+      if (node.name?.value === "FRAGMENT_VARIABLE_DEFINITION") {
+        return null
+      }
+    },
     leave: (node) => ({ ...node, description: undefined })
   });
   return print(noDescAst);
