@@ -1,6 +1,6 @@
 # GraphQL
 
-_Current Working Draft_
+_September 2025 Edition_
 
 **Introduction**
 
