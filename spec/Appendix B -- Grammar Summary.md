@@ -416,9 +416,16 @@ TypeSystemDirectiveLocation : one of
 
 ## Schema Coordinate Syntax
 
-Note: In order to be unique, schema coordinates do not permit {Ignored} lexical
-grammars.
-SchemaCoordinate :
+Note: Schema coordinates must not contain {Ignored}.
+
+SchemaCoordinateToken ::
+
+- SchemaCoordinatePunctuator
+- Name
+
+SchemaCoordinatePunctuator :: one of ( ) . : @
+
+SchemaCoordinate ::
 
 - TypeCoordinate
 - MemberCoordinate
@@ -426,12 +433,12 @@ SchemaCoordinate :
 - DirectiveCoordinate
 - DirectiveArgumentCoordinate
 
-TypeCoordinate : Name
+TypeCoordinate :: Name
 
-MemberCoordinate : Name . Name
+MemberCoordinate :: Name . Name
 
-ArgumentCoordinate : Name . Name ( Name : )
+ArgumentCoordinate :: Name . Name ( Name : )
 
-DirectiveCoordinate : @ Name
+DirectiveCoordinate :: @ Name
 
-DirectiveArgumentCoordinate : @ Name ( Name : )
+DirectiveArgumentCoordinate :: @ Name ( Name : )
