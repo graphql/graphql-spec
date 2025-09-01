@@ -1,4 +1,4 @@
-# A. Appendix: Notation Conventions
+# B. Appendix: Notation Conventions
 
 This specification document contains a number of notation conventions used to
 describe technical concepts such as language grammar and semantics as well as

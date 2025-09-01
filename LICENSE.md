@@ -1,7 +1,8 @@
-## Copyright and Licensing
+# Appendix: Copyright and Licensing
 
 The GraphQL Specification Project is made available by the
-[Joint Development Foundation](https://www.jointdevelopment.org/). The current
+[Joint Development Foundation](https://www.jointdevelopment.org/) Projects, LLC,
+GraphQL Series. The current
 [Working Group](https://github.com/graphql/graphql-wg) charter, which includes
 the IP policy governing all working group deliverables (including
 specifications, source code, and datasets) may be found at

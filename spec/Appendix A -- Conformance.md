@@ -1,6 +1,4 @@
-# D. Appendix: Conformance & Licensing
-
-## Conformance
+# A. Appendix: Conformance
 
 A conforming implementation of GraphQL must fulfill all normative requirements.
 Conformance requirements are described in this document via both descriptive
@@ -60,5 +58,3 @@ questions that arise during implementation. Notes are either introduced
 explicitly in prose (e.g. "Note: ") or are set apart in a note block, like this:
 
 Note: This is an example of a non-normative note.
-
-## [LICENSE](../LICENSE.md)

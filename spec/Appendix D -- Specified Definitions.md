@@ -1,4 +1,4 @@
-# C. Appendix: Type System Definitions
+# D. Appendix: Type System Definitions
 
 This appendix lists the specified type system definitions.
 
