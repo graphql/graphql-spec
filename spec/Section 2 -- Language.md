@@ -1377,3 +1377,176 @@ type Person
   name: String
 }
 ```
+
+## Schema Coordinates
+
+SchemaCoordinate ::
+
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate :: Name
+
+MemberCoordinate :: Name . Name
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+DirectiveCoordinate :: @ Name
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )
+
+:: A _schema coordinate_ is a human readable string that uniquely identifies a
+_schema element_ within a GraphQL Schema, intended to be used by tools to
+reference types, fields, and other _schema element_. Examples include:
+references within documentation to refer to types and fields in a schema, a
+lookup key that can be used in logging tools to track how often particular
+fields are queried in production.
+
+:: A _schema element_ can be a named type, a field, an input field, an enum
+value, a field argument, a directive, or a directive argument defined within a
+schema (including built-in types and directives).
+
+Note: Meta-fields are not defined within a schema, and thus are not _schema
+element_. By extension, an introspection type is not a _schema element_.
+
+:: The _containing element_ of a _schema element_ is the schema element with one
+fewer {Name} token that syntactically contains it. Specifically:
+
+- The containing element of an {ArgumentCoordinate} is a {MemberCoordinate}.
+- The containing element of a {MemberCoordinate} is a {TypeCoordinate}.
+- The containing element of a {DirectiveArgumentCoordinate} is a
+  {DirectiveCoordinate}.
+- {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
+
+A _schema coordinate_ is always unique. Each _schema element_ can be referenced
+by exactly one possible schema coordinate.
+
+A _schema coordinate_ may refer to either a defined or built-in _schema
+element_. For example, `String` and `@deprecated(reason:)` are both valid schema
+coordinates which refer to built-in schema elements.
+
+Note: A union member references a type in the schema. A type in the schema is
+identified by a {TypeCoordinate}. There is no schema coordinate which indicates
+a union member; this preserves the uniqueness property of a _schema coordinate_
+as stated above.
+
+**Parsing a Schema Coordinate**
+
+SchemaCoordinateToken ::
+
+- SchemaCoordinatePunctuator
+- Name
+
+SchemaCoordinatePunctuator :: one of ( ) . : @
+
+A {SchemaCoordinate} is a self-contained grammar with its own set of lexical
+tokens, it is not contained within a {Document}. The source text of a
+SchemaCoordinate must be a sequence of {SourceCharacter}.
+
+Unlike other [GraphQL documents](#sec-Language), {SchemaCoordinate} must not
+contain {Whitespace} or other {Ignored} grammars within the character sequence.
+This ensures that every schema coordinates has a single unambiguous and unique
+lexical form.
+
+**Resolving a Schema Coordinate**
+
+To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
+context of a GraphQL {schema}.
+
+If the _schema element_ cannot be found, the resolve function will not yield a
+value (without raising an error). However, an error will be raised if any
+non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
+
+Note: Although it is syntactically possible to describe a meta-field or element
+of the introspection schema with a schema coordinate (e.g. `Business.__typename`
+or `__Type.fields(includeDeprecated:)`), they are not _schema element_ and
+therefore resolving such coordinates does not have a defined behavior.
+
+TypeCoordinate :: Name
+
+1. Let {typeName} be the value of {Name}.
+2. Return the type in {schema} named {typeName} if it exists.
+
+MemberCoordinate :: Name . Name
+
+1. Let {typeName} be the value of the first {Name}.
+2. Let {type} be the type in {schema} named {typeName}.
+3. Assert: {type} must exist, and must be an Enum, Input Object, Object or
+   Interface type.
+4. If {type} is an Enum type:
+   1. Let {enumValueName} be the value of the second {Name}.
+   2. Return the enum value of {type} named {enumValueName} if it exists.
+5. Otherwise, if {type} is an Input Object type:
+   1. Let {inputFieldName} be the value of the second {Name}.
+   2. Return the input field of {type} named {inputFieldName} if it exists.
+6. Otherwise:
+   1. Let {fieldName} be the value of the second {Name}.
+   2. Return the field of {type} named {fieldName} if it exists.
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+1. Let {typeName} be the value of the first {Name}.
+2. Let {type} be the type in {schema} named {typeName}.
+3. Assert: {type} must exist, and be an Object or Interface type.
+4. Let {fieldName} be the value of the second {Name}.
+5. Let {field} be the field of {type} named {fieldName}.
+6. Assert: {field} must exist.
+7. Let {fieldArgumentName} be the value of the third {Name}.
+8. Return the argument of {field} named {fieldArgumentName} if it exists.
+
+DirectiveCoordinate :: @ Name
+
+1. Let {directiveName} be the value of {Name}.
+2. Return the directive in {schema} named {directiveName} if it exists.
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )
+
+1. Let {directiveName} be the value of the first {Name}.
+2. Let {directive} be the directive in {schema} named {directiveName}.
+3. Assert: {directive} must exist.
+4. Let {directiveArgumentName} be the value of the second {Name}.
+5. Return the argument of {directive} named {directiveArgumentName} if it
+   exists.
+
+**Examples**
+
+| Element Kind       | Schema Coordinate                 | Schema Element                                                        |
+| ------------------ | --------------------------------- | --------------------------------------------------------------------- |
+| Named Type         | `Business`                        | `Business` type                                                       |
+| Field              | `Business.name`                   | `name` field on the `Business` type                                   |
+| Input Field        | `SearchCriteria.filter`           | `filter` input field on the `SearchCriteria` input object type        |
+| Enum Value         | `SearchFilter.OPEN_NOW`           | `OPEN_NOW` value of the `SearchFilter` enum                           |
+| Field Argument     | `Query.searchBusiness(criteria:)` | `criteria` argument on the `searchBusiness` field on the `Query` type |
+| Directive          | `@private`                        | `@private` directive                                                  |
+| Directive Argument | `@private(scope:)`                | `scope` argument on the `@private` directive                          |
+
+The table above shows an example of a _schema coordinate_ for every kind of
+_schema element_ based on the schema below.
+
+```graphql
+type Query {
+  searchBusiness(criteria: SearchCriteria!): [Business]
+}
+
+input SearchCriteria {
+  name: String
+  filter: SearchFilter
+}
+
+enum SearchFilter {
+  OPEN_NOW
+  DELIVERS_TAKEOUT
+  VEGETARIAN_MENU
+}
+
+type Business {
+  id: ID
+  name: String
+  email: String @private(scope: "loggedIn")
+}
+
+directive @private(scope: String!) on FIELD_DEFINITION
+```
