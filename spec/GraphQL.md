@@ -11,7 +11,7 @@ client-server applications.
 A conforming implementation of GraphQL must fulfill all normative requirements
 described in this specification (see [Conformance](#sec-Appendix-Conformance)).
 The GraphQL specification is provided under the OWFa 1.0 license (see
-[Licensing](#sec-Appendix-Copyright-and-Licensing)).
+[Copyright and Licensing](#sec-Appendix-Copyright-and-Licensing)).
 
 GraphQL was originally created in 2012 and the development of this open standard
 started in 2015. It is a deliverable of the
