@@ -16,7 +16,7 @@ TypeSystemDefinition :
 The GraphQL language includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
 describe a GraphQL service's type system. Tools may use this definition language
-to provide utilities such as client code generation or service boot-strapping.
+to provide utilities such as client code generation or service bootstrapping.
 
 GraphQL tools or services which only seek to execute GraphQL requests and not
 construct a new GraphQL schema may choose not to allow {TypeSystemDefinition}.
@@ -434,7 +434,7 @@ GraphQL services may use custom scalar types in addition to the built-in
 scalars. For example, a GraphQL service could define a scalar called `UUID`
 which, while serialized as a string, conforms to
 [RFC 4122](https://tools.ietf.org/html/rfc4122). When querying a field of type
-`UUID`, you can then rely on the ability to parse the result with a RFC 4122
+`UUID`, you can then rely on the ability to parse the result with an RFC 4122
 compliant parser. Another example of a potentially useful custom scalar is
 `URL`, which serializes as a string, but is guaranteed by the service to be a
 valid URL.
@@ -511,9 +511,9 @@ GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
 of input value is encountered. GraphQL may be parameterized by variables, the
 values of which are often serialized when sent over a transport like HTTP. Since
-some common serializations (ex. JSON) do not discriminate between integer and
+some common serializations (e.g. JSON) do not discriminate between integer and
 floating-point values, they are interpreted as an integer input value if they
-have an empty fractional part (ex. `1.0`) and otherwise as floating-point input
+have an empty fractional part (e.g. `1.0`) and otherwise as floating-point input
 value.
 
 For all types below, with the exception of Non-Null, if the explicit value
@@ -692,11 +692,11 @@ GraphQL operations are hierarchical and composed, describing a tree of
 information. While Scalar types describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values should be serialized as ordered maps, where the
-selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the _selection
-set_.
+GraphQL Objects represent a list of named fields, each of which yields a value
+of a specific type. Object values should be serialized as ordered maps, where
+the selected field names (or aliases) are the keys and the result of evaluating
+the field is the value, ordered by the order in which they appear in the
+_selection set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -1115,8 +1115,8 @@ InterfaceTypeDefinition :
   [lookahead != `{`]
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+objects and interfaces can then implement these interfaces which requires the
+implementing type to define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1800,9 +1800,8 @@ _request error_ must be raised.
   that entry must not be {null} or the {null} literal, otherwise a _request
   error_ must be raised.
 
-- All _Input Object_
-  [input coercion rules](#sec-Input-Objects.Input-Coercion)
-  must also apply to an _OneOf Input Object_.
+- All _Input Object_ [input coercion rules](#sec-Input-Objects.Input-Coercion)
+  must also apply to a _OneOf Input Object_.
 
 - The resulting coerced map must contain exactly one entry and the value for
   that entry must not be {null}, otherwise an _execution error_ must be raised.
@@ -1884,7 +1883,7 @@ indicates a mismatch in expectations between the type system and the
 implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
-coercion of an individual item in the list must result in a the value {null} at
+coercion of an individual item in the list must result in the value {null} at
 that position in the list along with an _execution error_ added to the response.
 If a list's item type is non-null, an execution error occurring at an individual
 item in the list must result in an execution error for the entire list.

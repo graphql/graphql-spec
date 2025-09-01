@@ -284,8 +284,8 @@ mutation dogOperation {
 
 **Explanatory Text**
 
-GraphQL allows a short-hand form for defining query operations when only that
-one operation exists in the document.
+GraphQL allows a shorthand form for defining query operations when only that one
+operation exists in the document.
 
 For example the following document is valid:
 

@@ -9,14 +9,14 @@ SourceCharacter :: "Any Unicode scalar value"
 Ignored ::
 
 - UnicodeBOM
-- WhiteSpace
+- Whitespace
 - LineTerminator
 - Comment
 - Comma
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
 
-WhiteSpace ::
+Whitespace ::
 
 - "Horizontal Tab (U+0009)"
 - "Space (U+0020)"
