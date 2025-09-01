@@ -119,11 +119,11 @@ warnings.
 
 **Stable Ordering**
 
-To improve legibility and stability of schema representations, it is recommended
-to preserve observable order for all data collections. For example, if a schema
-was produced from a source {TypeSystemDocument} then introspection of fields,
-input fields, arguments, enum values, directives, union members, implemented
-interfaces and so on should reproduce the original order.
+The observable order of all data collections should be preserved to improve
+schema legibility and stability. When a schema is produced from a
+{TypeSystemDocument}, introspection should return items in the same source order
+for each element list: object fields, input object fields, arguments, enum
+values, directives, union member types, and implemented interfaces.
 
 **Schema Introspection Schema**
 
