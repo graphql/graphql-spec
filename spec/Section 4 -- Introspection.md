@@ -59,8 +59,8 @@ would produce the result:
 **Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined types and fields are prefixed with {"\_\_"} two
-underscores. This in order to avoid naming collisions with user-defined GraphQL
+the same context as user defined types and fields are prefixed with {"\_\_"}
+(two underscores), in order to avoid naming collisions with user defined GraphQL
 types.
 
 Otherwise, any {Name} within a GraphQL type system must not start with two
@@ -117,6 +117,14 @@ Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
 warnings.
 
+**Stable Ordering**
+
+The observable order of all data collections should be preserved to improve
+schema legibility and stability. When a schema is produced from a
+{TypeSystemDocument}, introspection should return items in the same source order
+for each element list: object fields, input object fields, arguments, enum
+values, directives, union member types, and implemented interfaces.
+
 **Schema Introspection Schema**
 
 The schema introspection system is itself represented as a GraphQL schema. Below
@@ -151,6 +159,8 @@ type __Type {
   inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
+  # must be non-null for INPUT_OBJECT, otherwise null.
+  isOneOf: Boolean
 }
 
 enum __TypeKind {
@@ -241,13 +251,13 @@ Fields\:
 
 ### The \_\_Type Type
 
-`__Type` is at the core of the type introspection system, it represents all
+`__Type` is at the core of the type introspection system. It represents all
 types in the system: both named types (e.g. Scalars and Object types) and type
 modifiers (e.g. List and Non-Null types).
 
 Type modifiers are used to modify the type presented in the field `ofType`. This
-modified type may recursively be a modified type, representing lists,
-non-nullables, and combinations thereof, ultimately modifying a named type.
+modified type may recursively be a modified type, representing a list or
+non-null type, and combinations thereof, ultimately modifying a named type.
 
 There are several different kinds of type. In each kind, different fields are
 actually valid. All possible kinds are listed in the `__TypeKind` enum.
@@ -284,7 +294,7 @@ Fields\:
 **Object**
 
 Object types represent concrete instantiations of sets of fields. The
-introspection types (e.g. `__Type`, `__Field`, etc) are examples of objects.
+introspection types (e.g. `__Type`, `__Field`, etc.) are examples of objects.
 
 Fields\:
 
@@ -301,8 +311,8 @@ Fields\:
 **Union**
 
 Unions are an abstract type where no common fields are declared. The possible
-types of a union are explicitly listed out in `possibleTypes`. Types can be made
-parts of unions without modification of that type.
+types of a union are explicitly listed out in `possibleTypes`. An object type
+can be a member of a union without modification to that type.
 
 Fields\:
 
@@ -373,6 +383,8 @@ Fields\:
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
+- `isOneOf` must return {true} when representing a _OneOf Input Object_,
+  otherwise {false}.
 - All other fields must return {null}.
 
 **List**

@@ -92,7 +92,7 @@ Definition paragraphs start with `::` and add the matching italicized term to
 the [specification index](https://spec.graphql.org/draft/#index), making it easy
 to reference them.
 
-## Tone of voice
+## Tone of Voice
 
 The GraphQL specification is a reference document and should use neutral and
 descriptive tone of voice.
@@ -104,3 +104,35 @@ The present tense is usually clearer and shorter:
 ✅ Present: The client then sends a request to the server.
 
 ❌ Future: The client will then send a request to the server.
+
+**Write in the third person**
+
+The specification should avoid the first person (“we,” “our”) and instead use
+the third person or passive constructions when necessary. For example:
+
+✅ “The server validates the request against the schema.”
+
+❌ “We validate the request against the schema.”
+
+**Use RFC 2119 keywords**
+
+The specification should use the normative keywords defined in
+[RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) (**MUST**, **MUST NOT**,
+**SHOULD**, **SHOULD NOT**, **MAY**). However, in the context of a sentence
+these words should be lower-cased (e.g., “must,” “should,” “may”) in context of
+a sentence. This avoids unnecessary visual emphasis while preserving normative
+meaning.
+
+✅ “A query must contain a single root operation type.”
+
+❌ “A query MUST contain a single root operation type.”
+
+**Avoid unnecessary hyphenation**
+
+Only use hypenated compound words when either commonly used elsewhere in english
+or technical writing. Otherwise prefer separate words or a non-hyphenated
+compound word, whichever is most commonly accepted.
+
+✅ User defined shorthand words are separated by whitespace
+
+❌ User-defined short-hand words are separated by white-space
