@@ -587,13 +587,9 @@ FragmentName : Name but not `on`
 
 Fragments are the primary unit of composition in GraphQL.
 
-Fragments allow for the reuse of common repeated selections of fields, reducing
-duplicated text in the document. Inline Fragments can be used directly within a
-selection to condition upon a type condition when querying against an interface
-or union.
+Fragments allow for the definition of selection sets that are colocated with the logic that requires those selections, making it easier to add and remove selections as needed.
 
-For example, if we wanted to fetch some common information about mutual friends
-as well as friends of some user:
+For example, if we have some `friendProfile` logic that requires `id`, `name`, and `profilePic`, and we want to apply that logic to the mutual friends as well as friends of some user:
 
 ```graphql example
 query noFragments {
@@ -612,28 +608,32 @@ query noFragments {
 }
 ```
 
-The repeated fields could be extracted into a fragment and composed by a parent
-fragment or operation.
+The fields required of `friendProfile` can be extracted into a fragment and composed 
+by a parent fragment or operation.
 
 ```graphql example
 query withFragments {
   user(id: 4) {
     friends(first: 10) {
-      ...friendFields
+      ...friendProfileFragment
     }
     mutualFriends(first: 10) {
-      ...friendFields
+      ...friendProfileFragment
     }
   }
 }
-
-"Common fields for a user's friends."
-fragment friendFields on User {
+```
+```graphql example
+"Fields required to display a friend's profile"
+fragment friendProfileFragment on User {
   id
   name
   profilePic(size: 50)
 }
 ```
+If `friendProfile` no longer needs `name`, the `name` field can be removed from 
+`friendProfileFragment` and it will no longer be fetched in both locations the 
+fragment is consumed.
 
 Fragments are consumed by using the spread operator (`...`). All fields selected
 by the fragment will be added to the field selection at the same level as the
