@@ -587,9 +587,13 @@ FragmentName : Name but not `on`
 
 Fragments are the primary unit of composition in GraphQL.
 
-Fragments allow for the definition of selection sets that are colocated with the logic that requires those selections, making it easier to add and remove selections as needed.
+Fragments allow for the definition of selection sets that are colocated with the 
+logic that requires those selections, making it easier to add and remove selections 
+as needed.
 
-For example, if we have some `friendProfile` logic that requires `id`, `name`, and `profilePic`, and we want to apply that logic to the mutual friends as well as friends of some user:
+For example, if we have some `friendProfile` logic that requires `id`, `name`, 
+and `profilePic`, and we want to apply that logic to the mutual friends as well 
+as friends of some user:
 
 ```graphql example
 query noFragments {
@@ -608,8 +612,8 @@ query noFragments {
 }
 ```
 
-The fields required of `friendProfile` can be extracted into a fragment and composed 
-by a parent fragment or operation.
+The fields required by `friendProfile` can be extracted into a fragment and 
+composed by a parent fragment or operation.
 
 ```graphql example
 query withFragments {
