@@ -29,7 +29,7 @@
     "nodemon": "2.0.20",
     "prettier": "2.8.2",
     "spec-md": "3.1.0",
-    "graphql": "^17.0.0-alpha.8"
+    "graphql": "^17.0.0-alpha.9"
   },
   "prettier": {
     "proseWrap": "always",
