@@ -626,6 +626,7 @@ query withFragments {
   }
 }
 ```
+
 ```graphql example
 "Fields required to display a friend's profile"
 fragment friendProfile on User {
@@ -634,9 +635,10 @@ fragment friendProfile on User {
   profilePic(size: 50)
 }
 ```
+
 If `friendProfile` no longer needs `name`, the `name` field can be removed from
-the `friendProfile` fragment and it will no longer be fetched in both locations the
-fragment is consumed.
+the `friendProfile` fragment and it will no longer be fetched in both locations
+the fragment is consumed.
 
 Fragments are consumed by using the spread operator (`...`). All fields selected
 by the fragment will be added to the field selection at the same level as the
