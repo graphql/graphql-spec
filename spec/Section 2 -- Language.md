@@ -23,11 +23,11 @@ throughout this document.
 **Lexical Analysis & Syntactic Parse**
 
 The source text of a GraphQL document is first converted into a sequence of
-lexical tokens, {Token}, and ignored tokens, {Ignored}. The source text is
-scanned from left to right, repeatedly taking the next possible sequence of
-code-points allowed by the lexical grammar productions as the next token. This
-sequence of lexical tokens are then scanned from left to right to produce an
-abstract syntax tree (AST) according to the {Document} syntactical grammar.
+lexical tokens ({Token}) and ignored tokens ({Ignored}). The source text is
+scanned from left to right, repeatedly taking the next possible sequence of code
+points allowed by the lexical grammar productions as the next token. This
+sequence of lexical tokens is then scanned from left to right to produce an
+abstract syntax tree (AST) according to the {Document} syntactic grammar.
 
 Lexical grammar productions in this document use _lookahead restrictions_ to
 remove ambiguity and ensure a single valid lexical analysis. A lexical token is
@@ -36,7 +36,7 @@ only valid if not followed by a character in its lookahead restriction.
 For example, an {IntValue} has the restriction {[lookahead != Digit]}, so cannot
 be followed by a {Digit}. Because of this, the sequence {`123`} cannot represent
 the tokens ({`12`}, {`3`}) since {`12`} is followed by the {Digit} {`3`} and so
-must only represent a single token. Use {WhiteSpace} or other {Ignored} between
+must only represent a single token. Use {Whitespace} or other {Ignored} between
 characters to represent multiple tokens.
 
 Note: This typically has the same behavior as a
@@ -64,19 +64,19 @@ however an unpaired _surrogate code point_ is not a valid source character.
 
 ### White Space
 
-WhiteSpace ::
+Whitespace ::
 
 - "Horizontal Tab (U+0009)"
 - "Space (U+0020)"
 
-White space is used to improve legibility of source text and act as separation
-between tokens, and any amount of white space may appear before or after any
-token. White space between tokens is not significant to the semantic meaning of
-a GraphQL Document, however white space characters may appear within a {String}
-or {Comment} token.
+Whitespace is used to improve legibility of source text and separates other
+tokens. Any amount of whitespace may appear before or after any token.
+Whitespace between tokens is not significant to the semantic meaning of a
+GraphQL document, however whitespace characters may appear within a {String} or
+{Comment} token.
 
 Note: GraphQL intentionally does not consider Unicode "Zs" category characters
-as white-space, avoiding misinterpretation by text editors and source control
+as whitespace, avoiding misinterpretation by text editors and source control
 tools.
 
 ### Line Terminators
@@ -87,7 +87,7 @@ LineTerminator ::
 - "Carriage Return (U+000D)" [lookahead != "New Line (U+000A)"]
 - "Carriage Return (U+000D)" "New Line (U+000A)"
 
-Like white space, line terminators are used to improve the legibility of source
+Like whitespace, line terminators are used to improve the legibility of source
 text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
 Document.
@@ -109,21 +109,21 @@ A comment may contain any {SourceCharacter} except {LineTerminator} so a comment
 always consists of all {SourceCharacter} starting with the {`#`} character up to
 but not including the {LineTerminator} (or end of the source).
 
-Comments are {Ignored} like white space and may appear after any token, or
-before a {LineTerminator}, and have no significance to the semantic meaning of a
-GraphQL Document.
+Comments are {Ignored} like whitespace and may appear after any token, or before
+a {LineTerminator}, and have no significance to the semantic meaning of a
+GraphQL document.
 
 ### Insignificant Commas
 
 Comma :: ,
 
-Similar to white space and line terminators, commas ({`,`}) are used to improve
+Similar to whitespace and line terminators, commas ({`,`}) are used to improve
 the legibility of source text and separate lexical tokens but are otherwise
-syntactically and semantically insignificant within GraphQL Documents.
+syntactically and semantically insignificant within GraphQL documents.
 
 Non-significant comma characters ensure that the absence or presence of a comma
 does not meaningfully alter the interpreted syntax of the document, as this can
-be a common user-error in other languages. It also allows for the stylistic use
+be a common user error in other languages. It also allows for the stylistic use
 of either trailing commas or line terminators as list delimiters which are both
 often desired for legibility and maintainability of source code.
 
@@ -137,7 +137,7 @@ Token ::
 - FloatValue
 - StringValue
 
-A GraphQL document is comprised of several kinds of indivisible lexical tokens
+A GraphQL document is composed of several kinds of indivisible lexical tokens
 defined here in a lexical grammar by patterns of source Unicode characters.
 Lexical tokens may be separated by {Ignored} tokens.
 
@@ -148,21 +148,21 @@ Tokens are later used as terminal symbols in GraphQL syntactic grammar rules.
 Ignored ::
 
 - UnicodeBOM
-- WhiteSpace
+- Whitespace
 - LineTerminator
 - Comment
 - Comma
 
 {Ignored} tokens are used to improve readability and provide separation between
-lexical tokens, but are otherwise insignificant and not referenced in
-syntactical grammar productions.
+lexical tokens, but are otherwise insignificant and not referenced in syntactic
+grammar productions.
 
 Any amount of {Ignored} may appear before and after every lexical token. No
 ignored regions of a source document are significant, however {SourceCharacter}
 which appear in {Ignored} may also appear within a lexical {Token} in a
-significant way, for example a {StringValue} may contain white space characters.
-No {Ignored} may appear _within_ a {Token}, for example no white space
-characters are permitted between the characters defining a {FloatValue}.
+significant way, for example a {StringValue} may contain whitespace characters.
+No {Ignored} may appear _within_ a {Token}, for example no whitespace characters
+are permitted between the characters defining a {FloatValue}.
 
 **Byte Order Mark**
 
@@ -179,7 +179,7 @@ and is {Ignored}.
 Punctuator :: one of ! $ & ( ) ... : = @ [ ] { | }
 
 GraphQL documents include punctuation in order to describe structure. GraphQL is
-a data description language and not a programming language, therefore GraphQL
+a data description language and not a programming language; therefore, GraphQL
 lacks the punctuation often used to describe mathematical expressions.
 
 ### Names
@@ -210,7 +210,7 @@ Digit :: one of
 
 - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
-GraphQL Documents are full of named things: operations, fields, arguments,
+GraphQL documents are full of named things: operations, fields, arguments,
 types, directives, fragments, and variables. All names must follow the same
 grammatical form.
 
@@ -233,6 +233,57 @@ Any {Name} within a GraphQL type system must not start with two underscores
 {"\_\_"} unless it is part of the [introspection system](#sec-Introspection) as
 defined by this specification.
 
+## Descriptions
+
+Description : StringValue
+
+Documentation is a first-class feature of GraphQL by including written
+descriptions on all named definitions in executable {Document} and GraphQL type
+systems, which is also made available via introspection ensuring the
+documentation of a GraphQL service remains consistent with its capabilities (see
+[Type System Descriptions](#sec-Type-System-Descriptions)).
+
+GraphQL descriptions are provided as Markdown (as specified by
+[CommonMark](https://commonmark.org/)). Description strings (often
+{BlockString}) occur immediately before the definition they describe.
+
+Descriptions in GraphQL executable documents are purely for documentation
+purposes. They MUST NOT affect the execution, validation, or response of a
+GraphQL document. It is safe to remove all descriptions and comments from
+executable documents without changing their behavior or results.
+
+This is an example of a well-described operation:
+
+```graphql example
+"""
+Request the current status of a time machine and its operator.
+You can also check the status for a particular year.
+**Warning:** certain years may trigger an anomaly in the space-time continuum.
+"""
+query GetTimeMachineStatus(
+  "The unique serial number of the time machine to inspect."
+  $machineId: ID!
+  "The year to check the status for."
+  $year: Int
+) {
+  timeMachine(id: $machineId) {
+    ...TimeMachineDetails
+    status(year: $year)
+  }
+}
+
+"Details about a time machine and its operator."
+fragment TimeMachineDetails on TimeMachine {
+  id
+  model
+  lastMaintenance
+  operator {
+    name
+    licenseLevel
+  }
+}
+```
+
 ## Document
 
 Document : Definition+
@@ -249,7 +300,7 @@ ExecutableDefinition :
 - OperationDefinition
 - FragmentDefinition
 
-A GraphQL Document describes a complete file or request string operated on by a
+A GraphQL document describes a complete file or request string operated on by a
 GraphQL service or client. A document contains multiple definitions, either
 executable or representative of a GraphQL type system.
 
@@ -270,7 +321,7 @@ individual files.
 If a Document contains only one operation, that operation may be unnamed. If
 that operation is a query without variables or directives then it may also be
 represented in the shorthand form, omitting both the {`query`} keyword as well
-as the operation name. Otherwise, if a GraphQL Document contains multiple
+as the operation name. Otherwise, if a GraphQL document contains multiple
 operations, each operation must be named. When submitting a Document with
 multiple operations to a GraphQL service, the name of the desired operation to
 be executed must also be provided.
@@ -279,7 +330,7 @@ be executed must also be provided.
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -288,15 +339,20 @@ There are three types of operations that GraphQL models:
 
 - query - a read-only fetch.
 - mutation - a write followed by a fetch.
-- subscription - a long-lived request that fetches data in response to source
-  events.
+- subscription - a long-lived request that fetches data in response to a
+  sequence of events over time.
 
-Each operation is represented by an optional operation name and a selection set.
+Each operation is represented by an optional operation name and a _selection
+set_.
 
 For example, this mutation operation might "like" a story and then retrieve the
 new number of likes:
 
 ```graphql example
+"""
+Mark story 12345 as "liked"
+and return the updated number of likes on the story
+"""
 mutation {
   likeStory(storyID: 12345) {
     story {
@@ -310,7 +366,7 @@ mutation {
 
 If a document contains only one operation and that operation is a query which
 defines no variables and has no directives applied to it then that operation may
-be represented in a short-hand form which omits the {`query`} keyword and
+be represented in a shorthand form which omits the {`query`} keyword and
 operation name.
 
 For example, this unnamed query operation is written via query shorthand.
@@ -321,7 +377,9 @@ For example, this unnamed query operation is written via query shorthand.
 }
 ```
 
-Note: many examples below will use the query short-hand syntax.
+Descriptions are not permitted on query shorthand.
+
+Note: many examples below will use the query shorthand syntax.
 
 ## Selection Sets
 
@@ -337,6 +395,9 @@ An operation selects the set of information it needs, and will receive exactly
 that information and nothing more, avoiding over-fetching and under-fetching
 data.
 
+:: A _selection set_ defines an ordered set of selections (fields, fragment
+spreads and inline fragments) against an object, union or interface type.
+
 ```graphql example
 {
   id
@@ -346,14 +407,14 @@ data.
 ```
 
 In this query operation, the `id`, `firstName`, and `lastName` fields form a
-selection set. Selection sets may also contain fragment references.
+_selection set_. Selection sets may also contain fragment references.
 
 ## Fields
 
 Field : Alias? Name Arguments? Directives? SelectionSet?
 
-A selection set is primarily composed of fields. A field describes one discrete
-piece of information available to request within a selection set.
+A _selection set_ is primarily composed of fields. A field describes one
+discrete piece of information available to request within a selection set.
 
 Some fields describe complex data or relationships to other data. In order to
 further explore this data, a field may itself contain a selection set, allowing
@@ -381,7 +442,7 @@ down to scalar values.
 }
 ```
 
-Fields in the top-level selection set of an operation often represent some
+Fields in the top-level _selection set_ of an operation often represent some
 information that is globally accessible to your application and its current
 viewer. Some typical examples of these top fields include references to a
 current logged-in viewer, or accessing certain types of data referenced by a
@@ -462,8 +523,9 @@ These two operations are semantically identical:
 
 Alias : Name :
 
-By default a field's response key in the response object will use that field's
-name. However, you can define a different response key by specifying an alias.
+:: A _response name_ is the key in the response object which correlates with a
+field's result. By default the response name will use the field's name; however,
+you can define a different response name by specifying an alias.
 
 In this example, we can fetch two profile pictures of different sizes and ensure
 the resulting response object will not have duplicate keys:
@@ -518,8 +580,8 @@ which returns the result:
 
 FragmentSpread : ... FragmentName Directives?
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -565,6 +627,7 @@ query withFragments {
   }
 }
 
+"Common fields for a user's friends."
 fragment friendFields on User {
   id
   name
@@ -667,9 +730,9 @@ be present and `likers` will not. Conversely when the result is a `Page`,
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-Fragments can also be defined inline within a selection set. This is useful for
-conditionally including fields based on a type condition or applying a directive
-to a selection set.
+Fragments can also be defined inline within a _selection set_. This is useful
+for conditionally including fields based on a type condition or applying a
+directive to a selection set.
 
 This feature of standard fragment inclusion was demonstrated in the
 `query FragmentTyping` example above. We could accomplish the same thing using
@@ -746,7 +809,7 @@ NegativeSign :: -
 NonZeroDigit :: Digit but not `0`
 
 An {IntValue} is specified without a decimal point or exponent but may be
-negative (ex. {-123}). It must not have any leading {0}.
+negative (e.g. {-123}). It must not have any leading {0}.
 
 An {IntValue} must not be followed by a {Digit}. In other words, an {IntValue}
 token is always the longest possible valid sequence. The source characters {12}
@@ -775,8 +838,8 @@ ExponentIndicator :: one of `e` `E`
 
 Sign :: one of + -
 
-A {FloatValue} includes either a decimal point (ex. {1.0}) or an exponent (ex.
-{1e50}) or both (ex. {6.0221413e23}) and may be negative. Like {IntValue}, it
+A {FloatValue} includes either a decimal point (e.g. {1.0}) or an exponent (e.g.
+{1e50}) or both (e.g. {6.0221413e23}) and may be negative. Like {IntValue}, it
 also must not have any leading {0}.
 
 A {FloatValue} must not be followed by a {Digit}. In other words, a {FloatValue}
@@ -806,7 +869,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -827,6 +890,8 @@ HexDigit :: one of
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
+BlockString :: `"""` BlockStringCharacter\* `"""`
+
 BlockStringCharacter ::
 
 - SourceCharacter but not `"""` or `\"""`
@@ -834,7 +899,7 @@ BlockStringCharacter ::
 
 A {StringValue} is evaluated to a _Unicode text_ value, a sequence of _Unicode
 scalar value_, by interpreting all escape sequences using the static semantics
-defined below. White space and other characters ignored between lexical tokens
+defined below. Whitespace and other characters ignored between lexical tokens
 are significant within a string value.
 
 The empty string {`""`} must not be followed by another {`"`} otherwise it would
@@ -887,7 +952,7 @@ sequence.
 **Block Strings**
 
 Block strings are sequences of characters wrapped in triple-quotes (`"""`).
-White space, line terminators, quote, and backslash characters may all be used
+Whitespace, line terminators, quote, and backslash characters may all be used
 unescaped to enable verbatim text. Characters must all be valid
 {SourceCharacter}.
 
@@ -965,7 +1030,7 @@ StringCharacter :: `\u` EscapedUnicode
 
 - Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
   within {EscapedUnicode}.
-- Assert {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+- Assert: {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
   0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the _Unicode scalar value_ {value}.
 
@@ -977,12 +1042,12 @@ HexDigit HexDigit HexDigit
 - Let {trailingValue} be the hexadecimal value represented by the second
   sequence of {HexDigit}.
 - If {leadingValue} is >= 0xD800 and <= 0xDBFF (a _Leading Surrogate_):
-  - Assert {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
+  - Assert: {trailingValue} is >= 0xDC00 and <= 0xDFFF (a _Trailing Surrogate_).
   - Return ({leadingValue} - 0xD800) × 0x400 + ({trailingValue} - 0xDC00) +
     0x10000.
 - Otherwise:
-  - Assert {leadingValue} is within the _Unicode scalar value_ range.
-  - Assert {trailingValue} is within the _Unicode scalar value_ range.
+  - Assert: {leadingValue} is within the _Unicode scalar value_ range.
+  - Assert: {trailingValue} is within the _Unicode scalar value_ range.
   - Return the sequence of the _Unicode scalar value_ {leadingValue} followed by
     the _Unicode scalar value_ {trailingValue}.
 
@@ -1007,7 +1072,11 @@ StringCharacter :: `\` EscapedCharacter
 | {`r`}             | U+000D       | carriage return              |
 | {`t`}             | U+0009       | horizontal tab               |
 
-StringValue :: `"""` BlockStringCharacter\* `"""`
+StringValue :: BlockString
+
+- Return the _Unicode text_ by evaluating the {BlockString}.
+
+BlockString :: `"""` BlockStringCharacter\* `"""`
 
 - Let {rawValue} be the _Unicode text_ by concatenating the evaluation of all
   {BlockStringCharacter} (which may be an empty sequence).
@@ -1026,9 +1095,9 @@ BlockStringValue(rawValue):
 - Let {lines} be the result of splitting {rawValue} by {LineTerminator}.
 - Let {commonIndent} be {null}.
 - For each {line} in {lines}:
-  - If {line} is the first item in {lines}, continue to the next line.
+  - If {line} is the first item in {lines}, continue to the next {line}.
   - Let {length} be the number of characters in {line}.
-  - Let {indent} be the number of leading consecutive {WhiteSpace} characters in
+  - Let {indent} be the number of leading consecutive {Whitespace} characters in
     {line}.
   - If {indent} is less than {length}:
     - If {commonIndent} is {null} or {indent} is less than {commonIndent}:
@@ -1037,9 +1106,9 @@ BlockStringValue(rawValue):
   - For each {line} in {lines}:
     - If {line} is the first item in {lines}, continue to the next line.
     - Remove {commonIndent} characters from the beginning of {line}.
-- While the first item {line} in {lines} contains only {WhiteSpace}:
+- While the first item {line} in {lines} contains only {Whitespace}:
   - Remove the first item from {lines}.
-- While the last item {line} in {lines} contains only {WhiteSpace}:
+- While the last item {line} in {lines} contains only {Whitespace}:
   - Remove the last item from {lines}.
 - Let {formatted} be the empty character sequence.
 - For each {line} in {lines}:
@@ -1084,9 +1153,9 @@ variable value at all.
 
 EnumValue : Name but not `true`, `false` or `null`
 
-Enum values are represented as unquoted names (ex. `MOBILE_WEB`). It is
+Enum values are represented as unquoted names (e.g. `MOBILE_WEB`). It is
 recommended that Enum values be "all caps". Enum values are only used in
-contexts where the precise enumeration type is known. Therefore it's not
+contexts where the precise enumeration type is known. Therefore it is not
 necessary to supply an enumeration type name in the literal.
 
 ### List Value
@@ -1096,8 +1165,9 @@ ListValue[Const] :
 - [ ]
 - [ Value[?Const]+ ]
 
-Lists are ordered sequences of values wrapped in square-brackets `[ ]`. The
-values of a List literal may be any value literal or variable (ex. `[1, 2, 3]`).
+Lists are ordered sequences of values wrapped in square brackets `[ ]`. The
+values of a List literal may be any value literal or variable (e.g.
+`[1, 2, 3]`).
 
 Commas are optional throughout GraphQL so trailing commas are allowed and
 repeated commas do not represent missing values.
@@ -1111,10 +1181,10 @@ ListValue : [ ]
 ListValue : [ Value+ ]
 
 - Let {inputList} be a new empty list value.
-- For each {Value+}
+- For each {Value+}:
   - Let {value} be the result of evaluating {Value}.
   - Append {value} to {inputList}.
-- Return {inputList}
+- Return {inputList}.
 
 ### Input Object Values
 
@@ -1126,8 +1196,8 @@ ObjectValue[Const] :
 ObjectField[Const] : Name : Value[?Const]
 
 Input object literal values are unordered lists of keyed input values wrapped in
-curly-braces `{ }`. The values of an object literal may be any input value
-literal or variable (ex. `{ name: "Hello world", score: 1.0 }`). We refer to
+curly braces `{ }`. The values of an object literal may be any input value
+literal or variable (e.g. `{ name: "Hello world", score: 1.0 }`). We refer to
 literal representation of input objects as "object literals."
 
 **Input Object Fields Are Unordered**
@@ -1158,11 +1228,11 @@ ObjectValue : { }
 ObjectValue : { ObjectField+ }
 
 - Let {inputObject} be a new input object value with no fields.
-- For each {field} in {ObjectField+}
+- For each {field} in {ObjectField+}:
   - Let {name} be {Name} in {field}.
   - Let {value} be the result of evaluating {Value} in {field}.
   - Add a field to {inputObject} of name {name} containing value {value}.
-- Return {inputObject}
+- Return {inputObject}.
 
 ## Variables
 
@@ -1170,7 +1240,8 @@ Variable : $ Name
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 DefaultValue : = Value[Const]
 
@@ -1189,7 +1260,10 @@ In this example, we want to fetch a profile picture size based on the size of a
 particular device:
 
 ```graphql example
-query getZuckProfile($devicePicSize: Int) {
+query getZuckProfile(
+  "The size of the profile picture to fetch."
+  $devicePicSize: Int
+) {
   user(id: 4) {
     id
     name
@@ -1241,22 +1315,22 @@ input type.
 
 Type : Name
 
-- Let {name} be the string value of {Name}
-- Let {type} be the type defined in the Schema named {name}
-- {type} must not be {null}
-- Return {type}
+- Let {name} be the string value of {Name}.
+- Let {type} be the type defined in the Schema named {name}.
+- {type} must exist.
+- Return {type}.
 
 Type : [ Type ]
 
-- Let {itemType} be the result of evaluating {Type}
+- Let {itemType} be the result of evaluating {Type}.
 - Let {type} be a List type where {itemType} is the contained type.
-- Return {type}
+- Return {type}.
 
 Type : Type !
 
-- Let {nullableType} be the result of evaluating {Type}
+- Let {nullableType} be the result of evaluating {Type}.
 - Let {type} be a Non-Null type where {nullableType} is the contained type.
-- Return {type}
+- Return {type}.
 
 ## Directives
 
@@ -1303,4 +1377,177 @@ type Person
   @addExternalFields(source: "profiles") {
   name: String
 }
+```
+
+## Schema Coordinates
+
+SchemaCoordinate ::
+
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate :: Name
+
+MemberCoordinate :: Name . Name
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+DirectiveCoordinate :: @ Name
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )
+
+:: A _schema coordinate_ is a human readable string that uniquely identifies a
+_schema element_ within a GraphQL Schema, intended to be used by tools to
+reference types, fields, and other _schema element_. Examples include:
+references within documentation to refer to types and fields in a schema, a
+lookup key that can be used in logging tools to track how often particular
+fields are queried in production.
+
+:: A _schema element_ can be a named type, a field, an input field, an enum
+value, a field argument, a directive, or a directive argument defined within a
+schema (including built-in types and directives).
+
+Note: Meta-fields are not defined within a schema, and thus are not _schema
+element_. By extension, an introspection type is not a _schema element_.
+
+:: The _containing element_ of a _schema element_ is the schema element with one
+fewer {Name} token that syntactically contains it. Specifically:
+
+- The containing element of an {ArgumentCoordinate} is a {MemberCoordinate}.
+- The containing element of a {MemberCoordinate} is a {TypeCoordinate}.
+- The containing element of a {DirectiveArgumentCoordinate} is a
+  {DirectiveCoordinate}.
+- {TypeCoordinate} and {DirectiveCoordinate} have no containing element.
+
+A _schema coordinate_ is always unique. Each _schema element_ can be referenced
+by exactly one possible schema coordinate.
+
+A _schema coordinate_ may refer to either a defined or built-in _schema
+element_. For example, `String` and `@deprecated(reason:)` are both valid schema
+coordinates which refer to built-in schema elements.
+
+Note: A union member references a type in the schema. A type in the schema is
+identified by a {TypeCoordinate}. There is no schema coordinate which indicates
+a union member; this preserves the uniqueness property of a _schema coordinate_
+as stated above.
+
+**Parsing a Schema Coordinate**
+
+SchemaCoordinateToken ::
+
+- SchemaCoordinatePunctuator
+- Name
+
+SchemaCoordinatePunctuator :: one of ( ) . : @
+
+A {SchemaCoordinate} is a self-contained grammar with its own set of lexical
+tokens, it is not contained within a {Document}. The source text of a
+SchemaCoordinate must be a sequence of {SourceCharacter}.
+
+Unlike other [GraphQL documents](#sec-Language), {SchemaCoordinate} must not
+contain {Whitespace} or other {Ignored} grammars within the character sequence.
+This ensures that every schema coordinates has a single unambiguous and unique
+lexical form.
+
+**Resolving a Schema Coordinate**
+
+To refer to a _schema element_, a _schema coordinate_ must be interpreted in the
+context of a GraphQL {schema}.
+
+If the _schema element_ cannot be found, the resolve function will not yield a
+value (without raising an error). However, an error will be raised if any
+non-leaf nodes within a _schema coordinate_ cannot be found in the {schema}.
+
+Note: Although it is syntactically possible to describe a meta-field or element
+of the introspection schema with a schema coordinate (e.g. `Business.__typename`
+or `__Type.fields(includeDeprecated:)`), they are not _schema element_ and
+therefore resolving such coordinates does not have a defined behavior.
+
+TypeCoordinate :: Name
+
+1. Let {typeName} be the value of {Name}.
+2. Return the type in {schema} named {typeName} if it exists.
+
+MemberCoordinate :: Name . Name
+
+1. Let {typeName} be the value of the first {Name}.
+2. Let {type} be the type in {schema} named {typeName}.
+3. Assert: {type} must exist, and must be an Enum, Input Object, Object or
+   Interface type.
+4. If {type} is an Enum type:
+   1. Let {enumValueName} be the value of the second {Name}.
+   2. Return the enum value of {type} named {enumValueName} if it exists.
+5. Otherwise, if {type} is an Input Object type:
+   1. Let {inputFieldName} be the value of the second {Name}.
+   2. Return the input field of {type} named {inputFieldName} if it exists.
+6. Otherwise:
+   1. Let {fieldName} be the value of the second {Name}.
+   2. Return the field of {type} named {fieldName} if it exists.
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+1. Let {typeName} be the value of the first {Name}.
+2. Let {type} be the type in {schema} named {typeName}.
+3. Assert: {type} must exist, and be an Object or Interface type.
+4. Let {fieldName} be the value of the second {Name}.
+5. Let {field} be the field of {type} named {fieldName}.
+6. Assert: {field} must exist.
+7. Let {fieldArgumentName} be the value of the third {Name}.
+8. Return the argument of {field} named {fieldArgumentName} if it exists.
+
+DirectiveCoordinate :: @ Name
+
+1. Let {directiveName} be the value of {Name}.
+2. Return the directive in {schema} named {directiveName} if it exists.
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )
+
+1. Let {directiveName} be the value of the first {Name}.
+2. Let {directive} be the directive in {schema} named {directiveName}.
+3. Assert: {directive} must exist.
+4. Let {directiveArgumentName} be the value of the second {Name}.
+5. Return the argument of {directive} named {directiveArgumentName} if it
+   exists.
+
+**Examples**
+
+| Element Kind       | Schema Coordinate                 | Schema Element                                                        |
+| ------------------ | --------------------------------- | --------------------------------------------------------------------- |
+| Named Type         | `Business`                        | `Business` type                                                       |
+| Field              | `Business.name`                   | `name` field on the `Business` type                                   |
+| Input Field        | `SearchCriteria.filter`           | `filter` input field on the `SearchCriteria` input object type        |
+| Enum Value         | `SearchFilter.OPEN_NOW`           | `OPEN_NOW` value of the `SearchFilter` enum                           |
+| Field Argument     | `Query.searchBusiness(criteria:)` | `criteria` argument on the `searchBusiness` field on the `Query` type |
+| Directive          | `@private`                        | `@private` directive                                                  |
+| Directive Argument | `@private(scope:)`                | `scope` argument on the `@private` directive                          |
+
+The table above shows an example of a _schema coordinate_ for every kind of
+_schema element_ based on the schema below.
+
+```graphql
+type Query {
+  searchBusiness(criteria: SearchCriteria!): [Business]
+}
+
+input SearchCriteria {
+  name: String
+  filter: SearchFilter
+}
+
+enum SearchFilter {
+  OPEN_NOW
+  DELIVERS_TAKEOUT
+  VEGETARIAN_MENU
+}
+
+type Business {
+  id: ID
+  name: String
+  email: String @private(scope: "loggedIn")
+}
+
+directive @private(scope: String!) on FIELD_DEFINITION
 ```
