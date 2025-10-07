@@ -54,7 +54,7 @@ contribution to this edition of the GraphQL specification.
 | Benoit 'BoD' Lubek | [@BoD](https://github.com/BoD)                           |
 | dondonz            | [@dondonz](https://github.com/dondonz)                   |
 | dugenkui           | [@dugenkui03](https://github.com/dugenkui03)             |
-| Glen               | [@tempire](https://github.com/tempire)                   |
+| Glen               | [@glen-84](https://github.com/glen-84)                   |
 | Ivan Goncharov     | [@IvanGoncharov](https://github.com/IvanGoncharov)       |
 | Ivan Maximov       | [@sungam3r](https://github.com/sungam3r)                 |
 | James Bellenger    | [@jbellenger](https://github.com/jbellenger)             |
