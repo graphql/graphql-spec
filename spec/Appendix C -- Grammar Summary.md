@@ -318,6 +318,12 @@ FieldsDefinition : { FieldDefinition+ }
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
 
+FieldExtension :
+
+- extend field MemberCoordinate ImplementsInterfaces? Directives[const]?
+  [lookahead != `{`]
+- extend field description MemberCoordinate [lookahead != `{`]
+
 ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?
@@ -328,6 +334,10 @@ InterfaceTypeDefinition :
   FieldsDefinition
 - Description? interface Name ImplementsInterfaces? Directives[Const]?
   [lookahead != `{`]
+
+InterfaceFieldExtension :
+
+- extend interface MemberCoordinate Directives[const]?
 
 InterfaceTypeExtension :
 
