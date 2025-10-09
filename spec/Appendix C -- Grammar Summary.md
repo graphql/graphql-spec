@@ -320,9 +320,8 @@ Directives[Const]?
 
 FieldExtension :
 
-- extend field MemberCoordinate ImplementsInterfaces? Directives[const]?
-  [lookahead != `{`]
-- extend field description MemberCoordinate [lookahead != `{`]
+- extend field MemberCoordinate Directives[const]?
+- extend field description MemberCoordinate
 
 ArgumentsDefinition : ( InputValueDefinition+ )
 
@@ -334,11 +333,7 @@ InterfaceTypeDefinition :
   FieldsDefinition
 - Description? interface Name ImplementsInterfaces? Directives[Const]?
   [lookahead != `{`]
-
-InterfaceFieldExtension :
-
-- extend interface MemberCoordinate Directives[const]?
-
+  
 InterfaceTypeExtension :
 
 - extend interface Name ImplementsInterfaces? Directives[Const]?

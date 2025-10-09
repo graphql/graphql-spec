@@ -1109,9 +1109,8 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 
 FieldExtension :
 
-- extend field MemberCoordinate ImplementsInterfaces? Directives[const]?
-  [lookahead != `{`]
-- extend field description MemberCoordinate [lookahead != `{`]
+- extend field MemberCoordinate Directives[const]?
+- extend field description MemberCoordinate
 
 Field extensions are used to represent a field which has been extended from some
 previously defined field. For example this may be a GraphQL service which is
@@ -1127,13 +1126,9 @@ extend field User.name @deprecated(”Some reason”)
 
 Field validation have the potential to be invalid if incorrectly defined.
 
-1. The field must already be defined and a field for a Type
+1. MemberCoordinate must be resolved to an existing field on a object or interface type.  
 2. Any non-repeatable directives provided must not already apply to the previous
    field.
-3. Any interfaces provided must not be already implemented by the previous
-   field.
-4. The resulting extended field must be a super-set of all interfaces it
-   implements.
 
 ## Interfaces
 
@@ -1387,34 +1382,6 @@ defined.
    Interface type.
 6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
-
-#### Interface Field Extensions
-
-InterfaceFieldExtension :
-
-- extend interface MemberCoordinate Directives[const]?
-
-Interface field extensions are used to represent an interface which has been
-extended from some previous interface. For example this may be a GraphQL service
-which is itself an extension of another GraphQL service.
-
-In this example, the name field on the User type is deprecated for an interface.
-
-```graphql example
-extend interface User.name @deprecated("Some reason.")
-```
-
-** Field Validation **
-
-Field validation have the potential to be invalid if incorrectly defined.
-
-1. The field must already be defined and a field for a Type
-2. Any non-repeatable directives provided must not already apply to the previous
-   field.
-3. Any interfaces provided must not be already implemented by the previous
-   field.
-4. The resulting extended field must be a super-set of all interfaces it
-   implements.
 
 ## Unions
 
