@@ -2344,7 +2344,7 @@ The `@defer` directive may be provided on a fragment spread or inline fragment
 to indicate that execution of the related selection set should be deferred. When
 a request includes the `@defer` directive, it may return an _incremental stream_
 consisting of an _initial execution result_ containing all non-deferred data,
-followed by one or more _execution update result_ including the deferred data.
+followed by one or more _execution update result_ including deferred data.
 
 The `@include` and `@skip` directives take precedence over `@defer`.
 
@@ -2367,13 +2367,15 @@ fragment someFragment on User {
 
 - `if: Boolean! = true` - When `true`, fragment _should_ be deferred (see
   [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
-  When `false`, fragment must not be deferred. Defaults to `true` when omitted.
-- `label: String` - An optional string literal (variables are disallowed) used
-  by GraphQL clients to identify data in the _incremental stream_ and associate
-  it with the corresponding defer directive. If provided, the GraphQL service
-  must include this label in the corresponding pending object within the
-  _incremental stream_. The `label` argument must be unique across all `@defer`
-  and `@stream` directives in the document.
+  When `false`, fragment must not be deferred. Defaults to `true`.
+- `label: String` - An optional string literal used by GraphQL clients to
+  identify data in the _incremental stream_ and associate it with the
+  corresponding defer directive. If provided, the GraphQL service must include
+  this label in the corresponding _pending result_ within the _incremental
+  stream_. The `label` argument must be unique across all `@defer` and `@stream`
+  directives in the document. Variables are disallowed (via
+  [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
+  because their values may not be known during validation.
 
 ### @stream
 
@@ -2413,13 +2415,15 @@ query myQuery($shouldStream: Boolean! = true) {
   [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
   When `false`, the field must behave as if the `@stream` directive is not
   present—it must not be streamed and all of the list items must be included.
-  Defaults to `true` when omitted.
-- `label: String` - An optional string literal (variables are disallowed) used
-  by GraphQL clients to identify data in the _incremental stream_ and associate
-  it with the corresponding stream directive. If provided, the GraphQL service
-  must include this label in the corresponding pending object within the
-  _incremental stream_. The `label` argument must be unique across all `@defer`
-  and `@stream` directives in the document.
+  Defaults to `true`.
+- `label: String` - An optional string literal used by GraphQL clients to
+  identify data in the _incremental stream_ and associate it with the
+  corresponding stream directive. If provided, the GraphQL service must include
+  this label in the corresponding _pending result_ within the _incremental
+  stream_. The `label` argument must be unique across all `@defer` and `@stream`
+  directives in the document. Variables are disallowed (via
+  [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
+  because their values may not be known during validation.
 - `initialCount: Int! = 0` - The number of list items to include initially when
   completing the parent selection set. If omitted, defaults to `0`. An execution
   error will be raised if the value of this argument is less than `0`. When the
@@ -2427,12 +2431,6 @@ query myQuery($shouldStream: Boolean! = true) {
   GraphQL service _must_ initially include at least as many list items as the
   value of `initialCount` (see
   [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
-
-Note: The
-[Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique)
-validation rule ensures uniqueness of the values passed to `label` on both the
-`@defer` and `@stream` directives. Variables are disallowed in the `label`
-because their values may not be known during validation.
 
 ### Client Handling of @defer/@stream
 
@@ -2447,5 +2445,5 @@ or more `@defer` and/or `@stream` may be acted upon while others are ignored.
 Therefore, GraphQL clients _must_ be able to process a _response_ that ignores
 individual `@defer` and/or `@stream` directives. This also applies to the
 `initialCount` argument on the `@stream` directive. Clients must be able to
-process a streamed field result that contains more initial list items than what
-was specified in the `initialCount` argument.
+process a streamed field result that contains more initial list items than were
+specified in the `initialCount` argument.
