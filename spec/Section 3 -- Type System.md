@@ -2366,7 +2366,7 @@ fragment someFragment on User {
 #### @defer Arguments
 
 - `if: Boolean! = true` - When `true`, fragment _should_ be deferred (see
-  [Client handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream-)).
+  [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
   When `false`, fragment must not be deferred. Defaults to `true` when omitted.
 - `label: String` - An optional string literal (variables are disallowed) used
   by GraphQL clients to identify data in the _incremental stream_ and associate
@@ -2410,7 +2410,7 @@ query myQuery($shouldStream: Boolean! = true) {
 #### @stream Arguments
 
 - `if: Boolean! = true` - When `true`, field _should_ be streamed (see
-  [Client handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream-)).
+  [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
   When `false`, the field must behave as if the `@stream` directive is not
   present—it must not be streamed and all of the list items must be included.
   Defaults to `true` when omitted.
@@ -2426,7 +2426,7 @@ query myQuery($shouldStream: Boolean! = true) {
   size of the list is greater than or equal to the value of `initialCount`, the
   GraphQL service _must_ initially include at least as many list items as the
   value of `initialCount` (see
-  [Client handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream-)).
+  [Client Handling of `@defer`/`@stream`](#sec-Client-handling-of-defer-stream)).
 
 Note: The
 [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique)
@@ -2434,7 +2434,7 @@ validation rule ensures uniqueness of the values passed to `label` on both the
 `@defer` and `@stream` directives. Variables are disallowed in the `label`
 because their values may not be known during validation.
 
-### Client handling of `@defer`/`@stream`
+### Client Handling of @defer/@stream
 
 The ability to defer and/or stream data can have a potentially significant
 impact on application performance. Developers generally need clear, predictable
