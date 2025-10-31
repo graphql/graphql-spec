@@ -21,13 +21,13 @@ fragment HomeWorldFragment on Person {
 }
 ```
 
-The incremental stream might look like:
+The _incremental stream_ might look like:
 
-The initial response does not contain any deferred or streamed results in the
-`data` entry. The initial response contains a `hasNext` entry, indicating that
-subsequent responses will be delivered. There are two Pending Results indicating
-that results for both the `@defer` and `@stream` in the query will be delivered
-in the subsequent responses.
+The _initial execution result_ does not contain any deferred or streamed results
+in the {"data"} entry. The initial execution result contains a {"hasNext"}
+entry, indicating that _execution update result_ will be delivered. There are
+two _pending result_ indicating that results for both the `@defer` and `@stream`
+in the query will be delivered in the execution update results.
 
 ```json example
 {
@@ -45,9 +45,9 @@ in the subsequent responses.
 }
 ```
 
-Subsequent response 1, contains the deferred data and the first streamed list
-item. There is one Completed Result, indicating that the deferred data has been
-completely delivered.
+_Execution update result_ 1 contains the deferred data and the first streamed
+list item. There is one _completed result_, indicating that the deferred data
+has been completely delivered.
 
 ```json example
 {
@@ -68,10 +68,10 @@ completely delivered.
 }
 ```
 
-Subsequent response 2, contains the final stream results. In this example, the
-underlying iterator does not close synchronously so {hasNext} is set to {true}.
-If this iterator did close synchronously, {hasNext} would be set to {false} and
-this would be the final response.
+_Execution update result_ 2 contains the final stream results. In this example,
+the underlying iterator does not close synchronously so {"hasNext"} is set to
+{true}. If this iterator did close synchronously, {"hasNext"} would be set to
+{false} and this would be the final execution update result.
 
 ```json example
 {
@@ -85,9 +85,9 @@ this would be the final response.
 }
 ```
 
-Subsequent response 3, contains no incremental data. {hasNext} set to {false}
-indicates the end of the incremental stream. This response is sent when the
-underlying iterator of the `films` field closes.
+_Execution update result_ 3 contains no incremental data. {"hasNext"} set to
+{false} indicates the end of the _incremental stream_. This response is sent
+when the underlying iterator of the `films` field closes.
 
 ```json example
 {
@@ -121,14 +121,14 @@ fragment NameAndHomeWorldFragment on Person {
 }
 ```
 
-The incremental stream might look like:
+The _incremental stream_ might look like:
 
-The initial response contains the results of the `firstName` field. Even though
-it is also present in the `HomeWorldFragment`, it must be returned in the
-initial response because it is also defined outside of any fragments with the
-`@defer` directive. Additionally, There are two Pending Results indicating that
-results for both `@defer`s in the query will be delivered in the subsequent
-responses.
+The _initial execution result_ contains the results of the `firstName` field.
+Even though it is also present in the `HomeWorldFragment`, it must be returned
+in the initial response because it is also defined outside of any fragments with
+the `@defer` directive. Additionally, There are two _pending result_ indicating
+that results for both `@defer`s in the query will be delivered in the execution
+update results.
 
 ```json example
 {
@@ -145,15 +145,15 @@ responses.
 }
 ```
 
-Subsequent response 1, contains the deferred data from `HomeWorldFragment`.
+_Execution update result_ 1 contains the deferred data from `HomeWorldFragment`.
 There is one Completed Result, indicating that `HomeWorldFragment` has been
 completely delivered. Because the `homeWorld` field is present in two separate
-`@defer`s, it is separated into its own Incremental Result.
+`@defer`s, it is separated into its own _incremental result_.
 
-The second Incremental Result contains the data for the `terrain` field. This
-incremental result contains a `subPath` property to indicate to clients that the
-path of this result can be determined by concatenating the path from the Pending
-Result with id `"0"` and this `subPath` entry.
+The second _incremental result_ contains the data for the `terrain` field. This
+_incremental result_ contains a {"subPath"} entry to indicate to clients that
+the path of this result can be determined by concatenating the path from the
+_pending result_ with id `"0"` and this {"subPath"} entry.
 
 ```json example
 {
@@ -173,7 +173,7 @@ Result with id `"0"` and this `subPath` entry.
 }
 ```
 
-Subsequent response 2, contains the remaining data from the
+_Execution update result_ 2 contains the remaining data from the
 `NameAndHomeWorldFragment`. `lastName` is the only remaining field that has not
 been delivered in a previous response.
 
