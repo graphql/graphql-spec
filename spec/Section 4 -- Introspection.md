@@ -59,8 +59,8 @@ would produce the result:
 **Reserved Names**
 
 Types and fields required by the GraphQL introspection system that are used in
-the same context as user-defined types and fields are prefixed with {"\_\_"} two
-underscores. This in order to avoid naming collisions with user-defined GraphQL
+the same context as user defined types and fields are prefixed with {"\_\_"}
+(two underscores), in order to avoid naming collisions with user defined GraphQL
 types.
 
 Otherwise, any {Name} within a GraphQL type system must not start with two
@@ -68,7 +68,7 @@ underscores {"\_\_"}.
 
 ## Type Name Introspection
 
-GraphQL supports type name introspection within any selection set in an
+GraphQL supports type name introspection within any _selection set_ in an
 operation, with the single exception of selections at the root of a subscription
 operation. Type name introspection is accomplished via the meta-field
 `__typename: String!` on any Object, Interface, or Union. It returns the name of
@@ -127,12 +127,20 @@ CommonMark-compliant Markdown renderer.
 
 To support the management of backwards compatibility, GraphQL fields, arguments,
 input fields, and enum values can indicate whether or not they are deprecated
-(`isDeprecated: Boolean`) along with a description of why it is deprecated
+(`isDeprecated: Boolean!`) along with a description of why it is deprecated
 (`deprecationReason: String`).
 
 Tools built using GraphQL introspection should respect deprecation by
 discouraging deprecated use through information hiding or developer-facing
 warnings.
+
+**Stable Ordering**
+
+The observable order of all data collections should be preserved to improve
+schema legibility and stability. When a schema is produced from a
+{TypeSystemDocument}, introspection should return items in the same source order
+for each element list: object fields, input object fields, arguments, enum
+values, directives, union member types, and implemented interfaces.
 
 **Schema Introspection Schema**
 
@@ -154,20 +162,22 @@ type __Type {
   kind: __TypeKind!
   name: String
   description: String
+  # may be non-null for custom SCALAR, otherwise null.
+  specifiedByURL: String
   # must be non-null for OBJECT and INTERFACE, otherwise null.
-  fields(includeDeprecated: Boolean = false): [__Field!]
+  fields(includeDeprecated: Boolean! = false): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
   # must be non-null for INTERFACE and UNION, otherwise null.
   possibleTypes: [__Type!]
   # must be non-null for ENUM, otherwise null.
-  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+  enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
   # must be non-null for INPUT_OBJECT, otherwise null.
-  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
+  inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
-  # may be non-null for custom SCALAR, otherwise null.
-  specifiedByURL: String
+  # must be non-null for INPUT_OBJECT, otherwise null.
+  isOneOf: Boolean
 }
 
 enum __TypeKind {
@@ -184,7 +194,7 @@ enum __TypeKind {
 type __Field {
   name: String!
   description: String
-  args(includeDeprecated: Boolean = false): [__InputValue!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -209,9 +219,9 @@ type __EnumValue {
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
-  args(includeDeprecated: Boolean = false): [__InputValue!]!
   isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
+  args(includeDeprecated: Boolean! = false): [__InputValue!]!
 }
 
 enum __DirectiveLocation {
@@ -258,13 +268,13 @@ Fields\:
 
 ### The \_\_Type Type
 
-`__Type` is at the core of the type introspection system, it represents all
+`__Type` is at the core of the type introspection system. It represents all
 types in the system: both named types (e.g. Scalars and Object types) and type
 modifiers (e.g. List and Non-Null types).
 
 Type modifiers are used to modify the type presented in the field `ofType`. This
-modified type may recursively be a modified type, representing lists,
-non-nullables, and combinations thereof, ultimately modifying a named type.
+modified type may recursively be a modified type, representing a list or
+non-null type, and combinations thereof, ultimately modifying a named type.
 
 There are several different kinds of type. In each kind, different fields are
 actually valid. All possible kinds are listed in the `__TypeKind` enum.
@@ -301,7 +311,7 @@ Fields\:
 **Object**
 
 Object types represent concrete instantiations of sets of fields. The
-introspection types (e.g. `__Type`, `__Field`, etc) are examples of objects.
+introspection types (e.g. `__Type`, `__Field`, etc.) are examples of objects.
 
 Fields\:
 
@@ -318,8 +328,8 @@ Fields\:
 **Union**
 
 Unions are an abstract type where no common fields are declared. The possible
-types of a union are explicitly listed out in `possibleTypes`. Types can be made
-parts of unions without modification of that type.
+types of a union are explicitly listed out in `possibleTypes`. An object type
+can be a member of a union without modification to that type.
 
 Fields\:
 
@@ -333,9 +343,10 @@ Fields\:
 **Interface**
 
 Interfaces are an abstract type where there are common fields declared. Any type
-that implements an interface must define all the fields with names and types
-exactly matching. The implementations of this interface are explicitly listed
-out in `possibleTypes`.
+that implements an interface must define all the named fields where each
+implementing field type is equal to or a sub-type of (covariant) the interface
+type. The implementations of this interface are explicitly listed out in
+`possibleTypes`.
 
 Fields\:
 
@@ -345,8 +356,8 @@ Fields\:
 - `fields` must return the set of fields required by this interface.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated fields are also returned.
-- `interfaces` must return the set of interfaces that an object implements (if
-  none, `interfaces` must return the empty set).
+- `interfaces` must return the set of interfaces that an interface implements
+  (if none, `interfaces` must return the empty set).
 - `possibleTypes` returns the list of types that implement this interface. They
   must be object types.
 - All other fields must return {null}.
@@ -389,6 +400,8 @@ Fields\:
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated input fields are also returned.
+- `isOneOf` must return {true} when representing a _OneOf Input Object_,
+  otherwise {false}.
 - All other fields must return {null}.
 
 **List**
@@ -430,8 +443,8 @@ The `__Field` type represents each field in an Object or Interface type.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `args` returns a List of `__InputValue` representing the arguments this field
   accepts.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
@@ -440,7 +453,8 @@ Fields\:
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this field is deprecated.
+- `deprecationReason` returns the reason why this field is deprecated, or null
+  if this field is not deprecated.
 
 ### The \_\_InputValue Type
 
@@ -449,8 +463,8 @@ The `__InputValue` type represents field and directive arguments as well as the
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `type` must return a `__Type` that represents the type this input value
   expects.
 - `defaultValue` may return a String encoding (using the GraphQL language) of
@@ -458,8 +472,8 @@ Fields\:
   provided at runtime. If this input value has no default value, returns {null}.
 - `isDeprecated` returns {true} if this input field or argument should no longer
   be used, otherwise {false}.
-- `deprecationReason` optionally provides a reason why this input field or
-  argument is deprecated.
+- `deprecationReason` returns the reason why this input field or argument is
+  deprecated, or null if the input field or argument is not deprecated.
 
 ### The \_\_EnumValue Type
 
@@ -467,12 +481,12 @@ The `__EnumValue` type represents one of possible values of an enum.
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `isDeprecated` returns {true} if this enum value should no longer be used,
   otherwise {false}.
-- `deprecationReason` optionally provides a reason why this enum value is
-  deprecated.
+- `deprecationReason` returns the reason why this enum value is deprecated, or
+  null if the enum value is not deprecated.
 
 ### The \_\_Directive Type
 
@@ -505,8 +519,8 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 
 Fields\:
 
-- `name` must return a String
-- `description` may return a String or {null}
+- `name` must return a String.
+- `description` may return a String or {null}.
 - `locations` returns a List of `__DirectiveLocation` representing the valid
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this

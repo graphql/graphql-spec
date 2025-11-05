@@ -1,3 +1,5 @@
+[![GraphQLConf 2025 Banner: September 08-10, Amsterdam. Hosted by the GraphQL Foundation](./assets/graphql.org_conf_2025_.png)](https://graphql.org/conf/2025/?utm_source=github&utm_medium=graphql_js&utm_campaign=readme)
+
 # GraphQL
 
 <img alt="GraphQL Logo" align="right" src="https://graphql.org/img/logo.svg" width="15%" />

@@ -1,4 +1,4 @@
-# B. Appendix: Grammar Summary
+# C. Appendix: Grammar Summary
 
 ## Source Text
 
@@ -9,14 +9,14 @@ SourceCharacter :: "Any Unicode scalar value"
 Ignored ::
 
 - UnicodeBOM
-- WhiteSpace
+- Whitespace
 - LineTerminator
 - Comment
 - Comma
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
 
-WhiteSpace ::
+Whitespace ::
 
 - "Horizontal Tab (U+0009)"
 - "Space (U+0020)"
@@ -100,7 +100,7 @@ StringValue ::
 
 - `""` [lookahead != `"`]
 - `"` StringCharacter+ `"`
-- `"""` BlockStringCharacter\* `"""`
+- BlockString
 
 StringCharacter ::
 
@@ -121,6 +121,8 @@ HexDigit :: one of
 
 EscapedCharacter :: one of `"` `\` `/` `b` `f` `n` `r` `t`
 
+BlockString :: `"""` BlockStringCharacter\* `"""`
+
 BlockStringCharacter ::
 
 - SourceCharacter but not `"""` or `\"""`
@@ -130,6 +132,8 @@ Note: Block string values are interpreted to exclude blank initial and trailing
 lines and uniform indentation with {BlockStringValue()}.
 
 ## Document Syntax
+
+Description : StringValue
 
 Document : Definition+
 
@@ -147,7 +151,7 @@ ExecutableDefinition :
 
 OperationDefinition :
 
-- OperationType Name? VariablesDefinition? Directives? SelectionSet
+- Description? OperationType Name? VariablesDefinition? Directives? SelectionSet
 - SelectionSet
 
 OperationType : one of `query` `mutation` `subscription`
@@ -172,8 +176,8 @@ FragmentSpread : ... FragmentName Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : fragment FragmentName TypeCondition Directives?
-SelectionSet
+FragmentDefinition : Description? fragment FragmentName TypeCondition
+Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
@@ -211,7 +215,8 @@ ObjectField[Const] : Name : Value[?Const]
 
 VariablesDefinition : ( VariableDefinition+ )
 
-VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+VariableDefinition : Description? Variable : Type DefaultValue?
+Directives[Const]?
 
 Variable : $ Name
 
@@ -265,8 +270,6 @@ SchemaExtension :
 - extend schema Directives[Const] [lookahead != `{`]
 
 RootOperationTypeDefinition : OperationType : NamedType
-
-Description : StringValue
 
 TypeDefinition :
 
@@ -410,3 +413,32 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+
+## Schema Coordinate Syntax
+
+Note: Schema coordinates must not contain {Ignored}.
+
+SchemaCoordinateToken ::
+
+- SchemaCoordinatePunctuator
+- Name
+
+SchemaCoordinatePunctuator :: one of ( ) . : @
+
+SchemaCoordinate ::
+
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate :: Name
+
+MemberCoordinate :: Name . Name
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+DirectiveCoordinate :: @ Name
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )

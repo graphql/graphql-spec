@@ -13,19 +13,23 @@
     "url": "http://github.com/graphql/graphql-spec.git"
   },
   "scripts": {
-    "test": "npm run test:build && npm run test:spellcheck",
-    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
-    "test:spellcheck": "cspell \"spec/**/*.md\" README.md",
+    "test": "npm run test:spelling && npm run test:format && npm run test:build",
+    "test:spelling": "cspell \"spec/**/*.md\" README.md LICENSE.md",
     "format": "prettier --write \"**/*.{md,yml,yaml,json}\"",
-    "format:check": "prettier --check \"**/*.{md,yml,yaml,json}\"",
+    "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || npm run suggest:format",
+    "test:algorithm-format": "node .github/algorithm-format-check.mjs",
+    "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
     "build": "./build.sh",
-    "watch": "nodemon -e json,md --exec \"npm run build\""
+    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
+    "watch": "nodemon -e json,md --exec \"npm run build\"",
+    "update-appendix-c": "node scripts/update-appendix-c.mjs; prettier --write \"spec/Appendix C -- Built-in Definitions.md\""
   },
   "devDependencies": {
     "cspell": "5.9.1",
-    "nodemon": "2.0.12",
-    "prettier": "^2.3.0",
-    "spec-md": "3.0.2"
+    "nodemon": "2.0.20",
+    "prettier": "2.8.2",
+    "spec-md": "3.1.0",
+    "graphql": "^17.0.0-alpha.8"
   },
   "prettier": {
     "proseWrap": "always",

@@ -1,8 +1,8 @@
 # Validation
 
-GraphQL does not just verify if a request is syntactically correct, but also
-ensures that it is unambiguous and mistake-free in the context of a given
-GraphQL schema.
+A GraphQL service does not just verify if a request is syntactically correct,
+but also ensures that it is unambiguous and mistake-free in the context of a
+given GraphQL schema.
 
 An invalid request is still technically executable, and will always produce a
 stable result as defined by the algorithms in the Execution section, however
@@ -19,7 +19,7 @@ or development-time tool should report validation errors and not allow the
 formulation or execution of requests known to be invalid at that given point in
 time.
 
-**Type system evolution**
+**Type System Evolution**
 
 As GraphQL type system schema evolves over time by adding new types and new
 fields, it is possible that a request which was previously valid could later
@@ -32,13 +32,17 @@ free of any validation errors, and have not changed since.
 
 **Examples**
 
-For this section of this schema, we will assume the following type system in
-order to demonstrate examples:
+The examples in this section will use the following types:
 
 ```graphql example
 type Query {
   dog: Dog
   findDog(searchBy: FindDogInput): Dog
+}
+
+type Mutation {
+  addPet(pet: PetInput!): Pet
+  addPets(pets: [PetInput!]!): [Pet]
 }
 
 enum DogCommand {
@@ -93,6 +97,23 @@ input FindDogInput {
   name: String
   owner: String
 }
+
+input CatInput {
+  name: String!
+  nickname: String
+  meowVolume: Int
+}
+
+input DogInput {
+  name: String!
+  nickname: String
+  barkVolume: Int
+}
+
+input PetInput @oneOf {
+  cat: CatInput
+  dog: DogInput
+}
 ```
 
 ## Documents
@@ -134,6 +155,51 @@ extend type Dog {
 ```
 
 ## Operations
+
+### All Operation Definitions
+
+#### Operation Type Existence
+
+**Formal Specification**
+
+- For each operation definition {operation} in the document:
+  - Let {rootOperationType} be the _root operation type_ in {schema}
+    corresponding to the kind of {operation}.
+  - {rootOperationType} must exist.
+
+**Explanatory Text**
+
+A schema defines the _root operation type_ for each kind of operation that it
+supports. Every schema must support `query` operations, however support for
+`mutation` and `subscription` operations is optional.
+
+If the schema does not include the necessary _root operation type_ for the kind
+of an operation defined in the document, that operation is invalid since it
+cannot be executed.
+
+For example given the following schema:
+
+```graphql example
+type Query {
+  hello: String
+}
+```
+
+The following operation is valid:
+
+```graphql example
+query helloQuery {
+  hello
+}
+```
+
+While the following operation is invalid:
+
+```graphql counter-example
+mutation goodbyeMutation {
+  goodbye
+}
+```
 
 ### Named Operation Definitions
 
@@ -218,8 +284,8 @@ mutation dogOperation {
 
 **Explanatory Text**
 
-GraphQL allows a short-hand form for defining query operations when only that
-one operation exists in the document.
+GraphQL allows a shorthand form for defining query operations when only that one
+operation exists in the document.
 
 For example the following document is valid:
 
@@ -251,22 +317,81 @@ query getName {
 
 ### Subscription Operation Definitions
 
-#### Single root field
+#### Single Root Field
 
 **Formal Specification**
 
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - For each subscription operation definition {subscription} in the document:
   - Let {selectionSet} be the top level selection set on {subscription}.
-  - Let {variableValues} be the empty set.
-  - Let {groupedFieldSet} be the result of {CollectFields(subscriptionType,
-    selectionSet, variableValues)}.
-  - {groupedFieldSet} must have exactly one entry, which must not be an
+  - Let {collectedFieldsMap} be the result of
+    {CollectSubscriptionFields(subscriptionType, selectionSet)}.
+  - {collectedFieldsMap} must have exactly one entry, which must not be an
     introspection field.
+
+CollectSubscriptionFields(objectType, selectionSet, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
+- For each {selection} in {selectionSet}:
+  - {selection} must not provide the `@skip` directive.
+  - {selection} must not provide the `@include` directive.
+  - If {selection} is a {Field}:
+    - Let {responseName} be the _response name_ of {selection} (the alias if
+      defined, otherwise the field name).
+    - Let {fieldsForResponseKey} be the _field set_ value in
+      {collectedFieldsMap} for the key {responseName}; otherwise create the
+      entry with an empty ordered set.
+    - Add {selection} to the {fieldsForResponseKey}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
+    - Let {fragmentCollectedFieldsMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldsMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentType} be the type condition on {selection}.
+    - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
+      fragmentType)} is {false}, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - Let {fragmentCollectedFieldsMap} be the result of calling
+      {CollectSubscriptionFields(objectType, fragmentSelectionSet,
+      visitedFragments)}.
+    - For each {responseName} and {fragmentFields} in
+      {fragmentCollectedFieldsMap}:
+      - Let {fieldsForResponseKey} be the _field set_ value in
+        {collectedFieldsMap} for the key {responseName}; otherwise create the
+        entry with an empty ordered set.
+      - Add each item from {fragmentFields} to {fieldsForResponseKey}.
+- Return {collectedFieldsMap}.
+
+Note: This algorithm is very similar to {CollectFields()}, it differs in that it
+does not have access to runtime variables and thus the `@skip` and `@include`
+directives cannot be used.
 
 **Explanatory Text**
 
 Subscription operations must have exactly one root field.
+
+To enable us to determine this without access to runtime variables, we must
+forbid the `@skip` and `@include` directives in the root selection set.
 
 Valid examples:
 
@@ -318,6 +443,19 @@ fragment multipleSubscriptions on Subscription {
 }
 ```
 
+We do not allow the `@skip` and `@include` directives at the root of the
+subscription operation. The following example is also invalid:
+
+```graphql counter-example
+subscription requiredRuntimeValidation($bool: Boolean!) {
+  newMessage @include(if: $bool) {
+    body
+    sender
+  }
+  disallowedSecondRootField @skip(if: $bool)
+}
+```
+
 The root field of a subscription operation must not be an introspection field.
 The following example is also invalid:
 
@@ -362,7 +500,7 @@ fragment aliasedLyingFieldTargetNotDefined on Dog {
 ```
 
 For interfaces, direct field selection can only be done on fields. Fields of
-concrete implementors are not relevant to the validity of the given
+concrete implementers are not relevant to the validity of the given
 interface-typed selection set.
 
 For example, the following is valid:
@@ -376,7 +514,7 @@ fragment interfaceFieldSelection on Pet {
 and the following is invalid:
 
 ```graphql counter-example
-fragment definedOnImplementorsButNotInterface on Pet {
+fragment definedOnImplementersButNotInterface on Pet {
   nickname
 }
 ```
@@ -418,9 +556,9 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {set} including visiting fragments and inline fragments.
-- Given each pair of members {fieldA} and {fieldB} in {fieldsForName}:
+- Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
@@ -435,35 +573,40 @@ SameResponseShape(fieldA, fieldB):
 - Let {typeA} be the return type of {fieldA}.
 - Let {typeB} be the return type of {fieldB}.
 - If {typeA} or {typeB} is Non-Null:
-  - If {typeA} or {typeB} is nullable, return false.
+  - If {typeA} or {typeB} is nullable, return {false}.
   - Let {typeA} be the nullable type of {typeA}.
   - Let {typeB} be the nullable type of {typeB}.
 - If {typeA} or {typeB} is List:
-  - If {typeA} or {typeB} is not List, return false.
+  - If {typeA} or {typeB} is not List, return {false}.
   - Let {typeA} be the item type of {typeA}.
   - Let {typeB} be the item type of {typeB}.
   - Repeat from step 3.
 - If {typeA} or {typeB} is Scalar or Enum:
-  - If {typeA} and {typeB} are the same type return true, otherwise return
-    false.
-- Assert: {typeA} and {typeB} are both composite types.
+  - If {typeA} and {typeB} are the same type return {true}, otherwise return
+    {false}.
+- Assert: {typeA} is an object, union or interface type.
+- Assert: {typeB} is an object, union or interface type.
 - Let {mergedSet} be the result of adding the selection set of {fieldA} and the
   selection set of {fieldB}.
-- Let {fieldsForName} be the set of selections with a given response name in
+- Let {fieldsForName} be the set of selections with a given _response name_ in
   {mergedSet} including visiting fragments and inline fragments.
-- Given each pair of members {subfieldA} and {subfieldB} in {fieldsForName}:
-  - If {SameResponseShape(subfieldA, subfieldB)} is false, return false.
-- Return true.
+- Given each pair of distinct members {subfieldA} and {subfieldB} in
+  {fieldsForName}:
+  - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
+- Return {true}.
+
+Note: In prior versions of the spec the term "composite" was used to signal a
+type that is either an Object, Interface or Union type.
 
 **Explanatory Text**
 
-If multiple field selections with the same response names are encountered during
-execution, the field and arguments to execute and the resulting value should be
-unambiguous. Therefore any two field selections which might both be encountered
-for the same object are only valid if they are equivalent.
+If multiple field selections with the same _response name_ are encountered
+during execution, the field and arguments to execute and the resulting value
+should be unambiguous. Therefore any two field selections which might both be
+encountered for the same object are only valid if they are equivalent.
 
 During execution, the simultaneous execution of fields with the same response
-name is accomplished by {MergeSelectionSets()} and {CollectFields()}.
+name is accomplished by performing {CollectSubfields()} before their execution.
 
 For simple hand-written GraphQL, this rule is obviously a clear developer error,
 however nested fragments can make this difficult to detect manually.
@@ -556,8 +699,8 @@ fragment safeDifferingArgs on Pet {
 ```
 
 However, the field responses must be shapes which can be merged. For example,
-scalar values must not differ. In this example, `someValue` might be a `String`
-or an `Int`:
+leaf types must not differ. In this example, `someValue` might be a `String` or
+an `Int`:
 
 ```graphql counter-example
 fragment conflictingDifferingResponses on Pet {
@@ -575,16 +718,16 @@ fragment conflictingDifferingResponses on Pet {
 **Formal Specification**
 
 - For each {selection} in the document:
-  - Let {selectionType} be the result type of {selection}.
+  - Let {selectionType} be the unwrapped result type of {selection}.
   - If {selectionType} is a scalar or enum:
     - The subselection set of that selection must be empty.
   - If {selectionType} is an interface, union, or object:
-    - The subselection set of that selection must NOT BE empty.
+    - The subselection set of that selection must not be empty.
 
 **Explanatory Text**
 
-Field selections on scalars or enums are never allowed, because they are the
-leaf nodes of any GraphQL operation.
+A field subselection is not allowed on leaf fields. A leaf field is any field
+with a scalar or enum unwrapped type.
 
 The following is valid.
 
@@ -604,9 +747,8 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-Conversely the leaf field selections of GraphQL operations must be of type
-scalar or enum. Leaf selections on objects, interfaces, and unions without
-subfields are disallowed.
+Conversely, non-leaf fields must have a field subselection. A non-leaf field is
+any field with an object, interface, or union unwrapped type.
 
 Let's assume the following additions to the query root operation type of the
 schema:
@@ -619,7 +761,8 @@ extend type Query {
 }
 ```
 
-The following examples are invalid
+The following examples are invalid because they include non-leaf fields without
+a field subselection.
 
 ```graphql counter-example
 query directQueryOnObjectWithoutSubFields {
@@ -632,6 +775,16 @@ query directQueryOnInterfaceWithoutSubFields {
 
 query directQueryOnUnionWithoutSubFields {
   catOrDog
+}
+```
+
+However the following example is valid since it includes a field subselection.
+
+```graphql example
+query directQueryOnObjectWithSubFields {
+  human {
+    name
+  }
 }
 ```
 
@@ -729,7 +882,7 @@ invalid.
     which contains {argument}.
   - {arguments} must be the set containing only {argument}.
 
-#### Required Arguments
+### Required Arguments
 
 - For each Field or Directive in the document:
   - Let {arguments} be the arguments provided by the Field or Directive.
@@ -900,7 +1053,7 @@ fragment inlineNotExistingType on Dog {
 }
 ```
 
-#### Fragments On Composite Types
+#### Fragments on Object, Interface or Union Types
 
 **Formal Specification**
 
@@ -977,7 +1130,7 @@ Field selection is also determined by spreading fragments into one another. The
 selection set of the target fragment is combined into the selection set at the
 level at which the target fragment is referenced.
 
-#### Fragment spread target defined
+#### Fragment Spread Target Defined
 
 **Formal Specification**
 
@@ -998,13 +1151,13 @@ is a validation error if the target of a spread is not defined.
 }
 ```
 
-#### Fragment spreads must not form cycles
+#### Fragment Spreads Must Not Form Cycles
 
 **Formal Specification**
 
 - For each {fragmentDefinition} in the document:
   - Let {visited} be the empty set.
-  - {DetectFragmentCycles(fragmentDefinition, visited)}
+  - {DetectFragmentCycles(fragmentDefinition, visited)}.
 
 DetectFragmentCycles(fragmentDefinition, visited):
 
@@ -1013,7 +1166,7 @@ DetectFragmentCycles(fragmentDefinition, visited):
   - {visited} must not contain {spread}.
   - Let {nextVisited} be the set including {spread} and members of {visited}.
   - Let {nextFragmentDefinition} be the target of {spread}.
-  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}
+  - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}.
 
 **Explanatory Text**
 
@@ -1083,7 +1236,7 @@ fragment ownerFragment on Human {
 }
 ```
 
-#### Fragment spread is possible
+#### Fragment Spread Is Possible
 
 **Formal Specification**
 
@@ -1108,7 +1261,7 @@ type matches the type condition. They also are spread within the context of a
 parent type. A fragment spread is only valid if its type condition could ever
 apply within the parent type.
 
-##### Object Spreads In Object Scope
+##### Object Spreads in Object Scope
 
 In the scope of an object type, the only valid object type fragment spread is
 one that applies to the same type that is in scope.
@@ -1171,7 +1324,7 @@ that if one inspected the contents of the {CatOrDogNameFragment} you could note
 that no valid results would ever be returned. However we do not specify this as
 invalid because we only consider the fragment declaration, not its body.
 
-##### Object Spreads In Abstract Scope
+##### Object Spreads in Abstract Scope
 
 Union or interface spreads can be used within the context of an object type
 fragment, but only if the object type is one of the possible types of that
@@ -1256,7 +1409,7 @@ fragment sentientFragment on Sentient {
 is not valid because there exists no type that implements both {Pet} and
 {Sentient}.
 
-**Interface Spreads in implemented Interface Scope**
+**Interface Spreads in Implemented Interface Scope**
 
 Additionally, an interface type fragment can always be spread into an interface
 scope which it implements.
@@ -1289,14 +1442,25 @@ fragment resourceFragment on Resource {
 
 **Formal Specification**
 
-- For each input Value {value} in the document:
+- For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type}.
+  - {value} must be coercible to {type} (with the assumption that any
+    {variableUsage} nested within {value} will represent a runtime value valid
+    for usage in its position).
 
 **Explanatory Text**
 
 Literal values must be compatible with the type expected in the position they
 are found as per the coercion rules defined in the Type System chapter.
+
+Note: A {ListValue} or {ObjectValue} may contain nested Input Values, some of
+which may be a variable usage. The
+[All Variable Usages Are Allowed](#sec-All-Variable-Usages-Are-Allowed)
+validation rule ensures that each {variableUsage} is of a type allowed in its
+position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
+algorithm ensures runtime values for variables coerce correctly. Therefore, for
+the purposes of the "coercible" assertion in this validation rule, we can assume
+the runtime value of each {variableUsage} is valid for usage in its position.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
@@ -1320,6 +1484,12 @@ query goodComplexDefaultValue($search: FindDogInput = { name: "Fido" }) {
     name
   }
 }
+
+mutation addPet($pet: PetInput! = { cat: { name: "Brontie" } }) {
+  addPet(pet: $pet) {
+    name
+  }
+}
 ```
 
 Non-coercible values (such as a String into an Int) are invalid. The following
@@ -1332,6 +1502,24 @@ fragment stringIntoInt on Arguments {
 
 query badComplexValue {
   findDog(searchBy: { name: 123 }) {
+    name
+  }
+}
+
+mutation oneOfWithNoFields {
+  addPet(pet: {}) {
+    name
+  }
+}
+
+mutation oneOfWithTwoFields($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+
+mutation listOfOneOfWithNullableVariable($dog: DogInput) {
+  addPets(pets: [{ dog: $dog }]) {
     name
   }
 }
@@ -1437,7 +1625,7 @@ input object field is optional.
 GraphQL services define what directives they support. For each usage of a
 directive, the directive must be available on that service.
 
-### Directives Are In Valid Locations
+### Directives Are in Valid Locations
 
 **Formal Specification**
 
@@ -1463,7 +1651,7 @@ query @skip(if: $foo) {
 }
 ```
 
-### Directives Are Unique Per Location
+### Directives Are Unique per Location
 
 **Formal Specification**
 
@@ -1478,13 +1666,13 @@ query @skip(if: $foo) {
 
 **Explanatory Text**
 
-Directives are used to describe some metadata or behavioral change on the
-definition they apply to. When more than one directive of the same name is used,
-the expected metadata or behavior becomes ambiguous, therefore only one of each
-directive is allowed per location.
+GraphQL allows directives that are defined as `repeatable` to be used more than
+once on the definition they apply to, possibly with different arguments. In
+contrast, if a directive is not `repeatable`, then only one occurrence of it is
+allowed per location.
 
-For example, the following document will not pass validation because `@skip` has
-been used twice for the same field:
+For example, the following document will not pass validation because
+non-repeatable `@skip` has been used twice for the same field:
 
 ```raw graphql counter-example
 query ($foo: Boolean = true, $bar: Boolean = false) {
@@ -1843,7 +2031,7 @@ fragment isHouseTrainedFragment on Dog {
 This document is not valid because {queryWithExtraVar} defines an extraneous
 variable.
 
-### All Variable Usages are Allowed
+### All Variable Usages Are Allowed
 
 **Formal Specification**
 
@@ -1861,8 +2049,8 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
-- If {locationType} is a non-null type AND {variableType} is NOT a non-null
-  type:
+- If {IsNonNullPosition(locationType, variableUsage)} AND {variableType} is NOT
+  a non-null type:
   - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists for
     {variableDefinition} and is not the value {null}.
   - Let {hasLocationDefaultValue} be {true} if a default value exists for the
@@ -1872,6 +2060,15 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
   - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
+
+IsNonNullPosition(locationType, variableUsage):
+
+- If {locationType} is a non-null type, return {true}.
+- If the location of {variableUsage} is an {ObjectField}:
+  - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
+  - Let {parentLocationType} be the expected type of {ObjectValue}.
+  - If {parentLocationType} is a _OneOf Input Object_ type, return {true}.
+- Return {false}.
 
 AreTypesCompatible(variableType, locationType):
 
@@ -1961,7 +2158,31 @@ query listToNonNullList($booleanList: [Boolean]) {
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 Similarly a `[T]` cannot be passed to a `[T!]`.
 
-**Allowing optional variables when default values exist**
+Variables used for OneOf Input Object fields must be non-nullable.
+
+```graphql example
+mutation addCat($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+
+mutation addCatWithDefault($cat: CatInput! = { name: "Brontie" }) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addNullableCat($cat: CatInput) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+**Allowing Optional Variables When Default Values Exist**
 
 A notable exception to typical variable type compatibility is allowing a
 variable definition with a nullable type to be provided to a non-null location
@@ -1995,4 +2216,4 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 ```
 
 Note: The value {null} could still be provided to such a variable at runtime. A
-non-null argument must raise a field error if provided a {null} value.
+non-null argument must raise an _execution error_ if provided a {null} value.
