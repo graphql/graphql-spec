@@ -389,7 +389,7 @@ discouraged.
 ### Extensions
 
 The {"extensions"} entry in an _execution result_, _request error result_,
-_initial execution result_, or a _execution update result_, if set, must have a
+_initial execution result_, or an _execution update result_, if set, must have a
 map as its value. This entry is reserved for implementers to extend the protocol
 however they see fit, and hence there are no additional restrictions on its
 contents.
@@ -446,7 +446,7 @@ completed result.
 ### Incremental Result
 
 :: The _incremental result_ is used to deliver data that the GraphQL service has
-chosen to incrementally deliver. An incremental result may be ether an
+chosen to incrementally deliver. An incremental result may be either an
 _incremental list result_ or an _incremental object result_.
 
 An _incremental result_ must be a map.
@@ -458,7 +458,7 @@ _incremental result_.
 
 #### Incremental List Result
 
-:: An _incremental list result_ is a _incremental result_ used to deliver
+:: An _incremental list result_ is an _incremental result_ used to deliver
 additional list items for a list field with a `@stream` directive. The
 _associated pending result_ for this _incremental list result_ must be
 associated with a `@stream` directive.
@@ -478,7 +478,7 @@ list of the same type of the response field at this _response position_.
 
 If any _execution error_ were raised during the execution of the results in
 {"items"} and these errors propagate to a _response position_ higher than the
-_incremental list result_'s response position, The incremental list result is
+_incremental list result_'s response position, the incremental list result is
 considered failed and should not be included in the _incremental stream_. The
 errors that caused this failure will be included in a _completed result_.
 
@@ -490,7 +490,7 @@ entry is described in the "Errors" section.
 
 #### Incremental Object Result
 
-:: An _incremental object result_ is a _incremental result_ used to deliver
+:: An _incremental object result_ is an _incremental result_ used to deliver
 additional response fields that were contained in one or more fragments with a
 `@defer` directive. The _associated pending result_ for this _incremental object
 result_ must be associated with a `@defer` directive.
@@ -498,7 +498,7 @@ result_ must be associated with a `@defer` directive.
 **Incremental Object Result Format**
 
 The _incremental object result_ may contain a {"subPath"} entry. If this entry
-is present, The incremental object result's _response position_ can be
+is present, the incremental object result's _response position_ can be
 determined by concatenating the value of the _associated pending result_'s
 {"path"} entry with the value of this {"subPath"} entry. If no {"subPath"} entry
 is present, the _response position_ is the value of the associated pending
@@ -516,7 +516,7 @@ object result's _response position_.
 
 If any _execution error_ were raised during the execution of the results in
 {"data"} and these errors propagated to a _response position_ higher than the
-_incremental object result_'s response position, The incremental object result
+_incremental object result_'s response position, the incremental object result
 is considered failed and should not be included in the incremental stream. The
 errors that caused this failure will be included in a _completed result_.
 
