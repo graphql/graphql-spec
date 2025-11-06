@@ -17,7 +17,7 @@ TypeSystemDefinition :
 The GraphQL language includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
 describe a GraphQL service's type system. Tools may use this definition language
-to provide utilities such as client code generation or service boot-strapping.
+to provide utilities such as client code generation or service bootstrapping.
 
 GraphQL tools or services which only seek to execute GraphQL requests and not
 construct a new GraphQL schema may choose not to allow {TypeSystemDefinition}.
@@ -435,7 +435,7 @@ GraphQL services may use custom scalar types in addition to the built-in
 scalars. For example, a GraphQL service could define a scalar called `UUID`
 which, while serialized as a string, conforms to
 [RFC 4122](https://tools.ietf.org/html/rfc4122). When querying a field of type
-`UUID`, you can then rely on the ability to parse the result with a RFC 4122
+`UUID`, you can then rely on the ability to parse the result with an RFC 4122
 compliant parser. Another example of a potentially useful custom scalar is
 `URL`, which serializes as a string, but is guaranteed by the service to be a
 valid URL.
@@ -512,9 +512,9 @@ GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
 of input value is encountered. GraphQL may be parameterized by variables, the
 values of which are often serialized when sent over a transport like HTTP. Since
-some common serializations (ex. JSON) do not discriminate between integer and
+some common serializations (e.g. JSON) do not discriminate between integer and
 floating-point values, they are interpreted as an integer input value if they
-have an empty fractional part (ex. `1.0`) and otherwise as floating-point input
+have an empty fractional part (e.g. `1.0`) and otherwise as floating-point input
 value.
 
 For all types below, with the exception of Non-Null, if the explicit value
@@ -693,11 +693,11 @@ GraphQL operations are hierarchical and composed, describing a tree of
 information. While Scalar types describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-GraphQL Objects represent a list of named fields, each of which yield a value of
-a specific type. Object values should be serialized as ordered maps, where the
-selected field names (or aliases) are the keys and the result of evaluating the
-field is the value, ordered by the order in which they appear in the _selection
-set_.
+GraphQL Objects represent a list of named fields, each of which yields a value
+of a specific type. Object values should be serialized as ordered maps, where
+the selected field names (or aliases) are the keys and the result of evaluating
+the field is the value, ordered by the order in which they appear in the
+_selection set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
@@ -1116,8 +1116,8 @@ InterfaceTypeDefinition :
   [lookahead != `{`]
 
 GraphQL interfaces represent a list of named fields and their arguments. GraphQL
-objects and interfaces can then implement these interfaces which requires that
-the implementing type will define all fields defined by those interfaces.
+objects and interfaces can then implement these interfaces which requires the
+implementing type to define all fields defined by those interfaces.
 
 Fields on a GraphQL interface have the same rules as fields on a GraphQL object;
 their type can be Scalar, Object, Enum, Interface, or Union, or any wrapping
@@ -1569,7 +1569,7 @@ InputFieldsDefinition : { InputValueDefinition+ }
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
 
-A GraphQL Input Object defines a set of input fields; the input fields are
+:: A GraphQL _Input Object_ defines a set of input fields; the input fields are
 scalars, enums, other input objects, or any wrapping type whose underlying base
 type is one of those three. This allows arguments to accept arbitrarily complex
 structs.
@@ -1724,6 +1724,9 @@ input ExampleInputObject {
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
       1. The `@deprecated` directive must not be applied to this input field.
+   5. If the Input Object is a _OneOf Input Object_ then:
+      1. The type of the input field must be nullable.
+      2. The input field must not have a default value.
 3. If an Input Object references itself either directly or through referenced
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
@@ -1766,6 +1769,71 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
 
+### OneOf Input Objects
+
+:: A _OneOf Input Object_ is a special variant of _Input Object_ where exactly
+one field must be set and non-null, all others being omitted. This is useful for
+representing situations where an input may be one of many different options.
+
+When using the type system definition language, the [`@oneOf`](#sec--oneOf)
+directive is used to indicate that an Input Object is a OneOf Input Object (and
+thus requires exactly one of its fields be provided):
+
+```graphql
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
+```
+
+In schema introspection, the `__Type.isOneOf` field will return {true} for OneOf
+Input Objects, and {false} for all other Input Objects.
+
+**Input Coercion**
+
+The value of a OneOf Input Object, as a variant of Input Object, must also be an
+input object literal or an unordered map supplied by a variable, otherwise a
+_request error_ must be raised.
+
+- Prior to construction of the coerced map via the input coercion rules of an
+  _Input Object_: the value to be coerced must contain exactly one entry and
+  that entry must not be {null} or the {null} literal, otherwise a _request
+  error_ must be raised.
+
+- All _Input Object_ [input coercion rules](#sec-Input-Objects.Input-Coercion)
+  must also apply to a _OneOf Input Object_.
+
+- The resulting coerced map must contain exactly one entry and the value for
+  that entry must not be {null}, otherwise an _execution error_ must be raised.
+
+Following are additional examples of input coercion for a OneOf Input Object
+type with a `String` member field `a` and an `Int` member field `b`:
+
+```graphql example
+input ExampleOneOfInputObject @oneOf {
+  a: String
+  b: Int
+}
+```
+
+| Literal Value           | Variables                       | Coerced Value                                       |
+| ----------------------- | ------------------------------- | --------------------------------------------------- |
+| `{ a: "abc" }`          | `{}`                            | `{ a: "abc" }`                                      |
+| `{ b: 123 }`            | `{}`                            | `{ b: 123 }`                                        |
+| `$var`                  | `{ var: { a: "abc" } }`         | `{ a: "abc" }`                                      |
+| `{ a: null }`           | `{}`                            | Error: Value for member field {a} must be non-null  |
+| `$var`                  | `{ var: { a: null } }`          | Error: Value for member field {a} must be non-null  |
+| `{ a: $a }`             | `{}`                            | Error: Value for member field {a} must be specified |
+| `{ a: "abc", b: 123 }`  | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: 456, b: "xyz" }`  | `{}`                            | Error: Exactly one key must be specified            |
+| `$var`                  | `{ var: { a: "abc", b: 123 } }` | Error: Exactly one key must be specified            |
+| `{ a: "abc", b: null }` | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: "abc", b: $b }`   | `{}`                            | Error: Exactly one key must be specified            |
+| `{ a: $a, b: $b }`      | `{ a: "abc" }`                  | Error: Exactly one key must be specified            |
+| `{}`                    | `{}`                            | Error: Exactly one key must be specified            |
+| `$var`                  | `{ var: {} }`                   | Error: Exactly one key must be specified            |
+
 ### Input Object Extensions
 
 InputObjectTypeExtension :
@@ -1789,6 +1857,12 @@ defined.
    the previous Input Object.
 4. Any non-repeatable directives provided must not already apply to the previous
    Input Object type.
+5. The `@oneOf` directive must not be provided by an Input Object type
+   extension.
+6. If the original Input Object is a _OneOf Input Object_ then:
+   1. All fields of the Input Object type extension must be nullable.
+   2. All fields of the Input Object type extension must not have default
+      values.
 
 ## List
 
@@ -1810,7 +1884,7 @@ indicates a mismatch in expectations between the type system and the
 implementation.
 
 If a list's item type is nullable, then errors occurring during preparation or
-coercion of an individual item in the list must result in a the value {null} at
+coercion of an individual item in the list must result in the value {null} at
 that position in the list along with an _execution error_ added to the response.
 If a list's item type is non-null, an execution error occurring at an individual
 item in the list must result in an execution error for the entire list.
@@ -2013,6 +2087,9 @@ schema.
 
 GraphQL implementations that support the type system definition language should
 provide the `@specifiedBy` directive if representing custom scalar definitions.
+
+GraphQL implementations that support the type system definition language should
+provide the `@oneOf` directive if representing OneOf Input Objects.
 
 When representing a GraphQL schema using the type system definition language any
 _built-in directive_ may be omitted for brevity.
@@ -2227,6 +2304,23 @@ to the relevant IETF specification.
 
 ```graphql example
 scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
+```
+
+### @oneOf
+
+```graphql
+directive @oneOf on INPUT_OBJECT
+```
+
+The `@oneOf` _built-in directive_ is used within the type system definition
+language to indicate an _Input Object_ is a _OneOf Input Object_.
+
+```graphql example
+input UserUniqueCondition @oneOf {
+  id: ID
+  username: String
+  organizationAndEmail: OrganizationAndEmailInput
+}
 ```
 
 ## Service Definition

@@ -40,6 +40,11 @@ type Query {
   findDog(searchBy: FindDogInput): Dog
 }
 
+type Mutation {
+  addPet(pet: PetInput!): Pet
+  addPets(pets: [PetInput!]!): [Pet]
+}
+
 enum DogCommand {
   SIT
   DOWN
@@ -91,6 +96,23 @@ union HumanOrAlien = Human | Alien
 input FindDogInput {
   name: String
   owner: String
+}
+
+input CatInput {
+  name: String!
+  nickname: String
+  meowVolume: Int
+}
+
+input DogInput {
+  name: String!
+  nickname: String
+  barkVolume: Int
+}
+
+input PetInput @oneOf {
+  cat: CatInput
+  dog: DogInput
 }
 ```
 
@@ -262,8 +284,8 @@ mutation dogOperation {
 
 **Explanatory Text**
 
-GraphQL allows a short-hand form for defining query operations when only that
-one operation exists in the document.
+GraphQL allows a shorthand form for defining query operations when only that one
+operation exists in the document.
 
 For example the following document is valid:
 
@@ -1462,6 +1484,12 @@ query goodComplexDefaultValue($search: FindDogInput = { name: "Fido" }) {
     name
   }
 }
+
+mutation addPet($pet: PetInput! = { cat: { name: "Brontie" } }) {
+  addPet(pet: $pet) {
+    name
+  }
+}
 ```
 
 Non-coercible values (such as a String into an Int) are invalid. The following
@@ -1474,6 +1502,24 @@ fragment stringIntoInt on Arguments {
 
 query badComplexValue {
   findDog(searchBy: { name: 123 }) {
+    name
+  }
+}
+
+mutation oneOfWithNoFields {
+  addPet(pet: {}) {
+    name
+  }
+}
+
+mutation oneOfWithTwoFields($dog: DogInput) {
+  addPet(pet: { cat: { name: "Brontie" }, dog: $dog }) {
+    name
+  }
+}
+
+mutation listOfOneOfWithNullableVariable($dog: DogInput) {
+  addPets(pets: [{ dog: $dog }]) {
     name
   }
 }
@@ -2003,8 +2049,8 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
-- If {locationType} is a non-null type AND {variableType} is NOT a non-null
-  type:
+- If {IsNonNullPosition(locationType, variableUsage)} AND {variableType} is NOT
+  a non-null type:
   - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists for
     {variableDefinition} and is not the value {null}.
   - Let {hasLocationDefaultValue} be {true} if a default value exists for the
@@ -2014,6 +2060,15 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
   - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
+
+IsNonNullPosition(locationType, variableUsage):
+
+- If {locationType} is a non-null type, return {true}.
+- If the location of {variableUsage} is an {ObjectField}:
+  - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
+  - Let {parentLocationType} be the expected type of {ObjectValue}.
+  - If {parentLocationType} is a _OneOf Input Object_ type, return {true}.
+- Return {false}.
 
 AreTypesCompatible(variableType, locationType):
 
@@ -2102,6 +2157,30 @@ query listToNonNullList($booleanList: [Boolean]) {
 
 This would fail validation because a `[T]` cannot be passed to a `[T]!`.
 Similarly a `[T]` cannot be passed to a `[T!]`.
+
+Variables used for OneOf Input Object fields must be non-nullable.
+
+```graphql example
+mutation addCat($cat: CatInput!) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+
+mutation addCatWithDefault($cat: CatInput! = { name: "Brontie" }) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
+
+```graphql counter-example
+mutation addNullableCat($cat: CatInput) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
 
 **Allowing Optional Variables When Default Values Exist**
 
