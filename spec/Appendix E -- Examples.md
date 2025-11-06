@@ -126,7 +126,7 @@ The _incremental stream_ might look like:
 The _initial execution result_ contains the results of the `firstName` field.
 Even though it is also present in the `HomeWorldFragment`, it must be returned
 in the initial response because it is also defined outside of any fragments with
-the `@defer` directive. Additionally, There are two _pending result_ indicating
+the `@defer` directive. Additionally, there are two _pending result_ indicating
 that results for both `@defer`s in the query will be delivered in the execution
 update results.
 
