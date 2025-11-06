@@ -2325,10 +2325,7 @@ input UserUniqueCondition @oneOf {
 
 ## Service Definition
 
-ServiceDefinition :
-
-- Description service [lookahead != `{`]
-- Description? service { ServiceAttribute+ }
+ServiceDefinition : Description? service { ServiceAttribute\* }
 
 ServiceAttribute :
 
@@ -2341,7 +2338,7 @@ All capabilities within a service must have unique identifiers.
 
 ### Service Capabilities
 
-ServiceCapabilities: capabilities { ServiceCapability+ }
+ServiceCapabilities: capabilities { ServiceCapability\* }
 
 ServiceCapability:
 

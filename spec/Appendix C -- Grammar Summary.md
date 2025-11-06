@@ -420,9 +420,7 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 
-ServiceDefinition :
-
-- Description? service { ServiceAttribute\* }
+ServiceDefinition : Description? service { ServiceAttribute\* }
 
 ServiceAttribute :
 
