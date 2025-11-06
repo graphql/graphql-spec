@@ -422,14 +422,13 @@ TypeSystemDirectiveLocation : one of
 
 ServiceDefinition :
 
-- Description service [lookahead != `{`]
-- Description? service { ServiceAttribute+ }
+- Description? service { ServiceAttribute* }
 
 ServiceAttribute :
 
 - ServiceCapabilities
 
-ServiceCapabilities: capabilities { ServiceCapability+ }
+ServiceCapabilities: capabilities { ServiceCapability* }
 
 ServiceCapability:
 
