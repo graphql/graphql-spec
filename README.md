@@ -1,4 +1,4 @@
-[![GraphQLConf 2025 Banner: September 08-10, Amsterdam. Hosted by the GraphQL Foundation](./assets/banner.png)](https://graphql.org/)
+[![The query language for modern APIs](./assets/banner.png)](https://graphql.org/)
 
 # GraphQL
 
