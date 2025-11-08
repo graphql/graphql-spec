@@ -1,4 +1,4 @@
-# B. Appendix: Grammar Summary
+# C. Appendix: Grammar Summary
 
 ## Source Text
 
@@ -9,14 +9,14 @@ SourceCharacter :: "Any Unicode scalar value"
 Ignored ::
 
 - UnicodeBOM
-- WhiteSpace
+- Whitespace
 - LineTerminator
 - Comment
 - Comma
 
 UnicodeBOM :: "Byte Order Mark (U+FEFF)"
 
-WhiteSpace ::
+Whitespace ::
 
 - "Horizontal Tab (U+0009)"
 - "Space (U+0020)"
@@ -413,3 +413,32 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+
+## Schema Coordinate Syntax
+
+Note: Schema coordinates must not contain {Ignored}.
+
+SchemaCoordinateToken ::
+
+- SchemaCoordinatePunctuator
+- Name
+
+SchemaCoordinatePunctuator :: one of ( ) . : @
+
+SchemaCoordinate ::
+
+- TypeCoordinate
+- MemberCoordinate
+- ArgumentCoordinate
+- DirectiveCoordinate
+- DirectiveArgumentCoordinate
+
+TypeCoordinate :: Name
+
+MemberCoordinate :: Name . Name
+
+ArgumentCoordinate :: Name . Name ( Name : )
+
+DirectiveCoordinate :: @ Name
+
+DirectiveArgumentCoordinate :: @ Name ( Name : )

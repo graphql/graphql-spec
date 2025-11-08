@@ -19,7 +19,7 @@ a query or mutation and the request included execution. Additionally, for each
 event in a subscription's _source stream_, the _response stream_ will emit an
 _execution result_.
 
-An _execution result_ must be map.
+An _execution result_ must be a map.
 
 The _execution result_ must contain an entry with key {"data"}. The value of
 this entry is described in the "Data" section.
@@ -30,7 +30,7 @@ _execution error_ raised during execution. Each error must be a map as described
 in the "Errors" section below. If the request completed without raising any
 errors, this entry must not be present.
 
-Note: When {"errors"} is present in a _execution result_, it may be helpful for
+Note: When {"errors"} is present in an _execution result_, it may be helpful for
 it to appear first when serialized to make it more apparent that errors are
 present.
 
