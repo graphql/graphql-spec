@@ -176,8 +176,8 @@ FragmentSpread : ... FragmentName Arguments? Directives?
 
 InlineFragment : ... TypeCondition? Directives? SelectionSet
 
-FragmentDefinition : Description? fragment FragmentName TypeCondition
-Directives? SelectionSet
+FragmentDefinition : Description? fragment FragmentName VariablesDefinition?
+TypeCondition Directives? SelectionSet
 
 FragmentName : Name but not `on`
 
