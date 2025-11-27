@@ -856,12 +856,20 @@ validation rules apply in each case.
 
 **Formal Specification**
 
-- For each {argument} in the document:
+- For each field or directive {argument} in the document:
   - Let {argumentName} be the Name of {argument}.
-  - Let {argumentDefinition} be the argument or variable definition named
-    {argumentName} provided by the parent field definition, directive definition
-    or fragment spread.
+  - Let {argumentDefinition} be the argument definition provided by the parent
+    field or directive named {argumentName}.
   - {argumentDefinition} must exist.
+- For each fragment argument {fragmentArgument} in the document:
+  - Let {variableName} be the Name of {fragmentArgument}.
+  - Let {namedSpread} be the named spread to which {fragmentArgument} is
+    applied.
+  - Let {fragment} be the target of {namedSpread}.
+  - If no such {fragment} exists, continue with the next {fragmentArgument}.
+  - Let {variableDefinition} be the variable definition named {variableName}
+    provided by {fragment}.
+  - {variableDefinition} must exist.
 
 **Explanatory Text**
 
