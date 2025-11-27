@@ -288,6 +288,7 @@ TypeExtension :
 - UnionTypeExtension
 - EnumTypeExtension
 - InputObjectTypeExtension
+- DirectiveExtension
 
 ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
@@ -378,6 +379,8 @@ InputObjectTypeExtension :
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
 Directives[Const]? `repeatable`? on DirectiveLocations
+
+DirectiveExtension : extend directive @ Name Directives[Const]
 
 DirectiveLocations :
 

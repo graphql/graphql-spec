@@ -393,6 +393,7 @@ TypeExtension :
 - UnionTypeExtension
 - EnumTypeExtension
 - InputObjectTypeExtension
+- DirectiveExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
 from some previous type. For example, this might be used by a local service to
@@ -2322,3 +2323,25 @@ input UserUniqueCondition @oneOf {
   organizationAndEmail: OrganizationAndEmailInput
 }
 ```
+
+### Directive Extensions
+
+DirectiveExtension : extend directive @ Name Directives[Const]
+
+Directive extensions are used to represent a directive which has been
+extended from some previous directive. For example, this might be used by a
+GraphQL tool or service which adds directives to an existing directive.
+
+**Type Validation**
+
+Directive extensions have the potential to be invalid if incorrectly defined.
+
+1. The previous directive must already be defined.
+2. Any non-repeatable directives provided must not already apply to the
+   previous directive.
+3. Any directives provided must not contain the use of a Directive which
+   references the previous directive directly.
+4. Any directives provided must not contain the use of a Directive which
+   references the previous directive indirectly by referencing a Type or
+   Directive which transitively includes a reference to the previous
+   Directive.
