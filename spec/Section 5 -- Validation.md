@@ -962,9 +962,9 @@ fragment multipleArgsReverseOrder on Arguments {
 
 ### Argument Uniqueness
 
-Fields, fragment spreads and directives treat arguments as a mapping of argument
-name to value. More than one argument with the same name in an argument set is
-ambiguous and invalid.
+Fields, named fragment spreads and directives treat arguments as a mapping of
+argument name to value. More than one argument with the same name in an argument
+set is ambiguous and invalid.
 
 **Formal Specification**
 
@@ -976,17 +976,17 @@ ambiguous and invalid.
 
 ### Required Arguments
 
-- For each Field, Fragment Spread or Directive in the document:
-  - Let {arguments} be the arguments provided by the Field, Directive or
+- For each Field, Directive, or Named Fragment Spread in the document:
+  - Let {arguments} be the arguments provided to the Field, Directive, or Named
     Fragment Spread.
-  - Let {argumentDefinitions} be the set of argument definitions of that Field
-    or Directive, or the variable definitions of that Fragment.
-  - For each {argumentDefinition} in {argumentDefinitions}:
-    - Let {type} be the expected type of {argumentDefinition}.
-    - Let {defaultValue} be the default value of {argumentDefinition}.
+  - Let {inputDefinitions} be the set of argument definitions of that Field or
+    Directive, or the variable definitions of the referenced Fragment.
+  - For each {inputDefinition} in {inputDefinitions}:
+    - Let {type} be the expected type of {inputDefinition}.
+    - Let {defaultValue} be the default value of {inputDefinition}.
     - If {type} is Non-Null and {defaultValue} does not exist:
-      - Let {argumentName} be the name of {argumentDefinition}.
-      - Let {argument} be the argument in {arguments} named {argumentName}.
+      - Let {inputName} be the name of {inputDefinition}.
+      - Let {argument} be the argument in {arguments} named {inputName}.
       - {argument} must exist.
       - Let {value} be the value of {argument}.
       - {value} must not be the {null} literal.
@@ -1032,6 +1032,18 @@ always have a non-null type.
 ```graphql counter-example
 fragment missingRequiredArg on Arguments {
   nonNullBooleanArgField(nonNullBooleanArg: null)
+}
+```
+
+Fragment arguments can also be the source of the default value:
+
+```graphql example
+fragment fragmentWithDefault($arg: Boolean! = true) on Arguments {
+  nonNullBooleanArgField(nonNullBooleanArg: $arg)
+}
+
+fragment goodFragmentDefault on Arguments {
+  ...fragmentWithDefault
 }
 ```
 
