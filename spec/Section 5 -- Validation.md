@@ -556,15 +556,13 @@ fragment directFieldSelectionOnUnion on CatOrDog {
 
 FieldsInSetCanMerge(set):
 
-- Let {visitedSelections} be the selections in {set} including visiting fields,
-  fragment-spreads and inline fragments.
-- Let {spreadsForName} be the set of fragment spreads with a given name in
-  {visitedSelections}.
-- For each {spreadsForName} as {name} and {spreads}:
-  - Each entry in {spreads} must have identical sets of arguments to each other
-    entry in {spreads}.
-- Let {fieldsForName} be the set of field selections with a given response name
-  in {visitedSelections}.
+- Let {spreadsForFragment} be the set of fragment spreads for a given named
+  fragment in {set} including visiting fragments and inline fragments.
+- Given each pair of distinct members {spreadA} and {spreadB} in
+  {spreadsForFragment}:
+  - {spreadA} and {spreadB} must have identical sets of arguments.
+- Let {fieldsForName} be the set of selections with a given _response name_ in
+  {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
@@ -574,6 +572,13 @@ FieldsInSetCanMerge(set):
     - Let {mergedSet} be the result of adding the selection set of {fieldA} and
       the selection set of {fieldB}.
     - {FieldsInSetCanMerge(mergedSet)} must be true.
+
+Note: When checking if two fragment spreads or two field selections have
+"identical sets of arguments", it is necessary to check both the name of any
+variables referenced and also where the variable is defined. For example, if
+each selection references the variable `$size`, then `$size` must either be an
+operation variable for both references, or must refer to the same fragment
+variable definition for both references.
 
 SameResponseShape(fieldA, fieldB):
 
