@@ -1893,8 +1893,9 @@ provide a value, as no value is supplied by the fragment spread in query `C`.
 
 **Formal Specification**
 
-- For every {operation} and {fragment} in a {document}:
-  - Let {operationOrFragment} be that {operation} or {fragment}.
+- Let {operationsAndFragments} be the set of all operation and fragment
+  definitions in the document.
+- For each {operationOrFragment} in {operationsAndFragments}:
   - For every {variable} defined on {operationOrFragment}:
     - Let {variableType} be the type of {variable}.
     - {IsInputType(variableType)} must be {true}.
@@ -1963,14 +1964,14 @@ query takesCatOrDog($catOrDog: CatOrDog) {
     transitively.
   - For each {fragment} in {fragments}:
     - For each {variableUsage} in scope of {fragment}, variable must be in
-      either {fragment}'s or {operation}'s variable list or both.
+      {fragment}'s variable list, {operation}'s variable list, or both.
 
 **Explanatory Text**
 
 An _operation variable_ is scoped on a per-operation basis, while a _fragment
-variable_ is scoped locally to the fragment. That means that any variable used
-within the context of an operation must either be defined at the top level of
-that operation or on the fragment that uses that variable.
+variable_ is scoped locally to the fragment. Any variable used within the
+context of an operation must be defined either at the top level of that
+operation or on the fragment that uses that variable.
 
 For example:
 
