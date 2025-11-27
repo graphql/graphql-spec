@@ -727,6 +727,9 @@ fragment conflictingDifferingResponses on Pet {
 
 Fragment spread arguments can also cause fields to fail to merge.
 
+In the following, the arguments to `commandFragment` reference different
+variables and so cannot merge:
+
 ```graphql counter-example
 fragment commandFragment($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
@@ -747,32 +750,24 @@ query {
 }
 ```
 
-If two fragment spreads with the same name, and hence the same selection, supply
-different argument values, their fields will not be able to merge. In this case,
-validation fails because the fragment spread `...commandFragment(command: SIT)`
-and `...commandFragment(command: DOWN)` are part of the visited selections that
-will be merged.
+Though the fragment is referenced consistently as
+`...commandFragment(command: $command)` in the following, the position in which
+the `$command` variable is defined for each reference differs, and thus the
+arguments do not match:
 
-If both of these spreads had used the same value for the argument value, it
-would be allowed as we can be sure that we would resolve identical fields.
-Spreads that use different variables that would always resolve to the same value
-are also valid. For example, the following is valid:
-
-```graphql example
+```graphql counter-example
 fragment commandFragment($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
 
-fragment noConflictWhenPassedOperationCommand(
-  $fragmentCommand: DogCommand!
-) on Dog {
-  ...commandFragment(command: $operationCommand)
-  ...commandFragment(command: $fragmentCommand)
+fragment otherFragment(command: DogCommand!) on Dog {
+  ...commandFragment(command: $command)
 }
 
-query($operationCommand: DogCommand!) {
+query KnowsCommand($command: DogCommand!) {
   pet {
-    ...noConflictWhenPassedOperationCommand(fragmentCommand: $operationCommand)
+    ...commandFragment(command: $command)
+    ...otherFragment(command: DOWN)
   }
 }
 ```
