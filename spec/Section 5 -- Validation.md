@@ -993,7 +993,7 @@ set is ambiguous and invalid.
 
 **Explanatory Text**
 
-Arguments can be required. An argument is required if the argument type is
+Arguments can be required. An argument is required if the expected type is
 non-null and does not have a default value. Otherwise, the argument is optional.
 
 For example the following are valid:
@@ -1035,7 +1035,19 @@ fragment missingRequiredArg on Arguments {
 }
 ```
 
-Fragment arguments can also be the source of the default value:
+Fragments can also have required arguments, making this invalid:
+
+```graphql counter-example
+fragment fragmentWithNonNullVariable($arg: Boolean!) on Arguments {
+  nonNullBooleanArgField(nonNullBooleanArg: $arg)
+}
+
+fragment goodFragmentDefault on Arguments {
+  ...fragmentWithNonNullVariable
+}
+```
+
+but fragment variables can have defaults, making the argument optional:
 
 ```graphql example
 fragment fragmentWithDefault($arg: Boolean! = true) on Arguments {
@@ -1806,8 +1818,9 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 **Formal Specification**
 
-- For every {operation} and {fragment} in the document:
-  - Let {operationOrFragment} be that {operation} or {fragment}.
+- Let {operationsAndFragments} be the set of all operation and fragment
+  definitions in the document.
+- For each {operationOrFragment} in {operationsAndFragments}:
   - For every {variable} defined on {operationOrFragment}:
     - Let {variableName} be the name of {variable}.
     - Let {variables} be the set of all variables named {variableName} on
