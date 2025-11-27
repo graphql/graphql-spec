@@ -727,7 +727,7 @@ fragment conflictingDifferingResponses on Pet {
 
 Fragment spread arguments can also cause fields to fail to merge.
 
-In the following, the arguments to `commandFragment` reference different
+In the following, the arguments to {commandFragment} reference different
 variables and so cannot merge:
 
 ```graphql counter-example
@@ -752,7 +752,7 @@ query {
 
 Though the fragment is referenced consistently as
 `...commandFragment(command: $command)` in the following, the position in which
-the `$command` variable is defined for each reference differs, and thus the
+the ${command} variable is defined for each reference differs, and thus the
 arguments do not match:
 
 ```graphql counter-example
@@ -1885,8 +1885,8 @@ fragment houseTrainedWithArgument($atOtherHomes: Boolean) on Dog {
 A _fragment variable_ is scoped locally to the fragment that defines it, and
 overrides the _operation variable_ of the same name, if any, so there is never
 ambiguity about which value to use. In the above example, the value of the
-argument `atOtherHomes` within `houseTrained` will be the _operation variable_'s
-value. Within `houseTrainedWithArgument` the argument `atOtherHomes` will not
+argument {atOtherHomes} within {houseTrained} will be the _operation variable_'s
+value. Within {houseTrainedWithArgument} the argument {atOtherHomes} will not
 provide a value, as no value is supplied by the fragment spread in query `C`.
 
 ### Variables Are Input Types
@@ -2106,7 +2106,7 @@ included in that operation.
   - Let {variables} be the variables defined by that {operation}.
   - Each {variable} in {variables} must be used at least once in either the
     operation scope itself or any fragment transitively referenced by that
-    operation, excluding fragments that define the same name as an argument.
+    operation, excluding fragments that define the same name as a variable.
 - For every {fragment} in the document:
   - Let {variables} be the variables defined by that {fragment}.
   - Each {variable} in {variables} must be used at least once transitively
@@ -2163,8 +2163,8 @@ fragment isHouseTrainedWithoutVariableFragment on Dog {
 }
 ```
 
-Fragment arguments can shadow operation variables: fragments that use an
-argument are not using the _operation variable_ of the same name.
+A _fragment variable_ can shadow an _operation variable_: fragments that define
+a variable cannot use the operation variable of the same name (if any).
 
 As such, it would be invalid if the operation defined a variable and variables
 of that name were used exclusively inside fragments that define a variable with
@@ -2182,10 +2182,8 @@ fragment shadowedVariableFragment($atOtherHomes: Boolean) on Dog {
 }
 ```
 
-because
-{$atOtherHomes} is only referenced in a fragment that defines it as a
-locally scoped argument, the _operation variable_ {$atOtherHomes}
-is never used.
+because ${atOtherHomes} is only referenced in a fragment that defines it as a
+locally scoped variable, the _operation variable_ ${atOtherHomes} is never used.
 
 All operations in a document must use all of their variables.
 
@@ -2227,8 +2225,8 @@ fragment fragmentArgUnused($atOtherHomes: Boolean) on Dog {
 }
 ```
 
-This document is invalid: fragment `fragmentArgUnused` defines a fragment
-variable `$atOtherHomes`, but this variable is not used within this fragment.
+This document is invalid: fragment {fragmentArgUnused} defines a fragment
+variable ${atOtherHomes}, but this variable is not used within this fragment.
 
 ### All Variable Usages Are Allowed
 
@@ -2238,10 +2236,9 @@ variable `$atOtherHomes`, but this variable is not used within this fragment.
   - Let {variableUsages} be all usages transitively included in the {operation}.
   - For each {variableUsage} in {variableUsages}:
     - Let {variableName} be the name of {variableUsage}.
-    - If the usage is within a {fragment} that defines a {variableDefinition}
+    - If the usage is within a {fragment} that defines a {VariableDefinition}
       for {variableName}:
-      - Let {variableDefinition} be the {VariableDefinition} named
-        {variableName} defined within {fragment}.
+      - Let {variableDefinition} be that {VariableDefinition}.
     - Otherwise, let {variableDefinition} be the {VariableDefinition} named
       {variableName} defined within {operation}.
     - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be
