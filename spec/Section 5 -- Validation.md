@@ -1853,12 +1853,12 @@ fragment HouseTrainedDog($atOtherHomes: Boolean) on Dog {
 }
 ```
 
-Fragment-defined variables are scoped locally to the fragment that defines them,
-and override any operation-defined variable values, so there is never ambiguity
-about which value to use. In this case, the value of the argument `atOtherHomes`
-within `HouseTrainedFragment` will be the operation-set value, and within
-`HouseTrainedDog` will default to being unset (unless a default-value applies),
-as the argument is not set by the fragment spread in the query `C`.
+A _fragment variable_ is scoped locally to the fragment that defines it, and
+overrides the _operation variable_ of the same name, if any, so there is never
+ambiguity about which value to use. In this case, the value of the argument
+`atOtherHomes` within `HouseTrainedFragment` will be the operation-set value,
+and within `HouseTrainedDog` will default to being unset (unless a default-value
+applies), as the argument is not set by the fragment spread in the query `C`.
 
 ### Variables Are Input Types
 
@@ -1938,10 +1938,10 @@ query takesCatOrDog($catOrDog: CatOrDog) {
 
 **Explanatory Text**
 
-Operation-defined Variables are scoped on a per-operation basis, while
-Fragment-defined Variables are scoped locally to the fragment. That means that
-any variable used within the context of an operation must either be defined at
-the top level of that operation or on the fragment that uses that variable.
+An _operation variable_ is scoped on a per-operation basis, while a _fragment
+variable_ is scoped locally to the fragment. That means that any variable used
+within the context of an operation must either be defined at the top level of
+that operation or on the fragment that uses that variable.
 
 For example:
 
@@ -2134,7 +2134,7 @@ fragment isHouseTrainedWithoutVariableFragment on Dog {
 ```
 
 Fragment arguments can shadow operation variables: fragments that use an
-argument are not using the operation-defined variable of the same name.
+argument are not using the _operation variable_ of the same name.
 
 As such, it would be invalid if the operation defined a variable and variables
 of that name were used exclusively inside fragments that define a variable with
@@ -2154,8 +2154,8 @@ fragment shadowedVariableFragment($atOtherHomes: Boolean) on Dog {
 
 because
 {$atOtherHomes} is only referenced in a fragment that defines it as a
-locally scoped argument, the operation-defined {$atOtherHomes}
-variable is never used.
+locally scoped argument, the _operation variable_ {$atOtherHomes}
+is never used.
 
 All operations in a document must use all of their variables.
 
