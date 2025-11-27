@@ -874,7 +874,9 @@ validation rules apply in each case.
 **Explanatory Text**
 
 Every argument provided to a field or directive must be defined in the set of
-possible arguments of that field or directive.
+possible arguments of that field or directive. Every argument provided to a
+named fragment spread must be defined in the set of possible variables of that
+named fragment.
 
 For example the following are valid:
 
@@ -886,13 +888,7 @@ fragment argOnRequiredArg on Dog {
 fragment argOnOptional on Dog {
   isHouseTrained(atOtherHomes: true) @include(if: true)
 }
-```
 
-The above is also applicable to fragment definitions and fragment spreads, each
-variable must be defined by the fragment definition before it can be inserted as
-an argument by the fragment spread.
-
-```graphql example
 fragment withFragmentArg($command: DogCommand) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
@@ -902,8 +898,8 @@ fragment usesFragmentArg on Dog {
 }
 ```
 
-The following is invalid since `command` is not defined on
-`Dog.doesKnowCommand`.
+The following is invalid since the argument `command` is not defined on
+`Dog.doesKnowCommand`:
 
 ```graphql counter-example
 fragment invalidArgName on Dog {
@@ -911,8 +907,16 @@ fragment invalidArgName on Dog {
 }
 ```
 
-and this is also invalid as the argument `dogCommand` is not defined on fragment
-`withFragmentArg`.
+This is also invalid as `unless` is not defined on `@include`:
+
+```graphql counter-example
+fragment invalidArgName on Dog {
+  isHouseTrained(atOtherHomes: true) @include(unless: false)
+}
+```
+
+Since the argument `dogCommand` is not defined on fragment `withFragmentArg`,
+this is also invalid:
 
 ```graphql counter-example
 fragment invalidFragmentArgName on Dog {
@@ -921,14 +925,6 @@ fragment invalidFragmentArgName on Dog {
 
 fragment withFragmentArg($command: DogCommand) on Dog {
   doesKnowCommand(dogCommand: $command)
-}
-```
-
-and this is also invalid as `unless` is not defined on `@include`.
-
-```graphql counter-example
-fragment invalidArgName on Dog {
-  isHouseTrained(atOtherHomes: true) @include(unless: false)
 }
 ```
 
