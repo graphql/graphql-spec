@@ -1846,14 +1846,14 @@ two operations reference the same fragment, it might actually be necessary:
 
 ```graphql example
 query A($atOtherHomes: Boolean) {
-  ...HouseTrainedFragment
+  ...houseTrained
 }
 
 query B($atOtherHomes: Boolean) {
-  ...HouseTrainedFragment
+  ...houseTrained
 }
 
-fragment HouseTrainedFragment on Query {
+fragment houseTrained on Query {
   dog {
     isHouseTrained(atOtherHomes: $atOtherHomes)
   }
@@ -1865,29 +1865,29 @@ also defined on an operation:
 
 ```graphql example
 query C($atOtherHomes: Boolean) {
-  ...HouseTrainedFragment
+  ...houseTrained
   aDog: dog {
-    ...HouseTrainedDog
+    ...houseTrainedWithArgument
   }
 }
 
-fragment HouseTrainedFragment on Query {
+fragment houseTrained on Query {
   dog {
     isHouseTrained(atOtherHomes: $atOtherHomes)
   }
 }
 
-fragment HouseTrainedDog($atOtherHomes: Boolean) on Dog {
+fragment houseTrainedWithArgument($atOtherHomes: Boolean) on Dog {
   isHouseTrained(atOtherHomes: $atOtherHomes)
 }
 ```
 
 A _fragment variable_ is scoped locally to the fragment that defines it, and
 overrides the _operation variable_ of the same name, if any, so there is never
-ambiguity about which value to use. In this case, the value of the argument
-`atOtherHomes` within `HouseTrainedFragment` will be the operation-set value,
-and within `HouseTrainedDog` will default to being unset (unless a default-value
-applies), as the argument is not set by the fragment spread in the query `C`.
+ambiguity about which value to use. In the above example, the value of the
+argument `atOtherHomes` within `houseTrained` will be the _operation variable_'s
+value. Within `houseTrainedWithArgument` the argument `atOtherHomes` will not
+provide a value, as no value is supplied by the fragment spread in query `C`.
 
 ### Variables Are Input Types
 
