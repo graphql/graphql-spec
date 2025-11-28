@@ -1251,10 +1251,15 @@ avoiding costly string building in clients at runtime.
 If not defined as constant (for example, in {DefaultValue}), a {Variable} can be
 supplied for an input value.
 
-Variables must be defined at the top of an operation and are in scope throughout
-the execution of that operation. Values for those variables are provided to a
-GraphQL service as part of a request so they may be substituted in during
-execution.
+:: An _operation variable_ is a variable defined at the top of an operation. An
+operation variable is in scope throughout the execution of that operation.
+Values for operation variables are provided to a GraphQL service as part of a
+request so they may be substituted in during execution.
+
+:: A _fragment variable_ is a variable defined on a fragment. A fragment
+variable is locally scoped, it may only be referenced within that fragment
+(non-transitively). Values for fragment variables are provided to fragment
+spreads.
 
 In this example, we want to fetch a profile picture size based on the size of a
 particular device:
@@ -1283,20 +1288,21 @@ size `60`:
 
 **Variable Use Within Fragments**
 
-Variables can be used within fragments. Operation-defined variables have global
-scope within a given operation. Fragment-defined variables have local scope
-within the fragment definition in which they are defined. A variable used within
-a fragment must either be declared in each top-level operation that transitively
-consumes that fragment, or by that same fragment as a fragment variable
-definition. If a variable referenced in a fragment is included by an operation
-where neither the fragment nor the operation defines that variable, that
-operation is invalid (see
+Variables can be used within fragments. An _operation variable_ has global scope
+within that operation, including within any fragments that operation
+transitively consumes. A variable used within a fragment must either be defined
+by that fragment, or must be declared in each top-level operation that
+transitively consumes that fragment. If a variable referenced in a fragment is
+defined in both the fragment and the operation, the fragment definition will be
+used. If a variable is referenced in a fragment and is not defined by that
+fragment, then any operation that transitively references the fragment and does
+not define that variable is invalid (see
 [All Variable Uses Defined](#sec-All-Variable-Uses-Defined)).
 
 ## Fragment Variable Definitions
 
-Fragments may define locally scoped variables. This allows fragments to be
-reused while enabling the caller to specify the fragment's behavior.
+Fragments may define locally scoped variables. This allows the caller to specify
+the fragment's behavior.
 
 For example, the profile picture may need to be a different size depending on
 the parent context:
@@ -1321,8 +1327,8 @@ fragment dynamicProfilePic($size: Int! = 50) on User {
 In this case the `user` will have a larger `profilePic` than those found in the
 list of `friends`.
 
-A fragment-defined variable is scoped to the fragment that defines it.
-Fragment-defined variables are allowed to shadow operation-defined variables.
+A _fragment variable_ is scoped to the fragment that defines it. A fragment
+variable may shadow an _operation variable_.
 
 ```graphql example
 query withShadowedVariables($size: Int!) {
@@ -1343,11 +1349,11 @@ fragment dynamicProfilePic($size: Int!) on User {
 }
 ```
 
-The profilePic for `user` will be determined by the variables set by the
-operation, while `secondUser` will always have a `profilePic` of size `10`. In
-this case, the fragment `variableProfilePic` uses the operation-defined
-variable, while `dynamicProfilePic` uses the value passed in via the fragment
-spread's `size` argument.
+In the example above, the profilePic for `user` will be determined by the
+variables set by the operation, while `secondUser` will always have a
+`profilePic` of size `10`. In this case, the fragment `variableProfilePic` uses
+the value of the _operation variable_, while `dynamicProfilePic` uses the value
+of the _fragment variable_ passed in via the fragment spread's `size` argument.
 
 ## Type References
 

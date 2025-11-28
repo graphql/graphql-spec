@@ -286,7 +286,8 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   selectionSet, variableValues)}.
 - If {collectedFieldsMap} does not have exactly one entry, raise a _request
   error_.
-- Let {fieldInfo} be the value of the first entry in {collectedFieldsMap}.
+- Let {fields} be the value of the first entry in {collectedFieldsMap}.
+- Let {fieldInfo} be the first entry in {fields}.
 - Let {field} be the value of the {field} property in {fieldInfo}.
 - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
   alias is used.
