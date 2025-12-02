@@ -377,7 +377,7 @@ InputObjectTypeExtension :
 - extend input Name Directives[Const] [lookahead != `{`]
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
-`repeatable`? on DirectiveLocations Directives?
+Directives[Const]? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
 

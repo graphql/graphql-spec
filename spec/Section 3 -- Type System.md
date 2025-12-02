@@ -2033,7 +2033,7 @@ Following are examples of result coercion with various types and values:
 ## Directives
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
-`repeatable`? on DirectiveLocations Directives?
+Directives[Const]? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
 
