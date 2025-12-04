@@ -1105,6 +1105,32 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 6. The resulting extended object type must be a super-set of all interfaces it
    implements.
 
+### Field Extensions
+
+FieldExtension :
+
+- extend field MemberCoordinate Directives[Const]
+- extend field Description MemberCoordinate
+
+Field extensions are used to represent a field which has been extended from some
+previously defined field. For example this may be a GraphQL service which is
+itself an extension of another GraphQL service.
+
+In this example, we can deprecate the id field on the User type.
+
+```graphql example
+extend field User.name @deprecated(”Some reason”)
+```
+
+** Field Validation **
+
+Field validation have the potential to be invalid if incorrectly defined.
+
+1. MemberCoordinate must be resolved to an existing field on a object or
+   interface type.
+2. Any non-repeatable directives provided must not already apply to the previous
+   field.
+
 ## Interfaces
 
 InterfaceTypeDefinition :
