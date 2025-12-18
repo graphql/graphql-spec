@@ -520,5 +520,5 @@ Fields\:
   used repeatedly at a single location.
 - `isDeprecated` returns {true} if this directive should no longer be used,
   otherwise {false}.
-- `deprecationReason` returns the reason why this directive is deprecated, or null
-  if this directive is not deprecated.
+- `deprecationReason` returns the reason why this directive is deprecated, or
+  null if this directive is not deprecated.
