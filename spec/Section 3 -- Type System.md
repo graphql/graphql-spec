@@ -40,6 +40,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- DirectiveExtension
 
 Type system extensions are used to represent a GraphQL type system which has
 been extended from some previous type system. For example, this might be used by
@@ -393,7 +394,6 @@ TypeExtension :
 - UnionTypeExtension
 - EnumTypeExtension
 - InputObjectTypeExtension
-- DirectiveExtension
 
 Type extensions are used to represent a GraphQL type which has been extended
 from some previous type. For example, this might be used by a local service to

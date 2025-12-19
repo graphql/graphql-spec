@@ -260,6 +260,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- DirectiveExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }
@@ -288,7 +289,6 @@ TypeExtension :
 - UnionTypeExtension
 - EnumTypeExtension
 - InputObjectTypeExtension
-- DirectiveExtension
 
 ScalarTypeDefinition : Description? scalar Name Directives[Const]?
 
