@@ -421,11 +421,11 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 
-ServiceDefinition : Description? service Directives? { ServiceCapability* }
+ServiceDefinition : Description? service Directives? { ServiceCapability\* }
 
 ServiceExtension :
 
-- extend service Directives? { ServiceCapability* }
+- extend service Directives? { ServiceCapability\* }
 - extend service Directives [lookahead != `{`]
 
 ServiceCapability :
