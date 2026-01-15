@@ -2414,7 +2414,7 @@ For example, the capability {"graphql.operationDescriptions"} does not require
 additional information and thus does not specify a value; whereas a capability
 such as {"example.transport.ws"} might use the value to indicate the endpoint to
 use for websocket communications (or might omit a value to indicate that
-websockets are supported at the current endpoint).
+WebSockets are supported at the current endpoint).
 
 **Specified capabilities**
 
