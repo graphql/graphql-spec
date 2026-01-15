@@ -2351,7 +2351,7 @@ A _service capability_ is identified by a _capability identifier_ (a
 
 ```graphql example
 service {
-  "Indicates syntax support for descriptions on operation and fragment definitions"
+  "Descriptions on operations and fragments are supported"
   capability graphql.operationDescriptions
 
   "Websocket transport is supported via the given endpoint"
@@ -2391,7 +2391,7 @@ should ensure that capability identifiers remain stable and version-agnostic
 where possible.
 
 Note: Capability versioning, if needed, can be indicated using dot suffixes
-(e.g.{ "org.example.capability.v2"}).
+(e.g. {"org.example.capability.v2"}).
 
 This system enables incremental feature adoption and richer tooling
 interoperability, while avoiding tight coupling to specific implementations.
@@ -2411,4 +2411,4 @@ websockets are supported at the current endpoint).
 
 This version of the specification defines the following capabilities:
 
-- {"graphql.operationDescriptions"} - indicates syntax support for descriptions on operation and fragments
+- {"graphql.operationDescriptions"} - indicates support for descriptions on operations and fragments
