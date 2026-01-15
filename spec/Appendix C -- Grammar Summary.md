@@ -265,8 +265,8 @@ TypeSystemDefinitionOrExtension :
 TypeSystemExtension :
 
 - SchemaExtension
-- ServiceExtension
 - TypeExtension
+- ServiceExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }
