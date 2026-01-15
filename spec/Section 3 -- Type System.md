@@ -2331,8 +2331,6 @@ ServiceDefinition : Description? service Directives? { ServiceCapability* }
 A GraphQL service is defined in terms of the capabilities that it offers which
 are external to the schema.
 
-All capabilities within a service must have unique identifiers.
-
 ### Service Capabilities
 
 ServiceCapability : Description? capability QualifiedName ServiceCapabilityValue?
@@ -2348,7 +2346,8 @@ capabilities may be supplied by the GraphQL implementation, the service, or
 both.
 
 A _service capability_ is identified by a _capability identifier_ (a
-{QualifiedName}), and may optionally have a string value.
+{QualifiedName}), and may optionally have a string value. All capabilities
+within a service must have unique identifiers.
 
 ```graphql example
 service {
@@ -2380,16 +2379,18 @@ reserved for future usage.
 Capability identifiers beginning with the prefix {"graphql."} are reserved and
 must not be used outside of official GraphQL Foundation specifications.
 Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
-proposals. Identifiers beginning with the prefix {"example."} are reserved and
-should only be used for documentation purposes.
+proposals.
+
+Any identifiers beginning with case-insensitive variants of {"graphql."},
+{"org.graphql."} and {"gql."} are also reserved.
+
+Identifiers beginning with the prefix {"example."} are reserved for usage in
+documentation and examples only.
 
 Note: Since IANA RFC 2606 reserves the second-level domain names
 {example.com}, {example.net}, and {example.org} for documentation purposes, the
 corresponding reverse-domain prefixes {"com.example."}, {"net.example."}, and
 {"org.example."} are also reserved for documentation purposes.
-
-Any identifiers beginning with case-insensitive variants of {"graphql."},
-{"org.graphql."} and {"gql."} are also reserved.
 
 Implementers should not change the meaning of capability identifiers; instead, a
 new capability identifier should be used when the meaning changes. Implementers
@@ -2397,7 +2398,7 @@ should ensure that capability identifiers remain stable and version-agnostic
 where possible.
 
 Note: Capability versioning, if needed, can be indicated using dot suffixes
-(e.g. {"org.example.capability.v2"}).
+(e.g. {"example.capability.v2"}).
 
 This system enables incremental feature adoption and richer tooling
 interoperability, while avoiding tight coupling to specific implementations.
