@@ -2398,18 +2398,14 @@ interoperability, while avoiding tight coupling to specific implementations.
 For capabilities that require more information than a simple indication of
 support, a string value may be specified.
 
-For example, the capability {"graphql.onError"} does not require additional
-information and thus does not specify a value; whereas
-{"graphql.defaultErrorBehavior"} uses the value to indicate which _error
-behavior_ is the default.
+For example, the capability {"graphql.operationDescriptions"} does not require
+additional information and thus does not specify a value; whereas a capability
+such as {"example.transport.ws"} might use the value to indicate the endpoint to
+use for websocket communications (or might omit a value to indicate that
+websockets are supported at the current endpoint).
 
 **Specified capabilities**
 
 This version of the specification defines the following capabilities:
 
-- {"graphql.defaultErrorBehavior"} - indicates the _default error behavior_ of
-  the service via the {value}. If not present, assume the _default error
-  behavior_ is {"PROPAGATE"}.
-- {"graphql.onError"} - indicates that the service allows the client to specify
-  {onError} in a request to indicate the _error behavior_ the service should use
-  for the request. No {value} is provided.
+- {"graphql.operationDescriptions"} - indicates syntax support for descriptions on operation and fragments
