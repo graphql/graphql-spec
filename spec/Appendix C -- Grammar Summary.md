@@ -424,18 +424,13 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_FIELD_DEFINITION`
 - `DIRECTIVE_DEFINITION`
 
-ServiceDefinition : Description? service { ServiceAttribute\* }
+ServiceDefinition : Description? service Directives? { ServiceCapability* }
 
-ServiceAttribute :
+ServiceCapability :
 
-- ServiceCapabilities
+- Description? capability QualifiedName ServiceCapabilityValue?
 
-ServiceCapabilities: capabilities { ServiceCapability\* }
-
-ServiceCapability:
-
-- Description? QualifiedName [lookahead != `(`]
-- Description? QualifiedName ( StringValue )
+ServiceCapabilityValue : ( StringValue )
 
 ## Schema Coordinate Syntax
 
