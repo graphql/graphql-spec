@@ -40,9 +40,9 @@ TypeSystemDefinitionOrExtension :
 TypeSystemExtension :
 
 - SchemaExtension
-- ServiceExtension
 - TypeExtension
 - DirectiveExtension
+- ServiceExtension
 
 Type system extensions are used to represent a GraphQL type system which has
 been extended from some previous type system. For example, this might be used by
@@ -2349,7 +2349,7 @@ Directive extensions have the potential to be invalid if incorrectly defined.
 
 ## Service Definition
 
-ServiceDefinition : Description? service Directives? { ServiceCapability* }
+ServiceDefinition : Description? service Directives? { ServiceCapability\* }
 
 A GraphQL service is defined in terms of the capabilities that it offers which
 are external to the schema.
@@ -2358,7 +2358,8 @@ All capabilities within a service must have unique identifiers.
 
 ### Service Capabilities
 
-ServiceCapability : Description? capability QualifiedName ServiceCapabilityValue?
+ServiceCapability : Description? capability QualifiedName
+ServiceCapabilityValue?
 
 ServiceCapabilityValue : ( StringValue )
 
@@ -2406,10 +2407,10 @@ Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
 proposals. Identifiers beginning with the prefix {"example."} are reserved and
 should only be used for documentation purposes.
 
-Note: Since IANA RFC 2606 reserves the second-level domain names
-{example.com}, {example.net}, and {example.org} for documentation purposes, the
-corresponding reverse-domain prefixes {"com.example."}, {"net.example."}, and
-{"org.example."} are also reserved for documentation purposes.
+Note: Since IANA RFC 2606 reserves the second-level domain names {example.com},
+{example.net}, and {example.org} for documentation purposes, the corresponding
+reverse-domain prefixes {"com.example."}, {"net.example."}, and {"org.example."}
+are also reserved for documentation purposes.
 
 Any identifiers beginning with case-insensitive variants of {"graphql."},
 {"org.graphql."} and {"gql."} are also reserved.
@@ -2440,13 +2441,14 @@ websockets are supported at the current endpoint).
 
 This version of the specification defines the following capabilities:
 
-- {"graphql.operationDescriptions"} - indicates support for descriptions on operations and fragments
+- {"graphql.operationDescriptions"} - indicates support for descriptions on
+  operations and fragments
 
 ### Service Extension
 
 ServiceExtension :
 
-- extend service Directives? { ServiceCapability* }
+- extend service Directives? { ServiceCapability\* }
 - extend service Directives [lookahead != `{`]
 
 Service extensions are used to represent a service which has been extended from
