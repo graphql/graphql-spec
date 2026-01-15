@@ -420,18 +420,13 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 
-ServiceDefinition : Description? service { ServiceAttribute\* }
+ServiceDefinition : Description? service Directives? { ServiceCapability* }
 
-ServiceAttribute :
+ServiceCapability :
 
-- ServiceCapabilities
+- Description? capability QualifiedName ServiceCapabilityValue?
 
-ServiceCapabilities: capabilities { ServiceCapability\* }
-
-ServiceCapability:
-
-- Description? QualifiedName [lookahead != `(`]
-- Description? QualifiedName ( StringValue )
+ServiceCapabilityValue : ( StringValue )
 
 ## Schema Coordinate Syntax
 

@@ -2325,11 +2325,7 @@ input UserUniqueCondition @oneOf {
 
 ## Service Definition
 
-ServiceDefinition : Description? service { ServiceAttribute\* }
-
-ServiceAttribute :
-
-- ServiceCapabilities
+ServiceDefinition : Description? service Directives? { ServiceCapability* }
 
 A GraphQL service is defined in terms of the capabilities that it offers which
 are external to the schema.
@@ -2338,12 +2334,9 @@ All capabilities within a service must have unique identifiers.
 
 ### Service Capabilities
 
-ServiceCapabilities: capabilities { ServiceCapability\* }
+ServiceCapability : Description? capability QualifiedName ServiceCapabilityValue?
 
-ServiceCapability:
-
-- Description? QualifiedName [lookahead != `(`]
-- Description? QualifiedName ( StringValue )
+ServiceCapabilityValue : ( StringValue )
 
 :: A _service capability_ describes a feature supported by the GraphQL service
 but not directly expressible via the type system. This may include support for
@@ -2355,6 +2348,16 @@ both.
 
 A _service capability_ is identified by a _capability identifier_ (a
 {QualifiedName}), and may optionally have a string value.
+
+```graphql example
+service {
+  "Indicates syntax support for descriptions on operation and fragment definitions"
+  capability graphql.operationDescriptions
+
+  "Websocket transport is supported via the given endpoint"
+  capability example.transport.ws("wss://api.example.com/graphql")
+}
+```
 
 **Capability Identifier**
 
