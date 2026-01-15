@@ -2381,7 +2381,12 @@ Capability identifiers beginning with the prefix {"graphql."} are reserved and
 must not be used outside of official GraphQL Foundation specifications.
 Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
 proposals. Identifiers beginning with the prefix {"example."} are reserved for
-documentation purposes.
+documentation purposes, and should not be used in operations.
+
+Note: Since IANA RFC 2606 reserves the second-level domain names
+{example.com}, {example.net}, and {example.org} for documentation purposes, the
+corresponding reverse-domain prefixes {"com.example."}, {"net.example."}, and
+{"org.example."} are also reserved for documentation purposes.
 
 Any identifiers beginning with case-insensitive variants of {"graphql."},
 {"org.graphql."} and {"gql."} are also reserved.
