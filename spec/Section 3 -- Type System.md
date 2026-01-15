@@ -2423,7 +2423,7 @@ This version of the specification defines the following capabilities:
 
 ServiceExtension :
 
-- extend service Directives? { ServiceCapability+ }
+- extend service Directives? { ServiceCapability* }
 - extend service Directives [lookahead != `{`]
 
 Service extensions are used to represent a service which has been extended from

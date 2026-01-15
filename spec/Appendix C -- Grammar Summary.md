@@ -425,7 +425,7 @@ ServiceDefinition : Description? service Directives? { ServiceCapability* }
 
 ServiceExtension :
 
-- extend service Directives? { ServiceCapability+ }
+- extend service Directives? { ServiceCapability* }
 - extend service Directives [lookahead != `{`]
 
 ServiceCapability :
