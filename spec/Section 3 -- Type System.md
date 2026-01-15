@@ -2376,7 +2376,8 @@ reserved for future usage.
 Capability identifiers beginning with the prefix {"graphql."} are reserved and
 must not be used outside of official GraphQL Foundation specifications.
 Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
-proposals.
+proposals. Identifiers beginning with the prefix {"example."} are reserved for
+documentation purposes.
 
 Any identifiers beginning with case-insensitive variants of {"graphql."},
 {"org.graphql."} and {"gql."} are also reserved.
