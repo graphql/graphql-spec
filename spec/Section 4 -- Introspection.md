@@ -85,13 +85,14 @@ operation.
 
 ## Schema Introspection
 
-The schema introspection system is accessible from the meta-fields `__schema`
-and `__type` which are accessible from the type of the root of a query
-operation.
+The schema introspection system is accessible from the meta-fields `__schema`,
+`__type` and `__service` which are accessible from the type of the root of a
+query operation.
 
 ```graphql
 __schema: __Schema!
 __type(name: String!): __Type
+__service: __Service!
 ```
 
 Like all meta-fields, these are implicit and do not appear in the fields list in
@@ -227,6 +228,16 @@ enum __DirectiveLocation {
   ENUM_VALUE
   INPUT_OBJECT
   INPUT_FIELD_DEFINITION
+}
+
+type __Service {
+  capabilities: [__Capability!]!
+}
+
+type __Capability {
+  identifier: String!
+  description: String
+  value: String
 }
 ```
 
@@ -512,3 +523,29 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
+
+### The \_\_Service Type
+
+The `__Service` type is returned from the `__service` meta-field and provides
+information about the GraphQL service, most notably about its capabilities.
+
+Note: Services implementing an older version of this specification may not
+support the `__service` meta-field or `__Service` type. Support may be probed
+using the introspection query: `{ __type(name: "__Service") { name } }`, a
+{null} result indicates lack of support.
+
+Fields\:
+
+- `capabilities` must return a list of `__Capability` detailing each _service
+  capability_ supported by the service.
+
+### The \_\_Capability Type
+
+A `__Capability` object describes a specific _service capability_, and has the
+following fields\:
+
+- `identifier` must return the string _capability identifier_ uniquely
+  identifying this service capability.
+- `description` may return a String or {null}.
+- `value` the String value of the service capability, or {null} if there is no
+  associated value.
