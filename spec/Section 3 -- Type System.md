@@ -2411,10 +2411,11 @@ Any identifiers beginning with case-insensitive variants of {"graphql."},
 Identifiers beginning with the prefix {"example."} are reserved for usage in
 documentation and examples only.
 
-Note: Since IANA RFC 2606 reserves the second-level domain names {example.com},
-{example.net}, and {example.org} for documentation purposes, the corresponding
-reverse-domain prefixes {"com.example."}, {"net.example."}, and {"org.example."}
-are also reserved for documentation purposes.
+Note: Since IANA RFC 2606 reserves the second-level domain names
+{"example.com"}, {"example.net"}, and {"example.org"} for documentation
+purposes, the corresponding reverse-domain prefixes {"com.example."},
+{"net.example."}, and {"org.example."} are also reserved for documentation
+purposes.
 
 Implementers should not change the meaning of capability identifiers; instead, a
 new capability identifier should be used when the meaning changes. Implementers
