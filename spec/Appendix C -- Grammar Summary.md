@@ -265,6 +265,7 @@ TypeSystemDefinitionOrExtension :
 TypeSystemExtension :
 
 - SchemaExtension
+- ServiceExtension
 - TypeExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
@@ -421,6 +422,11 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_FIELD_DEFINITION`
 
 ServiceDefinition : Description? service Directives? { ServiceCapability* }
+
+ServiceExtension :
+
+- extend service Directives? { ServiceCapability+ }
+- extend service Directives [lookahead != `{`]
 
 ServiceCapability :
 

@@ -40,6 +40,7 @@ TypeSystemDefinitionOrExtension :
 TypeSystemExtension :
 
 - SchemaExtension
+- ServiceExtension
 - TypeExtension
 
 Type system extensions are used to represent a GraphQL type system which has
@@ -2412,3 +2413,33 @@ websockets are supported at the current endpoint).
 This version of the specification defines the following capabilities:
 
 - {"graphql.operationDescriptions"} - indicates support for descriptions on operations and fragments
+
+### Service Extension
+
+ServiceExtension :
+
+- extend service Directives? { ServiceCapability+ }
+- extend service Directives [lookahead != `{`]
+
+Service extensions are used to represent a service which has been extended from
+a previous service. For example, this might be used by a GraphQL service which
+adds additional capabilities to an existing service.
+
+Note: Service extensions without additional capability definitions must not be
+followed by a {`{`} (such as a query shorthand) to avoid parsing ambiguity.
+
+```graphql example
+extend service {
+  capability example.newCapability
+}
+```
+
+**Service Validation**
+
+Service extensions have the potential to be invalid if incorrectly defined.
+
+1. The Service must already be defined.
+2. Any non-repeatable directives provided must not already apply to the previous
+   Service.
+3. Any capabilities provided must not already be defined on the previous
+   Service.
