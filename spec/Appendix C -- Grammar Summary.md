@@ -318,11 +318,6 @@ FieldsDefinition : { FieldDefinition+ }
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
 
-FieldExtension :
-
-- extend field MemberCoordinate Directives[Const]
-- extend field Description MemberCoordinate
-
 ArgumentsDefinition : ( InputValueDefinition+ )
 
 InputValueDefinition : Description? Name : Type DefaultValue? Directives[Const]?

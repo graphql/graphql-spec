@@ -1096,40 +1096,49 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 1. The named type must already be defined and must be an Object type.
 2. The fields of an Object type extension must have unique names; no two fields
    may share the same name.
-3. Any fields of an Object type extension must not be already defined on the
-   previous Object type.
-4. Any non-repeatable directives provided must not already apply to the previous
+3. Any non-repeatable directives provided must not already apply to the previous
    Object type.
-5. Any interfaces provided must not be already implemented by the previous
+4. Any interfaces provided must not be already implemented by the previous
    Object type.
-6. The resulting extended object type must be a super-set of all interfaces it
+5. The resulting extended object type must be a super-set of all interfaces it
    implements.
 
-### Field Extensions
-
-FieldExtension :
-
-- extend field MemberCoordinate Directives[Const]
-- extend field Description MemberCoordinate
+#### Field Extensions
 
 Field extensions are used to represent a field which has been extended from some
 previously defined field. For example this may be a GraphQL service which is
-itself an extension of another GraphQL service.
+itself an extension of another GraphQL service. When the same field appears in
+multiple extensions, the properties are merged with later extensions taking
+precedence for conflicting values.
 
-In this example, we can deprecate the id field on the User type.
+In this example, we can deprecate the field `field` on type `Query` by using a
+field extension:
 
 ```graphql example
-extend field User.name @deprecated(”Some reason”)
+type Query {
+  field: String
+}
+```
+
+```graphql example
+extend type Query {
+  field: String @deprecated(reason: "Use newField")
+}
 ```
 
 ** Field Validation **
 
 Field validation have the potential to be invalid if incorrectly defined.
 
-1. MemberCoordinate must be resolved to an existing field on a object or
-   interface type.
-2. Any non-repeatable directives provided must not already apply to the previous
-   field.
+1. The field type must match the previous definition exactly
+2. The argument definitions cannot change from the original definition. This
+   mean argument definitions cannot be added, removed, or changed.
+3. The description may be added if none exists, or must match the existing
+   description exactly
+4. The deprecation reason may be added if none exists, or must match the
+   existing reason exactly
+5. Directives may be added but cannot conflict with existing non-repeatable
+   directives
 
 ## Interfaces
 
@@ -1383,6 +1392,21 @@ defined.
    Interface type.
 6. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
+
+#### Interface Field Extensions
+
+Interface field extensions follow the same rules as Object field extensions and
+are used to extend fields on interface types.
+
+```graphql example
+interface Node {
+  id: ID
+}
+
+extend interface Node {
+  id: ID @deprecated(reason: "Use globalId instead")
+}
+```
 
 ## Unions
 
