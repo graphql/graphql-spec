@@ -1131,8 +1131,7 @@ extend type Query {
 Field validation have the potential to be invalid if incorrectly defined.
 
 1. The field type must match the previous definition exactly
-2. The argument definitions cannot change from the original definition. This
-   mean argument definitions cannot be added, removed, or changed.
+2. The default argument definitions may not be changed or removed.
 3. The description may be added if none exists, or must match the existing
    description exactly
 4. The deprecation reason may be added if none exists, or must match the
