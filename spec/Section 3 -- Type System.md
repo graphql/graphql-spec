@@ -1106,10 +1106,10 @@ Object type extensions have the potential to be invalid if incorrectly defined.
 #### Field Extensions
 
 Field extensions are used to represent a field which has been extended from some
-previously defined field. For example this may be a GraphQL service which is
-itself an extension of another GraphQL service. When the same field appears in
-multiple extensions, the properties are merged with later extensions taking
-precedence for conflicting values.
+previously defined field. For example this may be used by a GraphQL service
+which is itself an extension of another GraphQL service. When the same field
+appears in multiple extensions, the properties are merged with later extensions
+taking precedence for conflicting values.
 
 In this example, we can deprecate the field `field` on type `Query` by using a
 field extension:
@@ -1126,9 +1126,9 @@ extend type Query {
 }
 ```
 
-** Field Validation **
+** Type Validation **
 
-Field validation have the potential to be invalid if incorrectly defined.
+Fields have the potential to be invalid if incorrectly defined.
 
 1. The field type must match the previous definition exactly
 2. The default argument definitions may not be changed or removed.
