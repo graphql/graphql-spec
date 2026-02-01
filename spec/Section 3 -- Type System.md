@@ -1089,55 +1089,42 @@ In this example, a directive is added to a `User` type without adding fields:
 extend type User @addedDirective
 ```
 
-**Type Validation**
+Object type extensions may choose to extend existing fields.
 
-Object type extensions have the potential to be invalid if incorrectly defined.
-
-1. The named type must already be defined and must be an Object type.
-2. The fields of an Object type extension must have unique names; no two fields
-   may share the same name.
-3. Any non-repeatable directives provided must not already apply to the previous
-   Object type.
-4. Any interfaces provided must not be already implemented by the previous
-   Object type.
-5. The resulting extended object type must be a super-set of all interfaces it
-   implements.
-
-#### Field Extensions
-
-Field extensions are used to represent a field which has been extended from some
-previously defined field. For example this may be used by a GraphQL service
-which is itself an extension of another GraphQL service. When the same field
-appears in multiple extensions, the properties are merged with later extensions
-taking precedence for conflicting values.
-
-In this example, we can deprecate the field `field` on type `Query` by using a
-field extension:
+In this example, we can deprecate the field `id` on type `Query` by adding a
+`@deprecated` directive through a type extension:
 
 ```graphql example
 type Query {
-  field: String
+  id: String
 }
 ```
 
 ```graphql example
 extend type Query {
-  field: String @deprecated(reason: "Use newField")
+  id: String @deprecated(reason: "Use newId")
 }
 ```
 
-** Type Validation **
+**Type Validation**
 
-Fields have the potential to be invalid if incorrectly defined.
+Object type extensions have the potential to be invalid if incorrectly defined.
 
-1. The field type must match the previous definition exactly
-2. The default argument definitions may not be changed or removed.
-3. The description may be added if none exists, or must match the existing
-   description exactly
-4. The deprecation reason may be added if none exists, or must match the
-   existing reason exactly
-5. Directives may be added but cannot conflict with existing non-repeatable
-   directives
+1. The named type must already be defined and must be an Object type.
+2. For each field of an Object type extension:
+   1. The field must have a unique name within that Object type extension; no
+      two fields may share the same name.
+   2. If a field with the same name exists on the previous Object type:
+      1. The field type must match the previous definition exactly.
+      2. The argument definitions defaultValues must match.
+      3. The description or deprecation may be added if none exists, or must
+         match the existing description or deprecation exactly.
+      4. Directives may be added but cannot conflict with existing
+         non-repeatable directives.
+3. Any interfaces provided must not be already implemented by the previous
+   Object type.
+4. The resulting extended object type must be a super-set of all interfaces it
+   implements.
 
 ## Interfaces
 
