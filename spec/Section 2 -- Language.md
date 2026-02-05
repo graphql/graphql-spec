@@ -587,13 +587,14 @@ FragmentName : Name but not `on`
 
 Fragments are the primary unit of composition in GraphQL.
 
-Fragments allow for the reuse of common repeated selections of fields, reducing
-duplicated text in the document. Inline Fragments can be used directly within a
-selection to condition upon a type condition when querying against an interface
-or union.
+Each data-consuming component (function, class, UI element, and so on) of
+a client application should declare its data needs in a dedicated fragment.
+These fragments may then be composed, following the usage of the components
+themselves, to form a GraphQL operation to issue to the server.
 
-For example, if we wanted to fetch some common information about mutual friends
-as well as friends of some user:
+For example, if we have some logic that requires `id`, `name`, and `profilePic`
+to render a profile, and we want to apply that logic to the friends and mutual
+friends of a user:
 
 ```graphql example
 query noFragments {
@@ -612,28 +613,34 @@ query noFragments {
 }
 ```
 
-The repeated fields could be extracted into a fragment and composed by a parent
-fragment or operation.
+The fields required to render a profile can be extracted into a fragment and
+composed by a parent fragment or operation.
 
 ```graphql example
 query withFragments {
   user(id: 4) {
     friends(first: 10) {
-      ...friendFields
+      ...friendProfile
     }
     mutualFriends(first: 10) {
-      ...friendFields
+      ...friendProfile
     }
   }
 }
+```
 
-"Common fields for a user's friends."
-fragment friendFields on User {
+```graphql example
+"Fields required to render a friend's profile"
+fragment friendProfile on User {
   id
   name
   profilePic(size: 50)
 }
 ```
+
+If the profile rendering logic no longer needs `name`, the `name` field can be
+removed from the `friendProfile` fragment and it will no longer be fetched in
+both locations the fragment is consumed.
 
 Fragments are consumed by using the spread operator (`...`). All fields selected
 by the fragment will be added to the field selection at the same level as the
