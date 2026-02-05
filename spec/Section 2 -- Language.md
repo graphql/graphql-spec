@@ -587,9 +587,10 @@ FragmentName : Name but not `on`
 
 Fragments are the primary unit of composition in GraphQL.
 
-Each client component should declare its data needs in a dedicated fragment.
-These fragments may then be composed in the same fashion as the components
-themselves to form a GraphQL operation to issue to the server.
+Each data-consuming component (function, class, UI element, and so on) of
+a client application should declare its data needs in a dedicated fragment.
+These fragments may then be composed, following the usage of the components
+themselves, to form a GraphQL operation to issue to the server.
 
 For example, if we have some logic that requires `id`, `name`, and `profilePic`
 to render a profile, and we want to apply that logic to the friends and mutual
