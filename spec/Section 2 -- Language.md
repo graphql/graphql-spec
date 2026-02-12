@@ -521,7 +521,10 @@ These two operations are semantically identical:
 
 ## Field Alias
 
-Alias : Name :
+Alias
+
+- Name : 
+- StringValue : 
 
 :: A _response name_ is the key in the response object which correlates with a
 field's result. By default the response name will use the field's name; however,
