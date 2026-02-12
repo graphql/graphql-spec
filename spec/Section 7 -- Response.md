@@ -193,6 +193,11 @@ describes the _response position_ which raised the error. This allows clients to
 identify whether a {null} resolved result is a true value or the result of an
 _execution error_.
 
+If an error can be associated to a particular object field or field argument, it should contain an
+entry with the key {"coordinate"} with a string value that is the _schema coordinate_ of that object
+field or field argument. This allows clients to identify the precise location in the schema where
+the error originated.
+
 For example, if fetching one of the friends' names fails in the following
 operation:
 
@@ -216,7 +221,8 @@ The response might look like:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "coordinate": "Human.name"
     }
   ],
   "data": {
@@ -256,7 +262,8 @@ be the same:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "coordinate": "Human.name"
     }
   ],
   "data": {
@@ -290,6 +297,7 @@ see fit, and there are no additional restrictions on its contents.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "coordinate": "Human.name",
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -314,6 +322,7 @@ discouraged.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "coordinate": "Human.name",
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
