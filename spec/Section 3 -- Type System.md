@@ -12,6 +12,7 @@ TypeSystemDefinition :
 - SchemaDefinition
 - TypeDefinition
 - DirectiveDefinition
+- ServiceDefinition
 
 The GraphQL language includes an
 [IDL](https://en.wikipedia.org/wiki/Interface_description_language) used to
@@ -40,6 +41,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- ServiceExtension
 
 Type system extensions are used to represent a GraphQL type system which has
 been extended from some previous type system. For example, this might be used by
@@ -2321,3 +2323,132 @@ input UserUniqueCondition @oneOf {
   organizationAndEmail: OrganizationAndEmailInput
 }
 ```
+
+## Service Definition
+
+ServiceDefinition : Description? service Directives? { ServiceCapability\* }
+
+A GraphQL service is defined in terms of the capabilities that it offers which
+are external to the schema.
+
+### Service Capabilities
+
+ServiceCapability : Description? capability QualifiedName
+ServiceCapabilityValue?
+
+ServiceCapabilityValue : ( StringValue )
+
+:: A _service capability_ describes a feature supported by the GraphQL service
+but not directly expressible via the type system. This may include support for
+new or experimental GraphQL syntactic or behavioral features, protocol support
+(such as GraphQL over WebSockets or Server-Sent Events), or additional
+operational information (such as endpoints for related services). Service
+capabilities may be supplied by the GraphQL implementation, the service, or
+both.
+
+A _service capability_ is identified by a _capability identifier_ (a
+{QualifiedName}), and may optionally have a string value. All capabilities
+within a service must have unique identifiers.
+
+```graphql example
+service {
+  "Descriptions on operations and fragments are supported"
+  capability graphql.operationDescriptions
+
+  "Websocket transport is supported via the given endpoint"
+  capability example.transport.ws("wss://api.example.com/graphql")
+}
+```
+
+**Capability Identifier**
+
+:: A _capability identifier_ is a {QualifiedName} (a case-sensitive string value
+composed of two or more {Name} separated by a period (`.`)) that uniquely
+identifies a capability. This structure is inspired by reverse domain notation
+to encourage global uniqueness and collision-resistance; it is recommended that
+identifiers defined by specific projects, vendors, or implementations begin with
+a prefix derived from a DNS name they control (e.g., {"com.example."}).
+
+Clients must compare capability identifiers using exact (case-sensitive) string
+equality.
+
+**Reserved Capability Identifiers**
+
+A _capability identifier_ must not start with an underscore {"\_"}; this is
+reserved for future usage.
+
+Capability identifiers beginning with the prefix {"graphql."} are reserved and
+must not be used outside of official GraphQL Foundation specifications.
+Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
+proposals.
+
+Any identifiers beginning with case-insensitive variants of {"graphql."},
+{"org.graphql."} and {"gql."} are also reserved.
+
+Identifiers beginning with the prefix {"example."} are reserved for usage in
+documentation and examples only.
+
+Note: Since IANA RFC 2606 reserves the second-level domain names
+{"example.com"}, {"example.net"}, and {"example.org"} for documentation
+purposes, the corresponding reverse-domain prefixes {"com.example."},
+{"net.example."}, and {"org.example."} are also reserved for documentation
+purposes.
+
+Implementers should not change the meaning of capability identifiers; instead, a
+new capability identifier should be used when the meaning changes. Implementers
+should ensure that capability identifiers remain stable and version-agnostic
+where possible.
+
+Note: Capability versioning, if needed, can be indicated using dot suffixes
+(e.g. {"example.capability.v2"}).
+
+This system enables incremental feature adoption and richer tooling
+interoperability, while avoiding tight coupling to specific implementations.
+
+**Capability value**
+
+For capabilities that require more information than a simple indication of
+support, a string value may be specified.
+
+For example, the capability {"graphql.operationDescriptions"} does not require
+additional information and thus does not specify a value; whereas a capability
+such as {"example.transport.ws"} might use the value to indicate the endpoint to
+use for websocket communications (or might omit a value to indicate that
+WebSockets are supported at the current endpoint).
+
+**Specified capabilities**
+
+This version of the specification defines the following capabilities:
+
+- {"graphql.operationDescriptions"} - indicates support for descriptions on
+  operations and fragments
+
+### Service Extension
+
+ServiceExtension :
+
+- extend service Directives? { ServiceCapability\* }
+- extend service Directives [lookahead != `{`]
+
+Service extensions are used to represent a service which has been extended from
+a previous service. For example, this might be used by a GraphQL service which
+adds additional capabilities to an existing service.
+
+Note: Service extensions without additional capability definitions must not be
+followed by a {`{`} (such as a query shorthand) to avoid parsing ambiguity.
+
+```graphql example
+extend service {
+  capability example.newCapability
+}
+```
+
+**Service Validation**
+
+Service extensions have the potential to be invalid if incorrectly defined.
+
+1. The Service must already be defined.
+2. Any non-repeatable directives provided must not already apply to the previous
+   Service.
+3. Any capabilities provided must not already be defined on the previous
+   Service.
