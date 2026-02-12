@@ -71,6 +71,11 @@ Digit :: one of
 
 - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
+QualifiedName ::
+
+- QualifiedName . Name [lookahead != `.`]
+- Name . Name [lookahead != `.`]
+
 IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
@@ -248,6 +253,7 @@ TypeSystemDefinition :
 - SchemaDefinition
 - TypeDefinition
 - DirectiveDefinition
+- ServiceDefinition
 
 TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
 
@@ -413,6 +419,19 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+
+ServiceDefinition : Description? service { ServiceAttribute\* }
+
+ServiceAttribute :
+
+- ServiceCapabilities
+
+ServiceCapabilities: capabilities { ServiceCapability\* }
+
+ServiceCapability:
+
+- Description? QualifiedName [lookahead != `(`]
+- Description? QualifiedName ( StringValue )
 
 ## Schema Coordinate Syntax
 
