@@ -1166,6 +1166,7 @@ DetectFragmentCycles(fragmentDefinition, visited):
   - {visited} must not contain {spread}.
   - Let {nextVisited} be the set including {spread} and members of {visited}.
   - Let {nextFragmentDefinition} be the target of {spread}.
+  - If {nextFragmentDefinition} can't be found, return.
   - {DetectFragmentCycles(nextFragmentDefinition, nextVisited)}.
 
 **Explanatory Text**
@@ -2041,6 +2042,7 @@ variable.
     - Let {variableName} be the name of {variableUsage}.
     - Let {variableDefinition} be the {VariableDefinition} named {variableName}
       defined within {operation}.
+    - If no {variableDefinition} can be found, return.
     - {IsVariableUsageAllowed(variableDefinition, variableUsage)} must be
       {true}.
 
