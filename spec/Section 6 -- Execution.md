@@ -891,9 +891,21 @@ the {objectValue}.
 
 ResolveAbstractType(abstractType, objectValue):
 
-- Return the result of calling the internal method provided by the type system
-  for determining the Object type of {abstractType} given the value
-  {objectValue}.
+- Let {resolvedType} be the result of calling the internal method provided by
+  the type system for determining the Object type of {abstractType} given the
+  value {objectValue}.
+- Assert {resolvedType} is an Object type.
+- Assert {IsSubType(abstractType, resolvedType)}.
+- Return {resolvedType}.
+
+IsSubType(abstractType, objectType):
+
+- If {abstractType} is an Interface type.
+  - If {objectType} implements {abstractType}, return {true}.
+  - Otherwise, return {false}.
+- If {abstractType} is a Union type.
+  - If {objectType} is a member type of {abstractType}, return {true}.
+  - Otherwise, return {false}.
 
 ### Handling Execution Errors
 
