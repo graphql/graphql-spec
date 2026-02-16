@@ -1642,6 +1642,35 @@ input Second {
 }
 ```
 
+_OneOf Input Objects_ introduce another case where a field cannot be provided a
+finite value. Because exactly one field must be set and must be non-null,
+nullable fields do not provide an escape from recursion as they do in regular
+Input Objects. This OneOf Input Object is invalid because its only field
+references itself, and a non-null value must always be provided:
+
+```graphql counter-example
+input Example @oneOf {
+  self: Example
+}
+```
+
+However, a OneOf Input Object that references itself is valid when at least one
+field provides a path to a type that is not a OneOf Input Object:
+
+```graphql example
+input PetInput @oneOf {
+  cat: CatInput
+  dog: DogInput
+  self: PetInput
+}
+input CatInput {
+  name: String!
+}
+input DogInput {
+  name: String!
+}
+```
+
 **Result Coercion**
 
 An input object is never a valid result. Input Object types cannot be the return
@@ -1730,6 +1759,8 @@ input ExampleInputObject {
    Input Objects, at least one of the fields in the chain of references must be
    either a nullable or a List type.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
+5. If the Input Object is a _OneOf Input Object_,
+   {OneOfInputObjectCanBeProvidedAFiniteValue(inputObject)} must be {true}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
 
@@ -1767,6 +1798,26 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
+
+OneOfInputObjectCanBeProvidedAFiniteValue(oneOfInputObject, visited):
+
+- If {visited} is not provided, initialize it to the empty set.
+- If {oneOfInputObject} is within {visited}:
+  - Return {false}.
+- Let {nextVisited} be a new set containing {oneOfInputObject} and everything
+  from {visited}.
+- For each field {field} of {oneOfInputObject}:
+  - Let {fieldType} be the type of {field}.
+  - If {fieldType} is a List type:
+    - Return {true}.
+  - Let {namedFieldType} be the underlying named type of {fieldType}.
+  - If {namedFieldType} is not an Input Object type:
+    - Return {true}.
+  - If {namedFieldType} is not a _OneOf Input Object_:
+    - Return {true}.
+  - If {OneOfInputObjectCanBeProvidedAFiniteValue(namedFieldType, nextVisited)}:
+    - Return {true}.
+- Return {false}.
 
 ### OneOf Input Objects
 
