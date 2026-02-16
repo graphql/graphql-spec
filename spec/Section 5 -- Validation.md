@@ -1444,9 +1444,10 @@ fragment resourceFragment on Resource {
 
 - For each literal Input Value {value} in the document:
   - Let {type} be the type expected in the position {value} is found.
-  - {value} must be coercible to {type} (with the assumption that any
-    {variableUsage} nested within {value} will represent a runtime value valid
-    for usage in its position).
+  - If {type} is not a custom scalar type:
+    - {value} must be coercible to {type} (with the assumption that any
+      {variableUsage} nested within {value} will represent a runtime value valid
+      for usage in its position).
 
 **Explanatory Text**
 
@@ -1461,6 +1462,11 @@ position. The [Coercing Variable Values](#sec-Coercing-Variable-Values)
 algorithm ensures runtime values for variables coerce correctly. Therefore, for
 the purposes of the "coercible" assertion in this validation rule, we can assume
 the runtime value of each {variableUsage} is valid for usage in its position.
+
+Note: Custom scalar coercion rules are not always available when validating a
+document and custom scalar literal values are optional in this validation. If a
+custom scalar literal value cannot be coerced, it will raise an error during
+execution.
 
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
@@ -2046,6 +2052,8 @@ variable.
 
 IsVariableUsageAllowed(variableDefinition, variableUsage):
 
+- If {variableUsage} is nested within a custom scalar literal value, return
+  {true}.
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
@@ -2142,6 +2150,19 @@ query nonNullListToList($nonNullBooleanList: [Boolean]!) {
   arguments {
     booleanListArgField(booleanListArg: $nonNullBooleanList)
   }
+}
+```
+
+When using variables nested within custom scalars literals, the expected type is
+unknown, and variable usages are always allowed. The actual value is coerced at
+runtime using the custom scalar coercion rules. In the following case, the
+`user` argument expects a `JSON` custom scalar, and it is valid for it to
+reference variables:
+
+```graphql example
+mutation updateUserName($name: String!) {
+  # This usage of the $name variable is valid
+  updateUser(user: { name: $name })
 }
 ```
 
