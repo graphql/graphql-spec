@@ -322,7 +322,10 @@ MapSourceToResponseEvent(sourceStream, subscription, schema, variableValues):
 - When {sourceStream} completes normally:
   - Complete {responseStream} normally.
 - When {sourceStream} completes with {error}:
-  - Complete {responseStream} with {error}.
+  - Let {errors} be a list containing {error}.
+  - Let {response} be an unordered map containing {errors}.
+  - Emit {response} on {responseStream}.
+  - Complete {responseStream} normally.
 - When {responseStream} is cancelled:
   - Cancel {sourceStream}.
   - Complete {responseStream} normally.
