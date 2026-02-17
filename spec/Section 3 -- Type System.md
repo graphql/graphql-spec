@@ -1950,9 +1950,9 @@ performed. If that result was not {null}, then the result of coercing the
 Non-Null type is that result. If that result was {null}, then an _execution
 error_ must be raised.
 
-Note: When an _execution error_ is raised on a non-null _response position_, the
-error propagates to the parent _response position_. For more information on this
-process, see
+Note: When an _execution error_ is raised on a non-null _execution position_,
+the error propagates to the parent _execution position_. For more information on
+this process, see
 [Errors and Non-Null Types](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Types)
 within the Execution section.
 
