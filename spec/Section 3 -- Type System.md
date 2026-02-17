@@ -1089,20 +1089,49 @@ In this example, a directive is added to a `User` type without adding fields:
 extend type User @addedDirective
 ```
 
+Object type extensions may extend existing fields.
+
+In this example, we deprecate the field `id` on type `Query` by adding a
+`@deprecated` directive:
+
+```graphql example
+type Query {
+  id: String
+}
+```
+
+```graphql example
+extend type Query {
+  id: String @deprecated(reason: "Use newId")
+}
+```
+
 **Type Validation**
 
 Object type extensions have the potential to be invalid if incorrectly defined.
 
 1. The named type must already be defined and must be an Object type.
-2. The fields of an Object type extension must have unique names; no two fields
-   may share the same name.
-3. Any fields of an Object type extension must not be already defined on the
-   previous Object type.
-4. Any non-repeatable directives provided must not already apply to the previous
+2. For each field of an Object type extension:
+   1. The field must have a unique name within that Object type extension; no
+      two fields may share the same name.
+   2. If a field with the same name exists on the previous Object type:
+      1. The field type must match the previous definition exactly.
+      2. The field description must match the previous definition exactly.
+      3. Any non-repeatable directives provided must not already apply to the
+         previous definition.
+      4. For each argument of the field:
+         1. If an argument with the same name exists on the previous field
+            definition:
+            1. The argument type must match the previous definition exactly.
+            2. If the argument has a default value, it must match the previous
+               definition exactly.
+            3. The argument description must match the previous definition
+               exactly.
+            4. Any non-repeatable directives provided must not already apply to
+               the previous definition.
+3. Any interfaces provided must not be already implemented by the previous
    Object type.
-5. Any interfaces provided must not be already implemented by the previous
-   Object type.
-6. The resulting extended object type must be a super-set of all interfaces it
+4. The resulting extended object type must be a super-set of all interfaces it
    implements.
 
 ## Interfaces
@@ -1340,14 +1369,47 @@ fields:
 extend interface NamedEntity @addedDirective
 ```
 
+Interface type extensions may extend existing fields.
+
+In this example, we deprecate the field `id` on type `Query` by adding a
+`@deprecated` directive:
+
+```graphql example
+interface Node {
+  id: ID
+}
+```
+
+```graphql example
+extend interface Node {
+  id: ID @deprecated(reason: "Use globalId instead")
+}
+```
+
 **Type Validation**
 
 Interface type extensions have the potential to be invalid if incorrectly
 defined.
 
 1. The named type must already be defined and must be an Interface type.
-2. The fields of an Interface type extension must have unique names; no two
-   fields may share the same name.
+2. For each field of an Interface type extension:
+   1. The field must have a unique name within that Interface type extension; no
+      two fields may share the same name.
+   2. If a field with the same name exists on the previous Interface type:
+      1. The field type must match the previous definition exactly.
+      2. The field description must match the previous definition exactly.
+      3. Any non-repeatable directives provided must not already apply to the
+         previous definition.
+      4. For each argument of the field:
+         1. If an argument with the same name exists on the previous field
+            definition:
+            1. The argument type must match the previous definition exactly.
+            2. If the argument has a default value, it must match the previous
+               definition exactly.
+            3. The argument description must match the previous definition
+               exactly.
+            4. Any non-repeatable directives provided must not already apply to
+               the previous definition.
 3. Any fields of an Interface type extension must not be already defined on the
    previous Interface type.
 4. Any Object or Interface type which implemented the previous Interface type
