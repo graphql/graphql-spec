@@ -49,8 +49,8 @@ stream of _execution result_.
 :: A GraphQL request returns an _incremental stream_ when the GraphQL service
 has deferred or streamed data as a result of the `@defer` or `@stream`
 directives. When the result of the GraphQL operation is an incremental stream,
-the first value will be an _initial incremental stream result_, followed by one
-or more _incremental stream update result_.
+the first value will be an _initial incremental stream result_, optionally
+followed by one or more _incremental stream update result_.
 
 ### Request Error Result
 
@@ -94,7 +94,10 @@ these entries are defined in the same way as an _execution result_ as described
 in the "Data", "Errors", and "Extensions" sections below.
 
 The _initial incremental stream result_ must contain an entry with the key
-{"hasNext"}. The value of this entry must be {true}.
+{"hasNext"}. The value of this entry must be {true} if there are any
+_incremental stream update results_ in the _incremental stream_. The value of
+this entry must be {false} if the initial incremental stream result is the last
+response of the incremental stream.
 
 The _initial incremental stream result_ may contain an entry with the key
 {"pending"}. The value of this entry must be a non-empty list of _pending
