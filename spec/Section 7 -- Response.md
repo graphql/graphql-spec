@@ -49,7 +49,7 @@ stream of _execution result_.
 :: A GraphQL request returns an _incremental stream_ when the GraphQL service
 has deferred or streamed data as a result of the `@defer` or `@stream`
 directives. When the result of the GraphQL operation is an incremental stream,
-the first value will be an _initial incremental stream result_, optionally
+the first payload will be an _initial incremental stream result_, optionally
 followed by one or more _incremental stream update result_.
 
 ### Request Error Result
@@ -81,7 +81,7 @@ The value of this entry is described in the "Extensions" section.
 
 ### Initial Incremental Stream Result
 
-:: An _initial incremental stream result_ is the first value yielded by an
+:: An _initial incremental stream result_ is the first payload yielded by an
 _incremental stream_. It contains the result of executing any non-deferred
 selections, along with any errors that occurred during their execution and
 details of future _incremental stream update result_ to be expected.
@@ -116,8 +116,8 @@ Result" section below.
 
 ### Incremental Stream Update Result
 
-:: An _incremental stream update result_ is the value yielded by an _incremental
-stream_ for all values except the first.
+:: An _incremental stream update result_ is the payload yielded by an
+_incremental stream_ for all payloads except the first.
 
 An _incremental stream update result_ must be a map.
 
