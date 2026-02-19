@@ -99,7 +99,7 @@ _incremental stream update results_ in the _incremental stream_. The value of
 this entry must be {false} if the initial incremental stream result is the last
 response of the incremental stream.
 
-The _initial incremental stream result_ may contain an entry with the key
+The _initial incremental stream result_ must contain an entry with the key
 {"pending"}. The value of this entry must be a non-empty list of _pending
 result_. Each _pending result_ must be a map as described in the "Pending
 Result" section below.
