@@ -82,7 +82,9 @@ The value of this entry is described in the "Extensions" section.
 ### Initial Incremental Stream Result
 
 :: An _initial incremental stream result_ is the first value yielded by an
-_incremental stream_.
+_incremental stream_. It contains the result of executing any non-deferred
+selections, along with any errors that occurred during their execution and
+details of future _incremental stream update result_ to be expected.
 
 An _initial incremental stream result_ must be a map.
 
@@ -554,9 +556,9 @@ entry is described in the "Errors" section.
 ### Additional Entries
 
 To ensure future changes to the protocol do not break existing services and
-clients, any of the maps described in the "Response" section must not contain
-any entries other than those described above. Clients must ignore any entries
-other than those described above.
+clients, any of the maps described in the "Response" section (with the exception
+of {"extensions"}) must not contain any entries other than those described
+above. Clients must ignore any entries other than those described above.
 
 ## Serialization Format
 
