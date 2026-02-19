@@ -49,8 +49,8 @@ stream of _execution result_.
 :: A GraphQL request returns an _incremental stream_ when the GraphQL service
 has deferred or streamed data as a result of the `@defer` or `@stream`
 directives. When the result of the GraphQL operation is an incremental stream,
-the first value will be an _initial execution result_, followed by one or more
-_execution update result_.
+the first value will be an _initial incremental stream result_, followed by one
+or more _incremental stream update result_.
 
 ### Request Error Result
 
@@ -79,58 +79,60 @@ The _request error result_ map must not contain an entry with key {"data"}.
 The _request error result_ map may also contain an entry with key `extensions`.
 The value of this entry is described in the "Extensions" section.
 
-### Initial Execution Result
+### Initial Incremental Stream Result
 
-:: An _initial execution result_ is the first value yielded by an _incremental
-stream_.
+:: An _initial incremental stream result_ is the first value yielded by an
+_incremental stream_.
 
-An _initial execution result_ must be a map.
+An _initial incremental stream result_ must be a map.
 
-The _initial execution result_ must contain an entry with key {"data"}, and may
-contain entries with keys {"errors"} and {"extensions"}. The value of these
-entries are defined in the same way as an _execution result_ as described in the
-"Data", "Errors", and "Extensions" sections below.
+The _initial incremental stream result_ must contain an entry with key {"data"},
+and may contain entries with keys {"errors"} and {"extensions"}. The value of
+these entries are defined in the same way as an _execution result_ as described
+in the "Data", "Errors", and "Extensions" sections below.
 
-The _initial execution result_ must contain an entry with the key {"hasNext"}.
-The value of this entry must be {true}.
+The _initial incremental stream result_ must contain an entry with the key
+{"hasNext"}. The value of this entry must be {true}.
 
-The _initial execution result_ may contain an entry with the key {"pending"}.
-The value of this entry must be a non-empty list of _pending result_. Each
-_pending result_ must be a map as described in the "Pending Result" section
-below.
+The _initial incremental stream result_ may contain an entry with the key
+{"pending"}. The value of this entry must be a non-empty list of _pending
+result_. Each _pending result_ must be a map as described in the "Pending
+Result" section below.
 
-The _initial execution result_ may contain an entry with they key
+The _initial incremental stream result_ may contain an entry with they key
 {"incremental"}. The value of this entry must be a non-empty list of
 _incremental result_. Each _incremental result_ must be a map as described in
 the "Incremental Result" section below.
 
-The _initial execution result_ may contain an entry with they key {"completed"}.
-The value of this entry must be a non-empty list of _completed result_. Each
-_completed result_ must be a map as described in the "Completed Result" section
-below.
+The _initial incremental stream result_ may contain an entry with they key
+{"completed"}. The value of this entry must be a non-empty list of _completed
+result_. Each _completed result_ must be a map as described in the "Completed
+Result" section below.
 
-### Execution Update Result
+### Incremental Stream Update Result
 
-:: An _execution update result_ is the value yielded by an _incremental stream_
-for all values except the first.
+:: An _incremental stream update result_ is the value yielded by an _incremental
+stream_ for all values except the first.
 
-An _execution update result_ must be a map.
+An _incremental stream update result_ must be a map.
 
-Unlike the _initial execution result_, an _execution update result_ must not
-contain entries with keys {"data"} or {"errors"}.
+Unlike the _initial incremental stream result_, an _incremental stream update
+result_ must not contain entries with keys {"data"} or {"errors"}.
 
-An _execution update result_ may contain an entry with the key {"extensions"}.
-The value of this entry is described in the "Extensions" section.
+An _incremental stream update result_ may contain an entry with the key
+{"extensions"}. The value of this entry is described in the "Extensions"
+section.
 
-An _execution update result_ must contain an entry with the key {"hasNext"}. The
-value of this entry must be {true} for all but the last response in the
-_incremental stream_. The value of this entry must be {false} for the last
-response of the incremental stream.
+An _incremental stream update result_ must contain an entry with the key
+{"hasNext"}. The value of this entry must be {true} for all but the last
+response in the _incremental stream_. The value of this entry must be {false}
+for the last response of the incremental stream.
 
-The _initial execution result_ may contain entries with keys {"pending"},
-{"incremental"}, and/or {"completed"}. The value of these entries are defined in
-the same way as an _initial execution result_ as described in the "Pending
-Result", "Incremental Result", and "Completed Result" sections below.
+The _initial incremental stream result_ may contain entries with keys
+{"pending"}, {"incremental"}, and/or {"completed"}. The value of these entries
+are defined in the same way as an _initial incremental stream result_ as
+described in the "Pending Result", "Incremental Result", and "Completed Result"
+sections below.
 
 ### Response Position
 
@@ -389,10 +391,10 @@ discouraged.
 ### Extensions
 
 The {"extensions"} entry in an _execution result_, _request error result_,
-_initial execution result_, or an _execution update result_, if set, must have a
-map as its value. This entry is reserved for implementers to extend the protocol
-however they see fit, and hence there are no additional restrictions on its
-contents.
+_initial incremental stream result_, or an _incremental stream update result_,
+if set, must have a map as its value. This entry is reserved for implementers to
+extend the protocol however they see fit, and hence there are no additional
+restrictions on its contents.
 
 ### Pending Result
 
@@ -431,16 +433,16 @@ for different deferred fragments at the same _response position_.
 If a pending result is not returned for a `@defer` or `@stream` directive,
 clients must assume that the GraphQL service chose not to incrementally deliver
 this data, and the data can be found either in the {"data"} entry in the
-_initial execution result_, or one of the prior _execution update result_ in the
-_incremental stream_.
+_initial incremental stream result_, or one of the prior _incremental stream
+update result_ in the _incremental stream_.
 
 :: The _associated pending result_ is a specific _pending result_ associated
 with any given _incremental result_ or _completed result_. The associated
 pending result can be determined by finding the pending result where the value
 of its {"id"} entry is the same value of the {"id"} entry of the given
 incremental result or completed result. The associated pending result must
-appear in the _incremental stream_, in the same or prior _initial execution
-result_ or _execution update result_ as the given incremental result or
+appear in the _incremental stream_, in the same or prior _initial incremental
+stream result_ or _execution update result_ as the given incremental result or
 completed result.
 
 ### Incremental Result
@@ -531,8 +533,8 @@ errors. The value of this entry is described in the "Errors" section.
 :: A _completed result_ is used to communicate that the GraphQL service has
 completed the incremental delivery of the data associated with the _associated
 pending result_. The corresponding data must have been completed in the same
-_initial execution result_ or _execution update result_ in which this completed
-result appears.
+_initial incremental stream result_ or _incremental stream update result_ in
+which this completed result appears.
 
 **Completed Result Format**
 
