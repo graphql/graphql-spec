@@ -81,10 +81,11 @@ The value of this entry is described in the "Extensions" section.
 
 ### Initial Incremental Stream Result
 
-:: An _initial incremental stream result_ is the first payload yielded by an
-_incremental stream_. It contains the result of executing any non-deferred
-selections, along with any errors that occurred during their execution and
-details of future _incremental stream update result_ to be expected.
+:: An _initial incremental stream result_ contains the result of executing any
+non-deferred selections, along with any errors that occurred during their
+execution, as well as details of any future _incremental stream update result_
+to be expected. An initial incremental stream result must be the first payload
+yielded by an _incremental stream_.
 
 An _initial incremental stream result_ must be a map.
 
@@ -116,8 +117,11 @@ Result" section below.
 
 ### Incremental Stream Update Result
 
-:: An _incremental stream update result_ is the payload yielded by an
-_incremental stream_ for all payloads except the first.
+:: An _incremental stream update result_ contains the result of executing any
+deferred selections, along with any errors that occurred during their execution,
+as well as details of any future _incremental stream update result_ to be
+expected. All payloads yielded by an _incremental stream_, except the first,
+must be incremental stream update results.
 
 An _incremental stream update result_ must be a map.
 
