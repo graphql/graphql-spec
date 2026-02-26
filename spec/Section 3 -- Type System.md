@@ -1594,9 +1594,9 @@ Input Objects are allowed to reference other Input Objects as field types. A
 circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
-Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid
-because there is no way to provide a legal value for them.
+Circular references are generally allowed, however they may not form cycles such
+that no finite value can be provided. Such Input Objects are invalid because
+there is no way to provide a legal value for them.
 
 This example of a circularly-referenced input type is valid as the field `self`
 may be omitted or the value {null}.
@@ -1642,32 +1642,19 @@ input Second {
 }
 ```
 
-_OneOf Input Objects_ introduce another case where a field cannot be provided a
-finite value. Because exactly one field must be set and must be non-null,
-nullable fields do not provide an escape from recursion as they do in regular
-Input Objects. This OneOf Input Object is invalid because its only field
-references itself, and a non-null value must always be provided:
+Because _OneOf Input Objects_ require exactly one field to be set and non-null,
+nullable fields do not allow a finite value to be provided as they do in other
+Input Objects. This example is invalid because providing a value for `First`
+requires a non-null `Second`, and constructing a `Second` requires a non-null
+`First`:
 
 ```graphql counter-example
-input Example @oneOf {
-  self: Example
+input First @oneOf {
+  second: Second
 }
-```
 
-However, a OneOf Input Object that references itself is valid when at least one
-field provides a path to a type that is not a OneOf Input Object:
-
-```graphql example
-input PetInput @oneOf {
-  cat: CatInput
-  dog: DogInput
-  self: PetInput
-}
-input CatInput {
-  name: String!
-}
-input DogInput {
-  name: String!
+input Second {
+  first: First!
 }
 ```
 
@@ -1755,12 +1742,8 @@ input ExampleInputObject {
    5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
-3. If an Input Object references itself either directly or through referenced
-   Input Objects, at least one of the fields in the chain of references must be
-   either a nullable or a List type.
+3. {InputObjectCanBeProvidedAFiniteValue(inputObject)} must be {true}.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
-5. If the Input Object is a _OneOf Input Object_,
-   {OneOfInputObjectCanBeProvidedAFiniteValue(inputObject)} must be {true}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
 
@@ -1799,25 +1782,39 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
 
-OneOfInputObjectCanBeProvidedAFiniteValue(oneOfInputObject, visited):
+InputObjectCanBeProvidedAFiniteValue(inputObject, visited):
 
 - If {visited} is not provided, initialize it to the empty set.
-- If {oneOfInputObject} is within {visited}:
+- If {inputObject} is in {visited}:
   - Return {false}.
-- Let {nextVisited} be a new set containing {oneOfInputObject} and everything
+- Let {nextVisited} be a new set containing {inputObject} and everything
   from {visited}.
-- For each field {field} of {oneOfInputObject}:
-  - Let {fieldType} be the type of {field}.
-  - If {fieldType} is a List type:
-    - Return {true}.
-  - Let {namedFieldType} be the underlying named type of {fieldType}.
-  - If {namedFieldType} is not an Input Object type:
-    - Return {true}.
-  - If {namedFieldType} is not a _OneOf Input Object_:
-    - Return {true}.
-  - If {OneOfInputObjectCanBeProvidedAFiniteValue(namedFieldType, nextVisited)}:
-    - Return {true}.
-- Return {false}.
+- If {inputObject} is a _OneOf Input Object_:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If {FieldTypeCanBeProvidedAFiniteValue(fieldType, nextVisited)}:
+      - Return {true}.
+  - Return {false}.
+- Otherwise:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If {fieldType} is Non-Null:
+      - Let {innerType} be the type wrapped by {fieldType}.
+      - If not {FieldTypeCanBeProvidedAFiniteValue(innerType, nextVisited)}:
+        - Return {false}.
+  - Return {true}.
+
+FieldTypeCanBeProvidedAFiniteValue(fieldType, visited):
+
+- If {fieldType} is a List type:
+  - Return {true}.
+- If {fieldType} is a Non-Null type:
+  - Let {innerType} be the type wrapped by {fieldType}.
+  - Return {FieldTypeCanBeProvidedAFiniteValue(innerType, visited)}.
+- Assert: {fieldType} is a named type.
+- If {fieldType} is not an Input Object type:
+  - Return {true}.
+- Return {InputObjectCanBeProvidedAFiniteValue(fieldType, visited)}.
 
 ### OneOf Input Objects
 
