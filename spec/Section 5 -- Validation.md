@@ -726,7 +726,7 @@ fragment conflictingDifferingResponses on Pet {
 
 **Explanatory Text**
 
-A field subselection is not allowed on leaf fields. A leaf field is any field
+:: A field subselection is not allowed on leaf fields. A _leaf field_ is any field
 with a scalar or enum unwrapped type.
 
 The following is valid.
