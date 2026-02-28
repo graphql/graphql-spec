@@ -1742,7 +1742,7 @@ input ExampleInputObject {
    5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
-3. {InputObjectCanBeProvidedAFiniteValue(inputObject)} must be {true}.
+3. {InputObjectHasUnbreakableCycle(inputObject)} must be {false}.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
@@ -1782,39 +1782,39 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
 
-InputObjectCanBeProvidedAFiniteValue(inputObject, visited):
+InputObjectHasUnbreakableCycle(inputObject, visited):
 
 - If {visited} is not provided, initialize it to the empty set.
 - If {inputObject} is in {visited}:
-  - Return {false}.
+  - Return {true}.
 - Let {nextVisited} be a new set containing {inputObject} and everything
   from {visited}.
 - If {inputObject} is a _OneOf Input Object_:
   - For each field {field} of {inputObject}:
     - Let {fieldType} be the type of {field}.
-    - If {FieldTypeCanBeProvidedAFiniteValue(fieldType, nextVisited)}:
-      - Return {true}.
-  - Return {false}.
+    - If not {InputFieldTypeHasUnbreakableCycle(fieldType, nextVisited)}:
+      - Return {false}.
+  - Return {true}.
 - Otherwise:
   - For each field {field} of {inputObject}:
     - Let {fieldType} be the type of {field}.
     - If {fieldType} is Non-Null:
-      - Let {innerType} be the type wrapped by {fieldType}.
-      - If not {FieldTypeCanBeProvidedAFiniteValue(innerType, nextVisited)}:
-        - Return {false}.
-  - Return {true}.
+      - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+      - If {InputFieldTypeHasUnbreakableCycle(nullableType, nextVisited)}:
+        - Return {true}.
+  - Return {false}.
 
-FieldTypeCanBeProvidedAFiniteValue(fieldType, visited):
+InputFieldTypeHasUnbreakableCycle(fieldType, visited):
 
 - If {fieldType} is a List type:
-  - Return {true}.
+  - Return {false}.
 - If {fieldType} is a Non-Null type:
-  - Let {innerType} be the type wrapped by {fieldType}.
-  - Return {FieldTypeCanBeProvidedAFiniteValue(innerType, visited)}.
+  - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+  - Return {InputFieldTypeHasUnbreakableCycle(nullableType, visited)}.
 - Assert: {fieldType} is a named type.
 - If {fieldType} is not an Input Object type:
-  - Return {true}.
-- Return {InputObjectCanBeProvidedAFiniteValue(fieldType, visited)}.
+  - Return {false}.
+- Return {InputObjectHasUnbreakableCycle(fieldType, visited)}.
 
 ### OneOf Input Objects
 
