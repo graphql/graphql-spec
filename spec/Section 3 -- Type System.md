@@ -1642,9 +1642,8 @@ input Second {
 }
 ```
 
-Because _OneOf Input Objects_ require exactly one field to be set and non-null,
-nullable fields do not allow a finite value to be provided as they do in other
-Input Objects. This example is invalid because providing a value for `First`
+_OneOf Input Objects_ require exactly one field be provided, and that field
+cannot be `null`. This example is invalid because providing a value for `First`
 requires a non-null `Second`, and constructing a `Second` requires a non-null
 `First`:
 
