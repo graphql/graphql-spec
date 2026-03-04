@@ -137,7 +137,7 @@ An _incremental stream update result_ must contain an entry with the key
 response in the _incremental stream_. The value of this entry must be {false}
 for the last response of the incremental stream.
 
-The _initial incremental stream result_ may contain entries with keys
+The _incremental stream update result_ may contain entries with keys
 {"pending"}, {"incremental"}, and/or {"completed"}. The value of these entries
 are defined in the same way as an _initial incremental stream result_ as
 described in the "Pending Result", "Incremental Result", and "Completed Result"
