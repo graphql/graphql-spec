@@ -894,8 +894,8 @@ ResolveAbstractType(abstractType, objectValue):
 - Let {resolvedType} be the result of calling the internal method provided by
   the type system for determining the Object type of {abstractType} given the
   value {objectValue}.
-- Assert {resolvedType} is an Object type.
-- Assert {IsSubType(abstractType, resolvedType)}.
+- Assert: {resolvedType} is an Object type.
+- Assert: {IsSubType(abstractType, resolvedType)}.
 - Return {resolvedType}.
 
 IsSubType(abstractType, objectType):
