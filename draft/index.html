@@ -2723,9 +2723,9 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1620-L1621">This example of a circularly-referenced input type is invalid as the field <code>self</code> cannot be provided a finite value.</p>
-<pre id="example-e70c9" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1623-L1628"><a href="#example-e70c9">Counter Example № 84</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
-  <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
+<pre id="example-f2b84" class="spec-counter-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1623-L1628"><a href="#example-f2b84">Counter Example № 84</a><code><span class="token keyword">input</span> <span class="token object">Example</span> <span class="token punctuation">{</span>
   <span class="token attr-name">self</span><span class="token punctuation">:</span> <span class="token class-name">Example</span><span class="token operator">!</span>
+  <span class="token attr-name">value</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1630-L1631">This example is also invalid, as there is a non-null singular circular reference via the <code>First.second</code> and <code>Second.first</code> fields.</p>
