@@ -161,6 +161,8 @@ type __Type {
   ofType: __Type
   # must be non-null for INPUT_OBJECT, otherwise null.
   isOneOf: Boolean
+  # references to other schemas/ontologies via URI/IRI
+  sameAs: [String!]
 }
 
 enum __TypeKind {
