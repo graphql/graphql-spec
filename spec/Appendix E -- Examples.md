@@ -35,7 +35,7 @@ The _initial incremental stream result_ has:
 - a {"hasNext"} entry with the value {true}, indicating that the response is not
   yet complete.
 
-If an error were to occur, it would also have an {"error"} entry; but not in
+If an error were to occur, it would also have an {"errors"} entry; but not in
 this example.
 
 ```json example
@@ -82,8 +82,8 @@ indicating that the deferred data has been completely delivered.
 The second _incremental stream update result_ contains the final stream results.
 In this example, the underlying iterator does not close synchronously so
 {"hasNext"} is set to {true}. If this iterator did close synchronously,
-{"hasNext"} would be set to {false} and this would be the final incremental
-stream update result.
+{"hasNext"} could be set to {false} and make this the final incremental stream
+update result.
 
 ```json example
 {
@@ -97,10 +97,9 @@ stream update result.
 }
 ```
 
-The third _incremental stream update result_ contains no incremental data.
-{"hasNext"} set to {false} indicates the end of the _incremental stream_. This
-incremental stream update result is sent when the underlying iterator of the
-`films` field closes.
+When the underlying iterator of the `films` field closes there is no more data
+to deliver, so the third and final _incremental stream update result_ sets
+{"hasNext"} to {false} to indicate the end of the _incremental stream_.
 
 ```json example
 {
@@ -163,13 +162,15 @@ In this example, the first _incremental stream update result_ contains the
 deferred data from `HomeWorldFragment`. There is one _completed result_,
 indicating that `HomeWorldFragment` has been completely delivered. Because the
 `homeWorld` field is present in two separate `@defer`s, it is separated into its
-own _incremental result_.
+own _incremental result_. In this example, this incremental result contains the
+id `"0"`, but since the `name` field was included in both `HomeWorldFragment`
+and `NameAndHomeWorldFragment`, an id of `"1"` would also be a valid response.
 
 The second _incremental result_ in this _incremental stream update result_
 contains the data for the `terrain` field. This _incremental result_ contains a
 {"subPath"} entry to indicate to clients that the _response position_ of this
-result can be determined by concatenating the path from the _pending result_
-with id `"0"` and the value of this {"subPath"} entry.
+result can be determined by concatenating: the path from the _pending result_
+for id `"0"`, and the value of this {"subPath"} entry.
 
 ```json example
 {
@@ -195,6 +196,11 @@ selection that has not been delivered in a previous result. With this field now
 delivered, clients are informed that the `NameAndHomeWorldFragment` has been
 completed by the presence of the associated _completed result_. Additionally,
 {"hasNext"} is set to {false} indicating the end of the _incremental stream_.
+
+This example demonstrates that it is necessary for clients to process the entire
+incremental stream, as both the initial data and previous incremental results
+(with a potentially different value for {"id"}) may be required to complete a
+deferred fragment.
 
 ```json example
 {
