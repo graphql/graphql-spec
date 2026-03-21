@@ -60,4 +60,6 @@ working draft release can be found at
 
 # [Appendix: Specified Definitions](Appendix%20D%20--%20Specified%20Definitions.md)
 
+# [Appendix: Examples](Appendix%20E%20--%20Examples.md)
+
 # [Appendix: Licensing](../LICENSE.md)
