@@ -29,9 +29,9 @@ The _initial incremental stream result_ has:
 
 - a {"data"} entry containing the results of the GraphQL operation except for
   the `@defer` and `@stream` selections;
-- a {"pending"} entry containing two _pending result_, one for the `@defer`
-  selection and for the the `@stream` selection, indicating that these results
-  will be delivered in a later _incremental stream update result_;
+- a {"pending"} entry containing two _incremental pending notices_, one for the
+  `@defer` selection and for the the `@stream` selection, indicating that these
+  results will be delivered in a later _incremental stream update result_;
 - a {"hasNext"} entry with the value {true}, indicating that the response is not
   yet complete.
 
@@ -140,8 +140,8 @@ The _initial incremental stream result_ contains the results of the `firstName`
 field. Even though it is also present in the `HomeWorldFragment`, it must be
 returned in the initial incremental stream result because it is also defined
 outside of any fragments with the `@defer` directive. Additionally, there are
-two _pending result_ indicating that results for both `@defer`s in the query
-will be delivered in later _incremental stream update result_.
+two _incremental pending notices_ indicating that results for both `@defer`s in
+the query will be delivered in later _incremental stream update result_.
 
 ```json example
 {
@@ -169,8 +169,8 @@ and `NameAndHomeWorldFragment`, an id of `"1"` would also be a valid response.
 The second _incremental result_ in this _incremental stream update result_
 contains the data for the `terrain` field. This _incremental result_ contains a
 {"subPath"} entry to indicate to clients that the _response position_ of this
-result can be determined by concatenating: the path from the _pending result_
-for id `"0"`, and the value of this {"subPath"} entry.
+result can be determined by concatenating: the path from the _incremental
+pending notice_ for id `"0"`, and the value of this {"subPath"} entry.
 
 ```json example
 {

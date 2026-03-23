@@ -2372,9 +2372,9 @@ fragment someFragment on User {
 - `label: String` - An optional string literal used by GraphQL clients to
   identify data in the _incremental stream_ and associate it with the
   corresponding defer directive. If provided, the GraphQL service must include
-  this label in the corresponding _pending result_ within the _incremental
-  stream_. The `label` argument must be unique across all `@defer` and `@stream`
-  directives in the document. Variables are disallowed (via
+  this label in the corresponding _incremental pending notice_ within the
+  _incremental stream_. The `label` argument must be unique across all `@defer`
+  and `@stream` directives in the document. Variables are disallowed (via
   [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
   because their values may not be known during validation.
 
@@ -2420,9 +2420,9 @@ query myQuery($shouldStream: Boolean! = true) {
 - `label: String` - An optional string literal used by GraphQL clients to
   identify data in the _incremental stream_ and associate it with the
   corresponding stream directive. If provided, the GraphQL service must include
-  this label in the corresponding _pending result_ within the _incremental
-  stream_. The `label` argument must be unique across all `@defer` and `@stream`
-  directives in the document. Variables are disallowed (via
+  this label in the corresponding _incremental pending notice_ within the
+  _incremental stream_. The `label` argument must be unique across all `@defer`
+  and `@stream` directives in the document. Variables are disallowed (via
   [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
   because their values may not be known during validation.
 - `initialCount: Int! = 0` - The number of list items to include initially when

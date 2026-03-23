@@ -101,9 +101,9 @@ The value of {"hasNext"} must be {false} if the initial incremental stream
 result is the last response of the incremental stream. Otherwise, {"hasNext"}
 must be {true}.
 
-The value of {"pending"} must be a non-empty list of _pending result_. Each
-_pending result_ must be a map as described in the "Pending Result" section
-below.
+The value of {"pending"} must be a non-empty list of _incremental pending
+notice_. Each _incremental pending notice_ must be a map as described in the
+"Incremental Pending Notice" section below.
 
 The value of {"incremental"}, if present, must be a non-empty list of
 _incremental result_. Each _incremental result_ must be a map as described in
@@ -117,12 +117,12 @@ Note: A GraphQL service is permitted to include incrementally delivered data in
 the _initial incremental stream_. For example, A GraphQL middleware layer, such
 as a caching CDN or proxy service, may wish to intercept and rewrite the
 _incremental stream_ before delivering it to a client. This service may collect
-some or all of the _pending result_, _incremental result_, and _completed
-result_ from the entire _incremental stream_ of the upstream service, and
-construct a new incremental stream containing a single payload: an _initial
-incremental stream result_ containing the all of the intercepted pending
-results, incremental results, and completed results, and the {"hasNext"} entry
-set to false. This would allow the client to efficiently render the entire
+some or all of the _incremental pending notice_, _incremental result_, and
+_completed result_ from the entire _incremental stream_ of the upstream service,
+and construct a new incremental stream containing a single payload: an _initial
+incremental stream result_ containing the all of the intercepted incremental
+pending notices, incremental results, and completed results, and the {"hasNext"}
+entry set to false. This would allow the client to efficiently render the entire
 result without having to process multiple payloads.
 
 ### Incremental Stream Update Result
@@ -146,8 +146,8 @@ _incremental stream_. Otherwise, {"hasNext"} must be {true}.
 
 The value of {"pending"}, {"incremental"}, and/or {"completed"}, if present are
 defined in the same way as an _initial incremental stream result_ as described
-in the "Pending Result", "Incremental Result", and "Completed Result" sections
-below.
+in the "Incremental Pending Notice", "Incremental Result", and "Completed
+Result" sections below.
 
 The value of {"extensions"}, if present, is defined in the same way as an
 _execution result_ as described in the "Extensions" section below.
@@ -176,8 +176,8 @@ represents a path in the response, not in the request.
 When a _response path_ is present on an _error result_, it identifies the
 _response position_ which raised the error.
 
-When a _response path_ is present on a _pending result_, it identifies the
-_response position_ of the incremental data update.
+When a _response path_ is present on an _incremental pending notice_, it
+identifies the _response position_ of the incremental data update.
 
 A single field execution may result in multiple response positions. For example,
 
@@ -414,51 +414,55 @@ if set, must have a map as its value. This entry is reserved for implementers to
 extend the protocol however they see fit, and hence there are no additional
 restrictions on its contents.
 
-### Pending Result
+### Incremental Pending Notice
 
-:: A _pending result_ is used to communicate to clients that the GraphQL service
-has chosen to incrementally deliver data associated with a `@defer` or `@stream`
-directive. Each pending result corresponds to a specific `@defer` or `@stream`
-directive located at a _response position_ in the response data. The presence of
-a pending result indicates that clients should expect the associated data in
-either the current response, or one of the following responses.
+:: A _incremental pending notice_ is used to communicate to clients that the
+GraphQL service has chosen to incrementally deliver data associated with a
+`@defer` or `@stream` directive. Each incremental pending notice corresponds to
+a specific `@defer` or `@stream` directive located at a _response position_ in
+the response data. The presence of an incremental pending notice indicates that
+clients should expect the associated data in either the current response, or one
+of the following responses.
 
-**Pending Result Format**
+**Incremental Pending Notice Format**
 
-A _pending result_ must be a map.
+An _incremental pending notice_ must be a map.
 
-A _pending result_ must contain entries with the keys {"id"} and {"path"}, and
-may contain an entry with key {"label"}.
+An _incremental pending notice_ must contain entries with the keys {"id"} and
+{"path"}, and may contain an entry with key {"label"}.
 
 The value of {"id"} must be a string. This {"id"} should be used by clients to
-correlate pending results with _incremental result_ and _completed result_. The
-{"id"} value must be unique across the entire _incremental stream_ response.
-There must not be any other pending result in the _incremental stream_ with the
-same {"id"}.
+correlate incremental pending notices with _incremental result_ and _completed
+result_. The {"id"} value must be unique across the entire _incremental stream_
+response. There must not be any other incremental pending notice in the
+_incremental stream_ with the same {"id"}.
 
-The value of {"path"} must be a _response position_. When the pending result is
-associated with a `@stream` directive, it indicates the list at this _response
-position_ is not known to be complete. Clients should expect the GraphQL Service
-to incrementally deliver the remainder list items of this list. When the pending
-result is associated with a `@defer` directive, it indicates that the response
-fields contained in the deferred fragment are not known to be complete. Clients
-should expect the GraphQL Service to incrementally deliver the remainder of the
-fields contained in the deferred fragment at this _response position_.
+The value of {"path"} must be a _response position_. When the incremental
+pending notice is associated with a `@stream` directive, it indicates the list
+at this _response position_ is not known to be complete. Clients should expect
+the GraphQL Service to incrementally deliver the remainder list items of this
+list. When the incremental pending notice is associated with a `@defer`
+directive, it indicates that the response fields contained in the deferred
+fragment are not known to be complete. Clients should expect the GraphQL Service
+to incrementally deliver the remainder of the fields contained in the deferred
+fragment at this _response position_.
 
 If the associated `@defer` or `@stream` directive contains a `label` argument,
-the pending result must contain an entry {"label"} with the value of this
-argument. Clients should use this entry to differentiate the _pending results_
-for different deferred fragments at the same _response position_.
+the incremental pending notice must contain an entry {"label"} with the value of
+this argument. Clients should use this entry to differentiate the _incremental
+pending notices_ for different deferred fragments at the same _response
+position_.
 
-If a pending result is not returned for a `@defer` or `@stream` directive,
-clients must assume that the GraphQL service chose not to incrementally deliver
-this data, and the data can be found either in the {"data"} entry in the
-_initial incremental stream result_, or one of the prior _incremental stream
-update result_ in the _incremental stream_.
+If an incremental pending notice is not returned for a `@defer` or `@stream`
+directive, clients must assume that the GraphQL service chose not to
+incrementally deliver this data, and the data can be found either in the
+{"data"} entry in the _initial incremental stream result_, or one of the prior
+_incremental stream update result_ in the _incremental stream_.
 
-:: The _associated pending result_ of an _incremental result_ or _completed
-result_ is the _pending result_ whose {"id"} entry has the same value as the
-{"id"} entry of the given incremental result or completed result.
+:: The _associated incremental pending notice_ of an _incremental result_ or
+_completed result_ is the _incremental pending notice_ whose {"id"} entry has
+the same value as the {"id"} entry of the given incremental result or completed
+result.
 
 ### Incremental Result
 
@@ -469,20 +473,21 @@ _incremental list result_ or an _incremental object result_.
 An _incremental result_ must be a map.
 
 Every _incremental result_ must contain an entry with the key {"id"}, the value
-of which is a string referencing its _associated pending result_. The associated
-pending result must appear either in the _initial incremental stream result_, in
-a prior _incremental stream update result_, or in the same _incremental stream
-update result_ as the _incremental result_ that references it.
+of which is a string referencing its _associated incremental pending notice_.
+The associated incremental pending notice must appear either in the _initial
+incremental stream result_, in a prior _incremental stream update result_, or in
+the same _incremental stream update result_ as the _incremental result_ that
+references it.
 
 #### Incremental List Result
 
 :: An _incremental list result_ is an _incremental result_ used to deliver
 additional list items for a list field with a `@stream` directive. The
-_associated pending result_ for this _incremental list result_ must be
-associated with a `@stream` directive.
+_associated incremental pending notice_ for this _incremental list result_ must
+be associated with a `@stream` directive.
 
 The _response position_ for an _incremental list result_ is the {"path"} entry
-from its _associated pending result_.
+from its _associated incremental pending notice_.
 
 **Incremental List Result Format**
 
@@ -510,26 +515,27 @@ is described in the "Errors" section.
 
 :: An _incremental object result_ is an _incremental result_ used to deliver
 additional response fields that were contained in one or more fragments with a
-`@defer` directive. The _associated pending result_ for this _incremental object
-result_ must be associated with a `@defer` directive.
+`@defer` directive. The _associated incremental pending notice_ for this
+_incremental object result_ must be associated with a `@defer` directive.
 
 **Incremental Object Result Format**
 
 The _incremental object result_ may contain a {"subPath"} entry. If such an
 entry is present, the _response position_ of the incremental object result is
 the result of appending the value of this {"subPath"} to the value of the
-{"path"} entry of the _associated pending result_. If no {"subPath"} entry is
-present, the _response position_ is the value of the associated pending result's
-{"path"} entry.
+{"path"} entry of the _associated incremental pending notice_. If no {"subPath"}
+entry is present, the _response position_ is the value of the associated
+incremental pending notice's {"path"} entry.
 
 An _incremental object result_ may be used to deliver data for response fields
 that were contained in more than one deferred fragment.
 
-In that case, the _associated pending result_ of the incremental object result
-must be one of the _pending result_ that corresponding to a fragment that
-contained the delivered responsive fields. If any of these pending results have
-a {"path"} of varying length, one of the pending results with the longest
-{"path"} must be chosen to minimize the size of the {"subPath"}.
+In that case, the _associated incremental pending notice_ of the incremental
+object result must be one of the _incremental pending notice_ that corresponding
+to a fragment that contained the delivered responsive fields. If any of these
+incremental pending notices have a {"path"} of varying length, one of the
+incremental pending notices with the longest {"path"} must be chosen to minimize
+the size of the {"subPath"}.
 
 Every _incremental object result_ must contain a {"data"} entry. The {"data"}
 entry must contain a map of additional response fields. The {"data"} entry in an
@@ -552,9 +558,9 @@ value of this entry is described in the "Errors" section.
 
 :: A _completed result_ is used to communicate that the GraphQL service has
 completed the incremental delivery of the data associated with the _associated
-pending result_. The corresponding data must have been completed in the same
-_initial incremental stream result_ or _incremental stream update result_ in
-which this completed result appears.
+incremental pending notice_. The corresponding data must have been completed in
+the same _initial incremental stream result_ or _incremental stream update
+result_ in which this completed result appears.
 
 **Completed Result Format**
 
@@ -563,17 +569,17 @@ A _completed result_ must be a map.
 A _completed result_ must contain an entry with the key {"id"}, and may contain
 an entry with the key {"errors"}.
 
-The value of {"id"} must be a string referencing its _associated pending
-result_. The associated pending result must appear either in the _initial
-incremental stream result_, in a prior _incremental stream update result_, or in
-the same _incremental stream update result_ as the _completed result_ that
-references it.
+The value of {"id"} must be a string referencing its _associated incremental
+pending notice_. The associated incremental pending notice must appear either in
+the _initial incremental stream result_, in a prior _incremental stream update
+result_, or in the same _incremental stream update result_ as the _completed
+result_ that references it.
 
 The value of {"errors"}, if present, informs clients that the delivery of the
-data from the _associated pending result_ has failed, due to an execution error
-propagating to a parent _response position_ of the _incremental result_'s
-response position. The {"errors"} entry must contain these execution errors. The
-value of this entry is described in the "Errors" section.
+data from the _associated incremental pending notice_ has failed, due to an
+execution error propagating to a parent _response position_ of the _incremental
+result_'s response position. The {"errors"} entry must contain these execution
+errors. The value of this entry is described in the "Errors" section.
 
 ### Additional Entries
 
