@@ -57,8 +57,9 @@ this example.
 Depending on the behavior of the backend and the time at which the deferred and
 streamed resources resolve, the stream may produce results in different orders.
 In this example, our first _incremental stream update result_ contains the
-deferred data and the first streamed list item. There is one _completed result_,
-indicating that the deferred data has been completely delivered.
+deferred data and the first streamed list item. There is one _incremental
+completion notice_, indicating that the deferred data has been completely
+delivered.
 
 ```json example
 {
@@ -159,12 +160,13 @@ the query will be delivered in later _incremental stream update result_.
 ```
 
 In this example, the first _incremental stream update result_ contains the
-deferred data from `HomeWorldFragment`. There is one _completed result_,
-indicating that `HomeWorldFragment` has been completely delivered. Because the
-`homeWorld` field is present in two separate `@defer`s, it is separated into its
-own _incremental result_. In this example, this incremental result contains the
-id `"0"`, but since the `name` field was included in both `HomeWorldFragment`
-and `NameAndHomeWorldFragment`, an id of `"1"` would also be a valid response.
+deferred data from `HomeWorldFragment`. There is one _incremental completion
+notice_, indicating that `HomeWorldFragment` has been completely delivered.
+Because the `homeWorld` field is present in two separate `@defer`s, it is
+separated into its own _incremental result_. In this example, this incremental
+result contains the id `"0"`, but since the `name` field was included in both
+`HomeWorldFragment` and `NameAndHomeWorldFragment`, an id of `"1"` would also be
+a valid response.
 
 The second _incremental result_ in this _incremental stream update result_
 contains the data for the `terrain` field. This _incremental result_ contains a
@@ -194,8 +196,9 @@ The second _incremental stream update result_ contains the remaining data from
 the `NameAndHomeWorldFragment`. `lastName` is the only remaining field from this
 selection that has not been delivered in a previous result. With this field now
 delivered, clients are informed that the `NameAndHomeWorldFragment` has been
-completed by the presence of the associated _completed result_. Additionally,
-{"hasNext"} is set to {false} indicating the end of the _incremental stream_.
+completed by the presence of the associated _incremental completion notice_.
+Additionally, {"hasNext"} is set to {false} indicating the end of the
+_incremental stream_.
 
 This example demonstrates that it is necessary for clients to process the entire
 incremental stream, as both the initial data and previous incremental results

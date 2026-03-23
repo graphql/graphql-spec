@@ -109,21 +109,22 @@ The value of {"incremental"}, if present, must be a non-empty list of
 _incremental result_. Each _incremental result_ must be a map as described in
 the "Incremental Result" section below.
 
-The value of {"completed"}, if present, must be a non-empty list of _completed
-result_. Each _completed result_ must be a map as described in the "Completed
-Result" section below.
+The value of {"completed"}, if present, must be a non-empty list of _incremental
+completion notice_. Each _incremental completion notice_ must be a map as
+described in the "Incremental Completion Notice" section below.
 
 Note: A GraphQL service is permitted to include incrementally delivered data in
 the _initial incremental stream_. For example, A GraphQL middleware layer, such
 as a caching CDN or proxy service, may wish to intercept and rewrite the
 _incremental stream_ before delivering it to a client. This service may collect
 some or all of the _incremental pending notice_, _incremental result_, and
-_completed result_ from the entire _incremental stream_ of the upstream service,
-and construct a new incremental stream containing a single payload: an _initial
-incremental stream result_ containing the all of the intercepted incremental
-pending notices, incremental results, and completed results, and the {"hasNext"}
-entry set to false. This would allow the client to efficiently render the entire
-result without having to process multiple payloads.
+_incremental completion notice_ from the entire _incremental stream_ of the
+upstream service, and construct a new incremental stream containing a single
+payload: an _initial incremental stream result_ containing the all of the
+intercepted incremental pending notices, incremental results, and incremental
+completion notices, and the {"hasNext"} entry set to false. This would allow the
+client to efficiently render the entire result without having to process
+multiple payloads.
 
 ### Incremental Stream Update Result
 
@@ -146,8 +147,8 @@ _incremental stream_. Otherwise, {"hasNext"} must be {true}.
 
 The value of {"pending"}, {"incremental"}, and/or {"completed"}, if present are
 defined in the same way as an _initial incremental stream result_ as described
-in the "Incremental Pending Notice", "Incremental Result", and "Completed
-Result" sections below.
+in the "Incremental Pending Notice", "Incremental Result", and "Incremental
+Completion Notice" sections below.
 
 The value of {"extensions"}, if present, is defined in the same way as an
 _execution result_ as described in the "Extensions" section below.
@@ -460,9 +461,9 @@ incrementally deliver this data, and the data can be found either in the
 _incremental stream update result_ in the _incremental stream_.
 
 :: The _associated incremental pending notice_ of an _incremental result_ or
-_completed result_ is the _incremental pending notice_ whose {"id"} entry has
-the same value as the {"id"} entry of the given incremental result or completed
-result.
+_incremental completion notice_ is the _incremental pending notice_ whose {"id"}
+entry has the same value as the {"id"} entry of the given incremental result or
+incremental completion notice.
 
 ### Incremental Result
 
@@ -502,7 +503,7 @@ _incremental list result_ (i.e. the streamed list), or a parent response
 position of the incremental list result's response position (i.e. a parent of
 the streamed list), the incremental list result is considered failed and should
 not be included in the _incremental stream_. The errors that caused this failure
-will be included in a _completed result_.
+will be included in an _incremental completion notice_.
 
 If any _execution error_ were raised during the execution of the results in
 {"items"} and no such error propagated to the _response position_ of the
@@ -546,7 +547,8 @@ If any _execution error_ were raised during the execution of the results in
 {"data"} and these errors propagated to a parent _response position_ of the
 _incremental object result_'s response position, the incremental object result
 is considered failed and should not be included in the incremental stream. The
-error that caused this failure will be included in a _completed result_.
+error that caused this failure will be included in an _incremental completion
+notice_.
 
 If any _execution error_ were raised during the execution of the results in
 {"data"} and no such error propagated to a parent _response position_ of the
@@ -554,20 +556,20 @@ _incremental object result_'s response position, the incremental object result
 must contain an entry with key {"errors"} containing these execution errors. The
 value of this entry is described in the "Errors" section.
 
-### Completed Result
+### Incremental Completion Notice
 
-:: A _completed result_ is used to communicate that the GraphQL service has
-completed the incremental delivery of the data associated with the _associated
-incremental pending notice_. The corresponding data must have been completed in
-the same _initial incremental stream result_ or _incremental stream update
-result_ in which this completed result appears.
+:: An _incremental completion notice_ is used to communicate that the GraphQL
+service has completed the incremental delivery of the data associated with the
+_associated incremental pending notice_. The corresponding data must have been
+completed in the same _initial incremental stream result_ or _incremental stream
+update result_ in which this incremental completion notice appears.
 
-**Completed Result Format**
+**Incremental Completion Notice Format**
 
-A _completed result_ must be a map.
+An _incremental completion notice_ must be a map.
 
-A _completed result_ must contain an entry with the key {"id"}, and may contain
-an entry with the key {"errors"}.
+An _incremental completion notice_ must contain an entry with the key {"id"},
+and may contain an entry with the key {"errors"}.
 
 The value of {"id"} must be a string referencing its _associated incremental
 pending notice_. The associated incremental pending notice must appear either in
