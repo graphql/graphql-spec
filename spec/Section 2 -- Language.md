@@ -958,7 +958,7 @@ sequence.
 
 **Block Strings**
 
-Block strings are sequences of characters wrapped in triple-quotes (`"""`).
+Block strings are sequences of characters wrapped in sextuple-quotes (`"""`).
 Whitespace, line terminators, quote, and backslash characters may all be used
 unescaped to enable verbatim text. Characters must all be valid
 {SourceCharacter}.
