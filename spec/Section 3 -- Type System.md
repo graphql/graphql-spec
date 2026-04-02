@@ -2346,9 +2346,9 @@ operational information (such as endpoints for related services). Service
 capabilities may be supplied by the GraphQL implementation, the service, or
 both.
 
-A _service capability_ is identified by a _capability identifier_ (a
-{QualifiedName}), and may optionally have a string value. All capabilities
-within a service must have unique identifiers.
+A _service capability_ is identified by a _capability name_ (a {QualifiedName}),
+and may optionally have a string value. All capabilities within a service must
+have unique identifiers.
 
 ```graphql example
 service {
@@ -2360,33 +2360,32 @@ service {
 }
 ```
 
-**Capability Identifier**
+**Capability Name**
 
-:: A _capability identifier_ is a {QualifiedName} (a case-sensitive string value
+:: A _capability name_ is a {QualifiedName} (a case-sensitive string value
 composed of two or more {Name} separated by a period (`.`)) that uniquely
 identifies a capability. This structure is inspired by reverse domain notation
 to encourage global uniqueness and collision-resistance; it is recommended that
-identifiers defined by specific projects, vendors, or implementations begin with
-a prefix derived from a DNS name they control (e.g., {"com.example."}).
+capability names defined by specific projects, vendors, or implementations begin
+with a prefix derived from a DNS name they control (e.g., {"com.example."}).
 
-Clients must compare capability identifiers using exact (case-sensitive) string
+Clients must compare capability names using exact (case-sensitive) string
 equality.
 
-**Reserved Capability Identifiers**
+**Reserved Capability Names**
 
-A _capability identifier_ must not start with an underscore {"\_"}; this is
-reserved for future usage.
+A _capability name_ must not start with an underscore {"\_"}; this is reserved
+for future usage.
 
-Capability identifiers beginning with the prefix {"graphql."} are reserved and
-must not be used outside of official GraphQL Foundation specifications.
-Identifiers beginning with the prefix {"graphql.rfc."} are reserved for RFC
-proposals.
+Capability names beginning with the prefix {"graphql."} are reserved and must
+not be used outside of official GraphQL Foundation specifications. Capability
+names beginning with the prefix {"graphql.rfc."} are reserved for RFC proposals.
 
-Any identifiers beginning with case-insensitive variants of {"graphql."},
+Any capability names beginning with case-insensitive variants of {"graphql."},
 {"org.graphql."} and {"gql."} are also reserved.
 
-Identifiers beginning with the prefix {"example."} are reserved for usage in
-documentation and examples only.
+Capability names beginning with the prefix {"example."} are reserved for usage
+in documentation and examples only.
 
 Note: Since IANA RFC 2606 reserves the second-level domain names
 {"example.com"}, {"example.net"}, and {"example.org"} for documentation
@@ -2394,10 +2393,9 @@ purposes, the corresponding reverse-domain prefixes {"com.example."},
 {"net.example."}, and {"org.example."} are also reserved for documentation
 purposes.
 
-Implementers should not change the meaning of capability identifiers; instead, a
-new capability identifier should be used when the meaning changes. Implementers
-should ensure that capability identifiers remain stable and version-agnostic
-where possible.
+Implementers should not change the meaning of capability names; instead, a new
+capability name should be used when the meaning changes. Implementers should
+ensure that capability names remain stable and version-agnostic where possible.
 
 Note: Capability versioning, if needed, can be indicated using dot suffixes
 (e.g. {"example.capability.v2"}).
