@@ -2371,7 +2371,7 @@ both.
 
 A _service capability_ is identified by a _capability name_ (a {QualifiedName}),
 and may optionally have a string value. All capabilities within a service must
-have unique identifiers.
+have unique names.
 
 ```graphql example
 service {
