@@ -231,6 +231,7 @@ enum __DirectiveLocation {
 }
 
 type __Service {
+  description: String
   capabilities: [__Capability!]!
 }
 
@@ -536,6 +537,7 @@ using the introspection query: `{ __type(name: "__Service") { name } }`, a
 
 Fields\:
 
+- `description` may return a String or {null}.
 - `capabilities` must return a list of `__Capability` detailing each _service
   capability_ supported by the service.
 
