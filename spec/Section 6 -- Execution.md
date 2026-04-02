@@ -15,12 +15,23 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
+- {onError} (optional): The _error behavior_ to apply to the request; see
+  [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
+  provided and its value is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"},
+  then a _request error_ must be raised.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
 Given this information, the result of {ExecuteRequest(schema, document,
 operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
+
+Note: Previous versions of this specification did not define the {onError}
+request attribute. Clients can detect support for {onError} by checking for the
+{"graphql.onError"} capability. If this capability is not present, or if
+capabilities themselves are not supported by introspection, then clients should
+not include {onError} in the request and must assume the _error behavior_ is
+{"PROPAGATE"}.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -600,13 +611,26 @@ section.
 </a>
 
 If during {ExecuteCollectedFields()} a _response position_ with a non-null type
-raises an _execution error_ then that error must propagate to the parent
-response position (the entire selection set in the case of a field, or the
-entire list in the case of a list position), either resolving to {null} if
-allowed or being further propagated to a parent response position.
+raises an _execution error_, the error must be added to the {"errors"} list in
+the _execution result_ and then handled according to the _error behavior_ of the
+request:
 
-If this occurs, any sibling response positions which have not yet executed or
-have not yet yielded a value may be cancelled to avoid unnecessary work.
+- {"NULL"}: The _response position_ must be set to {null}, even if such position
+  is indicated by the schema to be non-nullable. (The client is responsible for
+  interpreting this {null} in conjunction with the {"errors"} list to
+  distinguish error results from intentional {null} values.)
+- {"PROPAGATE"}: The _execution error_ must propagate to the parent _response
+  position_ (the entire selection set in the case of a field, or the entire list
+  in the case of a list position). The parent position resolves to {null} if
+  allowed, or else the error is further propagated to a parent response
+  position. Any sibling response positions that have not yet executed or have
+  not yet yielded a value may be cancelled to avoid unnecessary work.
+- {"HALT"}: The current {ExecuteRootSelectionSet()} must be aborted immediately
+  and must yield an execution result with an {"errors"} list consisting of this
+  _execution error_ only and the {"data"} entry set to {null}. Any _response
+  position_ that has not yet executed or has not yet yielded a value may be
+  cancelled to avoid unnecessary work. (Note: For a subscription operation the
+  underlying stream is not terminated.)
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
@@ -902,28 +926,59 @@ ResolveAbstractType(abstractType, objectValue):
 </a>
 
 An _execution error_ is an error raised during field execution, value resolution
-or coercion, at a specific _response position_. While these errors must be
-reported in the response, they are "handled" by producing partial {"data"} in
+or coercion, at a specific _response position_. These errors must be added to
+the {"errors"} list in the _response_, and are "handled" according to the _error
+behavior_ of the request.
+
+Note: An _execution error_ is distinct from a _request error_ which results in a
+response with no {"data"}.
+
+If a _response position_ resolves to {null} because of an execution error which
+has already been added to the {"errors"} list in the _execution result_, the
+{"errors"} list must not be further affected. That is, only one error should be
+added to the errors list per _response position_.
+
+:: The _error behavior_ of a request indicates how an _execution error_ is
+handled. It may be specified using the optional {onError} attribute of the
+_request_. If omitted, the _default error behavior_ of the service applies.
+Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
+
+:: The _default error behavior_ of a service is implementation-defined. For
+compatibility with existing clients, services should default to {"PROPAGATE"}
+which reflects prior behavior. <!-- For new services, {"NULL"} is
+recommended. --> The default error behavior is indicated via the {"graphql.defaultErrorBehavior"}
+_service capability_.
+
+Note: {"HALT"} is not recommended as the _default error behavior_ because it
+prevents generating partial responses which may still contain useful data.
+
+Regardless of error behavior, if a _response position_ with a non-null type
+results in {null} due to the result of {ResolveFieldValue()} then an execution
+error must be raised at that position as specified in {CompleteValue()}.
+
+The _error behavior_ of a request applies to every _execution error_ raised
+during execution. The following sections describe the behavior of each valid
+value:
+
+**{"NULL"}**
+
+With {"NULL"}, a `Non-Null` _response position_ will have the value {null} if
+and only if an error occurred at that position.
+
+Note: Clients must inspect the {"errors"} list and use the {"path"} of each
+error result to distinguish between intentional {null} values and those
+resulting from an _execution error_.
+
+**{"PROPAGATE"}**
+
+With {"PROPAGATE"}, a `Non-Null` _response position_ must not contain {null} in
 the _response_.
-
-Note: This is distinct from a _request error_ which results in a _request error
-result_ with no data.
-
-If an execution error is raised while resolving a field (either directly or
-nested inside any lists), it is handled as though the _response position_ at
-which the error occurred resolved to {null}, and the error must be added to the
-{"errors"} list in the _execution result_.
 
 If the result of resolving a _response position_ is {null} (either due to the
 result of {ResolveFieldValue()} or because an execution error was raised), and
 that position is of a `Non-Null` type, then an execution error is raised at that
 position. The error must be added to the {"errors"} list in the _execution
 result_.
-
-If a _response position_ resolves to {null} because of an execution error which
-has already been added to the {"errors"} list in the _execution result_, the
-{"errors"} list must not be further affected. That is, only one error should be
-added to the errors list per _response position_.
 
 Since `Non-Null` response positions cannot be {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
@@ -939,3 +994,13 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 If every _response position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the _execution
 result_ should be {null}.
+
+**{"HALT"}**
+
+With {"HALT"}, {ExecuteRootSelectionSet()} must cease immediately that the first
+_execution error_ is raised. That error must be added to the {"errors"} list,
+and {"data"} must be {null}.
+
+Note: For subscription operations, processing of the current event is ceased,
+but the subscription still remains in place and future events will be processed
+as normal.
