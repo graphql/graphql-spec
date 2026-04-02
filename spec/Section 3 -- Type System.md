@@ -2448,5 +2448,23 @@ Service extensions have the potential to be invalid if incorrectly defined.
 1. The Service must already be defined.
 2. Any non-repeatable directives provided must not already apply to the previous
    Service.
-3. Any capabilities provided must not already be defined on the previous
-   Service.
+3. Any capabilities provided must have unique names and must not already be
+   defined on the previous Service.
+
+The following service extension is invalid because the {"example.transport.ws"}
+capability is already defined in the previous Service:
+
+```graphql counter-example
+extend service {
+  capability example.transport.ws("wss://ws.api.example.com/graphql")
+}
+```
+
+This service extension is invalid because the capability names are not unique:
+
+```graphql counter-example
+extend service {
+  capability example.someCapability
+  capability example.someCapability
+}
+```
