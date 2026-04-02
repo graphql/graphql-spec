@@ -1624,8 +1624,8 @@ This example of a circularly-referenced input type is invalid as the field
 
 ```graphql counter-example
 input Example {
-  value: String
   self: Example!
+  value: String
 }
 ```
 
