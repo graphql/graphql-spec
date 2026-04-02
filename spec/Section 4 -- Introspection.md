@@ -235,7 +235,7 @@ type __Service {
 }
 
 type __Capability {
-  identifier: String!
+  name: String!
   description: String
   value: String
 }
@@ -544,8 +544,8 @@ Fields\:
 A `__Capability` object describes a specific _service capability_, and has the
 following fields\:
 
-- `identifier` must return the string _capability identifier_ uniquely
-  identifying this service capability.
+- `name` must return the string _capability name_ uniquely identifying this
+  service capability.
 - `description` may return a String or {null}.
 - `value` the String value of the service capability, or {null} if there is no
   associated value.
