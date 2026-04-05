@@ -309,7 +309,7 @@ async function main() {
     .filter((v, i, arr) => arr.findIndex(x => x.login.toLowerCase() === v.login.toLowerCase()) === i)
     .map(({ display, login }) => ({ name: display, gh: `[@${login}](https://github.com/${login})`, login }));
 
-  // 6) Unmatched → show email (dedupe by name+email)
+  // 6) Unmatched → log to STDERR for debugging, omit email from stdout output
   const unmatched = [];
   const seenUnk = new Set();
   for (const { name, email } of pool) {
@@ -319,7 +319,8 @@ async function main() {
     const key = normalizeName(nm) + "|" + email.toLowerCase();
     if (seenUnk.has(key)) continue;
     seenUnk.add(key);
-    unmatched.push({ name: nm, gh: email, login: "" });
+    console.error(`Unmatched contributor: ${nm} <${email}>`);
+    unmatched.push({ name: nm, gh: "", login: "" });
   }
 
   // 7) Merge, sort, output
