@@ -319,7 +319,7 @@ async function main() {
     const key = normalizeName(nm) + "|" + email.toLowerCase();
     if (seenUnk.has(key)) continue;
     seenUnk.add(key);
-    unmatched.push({ name: nm, gh: email, login: "" });
+    unmatched.push({ name: nm, gh: "", login: "" });
   }
 
   // 7) Merge, sort, output
