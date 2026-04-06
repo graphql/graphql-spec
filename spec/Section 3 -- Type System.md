@@ -1594,9 +1594,9 @@ Input Objects are allowed to reference other Input Objects as field types. A
 circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
-Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid
-because there is no way to provide a legal value for them.
+Circular references are generally allowed, however they may not form cycles such
+that no finite value can be provided. Such Input Objects are invalid because
+there is no way to provide a legal value for them.
 
 This example of a circularly-referenced input type is valid as the field `self`
 may be omitted or the value {null}.
@@ -1639,6 +1639,21 @@ input First {
 input Second {
   first: First!
   value: String
+}
+```
+
+_OneOf Input Objects_ require exactly one field be provided, and that field
+cannot be `null`. This example is invalid because providing a value for `First`
+requires a non-null `Second`, and constructing a `Second` requires a non-null
+`First`:
+
+```graphql counter-example
+input First @oneOf {
+  second: Second
+}
+
+input Second {
+  first: First!
 }
 ```
 
@@ -1726,9 +1741,7 @@ input ExampleInputObject {
    5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
-3. If an Input Object references itself either directly or through referenced
-   Input Objects, at least one of the fields in the chain of references must be
-   either a nullable or a List type.
+3. {InputObjectHasUnbreakableCycle(inputObject)} must be {false}.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
@@ -1767,6 +1780,40 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
+
+InputObjectHasUnbreakableCycle(inputObject, visited):
+
+- If {visited} is not provided, initialize it to the empty set.
+- If {inputObject} is in {visited}:
+  - Return {true}.
+- Let {nextVisited} be a new set containing {inputObject} and everything
+  from {visited}.
+- If {inputObject} is a _OneOf Input Object_:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If not {InputFieldTypeHasUnbreakableCycle(fieldType, nextVisited)}:
+      - Return {false}.
+  - Return {true}.
+- Otherwise:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If {fieldType} is Non-Null:
+      - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+      - If {InputFieldTypeHasUnbreakableCycle(nullableType, nextVisited)}:
+        - Return {true}.
+  - Return {false}.
+
+InputFieldTypeHasUnbreakableCycle(fieldType, visited):
+
+- If {fieldType} is a List type:
+  - Return {false}.
+- If {fieldType} is a Non-Null type:
+  - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+  - Return {InputFieldTypeHasUnbreakableCycle(nullableType, visited)}.
+- Assert: {fieldType} is a named type.
+- If {fieldType} is not an Input Object type:
+  - Return {false}.
+- Return {InputObjectHasUnbreakableCycle(fieldType, visited)}.
 
 ### OneOf Input Objects
 
