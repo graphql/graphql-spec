@@ -2343,8 +2343,9 @@ directive @defer(
 The `@defer` directive may be provided on a fragment spread or inline fragment
 to indicate that execution of the related selection set should be deferred. When
 a request includes the `@defer` directive, it may return an _incremental stream_
-consisting of an _initial execution result_ containing all non-deferred data,
-followed by one or more _execution update result_ including deferred data.
+consisting of an _initial incremental stream result_ containing all non-deferred
+data, followed by one or more _incremental stream update result_ including
+deferred data.
 
 The `@include` and `@skip` directives take precedence over `@defer`.
 
@@ -2371,9 +2372,9 @@ fragment someFragment on User {
 - `label: String` - An optional string literal used by GraphQL clients to
   identify data in the _incremental stream_ and associate it with the
   corresponding defer directive. If provided, the GraphQL service must include
-  this label in the corresponding _pending result_ within the _incremental
-  stream_. The `label` argument must be unique across all `@defer` and `@stream`
-  directives in the document. Variables are disallowed (via
+  this label in the corresponding _incremental pending notice_ within the
+  _incremental stream_. The `label` argument must be unique across all `@defer`
+  and `@stream` directives in the document. Variables are disallowed (via
   [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
   because their values may not be known during validation.
 
@@ -2389,9 +2390,9 @@ directive @stream(
 
 The `@stream` directive may be provided for a field whose type incorporates a
 `List` type modifier. The directive enables returning a partial list initially,
-followed by additional items in one or more _execution update result_. If the
-field type incorporates multiple `List` type modifiers, only the outermost list
-is streamed.
+followed by additional items in one or more _incremental stream update result_.
+If the field type incorporates multiple `List` type modifiers, only the
+outermost list is streamed.
 
 Note: The mechanism through which items are streamed is implementation-defined
 and may use technologies such as asynchronous iterators.
@@ -2419,9 +2420,9 @@ query myQuery($shouldStream: Boolean! = true) {
 - `label: String` - An optional string literal used by GraphQL clients to
   identify data in the _incremental stream_ and associate it with the
   corresponding stream directive. If provided, the GraphQL service must include
-  this label in the corresponding _pending result_ within the _incremental
-  stream_. The `label` argument must be unique across all `@defer` and `@stream`
-  directives in the document. Variables are disallowed (via
+  this label in the corresponding _incremental pending notice_ within the
+  _incremental stream_. The `label` argument must be unique across all `@defer`
+  and `@stream` directives in the document. Variables are disallowed (via
   [Defer And Stream Directive Labels Are Unique](#sec-Defer-And-Stream-Directive-Labels-Are-Unique))
   because their values may not be known during validation.
 - `initialCount: Int! = 0` - The number of list items to include initially when
