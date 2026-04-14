@@ -1797,7 +1797,7 @@ subscription sub {
       - If {argumentName} is "label":
         - {argumentValue} must not be a variable.
         - {argumentValue} must not be present in {labelValues}.
-        - Append {argumentValue} to {labelValues}.
+        - Add {argumentValue} to {labelValues}.
 
 **Explanatory Text**
 
