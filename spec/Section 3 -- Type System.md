@@ -144,12 +144,12 @@ type system where those operations begin.
 The {`query`} _root operation type_ must be provided and must be an Object type.
 
 The {`mutation`} _root operation type_ is optional; if it is not provided, the
-service does not support mutations. If it is provided, it must be an Object
-type.
+service does not support mutations. If it is provided, it must be an Object type
+that does not implement interfaces.
 
 Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
-must be an Object type.
+must be an Object type that does not implement interfaces.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
