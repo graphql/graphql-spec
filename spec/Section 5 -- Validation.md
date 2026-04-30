@@ -1795,6 +1795,8 @@ subscription sub {
       - Let {argumentName} be the name of {argument}.
       - Let {argumentValue} be the value passed to {argument}.
       - If {argumentName} is "label":
+        - If {argumentValue} is {null}:
+          - Continue to the next {argument}.
         - {argumentValue} must not be a variable.
         - {argumentValue} must not be present in {labelValues}.
         - Add {argumentValue} to {labelValues}.
