@@ -1786,8 +1786,8 @@ InputObjectHasUnbreakableCycle(inputObject, visited):
 - If {visited} is not provided, initialize it to the empty set.
 - If {inputObject} is in {visited}:
   - Return {true}.
-- Let {nextVisited} be a new set containing {inputObject} and everything
-  from {visited}.
+- Let {nextVisited} be a new set containing {inputObject} and everything from
+  {visited}.
 - If {inputObject} is a _OneOf Input Object_:
   - For each field {field} of {inputObject}:
     - Let {fieldType} be the type of {field}.
