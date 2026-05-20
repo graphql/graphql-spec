@@ -1708,7 +1708,7 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 ### Defer And Stream Directives Are Used On Valid Root Field
 
-** Formal Specification **
+**Formal Specification**
 
 - For every {directive} in a document.
 - Let {directiveName} be the name of {directive}.
@@ -1720,8 +1720,8 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 **Explanatory Text**
 
-The defer and stream directives are not allowed to be used on root fields of the
-mutation or subscription type.
+The `@defer` and `@stream` directives are not allowed to be used on root fields
+of mutation or subscription operations.
 
 For example, the following document will not pass validation because `@defer`
 has been used on a root mutation field:
@@ -1736,7 +1736,7 @@ mutation {
 
 ### Defer And Stream Directives Are Used On Valid Operations
 
-** Formal Specification **
+**Formal Specification**
 
 - Let {subscriptionFragments} be the empty set.
 - For each {operation} in a document:
@@ -1785,7 +1785,7 @@ subscription sub {
 
 ### Defer And Stream Directive Labels Are Unique
 
-** Formal Specification **
+**Formal Specification**
 
 - Let {labelValues} be an empty set.
 - For every {directive} in the document:
