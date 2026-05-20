@@ -1710,13 +1710,34 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
 
 **Formal Specification**
 
-- For every {directive} in a document.
-- Let {directiveName} be the name of {directive}.
-- Let {mutationType} be the root Mutation type in {schema}.
-- Let {subscriptionType} be the root Subscription type in {schema}.
-- If {directiveName} is "defer" or "stream":
-  - The parent type of {directive} must not be {mutationType} or
-    {subscriptionType}.
+- For each operation definition {operation} in the document:
+  - If the operation type is not subscription or mutation:
+    - Continue to the next operation definition.
+  - Let {selectionSet} be the top level selection set on {operation}.
+  - {CollectRootFields(selectionSet)}.
+
+CollectRootFields(selectionSet, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- For each {selection} in {selectionSet}:
+  - If {selection} is a {Field}:
+    - {selection} must not provide the `@stream` directive.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - {selection} must not provide the `@defer` directive.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - {CollectRootFields(fragmentSelectionSet, visitedFragments)}.
+  - If {selection} is a {InlineFragment}:
+    - {selection} must not provide the `@defer` directive.
+    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
+    - {CollectRootFields(fragmentSelectionSet, visitedFragments)}.
 
 **Explanatory Text**
 
