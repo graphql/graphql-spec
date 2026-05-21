@@ -1759,29 +1759,46 @@ mutation {
 
 **Formal Specification**
 
-- Let {subscriptionFragments} be the empty set.
+- Initialize {visitedFragments} to the empty set.
 - For each {operation} in a document:
-  - If {operation} is a subscription operation:
-    - Let {fragments} be every fragment referenced by that {operation}
-      transitively.
-    - For each {fragment} in {fragments}:
-      - Let {fragmentName} be the name of {fragment}.
-      - Add {fragmentName} to {subscriptionFragments}.
-- For every {directive} in a document:
-  - If {directiveName} is not "defer" or "stream":
-    - Continue to the next {directive}.
-  - Let {ancestor} be the ancestor operation or fragment definition of
-    {directive}.
-  - If {ancestor} is a fragment definition:
-    - If the fragment name of {ancestor} is not present in
-      {subscriptionFragments}:
-      - Continue to the next {directive}.
-  - If {ancestor} is not a subscription operation:
-    - Continue to the next {directive}.
-  - Let {if} be the argument named "if" on {directive}.
-  - {if} must be defined.
-  - Let {argumentValue} be the value passed to {if}.
-  - {argumentValue} must be a variable, or the boolean value "false".
+  - If {operation} is not a subscription operation:
+    - Continue to the next operation definition.
+  - Let {operationSelection} be the top level selection set on {operation}.
+  - {ForbidUnconditionalDeferStream(operationSelection, visitedFragments)}.
+
+ForbidUnconditionalDeferStream(selectionSet, visitedFragments):
+
+- For each {selection} in {selectionSet}:
+  - If {selection} provides the `@skip` directive, and the "if" argument on that
+    directive is not the boolean value {false}:
+    - Continue to the next {selection} in {selectionSet}.
+  - If {selection} provides the `@include` directive, and the "if" argument on
+    that directive is not the boolean value {true}:
+    - Continue to the next {selection} in {selectionSet}.
+  - For each {directive} on {selection}:
+    - If {directive} is `@defer` or `@stream`:
+      - Let {if} be the argument named "if" on {directive}.
+      - {if} must be defined.
+      - Let {argumentValue} be the value passed to {if}.
+      - {argumentValue} must be a variable, or the boolean value "false".
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidUnconditionalDeferStream(fragmentSelectionSet, visitedFragments)}.
+  - If {selection} is an {InlineFragment}:
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidUnconditionalDeferStream(fragmentSelectionSet, visitedFragments)}.
+  - If {selection} is a {Field}:
+    - Let {fieldSelectionSet} be the selection set of {selection}.
+    - If {fieldSelectionSet} exists:
+      - {ForbidUnconditionalDeferStream(fieldSelectionSet, visitedFragments)}.
 
 **Explanatory Text**
 
