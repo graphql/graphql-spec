@@ -1714,9 +1714,9 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
   - If the operation type is not subscription or mutation:
     - Continue to the next operation definition.
   - Let {selectionSet} be the top level selection set on {operation}.
-  - {CollectRootFields(selectionSet)}.
+  - {ForbidDeferStream(selectionSet)}.
 
-CollectRootFields(selectionSet, visitedFragments):
+ForbidDeferStream(selectionSet, visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - For each {selection} in {selectionSet}:
@@ -1732,12 +1732,12 @@ CollectRootFields(selectionSet, visitedFragments):
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
       {selectionSet}.
-    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - {CollectRootFields(fragmentSelectionSet, visitedFragments)}.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidDeferStream(fragmentSelectionSet, visitedFragments)}.
   - If {selection} is a {InlineFragment}:
     - {selection} must not provide the `@defer` directive.
-    - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - {CollectRootFields(fragmentSelectionSet, visitedFragments)}.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidDeferStream(fragmentSelectionSet, visitedFragments)}.
 
 **Explanatory Text**
 
