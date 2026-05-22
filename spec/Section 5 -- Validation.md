@@ -1755,7 +1755,7 @@ mutation {
 }
 ```
 
-### Defer And Stream Directives Are Used On Valid Operations
+### Defer And Stream Directives Are Used In Valid Operations
 
 **Formal Specification**
 
@@ -1769,18 +1769,17 @@ mutation {
 ForbidUnconditionalDeferStream(selectionSet, visitedFragments):
 
 - For each {selection} in {selectionSet}:
-  - If {selection} provides the `@skip` directive, and the "if" argument on that
+  - If {selection} provides the `@skip` directive, and the `if` argument on that
     directive is not the boolean value {false}:
     - Continue to the next {selection} in {selectionSet}.
-  - If {selection} provides the `@include` directive, and the "if" argument on
+  - If {selection} provides the `@include` directive, and the `if` argument on
     that directive is not the boolean value {true}:
     - Continue to the next {selection} in {selectionSet}.
-  - For each {directive} on {selection}:
-    - If {directive} is `@defer` or `@stream`:
-      - Let {if} be the argument named "if" on {directive}.
-      - {if} must be defined.
-      - Let {argumentValue} be the value passed to {if}.
-      - {argumentValue} must be a variable, or the boolean value "false".
+  - For each `@defer` or `@stream` {directive} on {selection}:
+    - Let {if} be the argument named `if` on {directive}.
+    - {if} must be defined.
+    - Let {argumentValue} be the value passed to {if}.
+    - {argumentValue} must not be the boolean value {false}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
@@ -1792,24 +1791,21 @@ ForbidUnconditionalDeferStream(selectionSet, visitedFragments):
       {selectionSet}.
     - Let {fragmentSelectionSet} be the selection set of {selection}.
     - {ForbidUnconditionalDeferStream(fragmentSelectionSet, visitedFragments)}.
-  - If {selection} is an {InlineFragment}:
-    - Let {fragmentSelectionSet} be the selection set of {selection}.
-    - {ForbidUnconditionalDeferStream(fragmentSelectionSet, visitedFragments)}.
-  - If {selection} is a {Field}:
-    - Let {fieldSelectionSet} be the selection set of {selection}.
-    - If {fieldSelectionSet} exists:
-      - {ForbidUnconditionalDeferStream(fieldSelectionSet, visitedFragments)}.
+  - Otherwise:
+    - Let {nestedSelectionSet} be the selection set of {selection}.
+    - If {nestedSelectionSet} exists:
+      - {ForbidUnconditionalDeferStream(nestedSelectionSet, visitedFragments)}.
 
 **Explanatory Text**
 
-The defer and stream directives can not be used to defer or stream data in
+The `@defer` and `@stream` directives can not be used to defer or stream data in
 subscription operations. If these directives appear in a subscription operation
-they must be disabled using the "if" argument. This rule will not permit any
+they must be disabled using an `if` argument. This rule will not permit any
 defer or stream directives on a subscription operation that cannot be disabled
-using the "if" argument.
+using an `if` argument.
 
 For example, the following document will not pass validation because `@defer`
-has been used in a subscription operation with no "if" argument defined:
+has been used in a subscription operation with no `if` argument defined:
 
 ```raw graphql counter-example
 subscription sub {
@@ -1826,22 +1822,17 @@ subscription sub {
 **Formal Specification**
 
 - Let {labelValues} be an empty set.
-- For every {directive} in the document:
-  - Let {directiveName} be the name of {directive}.
-  - If {directiveName} is "defer" or "stream":
-    - For every {argument} in {directive}:
-      - Let {argumentName} be the name of {argument}.
-      - Let {argumentValue} be the value passed to {argument}.
-      - If {argumentName} is "label":
-        - If {argumentValue} is {null}:
-          - Continue to the next {argument}.
-        - {argumentValue} must not be a variable.
-        - {argumentValue} must not be present in {labelValues}.
-        - Add {argumentValue} to {labelValues}.
+- For every `@defer` and `@stream` {directive} in the document:
+  - Let {label} be the value of {directive}'s `label` argument.
+  - If {label} does not exist or is {null}:
+    - Continue to the next {directive}.
+  - {label} must not be a variable.
+  - {label} must not be present in {labelValues}.
+  - Add {label} to {labelValues}.
 
 **Explanatory Text**
 
-The `@defer` and `@stream` directives each accept an argument "label". This
+The `@defer` and `@stream` directives each accept an argument `label`. This
 label may be used by GraphQL clients to uniquely identify response payloads. If
 a label is passed, it must not be a variable and it must be unique within all
 other `@defer` and `@stream` directives in the document.
@@ -1870,8 +1861,8 @@ fragment fragmentTwo on Dog {
 }
 ```
 
-For example, the following document will not pass validation because the same
-label is used in different `@defer` and `@stream` directives.:
+The following document will not pass validation because the same label is used
+in multiple `@defer` and `@stream` directives:
 
 ```raw graphql counter-example
 {
@@ -1892,11 +1883,10 @@ fragment fragmentOne on Dog {
 
 **Formal Specification**
 
-- For every {directive} in a document.
-- Let {directiveName} be the name of {directive}.
-- If {directiveName} is "stream":
-  - Let {adjacent} be the AST node the directive affects.
-  - {adjacent} must be a List type.
+- For every `@stream` {directive} in the document:
+  - Let {adjacent} be the AST node {directive} affects.
+  - Let {nullableFieldType} be the unwrapped nullable type of {adjacent}.
+  - {nullableFieldType} must be a List type.
 
 **Explanatory Text**
 
@@ -1905,8 +1895,8 @@ type of fields used in a GraphQL document. Since the stream directive is only
 valid on list fields, an additional validation rule must be used to ensure it is
 used correctly.
 
-For example, the following document will only pass validation if `field` is
-defined as a List type in the associated schema.
+For example, the following document will only pass validation if `field`
+contains a List type in the associated schema.
 
 ```graphql counter-example
 query {
