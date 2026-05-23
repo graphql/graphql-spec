@@ -720,9 +720,9 @@ fragment conflictingDifferingResponses on Pet {
 - For each {selection} in the document:
   - Let {selectionType} be the unwrapped result type of {selection}.
   - If {selectionType} is a scalar or enum:
-    - The subselection set of that selection must be empty.
+    - The subselection set of that selection must not be present.
   - If {selectionType} is an interface, union, or object:
-    - The subselection set of that selection must not be empty.
+    - The subselection set of that selection must be present.
 
 **Explanatory Text**
 
