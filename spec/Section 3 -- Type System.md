@@ -1275,8 +1275,7 @@ Interfaces are never valid inputs.
 
 Interface types have the potential to be invalid if incorrectly defined.
 
-1. An Interface type must define one or more fields.
-2. For each field of an Interface type:
+1. For each field of an Interface type:
    1. The field must have a unique name within that Interface type; no two
       fields may share the same name.
    2. The field must not have a name which begins with the characters {"\_\_"}
@@ -1290,9 +1289,9 @@ Interface types have the potential to be invalid if incorrectly defined.
          arguments may share the same name.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-3. An interface type may declare that it implements one or more unique
+2. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
-4. An interface type must be a super-set of all interfaces it implements:
+3. An interface type must be a super-set of all interfaces it implements:
    1. Let this interface type be {implementingType}.
    2. For each interface declared implemented as {implementedType},
       {IsValidImplementation(implementingType, implementedType)} must be {true}.
@@ -1450,8 +1449,7 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. A Union type must include one or more unique member types.
-2. The member types of a Union type must all be Object base types; Scalar,
+1. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
 
