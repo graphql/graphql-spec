@@ -1,6 +1,16 @@
 #!/bin/bash -e
 # This script publishes the GraphQL specification document to the web.
 
+# Escape HTML special characters to prevent HTML injection
+html_escape() {
+  local str="$1"
+  str="${str//&/&amp;}"
+  str="${str//</&lt;}"
+  str="${str//>/&gt;}"
+  str="${str//\"/&quot;}"
+  echo "$str"
+}
+
 # Determine if this is a tagged release
 GITTAG=$(git tag --points-at HEAD)
 
@@ -58,11 +68,12 @@ HTML="<html>
 
 # Include latest draft
 GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" HEAD)
+GITDATE_ESC=$(html_escape "$GITDATE")
 HTML="$HTML
     <tr>
       <td><em>Prerelease</em></td>
       <td><a href=\"./draft\" keep-hash>Working Draft</a></td>
-      <td>$GITDATE</td>
+      <td>$GITDATE_ESC</td>
       <td></td>
     </tr>"
 
@@ -73,6 +84,10 @@ for GITTAG in $(git tag -l --sort='-*committerdate') ; do
   TAGGEDCOMMIT=$(git rev-list -1 "$GITTAG")
   GITDATE=$(git show -s --format=%cd --date=format:"%a, %b %-d, %Y" $TAGGEDCOMMIT)
 
+  GITTAG_ESC=$(html_escape "$GITTAG")
+  TAGTITLE_ESC=$(html_escape "$TAGTITLE")
+  GITDATE_ESC=$(html_escape "$GITDATE")
+
   HTML="$HTML
     <tr>"
 
@@ -82,9 +97,9 @@ for GITTAG in $(git tag -l --sort='-*committerdate') ; do
   HAS_LATEST_RELEASE=1
 
   HTML="$HTML
-      <td><a href=\"./$GITTAG\" keep-hash>$TAGTITLE</a></td>
-      <td>$GITDATE</td>
-      <td><a href=\"$GITHUB_RELEASES/$GITTAG\">Release Notes</a></td>
+      <td><a href=\"./$GITTAG_ESC\" keep-hash>$TAGTITLE_ESC</a></td>
+      <td>$GITDATE_ESC</td>
+      <td><a href=\"$GITHUB_RELEASES/$GITTAG_ESC\">Release Notes</a></td>
     </tr>"
 done
 
@@ -102,4 +117,4 @@ HTML="$HTML
   </body>
 </html>"
 
-echo $HTML > "public/index.html"
+echo "$HTML" > "public/index.html"
