@@ -2217,3 +2217,90 @@ query booleanArgQueryWithDefault($booleanArg: Boolean = true) {
 
 Note: The value {null} could still be provided to such a variable at runtime. A
 non-null argument must raise an _execution error_ if provided a {null} value.
+
+### Introspection Deprecation Argument Exclusivity
+
+**Formal Specification**
+
+- For each field selection {schemaField} in the document:
+  - If {schemaField} selects the {\_\_schema} meta-field and provides the
+    `includeDeprecated` argument:
+    - Let {descendants} be all field selection descendants of {schemaField},
+      including those reached transitively by visiting fragments, inline
+      fragments and field selections.
+    - For each {descendant} in {descendants}: {descendent} must not provide the
+      `includeDeprecated` argument.
+
+**Explanatory Text**
+
+The `includeDeprecated` argument on the `__schema` meta-field determines whether
+`__schema` represents the full schema or the schema with all deprecated elements
+removed. The deprecated `includeDeprecated` arguments on fields of the
+introspection schema remain available for legacy introspection queries, they
+should not be used when the `includeDeprecated` argument is provided to the
+`__schema` meta-field.
+
+Note: This rule depends on whether the argument is provided, not upon its value;
+it therefore applies even when the `includeDeprecated` argument to the
+`__schema` meta-field is provided a literal {null} or a variable reference.
+
+For example, the following queries are valid:
+
+```graphql example
+query schemaIncludingDeprecated {
+  __schema(includeDeprecated: true) {
+    types {
+      fields {
+        name
+      }
+    }
+  }
+}
+```
+
+```graphql example
+query legacySchemaIncludingDeprecated {
+  __schema {
+    types {
+      fields(includeDeprecated: true) {
+        name
+      }
+    }
+  }
+}
+```
+
+The following query is invalid because it mixes the two forms:
+
+```graphql counter-example
+query mixedDeprecatedInclusion {
+  __schema(includeDeprecated: true) {
+    types {
+      fields(includeDeprecated: true) {
+        name
+      }
+    }
+  }
+}
+```
+
+The restriction applies transitively through fragments. The following query is
+also invalid:
+
+```graphql counter-example
+query mixedDeprecatedInclusionThroughFragment(
+  $includeDeprecated: Boolean! = true
+) {
+  __schema(includeDeprecated: $includeDeprecated) {
+    types {
+      ...TypeFields
+    }
+  }
+}
+
+fragment TypeFields on __Type {
+  fields(includeDeprecated: $includeDeprecated) {
+    name
+  }
+}
+```

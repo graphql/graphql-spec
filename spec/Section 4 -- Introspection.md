@@ -90,7 +90,7 @@ and `__type` which are accessible from the type of the root of a query
 operation.
 
 ```graphql
-__schema: __Schema!
+__schema(includeDeprecated: Boolean): __Schema!
 __type(name: String!): __Type
 ```
 
@@ -138,7 +138,10 @@ type __Schema {
   queryType: __Type!
   mutationType: __Type
   subscriptionType: __Type
-  directives(includeDeprecated: Boolean! = false): [__Directive!]!
+  directives(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__Directive!]!
 }
 
 type __Type {
@@ -148,15 +151,24 @@ type __Type {
   # may be non-null for custom SCALAR, otherwise null.
   specifiedByURL: String
   # must be non-null for OBJECT and INTERFACE, otherwise null.
-  fields(includeDeprecated: Boolean! = false): [__Field!]
+  fields(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__Field!]
   # must be non-null for OBJECT and INTERFACE, otherwise null.
   interfaces: [__Type!]
   # must be non-null for INTERFACE and UNION, otherwise null.
   possibleTypes: [__Type!]
   # must be non-null for ENUM, otherwise null.
-  enumValues(includeDeprecated: Boolean! = false): [__EnumValue!]
+  enumValues(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__EnumValue!]
   # must be non-null for INPUT_OBJECT, otherwise null.
-  inputFields(includeDeprecated: Boolean! = false): [__InputValue!]
+  inputFields(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__InputValue!]
   # must be non-null for NON_NULL and LIST, otherwise null.
   ofType: __Type
   # must be non-null for INPUT_OBJECT, otherwise null.
@@ -177,7 +189,10 @@ enum __TypeKind {
 type __Field {
   name: String!
   description: String
-  args(includeDeprecated: Boolean! = false): [__InputValue!]!
+  args(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__InputValue!]!
   type: __Type!
   isDeprecated: Boolean!
   deprecationReason: String
@@ -204,7 +219,10 @@ type __Directive {
   description: String
   isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
-  args(includeDeprecated: Boolean! = false): [__InputValue!]!
+  args(
+    includeDeprecated: Boolean
+      @deprecated(reason: "Use `__schema(includeDeprecated:)` instead")
+  ): [__InputValue!]!
   isDeprecated: Boolean!
   deprecationReason: String
 }
@@ -236,7 +254,22 @@ enum __DirectiveLocation {
 ### The \_\_Schema Type
 
 The `__Schema` type is returned from the `__schema` meta-field and provides all
-information about the schema of a GraphQL service.
+information about the schema (or a derivative thereof) of a GraphQL service.
+
+The `__schema` meta-field accepts the argument `includeDeprecated`, which
+indicates a derivative of the schema to be represented:
+
+- If {true}, `__schema` represents the full schema, with all _schema elements_
+  included (even those that are deprecated).
+- If {false}, `__schema` represents a copy of the schema with all deprecated
+  _schema elements_ removed.
+- If not provided or {null}, `__schema` represents the _legacy variant_ of the
+  full schema.
+
+:: The _legacy variant_ of a GraphQL schema is a special copy of the schema
+where deprecated schema elements are excluded by default from introspection, but
+may be included by passing `includeDeprecated: true` to the relevant
+introspection field for each schema element.
 
 Fields\:
 
@@ -251,8 +284,9 @@ Fields\:
   must be included in this set.
 - `directives` must return the set of all directives available within this
   schema including all built-in directives.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated directives are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated directives are not
+    returned.
 
 ### The \_\_Type Type
 
@@ -307,8 +341,8 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `fields` must return the set of fields that can be selected for this type.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated fields are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated fields are not returned.
 - `interfaces` must return the set of interfaces that an object implements (if
   none, `interfaces` must return the empty set).
 - All other fields must return {null}.
@@ -342,8 +376,8 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `fields` must return the set of fields required by this interface.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated fields are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated fields are not returned.
 - `interfaces` must return the set of interfaces that an interface implements
   (if none, `interfaces` must return the empty set).
 - `possibleTypes` returns the list of types that implement this interface. They
@@ -361,8 +395,9 @@ Fields\:
 - `description` may return a String or {null}.
 - `enumValues` must return the set of enum values as a list of `__EnumValue`.
   There must be at least one and they must have unique names.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated enum values are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated enum values are not
+    returned.
 - All other fields must return {null}.
 
 **Input Object**
@@ -386,8 +421,9 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `inputFields` must return the set of input fields as a list of `__InputValue`.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated input fields are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated input fields are not
+    returned.
 - `isOneOf` must return {true} when representing a _OneOf Input Object_,
   otherwise {false}.
 - All other fields must return {null}.
@@ -435,8 +471,8 @@ Fields\:
 - `description` may return a String or {null}.
 - `args` returns a List of `__InputValue` representing the arguments this field
   accepts.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated arguments are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated arguments are not returned.
 - `type` must return a `__Type` that represents the type of value returned by
   this field.
 - `isDeprecated` returns {true} if this field should no longer be used,
@@ -514,8 +550,8 @@ Fields\:
   locations this directive may be placed.
 - `args` returns a List of `__InputValue` representing the arguments this
   directive accepts.
-  - Accepts the argument `includeDeprecated` which defaults to {false}. If
-    {true}, deprecated arguments are also returned.
+  - Accepts the optional argument `includeDeprecated`; if set to {false} or if
+    the schema is a _legacy variant_ then deprecated arguments are not returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
 - `isDeprecated` returns {true} if this directive should no longer be used,
