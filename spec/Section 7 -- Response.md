@@ -433,10 +433,10 @@ An _incremental pending notice_ must contain entries with the keys {"id"} and
 {"path"}, and may contain an entry with key {"label"}.
 
 The value of {"id"} must be a string. This {"id"} should be used by clients to
-correlate incremental pending notices with _incremental result_ and _completed
-result_. The {"id"} value must be unique across the entire _incremental stream_
-response. There must not be any other incremental pending notice in the
-_incremental stream_ with the same {"id"}.
+correlate incremental pending notices with _incremental result_ and _incremental
+completion notice_. The {"id"} value must be unique across the entire
+_incremental stream_ response. There must not be any other incremental pending
+notice in the _incremental stream_ with the same {"id"}.
 
 The value of {"path"} must be a _response position_. When the incremental
 pending notice is associated with a `@stream` directive, it indicates the list
@@ -574,8 +574,8 @@ and may contain an entry with the key {"errors"}.
 The value of {"id"} must be a string referencing its _associated incremental
 pending notice_. The associated incremental pending notice must appear either in
 the _initial incremental stream result_, in a prior _incremental stream update
-result_, or in the same _incremental stream update result_ as the _completed
-result_ that references it.
+result_, or in the same _incremental stream update result_ as the _incremental
+completion notice_ that references it.
 
 The value of {"errors"}, if present, informs clients that the delivery of the
 data from the _associated incremental pending notice_ has failed, due to an
