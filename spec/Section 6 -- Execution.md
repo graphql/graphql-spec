@@ -736,8 +736,8 @@ Fields may include arguments which are provided to the underlying runtime in
 order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type.
 
-At each argument position in an operation may be a literal {Value}, or a
-{Variable} to be provided at runtime.
+Each argument position in an operation may be a literal {Value}, or a {Variable}
+to be provided at runtime.
 
 CoerceArgumentValues(objectType, field, variableValues):
 
