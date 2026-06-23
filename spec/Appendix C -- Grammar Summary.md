@@ -71,6 +71,11 @@ Digit :: one of
 
 - `0` `1` `2` `3` `4` `5` `6` `7` `8` `9`
 
+QualifiedName ::
+
+- QualifiedName . Name [lookahead != `.`]
+- Name . Name [lookahead != `.`]
+
 IntValue :: IntegerPart [lookahead != {Digit, `.`, NameStart}]
 
 IntegerPart ::
@@ -248,6 +253,7 @@ TypeSystemDefinition :
 - SchemaDefinition
 - TypeDefinition
 - DirectiveDefinition
+- ServiceDefinition
 
 TypeSystemExtensionDocument : TypeSystemDefinitionOrExtension+
 
@@ -261,6 +267,7 @@ TypeSystemExtension :
 - SchemaExtension
 - TypeExtension
 - DirectiveExtension
+- ServiceExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }
@@ -417,6 +424,19 @@ TypeSystemDirectiveLocation : one of
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
 - `DIRECTIVE_DEFINITION`
+
+ServiceDefinition : Description? service Directives? { ServiceCapability\* }
+
+ServiceExtension :
+
+- extend service Directives? { ServiceCapability\* }
+- extend service Directives [lookahead != `{`]
+
+ServiceCapability :
+
+- Description? capability QualifiedName ServiceCapabilityValue?
+
+ServiceCapabilityValue : ( StringValue )
 
 ## Schema Coordinate Syntax
 
