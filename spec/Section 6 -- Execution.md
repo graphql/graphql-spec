@@ -276,14 +276,16 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - Let {subscriptionType} be the root Subscription type in {schema}.
 - Assert: {subscriptionType} is an Object type.
 - Let {selectionSet} be the top level selection set in {subscription}.
-- Let {collectedFieldsMap} be the result of {CollectFields(subscriptionType,
-  selectionSet, variableValues)}.
+- Let {collectedFieldsMap} and {newDeferUsages} be the result of
+  {CollectFields(subscriptionType, selectionSet, variableValues)}.
+- Assert: {newDeferUsages} is empty.
 - If {collectedFieldsMap} does not have exactly one entry, raise a _request
   error_.
 - Let {fields} be the value of the first entry in {collectedFieldsMap}.
-- Let {fieldName} be the name of the first entry in {fields}. Note: This value
-  is unaffected if an alias is used.
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetails} be the first entry in {fields}.
+- Let {field} be the corresponding entry on {fieldDetails}.
+- Let {fieldName} be the field name of {field}. Note: This value is unaffected
+  if an alias is used.
 - Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
   field, variableValues)}.
 - Let {sourceStream} be the result of running
@@ -383,15 +385,25 @@ then executed, returning the resulting {data} and {errors}.
 ExecuteRootSelectionSet(variableValues, initialValue, objectType, selectionSet,
 executionMode):
 
-- Let {collectedFieldsMap} be the result of {CollectFields(objectType,
-  selectionSet, variableValues)}.
-- Let {data} be the result of running
-  {ExecuteCollectedFields(collectedFieldsMap, objectType, initialValue,
-  variableValues)} _serially_ if {executionMode} is {"serial"}, otherwise
-  _normally_ (allowing parallelization)).
+- Let {collectedFieldsMap} and {newDeferUsages} be the result of
+  {CollectFields(objectType, selectionSet, variableValues)}.
+- Let {executionPlan} be the result of {BuildExecutionPlan(collectedFieldsMap)}.
+- Let {data} and {work} be the result of {ExecuteExecutionPlan(newDeferUsages,
+  executionPlan, objectType, initialValue, variableValues, executionMode)}.
 - Let {errors} be the list of all _execution error_ raised while executing the
-  selection set.
-- Return an unordered map containing {data} and {errors}.
+  execution plan.
+- Let {tasks} and {streams} be the corresponding entries on {work}.
+- If {tasks} is empty and {streams} is empty, return an unordered map containing
+  {data} and {errors}.
+- Let {incrementalStreamResults} be the result of {YieldIncrementalResults(data,
+  errors, work)}.
+- Wait for the first result in {incrementalStreamResults} to be available.
+- Let {initialIncrementalStreamResult} be that result.
+- Return {initialIncrementalStreamResult} and
+  {BatchIncrementalResults(incrementalStreamResults)}.
+
+Note: {ExecuteExecutionPlan()} does not directly raise execution errors from the
+incremental portion of the Execution Plan.
 
 ### Field Collection
 
@@ -649,23 +661,34 @@ collected fields map, producing an entry in the result map with the same
 _response name_ key.
 
 ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
-variableValues):
+variableValues, path, deferUsageSet, deferMap):
 
 - Initialize {resultMap} to an empty ordered map.
+- Initialize {groups}, {tasks}, and {streams} to empty lists.
 - For each {responseName} and {fields} in {collectedFieldsMap}:
-  - Let {fieldName} be the name of the first entry in {fields}. Note: This value
-    is unaffected if an alias is used.
+  - Let {fieldDetails} be the first entry in {fields}.
+  - Let {field} be the corresponding entry on {fieldDetails}.
+  - Let {fieldName} be the field name of {field}. Note: This value is unaffected
+    if an alias is used.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
-    - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fields, variableValues)}.
+    - Let {responseValue} and {fieldWork} be the result of
+      {ExecuteField(objectType, objectValue, fieldType, fields, variableValues,
+      path, deferUsageSet, deferMap)}.
+    - Let {fieldGroups}, {fieldTasks}, and {fieldStreams} be the corresponding
+      entries on {fieldWork}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
-- Return {resultMap}.
+    - For each {fieldGroup} in {fieldGroups}:
+      - If {groups} does not contain an equivalent {fieldGroup}, append
+        {fieldGroup} to {groups}.
+    - Append all items in {fieldTasks} to {tasks}.
+    - Append all items in {fieldStreams} to {streams}.
+- Return {resultMap} and an unordered map containing {groups}, {tasks}, and
+  {streams}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
-is explained in greater detail in the [Field Collection](#sec-Field-Collection)
-section.
+is explained in greater detail in the Field Collection section below.
 
 **Errors and Non-Null Types**
 
@@ -793,16 +816,19 @@ first coerces any provided argument values, then resolves a value for the field,
 and finally completes that value either by recursively executing another
 selection set or coercing a scalar value.
 
-ExecuteField(objectType, objectValue, fieldType, fields, variableValues):
+ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
+variableValues, path, deferUsageSet, deferMap):
 
-- Let {field} be the first entry in {fields}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
+- Let {field} be the corresponding entry on {fieldDetails}.
 - Let {fieldName} be the field name of {field}.
+- Append {fieldName} to {path}.
 - Let {argumentValues} be the result of {CoerceArgumentValues(objectType, field,
   variableValues)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
   argumentValues)}.
-- Return the result of {CompleteValue(fieldType, fields, resolvedValue,
-  variableValues)}.
+- Return the result of {CompleteValue(fieldType, fieldDetailsList,
+  resolvedValue, variableValues, path, deferUsageSet, deferMap)}.
 
 ### Coercing Field Arguments
 
@@ -899,34 +925,61 @@ the expected return type. If the return type is another Object type, then the
 field execution process continues recursively by collecting and executing
 subfields.
 
-CompleteValue(fieldType, fields, result, variableValues):
+CompleteValue(fieldType, fieldDetailsList, result, variableValues, path,
+deferUsageSet, deferMap):
 
 - If the {fieldType} is a Non-Null type:
   - Let {innerType} be the inner type of {fieldType}.
-  - Let {completedResult} be the result of calling {CompleteValue(innerType,
-    fields, result, variableValues)}.
+  - Let {completedResult} and {work} be the result of calling
+    {CompleteValue(innerType, fieldDetailsList, result, variableValues, path,
+    deferUsageSet, deferMap)}.
   - If {completedResult} is {null}, raise an _execution error_.
-  - Return {completedResult}.
+  - Return {completedResult} and {work}.
 - If {result} is {null} (or another internal value similar to {null} such as
-  {undefined}), return {null}.
+  {undefined}), return {null} and an unordered map containing empty lists for
+  {groups}, {tasks}, and {streams}.
 - If {fieldType} is a List type:
   - If {result} is not a collection of values, raise an _execution error_.
   - Let {innerType} be the inner type of {fieldType}.
-  - Return a list where each list item is the result of calling
-    {CompleteValue(innerType, fields, resultItem, variableValues)}, where
-    {resultItem} is each item in {result}.
+  - Return the result of {CompleteListValue(innerType, fieldDetailsList, result,
+    variableValues, path, deferUsageSet, deferMap)}.
 - If {fieldType} is a Scalar or Enum type:
-  - Return the result of {CoerceResult(fieldType, result)}.
+  - Return the result of {CoerceResult(fieldType, result)} and an unordered map
+    containing empty lists for {groups}, {tasks}, and {streams}.
 - If {fieldType} is an Object, Interface, or Union type:
   - If {fieldType} is an Object type.
     - Let {objectType} be {fieldType}.
   - Otherwise if {fieldType} is an Interface or Union type.
     - Let {objectType} be {ResolveAbstractType(fieldType, result)}.
-  - Let {collectedFieldsMap} be the result of calling
-    {CollectSubfields(objectType, fields, variableValues)}.
-  - Return the result of evaluating {ExecuteCollectedFields(collectedFieldsMap,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+  - Let {collectedFieldsMap} and {newDeferUsages} be the result of calling
+    {CollectSubfields(objectType, fieldDetailsList, variableValues)}.
+  - Let {executionPlan} be the result of {BuildExecutionPlan(collectedFieldsMap,
+    deferUsageSet)}.
+  - Return the result of {ExecuteExecutionPlan(newDeferUsages, executionPlan,
+    objectType, result, variableValues, "normal", path, deferUsageSet,
+    deferMap)}.
+
+CompleteListValue(innerType, fieldDetailsList, result, variableValues, path,
+deferUsageSet, deferMap):
+
+- Initialize {items}, {groups}, {tasks}, and {streams} to empty lists.
+- Let {index} be {0}.
+- For each {resultItem} of {result}:
+  - Let {itemPath} be {path} with {index} appended.
+  - Let {completedItem} and {itemWork} be the result of calling
+    {CompleteValue(innerType, fieldDetailsList, resultItem, variableValues,
+    itemPath, deferUsageSet, deferMap)}.
+  - Let {itemGroups}, {itemTasks}, and {itemStreams} be the corresponding
+    entries on {itemWork}.
+  - Append {completedItem} to {items}.
+  - For each {itemGroup} in {itemGroups}:
+    - If {groups} does not contain an equivalent {itemGroup}, append {itemGroup}
+      to {groups}.
+  - Append all items in {itemTasks} to {tasks}.
+  - Append all items in {itemStreams} to {streams}.
+  - Increment {index} by {1}.
+- Return {items} and an unordered map containing {groups}, {tasks}, and
+  {streams}.
 
 **Coercing Results**
 
@@ -1013,3 +1066,308 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 If every _response position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the _execution
 result_ should be {null}.
+
+### Execution Plan Generation
+
+A _collected fields map_ may contain fields that have been deferred by the use
+of the `@defer` directive on their enclosing fragments. Given a _collected
+fields map_, {BuildExecutionPlan()} generates an execution plan by partitioning
+the _collected fields map_ as specified by the operation's use of `@defer` and
+the requirements of the incremental response format. An execution plan consists
+of a single new _collected fields map_ containing the fields that do not require
+deferral, and a map of new _collected fields maps_ where the keys represent sets
+of Defer Usages containing those fields.
+
+BuildExecutionPlan(originalCollectedFieldsMap, parentDeferUsages):
+
+- If {parentDeferUsages} is not provided, initialize it to the empty set.
+- Initialize {collectedFieldsMap} to an empty ordered map.
+- Initialize {newCollectedFieldsMaps} to an empty unordered map.
+- Let {executionPlan} be an unordered map containing {collectedFieldsMap} and
+  {newCollectedFieldsMaps}.
+- For each {responseName} and {fieldsForResponseName} of
+  {originalCollectedFieldsMap}:
+  - Let {filteredDeferUsageSet} be the result of
+    {GetFilteredDeferUsageSet(fieldsForResponseName)}.
+  - If {filteredDeferUsageSet} is the equivalent set to {parentDeferUsages}:
+    - Set the entry for {responseName} in {collectedFieldsMap} to
+      {fieldsForResponseName}.
+  - Otherwise:
+    - Let {newCollectedFieldsMap} be the entry in {newCollectedFieldsMaps} for
+      any equivalent set to {filteredDeferUsageSet}; if no such map exists,
+      create it as an empty ordered map.
+    - Set the entry for {responseName} in {newCollectedFieldsMap} to
+      {fieldsForResponseName}.
+- Return {executionPlan}.
+
+GetFilteredDeferUsageSet(fieldDetailsList):
+
+- Initialize {filteredDeferUsageSet} to the empty set.
+- For each {fieldDetails} of {fieldDetailsList}:
+  - Let {deferUsage} be the corresponding entry on {fieldDetails}.
+  - If {deferUsage} is not defined:
+    - Remove all entries from {filteredDeferUsageSet}.
+    - Return {filteredDeferUsageSet}.
+  - Add {deferUsage} to {filteredDeferUsageSet}.
+- For each {deferUsage} in {filteredDeferUsageSet}:
+  - Let {parentDeferUsage} be the corresponding entry on {deferUsage}.
+  - While {parentDeferUsage} is defined:
+    - If {parentDeferUsage} is contained by {filteredDeferUsageSet}:
+      - Remove {deferUsage} from {filteredDeferUsageSet}.
+      - Continue to the next {deferUsage} in {filteredDeferUsageSet}.
+    - Reset {parentDeferUsage} to the corresponding entry on {parentDeferUsage}.
+- Return {filteredDeferUsageSet}.
+
+### Yielding Incremental Stream Results
+
+The procedure for yielding an _incremental stream_ uses a generic incremental
+work queue and maps its event stream into an _initial incremental stream result_
+followed by zero or more _incremental stream update result_.
+
+YieldIncrementalResults(data, errors, work):
+
+- Let {initialGroups}, {initialStreams}, and {workEventStream} be the result of
+  {CreateWorkQueue(work)}.
+- Let {pending} be the result of {GetPendingEntry(initialGroups,
+  initialStreams)}.
+- Let {hasNext} be {true}.
+- Yield an unordered map containing {data}, {errors}, {pending}, and {hasNext}.
+- Let {incrementalStreamUpdateResults} be the result of
+  {MapIncrementalWorkEventsToResponseEvent(workEventStream)}.
+- For each {incrementalStreamUpdateResult} in {incrementalStreamUpdateResults}:
+  - Yield {incrementalStreamUpdateResult}.
+- Complete this incremental stream.
+
+### Mapping Work Events to Response Events
+
+The {MapIncrementalWorkEventsToResponseEvent()} algorithm maps each batch of
+work queue events into an _incremental stream update result_.
+
+MapIncrementalWorkEventsToResponseEvent(workEventStream):
+
+- Let {idMap} be an empty map.
+- Let {nextID} be {0}.
+- Return a new event stream {responseEventStream} which yields events as
+  follows:
+- For each {batch} emitted by {workEventStream}:
+  - Initialize {pending}, {incremental}, and {completed} to empty lists.
+  - Let {hasNext} be {true}.
+  - For each {event} in {batch}:
+    - If {event} is {GROUP_VALUES}:
+      - Let {group} and {values} be the corresponding entries on {event}.
+      - For each {value} in {values}:
+        - Append {GetIncrementalEntry(group, value)} to {incremental}.
+    - If {event} is {GROUP_SUCCESS}:
+      - Let {group}, {newGroups}, and {newStreams} be the corresponding entries
+        on {event}.
+      - Append {GetCompletedEntry(group)} to {completed}.
+      - Append all items in {GetPendingEntry(newGroups, newStreams)} to
+        {pending}.
+    - If {event} is {GROUP_FAILURE}:
+      - Let {group} and {error} be the corresponding entries on {event}.
+      - Let {groupErrors} be a list containing {error}.
+      - Append {GetCompletedEntry(group, groupErrors)} to {completed}.
+    - If {event} is {STREAM_VALUES}:
+      - Let {stream}, {values}, {newGroups}, and {newStreams} be the
+        corresponding entries on {event}.
+      - Let {id} be the result of {EnsureID(stream)}.
+      - Initialize {items} and {streamErrors} to empty lists.
+      - For each {value} in {values}:
+        - Append the stream item entry from {value} to {items}.
+        - If {value} contains {errors}, append each such error to
+          {streamErrors}.
+      - Let {incrementalEntry} be an unordered map containing {id} and {items}.
+      - If {streamErrors} is not empty, set the corresponding entry on
+        {incrementalEntry} to {streamErrors}.
+      - Append {incrementalEntry} to {incremental}.
+      - Append all items in {GetPendingEntry(newGroups, newStreams)} to
+        {pending}.
+    - If {event} is {STREAM_SUCCESS}:
+      - Let {stream} be the corresponding entry on {event}.
+      - Append {GetCompletedEntry(stream)} to {completed}.
+    - If {event} is {STREAM_FAILURE}:
+      - Let {stream} and {error} be the corresponding entries on {event}.
+      - Let {streamErrors} be a list containing {error}.
+      - Append {GetCompletedEntry(stream, streamErrors)} to {completed}.
+    - If {event} is {WORK_QUEUE_TERMINATION}:
+      - Let {hasNext} be {false}.
+  - Yield the result of {GetIncrementalStreamUpdateResult(hasNext, completed,
+    incremental, pending)}.
+
+The following algorithms have access to {idMap} and {nextID}.
+
+EnsureID(node):
+
+- If {idMap} has an entry for {node}, return that entry.
+- Let {id} be {nextID} converted to a string.
+- Set the entry for {node} in {idMap} to {id}.
+- Increment {nextID} by {1}.
+- Return {id}.
+
+GetPendingEntry(newGroups, newStreams):
+
+- Initialize {pending} to an empty list.
+- For each {group} of {newGroups}:
+  - Let {id} be the result of {EnsureID(group)}.
+  - Let {path} and {label} be the corresponding entries on {group}.
+  - Let {pendingEntry} be an unordered map containing {id}, {path}, and {label}.
+  - Append {pendingEntry} to {pending}.
+- For each {stream} of {newStreams}:
+  - Let {id} be the result of {EnsureID(stream)}.
+  - Let {path} and {label} be the corresponding entries on {stream}.
+  - Let {pendingEntry} be an unordered map containing {id}, {path}, and {label}.
+  - Append {pendingEntry} to {pending}.
+- Return {pending}.
+
+GetIncrementalEntry(group, value):
+
+- Let {id} be the result of {EnsureID(group)}.
+- Let {groupPath} be the path entry on {group}.
+- Let {path}, {data}, and {errors} be the corresponding entries on {value}.
+- Let {subPath} be the portion of {path} not contained by {groupPath}.
+- Let {incrementalEntry} be an unordered map containing {id} and {data}.
+- If {errors} is not empty, set the corresponding entry on {incrementalEntry} to
+  {errors}.
+- If {subPath} is not empty, set the corresponding entry on {incrementalEntry}
+  to {subPath}.
+- Return {incrementalEntry}.
+
+GetCompletedEntry(node, errors):
+
+- Let {id} be the result of {EnsureID(node)}.
+- Let {completedEntry} be an unordered map containing {id}.
+- If {errors} is provided and not empty, set the corresponding entry on
+  {completedEntry} to {errors}.
+- Return {completedEntry}.
+
+GetIncrementalStreamUpdateResult(hasNext, completed, incremental, pending):
+
+- Let {incrementalStreamUpdateResult} be an unordered map containing {hasNext}.
+- If {incremental} is not empty:
+  - Set the corresponding entry on {incrementalStreamUpdateResult} to
+    {incremental}.
+- If {completed} is not empty:
+  - Set the corresponding entry on {incrementalStreamUpdateResult} to
+    {completed}.
+- If {pending} is not empty:
+  - Set the corresponding entry on {incrementalStreamUpdateResult} to {pending}.
+- Return {incrementalStreamUpdateResult}.
+
+### Batching Incremental Stream Update Results
+
+BatchIncrementalResults(incrementalStreamUpdateResults):
+
+- Return a new stream {batchedIncrementalStreamUpdateResults} which yields
+  events as follows:
+- While {incrementalStreamUpdateResults} is not closed:
+  - Let {availableIncrementalStreamUpdateResults} be a list of one or more
+    _incremental stream update result_ available on
+    {incrementalStreamUpdateResults}.
+  - Let {batchedIncrementalStreamUpdateResult} be an unordered map created by
+    merging the items in {availableIncrementalStreamUpdateResults} into a single
+    unordered map, concatenating list entries as necessary, and setting
+    {hasNext} to the value of {hasNext} on the final item in the list.
+  - Yield {batchedIncrementalStreamUpdateResult}.
+
+## Executing an Execution Plan
+
+Executing an execution plan consists of two tasks that may be performed in
+parallel. The first task is simply the execution of the non-deferred collected
+fields map. The second task is to use the partitioned collected fields maps
+within the execution plan to generate Execution Group tasks and combine those
+tasks with any nested incremental work.
+
+ExecuteExecutionPlan(newDeferUsages, executionPlan, objectType, objectValue,
+variableValues, executionMode, path, deferUsageSet, deferMap):
+
+- If {path} is not provided, initialize it to an empty list.
+- Let {newDeferMap} be the result of {GetNewDeferMap(newDeferUsages, path,
+  deferMap)}.
+- Let {collectedFieldsMap} and {newCollectedFieldsMaps} be the corresponding
+  entries on {executionPlan}.
+- Allowing for parallelization, perform the following steps:
+  - Let {data} and {work} be the result of running
+    {ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
+    variableValues, path, deferUsageSet, newDeferMap)} _serially_ if
+    {executionMode} is {"serial"}, _normally_ (allowing parallelization)
+    otherwise.
+  - Let {executionGroupTasks} be the result of
+    {CollectExecutionGroups(objectType, objectValue, variableValues,
+    newCollectedFieldsMaps, path, newDeferMap)}.
+- Let {groups}, {tasks}, and {streams} be the corresponding entries on {work}.
+- Append all items in {executionGroupTasks} to {tasks}.
+- For each {task} in {executionGroupTasks}:
+  - Let {deferredFragments} be the Deferred Fragments incrementally completed by
+    {task}.
+  - For each {deferredFragment} in {deferredFragments}:
+    - If {groups} does not contain an equivalent {deferredFragment}, append
+      {deferredFragment} to {groups}.
+- Return {data} and {work}.
+
+### Mapping @defer Directives to Delivery Groups
+
+Because `@defer` directives may be nested within list types, a map is required
+to associate a Defer Usage record as recorded within Field Details Records and
+an actual Deferred Fragment so that any additional Execution Groups may be
+associated with the correct Deferred Fragment. The {GetNewDeferMap()} algorithm
+creates that map. Given a list of new Defer Usages, the actual path at which the
+fields they defer are spread, and an initial map, it returns a new map
+containing all entries in the provided defer map, as well as new entries for
+each new Defer Usage.
+
+GetNewDeferMap(newDeferUsages, path, deferMap):
+
+- If {newDeferUsages} is empty, return {deferMap}.
+- Let {newDeferMap} be a new unordered map containing all entries in {deferMap}.
+- For each {deferUsage} in {newDeferUsages}:
+  - Let {parentDeferUsage} and {deferDirective} be the corresponding entries on
+    {deferUsage}.
+  - Let {label} be the value of the label argument on {deferDirective}.
+  - Let {parent} be the entry in {newDeferMap} for {parentDeferUsage}.
+  - Let {newDeferredFragment} be an unordered map containing {parent}, {path}
+    and {label}.
+  - Set the entry for {deferUsage} in {newDeferMap} to {newDeferredFragment}.
+- Return {newDeferMap}.
+
+### Collecting Execution Groups
+
+The {CollectExecutionGroups()} algorithm is responsible for creating the
+Execution Group tasks for each partitioned collected fields map. It uses the map
+created by {GetNewDeferMap()} algorithm to associate each Execution Group with
+the correct Deferred Fragment.
+
+CollectExecutionGroups(objectType, objectValue, variableValues,
+newCollectedFieldsMaps, path, deferMap):
+
+- Initialize {executionGroupTasks} to an empty list.
+- For each {deferUsageSet} and {collectedFieldsMap} in {newCollectedFieldsMaps}:
+  - Let {deferredFragments} be an empty list.
+  - For each {deferUsage} in {deferUsageSet}:
+    - Let {deferredFragment} be the entry for {deferUsage} in {deferMap}.
+    - Append {deferredFragment} to {deferredFragments}.
+  - Let {executionGroupTask} represent the future execution of
+    {ExecuteExecutionGroup(collectedFieldsMap, objectType, objectValue,
+    variableValues, path, deferUsageSet, deferMap)}, incrementally completing
+    {deferredFragments} at {path}.
+  - Append {executionGroupTask} to {executionGroupTasks}.
+  - Schedule initiation of execution of {executionGroupTask} following any
+    implementation specific deferral.
+- Return {executionGroupTasks}.
+
+Note: {executionGroupTask} can be safely initiated without blocking
+higher-priority data once any of {deferredFragments} are released as pending.
+
+The {ExecuteExecutionGroup()} algorithm is responsible for actually executing
+the deferred collected fields map and collecting the result and any raised
+errors.
+
+ExecuteExecutionGroup(collectedFieldsMap, objectType, objectValue,
+variableValues, path, deferUsageSet, deferMap):
+
+- Let {data} and {work} be the result of running
+  {ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
+  variableValues, path, deferUsageSet, deferMap)} _normally_ (allowing
+  parallelization).
+- Let {errors} be the list of all _execution error_ raised while executing
+  {ExecuteCollectedFields()}.
+- Return an unordered map containing {data}, {errors}, and {work}.
