@@ -405,7 +405,7 @@ name_ and its associated _field set_. A _collected fields map_ may be produced
 from a selection set via {CollectFields()} or from the selection sets of all
 entries of a _field set_ via {CollectSubfields()}.
 
-:: A _field set_ is an ordered set of selected fields that share the same
+:: A _field set_ is an ordered set of _field details_ that share the same
 _response name_ (the field alias if defined, otherwise the field's name).
 Validation ensures each field in the set has the same name and arguments,
 however each may have different subfields (see:
@@ -439,10 +439,38 @@ The depth-first-search order of each _field set_ produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments):
+The {CollectFields()} algorithm makes use of the following data types:
 
-- If {visitedFragments} is not provided, initialize it to the empty set.
+:: A _defer usage_ represents the usage of a `@defer` directive during field
+collection; it contains the following information:
+
+- {deferDirective}: the defer directive node from the current Document.
+- {parentDeferUsage}: a defer usage corresponding to the `@defer` directive
+  enclosing this `@defer` directive, if any, otherwise {undefined}.
+
+The {parentDeferUsage} entry is used to build distinct Execution Groups as
+discussed within the Execution Plan Generation section below.
+
+:: A _field detail_ is used to correlate a field in a selection set with the
+necessary information to describe how this field is used in a deferred fragment.
+It contains the following information:
+
+- {field}: the field selection.
+- {deferUsage}: the _defer usage_ enclosing the selection, if any.
+
+:: A _visited fragment state_ is used to track already visited fragments.
+Fragments that are deferred should be skipped if they have already been visited
+in a non-deferred context, or have already been visited in the same deferred
+context. A visited fragment state is an unordered map of fragment names to a set
+of defer directive nodes. A {null} value in the value set represents a fragment
+that has already been visited in a non-deferred context.
+
+CollectFields(objectType, selectionSet, variableValues, deferUsage,
+visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to an empty map.
 - Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
+- Initialize {newDeferUsages} to an empty list.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
@@ -457,15 +485,14 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
+    - Let {fieldDetails} be a new field detail with {field} set to {selection}
+      and {deferUsage} set to {deferUsage}.
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
-    - Add {selection} to the {fieldsForResponseName}.
+    - Add {fieldDetails} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
-      {selection} in {selectionSet}.
-    - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
     - If no such {fragment} exists, continue with the next {selection} in
@@ -473,32 +500,71 @@ CollectFields(objectType, selectionSet, variableValues, visitedFragments):
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
+    - Let {visitedDeferSet} be the set in {visitedFragments} for key
+      {fragmentSpreadName}; otherwise create the entry with an empty set.
+    - If {null} is in {visitedDeferSet}, continue with the next {selection} in
+      {selectionSet}.
+    - If {selection} provides the directive `@defer` and its {if} argument is
+      not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise an _execution
+        error_.
+      - If {deferDirective} is in {visitedDeferSet}, continue with the next
+        {selection} in {selectionSet}.
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be {deferDirective} and {parentDeferUsage}.
+      - Append {fragmentDeferUsage} to {newDeferUsages}.
+      - Add {deferDirective} to {visitedDeferSet}.
+    - Otherwise, if {deferUsage} is defined:
+      - Let {deferDirective} be the corresponding entry on {deferUsage}.
+      - If {deferDirective} is in {visitedDeferSet}, continue with the next
+        {selection} in {selectionSet}.
+      - Add {deferDirective} to {visitedDeferSet}.
+      - Let {fragmentDeferUsage} be {deferUsage}.
+    - Otherwise:
+      - Let {fragmentDeferUsage} be {undefined}.
+      - Add {null} to {visitedDeferSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
-    - Let {fragmentCollectedFieldsMap} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
-    - For each {responseName} and {fragmentFields} in
+    - Let {fragmentCollectedFieldsMap} and {fragmentNewDeferUsages} be the
+      result of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
+    - For each {responseName} and {fragmentFieldSet} in
       {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
-      - Add each item from {fragmentFields} to {fieldsForResponseName}.
+      - Add each item from {fragmentFieldSet} to {fieldsForResponseName}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
   - If {selection} is an {InlineFragment}:
     - Let {fragmentType} be the type condition on {selection}.
     - If {fragmentType} is not {null} and {DoesFragmentTypeApply(objectType,
       fragmentType)} is {false}, continue with the next {selection} in
       {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
-    - Let {fragmentCollectedFieldsMap} be the result of calling
-      {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments)}.
-    - For each {responseName} and {fragmentFields} in
+    - If {selection} provides the directive `@defer` and its {if} argument is
+      not {false} and is not a variable in {variableValues} with the value
+      {false}:
+      - Let {deferDirective} be that directive.
+      - If this execution is for a subscription operation, raise an _execution
+        error_.
+    - Otherwise let {deferDirective} be {null}.
+    - If {deferDirective} is not {null}:
+      - Let {parentDeferUsage} be {deferUsage}.
+      - Let {fragmentDeferUsage} be {deferDirective} and {parentDeferUsage}.
+      - Append {fragmentDeferUsage} to {newDeferUsages}.
+    - Otherwise, let {fragmentDeferUsage} be {deferUsage}.
+    - Let {fragmentCollectedFieldsMap} and {fragmentNewDeferUsages} be the
+      result of calling {CollectFields(objectType, fragmentSelectionSet,
+      variableValues, fragmentDeferUsage, visitedFragments)}.
+    - For each {responseName} and {fragmentFieldSet} in
       {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
         {collectedFieldsMap} for the key {responseName}; otherwise create the
         entry with an empty ordered set.
-      - Append each item from {fragmentFields} to {fieldsForResponseName}.
-- Return {collectedFieldsMap}.
+      - Add each item from {fragmentFieldSet} to {fieldsForResponseName}.
+    - Append all items in {fragmentNewDeferUsages} to {newDeferUsages}.
+- Return {collectedFieldsMap} and {newDeferUsages}.
 
 DoesFragmentTypeApply(objectType, fragmentType):
 
@@ -514,6 +580,11 @@ DoesFragmentTypeApply(objectType, fragmentType):
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+Note: When completing a List field, the {CollectFields()} algorithm is invoked
+with the same arguments for each item in the list. It is strongly recommended
+that GraphQL services memoize {CollectFields()} to avoid repeating this work for
+every item.
 
 **Merging Selection Sets**
 
@@ -550,20 +621,23 @@ resolved in the same phase with the same value.
 CollectSubfields(objectType, fields, variableValues):
 
 - Let {collectedFieldsMap} be an empty ordered map of ordered sets.
-- For each {field} in {fields}:
+- Let {newDeferUsages} be an empty list.
+- For each {fieldDetails} in {fields}:
+  - Let {field} and {deferUsage} be the corresponding entries on {fieldDetails}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
-  - Let {fieldCollectedFieldsMap} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
-  - For each {responseName} and {subfields} in {fieldCollectedFieldsMap}:
+  - Let {subCollectedFieldsMap} and {subNewDeferUsages} be the result of
+    {CollectFields(objectType, fieldSelectionSet, variableValues, deferUsage)}.
+  - For each {responseName} and {subfields} in {subCollectedFieldsMap}:
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
-    - Add each fields from {subfields} to {fieldsForResponseName}.
-- Return {collectedFieldsMap}.
+    - Add each item from {subfields} to {fieldsForResponseName}.
+  - Append all items in {subNewDeferUsages} to {newDeferUsages}.
+- Return {collectedFieldsMap} and {newDeferUsages}.
 
-Note: All the {fields} passed to {CollectSubfields()} share the same _response
-name_.
+Note: All the {fieldDetailsList} passed to {CollectSubfields()} share the same
+_response name_.
 
 ### Executing Collected Fields
 
