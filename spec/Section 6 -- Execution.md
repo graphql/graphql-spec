@@ -16,22 +16,20 @@ A GraphQL service generates a response from a request via execution.
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
 - {onError} (optional): The _error behavior_ to apply to the request; see
-  [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
-  provided and its value is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"},
-  then a _request error_ must be raised.
+  [Handling Execution Errors](#sec-Handling-Execution-Errors).
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
 Given this information, the result of {ExecuteRequest(schema, document,
-operationName, variableValues, initialValue)} produces the response, to be
-formatted according to the Response section below.
+operationName, variableValues, onError, initialValue)} produces the response, to
+be formatted according to the Response section below.
 
 Note: Previous versions of this specification did not define the {onError}
-request attribute. Clients can detect support for {onError} by checking for the
-{"graphql.onError"} capability. If this capability is not present, or if
-capabilities themselves are not supported by introspection, then clients should
-not include {onError} in the request and must assume the _error behavior_ is
-{"PROPAGATE"}.
+request attribute. In that case, clients should not include {onError} in the
+request and assume the _error behavior_ is {"PROPAGATE"}.
+
+Note: Detecting whether a service supports {onError} and what _default error
+behavior_ it uses is outside the scope of this specification.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -58,11 +56,14 @@ document is expected to only contain a single operation. The result of the
 request is determined by the result of executing this operation according to the
 "Executing Operations” section below.
 
-ExecuteRequest(schema, document, operationName, variableValues, initialValue):
+ExecuteRequest(schema, document, operationName, variableValues, onError,
+initialValue):
 
 - Let {operation} be the result of {GetOperation(document, operationName)}.
 - Let {coercedVariableValues} be the result of {CoerceVariableValues(schema,
   operation, variableValues)}.
+- If {onError} is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"}, raise a
+  _request error_.
 - If {operation} is a query operation:
   - Return {ExecuteQuery(operation, schema, coercedVariableValues,
     initialValue)}.
@@ -943,11 +944,7 @@ handled. It may be specified using the optional {onError} attribute of the
 _request_. If omitted, the _default error behavior_ of the service applies.
 Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
 
-:: The _default error behavior_ of a service is implementation-defined. For
-compatibility with existing clients, services should default to {"PROPAGATE"}
-which reflects prior behavior. <!-- For new services, {"NULL"} is
-recommended. --> The default error behavior is indicated via the {"graphql.defaultErrorBehavior"}
-_service capability_.
+:: The _default error behavior_ of a service is implementation-defined.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
@@ -962,8 +959,8 @@ value:
 
 **{"NULL"}**
 
-With {"NULL"}, a `Non-Null` _response position_ will have the value {null} if
-and only if an error occurred at that position.
+With {"NULL"}, a `Non-Null` _response position_ has the value {null} if and only
+if an error occurred at that position.
 
 Note: Clients must inspect the {"errors"} list and use the {"path"} of each
 error result to distinguish between intentional {null} values and those
@@ -980,7 +977,7 @@ that position is of a `Non-Null` type, then an execution error is raised at that
 position. The error must be added to the {"errors"} list in the _execution
 result_.
 
-Since `Non-Null` response positions cannot be {null}, execution errors are
+To avoid `Non-Null` response positions being {null}, execution errors are
 propagated to be handled by the parent _response position_. If the parent
 response position may be {null} then it resolves to {null}, otherwise if it is a
 `Non-Null` type, the execution error is further propagated to its parent
