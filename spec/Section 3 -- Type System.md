@@ -1129,9 +1129,10 @@ Object type extensions have the potential to be invalid if incorrectly defined.
                exactly.
             4. Any non-repeatable directives provided must not already apply to
                the previous definition.
-3. Any interfaces provided must not be already implemented by the previous
+3. Any non-repeatable directives provided must not already apply to the previous Object type.
+4. Any interfaces provided must not be already implemented by the previous
    Object type.
-4. The resulting extended object type must be a super-set of all interfaces it
+5. The resulting extended object type must be a super-set of all interfaces it
    implements.
 
 ## Interfaces
