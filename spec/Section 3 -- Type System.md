@@ -1411,14 +1411,12 @@ defined.
                exactly.
             4. Any non-repeatable directives provided must not already apply to
                the previous definition.
-3. Any fields of an Interface type extension must not be already defined on the
-   previous Interface type.
-4. Any Object or Interface type which implemented the previous Interface type
+3. Any Object or Interface type which implemented the previous Interface type
    must also be a super-set of the fields of the Interface type extension (which
    may be due to Object type extension).
-5. Any non-repeatable directives provided must not already apply to the previous
+4. Any non-repeatable directives provided must not already apply to the previous
    Interface type.
-6. The resulting extended Interface type must be a super-set of all Interfaces
+5. The resulting extended Interface type must be a super-set of all Interfaces
    it implements.
 
 ## Unions
