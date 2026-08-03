@@ -207,9 +207,10 @@ describes the _response position_ which raised the error. This allows clients to
 identify whether a {null} resolved result is a true value or the result of an
 _execution error_. It must also contain an entry with the key {"pathNonNull"}
 with the _response path nullability_ for that path. This enables clients to
-contain advanced error handling capabilities, including reproducing any _error
-behavior_ locally when using the {"NULL"} _error behavior_ in the request,
-without requiring access to both the schema and the request document.
+implement advanced error handling behavior: for example, a client could issue a
+request using the {"NULL"} _error behavior_ and then reproduce any _error
+behavior_ locally, something that would otherwise require access to both the
+schema and the request document.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
