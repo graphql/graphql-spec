@@ -27,11 +27,8 @@ operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
 
 Note: Previous versions of this specification did not define the {onError}
-request attribute. Clients can detect support for {onError} by checking for the
-{"graphql.onError"} capability. If this capability is not present, or if
-capabilities themselves are not supported by introspection, then clients should
-not include {onError} in the request and must assume the _error behavior_ is
-{"PROPAGATE"}.
+request attribute. Clients should not include {onError} in the request unless it
+is know that the service supports this property.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -943,11 +940,9 @@ handled. It may be specified using the optional {onError} attribute of the
 _request_. If omitted, the _default error behavior_ of the service applies.
 Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
 
-:: The _default error behavior_ of a service is implementation-defined. For
-compatibility with existing clients, services should default to {"PROPAGATE"}
-which reflects prior behavior. <!-- For new services, {"NULL"} is
-recommended. --> The default error behavior is indicated via the {"graphql.defaultErrorBehavior"}
-_service capability_.
+:: The _default error behavior_ of a service is implementation-defined. Using
+{"PROPAGATE"} as the default error behavior maximizes compatibility with older
+clients.
 
 Note: {"HALT"} is not recommended as the _default error behavior_ because it
 prevents generating partial responses which may still contain useful data.
