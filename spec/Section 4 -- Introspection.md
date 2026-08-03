@@ -139,7 +139,7 @@ type __Schema {
   queryType: __Type!
   mutationType: __Type
   subscriptionType: __Type
-  directives: [__Directive!]!
+  directives(includeDeprecated: Boolean! = false): [__Directive!]!
 }
 
 type __Type {
@@ -206,6 +206,8 @@ type __Directive {
   isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean! = false): [__InputValue!]!
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 enum __DirectiveLocation {
@@ -228,6 +230,7 @@ enum __DirectiveLocation {
   ENUM_VALUE
   INPUT_OBJECT
   INPUT_FIELD_DEFINITION
+  DIRECTIVE_DEFINITION
 }
 
 type __Service {
@@ -259,6 +262,8 @@ Fields\:
   must be included in this set.
 - `directives` must return the set of all directives available within this
   schema including all built-in directives.
+  - Accepts the argument `includeDeprecated` which defaults to {false}. If
+    {true}, deprecated directives are also returned.
 
 ### The \_\_Type Type
 
@@ -510,6 +515,7 @@ supported. All possible locations are listed in the `__DirectiveLocation` enum:
 - {"ENUM_VALUE"}
 - {"INPUT_OBJECT"}
 - {"INPUT_FIELD_DEFINITION"}
+- {"DIRECTIVE_DEFINITION"}
 
 Fields\:
 
@@ -523,6 +529,10 @@ Fields\:
     {true}, deprecated arguments are also returned.
 - `isRepeatable` must return a Boolean that indicates if the directive may be
   used repeatedly at a single location.
+- `isDeprecated` returns {true} if this directive should no longer be used,
+  otherwise {false}.
+- `deprecationReason` returns the reason why this directive is deprecated, or
+  null if this directive is not deprecated.
 
 ### The \_\_Service Type
 

@@ -266,6 +266,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- DirectiveExtension
 
 SchemaDefinition : Description? schema Directives[Const]? {
 RootOperationTypeDefinition+ }
@@ -383,7 +384,9 @@ InputObjectTypeExtension :
 - extend input Name Directives[Const] [lookahead != `{`]
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
-`repeatable`? on DirectiveLocations
+Directives[Const]? `repeatable`? on DirectiveLocations
+
+DirectiveExtension : extend directive @ Name Directives[Const]
 
 DirectiveLocations :
 
@@ -419,6 +422,7 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+- `DIRECTIVE_DEFINITION`
 
 ServiceDefinition : Description? service { ServiceAttribute\* }
 

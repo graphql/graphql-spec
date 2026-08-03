@@ -41,6 +41,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- DirectiveExtension
 
 Type system extensions are used to represent a GraphQL type system which has
 been extended from some previous type system. For example, this might be used by
@@ -1623,8 +1624,8 @@ This example of a circularly-referenced input type is invalid as the field
 
 ```graphql counter-example
 input Example {
-  value: String
   self: Example!
+  value: String
 }
 ```
 
@@ -2034,7 +2035,7 @@ Following are examples of result coercion with various types and values:
 ## Directives
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
-`repeatable`? on DirectiveLocations
+Directives[Const]? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
 
@@ -2070,6 +2071,7 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+- `DIRECTIVE_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
@@ -2243,13 +2245,13 @@ condition is false.
 ```graphql
 directive @deprecated(
   reason: String! = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | DIRECTIVE_DEFINITION
 ```
 
 The `@deprecated` _built-in directive_ is used within the type system definition
 language to indicate deprecated portions of a GraphQL service's schema, such as
 deprecated fields on a type, arguments on a field, input fields on an input
-type, or values of an enum type.
+type, values of an enum type, or directives.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
@@ -2322,6 +2324,27 @@ input UserUniqueCondition @oneOf {
   organizationAndEmail: OrganizationAndEmailInput
 }
 ```
+
+### Directive Extensions
+
+DirectiveExtension : extend directive @ Name Directives[Const]
+
+Directive extensions are used to represent a directive which has been extended
+from some previous directive. For example, this might be used by a GraphQL tool
+or service which adds directives to an existing directive.
+
+**Type Validation**
+
+Directive extensions have the potential to be invalid if incorrectly defined.
+
+1. The previous directive must already be defined.
+2. Any non-repeatable directives provided must not already apply to the previous
+   directive.
+3. Any directives provided must not contain the use of a Directive which
+   references the previous directive directly.
+4. Any directives provided must not contain the use of a Directive which
+   references the previous directive indirectly by referencing a Type or
+   Directive which transitively includes a reference to the previous Directive.
 
 ## Service Definition
 
