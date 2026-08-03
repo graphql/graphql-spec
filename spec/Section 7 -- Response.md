@@ -182,8 +182,6 @@ indicated via a _response path_ in the error response's {"path"} entry. The
 _response path nullability_ of that response path is indicated via the error's
 {"pathNonNull"} entry.
 
-path's _response path nullability_ in the {"pathNonNull"} entry.
-
 When an execution error is raised at a given _response position_, then that
 response position must not be present within the _response_ {"data"} entry
 (except {null}), and the {"errors"} entry must include the error. Nested
@@ -217,7 +215,7 @@ For example, if fetching one of the friends' names fails in the following
 operation:
 
 ```graphql example
-{
+query episodeHero($episode: Int!) {
   hero(episode: $episode) {
     name
     heroFriends: friends {
@@ -225,6 +223,20 @@ operation:
       name
     }
   }
+}
+```
+
+Against the following schema:
+
+```graphql example
+type Query {
+  hero(episode: Int!): Hero
+}
+
+type Hero {
+  id: ID!
+  name: String
+  friends: [Hero]!
 }
 ```
 
@@ -236,7 +248,8 @@ The response might look like:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false]
     }
   ],
   "data": {
@@ -268,7 +281,7 @@ raised, even if that field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
-be the same:
+be the same except the corresponding entry in {"pathNonNull"}:
 
 ```json example
 {
@@ -276,7 +289,8 @@ be the same:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, true]
     }
   ],
   "data": {
@@ -310,6 +324,7 @@ see fit, and there are no additional restrictions on its contents.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false],
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -334,6 +349,7 @@ discouraged.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
