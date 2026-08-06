@@ -113,6 +113,18 @@ found at `["hero", "friends"]`, the hero's first friend at
 `["hero", "friends", 0]` and that friend's name at
 `["hero", "friends", 0, "name"]`.
 
+### Response Path Nullability
+
+Every non-empty prefix of a _response path_ is itself a response path and
+identifies a _response position_. A _response position_ is non-null if the type
+at that position is a Non-Null type.
+
+:: The _response path nullability_ of a _response path_ is a list of boolean
+values having the same length as the response path. Each value corresponds to
+the _response position_ identified by the _response path_ prefix ending at the
+same index: the value is {true} if that response position is non-null, and
+{false} otherwise.
+
 ### Data
 
 The {"data"} entry in the _execution result_ will be the result of the execution
@@ -166,7 +178,9 @@ An execution error is typically the fault of a GraphQL service.
 
 An _execution error_ must occur at a specific _response position_, and may occur
 in any response position. The response position of an execution error is
-indicated via a _response path_ in the error response's {"path"} entry.
+indicated via a _response path_ in the error response's {"path"} entry. The
+_response path nullability_ of that response path is indicated via the error's
+{"pathNonNull"} entry.
 
 When an execution error is raised at a given _response position_, then that
 response position must not be present within the _response_ {"data"} entry
@@ -191,13 +205,18 @@ If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key {"path"} with a _response path_ which
 describes the _response position_ which raised the error. This allows clients to
 identify whether a {null} resolved result is a true value or the result of an
-_execution error_.
+_execution error_. It must also contain an entry with the key {"pathNonNull"}
+with the _response path nullability_ for that path. This enables clients to
+implement advanced error handling behavior: for example, a client could issue a
+request using the {"NULL"} _error behavior_ and then reproduce any _error
+behavior_ locally, something that would otherwise require access to both the
+schema and the request document.
 
 For example, if fetching one of the friends' names fails in the following
 operation:
 
 ```graphql example
-{
+query episodeHero($episode: Int!) {
   hero(episode: $episode) {
     name
     heroFriends: friends {
@@ -205,6 +224,20 @@ operation:
       name
     }
   }
+}
+```
+
+Against the following schema:
+
+```graphql example
+type Query {
+  hero(episode: Int!): Hero
+}
+
+type Hero {
+  id: ID!
+  name: String
+  friends: [Hero]!
 }
 ```
 
@@ -216,7 +249,8 @@ The response might look like:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false]
     }
   ],
   "data": {
@@ -248,7 +282,7 @@ raised, even if that field is not present in the response.
 
 For example, if the `name` field from above had declared a `Non-Null` return
 type in the schema, the result would look different but the error reported would
-be the same:
+be the same except the corresponding entry in {"pathNonNull"}:
 
 ```json example
 {
@@ -256,7 +290,8 @@ be the same:
     {
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
-      "path": ["hero", "heroFriends", 1, "name"]
+      "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, true]
     }
   ],
   "data": {
@@ -290,6 +325,7 @@ see fit, and there are no additional restrictions on its contents.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false],
       "extensions": {
         "code": "CAN_NOT_FETCH_BY_ID",
         "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
@@ -314,6 +350,7 @@ discouraged.
       "message": "Name for character with ID 1002 could not be fetched.",
       "locations": [{ "line": 6, "column": 7 }],
       "path": ["hero", "heroFriends", 1, "name"],
+      "pathNonNull": [false, true, false, false],
       "code": "CAN_NOT_FETCH_BY_ID",
       "timestamp": "Fri Feb 9 14:33:09 UTC 2018"
     }
