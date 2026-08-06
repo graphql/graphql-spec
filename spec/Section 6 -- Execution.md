@@ -29,8 +29,8 @@ operationName, variableValues, initialValue)} produces the response, to be
 formatted according to the Response section below.
 
 Note: Previous versions of this specification did not define the {onError}
-request attribute. Clients should not include {onError} in the request unless it
-is known that the service supports this property.
+request attribute. Clients should only include {onError} in the request if it is
+known that the service supports this property.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
