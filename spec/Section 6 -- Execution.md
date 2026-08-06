@@ -7,6 +7,12 @@ A GraphQL service generates a response from a request via execution.
 - {schema}: The schema to use, typically solely provided by the GraphQL service.
 - {document}: A {Document} which must contain GraphQL {OperationDefinition} and
   may contain {FragmentDefinition}.
+- {onError} (recommended): The _error behavior_ to apply to the request; see
+  [Handling Execution Errors](#sec-Handling-Execution-Errors). Clients should
+  provide {onError} as part of a GraphQL request. If {onError} is provided and
+  its value is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"}, then a _request
+  error_ must be raised. If {onError} is not provided, the value {"PROPAGATE"}
+  will be used.
 - {operationName} (optional): The name of the Operation in the Document to
   execute.
 - {variableValues} (optional): Values for any Variables defined by the
@@ -15,10 +21,6 @@ A GraphQL service generates a response from a request via execution.
   being executed. Conceptually, an initial value represents the "universe" of
   data available via a GraphQL Service. It is common for a GraphQL Service to
   always use the same initial value for every request.
-- {onError} (optional): The _error behavior_ to apply to the request; see
-  [Handling Execution Errors](#sec-Handling-Execution-Errors). If {onError} is
-  provided and its value is not one of {"NULL"}, {"PROPAGATE"}, or {"HALT"},
-  then a _request error_ must be raised.
 - {extensions} (optional): A map reserved for implementation-specific additional
   information.
 
@@ -28,7 +30,7 @@ formatted according to the Response section below.
 
 Note: Previous versions of this specification did not define the {onError}
 request attribute. Clients should not include {onError} in the request unless it
-is know that the service supports this property.
+is known that the service supports this property.
 
 Implementations should not add additional properties to a _request_, which may
 conflict with future editions of the GraphQL specification. Instead,
@@ -936,24 +938,18 @@ has already been added to the {"errors"} list in the _execution result_, the
 added to the errors list per _response position_.
 
 :: The _error behavior_ of a request indicates how an _execution error_ is
-handled. It may be specified using the optional {onError} attribute of the
-_request_. If omitted, the _default error behavior_ of the service applies.
-Valid values for _error behavior_ are {"NULL"}, {"PROPAGATE"} and {"HALT"}.
-
-:: The _default error behavior_ of a service is implementation-defined. Using
-{"PROPAGATE"} as the default error behavior maximizes compatibility with older
-clients.
-
-Note: {"HALT"} is not recommended as the _default error behavior_ because it
-prevents generating partial responses which may still contain useful data.
+handled; valid values are {"NULL"}, {"PROPAGATE"} and {"HALT"}. The _error
+behavior_ for a _request_ should be specified using the {onError} attribute of
+the request; if unspecified, the _error behavior_ is {"PROPAGATE"}.
 
 Regardless of error behavior, if a _response position_ with a non-null type
 results in {null} due to the result of {ResolveFieldValue()} then an execution
 error must be raised at that position as specified in {CompleteValue()}.
 
 The _error behavior_ of a request applies to every _execution error_ raised
-during execution. The following sections describe the behavior of each valid
-value:
+during execution.
+
+The following sections describe the behavior of each valid value:
 
 **{"NULL"}**
 
