@@ -560,6 +560,7 @@ FieldsInSetCanMerge(set):
   {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
   - {SameResponseShape(fieldA, fieldB)} must be true.
+  - {HasNoOverlappingStreams(fieldA, fieldB)} must be true.
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
     - {fieldA} and {fieldB} must have identical field names.
@@ -594,6 +595,12 @@ SameResponseShape(fieldA, fieldB):
   {fieldsForName}:
   - If {SameResponseShape(subfieldA, subfieldB)} is {false}, return {false}.
 - Return {true}.
+
+HasNoOverlappingStreams(fieldA, fieldB):
+
+- If neither {fieldA} nor {fieldB} has a directive named `stream`.
+  - Return {true}.
+- Return {false}.
 
 Note: In prior versions of the spec the term "composite" was used to signal a
 type that is either an Object, Interface or Union type.
@@ -1692,6 +1699,204 @@ query ($foo: Boolean = true, $bar: Boolean = false) {
   field @skip(if: $bar) {
     subfieldB
   }
+}
+```
+
+### Defer And Stream Directives Are Used On Valid Root Field
+
+**Formal Specification**
+
+- For each operation definition {operation} in the document:
+  - If the operation type is not subscription or mutation:
+    - Continue to the next operation definition.
+  - Let {selectionSet} be the top level selection set on {operation}.
+  - {ForbidDeferStream(selectionSet)}.
+
+ForbidDeferStream(selectionSet, visitedFragments):
+
+- If {visitedFragments} is not provided, initialize it to the empty set.
+- For each {selection} in {selectionSet}:
+  - If {selection} is a {Field}:
+    - {selection} must not provide the `@stream` directive.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - {selection} must not provide the `@defer` directive.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidDeferStream(fragmentSelectionSet, visitedFragments)}.
+  - If {selection} is a {InlineFragment}:
+    - {selection} must not provide the `@defer` directive.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidDeferStream(fragmentSelectionSet, visitedFragments)}.
+
+**Explanatory Text**
+
+The `@defer` and `@stream` directives are not allowed to be used on root fields
+of mutation or subscription operations.
+
+For example, the following document will not pass validation because `@defer`
+has been used on a root mutation field:
+
+```raw graphql counter-example
+mutation {
+  ... @defer {
+    mutationField
+  }
+}
+```
+
+### Defer And Stream Directives Are Used In Valid Operations
+
+**Formal Specification**
+
+- Initialize {visitedFragments} to the empty set.
+- For each {operation} in a document:
+  - If {operation} is not a subscription operation:
+    - Continue to the next operation definition.
+  - Let {operationSelection} be the top level selection set on {operation}.
+  - {ForbidUnconditionalDeferStream(operationSelection, visitedFragments)}.
+
+ForbidUnconditionalDeferStream(selectionSet, visitedFragments):
+
+- For each {selection} in {selectionSet}:
+  - If {selection} provides the `@skip` directive, and the `if` argument on that
+    directive is not the boolean value {false}:
+    - Continue to the next {selection} in {selectionSet}.
+  - If {selection} provides the `@include` directive, and the `if` argument on
+    that directive is not the boolean value {true}:
+    - Continue to the next {selection} in {selectionSet}.
+  - For each `@defer` or `@stream` {directive} on {selection}:
+    - Let {if} be the argument named `if` on {directive}.
+    - {if} must be defined.
+    - Let {argumentValue} be the value passed to {if}.
+    - {argumentValue} must not be the boolean value {false}.
+  - If {selection} is a {FragmentSpread}:
+    - Let {fragmentSpreadName} be the name of {selection}.
+    - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
+      {selection} in {selectionSet}.
+    - Add {fragmentSpreadName} to {visitedFragments}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentSelectionSet} be the selection set of {selection}.
+    - {ForbidUnconditionalDeferStream(fragmentSelectionSet, visitedFragments)}.
+  - Otherwise:
+    - Let {nestedSelectionSet} be the selection set of {selection}.
+    - If {nestedSelectionSet} exists:
+      - {ForbidUnconditionalDeferStream(nestedSelectionSet, visitedFragments)}.
+
+**Explanatory Text**
+
+The `@defer` and `@stream` directives can not be used to defer or stream data in
+subscription operations. If these directives appear in a subscription operation
+they must be disabled using an `if` argument. This rule will not permit any
+defer or stream directives on a subscription operation that cannot be disabled
+using an `if` argument.
+
+For example, the following document will not pass validation because `@defer`
+has been used in a subscription operation with no `if` argument defined:
+
+```raw graphql counter-example
+subscription sub {
+  newMessage {
+    ... @defer {
+      body
+    }
+  }
+}
+```
+
+### Defer And Stream Directive Labels Are Unique
+
+**Formal Specification**
+
+- Let {labelValues} be an empty set.
+- For every `@defer` and `@stream` {directive} in the document:
+  - Let {label} be the value of {directive}'s `label` argument.
+  - If {label} does not exist or is {null}:
+    - Continue to the next {directive}.
+  - {label} must not be a variable.
+  - {label} must not be present in {labelValues}.
+  - Add {label} to {labelValues}.
+
+**Explanatory Text**
+
+The `@defer` and `@stream` directives each accept an argument `label`. This
+label may be used by GraphQL clients to uniquely identify response payloads. If
+a label is passed, it must not be a variable and it must be unique within all
+other `@defer` and `@stream` directives in the document.
+
+For example the following document is valid:
+
+```graphql example
+{
+  dog {
+    ...fragmentOne
+    ...fragmentTwo @defer(label: "dogDefer")
+  }
+  pets @stream(label: "petStream") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+
+fragment fragmentTwo on Dog {
+  owner {
+    name
+  }
+}
+```
+
+The following document will not pass validation because the same label is used
+in multiple `@defer` and `@stream` directives:
+
+```raw graphql counter-example
+{
+  dog {
+    ...fragmentOne @defer(label: "MyLabel")
+  }
+  pets @stream(label: "MyLabel") {
+    name
+  }
+}
+
+fragment fragmentOne on Dog {
+  name
+}
+```
+
+### Stream Directives Are Used On List Fields
+
+**Formal Specification**
+
+- For every `@stream` {directive} in the document:
+  - Let {adjacent} be the AST node {directive} affects.
+  - Let {nullableFieldType} be the unwrapped nullable type of {adjacent}.
+  - {nullableFieldType} must be a List type.
+
+**Explanatory Text**
+
+GraphQL directive locations do not provide enough granularity to distinguish the
+type of fields used in a GraphQL document. Since the stream directive is only
+valid on list fields, an additional validation rule must be used to ensure it is
+used correctly.
+
+For example, the following document will only pass validation if `field`
+contains a List type in the associated schema.
+
+```graphql counter-example
+query {
+  field @stream(initialCount: 0)
 }
 ```
 
