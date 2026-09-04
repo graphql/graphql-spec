@@ -717,7 +717,7 @@ Where `name` is a field that will yield a {String} value, and `age` is a field
 that will yield an {Int} value, and `picture` is a field that will yield a `Url`
 value.
 
-A query of an object value must select at least one field. This selection of
+A query of an object value must be made via a selection set. This selection of
 fields will yield an ordered map containing exactly the subset of the object
 queried, which should be represented in the order in which they were queried.
 Only fields that are declared on the object type may validly be queried on that
@@ -1934,9 +1934,8 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 **Nullable vs. Optional**
 
 Fields are _always_ optional within the context of a _selection set_, a field
-may be omitted and the selection set is still valid (so long as the selection
-set does not become empty). However fields that return Non-Null types will never
-return the value {null} if queried.
+may be omitted and the selection set is still valid. However fields that return
+Non-Null types will never return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},

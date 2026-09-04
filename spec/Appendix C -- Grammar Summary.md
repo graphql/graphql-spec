@@ -156,7 +156,7 @@ OperationDefinition :
 
 OperationType : one of `query` `mutation` `subscription`
 
-SelectionSet : { Selection+ }
+SelectionSet : { Selection\* }
 
 Selection :
 

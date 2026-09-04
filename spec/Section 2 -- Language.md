@@ -383,7 +383,7 @@ Note: many examples below will use the query shorthand syntax.
 
 ## Selection Sets
 
-SelectionSet : { Selection+ }
+SelectionSet : { Selection\* }
 
 Selection :
 
