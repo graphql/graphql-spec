@@ -605,13 +605,16 @@ execution position (the entire selection set in the case of a field, or the
 entire list in the case of a list position), either resolving to {null} if
 allowed or being further propagated to a parent execution position.
 
-If this occurs, any sibling _execution position_ or descendent thereof which has
-not yet executed or has not yet yielded a value may be cancelled to avoid
-unnecessary work. Errors from such positions should not be added to the
-{"errors"} list.
+When an error is propagated due to a non-null type, any sibling _execution
+position_ or descendant thereof which has not yet executed or has not yet
+yielded a value may be cancelled to avoid unnecessary work. Errors from such
+positions should not be added to the {"errors"} list.
 
-Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
-about this behavior.
+Note: When a non-null position causes the error to propagate, the containing
+selection set evaluates to {null}; thus, sibling and descendant positions are
+not included in the _response_ and therefore need not execute. See
+[Handling Execution Errors](#sec-Handling-Execution-Errors) for more about this
+behavior.
 
 ### Normal and Serial Execution
 
