@@ -747,6 +747,14 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
+An empty selection is still a selection, so the following is also invalid.
+
+```graphql counter-example
+fragment scalarEmptySelectionsNotAllowedOnInt on Dog {
+  barkVolume {}
+}
+```
+
 Conversely, non-leaf fields must have a field subselection. A non-leaf field is
 any field with an object, interface, or union unwrapped type.
 
@@ -785,6 +793,14 @@ query directQueryOnObjectWithSubFields {
   human {
     name
   }
+}
+```
+
+The subselection is permitted to be empty, so the following is also valid.
+
+```graphql example
+query directQueryOnObjectWithEmptySelection {
+  human {}
 }
 ```
 
