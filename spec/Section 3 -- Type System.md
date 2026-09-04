@@ -1811,9 +1811,9 @@ InputFieldTypeHasUnbreakableCycle(fieldType, visited):
 - If {fieldType} is a Non-Null type:
   - Let {nullableType} be the unwrapped nullable type of {fieldType}.
   - Return {InputFieldTypeHasUnbreakableCycle(nullableType, visited)}.
-- Assert: {fieldType} is a named type.
-- If {fieldType} is not an Input Object type:
+- If {fieldType} is a Scalar or Enum type:
   - Return {false}.
+- Assert: {fieldType} is an Input Object type.
 - Return {InputObjectHasUnbreakableCycle(fieldType, visited)}.
 
 ### OneOf Input Objects
