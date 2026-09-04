@@ -747,7 +747,7 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
 }
 ```
 
-An empty selection is still a selection, so the following is also invalid.
+An empty selection is a selection, so the following is also invalid.
 
 ```graphql counter-example
 fragment scalarEmptySelectionsNotAllowedOnInt on Dog {
