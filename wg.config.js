@@ -6,6 +6,7 @@ const config = {
   repoUrl: "https://github.com/graphql/graphql-spec",
   meetings: false,
   spec: {
+    mainFile: "spec/GraphQL.md",
     sentenceName: "the GraphQL specification",
     url: "https://spec.graphql.org"
   }
