@@ -149,7 +149,7 @@ type.
 
 Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
-must be an Object type.
+must be an Object type and must define at least one field.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
