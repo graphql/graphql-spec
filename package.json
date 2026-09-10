@@ -27,7 +27,7 @@
   "devDependencies": {
     "cspell": "5.9.1",
     "graphql": "^17.0.0-alpha.9",
-    "nodemon": "2.0.20",
+    "nodemon": "^3.1.14",
     "prettier": "2.8.2",
     "spec-md": "3.1.0",
     "wgutils": "^1.4.1"
