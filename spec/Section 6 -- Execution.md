@@ -737,8 +737,8 @@ order to correctly produce a value. These arguments are defined by the field in
 the type system to have a specific input type.
 
 Each argument position in an executable document contains a literal {Value}, or
-a {Variable} to be provided at runtime. Some arguments may not be represented
-in the document, for example if they are optional.
+a {Variable} to be provided at runtime. Some arguments may not be represented in
+the document, for example if they are optional.
 
 CoerceArgumentValues(objectType, field, variableValues):
 
