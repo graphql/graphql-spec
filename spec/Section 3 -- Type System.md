@@ -136,6 +136,9 @@ All types and directives defined within a schema must not have a name which
 begins with {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
 introspection system.
 
+If a GraphQL schema contains any deprecated _schema element_, a copy of the
+schema that omits all deprecated _schema element_ must itself be valid.
+
 ### Root Operation Types
 
 :: A schema defines the initial _root operation type_ for each kind of operation
@@ -968,7 +971,6 @@ IsValidImplementation(type, implementedType):
        2. Let {implementedFieldType} be the return type of {implementedField}.
        3. {IsValidImplementationFieldType(fieldType, implementedFieldType)} must
           be {true}.
-    6. If {field} is deprecated then {implementedField} must also be deprecated.
 
 IsValidImplementationFieldType(fieldType, implementedFieldType):
 
