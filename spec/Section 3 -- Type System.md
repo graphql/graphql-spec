@@ -150,7 +150,7 @@ type.
 
 Similarly, the {`subscription`} _root operation type_ is also optional; if it is
 not provided, the service does not support subscriptions. If it is provided, it
-must be an Object type.
+must be an Object type and must define at least one field.
 
 The {`query`}, {`mutation`}, and {`subscription`} root types must all be
 different types if provided.
@@ -922,8 +922,7 @@ Objects are never valid inputs.
 Object types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Object type in a GraphQL schema.
 
-1. An Object type must define one or more fields.
-2. For each field of an Object type:
+1. For each field of an Object type:
    1. The field must have a unique name within that Object type; no two fields
       may share the same name.
    2. The field must not have a name which begins with the characters {"\_\_"}
@@ -941,8 +940,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          1. The `@deprecated` directive must not be applied to this argument.
       5. If the argument has a default value it must be compatible with
          {argumentType} as per the coercion rules for that type.
-3. An object type may declare that it implements one or more unique interfaces.
-4. An object type must be a super-set of all interfaces it implements:
+2. An object type may declare that it implements one or more unique interfaces.
+3. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
       {IsValidImplementation(objectType, interfaceType)} must be {true}.
