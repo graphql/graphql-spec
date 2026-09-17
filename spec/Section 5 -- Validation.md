@@ -720,9 +720,9 @@ fragment conflictingDifferingResponses on Pet {
 - For each {selection} in the document:
   - Let {selectionType} be the unwrapped result type of {selection}.
   - If {selectionType} is a scalar or enum:
-    - The subselection set of that selection must be empty.
+    - The subselection set of that selection must not be present.
   - If {selectionType} is an interface, union, or object:
-    - The subselection set of that selection must not be empty.
+    - The subselection set of that selection must be present.
 
 **Explanatory Text**
 
@@ -744,6 +744,14 @@ fragment scalarSelectionsNotAllowedOnInt on Dog {
   barkVolume {
     sinceWhen
   }
+}
+```
+
+An empty selection is a selection, so the following is also invalid.
+
+```graphql counter-example
+fragment scalarEmptySelectionsNotAllowedOnInt on Dog {
+  barkVolume {}
 }
 ```
 
@@ -785,6 +793,14 @@ query directQueryOnObjectWithSubFields {
   human {
     name
   }
+}
+```
+
+The subselection is permitted to be empty, so the following is also valid.
+
+```graphql example
+query directQueryOnObjectWithEmptySelection {
+  human {}
 }
 ```
 
