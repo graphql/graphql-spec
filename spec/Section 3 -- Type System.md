@@ -1643,7 +1643,7 @@ input Second {
 }
 ```
 
-_OneOf Input Objects_ require exactly one field be provided, and that field
+_OneOf Input Objects_ require exactly one field be provided, and that value
 cannot be `null`. This example is invalid because providing a value for `First`
 requires a non-null `Second`, and constructing a `Second` requires a non-null
 `First`:
