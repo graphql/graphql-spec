@@ -608,7 +608,7 @@ allowed or being further propagated to a parent response position.
 When an error is propagated due to a non-null type, any sibling _response
 position_ or descendant thereof which has not yet executed or has not yet
 yielded a value may be cancelled to avoid unnecessary work. Errors from such
-positions should not be added to the {"errors"} list.
+cancelled positions should not be added to the {"errors"} list.
 
 Note: When a non-null position causes the error to propagate, the containing
 selection set evaluates to {null}; thus, sibling and descendant positions are
