@@ -8,33 +8,37 @@ normative. Please read the
 [specification document](https://spec.graphql.org/September2026/) itself for
 full detail and context.
 
-## Thank you, contributors!
+## GraphQL beyond the specification
 
 The way software is built is undergoing profound change, yet interoperability,
 clear boundaries, and strong guard rails remain as important as ever. The
-GraphQL specification is the beating heart of GraphQL: a reliable foundation
-that implementations can share, and one with the foresight to evolve without
-leaving users behind. This year, we've been delighted to see how much work is
-happening around that core.
+GraphQL specification is the beating heart of GraphQL: a reliable bedrock that
+implementations share, yet one that can evolve without leaving users behind.
+This year, we've been delighted to see so much work happening around that core.
 
 The long-awaited [GraphQL over HTTP
-specification](https://http-spec.graphql.org) launched alongside this release
+specification](https://http-spec.graphql.org), launched alongside this release,
 brings years of collaboration to an agreed standard for how clients and servers
-communicate. Already widely adopted, it builds on the patterns of the past
-whilst extending them to make the most of the rich HTTP protocol. The new
-[GraphQL Auxilliary Proposals (GAPs)](https://gaps.graphql.org/) project gives
-the wider community a place to develop shared, optional building blocks on top
-of GraphQL, covering everything from schema design to client behaviors. The
-GraphQL Open Telemetry WG have proposed [Semantic Conventions for
+communicate. With its draft already widely adopted, it builds on the patterns of
+the past whilst extending them to make the most of the rich HTTP protocol. The
+new [GraphQL Auxiliary Proposals (GAPs)](https://gaps.graphql.org/) project
+gives the wider community a place to contribute and develop shared, optional
+building blocks on top of GraphQL, covering everything from schema design to
+client behaviors. The Federation working group, a strong collaboration between
+many vendors, is hard at work developing a vendor-neutral approach to composing
+GraphQL schemas with a focus on enabling communication and collaboration between
+teams. The GraphQL OpenTelemetry working group has proposed [Semantic
+Conventions for
 GraphQL](https://github.com/open-telemetry/semantic-conventions/pull/3515), now
-open to review. The [Golden Path](https://goldenpath.graphql.org) is exploring
+open for review. The [Golden Path](https://goldenpath.graphql.org) is exploring
 the default experience we'd like libraries and frameworks to offer GraphQL
 users, while the AI Working Group is considering how GraphQL fits into new ways
-of building, delivering and consuming software.
+of building, delivering and consuming software. And that's not to mention all
+the work going on across implementations, development tools, and websites!
 
-It has been a privilege to see so many people contribute to GraphQL over the
-last year. GraphQL remains a dependable foundation because you continue to
-improve it, challenge it, and help it meet changing needs.
+It has been a privilege to see so many people contribute to the GraphQL
+technologies over the last year. GraphQL remains a dependable foundation because
+you continue to improve it, challenge it, and help it meet changing needs.
 
 Thank you for your dedication, enthusiasm, and hard work!
 
