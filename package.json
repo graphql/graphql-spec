@@ -32,7 +32,7 @@
     "nodemon": "^3.1.14",
     "prettier": "2.8.2",
     "spec-md": "3.1.0",
-    "wgutils": "^2.0.0"
+    "wgutils": "^2.1.0"
   },
   "prettier": {
     "proseWrap": "always",
