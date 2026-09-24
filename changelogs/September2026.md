@@ -10,7 +10,35 @@ full detail and context.
 
 ## Thank you, contributors!
 
-<!-- TODO: add editors notes! -->
+The way software is built is undergoing profound change, yet interoperability,
+clear boundaries, and strong guard rails remain as important as ever. The
+GraphQL specification is the beating heart of GraphQL: a reliable foundation
+that implementations can share, and one with the foresight to evolve without
+leaving users behind. This year, we've been delighted to see how much work is
+happening around that core.
+
+The long-awaited [GraphQL over HTTP
+specification](https://http-spec.graphql.org) launched alongside this release
+brings years of collaboration to an agreed standard for how clients and servers
+communicate. Already widely adopted, it builds on the patterns of the past
+whilst extending them to make the most of the rich HTTP protocol. The new
+[GraphQL Auxilliary Proposals (GAPs)](https://gaps.graphql.org/) project gives
+the wider community a place to develop shared, optional building blocks on top
+of GraphQL, covering everything from schema design to client behaviors. The
+GraphQL Open Telemetry WG have proposed [Semantic Conventions for
+GraphQL](https://github.com/open-telemetry/semantic-conventions/pull/3515), now
+open to review. The [Golden Path](https://goldenpath.graphql.org) is exploring
+the default experience we'd like libraries and frameworks to offer GraphQL
+users, while the AI Working Group is considering how GraphQL fits into new ways
+of building, delivering and consuming software.
+
+It has been a privilege to see so many people contribute to GraphQL over the
+last year. GraphQL remains a dependable foundation because you continue to
+improve it, challenge it, and help it meet changing needs.
+
+Thank you for your dedication, enthusiasm, and hard work!
+
+- [@benjie](https://github.com/benjie) on behalf of the GraphQL TSC
 
 ## Contributors
 
@@ -24,7 +52,6 @@ contribution to this edition of the GraphQL specification.
 | ------------------ | -------------------------------------------------- |
 | Benjie             | [@benjie](https://github.com/benjie)               |
 | Benoit 'BoD' Lubek | [@BoD](https://github.com/BoD)                     |
-| Benoit 'BoD' Lubek | BoD@JRAF.org                                       |
 | Ivan Goncharov     | [@IvanGoncharov](https://github.com/IvanGoncharov) |
 | James Bellenger    | [@jbellenger](https://github.com/jbellenger)       |
 | janettec           | [@janettec](https://github.com/janettec)           |
@@ -36,7 +63,13 @@ contribution to this edition of the GraphQL specification.
 
 ## Notable contributions
 
-<!-- TODO: pull out notable changes from the full list above -->
+A few notable changes in this edition:
+
+- Directives now supported on directive definitions, including deprecation of directives ([#1206](https://graphql.org/graphql/graphql-spec/pull/1206))
+- Empty selection sets now allowed, useful for client-side-only fields ([#1227](https://graphql.org/graphql/graphql-spec/pull/1227))
+- OneOf input object definitions now validated to ensure they can be populated ([#1211](https://graphql.org/graphql/graphql-spec/pull/1211))
+- Fragments now better defined to emphasize their intended use ([#1193](https://graphql.org/graphql/graphql-spec/pull/1193))
+- Many editorial improvements removing ambiguities and improving clarity
 
 ## Changeset
 
@@ -48,7 +81,6 @@ Listed in reverse-chronological order (latest commit on top).
 
 | Hash                                                                                               | Change                                                                            | Authors                                                                                                                                                            |
 | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [31608db](https://github.com/graphql/graphql-spec/commit/31608dbf6ec41e907b6be047ceebdb4fedbbe5ca) | Prepare for September2026 release                                                 | Benjie Gillam <benjie@jemjie.com>                                                                                                                                  |
 | [59bc70a](https://github.com/graphql/graphql-spec/commit/59bc70ac974b0d5d1e00869f41c06bb3bfc756da) | Define 'operation execution', clarifying 'before execution begins' (#894)         | Benjie <benjie@jemjie.com> Yaacov Rydzinski <yaacovCR@gmail.com> Martin Bonnin <martin@mbonnin.net> Benoit 'BoD' Lubek <BoD@JRAF.org> Lee Byron <lee@leebyron.com> |
 | [6ab9475](https://github.com/graphql/graphql-spec/commit/6ab9475e6ea0aaf8b2e61c9fb71da02bab4b6f76) | Fix "response position" definition; clarify sibling errors on propagation (#1183) | Benjie <benjie@jemjie.com>                                                                                                                                         |
 | [56fbeec](https://github.com/graphql/graphql-spec/commit/56fbeecdb0294177744e14fe5e37fca98aad1c0f) | Clarify definition of response position (#1238)                                   | Benjie <benjie@jemjie.com>                                                                                                                                         |
@@ -57,10 +89,9 @@ Listed in reverse-chronological order (latest commit on top).
 | [bf95fc4](https://github.com/graphql/graphql-spec/commit/bf95fc4e578966fad74ef0909445e12bcd806b06) | Add support for directives on directive definitions (#1206)                       | Benoit 'BoD' Lubek <BoD@JRAF.org> Ivan Goncharov <ivan.goncharov.ua@gmail.com>                                                                                     |
 | [1fe9b61](https://github.com/graphql/graphql-spec/commit/1fe9b61b3151251d4a09a8061fa55e1c5e929168) | fix: field selection set final values (#1212)                                     | mmin <marko.mindek@gmail.com> Benjie <benjie@jemjie.com>                                                                                                           |
 | [3c6695c](https://github.com/graphql/graphql-spec/commit/3c6695ce9cba27a2b887efd1f0e06cb030731b7c) | Editorial: consistent field ordering in Circular References examples (#1214)      | James Bellenger <james.bellenger@airbnb.com>                                                                                                                       |
-| [ff0d285](https://github.com/graphql/graphql-spec/commit/ff0d285289e1bd9c8c38d49743f94a90ce3e0bf3) | FIx format (#1210)                                                                | Martin Bonnin <martin@mbonnin.net>                                                                                                                                 |
+| [ff0d285](https://github.com/graphql/graphql-spec/commit/ff0d285289e1bd9c8c38d49743f94a90ce3e0bf3) | Fix format (#1210)                                                                | Martin Bonnin <martin@mbonnin.net>                                                                                                                                 |
 | [61217f0](https://github.com/graphql/graphql-spec/commit/61217f05e1d940a85bf9355ed7dc9029bf939335) | Update description of Fragments to emphasize evolving data needs (#1193)          | janettec <janettelc@gmail.com> Lee Byron <lee@leebyron.com> Benjie <benjie@jemjie.com>                                                                             |
 | [5dee82d](https://github.com/graphql/graphql-spec/commit/5dee82d218e47f17cc4af58050972fa0fb67b815) | Fix `includeDeprecated` arg type in "Appendix D" (#1192)                          | Kai Ren <tyranron@gmail.com> Martin Bonnin <martin@mbonnin.net>                                                                                                    |
-| [43ae7ba](https://github.com/graphql/graphql-spec/commit/43ae7baced54e37c68676b1ac5902e6223dcb078) | Next working draft                                                                | Lee Byron <lee@leebyron.com>                                                                                                                                       |
 
 Generated with:
 
