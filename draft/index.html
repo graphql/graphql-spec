@@ -2766,7 +2766,7 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1694-L1699">If a variable is provided for an input object field, the runtime value of that variable must be used. If the runtime value is <span class="spec-keyword">null</span> and the field type is non-null, an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised. If no runtime value is provided, the variable definition&rsquo;s default value should be used. If the variable definition does not provide a default value, the input object field definition&rsquo;s default value should be used.</li>
 </ul>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1701-L1702">Following are examples of input coercion for an input object type with a <code>String</code> field <code>a</code> and a required (non-null) <code>Int!</code> field <code>b</code>:</p>
-<pre id="example-704b8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1704-L1709"><a href="#example-704b8">Example № 87</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">ExampleInput</span><span class="token object">Object</span> <span class="token punctuation">{</span>
+<pre id="example-704b8" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1704-L1709"><a href="#example-704b8">Example № 87</a><code><span class="token keyword">input</span> <span class="token object">ExampleInputObject</span> <span class="token punctuation">{</span>
   <span class="token attr-name">a</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">b</span><span class="token punctuation">:</span> <span class="token scalar">Int</span><span class="token operator">!</span>
 <span class="token punctuation">}</span>
@@ -3015,7 +3015,7 @@ The GraphQL Object type (<span class="spec-nt"><a href="#ObjectTypeDefinition" d
 <li data-source="spec/Section%203%20--%20Type%20System.md#L1854-L1855">The resulting coerced map must contain exactly one entry and the value for that entry must not be <span class="spec-keyword">null</span>, otherwise an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised.</li>
 </ul>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1857-L1858">Following are additional examples of input coercion for a OneOf Input Object type with a <code>String</code> member field <code>a</code> and an <code>Int</code> member field <code>b</code>:</p>
-<pre id="example-82b67" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1860-L1865"><a href="#example-82b67">Example № 88</a><code><span class="token keyword">input</span> <span class="token atom-input class-name">ExampleOneOfInput</span><span class="token property">Object</span> <span class="token directive function">@oneOf</span> <span class="token punctuation">{</span>
+<pre id="example-82b67" class="spec-example" data-language="graphql" data-source="spec/Section%203%20--%20Type%20System.md#L1860-L1865"><a href="#example-82b67">Example № 88</a><code><span class="token keyword">input</span> <span class="token property">ExampleOneOfInputObject</span> <span class="token directive function">@oneOf</span> <span class="token punctuation">{</span>
   <span class="token attr-name">a</span><span class="token punctuation">:</span> <span class="token scalar">String</span>
   <span class="token attr-name">b</span><span class="token punctuation">:</span> <span class="token scalar">Int</span>
 <span class="token punctuation">}</span>
@@ -5565,7 +5565,7 @@ A <span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 
-<span class="token keyword">query</span> <span class="token definition-query function">takes</span><span class="token atom-input class-name">ComplexInput</span><span class="token punctuation">(</span><span class="token variable">$search</span><span class="token punctuation">:</span> <span class="token atom-input class-name">FindDogInput</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token keyword">query</span> <span class="token definition-query function">takesComplexInput</span><span class="token punctuation">(</span><span class="token variable">$search</span><span class="token punctuation">:</span> <span class="token atom-input class-name">FindDogInput</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token property-query">findDog</span><span class="token punctuation">(</span><span class="token attr-name">searchBy</span><span class="token punctuation">:</span> <span class="token variable">$search</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token property">name</span>
   <span class="token punctuation">}</span>
