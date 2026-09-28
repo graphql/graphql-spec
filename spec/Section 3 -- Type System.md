@@ -683,7 +683,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
@@ -1147,6 +1147,18 @@ type Business implements NamedEntity & ValuedEntity {
   value: Int
   employeeCount: Int
 }
+```
+
+An Interface type may define no fields. This may be written with an empty set of
+braces, or by omitting the braces entirely; the following two definitions are
+equivalent:
+
+```graphql example
+interface Empty {}
+```
+
+```graphql example
+interface Empty
 ```
 
 Fields which yield an interface are useful when one of many Object types are
