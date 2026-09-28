@@ -24,11 +24,11 @@ An _execution result_ must be a map.
 The _execution result_ must contain an entry with key {"data"}. The value of
 this entry is described in the "Data" section.
 
-If execution raised any errors, the _execution result_ must contain an entry
-with key {"errors"}. The value of this entry must be a non-empty list of
-_execution error_ raised during execution. Each error must be a map as described
-in the "Errors" section below. If the request completed without raising any
-errors, this entry must not be present.
+If any errors are raised during _operation execution_, the _execution result_
+must contain an entry with key {"errors"}. The value of this entry must be a
+non-empty list of _execution error_ raised during operation execution. Each
+error must be a map as described in the "Errors" section below. If the request
+completed without raising any errors, this entry must not be present.
 
 Note: When {"errors"} is present in an _execution result_, it may be helpful for
 it to appear first when serialized to make it more apparent that errors are
@@ -77,9 +77,13 @@ The value of this entry is described in the "Extensions" section.
 </a>
 
 :: A _response position_ is a uniquely identifiable position in the response
-data produced during execution. It is either a direct entry in the {resultMap}
-of a {ExecuteSelectionSet()}, or it is a position in a (potentially nested) List
-value. Each response position is uniquely identifiable via a _response path_.
+structure evaluated during execution. It may correspond to a {responseName}
+evaluated by {ExecuteCollectedFields()}, or to an element within a (potentially
+nested) List value evaluated by {CompleteValue()}. Each response position is
+uniquely identifiable via a _response path_.
+
+Note: A _response position_ may be omitted from the _execution result_ due to
+error propagation.
 
 :: A _response path_ uniquely identifies a _response position_ via a list of
 path segments (response names or list indices) starting at the root of the
@@ -115,19 +119,23 @@ found at `["hero", "friends"]`, the hero's first friend at
 
 ### Data
 
-The {"data"} entry in the _execution result_ will be the result of the execution
-of the requested operation. If the operation was a query, this output will be an
+The {"data"} entry in the _execution result_ will be the result of the request's
+_operation execution_. If the operation was a query, this output will be an
 object of the query root operation type; if the operation was a mutation, this
 output will be an object of the mutation root operation type.
 
 The response data is the result of accumulating the resolved result of all
 response positions during execution.
 
-If an error was raised before execution begins, the _response_ must be a
-_request error result_ which will result in no response data.
+If an error was raised before _operation execution_ begins, the _response_ must
+be a _request error result_ which will result in no response data.
 
-If an error was raised during the execution that prevented a valid response, the
-{"data"} entry in the response should be `null`.
+If an error was raised during _operation execution_ that prevented a valid
+response, the {"data"} entry in the response should be `null`.
+
+Note: Request errors (including those raised during {ExecuteRequest()}) occur
+before _operation execution_ begins; when a request error is raised the {"data"}
+entry should not be present in the result.
 
 ### Errors
 
@@ -138,9 +146,11 @@ of data described by the error result format below.
 **Request Errors**
 
 :: A _request error_ is an error raised during a _request_ which results in no
-response data. Typically raised before execution begins, a request error may
-occur due to a parse grammar or validation error in the _Document_, an inability
-to determine which operation to execute, or invalid input values for variables.
+response data. Typically raised before _operation execution_ begins, a request
+error may occur due to a parse grammar or validation error in the _Document_, an
+inability to determine which operation to execute, invalid input values for
+variables, or failure to establish a source event stream for a subscription
+operation.
 
 A request error is typically the fault of the requesting client.
 

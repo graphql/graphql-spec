@@ -40,6 +40,7 @@ TypeSystemExtension :
 
 - SchemaExtension
 - TypeExtension
+- DirectiveExtension
 
 Type system extensions are used to represent a GraphQL type system which has
 been extended from some previous type system. For example, this might be used by
@@ -328,7 +329,7 @@ GraphQL supports two abstract types: interfaces and unions.
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
 Whenever a field claims it will return an Interface type, it will return a valid
-implementing Object type during execution.
+implementing Object type during _operation execution_.
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
@@ -505,7 +506,7 @@ information on the serialization of scalars in common JSON and other formats.
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
 a coercion rule, a _request error_ must be raised (input values are validated
-before execution begins).
+before _operation execution_ begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -810,10 +811,10 @@ And will yield the subset of each object type queried:
 **Field Ordering**
 
 When querying an Object, the resulting mapping of fields are conceptually
-ordered in the same order in which they were encountered during execution,
-excluding fragments for which the type does not apply and fields or fragments
-that are skipped via `@skip` or `@include` directives. This ordering is
-correctly produced when using the {CollectFields()} algorithm.
+ordered in the same order in which they were encountered during _operation
+execution_, excluding fragments for which the type does not apply and fields or
+fragments that are skipped via `@skip` or `@include` directives. This ordering
+is correctly produced when using the {CollectFields()} algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
@@ -1593,9 +1594,9 @@ Input Objects are allowed to reference other Input Objects as field types. A
 circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
-Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid
-because there is no way to provide a legal value for them.
+Circular references are generally allowed, however they may not form cycles such
+that no finite value can be provided. Such Input Objects are invalid because
+there is no way to provide a legal value for them.
 
 This example of a circularly-referenced input type is valid as the field `self`
 may be omitted or the value {null}.
@@ -1638,6 +1639,21 @@ input First {
 input Second {
   first: First!
   value: String
+}
+```
+
+_OneOf Input Objects_ require exactly one field be provided, and that value
+cannot be `null`. This example is invalid because providing a value for `First`
+requires a non-null `Second`, and constructing a `Second` requires a non-null
+`First`:
+
+```graphql counter-example
+input First @oneOf {
+  second: Second
+}
+
+input Second {
+  first: First!
 }
 ```
 
@@ -1725,9 +1741,7 @@ input ExampleInputObject {
    5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
-3. If an Input Object references itself either directly or through referenced
-   Input Objects, at least one of the fields in the chain of references must be
-   either a nullable or a List type.
+3. {InputObjectHasUnbreakableCycle(inputObject)} must be {false}.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
@@ -1766,6 +1780,40 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
+
+InputObjectHasUnbreakableCycle(inputObject, visited):
+
+- If {visited} is not provided, initialize it to the empty set.
+- If {inputObject} is in {visited}:
+  - Return {true}.
+- Let {nextVisited} be a new set containing {inputObject} and everything from
+  {visited}.
+- If {inputObject} is a _OneOf Input Object_:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If not {InputFieldTypeHasUnbreakableCycle(fieldType, nextVisited)}:
+      - Return {false}.
+  - Return {true}.
+- Otherwise:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If {fieldType} is Non-Null:
+      - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+      - If {InputFieldTypeHasUnbreakableCycle(nullableType, nextVisited)}:
+        - Return {true}.
+  - Return {false}.
+
+InputFieldTypeHasUnbreakableCycle(fieldType, visited):
+
+- If {fieldType} is a List type:
+  - Return {false}.
+- If {fieldType} is a Non-Null type:
+  - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+  - Return {InputFieldTypeHasUnbreakableCycle(nullableType, visited)}.
+- If {fieldType} is a Scalar or Enum type:
+  - Return {false}.
+- Assert: {fieldType} is an Input Object type.
+- Return {InputObjectHasUnbreakableCycle(fieldType, visited)}.
 
 ### OneOf Input Objects
 
@@ -2031,7 +2079,7 @@ Following are examples of result coercion with various types and values:
 ## Directives
 
 DirectiveDefinition : Description? directive @ Name ArgumentsDefinition?
-`repeatable`? on DirectiveLocations
+Directives[Const]? `repeatable`? on DirectiveLocations
 
 DirectiveLocations :
 
@@ -2067,6 +2115,7 @@ TypeSystemDirectiveLocation : one of
 - `ENUM_VALUE`
 - `INPUT_OBJECT`
 - `INPUT_FIELD_DEFINITION`
+- `DIRECTIVE_DEFINITION`
 
 A GraphQL schema describes directives which are used to annotate various parts
 of a GraphQL document as an indicator that they should be evaluated differently
@@ -2133,8 +2182,8 @@ directive @example on
 
 Directives can also be used to annotate the type system definition language as
 well, which can be a useful tool for supplying additional metadata in order to
-generate GraphQL execution services, produce client generated runtime code, or
-many other useful extensions of the GraphQL semantics.
+generate GraphQL services, produce client generated runtime code, or many other
+useful extensions of the GraphQL semantics.
 
 In this example, the directive `@example` annotates field and argument
 definitions:
@@ -2197,8 +2246,8 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@skip` _built-in directive_ may be provided for fields, fragment spreads,
-and inline fragments, and allows for conditional exclusion during execution as
-described by the `if` argument.
+and inline fragments, and allows for conditional exclusion during _operation
+execution_ as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
@@ -2217,7 +2266,7 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 The `@include` _built-in directive_ may be provided for fields, fragment
 spreads, and inline fragments, and allows for conditional inclusion during
-execution as described by the `if` argument.
+_operation execution_ as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
@@ -2240,13 +2289,13 @@ condition is false.
 ```graphql
 directive @deprecated(
   reason: String! = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | DIRECTIVE_DEFINITION
 ```
 
 The `@deprecated` _built-in directive_ is used within the type system definition
 language to indicate deprecated portions of a GraphQL service's schema, such as
 deprecated fields on a type, arguments on a field, input fields on an input
-type, or values of an enum type.
+type, values of an enum type, or directives.
 
 Deprecations include a reason for why it is deprecated, which is formatted using
 Markdown syntax (as specified by [CommonMark](https://commonmark.org/)).
@@ -2319,3 +2368,24 @@ input UserUniqueCondition @oneOf {
   organizationAndEmail: OrganizationAndEmailInput
 }
 ```
+
+### Directive Extensions
+
+DirectiveExtension : extend directive @ Name Directives[Const]
+
+Directive extensions are used to represent a directive which has been extended
+from some previous directive. For example, this might be used by a GraphQL tool
+or service which adds directives to an existing directive.
+
+**Type Validation**
+
+Directive extensions have the potential to be invalid if incorrectly defined.
+
+1. The previous directive must already be defined.
+2. Any non-repeatable directives provided must not already apply to the previous
+   directive.
+3. Any directives provided must not contain the use of a Directive which
+   references the previous directive directly.
+4. Any directives provided must not contain the use of a Directive which
+   references the previous directive indirectly by referencing a Type or
+   Directive which transitively includes a reference to the previous Directive.

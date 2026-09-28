@@ -21,7 +21,7 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @deprecated(
   reason: String! = "No longer supported"
-) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
+) on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE | DIRECTIVE_DEFINITION
 
 directive @specifiedBy(url: String!) on SCALAR
 
@@ -33,7 +33,7 @@ type __Schema {
   queryType: __Type!
   mutationType: __Type
   subscriptionType: __Type
-  directives: [__Directive!]!
+  directives(includeDeprecated: Boolean! = false): [__Directive!]!
 }
 
 type __Type {
@@ -92,6 +92,8 @@ type __Directive {
   isRepeatable: Boolean!
   locations: [__DirectiveLocation!]!
   args(includeDeprecated: Boolean! = false): [__InputValue!]!
+  isDeprecated: Boolean!
+  deprecationReason: String
 }
 
 enum __DirectiveLocation {
@@ -114,5 +116,6 @@ enum __DirectiveLocation {
   ENUM_VALUE
   INPUT_OBJECT
   INPUT_FIELD_DEFINITION
+  DIRECTIVE_DEFINITION
 }
 ```

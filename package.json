@@ -19,17 +19,20 @@
     "test:format": "prettier --check \"**/*.{md,yml,yaml,json}\" || npm run suggest:format",
     "test:algorithm-format": "node .github/algorithm-format-check.mjs",
     "suggest:format": "echo \"\nTo resolve this, run: $(tput bold)npm run format$(tput sgr0)\" && exit 1",
-    "build": "./build.sh",
-    "test:build": "spec-md --metadata spec/metadata.json spec/GraphQL.md > /dev/null",
+    "build": "wgutils spec build",
+    "test:build": "wgutils spec build --test",
     "watch": "nodemon -e json,md --exec \"npm run build\"",
+    "version:prepare": "wgutils spec version",
+    "version:release": "wgutils spec release",
     "update-appendix-specified-definitions": "node scripts/update-appendix-specified-definitions.mjs; prettier --write \"spec/Appendix D -- Specified Definitions.md\""
   },
   "devDependencies": {
     "cspell": "5.9.1",
-    "nodemon": "2.0.20",
+    "graphql": "^17.0.0-alpha.9",
+    "nodemon": "^3.1.14",
     "prettier": "2.8.2",
     "spec-md": "3.1.0",
-    "graphql": "^17.0.0-alpha.9"
+    "wgutils": "^2.1.2"
   },
   "prettier": {
     "proseWrap": "always",
