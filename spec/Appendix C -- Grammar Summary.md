@@ -314,7 +314,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
