@@ -1644,7 +1644,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition\* }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1662,6 +1662,21 @@ input Point2D {
   y: Float
 }
 ```
+
+An Input Object type may define no input fields. This may be written with an
+empty set of braces, or by omitting the braces entirely; the following two
+definitions are equivalent:
+
+```graphql example
+input Empty {}
+```
+
+```graphql example
+input Empty
+```
+
+The only value which coerces to an empty Input Object type is an input object
+with no fields, `{}`.
 
 Note: The GraphQL Object type ({ObjectTypeDefinition}) defined above is
 inappropriate for re-use here, because Object types can contain fields that
@@ -1809,7 +1824,8 @@ input ExampleInputObject {
 
 **Type Validation**
 
-1. An Input Object type must define one or more input fields.
+1. If the Input Object type is a _OneOf Input Object_, it must define one or
+   more input fields.
 2. For each input field of an Input Object type:
    1. The input field must have a unique name within that Input Object type; no
       two input fields may share the same name.
