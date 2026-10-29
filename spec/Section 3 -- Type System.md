@@ -1663,26 +1663,18 @@ input Point2D {
 }
 ```
 
-An Input Object type may define no input fields. This may be written with an
-empty set of braces, or by omitting the braces entirely; the following two
-definitions are equivalent:
-
-```graphql example
-input Empty {}
-```
-
-```graphql example
-input Empty
-```
-
-The only value which coerces to an empty Input Object type is an input object
-with no fields, `{}`.
-
 Note: The GraphQL Object type ({ObjectTypeDefinition}) defined above is
 inappropriate for re-use here, because Object types can contain fields that
 define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
+
+An Input Object type may define no input fields. This is written with an empty
+set of braces:
+
+```graphql example
+input Empty {}
+```
 
 **Circular References**
 
@@ -1824,8 +1816,9 @@ input ExampleInputObject {
 
 **Type Validation**
 
-1. If the Input Object type is a _OneOf Input Object_, it must define one or
-   more input fields.
+1. An Input Object type must define a set of input fields. If the Input Object
+   is a _OneOf Input Object_ the set must contain at least one input field,
+   otherwise it may be empty.
 2. For each input field of an Input Object type:
    1. The input field must have a unique name within that Input Object type; no
       two input fields may share the same name.
