@@ -2,12 +2,15 @@
   "biblio": {
     "https://www.unicode.org/glossary": {
       "byte-order-mark": "#byte_order_mark",
+      "code-units": "#code_unit",
+      "extended-grapheme-cluster": "#extended_grapheme_cluster",
       "leading-surrogate": "#leading_surrogate",
       "trailing-surrogate": "#trailing_surrogate",
       "supplementary-character": "#supplementary_character",
       "supplementary-code-point": "#supplementary_code_point",
       "surrogate-code-point": "#surrogate_code_point",
       "surrogate-pair": "#surrogate_pair",
+      "unicode-code-point": "#code_point",
       "unicode-scalar-value": "#unicode_scalar_value",
       "utf-16": "#UTF_16"
     }
