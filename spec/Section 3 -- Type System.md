@@ -684,7 +684,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
@@ -716,6 +716,18 @@ type Person {
 Where `name` is a field that will yield a {String} value, and `age` is a field
 that will yield an {Int} value, and `picture` is a field that will yield a `Url`
 value.
+
+An Object type may define no fields. This may be written with an empty set of
+braces, or by omitting the braces entirely; the following two definitions are
+equivalent:
+
+```graphql example
+type Empty {}
+```
+
+```graphql example
+type Empty
+```
 
 A query of an object value must be made via a selection set. This selection of
 fields will yield an ordered map containing exactly the subset of the object
