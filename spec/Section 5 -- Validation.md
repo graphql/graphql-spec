@@ -729,7 +729,7 @@ fragment conflictingDifferingResponses on Pet {
 **Explanatory Text**
 
 :: A field subselection is not allowed on leaf fields. A _leaf field_ is any
-field with a scalar or enum unwrapped type.
+field with a scalar or enum _unwrapped type_.
 
 The following is valid.
 
@@ -758,7 +758,7 @@ fragment scalarEmptySelectionsNotAllowedOnInt on Dog {
 ```
 
 Conversely, non-leaf fields must have a field subselection. A non-leaf field is
-any field with an object, interface, or union unwrapped type.
+any field with an object, interface, or union _unwrapped type_.
 
 Let's assume the following additions to the query root operation type of the
 schema:
