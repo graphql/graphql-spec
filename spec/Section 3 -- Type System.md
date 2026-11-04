@@ -355,6 +355,11 @@ These two types are referred to as "wrapping types"; non-wrapping types are
 referred to as "named types". A wrapping type has an underlying named type,
 found by continually unwrapping the type until a named type is found.
 
+:: The _unwrapped type_ of a type is its underlying named type. If the type is a
+List or Non-Null type, the unwrapped type is the unwrapped type of the type it
+wraps; otherwise, the unwrapped type is the type itself. For example, the
+unwrapped type of `[String!]!` is `String`.
+
 ### Input and Output Types
 
 Types are used throughout GraphQL to describe both the values accepted as input
@@ -369,7 +374,7 @@ output types depending on how the wrapped type may be used.
 IsInputType(type):
 
 - If {type} is a List type or Non-Null type:
-  - Let {unwrappedType} be the unwrapped type of {type}.
+  - Let {unwrappedType} be the _unwrapped type_ of {type}.
   - Return {IsInputType(unwrappedType)}.
 - If {type} is a Scalar, Enum, or Input Object type:
   - Return {true}.
@@ -378,7 +383,7 @@ IsInputType(type):
 IsOutputType(type):
 
 - If {type} is a List type or Non-Null type:
-  - Let {unwrappedType} be the unwrapped type of {type}.
+  - Let {unwrappedType} be the _unwrapped type_ of {type}.
   - Return {IsOutputType(unwrappedType)}.
 - If {type} is a Scalar, Object, Interface, Union, or Enum type:
   - Return {true}.
