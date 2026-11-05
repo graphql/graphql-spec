@@ -1542,7 +1542,7 @@ additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
 
 An incomplete union type may be made complete by extending it with a set of
-types, even if that set is empty. For example, this union type extension
+member types, even if that set is empty. For example, this union type extension
 completes the `TypelessUnion` counter-example above:
 
 ```graphql example
