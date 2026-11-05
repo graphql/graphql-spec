@@ -723,7 +723,8 @@ Object types may be defined with an empty set of fields:
 type Empty {}
 ```
 
-An object type with no set of fields is incomplete and cannot be queried:
+An object type with no set of fields is incomplete and must be completed before
+a schema containing it can be considered valid:
 
 ```graphql counter-example
 type Fieldless # Incomplete
@@ -1177,7 +1178,8 @@ Interface types may also be defined with an empty set of fields:
 interface EmptyInterface {}
 ```
 
-An interface type with no set of fields is incomplete and cannot be queried:
+An interface type with no set of fields is incomplete must be completed before a
+schema containing it can be considered valid:
 
 ```graphql counter-example
 interface FieldlessInterface # Incomplete
@@ -1485,9 +1487,10 @@ A union type may also be defined for an empty set of types:
 union EmptyUnion = {}
 ```
 
-A union type with no set of types is incomplete and cannot be queried:
+A union type with no set of types is incomplete and must be completed before a
+schema containing it can be considered valid:
 
-```graphql example
+```graphql counter-example
 union TypelessUnion
 ```
 
