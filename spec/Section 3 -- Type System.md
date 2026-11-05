@@ -1644,7 +1644,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition\* }
+InputFieldsDefinition : { InputValueDefinition+ }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1669,11 +1669,11 @@ define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
 
-An Input Object type may define no input fields. This is written with an empty
-set of braces:
+An Input Object type may define no input fields. This is written by omitting the
+braces:
 
 ```graphql example
-input Empty {}
+input Empty
 ```
 
 **Circular References**
