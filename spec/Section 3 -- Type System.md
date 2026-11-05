@@ -207,6 +207,22 @@ type MyMutationRootType {
 }
 ```
 
+If a schema only wishes to expose mutations, it may define an empty query root
+type:
+
+```graphql example
+schema {
+  query: IntrospectionOnlyRootType
+  mutation: TheMutationRootType
+}
+
+type IntrospectionOnlyRootType {}
+
+type TheMutationRootType {
+  increaseSomeNumber(by: Int): Int
+}
+```
+
 **Default Root Operation Type Names**
 
 :: The _default root type name_ for each {`query`}, {`mutation`}, and
