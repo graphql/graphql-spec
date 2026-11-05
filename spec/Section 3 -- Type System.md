@@ -326,12 +326,12 @@ in the system, allowing the definition of arbitrary type hierarchies.
 
 GraphQL supports two abstract types: interfaces and unions.
 
-An `Interface` defines a list of fields; `Object` types and other Interface
-types which implement this Interface are guaranteed to implement those fields.
+An `Interface` defines a set of fields; `Object` types and other Interface types
+which implement this Interface are guaranteed to implement those fields.
 Whenever a field claims it will return an Interface type, it will return a valid
 implementing Object type during _operation execution_.
 
-A `Union` defines a list of possible types; similar to interfaces, whenever the
+A `Union` defines a set of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
 returned.
 
@@ -684,7 +684,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
@@ -693,7 +693,7 @@ GraphQL operations are hierarchical and composed, describing a tree of
 information. While Scalar types describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-GraphQL Objects represent a list of named fields, each of which yields a value
+A GraphQL Object represents a set of named fields, each of which yields a value
 of a specific type. Object values should be serialized as ordered maps, where
 the selected field names (or aliases) are the keys and the result of evaluating
 the field is the value, ordered by the order in which they appear in the
@@ -716,6 +716,18 @@ type Person {
 Where `name` is a field that will yield a {String} value, and `age` is a field
 that will yield an {Int} value, and `picture` is a field that will yield a `Url`
 value.
+
+Object types may be defined with an empty set of fields:
+
+```graphql example
+type Empty {}
+```
+
+An object type with no set of fields is incomplete and cannot be queried:
+
+```graphql counter-example
+type Fieldless # Incomplete
+```
 
 A query of an object value must be made via a selection set. This selection of
 fields will yield an ordered map containing exactly the subset of the object
@@ -922,7 +934,7 @@ Objects are never valid inputs.
 Object types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Object type in a GraphQL schema.
 
-1. An Object type must define a list of fields. The list may be empty.
+1. An Object type must define a set of fields. The set may be empty.
 2. For each field of an Object type:
    1. The field must have a unique name within that Object type; no two fields
       may share the same name.
@@ -1090,6 +1102,14 @@ In this example, a directive is added to a `User` type without adding fields:
 extend type User @addedDirective
 ```
 
+An incomplete object type may be made complete by extending it with a set of
+fields, even if that set is empty. For example, this object type extension
+completes the `Fieldless` counter-example above:
+
+```graphql example
+extend type Fieldless {}
+```
+
 **Type Validation**
 
 Object type extensions have the potential to be invalid if incorrectly defined.
@@ -1115,7 +1135,7 @@ InterfaceTypeDefinition :
 - Description? interface Name ImplementsInterfaces? Directives[Const]?
   [lookahead != `{`]
 
-GraphQL interfaces represent a list of named fields and their arguments. GraphQL
+GraphQL interfaces represent a set of named fields and their arguments. GraphQL
 objects and interfaces can then implement these interfaces which requires the
 implementing type to define all fields defined by those interfaces.
 
@@ -1149,6 +1169,18 @@ type Business implements NamedEntity & ValuedEntity {
   value: Int
   employeeCount: Int
 }
+```
+
+Interface types may also be defined with an empty set of fields:
+
+```graphql example
+interface EmptyInterface {}
+```
+
+An interface type with no set of fields is incomplete and cannot be queried:
+
+```graphql counter-example
+interface FieldlessInterface # Incomplete
 ```
 
 Fields which yield an interface are useful when one of many Object types are
@@ -1277,7 +1309,8 @@ Interfaces are never valid inputs.
 
 Interface types have the potential to be invalid if incorrectly defined.
 
-1. For each field of an Interface type:
+1. An Interface type must define a set of fields. The set may be empty.
+2. For each field of an Interface type:
    1. The field must have a unique name within that Interface type; no two
       fields may share the same name.
    2. The field must not have a name which begins with the characters {"\_\_"}
@@ -1291,9 +1324,9 @@ Interface types have the potential to be invalid if incorrectly defined.
          arguments may share the same name.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-2. An interface type may declare that it implements one or more unique
+3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
-3. An interface type must be a super-set of all interfaces it implements:
+4. An interface type must be a super-set of all interfaces it implements:
    1. Let this interface type be {implementingType}.
    2. For each interface declared implemented as {implementedType},
       {IsValidImplementation(implementingType, implementedType)} must be {true}.
@@ -1340,6 +1373,14 @@ fields:
 extend interface NamedEntity @addedDirective
 ```
 
+An incomplete interface type may be made complete by extending it with a set of
+fields, even if that set is empty. For example, this interface type extension
+completes the `FieldlessInterface` counter-example above:
+
+```graphql example
+extend interface FieldlessInterface {}
+```
+
 **Type Validation**
 
 Interface type extensions have the potential to be invalid if incorrectly
@@ -1367,8 +1408,9 @@ UnionMemberTypes :
 
 - UnionMemberTypes | NamedType
 - = `|`? NamedType
+- = { }
 
-GraphQL Unions represent an object that could be one of a list of GraphQL Object
+GraphQL Unions represent an object that could be one of a set of GraphQL Object
 types, but provides for no guaranteed fields between those types. They also
 differ from interfaces in that Object types declare what interfaces they
 implement, but are not aware of what unions contain them.
@@ -1437,6 +1479,18 @@ union SearchResult =
   | Person
 ```
 
+A union type may also be defined for an empty set of types:
+
+```graphql example
+union EmptyUnion = {}
+```
+
+A union type with no set of types is incomplete and cannot be queried:
+
+```graphql example
+union TypelessUnion
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1451,7 +1505,8 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. The member types of a Union type must all be Object base types; Scalar,
+1. A Union type must include a set of unique member types. The set may be empty.
+2. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
 
@@ -1466,6 +1521,14 @@ Union type extensions are used to represent a union type which has been extended
 from some previous union type. For example, this might be used to represent
 additional local data, or by a GraphQL service which is itself an extension of
 another GraphQL service.
+
+An incomplete union type may be made complete by extending it with a set of
+types, even if that set is empty. For example, this union type extension
+completes the `TypelessUnion` counter-example above:
+
+```graphql example
+extend union TypelessUnion = {}
+```
 
 **Type Validation**
 
