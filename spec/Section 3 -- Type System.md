@@ -1178,8 +1178,8 @@ Interface types may also be defined with an empty set of fields:
 interface EmptyInterface {}
 ```
 
-An interface type with no set of fields is incomplete must be completed before a
-schema containing it can be considered valid:
+An interface type with no set of fields is incomplete and must be completed
+before a schema containing it can be considered valid:
 
 ```graphql counter-example
 interface FieldlessInterface # Incomplete
@@ -1481,14 +1481,14 @@ union SearchResult =
   | Person
 ```
 
-A union type may also be defined for an empty set of types:
+A union type may also be defined for an empty set of member types:
 
 ```graphql example
 union EmptyUnion = {}
 ```
 
-A union type with no set of types is incomplete and must be completed before a
-schema containing it can be considered valid:
+A union type with no set of member types is incomplete and must be completed
+before a schema containing it can be considered valid:
 
 ```graphql counter-example
 union TypelessUnion
