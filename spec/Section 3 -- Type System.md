@@ -693,11 +693,11 @@ GraphQL operations are hierarchical and composed, describing a tree of
 information. While Scalar types describe the leaf values of these hierarchical
 operations, Objects describe the intermediate levels.
 
-A GraphQL Object represents a set of named fields, each of which yields a value
-of a specific type. Object values should be serialized as ordered maps, where
-the selected field names (or aliases) are the keys and the result of evaluating
-the field is the value, ordered by the order in which they appear in the
-_selection set_.
+GraphQL Objects represent a set of named fields, each of which yields a value of
+a specific type. Object values should be serialized as ordered maps, where the
+selected field names (or aliases) are the keys and the result of evaluating the
+field is the value, ordered by the order in which they appear in the _selection
+set_.
 
 All fields defined within an Object type must not have a name which begins with
 {"\_\_"} (two underscores), as this is used exclusively by GraphQL's
