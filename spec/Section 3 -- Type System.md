@@ -207,8 +207,8 @@ type MyMutationRootType {
 }
 ```
 
-If a schema only wishes to expose mutations, it may define an empty query root
-type:
+A schema intended only to process mutations may use an empty query _root
+operation type_:
 
 ```graphql example
 schema {
