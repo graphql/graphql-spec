@@ -371,7 +371,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition\* }
 
 InputObjectTypeExtension :
 

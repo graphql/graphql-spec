@@ -1644,7 +1644,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition\* }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1668,6 +1668,19 @@ inappropriate for re-use here, because Object types can contain fields that
 define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
+
+Input Object types may be defined with an empty set of input fields:
+
+```graphql example
+input EmptyInput {}
+```
+
+An Input Object type with no set of input fields is incomplete and must be
+completed before a schema containing it can be considered valid:
+
+```graphql counter-example
+input FieldlessInput # Incomplete
+```
 
 **Circular References**
 
@@ -1809,7 +1822,8 @@ input ExampleInputObject {
 
 **Type Validation**
 
-1. An Input Object type must define one or more input fields.
+1. An Input Object type must define a set of input fields. The set may be empty,
+   unless the Input Object is a _OneOf Input Object_.
 2. For each input field of an Input Object type:
    1. The input field must have a unique name within that Input Object type; no
       two input fields may share the same name.
@@ -1972,6 +1986,14 @@ Input object type extensions are used to represent an input object type which
 has been extended from some previous input object type. For example, this might
 be used by a GraphQL service which is itself an extension of another GraphQL
 service.
+
+An incomplete Input Object type may be made complete by extending it with a set
+of input fields, even if that set is empty. For example, this input object type
+extension completes the `FieldlessInput` counter-example above:
+
+```graphql example
+extend input FieldlessInput {}
+```
 
 **Type Validation**
 
