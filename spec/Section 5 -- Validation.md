@@ -1720,9 +1720,9 @@ ForbidDeferStream(selectionSet, visitedFragments):
     - {selection} must not provide the `@stream` directive.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
+    - {selection} must not provide the `@defer` directive.
     - If {fragmentSpreadName} is in {visitedFragments}, continue with the next
       {selection} in {selectionSet}.
-    - {selection} must not provide the `@defer` directive.
     - Add {fragmentSpreadName} to {visitedFragments}.
     - Let {fragment} be the Fragment in the current Document whose name is
       {fragmentSpreadName}.
