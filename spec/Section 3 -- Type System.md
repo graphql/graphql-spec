@@ -1672,14 +1672,14 @@ objects have a separate type in the system.
 Input Object types may be defined with an empty set of input fields:
 
 ```graphql example
-input Empty {}
+input EmptyInput {}
 ```
 
 An Input Object type with no set of input fields is incomplete and must be
 completed before a schema containing it can be considered valid:
 
 ```graphql counter-example
-input Fieldless # Incomplete
+input FieldlessInput # Incomplete
 ```
 
 **Circular References**
@@ -1989,10 +1989,10 @@ service.
 
 An incomplete Input Object type may be made complete by extending it with a set
 of input fields, even if that set is empty. For example, this input object type
-extension completes the `Fieldless` counter-example above:
+extension completes the `FieldlessInput` counter-example above:
 
 ```graphql example
-extend input Fieldless {}
+extend input FieldlessInput {}
 ```
 
 **Type Validation**
