@@ -3220,9 +3220,9 @@ See <a href="#sec-Handling-Execution-Errors">Handling Execution Errors</a> for m
 <section id="sec-Non-Null.Result-Coercion" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L1992"><a href="#sec-Non-Null.Result-Coercion" title="link to this subsection">Result Coercion</a></h6>
 <p data-source="spec/Section%203%20--%20Type%20System.md#L1994-L1998">In all of the above result coercions, <span class="spec-keyword">null</span> was considered a valid value. To coerce the result of a Non-Null type, the coercion of the wrapped type should be performed. If that result was not <span class="spec-keyword">null</span>, then the result of coercing the Non-Null type is that result. If that result was <span class="spec-keyword">null</span>, then an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> must be raised.</p>
-<div id="note-f6bf9" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2000-L2004">
-<a href="#note-f6bf9">Note</a>
-When an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> is raised on a non-null <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, the error propagates to the parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. For more information on this process, see <a href="#sec-Executing-Selection-Sets.Errors-and-Non-Null-Types">Errors and Non-Null Types</a> within the Execution section.</div>
+<div id="note-964be" class="spec-note" data-source="spec/Section%203%20--%20Type%20System.md#L2000-L2004">
+<a href="#note-964be">Note</a>
+When an <span class="spec-ref"><a href="#execution-error" data-name="execution-error">execution error</a></span> is raised on a non-null <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>, the error propagates to the parent <span class="spec-ref"><a href="#response-position" data-name="response-position">response position</a></span>. For more information on this process, see <a href="#sec-Executing-Collected-Fields.Errors-and-Non-Null-Types">Errors and Non-Null Types</a> within the Execution section.</div>
 </section>
 <section id="sec-Non-Null.Input-Coercion" class="subsec">
 <h6 data-source="spec/Section%203%20--%20Type%20System.md#L2006"><a href="#sec-Non-Null.Input-Coercion" title="link to this subsection">Input Coercion</a></h6>
