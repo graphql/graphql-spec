@@ -64,6 +64,7 @@ contribution to this edition of the GraphQL specification.
 | Martin Bonnin      | [@martinbonnin](https://github.com/martinbonnin)   |
 | mmin               | [@MarkoMin](https://github.com/MarkoMin)           |
 | Yaacov Rydzinski   | [@yaacovCR](https://github.com/yaacovCR)           |
+| Jin Dongxun        | [@JinDX](https://github.com/JinDX)                 |
 
 ## Notable contributions
 
@@ -77,14 +78,15 @@ A few notable changes in this edition:
 
 ## Changeset
 
-- [GitHub: all Accepted RFC PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-09-28+label%3A%22%F0%9F%8F%81+Accepted+%28RFC+3%29%22)
-- [GitHub: all Editorial PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?page=1&q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-09-28+label%3A%22%E2%9C%8F%EF%B8%8F+Editorial%22)
-- [GitHub: all changes since last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...3f1ef846019884a8c9c3a32b65ea03168f24ecff)
+- [GitHub: all Accepted RFC PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-11-12+label%3A%22%F0%9F%8F%81+Accepted+%28RFC+3%29%22)
+- [GitHub: all Editorial PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?page=1&q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-11-12+label%3A%22%E2%9C%8F%EF%B8%8F+Editorial%22)
+- [GitHub: all changes since last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...47e12f04d9adf3630cb59cfdf4b43237876f43b1)
 
 Listed in reverse-chronological order (latest commit on top).
 
 | Hash                                                                                               | Change                                                                            | Authors                                                                                                                                                            |
 | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [32c8b08](https://github.com/graphql/graphql-spec/commit/32c8b081f36dc031cf97791f38cc04bce2cf7630) | Fix the link to non-null error propagation (#1255)                                | Jin Dongxun <dox.jin@gmail.com>                                                                                                                                    |
 | [59bc70a](https://github.com/graphql/graphql-spec/commit/59bc70ac974b0d5d1e00869f41c06bb3bfc756da) | Define 'operation execution', clarifying 'before execution begins' (#894)         | Benjie <benjie@jemjie.com> Yaacov Rydzinski <yaacovCR@gmail.com> Martin Bonnin <martin@mbonnin.net> Benoit 'BoD' Lubek <BoD@JRAF.org> Lee Byron <lee@leebyron.com> |
 | [6ab9475](https://github.com/graphql/graphql-spec/commit/6ab9475e6ea0aaf8b2e61c9fb71da02bab4b6f76) | Fix "response position" definition; clarify sibling errors on propagation (#1183) | Benjie <benjie@jemjie.com>                                                                                                                                         |
 | [56fbeec](https://github.com/graphql/graphql-spec/commit/56fbeecdb0294177744e14fe5e37fca98aad1c0f) | Clarify definition of response position (#1238)                                   | Benjie <benjie@jemjie.com>                                                                                                                                         |
@@ -100,17 +102,17 @@ Listed in reverse-chronological order (latest commit on top).
 Generated with:
 
 ```sh
-git log September2025..3f1ef846019884a8c9c3a32b65ea03168f24ecff --format="[%h](https://github.com/graphql/graphql-spec/commit/%H) | %s | %an <%ae> %(trailers:key=Co-authored-by,valueonly,separator=%x20)" -- spec
+git log September2025..47e12f04d9adf3630cb59cfdf4b43237876f43b1 --format="[%h](https://github.com/graphql/graphql-spec/commit/%H) | %s | %an <%ae> %(trailers:key=Co-authored-by,valueonly,separator=%x20)" -- spec
 ```
 
 ## Diff
 
-[GitHub: diff from last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...3f1ef846019884a8c9c3a32b65ea03168f24ecff?w=1)
+[GitHub: diff from last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...47e12f04d9adf3630cb59cfdf4b43237876f43b1?w=1)
 
 ## Notes
 
 This changeset was generated with the help of
 
 ```sh
-yarn wgutils spec version --previous September2025 --current 3f1ef846019884a8c9c3a32b65ea03168f24ecff September2026
+yarn wgutils spec version --previous September2025 --current 47e12f04d9adf3630cb59cfdf4b43237876f43b1 September2026
 ```
