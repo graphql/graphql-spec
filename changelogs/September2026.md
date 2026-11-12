@@ -80,7 +80,7 @@ A few notable changes in this edition:
 
 - [GitHub: all Accepted RFC PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-11-12+label%3A%22%F0%9F%8F%81+Accepted+%28RFC+3%29%22)
 - [GitHub: all Editorial PRs merged since last spec cut](https://github.com/graphql/graphql-spec/pulls?page=1&q=is%3Apr+is%3Amerged+base%3Amain+merged%3A2025-09-03..2026-11-12+label%3A%22%E2%9C%8F%EF%B8%8F+Editorial%22)
-- [GitHub: all changes since last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...47e12f04d9adf3630cb59cfdf4b43237876f43b1)
+- [GitHub: all changes since last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...September2026)
 
 Listed in reverse-chronological order (latest commit on top).
 
@@ -102,17 +102,17 @@ Listed in reverse-chronological order (latest commit on top).
 Generated with:
 
 ```sh
-git log September2025..47e12f04d9adf3630cb59cfdf4b43237876f43b1 --format="[%h](https://github.com/graphql/graphql-spec/commit/%H) | %s | %an <%ae> %(trailers:key=Co-authored-by,valueonly,separator=%x20)" -- spec
+git log September2025..September2026 --format="[%h](https://github.com/graphql/graphql-spec/commit/%H) | %s | %an <%ae> %(trailers:key=Co-authored-by,valueonly,separator=%x20)" -- spec
 ```
 
 ## Diff
 
-[GitHub: diff from last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...47e12f04d9adf3630cb59cfdf4b43237876f43b1?w=1)
+[GitHub: diff from last spec cut](https://github.com/graphql/graphql-spec/compare/September2025...September2026?w=1)
 
 ## Notes
 
 This changeset was generated with the help of
 
 ```sh
-yarn wgutils spec version --previous September2025 --current 47e12f04d9adf3630cb59cfdf4b43237876f43b1 September2026
+yarn wgutils spec version --previous September2025 --current September2026 September2026
 ```
