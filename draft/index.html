@@ -5876,9 +5876,9 @@ A <span class="spec-nt"><a href="#ListValue" data-name="ListValue">ListValue</a>
 <span class="token punctuation">}</span>
 </code></pre>
 <p data-source="spec/Section%205%20--%20Validation.md#L2166">However, a nullable list cannot be passed to a non-null list:</p>
-<pre id="example-64255" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L2168-L2174"><a href="#example-64255">Counter Example № 198</a><code><span class="token keyword">query</span> <span class="token definition-query function">listToNonNullList</span><span class="token punctuation">(</span><span class="token variable">$booleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">Boolean</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<pre id="example-aa9bc" class="spec-counter-example" data-language="graphql" data-source="spec/Section%205%20--%20Validation.md#L2168-L2174"><a href="#example-aa9bc">Counter Example № 198</a><code><span class="token keyword">query</span> <span class="token definition-query function">listToNonNullList</span><span class="token punctuation">(</span><span class="token variable">$booleanList</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token scalar">Boolean</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
   <span class="token object">arguments</span> <span class="token punctuation">{</span>
-    <span class="token property-query">nonNullBooleanListField</span><span class="token punctuation">(</span><span class="token attr-name">nonNullBooleanListArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanList</span><span class="token punctuation">)</span>
+    <span class="token property-query">booleanListArgField</span><span class="token punctuation">(</span><span class="token attr-name">booleanListArg</span><span class="token punctuation">:</span> <span class="token variable">$booleanList</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
