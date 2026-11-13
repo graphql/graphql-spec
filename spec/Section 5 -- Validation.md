@@ -760,7 +760,7 @@ fragment commandFragment($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
 
-fragment otherFragment(command: DogCommand!) on Dog {
+fragment otherFragment($command: DogCommand!) on Dog {
   ...commandFragment(command: $command)
 }
 

@@ -287,12 +287,14 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
 - If {collectedFieldsMap} does not have exactly one entry, raise a _request
   error_.
 - Let {fields} be the value of the first entry in {collectedFieldsMap}.
-- Let {fieldInfo} be the first entry in {fields}.
-- Let {field} be the value of the {field} property in {fieldInfo}.
+- Let {fieldDetails} be the first entry in {fields}.
+- Let {field} and {fragmentVariables} be the corresponding entries on
+  {fieldDetails}.
 - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
   alias is used.
-- Let {argumentValues} be the result of {CoerceArgumentValues(subscriptionType,
-  field, variableValues)}.
+- Let {argumentValues} be the result of
+  {CoerceFieldArgumentValues(subscriptionType, field, variableValues,
+  fragmentVariables)}.
 - Let {sourceStream} be the result of running
   {ResolveFieldEventStream(subscriptionType, initialValue, fieldName,
   argumentValues)}.
@@ -446,22 +448,34 @@ The depth-first-search order of each _field set_ produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
 
-CollectFields(objectType, selectionSet, variableValues, visitedFragments,
-fragmentVariables):
+CollectFields(objectType, selectionSet, variableValues, fragmentVariables,
+visitedFragments):
 
 - If {visitedFragments} is not provided, initialize it to the empty set.
 - Initialize {collectedFieldsMap} to an empty ordered map of ordered sets.
 - For each {selection} in {selectionSet}:
   - If {selection} provides the directive `@skip`, let {skipDirective} be that
     directive.
-    - If {skipDirective}'s {if} argument is {true} or is a variable in
-      {variableValues} with the value {true}, continue with the next {selection}
-      in {selectionSet}.
+    - Let {skipIf} be {skipDirective}'s {if} argument.
+    - If {skipIf} is a {Variable}:
+      - Let {variableName} be the name of {skipIf}.
+      - Let {scopedVariableValues} be {GetScopedVariableValues(variableName,
+        variableValues, fragmentVariables)}.
+      - If {scopedVariableValues} provides the value {true} for the name
+        {variableName}, continue with the next {selection} in {selectionSet}.
+    - Otherwise if {skipIf} is {true}, continue with the next {selection} in
+      {selectionSet}.
   - If {selection} provides the directive `@include`, let {includeDirective} be
     that directive.
-    - If {includeDirective}'s {if} argument is not {true} and is not a variable
-      in {variableValues} with the value {true}, continue with the next
-      {selection} in {selectionSet}.
+    - Let {includeIf} be {includeDirective}'s {if} argument.
+    - If {includeIf} is a {Variable}:
+      - Let {variableName} be the name of {includeIf}.
+      - Let {scopedVariableValues} be {GetScopedVariableValues(variableName,
+        variableValues, fragmentVariables)}.
+      - If {scopedVariableValues} does not provide the value {true} for the name
+        {variableName}, continue with the next {selection} in {selectionSet}.
+    - Otherwise if {includeIf} is not {true}, continue with the next {selection}
+      in {selectionSet}.
   - If {selection} is a {Field}:
     - Let {responseName} be the _response name_ of {selection} (the alias if
       defined, otherwise the field name).
@@ -489,14 +503,14 @@ fragmentVariables):
       - Append the result of {GetVariableSignature(variableDefinition)} to
         {signatures}.
     - Let {argumentValues} be the arguments provided in {selection}.
-    - Let {values} be the result of {CoerceArgumentValues(selection,
-      variableDefinitions, argumentValues, variableValues, fragmentVariables)}.
+    - Let {values} be the result of {CoerceArgumentValues(signatures,
+      argumentValues, variableValues, fragmentVariables)}.
     - Let {newFragmentVariables} be an unordered map containing {signatures} and
       {values}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments, newFragmentVariables)}.
+      newFragmentVariables, visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
       {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
@@ -511,7 +525,7 @@ fragmentVariables):
     - Let {fragmentSelectionSet} be the top-level selection set of {selection}.
     - Let {fragmentCollectedFieldsMap} be the result of calling
       {CollectFields(objectType, fragmentSelectionSet, variableValues,
-      visitedFragments, fragmentVariables)}.
+      fragmentVariables, visitedFragments)}.
     - For each {responseName} and {fragmentFields} in
       {fragmentCollectedFieldsMap}:
       - Let {fieldsForResponseName} be the _field set_ value in
@@ -534,6 +548,18 @@ DoesFragmentTypeApply(objectType, fragmentType):
 
 Note: The steps in {CollectFields()} evaluating the `@skip` and `@include`
 directives may be applied in either order since they apply commutatively.
+
+GetScopedVariableValues(variableName, variableValues, fragmentVariables):
+
+- If {fragmentVariables} is provided:
+  - Let {signatures} and {values} be the corresponding entries on
+    {fragmentVariables}.
+  - If an entry in {signatures} exists for {variableName}, return {values}.
+- Return {variableValues}.
+
+Note: A _fragment variable_ shadows an _operation variable_ of the same name
+even when no value was provided for it, in which case {values} will not provide
+a value for {variableName}.
 
 **Merging Selection Sets**
 
@@ -567,23 +593,26 @@ After resolving the value for field `"a"`, the following multiple selection sets
 are collected and merged together so `"subfield1"` and `"subfield2"` are
 resolved in the same phase with the same value.
 
-CollectSubfields(objectType, fields, variableValues):
+CollectSubfields(objectType, fieldDetailsList, variableValues):
 
 - Let {collectedFieldsMap} be an empty ordered map of ordered sets.
-- For each {field} in {fields}:
+- For each {fieldDetails} in {fieldDetailsList}:
+  - Let {field} and {fragmentVariables} be the corresponding entries on
+    {fieldDetails}.
   - Let {fieldSelectionSet} be the selection set of {field}.
   - If {fieldSelectionSet} is null or empty, continue to the next field.
   - Let {fieldCollectedFieldsMap} be the result of {CollectFields(objectType,
-    fieldSelectionSet, variableValues)}.
-  - For each {responseName} and {subfieldInfos} in {fieldCollectedFieldsMap}:
+    fieldSelectionSet, variableValues, fragmentVariables)}.
+  - For each {responseName} and {subfieldDetailsList} in
+    {fieldCollectedFieldsMap}:
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
-    - Add each fieldInfo from {subfieldInfos} to {fieldsForResponseName}.
+    - Add each item from {subfieldDetailsList} to {fieldsForResponseName}.
 - Return {collectedFieldsMap}.
 
-Note: All the {fields} passed to {CollectSubfields()} share the same _response
-name_.
+Note: All the entries in the {fieldDetailsList} passed to {CollectSubfields()}
+share the same _response name_.
 
 ### Executing Collected Fields
 
@@ -598,18 +627,16 @@ ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
 variableValues):
 
 - Initialize {resultMap} to an empty ordered map.
-- For each {responseName} and {fieldInfos} in {collectedFieldsMap}:
-  - Let {fieldInfo} be the first entry in {fieldInfos}.
-  - Let {field} be the field property of {fieldInfo}.
+- For each {responseName} and {fieldDetailsList} in {collectedFieldsMap}:
+  - Let {fieldDetails} be the first entry in {fieldDetailsList}.
+  - Let {field} be the corresponding entry on {fieldDetails}.
   - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
     alias is used.
-  - Let {fragmentVariableValues} be the fragmentVariables property of
-    {fieldInfo}.
   - Let {fieldType} be the return type defined for the field {fieldName} of
     {objectType}.
   - If {fieldType} is defined:
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
-      fieldInfos, variableValues, fragmentVariableValues)}.
+      fieldDetailsList, variableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
 - Return {resultMap}.
 
@@ -744,19 +771,18 @@ and finally completes that value either by recursively executing another
 selection set or coercing a scalar value.
 
 ExecuteField(objectType, objectValue, fieldType, fieldDetailsList,
-variableValues, fragmentVariables):
+variableValues):
 
 - Let {fieldDetails} be the first entry in {fieldDetailsList}.
 - Let {field} and {fragmentVariables} be the corresponding entries on
   {fieldDetails}.
 - Let {fieldName} be the field name of {field}.
-- Let {argumentDefinitions} be the arguments defined by {objectType} for the
-  field named {fieldName}.
-- Let {argumentValues} be the result of {CoerceArgumentValues(field,
-  argumentDefinitions, variableValues, fragmentVariables)}.
+- Let {argumentValues} be the result of {CoerceFieldArgumentValues(objectType,
+  field, variableValues, fragmentVariables)}.
 - Let {resolvedValue} be {ResolveFieldValue(objectType, objectValue, fieldName,
-  argumentValues)}. Return the result of {CompleteValue(fieldType,
-  fieldDetailsList, resolvedValue, variableValues)}.
+  argumentValues)}.
+- Return the result of {CompleteValue(fieldType, fieldDetailsList,
+  resolvedValue, variableValues)}.
 
 ### Coercing Arguments
 
@@ -769,18 +795,17 @@ fragment definition within the document specifies the input type.
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
 
-CoerceFieldArgumentValues(objectType, field, variableValues,
-fragmentVariableValues):
+CoerceFieldArgumentValues(objectType, field, variableValues, fragmentVariables):
 
 - Let {argumentValues} be the argument values provided in {field}.
 - Let {fieldName} be the name of {field}.
 - Let {argumentDefinitions} be the arguments defined by {objectType} for the
   field named {fieldName}.
 - Return {CoerceArgumentValues(argumentDefinitions, argumentValues,
-  variableValues, fragmentVariableValues)}
+  variableValues, fragmentVariables)}.
 
-CoerceArgumentValues(node, argumentDefinitions, argumentValues, variableValues,
-fragmentVariableValues):
+CoerceArgumentValues(argumentDefinitions, argumentValues, variableValues,
+fragmentVariables):
 
 - Let {coercedValues} be an empty unordered Map.
 - For each {argumentDefinition} in {argumentDefinitions}:
@@ -791,15 +816,15 @@ fragmentVariableValues):
     {argumentName}.
   - If {argumentValue} is a {Variable}:
     - Let {variableName} be the name of {argumentValue}.
-    - Let {signatures} and {values} be the corresponding entries on
-      {fragmentVariables}.
-    - Let {scopedVariableValues} be {values} if an entry in {signatures} exists
-      for {variableName}; otherwise, let it be {variableValues}.
-    - Let {hasValue} be {true} if {scopedVariableValues} provides a value for
-      the name {variableName}.
-    - Let {value} be the value provided in {scopedVariableValues} for the name
-      {variableName}.
-  - Otherwise, let {value} be {argumentValue}.
+    - Let {scopedVariableValues} be {GetScopedVariableValues(variableName,
+      variableValues, fragmentVariables)}.
+    - If {scopedVariableValues} provides a value for the name {variableName}:
+      - Let {hasValue} be {true}.
+      - Let {value} be the value provided in {scopedVariableValues} for the name
+        {variableName}.
+  - Otherwise if {argumentValues} provides a value for the name {argumentName}.
+    - Let {hasValue} be {true}.
+    - Let {value} be {argumentValue}.
   - If {hasValue} is not {true} and {defaultValue} exists (including {null}):
     - Let {coercedDefaultValue} be the result of coercing {defaultValue}
       according to the input coercion rules of {argumentType}.
