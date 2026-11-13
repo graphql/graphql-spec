@@ -329,7 +329,7 @@ GraphQL supports two abstract types: interfaces and unions.
 An `Interface` defines a list of fields; `Object` types and other Interface
 types which implement this Interface are guaranteed to implement those fields.
 Whenever a field claims it will return an Interface type, it will return a valid
-implementing Object type during execution.
+implementing Object type during _operation execution_.
 
 A `Union` defines a list of possible types; similar to interfaces, whenever the
 type system claims a union will be returned, one of the possible types will be
@@ -506,7 +506,7 @@ information on the serialization of scalars in common JSON and other formats.
 If a GraphQL service expects a scalar type as input to an argument, coercion is
 observable and the rules must be well defined. If an input value does not match
 a coercion rule, a _request error_ must be raised (input values are validated
-before execution begins).
+before _operation execution_ begins).
 
 GraphQL has different constant literals to represent integer and floating-point
 input values, and coercion rules may apply differently depending on which type
@@ -717,7 +717,7 @@ Where `name` is a field that will yield a {String} value, and `age` is a field
 that will yield an {Int} value, and `picture` is a field that will yield a `Url`
 value.
 
-A query of an object value must select at least one field. This selection of
+A query of an object value must be made via a selection set. This selection of
 fields will yield an ordered map containing exactly the subset of the object
 queried, which should be represented in the order in which they were queried.
 Only fields that are declared on the object type may validly be queried on that
@@ -811,10 +811,10 @@ And will yield the subset of each object type queried:
 **Field Ordering**
 
 When querying an Object, the resulting mapping of fields are conceptually
-ordered in the same order in which they were encountered during execution,
-excluding fragments for which the type does not apply and fields or fragments
-that are skipped via `@skip` or `@include` directives. This ordering is
-correctly produced when using the {CollectFields()} algorithm.
+ordered in the same order in which they were encountered during _operation
+execution_, excluding fragments for which the type does not apply and fields or
+fragments that are skipped via `@skip` or `@include` directives. This ordering
+is correctly produced when using the {CollectFields()} algorithm.
 
 Response serialization formats capable of representing ordered maps should
 maintain this ordering. Serialization formats which can only represent unordered
@@ -1595,9 +1595,9 @@ Input Objects are allowed to reference other Input Objects as field types. A
 circular reference occurs when an Input Object references itself either directly
 or through referenced Input Objects.
 
-Circular references are generally allowed, however they may not be defined as an
-unbroken chain of Non-Null singular fields. Such Input Objects are invalid
-because there is no way to provide a legal value for them.
+Circular references are generally allowed, however they may not form cycles such
+that no finite value can be provided. Such Input Objects are invalid because
+there is no way to provide a legal value for them.
 
 This example of a circularly-referenced input type is valid as the field `self`
 may be omitted or the value {null}.
@@ -1640,6 +1640,21 @@ input First {
 input Second {
   first: First!
   value: String
+}
+```
+
+_OneOf Input Objects_ require exactly one field be provided, and that value
+cannot be `null`. This example is invalid because providing a value for `First`
+requires a non-null `Second`, and constructing a `Second` requires a non-null
+`First`:
+
+```graphql counter-example
+input First @oneOf {
+  second: Second
+}
+
+input Second {
+  first: First!
 }
 ```
 
@@ -1727,9 +1742,7 @@ input ExampleInputObject {
    5. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
-3. If an Input Object references itself either directly or through referenced
-   Input Objects, at least one of the fields in the chain of references must be
-   either a nullable or a List type.
+3. {InputObjectHasUnbreakableCycle(inputObject)} must be {false}.
 4. {InputObjectDefaultValueHasCycle(inputObject)} must be {false}.
 
 InputObjectDefaultValueHasCycle(inputObject, defaultValue, visitedFields):
@@ -1768,6 +1781,40 @@ InputFieldDefaultValueHasCycle(field, defaultValue, visitedFields):
     {visitedFields}.
   - Return {InputObjectDefaultValueHasCycle(namedFieldType, fieldDefaultValue,
     nextVisitedFields)}.
+
+InputObjectHasUnbreakableCycle(inputObject, visited):
+
+- If {visited} is not provided, initialize it to the empty set.
+- If {inputObject} is in {visited}:
+  - Return {true}.
+- Let {nextVisited} be a new set containing {inputObject} and everything from
+  {visited}.
+- If {inputObject} is a _OneOf Input Object_:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If not {InputFieldTypeHasUnbreakableCycle(fieldType, nextVisited)}:
+      - Return {false}.
+  - Return {true}.
+- Otherwise:
+  - For each field {field} of {inputObject}:
+    - Let {fieldType} be the type of {field}.
+    - If {fieldType} is Non-Null:
+      - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+      - If {InputFieldTypeHasUnbreakableCycle(nullableType, nextVisited)}:
+        - Return {true}.
+  - Return {false}.
+
+InputFieldTypeHasUnbreakableCycle(fieldType, visited):
+
+- If {fieldType} is a List type:
+  - Return {false}.
+- If {fieldType} is a Non-Null type:
+  - Let {nullableType} be the unwrapped nullable type of {fieldType}.
+  - Return {InputFieldTypeHasUnbreakableCycle(nullableType, visited)}.
+- If {fieldType} is a Scalar or Enum type:
+  - Return {false}.
+- Assert: {fieldType} is an Input Object type.
+- Return {InputObjectHasUnbreakableCycle(fieldType, visited)}.
 
 ### OneOf Input Objects
 
@@ -1934,9 +1981,8 @@ to denote a field that uses a Non-Null type like this: `name: String!`.
 **Nullable vs. Optional**
 
 Fields are _always_ optional within the context of a _selection set_, a field
-may be omitted and the selection set is still valid (so long as the selection
-set does not become empty). However fields that return Non-Null types will never
-return the value {null} if queried.
+may be omitted and the selection set is still valid. However fields that return
+Non-Null types will never return the value {null} if queried.
 
 Inputs (such as field arguments), are always optional by default. However a
 non-null input type is required. In addition to not accepting the value {null},
@@ -1954,7 +2000,7 @@ error_ must be raised.
 Note: When an _execution error_ is raised on a non-null _response position_, the
 error propagates to the parent _response position_. For more information on this
 process, see
-[Errors and Non-Null Types](#sec-Executing-Selection-Sets.Errors-and-Non-Null-Types)
+[Errors and Non-Null Types](#sec-Executing-Collected-Fields.Errors-and-Non-Null-Types)
 within the Execution section.
 
 **Input Coercion**
@@ -2137,8 +2183,8 @@ directive @example on
 
 Directives can also be used to annotate the type system definition language as
 well, which can be a useful tool for supplying additional metadata in order to
-generate GraphQL execution services, produce client generated runtime code, or
-many other useful extensions of the GraphQL semantics.
+generate GraphQL services, produce client generated runtime code, or many other
+useful extensions of the GraphQL semantics.
 
 In this example, the directive `@example` annotates field and argument
 definitions:
@@ -2201,8 +2247,8 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ```
 
 The `@skip` _built-in directive_ may be provided for fields, fragment spreads,
-and inline fragments, and allows for conditional exclusion during execution as
-described by the `if` argument.
+and inline fragments, and allows for conditional exclusion during _operation
+execution_ as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `false`.
@@ -2221,7 +2267,7 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 The `@include` _built-in directive_ may be provided for fields, fragment
 spreads, and inline fragments, and allows for conditional inclusion during
-execution as described by the `if` argument.
+_operation execution_ as described by the `if` argument.
 
 In this example `experimentalField` will only be queried if the variable
 `$someTest` has the value `true`
