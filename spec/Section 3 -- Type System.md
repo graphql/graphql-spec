@@ -1292,6 +1292,8 @@ Interface types have the potential to be invalid if incorrectly defined.
          arguments may share the same name.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
+      4. If the argument has a default value it must be compatible with
+         {argumentType} as per the coercion rules for that type.
 3. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
 4. An interface type must be a super-set of all interfaces it implements:
@@ -1739,7 +1741,9 @@ input ExampleInputObject {
       returns {true}.
    4. If input field type is Non-Null and a default value is not defined:
       1. The `@deprecated` directive must not be applied to this input field.
-   5. If the Input Object is a _OneOf Input Object_ then:
+   5. If the input field has a default value it must be compatible with
+      {inputFieldType} as per the coercion rules for that type.
+   6. If the Input Object is a _OneOf Input Object_ then:
       1. The type of the input field must be nullable.
       2. The input field must not have a default value.
 3. {InputObjectHasUnbreakableCycle(inputObject)} must be {false}.
@@ -2239,6 +2243,8 @@ repeatable directives.
       arguments may share the same name.
    3. The argument must accept a type where {IsInputType(argumentType)} returns
       {true}.
+   4. If the argument has a default value it must be compatible with
+      {argumentType} as per the coercion rules for that type.
 
 ### @skip
 
