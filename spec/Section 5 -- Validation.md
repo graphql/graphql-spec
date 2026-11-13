@@ -861,7 +861,8 @@ validation rules apply in each case.
   - Let {argumentDefinition} be the argument definition provided by the parent
     field or directive named {argumentName}.
   - {argumentDefinition} must exist.
-- For each fragment argument {fragmentArgument} in the document:
+- For each argument {fragmentArgument} provided to a named fragment spread in
+  the document:
   - Let {variableName} be the Name of {fragmentArgument}.
   - Let {namedSpread} be the named spread to which {fragmentArgument} is
     applied.
@@ -1042,7 +1043,7 @@ fragment fragmentWithNonNullVariable($arg: Boolean!) on Arguments {
   nonNullBooleanArgField(nonNullBooleanArg: $arg)
 }
 
-fragment goodFragmentDefault on Arguments {
+fragment missingRequiredFragmentArg on Arguments {
   ...fragmentWithNonNullVariable
 }
 ```
@@ -2108,7 +2109,8 @@ included in that operation.
   - Let {variables} be the variables defined by that {operation}.
   - Each {variable} in {variables} must be used at least once in either the
     operation scope itself or any fragment transitively referenced by that
-    operation, excluding fragments that define the same name as a variable.
+    operation, excluding usages within fragments that define a variable of the
+    same name.
 - For every {fragment} in the document:
   - Let {variables} be the variables defined by that {fragment}.
   - Each {variable} in {variables} must be used at least once transitively

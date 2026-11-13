@@ -1264,8 +1264,8 @@ request so they may be substituted in during execution.
 
 :: A _fragment variable_ is a variable defined on a fragment. A fragment
 variable is locally scoped, it may only be referenced within that fragment
-(non-transitively). Values for fragment variables are provided to fragment
-spreads.
+(non-transitively). Values for fragment variables are provided as arguments to
+fragment spreads.
 
 In this example, we want to fetch a profile picture size based on the size of a
 particular device:
