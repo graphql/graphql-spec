@@ -851,6 +851,12 @@ fragmentVariables):
 Any _request error_ raised as a result of input coercion during
 {CoerceArgumentValues()} should be treated instead as an _execution error_.
 
+A literal {Value} being coerced may contain a {Variable}, for example within a
+{ListValue} or {ObjectValue}. The runtime value of each such variable is the
+value provided for its name in the result of
+{GetScopedVariableValues(variableName, variableValues, fragmentVariables)}; if
+no such value is provided, then no runtime value is provided for that variable.
+
 Note: Variable values are not coerced because they are expected to be coerced
 before executing the operation in {CoerceVariableValues()}, and valid operations
 must only allow usage of variables of appropriate types.

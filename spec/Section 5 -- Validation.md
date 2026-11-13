@@ -1582,7 +1582,9 @@ the runtime value of each {variableUsage} is valid for usage in its position.
 The type expected in a position includes the type defined by the argument a
 value is provided for, the type defined by an input object field a value is
 provided for, and the type of a variable definition a default value is provided
-for.
+for. For an argument provided to a named fragment spread, the type expected is
+the type of the _fragment variable_ of the same name defined by the referenced
+fragment.
 
 The following examples are valid use of value literals:
 
@@ -2260,6 +2262,10 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
   - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
   - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
+
+When {variableUsage} is located in an {Argument} provided to a named fragment
+spread, the expected type and default value of that {Argument} are those of the
+_fragment variable_ of the same name defined by the referenced fragment.
 
 IsNonNullPosition(locationType, variableUsage):
 
