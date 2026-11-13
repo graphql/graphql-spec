@@ -70,10 +70,10 @@ contribution to this edition of the GraphQL specification.
 
 A few notable changes in this edition:
 
-- Directives now supported on directive definitions, including deprecation of directives ([#1206](https://graphql.org/graphql/graphql-spec/pull/1206))
-- Empty selection sets now allowed, useful for client-side-only fields ([#1227](https://graphql.org/graphql/graphql-spec/pull/1227))
-- OneOf input object definitions now validated to ensure they can be populated ([#1211](https://graphql.org/graphql/graphql-spec/pull/1211))
-- Fragments now better defined to emphasize their intended use ([#1193](https://graphql.org/graphql/graphql-spec/pull/1193))
+- Directives now supported on directive definitions, including deprecation of directives ([#1206](https://github.com/graphql/graphql-spec/pull/1206))
+- Empty selection sets now allowed, useful for client-side-only fields ([#1227](https://github.com/graphql/graphql-spec/pull/1227))
+- OneOf input object definitions now validated to ensure they can be populated ([#1211](https://github.com/graphql/graphql-spec/pull/1211))
+- Fragments now better defined to emphasize their intended use ([#1193](https://github.com/graphql/graphql-spec/pull/1193))
 - Many editorial improvements removing ambiguities and improving clarity
 
 ## Changeset
