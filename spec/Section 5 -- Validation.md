@@ -2168,7 +2168,7 @@ However, a nullable list cannot be passed to a non-null list:
 ```graphql counter-example
 query listToNonNullList($booleanList: [Boolean]) {
   arguments {
-    nonNullBooleanListField(nonNullBooleanListArg: $booleanList)
+    booleanListArgField(booleanListArg: $booleanList)
   }
 }
 ```
