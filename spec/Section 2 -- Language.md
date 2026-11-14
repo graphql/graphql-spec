@@ -915,7 +915,7 @@ empty strings.
 
 **Escape Sequences**
 
-In a single-quoted {StringValue}, any _Unicode scalar value_ may be expressed
+In a double-quoted {StringValue}, any _Unicode scalar value_ may be expressed
 using an escape sequence. GraphQL strings allow both C-style escape sequences
 (for example `\n`) and two forms of Unicode escape sequences: one with a
 fixed-width of 4 hexadecimal digits (for example `\u000A`) and one with a
@@ -927,7 +927,7 @@ _Unicode scalar value_, otherwise must result in a parse error. For example both
 sources `"\uDEAD"` and `"\u{110000}"` should not be considered valid
 {StringValue}.
 
-Escape sequences are only meaningful within a single-quoted string. Within a
+Escape sequences are only meaningful within a double-quoted string. Within a
 block string, they are simply that sequence of characters (for example
 `"""\n"""` represents the _Unicode text_ [U+005C, U+006E]). Within a comment an
 escape sequence is not a significant sequence of characters. They may not appear
