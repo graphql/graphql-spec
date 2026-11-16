@@ -197,6 +197,37 @@ locations, where each location is a map with the keys {"line"} and {"column"},
 both positive numbers starting from `1` which describe the beginning of an
 associated syntax element.
 
+The {"line"} is one plus the number of {LineTerminator} sequences preceding the
+associated syntax element in the source text. The {"column"} is one plus the
+number of {SourceCharacter} preceding that syntax element on its line. A line
+begins at the start of the source text or immediately after a {LineTerminator}.
+A carriage return followed by a new line is a single {LineTerminator}.
+
+These positions refer to the source text before string escape sequences are
+evaluated or block strings are processed. Source characters within {Ignored}
+tokens contribute to these positions.
+
+Note: Column numbers are independent of the number of bytes or code units used
+to encode the source text. A supplementary code point occupies one column, even
+when represented by two UTF-16 code units. A tab occupies one column, regardless
+of its displayed width. An extended grapheme cluster may occupy multiple
+columns.
+
+For example, the following are two separate source texts. The unexpected second
+{`)`} is at line 1, column 15 in the first source and line 1, column 17 in the
+second. The emoji consist of one and three Unicode scalar values, respectively:
+
+```example
+{ f(arg: "😀") ) }
+#              ^ this is column 15
+# 😀 is a single Unicode scalar value: \u{1F600}
+
+{ f(arg: "👩‍💻") ) }
+#              ^ this is column 17
+# 👩‍💻 is a grapheme cluster composed of: \u{1F469}, \u{200D}, \u{1F4BB}
+# 👩‍💻 advances the column counter of 3
+```
+
 If an error can be associated to a particular field in the GraphQL result, it
 must contain an entry with the key {"path"} with a _response path_ which
 describes the _response position_ which raised the error. This allows clients to

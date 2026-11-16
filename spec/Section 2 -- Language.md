@@ -48,19 +48,37 @@ match, however some lookahead restrictions include additional constraints.
 SourceCharacter :: "Any Unicode scalar value"
 
 GraphQL documents are interpreted from a source text, which is a sequence of
-{SourceCharacter}, each {SourceCharacter} being a _Unicode scalar value_ which
-may be any Unicode code point from U+0000 to U+D7FF or U+E000 to U+10FFFF
-(informally referred to as _"characters"_ through most of this specification).
+{SourceCharacter}. Each {SourceCharacter} is a _Unicode scalar value_, that is,
+a _Unicode code point_ from U+0000 to U+D7FF or U+E000 to U+10FFFF. The
+_surrogate code point_ range U+D800 to U+DFFF is excluded. Unicode scalar values
+are informally referred to as "characters" through most of this specification.
 
-A GraphQL document may be expressed only in the ASCII range to be as widely
-compatible with as many existing tools, languages, and serialization formats as
-possible and avoid display issues in text editors and source control. Non-ASCII
-Unicode scalar values may appear within {StringValue} and {Comment}.
+Note: A single user-perceived character may consist of multiple Unicode scalar
+values, forming an _extended grapheme cluster_. For example, the emoji `👨‍👩‍👧‍👦`
+consists of seven {SourceCharacter}: four supplementary code points and three
+zero width joiners (U+200D).
 
-Note: An implementation which uses _UTF-16_ to represent GraphQL documents in
-memory (for example, JavaScript or Java) may encounter a _surrogate pair_. This
-encodes one _supplementary code point_ and is a single valid source character,
-however an unpaired _surrogate code point_ is not a valid source character.
+This specification defines source text independently of its encoding and does
+not prescribe how implementations represent it internally.
+
+Note: JavaScript and Java strings are sequences of _UTF-16_ _code units_. In
+UTF-16, a _supplementary code point_ is encoded as a _surrogate pair_ of two
+16-bit code units. Together, these code units encode one {SourceCharacter}. An
+unpaired surrogate code unit is ill-formed in UTF-16 and does not encode a
+Unicode scalar value. It therefore cannot represent a {SourceCharacter}.
+
+GraphQL syntax can be expressed using only source characters in the ASCII range,
+U+0000 to U+007F. Non-ASCII Unicode scalar values within string values can be
+represented using Unicode escape sequences in single-quoted {StringValue}. This
+allows documents to be written using only ASCII source characters while
+preserving their definitions and string values, improving compatibility with
+tools, languages, and serialization formats. ASCII-encoded source text is also
+valid UTF-8.
+
+Note: Unicode escape sequences are not interpreted within {Comment} or
+{BlockString}. Producing ASCII-only source text may therefore require omitting
+or rewriting comments and replacing block strings with single-quoted strings
+that preserve their evaluated values.
 
 ### White Space
 
@@ -92,9 +110,10 @@ text and separate lexical tokens, any amount may appear before or after any
 other token and have no significance to the semantic meaning of a GraphQL
 Document.
 
-Note: Any error reporting which provides the line number in the source of the
-offending syntax should use the preceding amount of {LineTerminator} to produce
-the line number.
+Note: Error reporting uses the line and column numbers defined in
+[Error Result Format](#sec-Errors.Error-Result-Format). A carriage return
+followed by a new line is a single {LineTerminator}, and therefore advances the
+line number once.
 
 ### Comments
 
@@ -916,15 +935,21 @@ empty strings.
 **Escape Sequences**
 
 In a single-quoted {StringValue}, any _Unicode scalar value_ may be expressed
-using an escape sequence. GraphQL strings allow both C-style escape sequences
-(for example `\n`) and two forms of Unicode escape sequences: one with a
-fixed-width of 4 hexadecimal digits (for example `\u000A`) and one with a
-variable-width most useful for representing a _supplementary character_ such as
-an Emoji (for example `\u{1F4A9}`).
+using an escape sequence. Escape sequences are part of the GraphQL lexical
+grammar and are evaluated using the static semantics below, independently of the
+encoding or internal representation of the source text or the resulting string
+value.
 
-The hexadecimal number encoded by a Unicode escape sequence must describe a
-_Unicode scalar value_, otherwise must result in a parse error. For example both
-sources `"\uDEAD"` and `"\u{110000}"` should not be considered valid
+GraphQL strings allow both C-style escape sequences (for example `\n`) and two
+forms of Unicode escape sequences: one with a fixed-width of 4 hexadecimal
+digits (for example `\u000A`) and one with a variable-width most useful for
+representing a _supplementary code point_ (for example `\u{1F4A9}`).
+
+The hexadecimal number represented by a Unicode escape sequence must describe a
+_Unicode scalar value_, unless it is one of two adjacent fixed-width Unicode
+escape sequences whose values correspond to the code units of a _surrogate
+pair_, as described below. Otherwise, the escape sequence must result in a parse
+error. For example both sources `"\uDEAD"` and `"\u{110000}"` are not valid
 {StringValue}.
 
 Escape sequences are only meaningful within a single-quoted string. Within a
@@ -940,19 +965,32 @@ allowed within strings. If using GraphQL within a system which only supports
 ASCII, then escape sequences may be used to represent all Unicode characters
 outside of the ASCII range.
 
-For legacy reasons, a _supplementary character_ may be escaped by two
-fixed-width unicode escape sequences forming a _surrogate pair_. For example the
-input `"\uD83D\uDCA9"` is a valid {StringValue} which represents the same
-_Unicode text_ as `"\u{1F4A9}"`. While this legacy form is allowed, it should be
-avoided as a variable-width unicode escape sequence is a clearer way to encode
-such code points.
+For legacy reasons, a _supplementary code point_ may be escaped by two adjacent
+fixed-width Unicode escape sequences. Their hexadecimal values correspond to the
+leading and trailing code units of a _UTF-16_ _surrogate pair_ and are combined
+into one _Unicode scalar value_ using the same calculation as in UTF-16. For
+example the input `"\uD83D\uDCA9"` is a valid {StringValue} which represents the
+same _Unicode text_ as `"\u{1F4A9}"`. While this legacy form is allowed, it
+should be avoided as a variable-width Unicode escape sequence is a clearer way
+to represent such code points.
+
+Note: Under the GraphQL static semantics for {StringValue} defined below, the
+sources `"💩"`, `"\u{1F4A9}"`, and `"\uD83D\uDCA9"` all evaluate to the same
+_Unicode text_ [U+1F4A9], but contain 3, 11, and 14 {SourceCharacter},
+respectively, including the quotation marks. The latter two sources contain only
+ASCII source characters and no surrogate code points. The legacy form uses the
+same calculation as decoding a _UTF-16_ _surrogate pair_, applied to the
+hexadecimal values written in the two escape sequences. GraphQL adopts this
+calculation as part of its escape-sequence semantics, independently of the
+encoding or internal representation of the source text or the evaluated string
+value. Neither is required to use UTF-16.
 
 When producing a {StringValue}, implementations should use escape sequences to
 represent non-printable control characters (U+0000 to U+001F and U+007F to
 U+009F). Other escape sequences are not necessary, however an implementation may
 use escape sequences to represent any other range of code points (for example,
 when producing ASCII-only output). If an implementation chooses to escape a
-_supplementary character_, it should only use a variable-width unicode escape
+_supplementary code point_, it should only use a variable-width Unicode escape
 sequence.
 
 **Block Strings**
@@ -1036,7 +1074,7 @@ StringCharacter :: `\u` EscapedUnicode
 
 - Let {value} be the hexadecimal value represented by the sequence of {HexDigit}
   within {EscapedUnicode}.
-- Assert: {value} is a within the _Unicode scalar value_ range (>= 0x0000 and <=
+- Assert: {value} is within the _Unicode scalar value_ range (>= 0x0000 and <=
   0xD7FF or >= 0xE000 and <= 0x10FFFF).
 - Return the _Unicode scalar value_ {value}.
 
