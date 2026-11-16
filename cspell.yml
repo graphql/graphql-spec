@@ -11,6 +11,8 @@ words:
   - parallelization
   - structs
   - subselection
+  - fieldless
+  - typeless
   # Fictional characters / examples
   - alderaan
   - hagrid
