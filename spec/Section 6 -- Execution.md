@@ -494,13 +494,6 @@ visitedFragments):
     - Add {fieldDetails} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
-    - Let {fragment} be the Fragment in the current Document whose name is
-      {fragmentSpreadName}.
-    - If no such {fragment} exists, continue with the next {selection} in
-      {selectionSet}.
-    - Let {fragmentType} be the type condition on {fragment}.
-    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
-      with the next {selection} in {selectionSet}.
     - Let {visitedDeferSet} be the set in {visitedFragments} for key
       {fragmentSpreadName}; otherwise create the entry with an empty set.
     - If {null} is in {visitedDeferSet}, continue with the next {selection} in
@@ -525,6 +518,13 @@ visitedFragments):
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Otherwise:
       - Add {null} to {visitedDeferSet}.
+    - Let {fragment} be the Fragment in the current Document whose name is
+      {fragmentSpreadName}.
+    - If no such {fragment} exists, continue with the next {selection} in
+      {selectionSet}.
+    - Let {fragmentType} be the type condition on {fragment}.
+    - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
+      with the next {selection} in {selectionSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentCollectedFieldsMap} and {fragmentNewDeferUsages} be the
       result of calling {CollectFields(objectType, fragmentSelectionSet,
