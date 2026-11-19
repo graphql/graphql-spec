@@ -405,7 +405,7 @@ name_ and its associated _field set_. A _collected fields map_ may be produced
 from a selection set via {CollectFields()} or from the selection sets of all
 entries of a _field set_ via {CollectSubfields()}.
 
-:: A _field set_ is an ordered set of _field details_ that share the same
+:: A _field set_ is an ordered set of _field detail_ that share the same
 _response name_ (the field alias if defined, otherwise the field's name).
 Validation ensures each field in the set has the same name and arguments,
 however each may have different subfields (see:
@@ -446,10 +446,11 @@ collection; it contains the following information:
 
 - {deferDirective}: the defer directive node from the current Document.
 - {parentDeferUsage}: a defer usage corresponding to the `@defer` directive
-  enclosing this `@defer` directive, if any, otherwise {undefined}.
+  enclosing this `@defer` directive, if any.
 
-The {parentDeferUsage} entry is used to build distinct Execution Groups as
-discussed within the Execution Plan Generation section below.
+The {parentDeferUsage} entry is used to build each distinct _execution group_ as
+discussed within the [Execution Plan Generation](#sec-Execution-Plan-Generation)
+section below.
 
 :: A _field detail_ is used to correlate a field in a selection set with the
 necessary information to describe how this field is used in a deferred fragment.
@@ -523,7 +524,6 @@ visitedFragments):
       - Add {deferDirective} to {visitedDeferSet}.
       - Let {fragmentDeferUsage} be {deferUsage}.
     - Otherwise:
-      - Let {fragmentDeferUsage} be {undefined}.
       - Add {null} to {visitedDeferSet}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentCollectedFieldsMap} and {fragmentNewDeferUsages} be the
