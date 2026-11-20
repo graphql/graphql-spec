@@ -408,8 +408,7 @@ executionMode):
   selectionSet, variableValues)}.
 - Let {data} be the result of running
   {ExecuteCollectedFields(collectedFieldsMap, objectType, initialValue,
-  variableValues)} _serially_ if {executionMode} is {"serial"}, otherwise
-  _normally_ (allowing parallelization)).
+  variableValues, executionMode)}.
 - Let {errors} be the list of all _execution error_ raised while executing the
   selection set.
 - Return an unordered map containing {data} and {errors}.
@@ -593,10 +592,11 @@ runtime value need to be known, as well as the runtime values for any variables.
 
 Execution will recursively resolve and complete the value of every entry in the
 collected fields map, producing an entry in the result map with the same
-_response name_ key.
+_response name_ key. The entries are executed _serially_ if {executionMode} is
+{"serial"}, otherwise _normally_ (allowing parallelization).
 
 ExecuteCollectedFields(collectedFieldsMap, objectType, objectValue,
-variableValues):
+variableValues, executionMode):
 
 - Initialize {resultMap} to an empty ordered map.
 - For each {responseName} and {fields} in {collectedFieldsMap}:
@@ -608,6 +608,8 @@ variableValues):
     - Let {responseValue} be {ExecuteField(objectType, objectValue, fieldType,
       fields, variableValues)}.
     - Set {responseValue} as the value for {responseName} in {resultMap}.
+    - If an _execution error_ was raised during {ExecuteField()}:
+      - If {executionMode} is {"serial"}, return {resultMap}.
 - Return {resultMap}.
 
 Note: {resultMap} is ordered by which fields appear first in the operation. This
@@ -626,8 +628,9 @@ response position (the entire selection set in the case of a field, or the
 entire list in the case of a list position), either resolving to {null} if
 allowed or being further propagated to a parent response position.
 
-If this occurs, any sibling response positions which have not yet executed or
-have not yet yielded a value may be cancelled to avoid unnecessary work.
+If this occurs during normal execution, any sibling response positions which
+have not yet executed or have not yet yielded a value may be cancelled to avoid
+unnecessary work.
 
 Note: See [Handling Execution Errors](#sec-Handling-Execution-Errors) for more
 about this behavior.
@@ -665,7 +668,13 @@ When executing a collected fields map serially, the executor must consider each
 entry from the collected fields map in the order provided in the collected
 fields map. It must determine the corresponding entry in the result map for each
 item to completion before it continues on to the next entry in the collected
-fields map:
+fields map.
+
+If an _execution error_ is raised while resolving or completing an entry during
+serial execution, subsequent entries in that collected fields map must not be
+executed. This requirement includes errors raised while executing subfields
+during value completion and applies even if the error is handled at a nullable
+response position.
 
 For example, given the following mutation operation, the root _selection set_
 must be executed serially:
@@ -872,8 +881,7 @@ CompleteValue(fieldType, fields, result, variableValues):
   - Let {collectedFieldsMap} be the result of calling
     {CollectSubfields(objectType, fields, variableValues)}.
   - Return the result of evaluating {ExecuteCollectedFields(collectedFieldsMap,
-    objectType, result, variableValues)} _normally_ (allowing for
-    parallelization).
+    objectType, result, variableValues, "normal")}.
 
 **Coercing Results**
 

@@ -181,9 +181,8 @@ indicated via a _response path_ in the error response's {"path"} entry.
 When an execution error is raised at a given _response position_, then that
 response position must not be present within the _response_ {"data"} entry
 (except {null}), and the {"errors"} entry must include the error. Nested
-execution is halted and sibling execution attempts to continue, producing
-partial result (see
-[Handling Execution Errors](#sec-Handling-Execution-Errors)).
+execution is halted; sibling execution follows the rules for
+[normal and serial execution](#sec-Normal-and-Serial-Execution).
 
 **Error Result Format**
 
