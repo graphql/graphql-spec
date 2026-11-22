@@ -50,9 +50,9 @@ ListOfLetterA :
 
 The GraphQL language is defined in a syntactic grammar where terminal symbols
 are tokens. Tokens are defined in a lexical grammar which matches patterns of
-source characters. The result of parsing a source text sequence of Unicode
-characters first produces a sequence of lexical tokens according to the lexical
-grammar which then produces abstract syntax tree (AST) according to the
+{SourceCharacter}. The result of parsing a source text sequence of Unicode
+scalar values first produces a sequence of lexical tokens according to the
+lexical grammar which then produces abstract syntax tree (AST) according to the
 syntactic grammar.
 
 A lexical grammar production describes non-terminal "tokens" by patterns of
@@ -183,12 +183,12 @@ For example, this describes how a parser should interpret a string literal:
 
 StringValue :: `""`
 
-- Return an empty Unicode character sequence.
+- Return an empty sequence.
 
 StringValue :: `"` StringCharacter+ `"`
 
-- Return the Unicode character sequence of all {StringCharacter} Unicode
-  character values.
+- Return the _Unicode text_ by concatenating the evaluation of all
+  {StringCharacter}.
 
 ## Algorithms
 
