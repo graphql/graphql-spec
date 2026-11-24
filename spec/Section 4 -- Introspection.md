@@ -360,7 +360,7 @@ Fields\:
 - `name` must return a String.
 - `description` may return a String or {null}.
 - `enumValues` must return the set of enum values as a list of `__EnumValue`.
-  There must be at least one and they must have unique names.
+  They must have unique names.
   - Accepts the argument `includeDeprecated` which defaults to {false}. If
     {true}, deprecated enum values are also returned.
 - All other fields must return {null}.
