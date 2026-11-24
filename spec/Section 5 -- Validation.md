@@ -2067,21 +2067,22 @@ IsVariableUsageAllowed(variableDefinition, variableUsage):
 - Let {variableType} be the expected type of {variableDefinition}.
 - Let {locationType} be the expected type of the {Argument}, {ObjectField}, or
   {ListValue} entry where {variableUsage} is located.
-- If {IsNonNullPosition(locationType, variableUsage)} AND {variableType} is NOT
-  a non-null type:
-  - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists for
-    {variableDefinition} and is not the value {null}.
-  - Let {hasLocationDefaultValue} be {true} if a default value exists for the
-    {Argument} or {ObjectField} where {variableUsage} is located.
-  - If {hasNonNullVariableDefaultValue} is NOT {true} AND
-    {hasLocationDefaultValue} is NOT {true}, return {false}.
-  - Let {nullableLocationType} be the unwrapped nullable type of {locationType}.
-  - Return {AreTypesCompatible(variableType, nullableLocationType)}.
+- If {variableType} is NOT a non-null type:
+  - If {IsOneOfFieldPosition(variableUsage)}, return {false}.
+  - If {locationType} is a non-null type:
+    - Let {hasNonNullVariableDefaultValue} be {true} if a default value exists
+      for {variableDefinition} and is not the value {null}.
+    - Let {hasLocationDefaultValue} be {true} if a default value exists for the
+      {Argument} or {ObjectField} where {variableUsage} is located.
+    - If {hasNonNullVariableDefaultValue} is NOT {true} AND
+      {hasLocationDefaultValue} is NOT {true}, return {false}.
+    - Let {nullableLocationType} be the unwrapped nullable type of
+      {locationType}.
+    - Return {AreTypesCompatible(variableType, nullableLocationType)}.
 - Return {AreTypesCompatible(variableType, locationType)}.
 
-IsNonNullPosition(locationType, variableUsage):
+IsOneOfFieldPosition(variableUsage):
 
-- If {locationType} is a non-null type, return {true}.
 - If the location of {variableUsage} is an {ObjectField}:
   - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
   - Let {parentLocationType} be the expected type of {ObjectValue}.
@@ -2205,6 +2206,17 @@ mutation addNullableCat($cat: CatInput) {
 A notable exception to typical variable type compatibility is allowing a
 variable definition with a nullable type to be provided to a non-null location
 as long as either that variable or that location provides a default value.
+
+This exception does not apply to variables used for _OneOf Input Object_ fields,
+which [require a non-null value](#sec-OneOf-Input-Objects.Input-Coercion).
+
+```graphql counter-example
+mutation addNullableCatWithDefault($cat: CatInput = { name: "Brontie" }) {
+  addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+```
 
 In the example below, an optional variable `$booleanArg` is allowed to be used
 in the non-null argument `optionalBooleanArg` because the field argument is
