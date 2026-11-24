@@ -2085,10 +2085,8 @@ IsOneOfFieldPosition(variableUsage):
 
 - If the location of {variableUsage} is an {ObjectField}:
   - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
-  - Let {parentLocationType} be the expected type of {parentObjectValue}.
-  - If {parentLocationType} is a non-null type:
-    - Let {parentLocationType} be the unwrapped nullable type of
-      {parentLocationType}.
+  - Let {parentLocationType} be the _unwrapped type_ of the expected type of
+    {parentObjectValue}.
   - If {parentLocationType} is a _OneOf Input Object_ type, return {true}.
 - Return {false}.
 
@@ -2189,6 +2187,12 @@ mutation addCat($cat: CatInput!) {
   }
 }
 
+mutation addCats($cat: CatInput!) {
+  addPets(pets: { cat: $cat }) {
+    name
+  }
+}
+
 mutation addCatWithDefault($cat: CatInput! = { name: "Brontie" }) {
   addPet(pet: { cat: $cat }) {
     name
@@ -2199,6 +2203,12 @@ mutation addCatWithDefault($cat: CatInput! = { name: "Brontie" }) {
 ```graphql counter-example
 mutation addNullableCat($cat: CatInput) {
   addPet(pet: { cat: $cat }) {
+    name
+  }
+}
+
+mutation addNullableCats($cat: CatInput) {
+  addPets(pets: { cat: $cat }) {
     name
   }
 }
