@@ -2085,7 +2085,10 @@ IsOneOfFieldPosition(variableUsage):
 
 - If the location of {variableUsage} is an {ObjectField}:
   - Let {parentObjectValue} be the {ObjectValue} containing {ObjectField}.
-  - Let {parentLocationType} be the expected type of {ObjectValue}.
+  - Let {parentLocationType} be the expected type of {parentObjectValue}.
+  - If {parentLocationType} is a non-null type:
+    - Let {parentLocationType} be the unwrapped nullable type of
+      {parentLocationType}.
   - If {parentLocationType} is a _OneOf Input Object_ type, return {true}.
 - Return {false}.
 
