@@ -314,7 +314,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
@@ -356,7 +356,7 @@ EnumTypeDefinition :
 - Description? enum Name Directives[Const]? EnumValuesDefinition
 - Description? enum Name Directives[Const]? [lookahead != `{`]
 
-EnumValuesDefinition : { EnumValueDefinition+ }
+EnumValuesDefinition : { EnumValueDefinition\* }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
@@ -370,7 +370,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition\* }
 
 InputObjectTypeExtension :
 

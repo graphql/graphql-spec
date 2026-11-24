@@ -689,7 +689,7 @@ ImplementsInterfaces :
 - ImplementsInterfaces & NamedType
 - implements `&`? NamedType
 
-FieldsDefinition : { FieldDefinition+ }
+FieldsDefinition : { FieldDefinition\* }
 
 FieldDefinition : Description? Name ArgumentsDefinition? : Type
 Directives[Const]?
@@ -721,6 +721,18 @@ type Person {
 Where `name` is a field that will yield a {String} value, and `age` is a field
 that will yield an {Int} value, and `picture` is a field that will yield a `Url`
 value.
+
+An Object type may define no fields. This may be written with an empty set of
+braces, or by omitting the braces entirely; the following two definitions are
+equivalent:
+
+```graphql example
+type Empty {}
+```
+
+```graphql example
+type Empty
+```
 
 A query of an object value must be made via a selection set. This selection of
 fields will yield an ordered map containing exactly the subset of the object
@@ -927,8 +939,7 @@ Objects are never valid inputs.
 Object types have the potential to be invalid if incorrectly defined. This set
 of rules must be adhered to by every Object type in a GraphQL schema.
 
-1. An Object type must define one or more fields.
-2. For each field of an Object type:
+1. For each field of an Object type:
    1. The field must have a unique name within that Object type; no two fields
       may share the same name.
    2. The field must not have a name which begins with the characters {"\_\_"}
@@ -946,8 +957,8 @@ of rules must be adhered to by every Object type in a GraphQL schema.
          1. The `@deprecated` directive must not be applied to this argument.
       5. If the argument has a default value it must be compatible with
          {argumentType} as per the coercion rules for that type.
-3. An object type may declare that it implements one or more unique interfaces.
-4. An object type must be a super-set of all interfaces it implements:
+2. An object type may declare that it implements one or more unique interfaces.
+3. An object type must be a super-set of all interfaces it implements:
    1. Let this object type be {objectType}.
    2. For each interface declared implemented as {interfaceType},
       {IsValidImplementation(objectType, interfaceType)} must be {true}.
@@ -1156,6 +1167,18 @@ type Business implements NamedEntity & ValuedEntity {
 }
 ```
 
+An Interface type may define no fields. This may be written with an empty set of
+braces, or by omitting the braces entirely; the following two definitions are
+equivalent:
+
+```graphql example
+interface Empty {}
+```
+
+```graphql example
+interface Empty
+```
+
 Fields which yield an interface are useful when one of many Object types are
 expected, but some fields should be guaranteed.
 
@@ -1282,8 +1305,7 @@ Interfaces are never valid inputs.
 
 Interface types have the potential to be invalid if incorrectly defined.
 
-1. An Interface type must define one or more fields.
-2. For each field of an Interface type:
+1. For each field of an Interface type:
    1. The field must have a unique name within that Interface type; no two
       fields may share the same name.
    2. The field must not have a name which begins with the characters {"\_\_"}
@@ -1297,9 +1319,9 @@ Interface types have the potential to be invalid if incorrectly defined.
          arguments may share the same name.
       3. The argument must accept a type where {IsInputType(argumentType)}
          returns {true}.
-3. An interface type may declare that it implements one or more unique
+2. An interface type may declare that it implements one or more unique
    interfaces, but may not implement itself.
-4. An interface type must be a super-set of all interfaces it implements:
+3. An interface type must be a super-set of all interfaces it implements:
    1. Let this interface type be {implementingType}.
    2. For each interface declared implemented as {implementedType},
       {IsValidImplementation(implementingType, implementedType)} must be {true}.
@@ -1443,6 +1465,13 @@ union SearchResult =
   | Person
 ```
 
+A Union type may include no member types. This is written by omitting the member
+types entirely:
+
+```graphql example
+union Empty
+```
+
 **Result Coercion**
 
 The union type should have some way of determining which object a given result
@@ -1457,7 +1486,7 @@ Unions are never valid inputs.
 
 Union types have the potential to be invalid if incorrectly defined.
 
-1. A Union type must include one or more unique member types.
+1. The member types of a Union type must be unique.
 2. The member types of a Union type must all be Object base types; Scalar,
    Interface and Union types must not be member types of a Union. Similarly,
    wrapping types must not be member types of a Union.
@@ -1495,7 +1524,7 @@ EnumTypeDefinition :
 - Description? enum Name Directives[Const]? EnumValuesDefinition
 - Description? enum Name Directives[Const]? [lookahead != `{`]
 
-EnumValuesDefinition : { EnumValueDefinition+ }
+EnumValuesDefinition : { EnumValueDefinition\* }
 
 EnumValueDefinition : Description? EnumValue Directives[Const]?
 
@@ -1515,6 +1544,22 @@ enum Direction {
   WEST
 }
 ```
+
+An Enum type may define no enum values. This may be written with an empty set of
+braces, or by omitting the braces entirely; the following two definitions are
+equivalent:
+
+```graphql example
+enum Empty {}
+```
+
+```graphql example
+enum Empty
+```
+
+Note: An Enum type with no enum values has no valid input or result values. A
+field returning such a type can only ever produce {null}, and an argument or
+input field of such a type can only ever accept {null}.
 
 **Result Coercion**
 
@@ -1537,7 +1582,7 @@ may be interpreted as the enum input value with the same name.
 
 Enum types have the potential to be invalid if incorrectly defined.
 
-1. An Enum type must define one or more unique enum values.
+1. The enum values of an Enum type must be unique.
 
 ### Enum Extensions
 
@@ -1569,7 +1614,7 @@ InputObjectTypeDefinition :
 - Description? input Name Directives[Const]? InputFieldsDefinition
 - Description? input Name Directives[Const]? [lookahead != `{`]
 
-InputFieldsDefinition : { InputValueDefinition+ }
+InputFieldsDefinition : { InputValueDefinition\* }
 
 Fields may accept arguments to configure their behavior. These inputs are often
 scalars or enums, but they sometimes need to represent more complex values.
@@ -1593,6 +1638,18 @@ inappropriate for re-use here, because Object types can contain fields that
 define arguments or contain references to interfaces and unions, neither of
 which is appropriate for use as an input argument. For this reason, input
 objects have a separate type in the system.
+
+An Input Object type may define no input fields. This may be written with an
+empty set of braces, or by omitting the braces entirely; the following two
+definitions are equivalent:
+
+```graphql example
+input Empty {}
+```
+
+```graphql example
+input Empty
+```
 
 **Circular References**
 
@@ -1734,7 +1791,8 @@ input ExampleInputObject {
 
 **Type Validation**
 
-1. An Input Object type must define one or more input fields.
+1. If the Input Object is a _OneOf Input Object_, it must define at least one
+   input field.
 2. For each input field of an Input Object type:
    1. The input field must have a unique name within that Input Object type; no
       two input fields may share the same name.
