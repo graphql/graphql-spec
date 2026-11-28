@@ -561,7 +561,7 @@ FieldsInSetCanMerge(set):
   fragment in {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {spreadA} and {spreadB} in
   {spreadsForFragment}:
-  - {spreadA} and {spreadB} must have identical sets of arguments.
+  - {SameArguments(spreadA, spreadB)} must be true.
 - Let {fieldsForName} be the set of selections with a given _response name_ in
   {set} including visiting fragments and inline fragments.
 - Given each pair of distinct members {fieldA} and {fieldB} in {fieldsForName}:
@@ -569,17 +569,47 @@ FieldsInSetCanMerge(set):
   - If the parent types of {fieldA} and {fieldB} are equal or if either is not
     an Object Type:
     - {fieldA} and {fieldB} must have identical field names.
-    - {fieldA} and {fieldB} must have identical sets of arguments.
+    - {SameArguments(fieldA, fieldB)} must be true.
     - Let {mergedSet} be the result of adding the selection set of {fieldA} and
       the selection set of {fieldB}.
     - {FieldsInSetCanMerge(mergedSet)} must be true.
 
-Note: When checking if two fragment spreads or two field selections have
-"identical sets of arguments", it is necessary to check both the name of any
-variables referenced and also where the variable is defined. For example, if
-each selection references the variable `$size`, then `$size` must either be an
-operation variable for both references, or must refer to the same fragment
-variable definition for both references.
+SameArguments(selectionA, selectionB):
+
+- If {selectionA} and {selectionB} do not have identical sets of arguments,
+  return {false}.
+- If no {Variable} within the arguments of {selectionA} or {selectionB}
+  references a _fragment variable_, return {true}.
+- Return {SameVariableScope(selectionA, selectionB)}.
+
+SameVariableScope(selectionA, selectionB):
+
+- Let {spreadA} be the fragment spread via which {selectionA} was visited, if
+  any.
+- Let {spreadB} be the fragment spread via which {selectionB} was visited, if
+  any.
+- If neither {spreadA} nor {spreadB} exists, return {true}.
+- If only one of {spreadA} and {spreadB} exists, return {false}.
+- If {spreadA} and {spreadB} do not reference the same named fragment, return
+  {false}.
+- Return {SameArguments(spreadA, spreadB)}.
+
+A {Variable} references a _fragment variable_ if the fragment definition in
+which it is used defines a variable of that name, otherwise it references an
+_operation variable_.
+
+When visiting fragments in {FieldsInSetCanMerge()}, a selection within a
+fragment definition is visited via the fragment spread which caused that
+fragment definition to be visited. A selection visited via more than one
+fragment spread is a distinct member of {spreadsForFragment} or {fieldsForName}
+for each. Each selection added to {mergedSet} from the selection set of a field
+is visited via the same fragment spread as that field, if any.
+
+Note: The value of a _fragment variable_ is specific to the fragment spread
+which provides it, so two selections with identical sets of arguments may still
+differ in value when those arguments reference a fragment variable.
+{SameVariableScope()} ensures that such selections were visited via fragment
+spreads of the same fragment which were themselves provided the same arguments.
 
 SameResponseShape(fieldA, fieldB):
 
@@ -727,7 +757,11 @@ fragment conflictingDifferingResponses on Pet {
 }
 ```
 
-Fragment spread arguments can also cause fields to fail to merge.
+Fragment spread arguments can also cause fields to fail to merge. A fragment is
+collected at most once for a given selection set, therefore any two fragment
+spreads of the same fragment which might both be encountered for that selection
+set are only valid if they have the same arguments. Unlike field selections,
+this applies regardless of the parent types of the fragment spreads.
 
 In the following, the arguments to {commandFragment} reference different
 variables and so cannot merge:
@@ -746,7 +780,7 @@ fragment potentiallyConflictingArguments(
 }
 
 query {
-  pet {
+  dog {
     ...potentiallyConflictingArguments(commandOne: SIT, commandTwo: DOWN)
   }
 }
@@ -767,9 +801,40 @@ fragment otherFragment($command: DogCommand!) on Dog {
 }
 
 query KnowsCommand($command: DogCommand!) {
-  pet {
+  dog {
     ...commandFragment(command: $command)
     ...otherFragment(command: DOWN)
+  }
+}
+```
+
+Arguments which reference the same _fragment variable_ definition can also
+differ in value when the selections are visited via different fragment spreads.
+In the following, both selections of `doesKnowCommand` within `pets` reference
+the ${command} variable defined by {commandAndOwnerPets}, however one is visited
+via the fragment spread providing `SIT` and the other via the fragment spread
+providing `DOWN`:
+
+```graphql counter-example
+fragment commandAndOwnerPets($command: DogCommand!) on Dog {
+  doesKnowCommand(dogCommand: $command)
+  owner {
+    pets {
+      ... on Dog {
+        doesKnowCommand(dogCommand: $command)
+      }
+    }
+  }
+}
+
+query {
+  dog {
+    ...commandAndOwnerPets(command: SIT)
+    owner {
+      pets {
+        ...commandAndOwnerPets(command: DOWN)
+      }
+    }
   }
 }
 ```
