@@ -115,8 +115,10 @@ CoerceVariableValues(schema, operation, variableValues):
 - Let {coercedValues} be an empty unordered Map.
 - Let {variablesDefinition} be the variables defined by {operation}.
 - For each {variableDefinition} in {variablesDefinition}:
-  - Let {variableName}, {variableType}, and {defaultValue} be the result of
-    {GetVariableSignature(variableDefinition)}.
+  - Let {variableName} be the name of {variableDefinition}.
+  - Let {variableType} be the expected type of {variableDefinition}.
+  - Assert: {IsInputType(variableType)} must be {true}.
+  - Let {defaultValue} be the default value for {variableDefinition}.
   - Let {hasValue} be {true} if {variableValues} provides a value for the name
     {variableName}.
   - Let {value} be the value provided in {variableValues} for the name
@@ -142,14 +144,6 @@ CoerceVariableValues(schema, operation, variableValues):
 - Return {coercedValues}.
 
 Note: This algorithm is very similar to {CoerceArgumentValues()}.
-
-GetVariableSignature(variableDefinition):
-
-- Let {variableName} be the name of {variableDefinition}.
-- Let {variableType} be the expected type of {variableDefinition}.
-- Assert: {IsInputType(variableType)} must be {true}.
-- Let {defaultValue} be the default value for {variableDefinition}.
-- Return {variableName}, {variableType}, and {defaultValue}.
 
 ## Executing Operations
 
@@ -304,8 +298,9 @@ CreateSourceEventStream(subscription, schema, variableValues, initialValue):
   selectionSet, variableValues)}.
 - If {collectedFieldsMap} does not have exactly one entry, raise a _request
   error_.
-- Let {fields} be the value of the first entry in {collectedFieldsMap}.
-- Let {fieldDetails} be the first entry in {fields}.
+- Let {fieldDetailsList} be the value of the first entry in
+  {collectedFieldsMap}.
+- Let {fieldDetails} be the first entry in {fieldDetailsList}.
 - Let {field} and {fragmentVariables} be the corresponding entries on
   {fieldDetails}.
 - Let {fieldName} be the name of {field}. Note: This value is unaffected if an
@@ -436,9 +431,9 @@ from a selection set via {CollectFields()} or from the selection sets of all
 entries of a _field set_ via {CollectSubfields()}.
 
 :: A _field set_ is an ordered set of selected fields that share the same
-_response name_ (the field alias if defined, otherwise the field's name).
-Validation ensures each field in the set has the same name and arguments,
-however each may have different subfields (see:
+_response name_ (the field alias if defined, otherwise the field's name), each
+represented by a _field detail_. Validation ensures each field in the set has
+the same name and arguments, however each may have different subfields (see:
 [Field Selection Merging](#sec-Field-Selection-Merging)).
 
 Note: The order of field selections in both a _collected fields map_ and a
@@ -468,6 +463,28 @@ fragment ExampleFragment on Query {
 The depth-first-search order of each _field set_ produced by {CollectFields()}
 is maintained through execution, ensuring that fields appear in the executed
 response in a stable and predictable order.
+
+The {CollectFields()} algorithm makes use of the following data types:
+
+:: The _fragment variable values_ of a fragment spread represent the variables
+in scope within the referenced fragment as a result of that fragment spread.
+They contain the following information:
+
+- {variableDefinitions}: the variable definitions of the fragment.
+- {values}: an unordered map of the coerced values for those variables, as
+  provided by the arguments of the fragment spread or by default values.
+
+:: A _field detail_ is used to correlate a field in a selection set with the
+variables in scope where that field was selected. It contains the following
+information:
+
+- {field}: the field selection.
+- {fragmentVariables}: the _fragment variable values_ of the fragment in which
+  the field was selected, if any.
+
+When collecting the fields of a selection set which is not within a fragment
+definition, {fragmentVariables} is not provided to {CollectFields()} and only an
+_operation variable_ may be referenced.
 
 CollectFields(objectType, selectionSet, variableValues, fragmentVariables,
 visitedFragments):
@@ -503,8 +520,8 @@ visitedFragments):
     - Let {fieldsForResponseName} be the _field set_ value in
       {collectedFieldsMap} for the key {responseName}; otherwise create the
       entry with an empty ordered set.
-    - Let {fieldDetails} be a new unordered map containing {fragmentVariables}.
-    - Set the entry for {field} on {fieldDetails} to {selection}.
+    - Let {fieldDetails} be a new _field detail_ with {field} set to {selection}
+      and {fragmentVariables} set to {fragmentVariables}.
     - Add {fieldDetails} to the {fieldsForResponseName}.
   - If {selection} is a {FragmentSpread}:
     - Let {fragmentSpreadName} be the name of {selection}.
@@ -518,15 +535,12 @@ visitedFragments):
     - Let {fragmentType} be the type condition on {fragment}.
     - If {DoesFragmentTypeApply(objectType, fragmentType)} is {false}, continue
       with the next {selection} in {selectionSet}.
-    - Let {variableDefinitions} be the variable definitions for {fragment}.
-    - Initialize {signatures} to an empty list.
-    - For each {variableDefinition} of {variableDefinitions}:
-      - Append the result of {GetVariableSignature(variableDefinition)} to
-        {signatures}.
-    - Let {argumentValues} be the arguments provided in {selection}.
-    - Let {values} be the result of {CoerceArgumentValues(signatures,
+    - Let {variableDefinitions} be the variable definitions of {fragment}.
+    - Let {argumentValues} be the argument values provided in {selection}.
+    - Let {values} be the result of {CoerceArgumentValues(variableDefinitions,
       argumentValues, variableValues, fragmentVariables)}.
-    - Let {newFragmentVariables} be an unordered map containing {signatures} and
+    - Let {newFragmentVariables} be new _fragment variable values_ with
+      {variableDefinitions} set to {variableDefinitions} and {values} set to
       {values}.
     - Let {fragmentSelectionSet} be the top-level selection set of {fragment}.
     - Let {fragmentCollectedFieldsMap} be the result of calling
@@ -573,9 +587,10 @@ directives may be applied in either order since they apply commutatively.
 GetScopedVariableValues(variableName, variableValues, fragmentVariables):
 
 - If {fragmentVariables} is provided:
-  - Let {signatures} and {values} be the corresponding entries on
+  - Let {variableDefinitions} and {values} be the corresponding entries on
     {fragmentVariables}.
-  - If an entry in {signatures} exists for {variableName}, return {values}.
+  - If {variableDefinitions} defines a variable named {variableName}, return
+    {values}.
 - Return {variableValues}.
 
 Note: A _fragment variable_ shadows an _operation variable_ of the same name
@@ -807,11 +822,15 @@ variableValues):
 
 ### Coercing Arguments
 
-Fields, directives, and fragment spreads may include arguments which are
-provided to the underlying runtime in order to correctly produce a value. For
-fields and directives, these arguments are defined by the field or directive in
-the type system to have a specific input type; for fragment spreads, the
-fragment definition within the document specifies the input type.
+Fields and directives may include arguments which are provided to the underlying
+runtime in order to correctly produce a value. These arguments are defined by
+the field or directive in the type system to have a specific input type.
+
+Fragment spreads may include arguments which provide a value for each _fragment
+variable_ of the referenced fragment. These arguments are defined by the
+variable definitions of that fragment within the document: when coercing the
+arguments of a fragment spread, each variable definition is used as the argument
+definition of the same name, providing its expected type and default value.
 
 At each argument position in an operation may be a literal {Value}, or a
 {Variable} to be provided at runtime.
@@ -878,9 +897,11 @@ value provided for its name in the result of
 {GetScopedVariableValues(variableName, variableValues, fragmentVariables)}; if
 no such value is provided, then no runtime value is provided for that variable.
 
-Note: Variable values are not coerced because they are expected to be coerced by
-{CoerceVariableValues()} before _operation execution_ begins, and valid
-operations must only allow usage of variables of appropriate types.
+Note: Variable values are not coerced because they are expected to have already
+been coerced: the value of an _operation variable_ by {CoerceVariableValues()}
+before _operation execution_ begins, and the value of a _fragment variable_ by
+{CoerceArgumentValues()} when its fragment spread is collected. Valid operations
+must only allow usage of variables of appropriate types.
 
 Note: Implementations are encouraged to optimize the coercion of an argument's
 default value by doing so only once and caching the resulting coerced value.
