@@ -167,7 +167,8 @@ include the error, and request execution should be halted.
 :: An _execution error_ is an error raised during the execution of a particular
 field which results in partial response data. This may occur due to failure to
 coerce the arguments for the field, an internal error during value resolution,
-or failure to coerce the resulting value.
+failure to coerce the resulting value, or failure to coerce the arguments of a
+fragment spread while collecting the subfields of the field.
 
 Note: In previous versions of this specification _execution error_ was called
 _field error_.
@@ -177,6 +178,11 @@ An execution error is typically the fault of a GraphQL service.
 An _execution error_ must occur at a specific _response position_, and may occur
 in any response position. The response position of an execution error is
 indicated via a _response path_ in the error response's {"path"} entry.
+
+The only exception is an execution error raised while collecting the root
+selection set, which does not occur at a _response position_ and results in the
+{"data"} entry being {null} (see
+[Handling Execution Errors](#sec-Handling-Execution-Errors)).
 
 When an execution error is raised at a given _response position_, then that
 response position must not be present within the _response_ {"data"} entry
