@@ -410,12 +410,13 @@ executionMode):
 
 - Let {collectedFieldsMap} be the result of {CollectFields(objectType,
   selectionSet, variableValues)}.
-- Let {data} be the result of running
+- If an _execution error_ was raised by {CollectFields()}, let {data} be {null}.
+- Otherwise, let {data} be the result of running
   {ExecuteCollectedFields(collectedFieldsMap, objectType, initialValue,
   variableValues)} _serially_ if {executionMode} is {"serial"}, otherwise
   _normally_ (allowing parallelization)).
-- Let {errors} be the list of all _execution error_ raised while executing the
-  selection set.
+- Let {errors} be the list of all _execution error_ raised while collecting and
+  executing the selection set.
 - Return an unordered map containing {data} and {errors}.
 
 ### Field Collection
@@ -1051,3 +1052,20 @@ position_ must resolve to {null}. If the `List` type is also wrapped in a
 If every _response position_ from the root of the request to the source of the
 execution error has a `Non-Null` type, then the {"data"} entry in the _execution
 result_ should be {null}.
+
+An execution error may also be raised while collecting the fields of a selection
+set, if the arguments of a fragment spread cannot be coerced (see
+[Coercing Arguments](#sec-Coercing-Arguments)). In this case none of the fields
+in that selection set are executed.
+
+If such an error is raised by {CollectSubfields()} during {CompleteValue()}, it
+is raised at the _response position_ whose value is being completed and is
+handled as described above.
+
+If such an error is raised while collecting the root selection set, it does not
+occur at a _response position_ and so has no _response path_: the {"data"} entry
+in the _execution result_ must be {null} and the error must be added to the
+{"errors"} list.
+
+Note: An error raised while collecting the root selection set of a subscription
+during {CreateSourceEventStream()} is a _request error_.
