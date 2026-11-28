@@ -973,7 +973,7 @@ fragment argOnOptional on Dog {
   isHouseTrained(atOtherHomes: true) @include(if: true)
 }
 
-fragment withFragmentArg($command: DogCommand) on Dog {
+fragment withFragmentArg($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
 
@@ -1007,7 +1007,7 @@ fragment invalidFragmentArgName on Dog {
   ...withFragmentArg(dogCommand: SIT)
 }
 
-fragment withFragmentArg($command: DogCommand) on Dog {
+fragment withFragmentArg($command: DogCommand!) on Dog {
   doesKnowCommand(dogCommand: $command)
 }
 ```
